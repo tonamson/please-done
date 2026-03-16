@@ -8,22 +8,22 @@ NC='\033[0m'
 
 COMMANDS_DIR="$HOME/.claude/commands/sk"
 
-echo -e "${YELLOW}Uninstalling skills...${NC}"
+printf "${YELLOW}Uninstalling skills...${NC}\n"
 
 # Remove skill symlinks
 if [ -d "$COMMANDS_DIR" ]; then
     rm -rf "$COMMANDS_DIR"
-    echo -e "${GREEN}  ✓ Removed skill commands${NC}"
+    printf "${GREEN}  ✓ Removed skill commands${NC}\n"
 fi
 
 # Remove MCP
 if command -v claude &> /dev/null; then
     claude mcp remove --scope user fastcode 2>/dev/null && \
-        echo -e "${GREEN}  ✓ Removed FastCode MCP${NC}" || \
-        echo -e "${YELLOW}  ⚠ FastCode MCP not found${NC}"
+        printf "${GREEN}  ✓ Removed FastCode MCP${NC}\n" || \
+        printf "${YELLOW}  ⚠ FastCode MCP not found${NC}\n"
 fi
 
 echo ""
-echo -e "${GREEN}Uninstall complete.${NC}"
-echo -e "FastCode source and venv still exist in this repo."
-echo -e "Delete this repo to fully remove everything."
+printf "${GREEN}Uninstall complete.${NC}\n"
+printf "FastCode source and venv still exist in this repo.\n"
+printf "Delete this repo to fully remove everything.\n"
