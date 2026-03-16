@@ -1,0 +1,3 @@
+[submodule "FastCode"]
+	path = FastCode
+	url = https://github.com/HKUDS/FastCode.git

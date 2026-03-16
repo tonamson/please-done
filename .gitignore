@@ -1,0 +1,14 @@
+# FastCode
+FastCode/.venv/
+FastCode/.env
+FastCode/data/
+FastCode/__pycache__/
+FastCode/**/__pycache__/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
