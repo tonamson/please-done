@@ -1,0 +1,6 @@
+# Pin critical ML packages to avoid NumPy/PyTorch version conflicts
+# Update these when confirmed working on a clean machine
+numpy>=2.4,<3
+torch>=2.10,<3
+sentence-transformers>=5.3,<6
+transformers>=5.3,<6
