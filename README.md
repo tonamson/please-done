@@ -7,7 +7,7 @@ Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển NestJS + 
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) (đã cài và đăng nhập)
 - Python 3.12+ (`python3 --version`)
 - Node.js 18+ với npm/npx (`node --version`)
-- Git (`git --version`)
+- Git (tùy chọn — nếu không có git, skills tự động bỏ qua bước commit)
 
 ## Cài đặt
 
@@ -66,7 +66,7 @@ cd /path/to/your/project
 | `/sk:scan` | Quét cấu trúc, dependencies, npm audit | init |
 | `/sk:roadmap` | Lập kế hoạch milestones + phases | init, scan |
 | `/sk:plan` | Thiết kế kỹ thuật + chia tasks cho phase | roadmap |
-| `/sk:write-code` | Viết code theo task, lint, build, commit | plan |
+| `/sk:write-code` | Viết code theo task, lint, build, commit (xem [options](#skwrite-code-options)) | plan |
 | `/sk:test` | Viết Jest tests, chạy, xác nhận (Backend only) | write-code |
 | `/sk:fix-bug` | Debug + fix + commit, lặp đến khi user xác nhận | - |
 | `/sk:complete-milestone` | Tổng kết, commit, tạo git tag | all tasks done |
@@ -77,6 +77,15 @@ cd /path/to/your/project
 |-------|--------|
 | `/sk:what-next` | Kiểm tra tiến trình, gợi ý command tiếp theo |
 | `/sk:fetch-doc` | Cache tài liệu từ URL kèm version + mục lục nhanh |
+
+### sk:write-code options
+
+| Lệnh | Hành vi |
+|-------|---------|
+| `/sk:write-code` | Pick task ⬜ tiếp theo, làm xong **dừng hỏi** |
+| `/sk:write-code --auto` | Làm **tất cả** tasks ⬜ trong phase liên tục |
+| `/sk:write-code 3` | Làm task số 3, xong dừng hỏi |
+| `/sk:write-code 3 --auto` | Bắt đầu từ task 3, chạy hết phase |
 
 ## Cấu trúc `.planning/`
 
@@ -127,7 +136,7 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ./uninstall.sh
 ```
 
-Xóa symlinks + MCP registrations. Giữ nguyên source code và venv.
+Xóa symlinks + FastCode MCP. Context7 MCP giữ nguyên (dùng chung với Cursor/IDE khác).
 
 ## Commit Conventions
 
@@ -139,6 +148,12 @@ Skills tự động commit với prefix tiếng Việt:
 | `[KIỂM THỬ]` | Thêm tests (test) |
 | `[LỖI]` | Fix bug (fix-bug) |
 | `[PHIÊN BẢN]` | Đóng milestone + git tag (complete-milestone) |
+
+## Lưu ý
+
+- **Không có git?** Skills tự động bỏ qua tất cả bước git add/commit/tag
+- **Chỉ có Frontend?** `sk:test` sẽ báo "chỉ hỗ trợ Backend" — các skill khác hoạt động bình thường
+- **Chỉ có Backend?** Bỏ qua phân tích frontend trong scan/plan/write-code
 
 ## Tech Stack hỗ trợ
 
