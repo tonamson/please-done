@@ -102,7 +102,7 @@ describe('UsersController', () => {
 - KHÔNG mock database nếu có test database
 
 ## Bước 5: Chạy test
-Đọc CONTEXT.md → xác định thư mục backend (Glob `nest-cli.json`):
+Đọc CONTEXT.md → xác định thư mục backend (Glob `**/nest-cli.json`):
 ```bash
 cd [đường-dẫn-backend] && npm test -- --verbose 2>&1
 ```
