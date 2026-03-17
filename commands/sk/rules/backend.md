@@ -36,4 +36,4 @@
 ## Build & Lint
 - Lint: `npx eslint src/ --fix`
 - Build: `npx nest build`
-- Detect thư mục: Glob `nest-cli.json` → thư mục chứa = backend root
+- Detect thư mục: Glob `**/nest-cli.json` → thư mục chứa = backend root

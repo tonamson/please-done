@@ -112,7 +112,8 @@ File: `[path]`
 
 ## Bước 8: Git commit
 ```
-git add [files đã sửa]
+git add [source code files đã sửa]
+git add .planning/bugs/BUG_[timestamp].md
 git commit -m "[LỖI] Khắc phục [tóm tắt lỗi ngắn gọn]
 
 Nguyên nhân: [nguyên nhân gốc]

@@ -56,4 +56,4 @@
 ## Build & Lint
 - Lint: `npx eslint --fix`
 - Build: `npx next build`
-- Detect thư mục: Glob `next.config.*` → thư mục chứa = frontend root
+- Detect thư mục: Glob `**/next.config.*` → thư mục chứa = frontend root

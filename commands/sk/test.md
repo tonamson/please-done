@@ -161,9 +161,15 @@ Test case: [tên test] | Đầu vào: [...] | Kỳ vọng: [...] | Thực tế: 
 ```
 Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone filter được.
 
-## Bước 9: Git commit
+## Bước 9: Cập nhật TASKS.md
+- Pass hết → giữ ✅
+- Có test fail → đổi 🐛, đề xuất `/sk:fix-bug`
+
+## Bước 10: Git commit
 ```
 git add [*.spec.ts files]
+git add .planning/milestones/[version]/phase-[phase]/TASKS.md
+git add .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
 git commit -m "[KIỂM THỬ] Thêm kiểm thử cho [module]
 
 Kiểm thử bao gồm:
@@ -171,10 +177,6 @@ Kiểm thử bao gồm:
 - [test case 2]: đầu vào [...] → kỳ vọng [...]
 Kết quả: X/Y đạt"
 ```
-
-## Bước 10: Cập nhật TASKS.md
-- Pass hết → giữ ✅
-- Có test fail → đổi 🐛, đề xuất `/sk:fix-bug`
 </process>
 
 <rules>
