@@ -46,7 +46,7 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
    - ✅ (hoàn tất) → đếm
    - ❌ (bị chặn) → ghi nhận task numbers
 
-3. **Đọc CODE_REPORT** → Glob `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
+3. **Đọc CODE_REPORT** → Glob `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
 
 4. **Đọc TEST_REPORT** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
 
