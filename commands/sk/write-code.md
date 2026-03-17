@@ -121,7 +121,12 @@ Mô tả: [Chi tiết task đã hoàn thành]
 Files: [danh sách files]"
 ```
 
-## Bước 9: Thông báo
+## Bước 9: Cập nhật ROADMAP (khi phase hoàn tất)
+Nếu phase hiện tại KHÔNG còn task ⬜ (tất cả ✅):
+- Đọc `.planning/ROADMAP.md` → tìm phase hiện tại (VD: `#### Phase 1.1:`)
+- Đánh dấu tất cả deliverables: `- [ ]` → `- [x]`
+
+## Bước 10: Thông báo
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ trong phase → hỏi tiếp tục task tiếp theo không
 - Nếu phase hiện tại hết task ⬜ → đề xuất:

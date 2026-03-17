@@ -160,9 +160,13 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 ### Ghi chú kỹ thuật
 ```
 
-## Bước 8: Cập nhật CURRENT_MILESTONE.md
-Cập nhật field `phase` trong `.planning/CURRENT_MILESTONE.md` thành phase vừa lên kế hoạch.
-Cập nhật field `status` → `Đang thực hiện` (nếu đang là `Chưa bắt đầu`).
+## Bước 8: Cập nhật tracking
+**CURRENT_MILESTONE.md:**
+- Cập nhật field `phase` thành phase vừa lên kế hoạch
+- Cập nhật field `status` → `Đang thực hiện` (nếu đang là `Chưa bắt đầu`)
+
+**ROADMAP.md:**
+- Tìm milestone hiện tại → cập nhật `Trạng thái: ⬜` → `Trạng thái: 🔄` (nếu đang là ⬜)
 
 ## Bước 9: Thông báo
 In tóm tắt plan + danh sách tasks cho user review.
