@@ -49,7 +49,8 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
 
 **Nếu lỗi liên quan đến thư viện** → tra cứu API qua Context7:
-- `mcp__context7__resolve_library_id` → `mcp__context7__get_library_docs` → kiểm tra đúng cách sử dụng API
+1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện, query: mô tả lỗi) → lấy library ID
+2. `mcp__context7__query-docs` (libraryId: ID, query: "cách sử dụng đúng [API/function]") → verify cú pháp
 - TỰ ĐỘNG tra cứu khi nghi ngờ sai cú pháp/config thư viện — KHÔNG cần user yêu cầu
 - Nếu Context7 MCP không có → dùng `.planning/docs/` hoặc knowledge sẵn có
 

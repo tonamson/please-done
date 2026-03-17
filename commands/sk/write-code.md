@@ -54,8 +54,8 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
 
 **Tra cứu API thư viện qua Context7** (nếu task dùng thư viện bên ngoài):
-1. `mcp__context7__resolve_library_id` → tìm library ID (VD: query "nestjs", "antd", "mongoose")
-2. `mcp__context7__get_library_docs` → lấy docs đúng version, đọc API/usage/examples
+1. `mcp__context7__resolve-library-id` (libraryName: "nestjs", query: "mô tả ngắn task") → lấy Context7 library ID
+2. `mcp__context7__query-docs` (libraryId: ID từ bước 1, query: "câu hỏi cụ thể về API cần dùng") → lấy docs đúng version
 - **TỰ ĐỘNG tra cứu** khi task cần dùng API của thư viện — KHÔNG cần user yêu cầu
 - Ưu tiên Context7 hơn đoán API từ memory — đảm bảo đúng version + đúng cú pháp
 - Nếu Context7 MCP không có → dùng `.planning/docs/` (từ `/sk:fetch-doc`) hoặc knowledge sẵn có

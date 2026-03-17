@@ -58,7 +58,8 @@ Dùng FastCode cho câu hỏi broad. Sau đó dùng Grep/Read verify chi tiết 
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
 
 **Tra cứu API thư viện qua Context7** (nếu deliverable dùng thư viện cần research):
-- `mcp__context7__resolve_library_id` → `mcp__context7__get_library_docs` → đọc API, patterns, config
+1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện, query: mô tả nhu cầu) → lấy library ID
+2. `mcp__context7__query-docs` (libraryId: ID, query: câu hỏi API cụ thể) → lấy docs đúng version
 - TỰ ĐỘNG tra cứu khi thiết kế cần dùng API thư viện — KHÔNG cần user yêu cầu
 - Nếu Context7 MCP không có → dùng `.planning/docs/` hoặc knowledge sẵn có
 
