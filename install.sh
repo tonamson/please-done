@@ -40,7 +40,7 @@ printf "${GREEN}  ✓ Python $PYTHON_VERSION ($PYTHON_CMD)${NC}\n"
 
 if ! command -v uv &> /dev/null; then
     printf "${YELLOW}  → Installing uv...${NC}\n"
-    curl -LsSf https://astral.sh/uv/install.sh | sh 2>/dev/null || pip3 install uv --break-system-packages 2>/dev/null || pip3 install uv
+    curl -LsSf https://astral.sh/uv/install.sh | sh || pip3 install uv --break-system-packages || pip3 install uv
     export PATH="$HOME/.local/bin:$PATH"
 fi
 printf "${GREEN}  ✓ uv package manager${NC}\n"
@@ -70,7 +70,7 @@ printf "${YELLOW}[3/6] Setting up Python environment...${NC}\n"
 
 cd "$FASTCODE_DIR"
 if [ ! -d ".venv" ]; then
-    uv venv --python=3.12 2>/dev/null || uv venv --python=3.13 2>/dev/null || uv venv
+    uv venv --python=3.12 || uv venv --python=3.13 || uv venv
     printf "${GREEN}  ✓ Virtual environment created${NC}\n"
 else
     printf "${GREEN}  ✓ Virtual environment exists${NC}\n"
