@@ -35,6 +35,14 @@ Gọi `mcp__fastcode__list_indexed_repos` để kiểm tra MCP server:
   > 3. Đã khởi động lại Claude Code sau khi cài chưa?
   > Chạy lại `/sk:init` sau khi khắc phục."
 
+## Bước 2.5: Kiểm tra CONTEXT.md hiện có
+Nếu `.planning/CONTEXT.md` đã tồn tại:
+- Thông báo: "Đã có CONTEXT.md từ session trước. Bạn muốn:
+  1. Giữ nguyên và bỏ qua init
+  2. Khởi tạo lại từ đầu"
+- Nếu giữ → thông báo ngắn: "Giữ nguyên CONTEXT.md hiện có. Môi trường sẵn sàng." kèm gợi ý `/sk:scan` hoặc `/sk:what-next`. KHÔNG chạy tiếp các bước sau.
+- Nếu khởi tạo lại → tiếp tục Bước 3 bình thường
+
 ## Bước 3: Kiểm tra project có code chưa
 Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning) — KHÔNG bao gồm `.json` vì `package.json` alone không phải source code:
 - **CÓ source files** → `isNewProject = false`, tiếp tục Bước 3a

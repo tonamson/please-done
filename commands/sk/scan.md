@@ -27,7 +27,7 @@ Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning — KH
 - **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
   - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
   - Trạng thái hoàn thành: "Chưa bắt đầu"
-  - KHÔNG chạy Bước 3, 4
+  - KHÔNG chạy Bước 3, 4, 6 (không có code → không cần re-detect hay cập nhật CONTEXT)
 - **CÓ source files** → tiếp tục quét bình thường
 
 ## Bước 2a: Quét cấu trúc bằng built-in tools
@@ -131,8 +131,32 @@ Entities | Quan hệ | Migrations (ghi rõ Prisma/Mongoose)
 
 **CHỈ tạo sections có dữ liệu.** Bỏ section rỗng không liên quan.
 
-## Bước 6: Thông báo
-In tóm tắt kết quả cho user.
+## Bước 6: Cập nhật CONTEXT.md + Rules
+Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản ánh trạng thái hiện tại:
+
+1. **Re-detect tech stack**:
+   - Glob `**/nest-cli.json` → hasBackend
+   - Glob `**/next.config.*` → hasFrontend
+   - Grep `MongooseModule|TypeOrmModule|PrismaService` → DB type
+
+2. **Cập nhật CONTEXT.md** (giữ format gốc từ init, DƯỚI 50 dòng):
+   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files)
+   - Thêm/cập nhật dòng `> Cập nhật: [DD_MM_YYYY HH:MM]` (ngay sau dòng `Khởi tạo`)
+   - Tech Stack: cập nhật theo kết quả scan mới
+   - Thư viện chính: cập nhật từ package.json hiện tại (tối đa 20 dòng, bỏ devDeps)
+   - Milestone hiện tại: giữ nguyên (nếu có)
+   - Rules: cập nhật danh sách rules files thực tế trong `.planning/rules/`
+
+3. **Re-copy rules nếu tech stack thay đổi**:
+   So sánh hasBackend/hasFrontend mới với tech stack cũ trong CONTEXT.md:
+   - Nếu KHÁC (VD: thêm frontend mới, xóa backend):
+     - Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`
+     - Nếu `.skconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .skconfig"
+     - Nếu CÓ → xóa rules cũ trong `.planning/rules/` → copy lại rules phù hợp (general + backend/frontend theo stack mới)
+   - Nếu GIỐNG → không cần copy lại
+
+## Bước 7: Thông báo
+In tóm tắt kết quả cho user. Nếu CONTEXT.md hoặc rules đã được cập nhật → thông báo rõ.
 </process>
 
 <rules>
@@ -146,4 +170,6 @@ In tóm tắt kết quả cho user.
 - Phân tích Frontend CHỈ khi tồn tại `next.config.*` — bỏ qua nếu project không có frontend
 - Phân tích Backend CHỈ khi tồn tại `nest-cli.json` — bỏ qua nếu project không có backend
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
+- PHẢI cập nhật CONTEXT.md sau khi quét — đảm bảo context luôn phản ánh trạng thái hiện tại của dự án
+- Nếu tech stack thay đổi so với CONTEXT.md cũ → PHẢI re-copy rules tương ứng vào `.planning/rules/`
 </rules>

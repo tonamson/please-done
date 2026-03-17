@@ -34,8 +34,8 @@ Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông
 ## Bước 1.5: Kiểm tra phase đã tồn tại
 Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
 - Đọc TASKS.md → kiểm tra có task ✅ hoặc 🔄 không
-- Nếu CÓ tasks đã hoàn thành → **CẢNH BÁO**:
-  > "Phase [x.x] đã có plan với [N] task hoàn thành. Bạn muốn:
+- Nếu CÓ tasks đã hoàn thành (✅) hoặc đang thực hiện (🔄) → **CẢNH BÁO**:
+  > "Phase [x.x] đã có plan với tiến trình ([N1] ✅ hoàn tất, [N2] 🔄 đang làm). Bạn muốn:
   > 1. LÊN KẾ HOẠCH LẠI phase này (ghi đè)
   > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP]
   > 3. HỦY"

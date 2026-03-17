@@ -31,7 +31,9 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
   - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có tasks. Chạy `/sk:plan` trước."
 - Đọc PLAN.md → thiết kế kỹ thuật, API endpoints, request/response format
-- Nếu `$ARGUMENTS` chỉ định task → test riêng task đó
+- Nếu `$ARGUMENTS` chỉ định task → kiểm tra trạng thái task đó:
+  - ✅ → test riêng task đó
+  - KHÔNG ✅ (⬜/🔄/❌/🐛) → **DỪNG**, thông báo: "Task [N] chưa hoàn tất (trạng thái: [icon]). Chỉ test được task có trạng thái ✅. Chạy `/sk:write-code [N]` trước."
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
 - **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/sk:write-code` trước."

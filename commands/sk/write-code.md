@@ -39,13 +39,17 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
 
 Chọn task:
+- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/sk:test` (nếu có Backend), `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
   - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?"
   - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/sk:fix-bug` thay vì viết lại code."
-- Nếu không → ưu tiên task 🔄 (resume task đang dở) trước, nếu không có thì task tiếp theo ⬜ (không bị ❌ hoặc 🐛)
-- **Nếu TẤT CẢ tasks còn lại bị ❌ hoặc 🐛**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
+- Nếu không → ưu tiên task 🔄 (resume task đang dở) trước, nếu không có thì task tiếp theo ⬜ theo thứ tự:
+  - Task ⬜ có `Phụ thuộc: Không` hoặc tất cả dependencies đã ✅ → **sẵn sàng**, pick task này
+  - Task ⬜ nhưng Phụ thuộc task chưa ✅ (⬜/🔄/❌/🐛) → **bỏ qua**, tìm task ⬜ tiếp theo
+  - Bỏ qua tasks ❌ hoặc 🐛
+- **Nếu TẤT CẢ tasks còn lại bị ❌, 🐛, hoặc bị chặn bởi dependency chưa ✅**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
 
 Cập nhật trạng thái → 🔄
 
@@ -241,7 +245,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ### Chế độ `--auto` (tuần tự)
 Còn task 🔄 hoặc ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
 - Hết task 🔄 và ⬜ (tất cả ✅) → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/sk:test`, `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`"
-- **TẤT CẢ tasks 🔄/⬜ còn lại đều bị ❌ hoặc 🐛** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/sk:fix-bug`
+- **TẤT CẢ tasks còn lại đều bị ❌, 🐛, hoặc ⬜ nhưng bị chặn bởi dependency chưa ✅** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/sk:fix-bug`
 - Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
 - Nếu lint/build được skip (project chưa setup build tools) → tiếp tục task tiếp theo bình thường
 

@@ -76,17 +76,21 @@ Viết `.planning/ROADMAP.md`:
 ## Rủi ro & Lưu ý
 ```
 
-## Bước 7: Tạo tracking
-Tạo `.planning/CURRENT_MILESTONE.md`:
+## Bước 7: Tạo/cập nhật tracking
+**Nếu "GHI ĐÈ" hoặc CURRENT_MILESTONE.md chưa tồn tại:**
+Tạo `.planning/CURRENT_MILESTONE.md` pointing tới milestone ĐẦU TIÊN trong ROADMAP mới:
 ```markdown
 # Milestone hiện tại
 - milestone: [tên]
 - version: [x.x]
-- phase: 1.1
+- phase: [phase đầu tiên, VD: 1.1]
 - status: Chưa bắt đầu
 ```
 
-Tạo thư mục `.planning/milestones/[version]/`
+**Nếu "VIẾT TIẾP" VÀ CURRENT_MILESTONE.md đã tồn tại:**
+Giữ nguyên CURRENT_MILESTONE.md (KHÔNG ghi đè) — milestone hiện tại vẫn đang hoạt động.
+
+Tạo thư mục `.planning/milestones/[version]/` cho TẤT CẢ milestones mới trong ROADMAP (nếu chưa có).
 
 ## Bước 8: Thông báo
 In tóm tắt roadmap cho user review.
