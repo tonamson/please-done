@@ -30,6 +30,8 @@ Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (BẮT BUỘC)
 
 Kiểm tra: tất cả tasks trong MỌI phase đều ✅? Nếu có TEST_REPORT → tất cả tests đạt?
+- Nếu có tasks CHƯA hoàn tất (⬜, 🔄, ❌, 🐛) → **CHẶN**:
+  > "Không thể hoàn tất. Còn [X] tasks chưa ✅ trong milestone v[x.x]. Chạy `/sk:write-code` hoặc `/sk:fix-bug` trước."
 
 **Cross-check với ROADMAP**: Đọc `.planning/ROADMAP.md` → liệt kê TẤT CẢ phases định nghĩa cho milestone này. So sánh với phase directories thực tế tìm được. Nếu ROADMAP có phase chưa được plan (không có thư mục tương ứng) → **CHẶN**:
 > "Milestone v[x.x] có [N] phases trong ROADMAP nhưng chỉ [M] phases đã triển khai. Phases thiếu: [danh sách]. Chạy `/sk:plan [phase]` trước hoặc xác nhận bỏ qua."

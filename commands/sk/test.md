@@ -25,6 +25,8 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - **Nếu project KHÔNG có Backend** (chỉ có Frontend): DỪNG, thông báo "Skill test chỉ hỗ trợ Backend NestJS. Project này không có backend."
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
+- Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
 - Đọc `.planning/milestones/[version]/phase-[phase]/PLAN.md` → thiết kế kỹ thuật, API endpoints, request/response format
 - Nếu `$ARGUMENTS` chỉ định task → test riêng task đó
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test

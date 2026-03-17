@@ -24,6 +24,8 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 ## Bước 1: Xác định task
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn task để thực hiện."
+- Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
 - Đọc `.planning/milestones/[version]/phase-[phase]/PLAN.md` → thiết kế kỹ thuật
 - Đọc `.planning/milestones/[version]/phase-[phase]/TASKS.md` → danh sách tasks
 
