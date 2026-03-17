@@ -1,0 +1,119 @@
+---
+name: sk:what-next
+description: Kiểm tra tiến trình dự án, gợi ý command tiếp theo khi quên hoặc bị gián đoạn
+---
+
+<objective>
+Quét trạng thái toàn bộ .planning/ để xác định công việc đang dở hoặc bước tiếp theo. Hiển thị tiến trình + gợi ý chính xác command cần chạy.
+</objective>
+
+<context>
+User input: $ARGUMENTS (không cần)
+
+Skill này KHÔNG cần đọc rules — chỉ đọc trạng thái planning files.
+Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob).
+</context>
+
+<process>
+
+## Bước 1: Kiểm tra nền tảng
+Đọc lần lượt (dừng ở điểm THIẾU đầu tiên):
+
+1. `.planning/CONTEXT.md` → tồn tại?
+   - KHÔNG → gợi ý `/sk:init`, DỪNG
+2. `.planning/scan/SCAN_REPORT.md` → tồn tại?
+   - KHÔNG → gợi ý `/sk:scan`
+3. `.planning/ROADMAP.md` → tồn tại?
+   - KHÔNG → gợi ý `/sk:roadmap`, DỪNG
+4. `.planning/CURRENT_MILESTONE.md` → đọc `version`, `phase`, `status`
+   - status = `Hoàn tất toàn bộ` → thông báo "Tất cả milestones đã hoàn tất!", DỪNG
+
+## Bước 2: Kiểm tra bugs đang mở
+Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
+- Grep dòng `> Trạng thái:` → tìm bugs có trạng thái **Chưa xử lý** hoặc **Đang sửa**
+- Nếu CÓ bugs mở → ghi nhận danh sách (sẽ báo ở Bước 4)
+
+## Bước 3: Kiểm tra tiến trình phase hiện tại
+Đọc version + phase từ CURRENT_MILESTONE.md:
+
+1. **Chưa có plan?** Glob `.planning/milestones/[version]/phase-[phase]/TASKS.md`
+   - KHÔNG tồn tại → gợi ý `/sk:plan`, DỪNG
+
+2. **Đọc TASKS.md** → đếm theo trạng thái:
+   - 🔄 (đang thực hiện) → ghi nhận task numbers
+   - ⬜ (chưa bắt đầu) → ghi nhận task numbers
+   - 🐛 (có lỗi) → ghi nhận task numbers
+   - ✅ (hoàn tất) → đếm
+   - ❌ (bị chặn) → ghi nhận task numbers
+
+3. **Đọc CODE_REPORT** → Glob `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
+
+4. **Đọc TEST_REPORT** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
+
+## Bước 4: Phân tích + gợi ý
+Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo **thứ tự ưu tiên** (chỉ gợi ý 1 hành động chính):
+
+### Ưu tiên 1: Có bugs đang mở
+> 🐛 Có [X] bug chưa giải quyết.
+> → Chạy `/sk:fix-bug` để xử lý
+
+### Ưu tiên 2: Có task đang làm dở (🔄)
+> 🔄 Task [N]: [tên] đang thực hiện.
+> → Chạy `/sk:write-code [N]` để tiếp tục
+
+### Ưu tiên 3: Có task bị lỗi (🐛)
+> 🐛 Task [N]: [tên] có lỗi cần sửa.
+> → Chạy `/sk:fix-bug` để debug
+
+### Ưu tiên 4: Còn task chưa bắt đầu (⬜)
+> ⬜ Còn [X] tasks chưa bắt đầu trong phase [x.x].
+> → Chạy `/sk:write-code` để pick task tiếp theo
+
+### Ưu tiên 5: Tất cả tasks ✅ nhưng chưa test
+Chỉ áp dụng nếu project CÓ Backend (đọc CONTEXT.md → Tech Stack):
+> ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report.
+> → Chạy `/sk:test` để kiểm thử
+
+### Ưu tiên 6: Phase hiện tại hoàn tất, còn phases tiếp theo
+Đọc ROADMAP.md → kiểm tra milestone hiện tại còn phases chưa plan:
+> ✅ Phase [x.x] hoàn tất. Milestone còn phase [y.y] chưa triển khai.
+> → Chạy `/sk:plan [y.y]` để lên kế hoạch phase tiếp
+
+### Ưu tiên 7: Tất cả phases hoàn tất → sẵn sàng đóng milestone
+> ✅ Tất cả phases trong milestone v[x.x] đã hoàn tất.
+> → Chạy `/sk:complete-milestone` để đóng phiên bản
+
+## Bước 5: Hiển thị báo cáo
+```
+╔══════════════════════════════════════╗
+║         TIẾN TRÌNH DỰ ÁN            ║
+╠══════════════════════════════════════╣
+║ Milestone: [tên] (v[x.x])          ║
+║ Phase:     [x.x] - [tên phase]     ║
+║ Trạng thái:                         ║
+║   ✅ [N] hoàn tất                   ║
+║   🔄 [N] đang làm                  ║
+║   ⬜ [N] chưa bắt đầu              ║
+║   🐛 [N] có lỗi                    ║
+║   ❌ [N] bị chặn                   ║
+║ Bugs mở: [N]                       ║
+╠══════════════════════════════════════╣
+║ 👉 GỢI Ý: [command gợi ý]         ║
+║    [mô tả ngắn lý do]              ║
+╚══════════════════════════════════════╝
+```
+
+Nếu không có SCAN_REPORT nhưng có ROADMAP → thêm dòng gợi ý phụ:
+> 💡 Nên chạy `/sk:scan` để cập nhật báo cáo quét dự án.
+
+</process>
+
+<rules>
+- KHÔNG gọi FastCode MCP — chỉ dùng Read/Glob để đọc planning files
+- KHÔNG sửa bất kỳ file nào — chỉ đọc và báo cáo
+- KHÔNG cần CONTEXT.md để chạy — nếu thiếu thì gợi ý `/sk:init`
+- Chỉ gợi ý 1 hành động chính (ưu tiên cao nhất), có thể kèm gợi ý phụ
+- Hiển thị task đang dở (🔄) với số thứ tự + tên cụ thể để user dễ tiếp tục
+- Hiển thị bugs mở với mô tả ngắn
+- Tuân thủ format ngày tháng DD_MM_YYYY từ general.md
+</rules>
