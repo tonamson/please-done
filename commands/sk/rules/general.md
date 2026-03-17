@@ -18,7 +18,8 @@
 ## Version
 - Số thuần trong path (1.0), prefix v khi hiển thị (v1.0)
 
-## Commit message
+## Git & Commit
+- Kiểm tra project có git không (Bash: `git rev-parse --git-dir 2>/dev/null`). Nếu KHÔNG có git → **BỎ QUA** tất cả bước git add/commit/tag trong mọi skill
 - Format: `[TASK-N]`, `[KIỂM THỬ]`, `[LỖI]`, `[PHIÊN BẢN]` - tiếng Việt có dấu
 
 ## Bảo mật
