@@ -170,6 +170,8 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 git add [*.spec.ts files]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
+# Nếu có bug report từ Bước 8:
+git add .planning/bugs/BUG_[timestamp].md
 git commit -m "[KIỂM THỬ] Thêm kiểm thử cho [module]
 
 Kiểm thử bao gồm:
