@@ -109,7 +109,7 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 
 | MCP | Vai trò | Bắt buộc |
 |-----|---------|----------|
-| **FastCode** | Index + phân tích code dự án | Co |
+| **FastCode** | Index + phân tích code dự án | Có |
 | **Context7** | Tra cứu API docs thư viện đúng version | Không (nhưng nên có) |
 
 ### Kiểm tra MCP hoạt động
