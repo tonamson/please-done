@@ -30,7 +30,11 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Đọc `.planning/milestones/[version]/phase-[phase]/TASKS.md` → danh sách tasks
 
 Chọn task:
-- Nếu `$ARGUMENTS` chỉ định task number → dùng task đó
+- Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
+  - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
+  - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
+  - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?"
+  - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/sk:fix-bug` thay vì viết lại code."
 - Nếu không → task tiếp theo ⬜ không bị ❌ hoặc 🐛
 - **Nếu TẤT CẢ tasks còn lại bị ❌ hoặc 🐛**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
 
