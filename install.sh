@@ -78,7 +78,6 @@ fi
 
 source .venv/bin/activate
 uv pip install -r requirements.txt
-uv pip install -r "$SCRIPT_DIR/requirements-pins.txt"
 printf "${GREEN}  ✓ Dependencies installed${NC}\n"
 
 # ─── Step 4: Setup .env + Gemini API Key ─────────────────
