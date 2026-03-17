@@ -88,7 +88,7 @@ Tạo/cập nhật `.planning/CHANGELOG.md`:
 ```
 
 ## Bước 6: Cập nhật ROADMAP.md
-Đánh dấu milestone: Hoàn tất
+Tìm milestone hiện tại trong ROADMAP → cập nhật `Trạng thái: 🔄` → `Trạng thái: ✅`
 
 ## Bước 7: Cập nhật CURRENT_MILESTONE.md
 Đọc ROADMAP.md → tìm milestone tiếp theo + phase đầu tiên của milestone đó.
