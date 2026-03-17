@@ -142,6 +142,12 @@ for file in "$SCRIPT_DIR/commands/sk/"*.md; do
     printf "${GREEN}  ✓ /sk:${filename%.md}${NC}\n"
 done
 
+# Symlink rules directory
+if [ -d "$SCRIPT_DIR/commands/sk/rules" ]; then
+    ln -sfn "$SCRIPT_DIR/commands/sk/rules" "$COMMANDS_DIR/rules"
+    printf "${GREEN}  ✓ Rules directory linked${NC}\n"
+fi
+
 # ─── Step 6: Register MCP server ────────────────────────
 echo ""
 printf "${YELLOW}[6/6] Registering FastCode MCP server...${NC}\n"
@@ -167,7 +173,8 @@ printf "${CYAN}╔════════════════════�
 printf "${CYAN}║         Installation Complete!        ║${NC}\n"
 printf "${CYAN}╚══════════════════════════════════════╝${NC}\n"
 echo ""
-printf "Skills installed (9):\n"
+SKILL_COUNT=$(ls -1 "$COMMANDS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
+printf "Skills installed ($SKILL_COUNT):\n"
 printf "  /sk:init               Khởi tạo (CHẠY ĐẦU TIÊN)\n"
 printf "  /sk:scan               Quét dự án + npm audit\n"
 printf "  /sk:roadmap            Lập lộ trình\n"

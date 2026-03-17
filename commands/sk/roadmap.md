@@ -10,8 +10,11 @@ Lập kế hoạch chiến lược tổng thể, tạo roadmap với milestones,
 <context>
 User input: $ARGUMENTS
 
-Đọc `.planning/CONTEXT.md` (đã tạo bởi /sk:init).
-Nếu chưa có → thông báo chạy `/sk:init` trước.
+Đọc:
+- `.planning/CONTEXT.md` (đã tạo bởi /sk:init)
+- `.planning/rules/general.md` → ngôn ngữ, ngày tháng, version format, icons
+
+Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 </context>
 
 <process>
@@ -88,9 +91,11 @@ In tóm tắt roadmap cho user review.
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong CONTEXT.md (ngôn ngữ, ngày tháng, version, bảo mật)
+- Tuân thủ quy tắc trong `.planning/rules/general.md` (ngôn ngữ, ngày tháng, version, bảo mật)
 - Milestones thực tế, ưu tiên core features trước
-- Backend API đi trước Frontend
+- Nếu có cả Backend + Frontend: Backend API trước khi Frontend consume API đó
+- Frontend-only features (UI, SEO, layout) được lên kế hoạch độc lập, KHÔNG cần chờ backend
+- Nếu project chỉ có Frontend hoặc chỉ có Backend: lên kế hoạch theo stack có sẵn
 - Auth/Security luôn trong milestone đầu
 - KHÔNG gọi FastCode cho thông tin đã có trong scan report
 - PHẢI tạo thư mục milestones/[version]/ khi tạo roadmap

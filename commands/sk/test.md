@@ -10,19 +10,26 @@ Viết test files (.spec.ts) dùng Jest + Supertest cho NestJS. Test với dữ 
 <context>
 User input: $ARGUMENTS
 
-Đọc `.planning/CONTEXT.md` → tech stack, database type, coding style.
-Nếu chưa có → thông báo chạy `/sk:init` trước.
+Đọc:
+- `.planning/CONTEXT.md` → tech stack, database type
+- `.planning/rules/general.md` → quy tắc chung
+- `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint
+
+Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 </context>
 
 <process>
 
 ## Bước 1: Xác định scope + đọc context
-- Đọc `.planning/CURRENT_MILESTONE.md` → version
-- Đọc `.planning/milestones/[version]/PLAN.md` → thiết kế kỹ thuật, API endpoints, request/response format
+- Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
+- **Nếu project KHÔNG có Backend** (chỉ có Frontend): DỪNG, thông báo "Skill test chỉ hỗ trợ Backend NestJS. Project này không có backend."
+- Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
+- Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
+- Đọc `.planning/milestones/[version]/phase-[phase]/PLAN.md` → thiết kế kỹ thuật, API endpoints, request/response format
 - Nếu `$ARGUMENTS` chỉ định task → test riêng task đó
-- Nếu không → đọc TASKS.md + CODE_REPORT_TASK_*.md để lấy tất cả endpoints/features cần test
+- Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
-- CONTEXT.md đã chứa đầy đủ coding conventions cho .spec.ts
+- `.planning/rules/backend.md` chứa coding conventions cho .spec.ts
 
 ## Bước 2: Kiểm tra test infrastructure
 Kiểm tra Jest config + dependencies (`@nestjs/testing`, `supertest`, `jest`).
@@ -39,52 +46,52 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 
 ### Cấu trúc mẫu:
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing'
-import { INestApplication } from '@nestjs/common'
-import * as request from 'supertest'
-import { AppModule } from '../../app.module'
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../../app.module';
 
 describe('UsersController', () => {
-    let app: INestApplication
+  let app: INestApplication;
 
-    beforeAll(async () => {
-        const moduleFixture: TestingModule = await Test.createTestingModule({
-            imports: [AppModule],
-        }).compile()
-        app = moduleFixture.createNestApplication()
-        await app.init()
-    })
+  beforeAll(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
 
-    afterAll(async () => {
-        await app.close()
-    })
+  afterAll(async () => {
+    await app.close();
+  });
 
-    describe('POST /api/users', () => {
-        /** Tạo người dùng mới thành công */
-        it('trả về 201 khi dữ liệu hợp lệ', async () => {
-            const duLieuVao = {
-                email: `test_${Date.now()}@test.com`,
-                name: 'Nguyễn Văn A',
-                password: 'MatKhau123!',
-            }
-            const response = await request(app.getHttpServer())
-                .post('/api/users')
-                .send(duLieuVao)
-                .expect(201)
+  describe('POST /api/users', () => {
+    /** Tạo người dùng mới thành công */
+    it('trả về 201 khi dữ liệu hợp lệ', async () => {
+      const duLieuVao = {
+        email: `test_${Date.now()}@test.com`,
+        name: 'Nguyễn Văn A',
+        password: 'MatKhau123!',
+      };
+      const response = await request(app.getHttpServer())
+        .post('/api/users')
+        .send(duLieuVao)
+        .expect(201);
 
-            expect(response.body.email).toBe(duLieuVao.email)
-            expect(response.body.password).toBeUndefined()
-        })
+      expect(response.body.email).toBe(duLieuVao.email);
+      expect(response.body.password).toBeUndefined();
+    });
 
-        /** Trả lỗi khi thiếu email */
-        it('trả về 400 khi thiếu trường bắt buộc', async () => {
-            await request(app.getHttpServer())
-                .post('/api/users')
-                .send({ name: 'Thiếu email' })
-                .expect(400)
-        })
-    })
-})
+    /** Trả lỗi khi thiếu email */
+    it('trả về 400 khi thiếu trường bắt buộc', async () => {
+      await request(app.getHttpServer())
+        .post('/api/users')
+        .send({ name: 'Thiếu email' })
+        .expect(400);
+    });
+  });
+});
 ```
 
 ### Quy tắc viết test:
@@ -95,8 +102,9 @@ describe('UsersController', () => {
 - KHÔNG mock database nếu có test database
 
 ## Bước 5: Chạy test
+Đọc CONTEXT.md → xác định thư mục backend (Glob `nest-cli.json`):
 ```bash
-npm test -- --verbose 2>&1
+cd [đường-dẫn-backend] && npm test -- --verbose 2>&1
 ```
 
 Hiển thị kết quả:
@@ -122,7 +130,7 @@ Tổng: X/Y đạt
 Cho phép xác nhận batch.
 
 ## Bước 7: TEST_REPORT.md
-Viết `.planning/milestones/[version]/TEST_REPORT.md`:
+Viết `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
 
 ```markdown
 # Báo cáo kiểm thử
@@ -170,7 +178,7 @@ Kết quả: X/Y đạt"
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong CONTEXT.md (ngôn ngữ, ngày tháng, bảo mật)
+- Tuân thủ quy tắc trong `.planning/rules/` (ngôn ngữ, ngày tháng, bảo mật)
 - PHẢI viết .spec.ts commit vào repo - KHÔNG chỉ chạy CURL
 - Dùng Jest + @nestjs/testing + Supertest (chuẩn ngành)
 - Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG

@@ -22,7 +22,10 @@ VD: /sk:fetch-doc https://docs.nestjs.com/guards nestjs-guards
   - Nếu CHƯA CÓ CONTEXT.md → DỪNG, thông báo chạy `/sk:init` trước
 - URL hợp lệ? Nếu không → hỏi user
 - Tên file: user cung cấp hoặc trích xuất từ URL (`docs.nestjs.com/guards` → `nestjs-guards`)
-- Đọc `package.json` → version thư viện đang dùng (VD: `"@nestjs/core": "^10.3.0"` → `10.3.0`)
+- Đọc `package.json` đúng thư mục → version thư viện đang dùng (VD: `"@nestjs/core": "^10.3.0"` → `10.3.0`)
+  - URL thuộc NestJS/backend → đọc backend `package.json` (Glob `**/nest-cli.json` → cùng thư mục)
+  - URL thuộc NextJS/antd/React → đọc frontend `package.json` (Glob `**/next.config.*` → cùng thư mục)
+  - Không xác định được → đọc cả hai, tìm thư viện phù hợp
 
 ## Bước 2: Kiểm tra doc đã tồn tại
 Kiểm tra `.planning/docs/[tên].md`:
