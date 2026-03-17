@@ -111,6 +111,10 @@ Nguyên tắc:
 6. Mỗi task: atomic, tối đa 5-7 files, tiêu chí chấp nhận rõ ràng
 7. Ghi rõ **Loại** mỗi task: `Backend` | `Frontend` | `Fullstack` | `[Stack khác]`
 8. **Stack khác** (Chrome extension, CLI, v.v.): thứ tự theo đặc thù stack (VD: config/manifest trước → core logic → UI)
+9. **Dependency chính xác** cho parallel execution: cột `Phụ thuộc` PHẢI ghi rõ task number cụ thể (VD: `Task 1`) — KHÔNG ghi "Không" nếu task thực sự cần dùng function/module từ task trước. Phân biệt:
+   - **Phụ thuộc code**: task B import/dùng function task A tạo → ghi `Task A`
+   - **Phụ thuộc design**: task Frontend dùng response shape từ PLAN.md (không cần code thực) → ghi `Không` (parallel-safe)
+   - **Phụ thuộc file**: task B sửa cùng file task A → ghi `Task A (shared file)`
 
 ## Bước 6: Tạo PLAN.md
 Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
@@ -149,6 +153,8 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 ## Lưu ý kỹ thuật
 ```
 
+**CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan đến stack (VD: bỏ API Endpoints nếu không có backend, bỏ Database nếu không có DB).
+
 ## Bước 7: Tạo TASKS.md
 Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 
@@ -174,7 +180,11 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 
 ## Bước 8: Cập nhật tracking
 **CURRENT_MILESTONE.md:**
-- Cập nhật field `phase` thành phase vừa lên kế hoạch
+- Đọc field `phase` hiện tại trong CURRENT_MILESTONE.md
+- CHỈ cập nhật field `phase` nếu:
+  - Phase hiện tại chưa có TASKS.md (chưa được plan) → cập nhật sang phase vừa plan
+  - Phase hiện tại đã hoàn tất (tất cả tasks ✅) → cập nhật sang phase vừa plan
+  - **KHÔNG cập nhật** nếu phase hiện tại đang thực hiện (có tasks ⬜/🔄) → user đang plan trước cho phase sau
 - Cập nhật field `status` → `Đang thực hiện` (nếu đang là `Chưa bắt đầu`)
 
 **ROADMAP.md:**

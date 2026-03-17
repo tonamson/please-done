@@ -19,9 +19,11 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 
 <process>
 
-## Bước 1: Lấy version
+## Bước 1: Lấy version + kiểm tra git
 Đọc `.planning/CURRENT_MILESTONE.md` → `version` (số thuần) + `status`. KHÔNG hỏi user nhập.
+Nếu CURRENT_MILESTONE.md không tồn tại → **DỪNG**, thông báo: "Chạy `/sk:roadmap` trước."
 Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không có gì để complete."
+Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
 
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*/`:
@@ -44,12 +46,11 @@ Kiểm tra:
 
 ## Bước 3: Kiểm tra bugs (filter theo milestone)
 Scan `.planning/bugs/BUG_*.md`, đọc dòng `> Patch version:` trong header mỗi bug:
-- **Quy tắc match**: bug thuộc milestone nếu `Patch version` = version milestone HOẶC bắt đầu bằng `[version].` (VD: milestone `1.0` → match `1.0`, `1.0.1`, `1.0.2` | KHÔNG match `1.1`, `1.10`, `2.0`)
+- **Quy tắc match**: bug thuộc milestone nếu `Patch version` bằng chính xác `[version]` HOẶC bắt đầu bằng chuỗi `[version].` theo sau bởi số (VD: milestone `1.0` → match `1.0`, `1.0.1`, `1.0.2` | KHÔNG match `1.1`, `1.10`, `2.0`, `10.0`)
 - Bỏ qua bugs thuộc milestone khác
 - Còn bug **Chưa xử lý/Đang sửa** trong milestone này → **CHẶN**:
   > "Không thể hoàn tất. Còn [X] bug chưa giải quyết trong v[x.x]. Chạy `/sk:fix-bug` trước."
 - Tất cả bugs milestone này **Đã giải quyết** → cho phép
-- Tasks chưa done nhưng bugs đã đóng → hỏi user xác nhận
 
 ## Bước 4: Báo cáo tổng kết
 Đọc TẤT CẢ `phase-*/reports/CODE_REPORT_TASK_*.md` trong `.planning/milestones/[version]/` để compile features.
@@ -117,7 +118,7 @@ Nếu HẾT milestone:
 - status: Hoàn tất toàn bộ
 ```
 
-## Bước 8: Git commit + tag
+## Bước 8: Git commit + tag (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```bash
 # Commit báo cáo milestone
 git add .planning/milestones/[version]/ .planning/ROADMAP.md .planning/CURRENT_MILESTONE.md .planning/CHANGELOG.md .planning/bugs/
@@ -154,7 +155,9 @@ Lỗi đã sửa:
 - KHÔNG cho user nhập version - tự lấy từ CURRENT_MILESTONE.md
 - PHẢI kiểm tra bugs còn mở → CHẶN nếu có bug chưa đóng
 - PHẢI đọc tất cả CODE_REPORT_TASK_*.md
-- PHẢI commit + tạo git tag, KHÔNG push tự động
+- PHẢI kiểm tra HAS_GIT trước khi commit/tag — bỏ qua git nếu project không có git
+- Nếu HAS_GIT: PHẢI commit + tạo git tag, KHÔNG push tự động
+- Nếu tag đã tồn tại (`git tag -l v[x.x]`) → hỏi user muốn ghi đè hay bỏ qua
 - Commit + tag message tiếng Việt có dấu, liệt kê chức năng + lỗi
 - CHANGELOG ghi rõ từng lỗi: mô tả + nguyên nhân + cách sửa
 </rules>

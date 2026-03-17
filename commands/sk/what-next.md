@@ -22,16 +22,18 @@ Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob)
 1. `.planning/CONTEXT.md` → tồn tại?
    - KHÔNG → gợi ý `/sk:init`, DỪNG
 2. `.planning/scan/SCAN_REPORT.md` → tồn tại?
-   - KHÔNG → gợi ý `/sk:scan`
+   - KHÔNG → ghi nhận thiếu scan (gợi ý phụ ở Bước 5), KHÔNG DỪNG — tiếp tục kiểm tra
 3. `.planning/ROADMAP.md` → tồn tại?
    - KHÔNG → gợi ý `/sk:roadmap`, DỪNG
 4. `.planning/CURRENT_MILESTONE.md` → đọc `version`, `phase`, `status`
    - status = `Hoàn tất toàn bộ` → thông báo "Tất cả milestones đã hoàn tất!", DỪNG
 
-## Bước 2: Kiểm tra bugs đang mở
+## Bước 2: Kiểm tra bugs đang mở (filter theo milestone hiện tại)
 Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 - Grep dòng `> Trạng thái:` → tìm bugs có trạng thái **Chưa xử lý** hoặc **Đang sửa**
-- Nếu CÓ bugs mở → ghi nhận danh sách (sẽ báo ở Bước 4)
+- Grep dòng `> Patch version:` → filter CHỈ bugs thuộc milestone hiện tại (version bằng đúng hoặc bắt đầu bằng `[version].`)
+- Nếu CÓ bugs mở thuộc milestone hiện tại → ghi nhận danh sách (sẽ báo ở Bước 4)
+- Bugs thuộc milestone khác → ghi nhận riêng, hiện như gợi ý phụ (không ảnh hưởng ưu tiên chính)
 
 ## Bước 3: Kiểm tra tiến trình phase hiện tại
 Đọc version + phase từ CURRENT_MILESTONE.md:
@@ -68,6 +70,11 @@ Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo
 ### Ưu tiên 4: Còn task chưa bắt đầu (⬜)
 > ⬜ Còn [X] tasks chưa bắt đầu trong phase [x.x].
 > → Chạy `/sk:write-code` để pick task tiếp theo
+> → Hoặc `/sk:write-code --parallel` để chạy song song tasks độc lập
+
+### Ưu tiên 4.5: TẤT CẢ tasks còn lại bị chặn (❌) hoặc lỗi (🐛)
+> ❌ Tất cả [X] tasks còn lại đều bị chặn hoặc có lỗi.
+> → Chạy `/sk:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
 
 ### Ưu tiên 5: Tất cả tasks ✅ nhưng chưa test
 Chỉ áp dụng nếu project CÓ Backend (đọc CONTEXT.md → Tech Stack):

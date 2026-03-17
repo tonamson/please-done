@@ -20,17 +20,26 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 
 <process>
 
-## Bước 1: Thu thập ngữ cảnh lỗi
+## Bước 1: Thu thập ngữ cảnh lỗi + kiểm tra git
+Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
+
+Nếu có bug reports đang mở (Glob `.planning/bugs/BUG_*.md` → Grep `Trạng thái: Chưa xử lý|Đang sửa`):
+- Liệt kê bugs mở cho user chọn: "Có [X] bug đang mở. Bạn muốn xử lý bug nào?"
+- Nếu user chọn bug có sẵn → đọc bug report, pre-populate version + mô tả + chức năng → nhảy Bước 3
+
 Từ `$ARGUMENTS`: chức năng bị lỗi, mô tả, error message/log, bước tái hiện.
 Nếu thiếu thông tin → hỏi user bổ sung.
 
 ## Bước 2: Xác định patch version
 - Đọc `.planning/CURRENT_MILESTONE.md` → version hiện tại (VD: `1.1`)
+- Nếu CURRENT_MILESTONE.md không tồn tại → hỏi user "Lỗi này thuộc phiên bản nào?", dùng version user cung cấp, bỏ qua logic so sánh version bên dưới
 - So sánh version lỗi với version hiện tại:
-  - Bug thuộc version CŨ hơn (VD: bug ở v1.0, hiện tại v1.1) → milestone đã hoàn tất → tạo patch: 1.0 → 1.0.1, nếu 1.0.1 có → 1.0.2
+  - Bug thuộc version CŨ hơn (VD: bug ở v1.0, hiện tại v1.1) → milestone đã hoàn tất → tạo patch:
+    - Glob `.planning/bugs/BUG_*.md` → Grep `Patch version: [version-gốc]\.` → tìm patch cao nhất hiện có
+    - Nếu chưa có patch → dùng `[version-gốc].1` (VD: `1.0.1`)
+    - Nếu đã có → tăng: `1.0.1` → `1.0.2`, `1.0.2` → `1.0.3`
   - Bug thuộc version HIỆN TẠI → milestone chưa hoàn tất → dùng version hiện tại
 - Nếu user không chỉ rõ version lỗi → hỏi "Lỗi này thuộc phiên bản nào?"
-- Tạo thư mục `.planning/milestones/[patch-version]/` nếu cần
 
 ## Bước 3: Đọc context kỹ thuật
 Dùng **version gốc** (VD: `1.0`) để đọc, KHÔNG dùng patch version (VD: `1.0.1`) — vì PLAN.md nằm ở thư mục version gốc:
@@ -77,7 +86,7 @@ Viết `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 ```markdown
 # Báo cáo lỗi
 > Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Nghiêm trọng/Trung bình/Nhẹ
-> Trạng thái: Đang sửa | Chức năng: [Tên]
+> Trạng thái: Đang sửa | Chức năng: [Tên] | Task: [N] (nếu biết)
 > Patch version: [x.x.x] | Lần sửa: 1
 
 ## Mô tả lỗi
@@ -116,7 +125,7 @@ File: `[path]`
 - Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` → mục **Build & Lint**)
 - Thêm/cập nhật test case cho bug trong .spec.ts (chỉ Backend)
 
-## Bước 8: Git commit
+## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
 git add [source code files đã sửa]
 git add .planning/bugs/BUG_[timestamp].md

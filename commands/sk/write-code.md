@@ -10,8 +10,10 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 <context>
 User input: $ARGUMENTS
 - Có thể là task number (VD: `3`) → làm task cụ thể
-- Có thể là `--auto` → làm TẤT CẢ tasks còn lại trong phase, không hỏi giữa chừng
-- Có thể kết hợp: `3 --auto` → bắt đầu từ task 3, làm hết phase
+- Có thể là `--auto` → làm TẤT CẢ tasks còn lại trong phase tuần tự, không hỏi giữa chừng
+- Có thể là `--parallel` → phân tích dependency, nhóm wave, chạy song song tasks độc lập bằng multi-agent
+- Có thể kết hợp: `3 --auto` → bắt đầu từ task 3, làm hết phase tuần tự
+- Có thể kết hợp: `3 --parallel` → bắt đầu từ task 3, chạy song song tasks độc lập
 - Không có gì → pick task tiếp theo ⬜, làm xong 1 task thì DỪNG hỏi user
 
 Đọc:
@@ -42,10 +44,49 @@ Chọn task:
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
   - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?"
   - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/sk:fix-bug` thay vì viết lại code."
-- Nếu không → task tiếp theo ⬜ không bị ❌ hoặc 🐛
+- Nếu không → ưu tiên task 🔄 (resume task đang dở) trước, nếu không có thì task tiếp theo ⬜ (không bị ❌ hoặc 🐛)
 - **Nếu TẤT CẢ tasks còn lại bị ❌ hoặc 🐛**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
 
 Cập nhật trạng thái → 🔄
+
+### Bước 1.5: Phân tích dependency + nhóm wave (CHỈ khi `--parallel`)
+Nếu `$ARGUMENTS` chứa `--parallel`:
+
+1. **Đọc TASKS.md** → lấy tất cả tasks ⬜ còn lại + cột `Phụ thuộc` của mỗi task
+2. **Phân tích dependency graph**:
+   - Task KHÔNG phụ thuộc task khác (hoặc chỉ phụ thuộc task ✅ đã xong) → **sẵn sàng**
+   - Task phụ thuộc task ⬜/🔄 khác → **chờ**
+3. **Nhóm thành waves** (topological sort):
+   - **Wave 1**: tất cả tasks sẵn sàng (không dependency hoặc dependency đã ✅)
+   - **Wave 2**: tasks phụ thuộc vào tasks trong Wave 1
+   - **Wave N**: tasks phụ thuộc vào Wave N-1
+4. **Xác định tasks có thể song song trong mỗi wave**:
+   - Tasks trong cùng wave mà **KHÔNG chia sẻ files** (kiểm tra cột `Files` trong TASKS.md) → chạy **song song bằng Agent tool**
+   - Tasks trong cùng wave nhưng **SỬA CHUNG file** → chạy **tuần tự** trong wave đó
+5. **Đặc biệt: Backend + Frontend song song**:
+   - Task Backend (API) + Task Frontend consume API đó → NẾU PLAN.md đã có thiết kế API (method, path, request/response format) → Frontend agent dùng response shape từ PLAN.md để code trước, KHÔNG cần chờ Backend xong → **nhóm cùng wave**
+   - Frontend agent đọc PLAN.md → mục "API Endpoints" → dùng response format đã thiết kế để tạo types, API functions, components
+   - Sau khi cả hai agent xong → verify integration (API response thực tế khớp với types frontend đã tạo)
+
+Hiển thị plan cho user trước khi chạy:
+```
+╔══════════════════════════════════════════════════╗
+║              KẾ HOẠCH THỰC THI SONG SONG          ║
+╠══════════════════════════════════════════════════╣
+║ Wave 1 (song song):                              ║
+║   🔀 Agent A: Task 1 (Backend) — tạo API users   ║
+║   🔀 Agent B: Task 2 (Frontend) — trang users    ║
+║ Wave 2 (tuần tự — dùng code từ Wave 1):         ║
+║   → Task 3: Kết nối API users + validation       ║
+║ Wave 3 (song song):                              ║
+║   🔀 Agent C: Task 4 (Backend) — API orders      ║
+║   🔀 Agent D: Task 5 (Frontend) — trang orders   ║
+╚══════════════════════════════════════════════════╝
+Xác nhận chạy? (y/n)
+```
+
+**Nếu user xác nhận** → nhảy sang **Bước 10** (chế độ parallel).
+**Nếu KHÔNG có `--parallel`** → bỏ qua bước này, chạy tuần tự như bình thường.
 
 ## Bước 2: Đọc context cho task
 - Chi tiết task trong TASKS.md (mô tả, checklist, ghi chú kỹ thuật)
@@ -74,7 +115,8 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 ## Bước 4: Viết code
 Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
-- **JSDoc + Logger + Error messages + Comments** → TIẾNG VIỆT CÓ DẤU
+- **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU
+- **Error/Exception messages** → theo quy tắc trong `.planning/rules/backend.md` hoặc `frontend.md` (match ngôn ngữ throw/message đang dùng trong dự án)
 - **Tên biến/function/class/file** → tiếng Anh
 - **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500
 
@@ -141,17 +183,70 @@ Files: [danh sách files]"
 ```
 
 ## Bước 9: Cập nhật ROADMAP (khi phase hoàn tất)
-Nếu phase hiện tại KHÔNG còn task ⬜ (tất cả ✅):
+Nếu TẤT CẢ tasks trong phase đều ✅ (không còn ⬜, 🔄, ❌, hoặc 🐛):
 - Đọc `.planning/ROADMAP.md` → tìm phase hiện tại (VD: `#### Phase 1.1:`)
 - Đánh dấu tất cả deliverables: `- [ ]` → `- [x]`
 
 ## Bước 10: Tiếp tục hoặc dừng
-**Nếu `--auto`**: còn task ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user). Dừng khi:
-- Hết task ⬜ → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/sk:test`, `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`"
+
+### Chế độ `--parallel` (multi-agent song song)
+Thực thi theo waves đã phân tích ở Bước 1.5:
+
+**Với mỗi wave:**
+1. **Spawn Agent tool** cho mỗi task song song trong wave — mỗi agent nhận đầy đủ:
+   - PLAN.md (toàn bộ thiết kế kỹ thuật)
+   - Task detail từ TASKS.md (task cụ thể agent cần làm)
+   - Rules files phù hợp (general + backend/frontend theo Loại task)
+   - CONTEXT.md (tech stack, thư viện)
+   - Docs liên quan (nếu có)
+   - Chỉ dẫn: thực hiện Bước 2→3→4→5 cho task được giao (agent CHỈ viết code + lint/build, KHÔNG tạo report/cập nhật TASKS/commit)
+
+2. **Agent Frontend đặc biệt**: khi chạy song song với Backend API:
+   - Đọc PLAN.md → mục "API Endpoints" → lấy response format đã thiết kế
+   - Tạo types/interfaces từ response shape trong PLAN.md (KHÔNG cần gọi API thật)
+   - Tạo API functions với đúng endpoint + method từ PLAN.md
+   - Tạo components/pages dùng types + API functions đã tạo
+   - Sau khi Backend agent xong → verify types khớp với response thực tế
+
+3. **Chờ TẤT CẢ agents trong wave hoàn thành**
+
+4. **Sau mỗi wave** (orchestrator thực hiện, KHÔNG phải agent):
+   - Thu thập kết quả từ mỗi agent (files đã tạo/sửa, build status)
+   - Kiểm tra conflicts: nếu 2 agents sửa cùng file → **DỪNG**, báo user giải quyết
+   - Nếu agent nào build fail → **DỪNG wave**, báo lỗi task cụ thể
+   - Nếu tất cả OK → tạo report cho mỗi task (Bước 6) → cập nhật TASKS.md → ✅ (Bước 7) → commit từng task riêng (Bước 8)
+
+5. **Verify integration** (sau wave có cả Backend + Frontend):
+   - So sánh TypeScript interfaces/types trong frontend với response DTO/entity trong backend (đọc cả 2 files, kiểm tra field names + types khớp nhau)
+   - Kiểm tra API endpoint paths frontend gọi đúng backend đã tạo
+   - Nếu mismatch → sửa frontend cho khớp, commit bổ sung `[TASK-N] Đồng bộ types với backend`
+
+6. **Chuyển wave tiếp theo** → lặp lại từ bước 1 của quy trình wave (spawn agents)
+
+7. **Khi hết waves** → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo:
+```
+╔══════════════════════════════════════════════════╗
+║           HOÀN TẤT SONG SONG                     ║
+╠══════════════════════════════════════════════════╣
+║ Phase [x.x]: [N] tasks hoàn tất                 ║
+║ Waves: [X] | Song song: [Y] tasks | Tuần tự: [Z]║
+╠══════════════════════════════════════════════════╣
+║ Gợi ý:                                          ║
+║   /sk:test              → Kiểm thử (NestJS only) ║
+║   /sk:plan [phase tiếp] → Phase tiếp theo       ║
+║   /sk:complete-milestone → Đóng milestone        ║
+╚══════════════════════════════════════════════════╝
+```
+
+### Chế độ `--auto` (tuần tự)
+Còn task 🔄 hoặc ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
+- Hết task 🔄 và ⬜ (tất cả ✅) → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/sk:test`, `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`"
+- **TẤT CẢ tasks 🔄/⬜ còn lại đều bị ❌ hoặc 🐛** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/sk:fix-bug`
 - Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
 - Nếu lint/build được skip (project chưa setup build tools) → tiếp tục task tiếp theo bình thường
 
-**Nếu KHÔNG có `--auto`**: DỪNG sau mỗi task, thông báo:
+### Chế độ mặc định (không có flag)
+DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
@@ -169,4 +264,14 @@ Nếu phase hiện tại KHÔNG còn task ⬜ (tất cả ✅):
 - Tái sử dụng code/thư viện có sẵn
 - Nếu tasks blocked → THÔNG BÁO user, KHÔNG pick bừa
 - Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+
+**Quy tắc Parallel (--parallel):**
+- CHỈ chạy song song tasks KHÔNG chia sẻ files VÀ KHÔNG có dependency trực tiếp
+- Tasks phụ thuộc nhau (task B cần dùng function/module task A tạo ra) → PHẢI chạy tuần tự
+- Backend + Frontend song song: Frontend agent PHẢI dùng response shape từ PLAN.md, KHÔNG đoán
+- Sau mỗi wave: orchestrator PHẢI verify không có file conflict trước khi commit
+- Sau wave có Backend + Frontend: PHẢI verify integration (types khớp response thực tế)
+- Nếu 2 agents sửa cùng file → DỪNG, báo user — KHÔNG tự merge
+- Mỗi agent commit riêng với prefix `[TASK-N]` riêng biệt
+- PHẢI hiển thị wave plan cho user xác nhận trước khi bắt đầu
 </rules>

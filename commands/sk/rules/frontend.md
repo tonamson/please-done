@@ -2,7 +2,7 @@
 
 ## Cấu trúc thư mục
     src/
-    ├── app/          → Pages (App Router), URL tiếng Việt (san-pham, gio-hang, dat-hang)
+    ├── app/          → Pages (App Router), URL kebab-case (mặc định tiếng Anh, xem mục Pages)
     ├── components/   → PascalCase, nhóm theo domain (admin/, product/, cart/, layout/, ui/)
     ├── hooks/        → use[Name].ts (useHydration.ts)
     ├── lib/          → kebab-case utilities (api.ts, admin-api.ts, format.ts, constants.ts)

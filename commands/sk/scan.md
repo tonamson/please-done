@@ -23,7 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Tạo `.planning/scan/` nếu chưa có
 
 ## Bước 2: Kiểm tra project có code không
-Glob `**/*.{ts,tsx,js,jsx,py,html,css,json}` (trừ node_modules, .venv, .planning):
+Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning — KHÔNG bao gồm .json/.css để khớp với init.md):
 - **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
   - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
   - Trạng thái hoàn thành: "Chưa bắt đầu"
@@ -45,7 +45,7 @@ Glob `**/*.{ts,tsx,js,jsx,py,html,css,json}` (trừ node_modules, .venv, .planni
   - Client vs Server: Grep `'use client'` → đếm client components
   - Stores: Glob `**/stores/use*.{ts,tsx}` → liệt kê Zustand stores
   - Hooks: Glob `**/hooks/use*.{ts,tsx}` → liệt kê custom hooks
-  - API Layer: Read `**/lib/api.ts`, `**/lib/admin-api.ts` → liệt kê API functions
+  - API Layer: Glob `**/lib/api.ts`, `**/lib/admin-api.ts` → nếu tồn tại thì Read → liệt kê API functions
   - Types: Glob `**/types/*.ts` → liệt kê type files
 
 ## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
@@ -58,11 +58,12 @@ Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với kết 
 Detect package manager: `yarn.lock` → yarn | `pnpm-lock.yaml` → pnpm | mặc định → npm.
 Chạy audit trong từng thư mục có `package.json` (backend, frontend, hoặc cả hai):
 ```bash
-# Tìm tất cả thư mục có package.json (trừ node_modules)
-# Chạy npm audit --production trong mỗi thư mục
-cd [backend-dir] && [npm|yarn|pnpm] audit --production 2>/dev/null | tail -30
-cd [frontend-dir] && [npm|yarn|pnpm] audit --production 2>/dev/null | tail -30
+# Lệnh audit theo package manager:
+# npm:  cd [dir] && npm audit --production 2>&1 | tail -30
+# yarn: cd [dir] && yarn audit --groups production 2>&1 | tail -30
+# pnpm: cd [dir] && pnpm audit --prod 2>&1 | tail -30
 ```
+Nếu audit command fail (exit code khác 0 mà không phải do vulnerabilities) → ghi "Audit command thất bại" trong report thay vì bỏ trống.
 Liệt kê lỗ hổng theo mức độ (nghiêm trọng, cao, trung bình, thấp) + ghi rõ thuộc backend hay frontend.
 
 ## Bước 5: Tạo báo cáo
@@ -140,7 +141,8 @@ In tóm tắt kết quả cho user.
 - Project mới (chưa có code) → tạo scan report tối giản, KHÔNG gọi FastCode, KHÔNG chạy npm audit
 - CHỈ tạo sections có dữ liệu trong report, bỏ section rỗng
 - Section "Trạng thái hoàn thành" BẮT BUỘC
-- PHẢI liệt kê thư viện từ package.json + chạy npm audit cho từng thư mục (backend/frontend)
+- PHẢI liệt kê thư viện từ package.json + chạy audit **NẾU project có package.json**. Nếu không có package.json → bỏ section Thư viện và Cảnh báo bảo mật
+- CẤM đọc/hiển thị nội dung `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
 - Phân tích Frontend CHỈ khi tồn tại `next.config.*` — bỏ qua nếu project không có frontend
 - Phân tích Backend CHỈ khi tồn tại `nest-cli.json` — bỏ qua nếu project không có backend
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)

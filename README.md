@@ -1,13 +1,13 @@
 # Skills for Claude Code
 
-Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển NestJS + NextJS có cấu trúc, từ khởi tạo đến release.
+Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
 ## Yêu cầu
 
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) (đã cài và đăng nhập)
 - Python 3.12+ (`python3 --version`)
 - Node.js 18+ với npm/npx (`node --version`)
-- Git (tùy chọn — nếu không có git, skills tự động bỏ qua bước commit)
+- Git (`git --version`)
 
 ## Cài đặt
 
@@ -60,32 +60,68 @@ cd /path/to/your/project
 
 ### Workflow chính (theo thứ tự)
 
-| Skill | Mô tả | Cần chạy trước |
-|-------|--------|----------------|
-| `/sk:init` | Khởi tạo project, kiểm tra MCP, detect tech stack | - |
-| `/sk:scan` | Quét cấu trúc, dependencies, npm audit | init |
-| `/sk:roadmap` | Lập kế hoạch milestones + phases | init, scan |
-| `/sk:plan` | Thiết kế kỹ thuật + chia tasks cho phase | roadmap |
-| `/sk:write-code` | Viết code theo task, lint, build, commit (xem [options](#skwrite-code-options)) | plan |
-| `/sk:test` | Viết Jest tests, chạy, xác nhận (Backend only) | write-code |
-| `/sk:fix-bug` | Debug + fix + commit, lặp đến khi user xác nhận | - |
-| `/sk:complete-milestone` | Tổng kết, commit, tạo git tag | all tasks done |
+| # | Skill | Mô tả | Cần chạy trước |
+|---|-------|--------|----------------|
+| 1 | `/sk:init` | Kiểm tra FastCode MCP, index project, detect tech stack, tạo CONTEXT.md + copy rules | - |
+| 2 | `/sk:scan` | Quét cấu trúc code, dependencies, kiến trúc, npm audit, tạo SCAN_REPORT | init |
+| 3 | `/sk:roadmap` | Lập kế hoạch milestones + phases + dependencies | init, scan (*) |
+| 4 | `/sk:plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase | roadmap |
+| 5 | `/sk:write-code` | Viết code theo task, lint, build, commit `[TASK-N]` (xem [options](#skwrite-code-options)) | plan |
+| 6 | `/sk:test` | Viết Jest + Supertest tests, chạy, yêu cầu user xác nhận (Backend NestJS only) | write-code |
+| 7 | `/sk:fix-bug` | Research lỗi, phân tích, fix, commit `[LỖI]`, lặp đến khi user xác nhận | init |
+| 8 | `/sk:complete-milestone` | Kiểm tra bugs, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag | all tasks ✅ |
+
+(*) Project mới chưa có code: `/sk:roadmap` cho phép bỏ qua scan.
 
 ### Utility
 
 | Skill | Mô tả |
 |-------|--------|
-| `/sk:what-next` | Kiểm tra tiến trình, gợi ý command tiếp theo |
-| `/sk:fetch-doc` | Cache tài liệu từ URL kèm version + mục lục nhanh |
+| `/sk:what-next` | Quét trạng thái .planning/, hiển thị tiến trình, gợi ý command tiếp theo |
+| `/sk:fetch-doc` | Tải tài liệu từ URL, lưu markdown local kèm version + mục lục phân section |
+
+### Rules (coding conventions)
+
+| File | Áp dụng khi | Nội dung chính |
+|------|-------------|----------------|
+| `rules/general.md` | Luôn luôn | Code style, ngôn ngữ, icons, version format, git, bảo mật |
+| `rules/backend.md` | Có NestJS | Controller, Service, DTO, Entity, Response, Guard, Build & Lint |
+| `rules/frontend.md` | Có NextJS | Component, Ant Design v6, Zustand, API layer, Pages, Admin, Build & Lint |
+
+Rules được `/sk:init` tự động copy vào `.planning/rules/` theo tech stack detected. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
 
 ### sk:write-code options
 
 | Lệnh | Hành vi |
 |-------|---------|
 | `/sk:write-code` | Pick task ⬜ tiếp theo, làm xong **dừng hỏi** |
-| `/sk:write-code --auto` | Làm **tất cả** tasks ⬜ trong phase liên tục |
+| `/sk:write-code --auto` | Làm **tất cả** tasks ⬜ trong phase **tuần tự** |
+| `/sk:write-code --parallel` | Phân tích dependency, nhóm wave, chạy **song song** tasks độc lập |
 | `/sk:write-code 3` | Làm task số 3, xong dừng hỏi |
-| `/sk:write-code 3 --auto` | Bắt đầu từ task 3, chạy hết phase |
+| `/sk:write-code 3 --auto` | Bắt đầu từ task 3, chạy hết phase tuần tự |
+| `/sk:write-code 3 --parallel` | Bắt đầu từ task 3, chạy song song tasks độc lập |
+
+#### Parallel mode (`--parallel`)
+
+Phân tích dependency graph giữa tasks → nhóm thành **waves** → tasks độc lập trong cùng wave chạy song song bằng **multi-agent**:
+
+```
+Wave 1 (song song):
+  🔀 Agent A: Task 1 (Backend) — tạo API users
+  🔀 Agent B: Task 2 (Frontend) — trang users (dùng response shape từ PLAN.md)
+Wave 2 (tuần tự — phụ thuộc Wave 1):
+  → Task 3: Kết nối validation (cần code từ Task 1)
+```
+
+**Khi nào chạy song song:**
+- Tasks không có dependency trực tiếp (task B không cần function/module task A tạo)
+- Tasks không sửa chung file
+- Backend API + Frontend consume: Frontend agent dùng response format đã thiết kế trong PLAN.md để code trước, verify integration sau
+
+**Khi nào PHẢI tuần tự:**
+- Task B import/sử dụng function từ task A
+- Hai tasks sửa cùng file
+- Task B cần output thực tế (không chỉ design) từ task A
 
 ## Cấu trúc `.planning/`
 
@@ -93,42 +129,76 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 
 ```
 .planning/
-├── CONTEXT.md                    # Tech stack, thư viện (< 50 dòng)
-├── ROADMAP.md                    # Milestones + phases
-├── CURRENT_MILESTONE.md          # Tracking version/phase/status
-├── CHANGELOG.md                  # Nhật ký thay đổi
-├── scan/SCAN_REPORT.md           # Báo cáo quét dự án
-├── docs/                         # Tài liệu cache (fetch-doc)
-├── bugs/BUG_*.md                 # Báo cáo lỗi
-├── rules/                        # Coding rules (copy từ skills repo)
-│   ├── general.md
-│   ├── backend.md                # NestJS conventions
-│   └── frontend.md               # NextJS conventions
+├── CONTEXT.md                    # Tech stack, thư viện, pointer tới rules (< 50 dòng)
+├── ROADMAP.md                    # Milestones + phases + deliverables
+├── CURRENT_MILESTONE.md          # Tracking version/phase/status hiện tại
+├── CHANGELOG.md                  # Nhật ký thay đổi (tạo khi complete-milestone)
+├── scan/
+│   └── SCAN_REPORT.md            # Báo cáo quét dự án + npm audit
+├── docs/                         # Tài liệu cache (fetch-doc) kèm version + mục lục
+├── bugs/
+│   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, patch version)
+├── rules/                        # Coding rules (copy từ skills repo theo stack)
+│   ├── general.md                # Quy tắc chung (luôn có)
+│   ├── backend.md                # NestJS conventions (nếu có backend)
+│   └── frontend.md               # NextJS conventions (nếu có frontend)
 └── milestones/[version]/
-    ├── MILESTONE_COMPLETE.md
+    ├── MILESTONE_COMPLETE.md     # Tổng kết milestone (tạo khi complete)
     └── phase-[x.x]/
-        ├── PLAN.md               # Thiết kế kỹ thuật
+        ├── PLAN.md               # Thiết kế kỹ thuật + API + database
         ├── TASKS.md              # Danh sách tasks + trạng thái
-        ├── TEST_REPORT.md        # Kết quả kiểm thử
+        ├── TEST_REPORT.md        # Kết quả kiểm thử (Backend only)
         └── reports/
-            └── CODE_REPORT_TASK_[N].md
+            └── CODE_REPORT_TASK_[N].md  # Báo cáo từng task
 ```
 
 ## MCP Servers
 
 | MCP | Vai trò | Bắt buộc |
 |-----|---------|----------|
-| **FastCode** | Index + phân tích code dự án | Có |
+| **FastCode** | Index + phân tích code dự án (dùng Gemini API) | Có |
 | **Context7** | Tra cứu API docs thư viện đúng version | Không (nhưng nên có) |
 
-### Kiểm tra MCP hoạt động
+Skills tự động gọi FastCode để research code hiện có và Context7 để tra cứu docs thư viện. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `/sk:init` kiểm tra lại.
 
-```bash
-# Trong Claude Code
-/sk:init
-# Nếu FastCode MCP hoạt động → ✅
-# Nếu lỗi → kiểm tra API key trong FastCode/.env
-```
+## Commit Conventions
+
+Skills tự động commit với prefix tiếng Việt (bỏ qua nếu project không có git):
+
+| Prefix | Skill | Khi nào |
+|--------|-------|---------|
+| `[TASK-N]` | write-code | Hoàn thành 1 task |
+| `[KIỂM THỬ]` | test | Thêm test files (.spec.ts) |
+| `[LỖI]` | fix-bug | Mỗi lần fix (có thể nhiều lần/bug) |
+| `[PHIÊN BẢN]` | complete-milestone | Đóng milestone + tạo git tag |
+
+## Icons trạng thái
+
+| Icon | Ý nghĩa |
+|------|---------|
+| ⬜ | Chưa bắt đầu |
+| 🔄 | Đang thực hiện |
+| ✅ | Hoàn tất |
+| ❌ | Bị chặn |
+| 🐛 | Có lỗi |
+
+## Hỗ trợ project mới (chưa có code)
+
+Skills hoạt động với cả project mới lẫn project có sẵn code:
+- `/sk:init` → hỏi user mô tả dự án, skip FastCode indexing, chỉ copy `general.md`
+- `/sk:scan` → tạo scan report tối giản
+- `/sk:roadmap` → cho phép bỏ qua scan, lập kế hoạch từ yêu cầu user
+- `/sk:plan` → research qua Context7 thay vì FastCode, thiết kế từ docs thư viện
+- `/sk:write-code` → tra cứu Context7 cho API thư viện, skip FastCode
+
+## Tech Stack hỗ trợ
+
+| Stack | Framework | Database | Detect bằng |
+|-------|-----------|----------|-------------|
+| Backend | NestJS | MongoDB/Mongoose, TypeORM, Prisma | `nest-cli.json` |
+| Frontend | NextJS App Router | - | `next.config.*` |
+
+**Mở rộng stack mới**: Thêm file `commands/sk/rules/[stack].md` + detection pattern trong `init.md` Bước 4.
 
 ## Gỡ cài đặt
 
@@ -136,27 +206,4 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ./uninstall.sh
 ```
 
-Xóa symlinks + FastCode MCP. Context7 MCP giữ nguyên (dùng chung với Cursor/IDE khác).
-
-## Commit Conventions
-
-Skills tự động commit với prefix tiếng Việt:
-
-| Prefix | Khi nào |
-|--------|---------|
-| `[TASK-N]` | Hoàn thành task (write-code) |
-| `[KIỂM THỬ]` | Thêm tests (test) |
-| `[LỖI]` | Fix bug (fix-bug) |
-| `[PHIÊN BẢN]` | Đóng milestone + git tag (complete-milestone) |
-
-## Lưu ý
-
-- **Không có git?** Skills tự động bỏ qua tất cả bước git add/commit/tag
-- **Chỉ có Frontend?** `sk:test` sẽ báo "chỉ hỗ trợ Backend" — các skill khác hoạt động bình thường
-- **Chỉ có Backend?** Bỏ qua phân tích frontend trong scan/plan/write-code
-
-## Tech Stack hỗ trợ
-
-- **Backend**: NestJS (MongoDB/Mongoose, TypeORM, Prisma)
-- **Frontend**: NextJS App Router (Ant Design v6, Zustand, native fetch)
-- **Mở rộng**: Thêm file `commands/sk/rules/[stack].md` + detection pattern trong `init.md`
+Xóa symlinks + FastCode MCP. Context7 MCP giữ nguyên (dùng chung với Cursor/IDE khác). Source code FastCode vẫn còn trong repo — xóa repo để gỡ hoàn toàn.

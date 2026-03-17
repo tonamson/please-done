@@ -36,16 +36,17 @@ Gọi `mcp__fastcode__list_indexed_repos` để kiểm tra MCP server:
   > Chạy lại `/sk:init` sau khi khắc phục."
 
 ## Bước 3: Kiểm tra project có code chưa
-Glob `**/*.{ts,tsx,js,jsx,py,html,json}` (trừ node_modules, .venv, .planning):
+Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning) — KHÔNG bao gồm `.json` vì `package.json` alone không phải source code:
 - **CÓ source files** → `isNewProject = false`, tiếp tục Bước 3a
-- **KHÔNG có source files** (folder trống/chỉ có README) → `isNewProject = true`, nhảy sang Bước 4
+- **KHÔNG có source files** (folder trống/chỉ có README/package.json) → `isNewProject = true`, nhảy sang Bước 4
 
 ### Bước 3a: Index dự án trong FastCode (CHỈ khi isNewProject = false)
 Gọi `mcp__fastcode__code_qa`:
 - repos: [đường dẫn absolute của project]
 - question: "Liệt kê tất cả modules, tech stack, database type đang dùng."
 
-Mục đích: pre-warm index để các skill sau gọi nhanh hơn.
+Mục đích: pre-warm index để các skill sau gọi nhanh hơn. Response bị bỏ qua (chỉ trigger indexing).
+Nếu `code_qa` lỗi ở bước này → ghi warning, tiếp tục sang Bước 4 (pre-warm thất bại không ảnh hưởng init).
 
 ## Bước 4: Phát hiện tech stack
 ### Nếu isNewProject = false:
@@ -70,7 +71,20 @@ Hỏi user: "Dự án mới chưa có code. Bạn muốn xây dựng gì?"
 mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules
 ```
 
-## Bước 6: Tạo CONTEXT.md (GỌN — chỉ chứa info dự án)
+## Bước 6: Copy rules vào .planning/rules/
+Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy giá trị `SKILLS_DIR`.
+Nếu `.skconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG**, thông báo: "Không tìm thấy .skconfig. Chạy lại `install.sh`."
+
+**Xóa tất cả files cũ** trong `.planning/rules/` trước khi copy → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa).
+
+Đọc rules từ `[SKILLS_DIR]/commands/sk/rules/` → Write vào `.planning/rules/`:
+
+- **Luôn copy**: `general.md`
+- **Nếu hasBackend = true**: copy `backend.md`
+- **Nếu hasFrontend = true**: copy `frontend.md`
+- **Nếu project mới hoặc stack khác** (Chrome extension, CLI, v.v.): CHỈ copy `general.md`
+
+## Bước 7: Tạo CONTEXT.md (GỌN — chỉ chứa info dự án)
 Tạo `.planning/CONTEXT.md`:
 
 ```markdown
@@ -92,9 +106,7 @@ Tạo `.planning/CONTEXT.md`:
 
 ## Rules
 Quy tắc code nằm tại `.planning/rules/`:
-- `general.md` — quy tắc chung (luôn đọc)
-- `backend.md` — quy tắc NestJS (chỉ khi có NestJS)
-- `frontend.md` — quy tắc NextJS (chỉ khi có NextJS)
+(CHỈ liệt kê rules files đã copy ở Bước 6 — KHÔNG liệt kê files không tồn tại)
 
 ## Milestone hiện tại
 (nếu có từ session trước)
@@ -104,15 +116,6 @@ Quy tắc code nằm tại `.planning/rules/`:
 ```
 
 **CONTEXT.md phải DƯỚI 50 dòng** — chỉ chứa info dự án + pointer tới rules files.
-
-## Bước 7: Copy rules vào .planning/rules/
-Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy giá trị `SKILLS_DIR`.
-Đọc rules từ `[SKILLS_DIR]/commands/sk/rules/` → Write vào `.planning/rules/`:
-
-- **Luôn copy**: `general.md`
-- **Nếu hasBackend = true**: copy `backend.md`
-- **Nếu hasFrontend = true**: copy `frontend.md`
-- **Nếu project mới hoặc stack khác** (Chrome extension, CLI, v.v.): CHỈ copy `general.md`
 
 ## Bước 8: Thông báo kết quả
 ```

@@ -38,11 +38,16 @@ WebFetch URL chính → trích xuất:
 - Nội dung tài liệu + code examples
 - Danh sách internal links cùng domain (chỉ tài liệu kỹ thuật, bỏ blog/changelog/marketing)
 
+Nếu WebFetch lỗi (timeout, 404, 403, trang trống):
+- Thử lại 1 lần
+- Nếu vẫn lỗi → **DỪNG**, thông báo: "Không thể tải [URL]. Kiểm tra URL hợp lệ và thử lại."
+
 ## Bước 4: Fetch trang liên quan (có chọn lọc)
 Từ danh sách links ở Bước 3:
 - Lọc chỉ trang kỹ thuật liên quan trực tiếp (API, config, examples, getting started)
 - **Tối đa 10 trang**, ưu tiên trang liên quan nhất đến chủ đề chính
 - Fetch song song (tối đa 5 cùng lúc)
+- Trang lỗi (timeout, 404) → bỏ qua, ghi warning, tiếp tục các trang còn lại
 
 ## Bước 5: Lưu file có mục lục nhanh
 Tạo `.planning/docs/[tên].md`:

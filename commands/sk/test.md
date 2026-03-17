@@ -23,6 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
 - **Nếu project KHÔNG có Backend NestJS** (chỉ Frontend, hoặc stack khác): DỪNG, thông báo "Skill test hiện chỉ hỗ trợ Backend NestJS. Project này không áp dụng được."
+- Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 10)
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
@@ -33,7 +34,8 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu `$ARGUMENTS` chỉ định task → test riêng task đó
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
-- `.planning/rules/backend.md` chứa coding conventions cho .spec.ts
+- **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/sk:write-code` trước."
+- `.planning/rules/backend.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
 
 ## Bước 2: Kiểm tra test infrastructure
 Kiểm tra Jest config + dependencies (`@nestjs/testing`, `supertest`, `jest`).
@@ -125,12 +127,14 @@ Hiển thị kết quả:
 Tổng: X/Y đạt
 ```
 
-## Bước 6: Yêu cầu user xác nhận giao diện + database
-> **Vui lòng kiểm tra thêm trên giao diện và database:**
-> 1. Giao diện: [hướng dẫn test UI cụ thể cho từng chức năng]
-> 2. Database: [bảng/collection nào cần kiểm tra, dữ liệu kỳ vọng]
-> 3. Tất cả đã đúng? (y/n) - Nếu có lỗi, cho biết số thứ tự.
+## Bước 6: Yêu cầu user xác nhận database + giao diện (nếu có)
+> **Vui lòng kiểm tra thêm:**
+> 1. Database: [bảng/collection nào cần kiểm tra, dữ liệu kỳ vọng]
+> 2. API responses: [endpoint nào cần test thủ công, dữ liệu kỳ vọng]
+> 3. Giao diện: [CHỈ nếu CONTEXT.md có Frontend — hướng dẫn test UI cụ thể]
+> 4. Tất cả đã đúng? (y/n) - Nếu có lỗi, cho biết số thứ tự.
 
+Nếu project KHÔNG có Frontend → bỏ phần giao diện, chỉ hỏi database + API.
 Cho phép xác nhận batch.
 
 ## Bước 7: TEST_REPORT.md
@@ -156,8 +160,8 @@ Viết `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
 Tạo `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md` với header tối thiểu:
 ```markdown
 # Báo cáo lỗi (từ kiểm thử)
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Trung bình
-> Trạng thái: Chưa xử lý | Chức năng: [Tên]
+> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: [Nghiêm trọng/Cao/Trung bình/Nhẹ — theo ảnh hưởng]
+> Trạng thái: Chưa xử lý | Chức năng: [Tên] | Task: [N]
 > Patch version: [version hiện tại từ CURRENT_MILESTONE]
 
 ## Mô tả lỗi
@@ -167,9 +171,9 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 
 ## Bước 9: Cập nhật TASKS.md
 - Pass hết → giữ ✅
-- Có test fail → đổi 🐛, đề xuất `/sk:fix-bug`
+- Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass), đề xuất `/sk:fix-bug`
 
-## Bước 10: Git commit
+## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
 git add [*.spec.ts files]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md

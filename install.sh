@@ -13,6 +13,21 @@ CLAUDE_DIR="$HOME/.claude"
 COMMANDS_DIR="$CLAUDE_DIR/commands/sk"
 FASTCODE_DIR="$SCRIPT_DIR/FastCode"
 
+# Thay thế API key trong .env (cross-platform, injection-safe)
+update_env_key() {
+    local key_value="$1"
+    local env_file="$2"
+    local tmpfile
+    tmpfile=$(mktemp) || { printf "${RED}Error: mktemp failed${NC}\n"; return 1; }
+    while IFS= read -r line || [ -n "$line" ]; do
+        case "$line" in
+            OPENAI_API_KEY=*) printf 'OPENAI_API_KEY=%s\n' "$key_value" ;;
+            *) printf '%s\n' "$line" ;;
+        esac
+    done < "$env_file" > "$tmpfile"
+    mv "$tmpfile" "$env_file"
+}
+
 printf "${CYAN}╔══════════════════════════════════════╗${NC}\n"
 printf "${CYAN}║   Skills Installer for Claude Code   ║${NC}\n"
 printf "${CYAN}╚══════════════════════════════════════╝${NC}\n"
@@ -36,6 +51,12 @@ else
     exit 1
 fi
 PYTHON_VERSION=$($PYTHON_CMD --version | sed 's/Python //' | cut -d. -f1,2)
+PYTHON_MAJOR=$(echo "$PYTHON_VERSION" | cut -d. -f1)
+PYTHON_MINOR=$(echo "$PYTHON_VERSION" | cut -d. -f2)
+if [ "$PYTHON_MAJOR" -lt 3 ] || { [ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 12 ]; }; then
+    printf "${RED}✗ Python 3.12+ required (found $PYTHON_VERSION)${NC}\n"
+    exit 1
+fi
 printf "${GREEN}  ✓ Python $PYTHON_VERSION ($PYTHON_CMD)${NC}\n"
 
 if ! command -v uv &> /dev/null; then
@@ -94,15 +115,15 @@ if [ -f "$FASTCODE_DIR/.env" ]; then
         printf "${CYAN}  Nhập Gemini API Key của bạn (bắt buộc):${NC}\n"
         printf "  Lấy key tại: ${YELLOW}https://aistudio.google.com/apikey${NC}\n"
         printf "  → "
-        read -r GEMINI_KEY
+        read -rs GEMINI_KEY
+        echo ""
         if [ -z "$GEMINI_KEY" ]; then
-            echo ""
             printf "${RED}✗ Bạn chưa nhập Gemini API Key!${NC}\n"
             printf "${RED}  Không có API key thì FastCode MCP không hoạt động được.${NC}\n"
             printf "${RED}  Cài đặt thất bại. Chạy lại install.sh khi có key.${NC}\n"
             exit 1
         fi
-        sed -i '' "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=$GEMINI_KEY|" "$FASTCODE_DIR/.env"
+        update_env_key "$GEMINI_KEY" "$FASTCODE_DIR/.env"
         printf "${GREEN}  ✓ API key đã được lưu vào .env${NC}\n"
     fi
 else
@@ -111,16 +132,16 @@ else
     printf "${CYAN}  Nhập Gemini API Key của bạn (bắt buộc):${NC}\n"
     printf "  Lấy key tại: ${YELLOW}https://aistudio.google.com/apikey${NC}\n"
     printf "  → "
-    read -r GEMINI_KEY
+    read -rs GEMINI_KEY
+    echo ""
     if [ -z "$GEMINI_KEY" ]; then
-        echo ""
         printf "${RED}✗ Bạn chưa nhập Gemini API Key!${NC}\n"
         printf "${RED}  Không có API key thì FastCode MCP không hoạt động được.${NC}\n"
         printf "${RED}  Cài đặt thất bại. Chạy lại install.sh khi có key.${NC}\n"
         rm -f "$FASTCODE_DIR/.env"
         exit 1
     fi
-    sed -i '' "s|OPENAI_API_KEY=.*|OPENAI_API_KEY=$GEMINI_KEY|" "$FASTCODE_DIR/.env"
+    update_env_key "$GEMINI_KEY" "$FASTCODE_DIR/.env"
     printf "${GREEN}  ✓ API key đã được lưu vào .env${NC}\n"
 fi
 
