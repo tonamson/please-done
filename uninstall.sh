@@ -16,11 +16,14 @@ if [ -d "$COMMANDS_DIR" ]; then
     printf "${GREEN}  ✓ Removed skill commands${NC}\n"
 fi
 
-# Remove MCP
+# Remove MCP servers
 if command -v claude &> /dev/null; then
     claude mcp remove --scope user fastcode 2>/dev/null && \
         printf "${GREEN}  ✓ Removed FastCode MCP${NC}\n" || \
         printf "${YELLOW}  ⚠ FastCode MCP not found${NC}\n"
+    claude mcp remove --scope user context7 2>/dev/null && \
+        printf "${GREEN}  ✓ Removed Context7 MCP${NC}\n" || \
+        printf "${YELLOW}  ⚠ Context7 MCP not found${NC}\n"
 fi
 
 echo ""

@@ -148,18 +148,28 @@ if [ -d "$SCRIPT_DIR/commands/sk/rules" ]; then
     printf "${GREEN}  ✓ Rules directory linked${NC}\n"
 fi
 
-# ─── Step 6: Register MCP server ────────────────────────
+# ─── Step 6: Register MCP servers ───────────────────────
 echo ""
-printf "${YELLOW}[6/6] Registering FastCode MCP server...${NC}\n"
+printf "${YELLOW}[6/6] Registering MCP servers...${NC}\n"
 
+# FastCode MCP (BẮT BUỘC)
 PYTHON_PATH="$FASTCODE_DIR/.venv/bin/python"
 MCP_PATH="$FASTCODE_DIR/mcp_server.py"
 
-# Xóa MCP cũ nếu có, đăng ký lại với path đúng
 claude mcp remove --scope user fastcode 2>/dev/null || true
 claude mcp add --scope user fastcode -- "$PYTHON_PATH" "$MCP_PATH" 2>/dev/null && \
-    printf "${GREEN}  ✓ FastCode MCP registered (global)${NC}\n" || \
-    printf "${YELLOW}  ⚠ MCP registration failed${NC}\n"
+    printf "${GREEN}  ✓ FastCode MCP registered${NC}\n" || \
+    printf "${YELLOW}  ⚠ FastCode MCP registration failed${NC}\n"
+
+# Context7 MCP (TÙY CHỌN — tra cứu API thư viện)
+if command -v npx &> /dev/null; then
+    claude mcp remove --scope user context7 2>/dev/null || true
+    claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp@latest 2>/dev/null && \
+        printf "${GREEN}  ✓ Context7 MCP registered${NC}\n" || \
+        printf "${YELLOW}  ⚠ Context7 MCP registration failed (tùy chọn — skills vẫn hoạt động)${NC}\n"
+else
+    printf "${YELLOW}  ⚠ npx not found — bỏ qua Context7 MCP (tùy chọn)${NC}\n"
+fi
 
 # Lưu config path để skills biết repo ở đâu
 CONFIG_FILE="$COMMANDS_DIR/.skconfig"
