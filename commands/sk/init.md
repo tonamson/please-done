@@ -35,7 +35,12 @@ Gọi `mcp__fastcode__list_indexed_repos` để kiểm tra MCP server:
   > 3. Đã khởi động lại Claude Code sau khi cài chưa?
   > Chạy lại `/sk:init` sau khi khắc phục."
 
-## Bước 3: Index dự án trong FastCode
+## Bước 3: Kiểm tra project có code chưa
+Glob `**/*.{ts,tsx,js,jsx,py,html,json}` (trừ node_modules, .venv, .planning):
+- **CÓ source files** → `isNewProject = false`, tiếp tục Bước 3a
+- **KHÔNG có source files** (folder trống/chỉ có README) → `isNewProject = true`, nhảy sang Bước 4
+
+### Bước 3a: Index dự án trong FastCode (CHỈ khi isNewProject = false)
 Gọi `mcp__fastcode__code_qa`:
 - repos: [đường dẫn absolute của project]
 - question: "Liệt kê tất cả modules, tech stack, database type đang dùng."
@@ -43,6 +48,7 @@ Gọi `mcp__fastcode__code_qa`:
 Mục đích: pre-warm index để các skill sau gọi nhanh hơn.
 
 ## Bước 4: Phát hiện tech stack
+### Nếu isNewProject = false:
 Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Glob `**/nest-cli.json` → **hasBackend = true**
 - Glob `**/next.config.*` → **hasFrontend = true**
@@ -52,6 +58,12 @@ Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - `package.json` (backend + frontend nếu tách thư mục) → dependencies chính
 - `.planning/CURRENT_MILESTONE.md` (nếu có, từ session trước)
 - `.planning/ROADMAP.md` (nếu có, chỉ lấy milestone hiện tại)
+
+### Nếu isNewProject = true:
+Hỏi user: "Dự án mới chưa có code. Bạn muốn xây dựng gì?"
+- Ghi nhận mô tả dự án từ user (VD: "Chrome extension", "CLI tool", "React Native app")
+- `hasBackend`, `hasFrontend` = false (sẽ được detect lại khi có code)
+- `projectType` = mô tả từ user
 
 ## Bước 5: Tạo .planning/ structure
 ```bash
@@ -66,24 +78,23 @@ Tạo `.planning/CONTEXT.md`:
 > Khởi tạo: [DD_MM_YYYY HH:MM]
 > Đường dẫn: [absolute path]
 > FastCode MCP: Hoạt động
+> Dự án mới: [Có/Không]
 
 ## Tech Stack
-(CHỈ ghi stack CÓ trong project)
-- Backend: NestJS | Thư mục: [backend-dir]
-- Frontend: NextJS App Router | Thư mục: [frontend-dir]
-- Database: [MongoDB | TypeORM (MySQL) | Prisma]
-- Auth: [JWT | Session | OAuth | ...] (nếu có)
+(CHỈ ghi stack CÓ trong project — nếu project mới thì ghi mô tả từ user)
+- [stack]: [framework/tool] | Thư mục: [dir]
+- Database: [type] (nếu có)
 
 ## Thư viện chính
 | Tên | Phiên bản |
 |-----|-----------|
-(chỉ dependencies chính, bỏ devDeps, tối đa 20 dòng)
+(chỉ dependencies chính, bỏ devDeps, tối đa 20 dòng — bỏ section nếu project mới)
 
 ## Rules
 Quy tắc code nằm tại `.planning/rules/`:
 - `general.md` — quy tắc chung (luôn đọc)
-- `backend.md` — quy tắc NestJS (đọc khi task Backend)
-- `frontend.md` — quy tắc NextJS (đọc khi task Frontend)
+- `backend.md` — quy tắc NestJS (chỉ khi có NestJS)
+- `frontend.md` — quy tắc NextJS (chỉ khi có NextJS)
 
 ## Milestone hiện tại
 (nếu có từ session trước)
@@ -101,7 +112,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 - **Luôn copy**: `general.md`
 - **Nếu hasBackend = true**: copy `backend.md`
 - **Nếu hasFrontend = true**: copy `frontend.md`
-- **Nếu project chỉ có 1 stack**: CHỈ copy rules của stack đó + general
+- **Nếu project mới hoặc stack khác** (Chrome extension, CLI, v.v.): CHỈ copy `general.md`
 
 ## Bước 8: Thông báo kết quả
 ```
@@ -128,6 +139,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 - CONTEXT.md DƯỚI 50 dòng — chỉ info dự án, KHÔNG chứa coding rules
 - Coding rules nằm riêng trong `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/sk/rules/` (path lấy từ `.skconfig`)
 - Chỉ copy rules files phù hợp với tech stack detected (hasBackend/hasFrontend)
+- Project mới (isNewProject = true): skip FastCode indexing, hỏi user mô tả dự án, chỉ copy general.md
 - Sau này thêm stack mới (React Native, Flutter...) = thêm 1 file `commands/sk/rules/[stack].md` + thêm detection pattern ở Bước 4
 - FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại, KHÔNG có fallback
 - CẤM đọc/ghi/hiển thị nội dung file nhạy cảm (`.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`)

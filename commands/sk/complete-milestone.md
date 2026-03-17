@@ -25,16 +25,22 @@ Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả
 
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*/`:
-- `phase-*/TASKS.md` (BẮT BUỘC — mỗi phase phải có)
-- `phase-*/TEST_REPORT.md` (nếu có — milestone frontend-only hoặc phase không cần test có thể không có)
+- `phase-*/TASKS.md` (BẮT BUỘC — mỗi phase phải có VÀ phải có ít nhất 1 task, không chấp nhận phase rỗng)
+- `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS trong CONTEXT.md. Các stack khác bỏ qua)
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (BẮT BUỘC)
 
-Kiểm tra: tất cả tasks trong MỌI phase đều ✅? Nếu có TEST_REPORT → tất cả tests đạt?
+Kiểm tra:
+- Tất cả tasks trong MỌI phase đều ✅?
+- Nếu project có Backend VÀ có TEST_REPORT → tất cả tests đạt?
+- Nếu project KHÔNG có Backend → bỏ qua kiểm tra TEST_REPORT
 - Nếu có tasks CHƯA hoàn tất (⬜, 🔄, ❌, 🐛) → **CHẶN**:
   > "Không thể hoàn tất. Còn [X] tasks chưa ✅ trong milestone v[x.x]. Chạy `/sk:write-code` hoặc `/sk:fix-bug` trước."
 
-**Cross-check với ROADMAP**: Đọc `.planning/ROADMAP.md` → liệt kê TẤT CẢ phases định nghĩa cho milestone này. So sánh với phase directories thực tế tìm được. Nếu ROADMAP có phase chưa được plan (không có thư mục tương ứng) → **CHẶN**:
-> "Milestone v[x.x] có [N] phases trong ROADMAP nhưng chỉ [M] phases đã triển khai. Phases thiếu: [danh sách]. Chạy `/sk:plan [phase]` trước hoặc xác nhận bỏ qua."
+**Cross-check với ROADMAP**: Đọc `.planning/ROADMAP.md` → liệt kê TẤT CẢ phases định nghĩa cho milestone này. So sánh với phase directories thực tế tìm được. Nếu ROADMAP có phase chưa được plan (không có thư mục tương ứng):
+> "Milestone v[x.x] có [N] phases trong ROADMAP nhưng chỉ [M] phases đã triển khai. Phases thiếu: [danh sách].
+> 1. Chạy `/sk:plan [phase]` trước
+> 2. Bỏ qua phases thiếu và hoàn tất milestone (xác nhận: gõ 'bỏ qua')"
+- Nếu user chọn "bỏ qua" → tiếp tục hoàn tất, ghi chú phases bỏ qua trong MILESTONE_COMPLETE.md
 
 ## Bước 3: Kiểm tra bugs (filter theo milestone)
 Scan `.planning/bugs/BUG_*.md`, đọc dòng `> Patch version:` trong header mỗi bug:

@@ -22,7 +22,15 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu không → dùng thư mục hiện tại
 - Tạo `.planning/scan/` nếu chưa có
 
-## Bước 2: Quét cấu trúc bằng built-in tools
+## Bước 2: Kiểm tra project có code không
+Glob `**/*.{ts,tsx,js,jsx,py,html,css,json}` (trừ node_modules, .venv, .planning):
+- **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
+  - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
+  - Trạng thái hoàn thành: "Chưa bắt đầu"
+  - KHÔNG chạy Bước 3, 4
+- **CÓ source files** → tiếp tục quét bình thường
+
+## Bước 2a: Quét cấu trúc bằng built-in tools
 - **Glob** tìm file: `**/*.ts`, `**/*.tsx`, `**/*.json`, `**/*.prisma`, `**/Dockerfile`
 - **Read** config: `package.json`, `tsconfig.json`, `nest-cli.json`, `next.config.*`, `prisma/schema.prisma`
 - **Grep** patterns:
@@ -40,19 +48,20 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
   - API Layer: Read `**/lib/api.ts`, `**/lib/admin-api.ts` → liệt kê API functions
   - Types: Glob `**/types/*.ts` → liệt kê type files
 
-## Bước 3: Bổ sung bằng FastCode MCP
+## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
 Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md):
 - "Phân tích cấu trúc project, liệt kê modules, services, controllers, routes, models, utilities."
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với kết quả từ Bước 2a (built-in tools). KHÔNG DỪNG.
 
-## Bước 4: Kiểm tra bảo mật dependencies
-Chạy `npm audit` trong từng thư mục có `package.json` (backend, frontend, hoặc cả hai):
+## Bước 4: Kiểm tra bảo mật dependencies (CHỈ khi có package.json)
+Detect package manager: `yarn.lock` → yarn | `pnpm-lock.yaml` → pnpm | mặc định → npm.
+Chạy audit trong từng thư mục có `package.json` (backend, frontend, hoặc cả hai):
 ```bash
 # Tìm tất cả thư mục có package.json (trừ node_modules)
 # Chạy npm audit --production trong mỗi thư mục
-cd [backend-dir] && npm audit --production 2>/dev/null
-cd [frontend-dir] && npm audit --production 2>/dev/null
+cd [backend-dir] && [npm|yarn|pnpm] audit --production 2>/dev/null | tail -30
+cd [frontend-dir] && [npm|yarn|pnpm] audit --production 2>/dev/null | tail -30
 ```
 Liệt kê lỗ hổng theo mức độ (nghiêm trọng, cao, trung bình, thấp) + ghi rõ thuộc backend hay frontend.
 
@@ -128,10 +137,11 @@ In tóm tắt kết quả cho user.
 <rules>
 - Tuân thủ quy tắc trong `.planning/rules/general.md` (ngôn ngữ, ngày tháng, bảo mật)
 - Không sửa code, chỉ quét và báo cáo
+- Project mới (chưa có code) → tạo scan report tối giản, KHÔNG gọi FastCode, KHÔNG chạy npm audit
 - CHỈ tạo sections có dữ liệu trong report, bỏ section rỗng
 - Section "Trạng thái hoàn thành" BẮT BUỘC
 - PHẢI liệt kê thư viện từ package.json + chạy npm audit cho từng thư mục (backend/frontend)
 - Phân tích Frontend CHỈ khi tồn tại `next.config.*` — bỏ qua nếu project không có frontend
 - Phân tích Backend CHỈ khi tồn tại `nest-cli.json` — bỏ qua nếu project không có backend
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
 </rules>

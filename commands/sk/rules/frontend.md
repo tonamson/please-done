@@ -37,7 +37,7 @@
 - Admin API: truyền `token: string` param, set `Authorization: Bearer ${token}`
 
 ## Pages (App Router)
-- URL tiếng Việt kebab-case: `/san-pham/[slug]`, `/gio-hang`, `/dat-hang/xac-nhan`
+- URL kebab-case theo cấu trúc dự án, **mặc định tiếng Anh** (chỉ dùng tiếng Việt nếu dự án đang chuẩn hoá route tiếng Việt): `/products/[slug]`, `/cart`, `/checkout/confirm`
 - `export const dynamic = 'force-dynamic'` khi cần dữ liệu realtime
 - `Promise.allSettled` cho parallel data fetching, xử lý từng result riêng
 - `export async function generateMetadata()` cho SEO (title, description, OG, canonical)
@@ -52,6 +52,24 @@
 - `const [form] = Form.useForm<FormValues>()`
 - Validation dùng antd rules: `{ required, pattern, max, message: '...' }` (ngôn ngữ theo dự án, mặc định tiếng Việt)
 - Submit handler: `async function handleFinish(values: FormValues)` với try/catch + loading state
+
+## Giao diện Admin (Backend Interface)
+- **Thuần Ant Design v6** — BẮT BUỘC tra cứu `mcp__context7__query-docs` (antd) trước khi dùng component/API mới
+- Mỗi lần tạo/sửa component admin → research Context7 để verify props, cú pháp, tham số đúng version
+- Nếu Context7 không có → dùng FastCode `mcp__fastcode__code_qa` kiểm tra pattern đang dùng trong project
+
+### Phân quyền giao diện
+- Mỗi page/menu admin PHẢI kiểm tra role trước khi render
+- Route guard: redirect về `/admin/unauthorized` hoặc `/admin/login` nếu không có quyền
+- Menu items: ẩn hoàn toàn menu item nếu user không có role tương ứng
+- Buttons/actions: **disable hoặc ẩn** nếu API endpoint yêu cầu role mà user không có
+- KHÔNG để user thao tác rồi mới báo lỗi 403 từ API — phải chặn từ giao diện
+
+### Đồng bộ quyền Backend ↔ Frontend
+- Đọc role/permissions từ JWT token (decode payload) hoặc API `/auth/me`
+- Lưu vào Zustand store: `useAuthStore` với `user.roles` / `user.permissions`
+- Helper: `hasRole(role)`, `hasPermission(perm)` → dùng để ẩn/hiện/disable
+- Khi backend thêm Guard/Role mới cho API → frontend PHẢI cập nhật ẩn/hiện tương ứng
 
 ## Build & Lint
 - Lint: `npx eslint --fix`

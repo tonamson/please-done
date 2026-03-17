@@ -48,7 +48,7 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 
 3. **Đọc CODE_REPORT** → Glob `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
 
-4. **Đọc TEST_REPORT** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
+4. **Đọc TEST_REPORT** (CHỈ nếu project có Backend trong CONTEXT.md) → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
 
 ## Bước 4: Phân tích + gợi ý
 Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo **thứ tự ưu tiên** (chỉ gợi ý 1 hành động chính):

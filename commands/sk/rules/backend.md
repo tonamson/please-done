@@ -34,6 +34,15 @@
 - Dự án throw tiếng Anh → dùng tiếng Anh
 - Không xác định được → mặc định tiếng Việt
 
+## Phân quyền API (Guard + JWT)
+- BẮT BUỘC tra cứu `mcp__context7__query-docs` (nestjs) khi tạo/sửa Guard, JWT strategy, Role decorator
+- Dùng FastCode `mcp__fastcode__code_qa` kiểm tra pattern Guard/Role đang dùng trong project trước khi viết mới
+- `@UseGuards(JwtAuthGuard, RolesGuard)` trên controller/route cần bảo vệ
+- `@Roles('admin', 'editor')` decorator chỉ định role được phép
+- JWT payload chứa: `{ sub, email, roles }` — KHÔNG chứa thông tin nhạy cảm
+- Guard trả `ForbiddenException` / `UnauthorizedException` với message rõ ràng
+- Khi thêm/sửa Guard cho API → ghi chú trong CODE_REPORT để frontend biết cập nhật ẩn/hiện
+
 ## Bảo mật code
 - Password: bcrypt(10), strip khỏi response
 - Sort: whitelist allowedSortFields chống injection

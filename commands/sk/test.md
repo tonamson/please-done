@@ -22,12 +22,14 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
-- **Nếu project KHÔNG có Backend** (chỉ có Frontend): DỪNG, thông báo "Skill test chỉ hỗ trợ Backend NestJS. Project này không có backend."
+- **Nếu project KHÔNG có Backend NestJS** (chỉ Frontend, hoặc stack khác): DỪNG, thông báo "Skill test hiện chỉ hỗ trợ Backend NestJS. Project này không áp dụng được."
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
   - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
-- Đọc `.planning/milestones/[version]/phase-[phase]/PLAN.md` → thiết kế kỹ thuật, API endpoints, request/response format
+- Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có tasks. Chạy `/sk:plan` trước."
+- Đọc PLAN.md → thiết kế kỹ thuật, API endpoints, request/response format
 - Nếu `$ARGUMENTS` chỉ định task → test riêng task đó
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅

@@ -37,8 +37,9 @@ Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
 - Nếu CÓ tasks đã hoàn thành → **CẢNH BÁO**:
   > "Phase [x.x] đã có plan với [N] task hoàn thành. Bạn muốn:
   > 1. LÊN KẾ HOẠCH LẠI phase này (ghi đè)
-  > 2. CHUYỂN SANG phase tiếp theo (VD: [x.x+1])
+  > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP]
   > 3. HỦY"
+  - Nếu không còn phase nào chưa plan → chỉ hiện option 1 và 3
 - Nếu KHÔNG có tasks hoàn thành (tất cả ⬜) → cho phép ghi đè không cần hỏi
 
 ## Bước 2: Tạo thư mục
@@ -46,6 +47,7 @@ Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
 - `.planning/milestones/[version]/phase-[phase]/reports/`
 
 ## Bước 3: Research dự án
+### Nếu project đã có code:
 Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md) kết hợp Grep/Read để thu thập đủ ngữ cảnh:
 
 1. **Code tái sử dụng**: "Liệt kê utility functions, helpers, shared services có thể tái sử dụng."
@@ -56,6 +58,11 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 Dùng FastCode cho câu hỏi broad. Sau đó dùng Grep/Read verify chi tiết cụ thể nếu cần (VD: đọc file entity thực tế, kiểm tra imports).
 
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+
+### Nếu project mới (chưa có code):
+- Skip FastCode (không có gì để index)
+- Research qua Context7: tra cứu docs của framework/thư viện dự kiến dùng (từ CONTEXT.md)
+- Thiết kế dựa trên yêu cầu từ ROADMAP.md + kiến thức về stack
 
 **Tra cứu API thư viện qua Context7** (nếu deliverable dùng thư viện cần research):
 1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện, query: mô tả nhu cầu) → lấy library ID
@@ -68,7 +75,7 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 ## Bước 4: Thiết kế kỹ thuật
 Cho mỗi deliverable, thiết kế theo loại:
 
-**Backend (nếu có):**
+**Backend (nếu có — đọc CONTEXT.md xác định framework: NestJS, Express, v.v.):**
 - API endpoints (method, path, request/response)
 - Database entities/relations + **migration strategy**:
   - Prisma: `npx prisma migrate dev --name [tên]`
@@ -77,12 +84,16 @@ Cho mỗi deliverable, thiết kế theo loại:
 - DTOs, validators
 - Guards, middleware
 
-**Frontend (nếu có):**
+**Frontend (nếu có — đọc CONTEXT.md xác định framework: NextJS, React, v.v.):**
 - Pages/routes cần tạo (app/ structure, Server hay Client Component)
 - Components cần tạo/sửa (domain folder nào, props interface)
 - Zustand stores (state mới hay mở rộng store có sẵn)
 - API integration (thêm function vào lib/api.ts hay lib/admin-api.ts)
 - UI: Ant Design components dự kiến dùng
+
+**Stack khác (Chrome extension, CLI, v.v.):**
+- Thiết kế theo đặc thù stack (VD: manifest.json, background/content scripts, popup UI...)
+- Tham khảo docs qua Context7 hoặc `.planning/docs/`
 
 **Chung:**
 - Files cần tạo/sửa
@@ -98,7 +109,8 @@ Nguyên tắc:
 4. **Core logic trước** → Validation sau
 5. **Module mới** = 1 task riêng
 6. Mỗi task: atomic, tối đa 5-7 files, tiêu chí chấp nhận rõ ràng
-7. Ghi rõ **Loại** mỗi task: `Backend` | `Frontend` | `Fullstack`
+7. Ghi rõ **Loại** mỗi task: `Backend` | `Frontend` | `Fullstack` | `[Stack khác]`
+8. **Stack khác** (Chrome extension, CLI, v.v.): thứ tự theo đặc thù stack (VD: config/manifest trước → core logic → UI)
 
 ## Bước 6: Tạo PLAN.md
 Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:

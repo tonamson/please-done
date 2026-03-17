@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` hoặc `frontend.md` → theo loại lỗi
+- `.planning/rules/backend.md` hoặc `frontend.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 </context>

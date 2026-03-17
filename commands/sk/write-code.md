@@ -17,8 +17,8 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
 - `.planning/rules/general.md` → quy tắc chung (luôn đọc)
-- `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack)
-- `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack)
+- `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
+- `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 </context>
@@ -30,8 +30,11 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn task để thực hiện."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
   - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
-- Đọc `.planning/milestones/[version]/phase-[phase]/PLAN.md` → thiết kế kỹ thuật
-- Đọc `.planning/milestones/[version]/phase-[phase]/TASKS.md` → danh sách tasks
+- Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
+  - KHÔNG → **DỪNG**, thông báo: "PLAN.md không tồn tại. Chạy `/sk:plan` để tạo."
+- Đọc PLAN.md → thiết kế kỹ thuật
+- Đọc TASKS.md → danh sách tasks
+- Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
 
 Chọn task:
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
@@ -51,9 +54,11 @@ Cập nhật trạng thái → 🔄
 - `.planning/rules/` chứa đầy đủ quy tắc code — đọc file rules phù hợp với Loại task
 
 ## Bước 3: Research code hiện có + tra cứu thư viện
-Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md):
-1. "Patterns đang dùng cho [loại file cần tạo]."
-2. "Functions/services tái sử dụng cho [task]."
+Đọc CONTEXT.md → kiểm tra `Dự án mới`:
+- **Dự án mới = Có VÀ chưa có source files**: skip FastCode, chỉ dùng Context7 tra cứu docs thư viện
+- **Có code rồi**: dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md):
+  1. "Patterns đang dùng cho [loại file cần tạo]."
+  2. "Functions/services tái sử dụng cho [task]."
 
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
 
@@ -62,6 +67,8 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 2. `mcp__context7__query-docs` (libraryId: ID từ bước 1, query: "câu hỏi cụ thể về API cần dùng") → lấy docs đúng version
 - **TỰ ĐỘNG tra cứu** khi task cần dùng API của thư viện — KHÔNG cần user yêu cầu
 - Ưu tiên Context7 hơn đoán API từ memory — đảm bảo đúng version + đúng cú pháp
+- **Giao diện Admin**: BẮT BUỘC tra Context7 (antd) cho mỗi component Ant Design mới — verify props, cú pháp, tham số
+- **Guard/JWT/Role**: BẮT BUỘC tra Context7 (nestjs) + FastCode pattern hiện có trước khi viết
 - Nếu Context7 MCP không có → dùng `.planning/docs/` (từ `/sk:fetch-doc`) hoặc knowledge sẵn có
 
 ## Bước 4: Viết code
@@ -77,7 +84,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
   - MongoDB: migration script hoặc `migrate-mongo`
   - TypeORM: `npx typeorm migration:generate -n [Tên]`
 
-**Nếu task Frontend:**
+**Nếu task Frontend (NextJS):**
 - Tuân thủ cấu trúc thư mục frontend trong `.planning/rules/frontend.md`
 - Inline styles `style={{}}` — KHÔNG CSS modules, KHÔNG Tailwind
 - Ant Design v6 components + `theme.useToken()` cho dynamic values
@@ -85,12 +92,20 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - Zustand stores theo pattern `create<State>()(persist(...))`
 - API calls: native `fetch`, KHÔNG axios
 
+**Nếu task stack khác** (Chrome extension, CLI, v.v.):
+- Tuân thủ thiết kế trong PLAN.md + quy tắc chung trong `general.md`
+- Tra cứu docs thư viện qua Context7 nếu cần
+
 ## Bước 5: Lint + Build
-Đọc CONTEXT.md → Tech Stack → xác định thư mục backend/frontend.
-Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` → mục **Build & Lint** → lấy lệnh lint + build + cách detect thư mục.
+Đọc CONTEXT.md → Tech Stack → xác định thư mục + công cụ build.
+
+**Nếu có rules file** (backend.md/frontend.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
+**Nếu không có rules file** (stack khác): đọc `package.json` scripts → dùng `npm run lint` / `npm run build` nếu có, hoặc skip nếu project chưa setup build.
+
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
 
 Nếu thất bại → sửa code, chạy lại cho đến khi pass.
+Nếu chưa có lint/build config (project mới) → skip bước này, ghi chú trong report.
 
 ## Bước 6: Tạo báo cáo
 Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N].md`:
@@ -114,7 +129,7 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 
 ## Bước 7: Cập nhật TASKS.md → ✅
 
-## Bước 8: Git commit
+## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
 git add [source code files đã tạo/sửa ở Bước 4]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
@@ -131,13 +146,16 @@ Nếu phase hiện tại KHÔNG còn task ⬜ (tất cả ✅):
 - Đánh dấu tất cả deliverables: `- [ ]` → `- [x]`
 
 ## Bước 10: Tiếp tục hoặc dừng
-**Nếu `--auto`**: còn task ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user). Lặp đến khi hết task ⬜ hoặc gặp lỗi build.
+**Nếu `--auto`**: còn task ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user). Dừng khi:
+- Hết task ⬜ → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/sk:test`, `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`"
+- Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
+- Nếu lint/build được skip (project chưa setup build tools) → tiếp tục task tiếp theo bình thường
 
 **Nếu KHÔNG có `--auto`**: DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
-  - `/sk:test` → chạy kiểm thử (nếu có backend)
+  - `/sk:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS)
   - `/sk:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
   - `/sk:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
 </process>
