@@ -9,6 +9,10 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 
 <context>
 User input: $ARGUMENTS
+- Có thể là task number (VD: `3`) → làm task cụ thể
+- Có thể là `--auto` → làm TẤT CẢ tasks còn lại trong phase, không hỏi giữa chừng
+- Có thể kết hợp: `3 --auto` → bắt đầu từ task 3, làm hết phase
+- Không có gì → pick task tiếp theo ⬜, làm xong 1 task thì DỪNG hỏi user
 
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
@@ -126,10 +130,13 @@ Nếu phase hiện tại KHÔNG còn task ⬜ (tất cả ✅):
 - Đọc `.planning/ROADMAP.md` → tìm phase hiện tại (VD: `#### Phase 1.1:`)
 - Đánh dấu tất cả deliverables: `- [ ]` → `- [x]`
 
-## Bước 10: Thông báo
+## Bước 10: Tiếp tục hoặc dừng
+**Nếu `--auto`**: còn task ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user). Lặp đến khi hết task ⬜ hoặc gặp lỗi build.
+
+**Nếu KHÔNG có `--auto`**: DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
-- Nếu còn task ⬜ trong phase → hỏi tiếp tục task tiếp theo không
-- Nếu phase hiện tại hết task ⬜ → đề xuất:
+- Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
+- Nếu hết task ⬜ → đề xuất:
   - `/sk:test` → chạy kiểm thử (nếu có backend)
   - `/sk:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
   - `/sk:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
