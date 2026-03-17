@@ -7,7 +7,7 @@
 
 ## Service
 - private readonly logger = new Logger(XxxService.name)
-- Async + try/catch: re-throw NestJS exceptions, wrap unknown → message tiếng Việt
+- Async + try/catch: re-throw NestJS exceptions, wrap unknown → message theo ngôn ngữ throw lỗi của dự án (xem mục Ngôn ngữ message)
 - Config: this.configService.get('KEY'), KHÔNG hardcode
 
 ## DTO
@@ -26,7 +26,13 @@
 ## Response & Error
 - Phân trang: { docs, page, limit, totalDocs, totalPages }
 - Query lỗi: return { docs:[], page, limit, totalPages:1 }
-- Mutate lỗi: throw NestJS exception tiếng Việt
+- Mutate lỗi: throw NestJS exception (ngôn ngữ theo dự án)
+
+## Ngôn ngữ message (DTO validation, error, exception)
+- Grep pattern throw/message trong code hiện có để xác định ngôn ngữ dự án dùng
+- Dự án throw tiếng Việt → dùng tiếng Việt
+- Dự án throw tiếng Anh → dùng tiếng Anh
+- Không xác định được → mặc định tiếng Việt
 
 ## Bảo mật code
 - Password: bcrypt(10), strip khỏi response

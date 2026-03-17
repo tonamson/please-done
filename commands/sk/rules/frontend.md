@@ -33,7 +33,7 @@
 - Client-side: native `fetch()` dùng `PUBLIC_API_URL` (/api qua Nginx proxy)
 - KHÔNG dùng axios — chỉ native `fetch`
 - Mỗi function: `export async function fetchXxx(): Promise<T>` + JSDoc kèm HTTP method + endpoint
-- Error: try parse `body.message` → `throw new Error('message tiếng Việt')`
+- Error: try parse `body.message` → `throw new Error('message')` (ngôn ngữ theo backend)
 - Admin API: truyền `token: string` param, set `Authorization: Bearer ${token}`
 
 ## Pages (App Router)
@@ -50,7 +50,7 @@
 
 ## Form (antd Form)
 - `const [form] = Form.useForm<FormValues>()`
-- Validation dùng antd rules: `{ required, pattern, max, message: 'tiếng Việt' }`
+- Validation dùng antd rules: `{ required, pattern, max, message: '...' }` (ngôn ngữ theo dự án, mặc định tiếng Việt)
 - Submit handler: `async function handleFinish(values: FormValues)` với try/catch + loading state
 
 ## Build & Lint
