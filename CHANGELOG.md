@@ -1,5 +1,11 @@
 # Nhật ký thay đổi Skills
 
+## [1.1.2] - 18_03_2026
+### Thay đổi
+- `complete-milestone.md`: Thêm gợi ý chạy `/sk:scan` sau khi hoàn tất milestone để cập nhật kiến trúc
+- `update.md`: Xóa cache status line (`sk-update-check.json`) sau khi cập nhật thành công — ngừng hiện thông báo ngay
+- `update.md`: Thêm rule bắt buộc xóa cache sau update
+
 ## [1.1.1] - 18_03_2026
 ### Thêm mới
 - Thông báo version mới trên status line (góc trái dưới) — `⬆ Skills v[x.x.x] — /sk:update`

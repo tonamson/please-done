@@ -2,7 +2,7 @@
 
 Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v1.1.1**
+**Phiên bản hiện tại: v1.1.2**
 
 ## Yêu cầu
 

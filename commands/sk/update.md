@@ -92,11 +92,17 @@ cd [SKILLS_DIR] && git submodule update --init --recursive 2>/dev/null
 ```
 Nếu FastCode submodule có thay đổi → thông báo: "FastCode cũng đã được cập nhật."
 
-## Bước 8: Cập nhật .skconfig
+## Bước 8: Cập nhật .skconfig + xóa cache thông báo
 Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.skconfig`:
 - Nếu dòng `CURRENT_VERSION=` đã tồn tại → **thay thế** giá trị (KHÔNG append thêm dòng mới)
 - Nếu chưa có → thêm dòng mới
 - Giữ nguyên SKILLS_DIR/FASTCODE_DIR
+
+Xóa cache thông báo update trên status line:
+```bash
+rm -f ~/.claude/cache/sk-update-check.json
+```
+→ Status line sẽ ngừng hiện `⬆ Skills v[x.x.x]` ngay lập tức.
 
 ## Bước 9: Thông báo
 ```
@@ -123,5 +129,6 @@ Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.skconfig`:
 - `--check` (mặc định): chỉ kiểm tra, hỏi trước khi update
 - `--apply`: cập nhật ngay không hỏi
 - PHẢI hiển thị changelog trước khi cập nhật
+- PHẢI xóa `~/.claude/cache/sk-update-check.json` sau khi cập nhật thành công — để status line ngừng hiện thông báo
 - PHẢI gợi ý restart sau khi cập nhật xong
 </rules>
