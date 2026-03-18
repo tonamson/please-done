@@ -1,0 +1,41 @@
+{
+  "name": "skills-cc",
+  "version": "1.2.2",
+  "description": "Cross-platform AI coding skills — Claude Code, Codex, Gemini CLI, OpenCode, Copilot",
+  "bin": {
+    "skills-cc": "bin/install.js"
+  },
+  "files": [
+    "bin",
+    "commands",
+    "VERSION",
+    "CHANGELOG.md",
+    "env.example"
+  ],
+  "engines": {
+    "node": ">=16.7.0"
+  },
+  "scripts": {
+    "install:claude": "node bin/install.js --claude",
+    "install:codex": "node bin/install.js --codex",
+    "install:gemini": "node bin/install.js --gemini",
+    "install:all": "node bin/install.js --all",
+    "uninstall:claude": "node bin/install.js --uninstall --claude",
+    "test": "node tests/run.cjs"
+  },
+  "keywords": [
+    "claude-code",
+    "codex",
+    "gemini-cli",
+    "opencode",
+    "copilot",
+    "ai-skills",
+    "cross-platform"
+  ],
+  "author": "tonamson",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonamson/skills.git"
+  }
+}
