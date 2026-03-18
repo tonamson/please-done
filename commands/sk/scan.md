@@ -49,6 +49,8 @@ Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning — KH
   - Types: Glob `**/types/*.ts` → liệt kê type files
 
 ## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
+Validate đường dẫn trong CONTEXT.md khớp với thư mục hiện tại (`pwd`). Nếu khác → cảnh báo user trước khi tiếp tục.
+
 Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md):
 - "Phân tích cấu trúc project, liệt kê modules, services, controllers, routes, models, utilities."
 
@@ -132,16 +134,16 @@ Entities | Quan hệ | Migrations (ghi rõ Prisma/Mongoose)
 **CHỈ tạo sections có dữ liệu.** Bỏ section rỗng không liên quan.
 
 ## Bước 6: Cập nhật CONTEXT.md + Rules
+**CHỈ chạy khi project có code (Bước 2 xác nhận CÓ source files). Nếu project mới → bỏ qua bước này.**
+
 Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản ánh trạng thái hiện tại:
 
 1. **Re-detect tech stack**:
-   - Glob `**/nest-cli.json` → hasBackend
-   - Glob `**/next.config.*` → hasFrontend
-   - Grep `MongooseModule|TypeOrmModule|PrismaService` → DB type
+   Dùng kết quả detect từ Bước 2a. Nếu kết quả từ Bước 2a không có (edge case) → re-detect tương tự Bước 2a.
 
 2. **Cập nhật CONTEXT.md** (giữ format gốc từ init, DƯỚI 50 dòng):
-   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files)
-   - Thêm/cập nhật dòng `> Cập nhật: [DD_MM_YYYY HH:MM]` (ngay sau dòng `Khởi tạo`)
+   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files). Nếu project mới (Bước 2 skip Bước 3,4,6) → flag KHÔNG được update bởi scan. Flag sẽ được update khi `/sk:write-code` hoàn tất task đầu tiên hoặc khi scan chạy lại sau khi có code.
+   - Cập nhật dòng `> Cập nhật: [DD_MM_YYYY HH:MM]` (dòng này đã có sẵn từ init template, chỉ cần update value)
    - Tech Stack: cập nhật theo kết quả scan mới
    - Thư viện chính: cập nhật từ package.json hiện tại (tối đa 20 dòng, bỏ devDeps)
    - Milestone hiện tại: giữ nguyên (nếu có)
@@ -152,7 +154,7 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
    - Nếu KHÁC (VD: thêm frontend mới, xóa backend):
      - Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`
      - Nếu `.skconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .skconfig"
-     - Nếu CÓ → xóa rules cũ trong `.planning/rules/` → copy lại rules phù hợp (general + backend/frontend theo stack mới)
+     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend theo stack mới)
    - Nếu GIỐNG → không cần copy lại
 
 ## Bước 7: Thông báo
@@ -167,8 +169,8 @@ In tóm tắt kết quả cho user. Nếu CONTEXT.md hoặc rules đã được 
 - Section "Trạng thái hoàn thành" BẮT BUỘC
 - PHẢI liệt kê thư viện từ package.json + chạy audit **NẾU project có package.json**. Nếu không có package.json → bỏ section Thư viện và Cảnh báo bảo mật
 - CẤM đọc/hiển thị nội dung `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
-- Phân tích Frontend CHỈ khi tồn tại `next.config.*` — bỏ qua nếu project không có frontend
-- Phân tích Backend CHỈ khi tồn tại `nest-cli.json` — bỏ qua nếu project không có backend
+- Phân tích Frontend CHỈ khi detect được frontend framework (NextJS qua `next.config.*`, Vite qua `vite.config.*`, hoặc nhiều file `.tsx/.jsx`) — bỏ qua nếu không detect được. Các stack ngoài NextJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
+- Phân tích Backend CHỈ khi detect được backend framework (NestJS qua `nest-cli.json`/`app.module.ts`, Express qua `app.js`/`app.ts` + `express` trong package.json) — bỏ qua nếu không detect được. Các stack ngoài NestJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
 - PHẢI cập nhật CONTEXT.md sau khi quét — đảm bảo context luôn phản ánh trạng thái hiện tại của dự án
 - Nếu tech stack thay đổi so với CONTEXT.md cũ → PHẢI re-copy rules tương ứng vào `.planning/rules/`

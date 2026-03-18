@@ -2,7 +2,7 @@
 
 Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v1.1.2**
+**Phiên bản hiện tại: v1.2.0**
 
 ## Yêu cầu
 
@@ -115,7 +115,7 @@ Rules được `/sk:init` tự động copy vào `.planning/rules/` theo tech st
 
 | Lệnh | Hành vi |
 |-------|---------|
-| `/sk:plan` | Chế độ **AUTO** — Claude tự quyết định toàn bộ thiết kế |
+| `/sk:plan` | Chế độ **AUTO** — Claude tự quyết định, ghi lại mọi quyết định + lý do để user review |
 | `/sk:plan --discuss` | Chế độ **DISCUSS** — thảo luận tương tác tính năng với user |
 | `/sk:plan 1.2` | Plan cho phase cụ thể |
 | `/sk:plan 1.2 --discuss` | Plan phase 1.2 với thảo luận |
@@ -242,8 +242,12 @@ Skills hoạt động với cả project mới lẫn project có sẵn code:
 
 | Stack | Framework | Database | Detect bằng |
 |-------|-----------|----------|-------------|
-| Backend | NestJS | MongoDB/Mongoose, TypeORM, Prisma | `nest-cli.json` |
+| Backend | NestJS | MongoDB/Mongoose, TypeORM, Prisma | `nest-cli.json`, `app.module.ts` |
+| Backend | Express | - | `app.js`/`app.ts` + `express` trong package.json |
 | Frontend | NextJS App Router | - | `next.config.*` |
+| Frontend | Vite/React | - | `vite.config.*`, nhiều `.tsx/.jsx` files |
+
+NestJS và NextJS có rules + phân tích chi tiết. Các stack khác được detect nhưng chỉ liệt kê files, áp dụng `general.md`.
 
 **Mở rộng stack mới**: Thêm file `commands/sk/rules/[stack].md` + detection pattern trong `init.md` Bước 4.
 

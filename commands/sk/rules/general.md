@@ -15,8 +15,31 @@
 ## Icons trạng thái
 ⬜ Chưa bắt đầu | 🔄 Đang thực hiện | ✅ Hoàn tất | ❌ Bị chặn | 🐛 Có lỗi
 
+## Trạng thái icons — pattern matching
+Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
+- Match pattern: `Trạng thái: [icon]` (có thể có `> ` prefix)
+- Icons: ⬜ (chưa), 🔄 (đang), ✅ (xong), 🐛 (bug), ❌ (lỗi)
+
 ## Version
 - Số thuần trong path (1.0), prefix v khi hiển thị (v1.0)
+
+## Phase & Version numbering
+- Milestone version: LUÔN 2 số (x.y). VD: 1.0, 1.1, 2.0
+- Phase number: LUÔN 2 số (x.y). VD: 1.1, 1.2, 2.1
+- Patch version (bugs): LUÔN 3 số (x.y.z). VD: 1.0.1, 1.0.2
+- KHÔNG dùng version 3 số cho milestone, KHÔNG dùng chữ cái trong phase
+
+## Format chuẩn CURRENT_MILESTONE.md
+- milestone: [tên milestone]
+- version: [x.y] (LUÔN 2 số)
+- phase: [x.y] (phase hiện tại)
+- status: [Chưa bắt đầu | Đang thực hiện | Hoàn tất toàn bộ]
+
+## Format cột Phụ thuộc trong TASKS.md
+- `Không` = không phụ thuộc task nào
+- `Task N` = phụ thuộc 1 task (VD: `Task 1`)
+- `Task N, Task M` = phụ thuộc nhiều tasks (VD: `Task 1, Task 3`)
+- Annotation optional: `Task N (shared file)` — chỉ là metadata, parse bỏ qua phần trong ngoặc
 
 ## Git & Commit
 - Kiểm tra project có git không (Bash: `git rev-parse --git-dir 2>/dev/null`). Nếu KHÔNG có git → **BỎ QUA** tất cả bước git add/commit/tag trong mọi skill

@@ -39,6 +39,7 @@ cd [SKILLS_DIR] && git show origin/main:VERSION 2>/dev/null
 ```
 
 So sánh `LOCAL_VERSION` với `REMOTE_VERSION`:
+- **Cách so sánh semver:** Tách version thành mảng số [major, minor, patch], so sánh từng phần. Hoặc dùng bash: `printf '%s\n' "$LOCAL" "$REMOTE" | sort -V | tail -1` để lấy version lớn hơn.
 - **GIỐNG** → thông báo: "Bộ skills đã là phiên bản mới nhất (v[x.x.x])." → **DỪNG**
 - **REMOTE mới hơn** (semver so sánh: REMOTE > LOCAL, hoặc LOCAL = unknown) → tiếp tục Bước 4
 - **LOCAL mới hơn REMOTE** (LOCAL > REMOTE) → thông báo: "Bạn đang có phiên bản local (v[LOCAL]) mới hơn remote (v[REMOTE]). Không cần cập nhật." → **DỪNG**
@@ -49,6 +50,8 @@ So sánh `LOCAL_VERSION` với `REMOTE_VERSION`:
 # Lấy changelog diff từ remote
 cd [SKILLS_DIR] && git show origin/main:CHANGELOG.md 2>/dev/null
 ```
+
+Chỉ hiện CHANGELOG entries MỚI HƠN LOCAL_VERSION: parse CHANGELOG, tìm section header chứa LOCAL_VERSION, hiện từ đầu file đến section đó (không bao gồm).
 
 Hiển thị changelog của version mới:
 ```
@@ -74,6 +77,10 @@ Hỏi user: "Bạn muốn cập nhật ngay? (y/n)"
 - **n** → **DỪNG**, thông báo: "Bạn có thể chạy `/sk:update --apply` khi sẵn sàng."
 
 ## Bước 6: Cập nhật
+Kiểm tra branch hiện tại: `git -C [SKILLS_DIR] branch --show-current`. Nếu KHÔNG phải `main` → `git -C [SKILLS_DIR] checkout main` trước khi pull. Nếu checkout fail (có uncommitted changes) → cảnh báo user và **DỪNG**.
+
+Lưu commit hiện tại: `OLD_COMMIT=$(git -C [SKILLS_DIR] rev-parse HEAD)`
+
 ```bash
 cd [SKILLS_DIR] && git pull origin main
 ```
@@ -87,12 +94,16 @@ Nếu thành công:
 - Đọc `VERSION` mới → xác nhận version đã cập nhật
 
 ## Bước 7: Kiểm tra submodules
+Kiểm tra `.gitmodules` tồn tại trong SKILLS_DIR trước khi chạy submodule update. Nếu không có → bỏ qua bước này.
+
 ```bash
-cd [SKILLS_DIR] && git submodule update --init --recursive 2>/dev/null
+cd [SKILLS_DIR] && [ -f .gitmodules ] && git submodule update --init --recursive 2>/dev/null
 ```
-Nếu FastCode submodule có thay đổi → thông báo: "FastCode cũng đã được cập nhật."
+Nếu `.gitmodules` tồn tại VÀ FastCode submodule có thay đổi → thông báo: "FastCode cũng đã được cập nhật."
 
 ## Bước 8: Cập nhật .skconfig + xóa cache thông báo
+Ghi nhớ `OLD_VERSION` = `LOCAL_VERSION` (trước khi cập nhật) để dùng cho rollback guidance.
+
 Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.skconfig`:
 - Nếu dòng `CURRENT_VERSION=` đã tồn tại → **thay thế** giá trị (KHÔNG append thêm dòng mới)
 - Nếu chưa có → thêm dòng mới
@@ -116,6 +127,12 @@ rm -f ~/.claude/cache/sk-update-check.json
 ║ để load skills phiên bản mới.       ║
 ║                                      ║
 ║ Nhấn Ctrl+C → chạy lại `claude`     ║
+║                                      ║
+║ Nếu gặp vấn đề sau update:          ║
+║ cd [SKILLS_DIR] && git checkout      ║
+║   [OLD_COMMIT]                       ║
+║ (hoặc git reflog để tìm commit      ║
+║  trước khi pull)                     ║
 ╚══════════════════════════════════════╝
 ```
 </process>

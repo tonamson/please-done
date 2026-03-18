@@ -31,7 +31,7 @@ Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob,
 ## Bước 2: Kiểm tra bugs đang mở (filter theo milestone hiện tại)
 Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 - Grep dòng `> Trạng thái:` → tìm bugs có trạng thái **Chưa xử lý** hoặc **Đang sửa**
-- Grep dòng `> Patch version:` → filter CHỈ bugs thuộc milestone hiện tại (version bằng đúng hoặc bắt đầu bằng `[version].`)
+- Grep dòng `> Patch version:` → filter CHỈ bugs thuộc milestone hiện tại: match chính xác `[version]` HOẶC `[version].` theo sau bởi số (VD: milestone `1.0` → match `1.0`, `1.0.1`, `1.0.2` | KHÔNG match `1.1`, `1.10`, `10.0`)
 - Nếu CÓ bugs mở thuộc milestone hiện tại → ghi nhận danh sách (sẽ báo ở Bước 4)
 - Bugs thuộc milestone khác → ghi nhận riêng, hiện như gợi ý phụ (không ảnh hưởng ưu tiên chính)
 
@@ -42,6 +42,7 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
    - KHÔNG tồn tại → gợi ý `/sk:plan`, DỪNG
 
 2. **Đọc TASKS.md** → đếm theo trạng thái:
+   - Nếu TASKS.md tồn tại nhưng 0 tasks (đếm tất cả trạng thái = 0) → cảnh báo: "TASKS.md rỗng, có thể cần chạy `/sk:plan` lại." và DỪNG.
    - 🔄 (đang thực hiện) → ghi nhận task numbers
    - ⬜ (chưa bắt đầu) → ghi nhận task numbers
    - 🐛 (có lỗi) → ghi nhận task numbers
@@ -50,7 +51,9 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 
 3. **Đọc CODE_REPORT** → Glob `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
 
-4. **Đọc TEST_REPORT** (CHỈ nếu project có Backend trong CONTEXT.md) → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
+4. **Đọc ROADMAP.md** → xác định milestone hiện tại còn bao nhiêu phases và phases nào chưa plan/chưa hoàn tất.
+
+5. **Đọc TEST_REPORT** (CHỈ nếu project có Backend trong CONTEXT.md) → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại?
 
 ## Bước 4: Phân tích + gợi ý
 Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo **thứ tự ưu tiên** (chỉ gợi ý 1 hành động chính):
@@ -64,6 +67,7 @@ Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo
 > → Chạy `/sk:write-code [N]` để tiếp tục
 
 ### Ưu tiên 3: Có task bị lỗi (🐛)
+Nếu có task 🐛 nhưng không có bug report mở tương ứng → cảnh báo: "Task [N] có trạng thái 🐛 nhưng không tìm thấy bug report mở. Có thể cần cập nhật trạng thái task."
 > 🐛 Task [N]: [tên] có lỗi cần sửa.
 > → Chạy `/sk:fix-bug` để debug
 
@@ -72,21 +76,23 @@ Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo
 > → Chạy `/sk:write-code` để pick task tiếp theo
 > → Hoặc `/sk:write-code --parallel` để chạy song song tasks độc lập
 
-### Ưu tiên 4.5: TẤT CẢ tasks còn lại bị chặn (❌) hoặc lỗi (🐛)
+### Ưu tiên 5: TẤT CẢ tasks còn lại bị chặn (❌) hoặc lỗi (🐛)
 > ❌ Tất cả [X] tasks còn lại đều bị chặn hoặc có lỗi.
 > → Chạy `/sk:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
 
-### Ưu tiên 5: Tất cả tasks ✅ nhưng chưa test
-Chỉ áp dụng nếu project CÓ Backend (đọc CONTEXT.md → Tech Stack):
-> ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report.
-> → Chạy `/sk:test` để kiểm thử
+### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test
+CHỈ áp dụng khi project có Backend NestJS VÀ chưa có TEST_REPORT.
+Kiểm tra NỘI DUNG TEST_REPORT (nếu file tồn tại): Grep pattern `❌` trong TEST_REPORT để xác định có tests fail → gợi ý fix trước.
+> ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report (hoặc có tests fail).
+> → Chạy `/sk:test` để kiểm thử (hoặc `/sk:fix-bug` nếu có tests fail)
 
-### Ưu tiên 6: Phase hiện tại hoàn tất, còn phases tiếp theo
+### Ưu tiên 7: Phase hiện tại hoàn tất, còn phases tiếp theo
+Áp dụng khi tất cả tasks ✅ VÀ (không cần test HOẶC đã có TEST_REPORT pass). Bao gồm frontend-only projects.
 Đọc ROADMAP.md → kiểm tra milestone hiện tại còn phases chưa plan:
 > ✅ Phase [x.x] hoàn tất. Milestone còn phase [y.y] chưa triển khai.
 > → Chạy `/sk:plan [y.y]` để lên kế hoạch phase tiếp
 
-### Ưu tiên 7: Tất cả phases hoàn tất → sẵn sàng đóng milestone
+### Ưu tiên 8: Tất cả phases hoàn tất → sẵn sàng đóng milestone
 > ✅ Tất cả phases trong milestone v[x.x] đã hoàn tất.
 > → Chạy `/sk:complete-milestone` để đóng phiên bản
 
@@ -117,6 +123,7 @@ Nếu không có SCAN_REPORT nhưng có ROADMAP → thêm dòng gợi ý phụ:
 Nếu đã kiểm tra version trong conversation hiện tại (VD: skill trước đã thông báo) → bỏ qua bước này.
 
 Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`.
+Kiểm tra `git rev-parse --git-dir` trong SKILLS_DIR trước khi fetch. Nếu không phải git repo → bỏ qua version check.
 So sánh version: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
 Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → thêm dòng trong báo cáo:
 > 💡 Skills v[REMOTE] đã có. Chạy `/sk:update` để cập nhật.

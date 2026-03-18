@@ -23,6 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 Đọc `.planning/CURRENT_MILESTONE.md` → `version` (số thuần) + `status`. KHÔNG hỏi user nhập.
 Nếu CURRENT_MILESTONE.md không tồn tại → **DỪNG**, thông báo: "Chạy `/sk:roadmap` trước."
 Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không có gì để complete."
+Nếu `.planning/milestones/[version]/MILESTONE_COMPLETE.md` đã tồn tại → thông báo: "Milestone v[x.x] đã được hoàn tất trước đó." và **DỪNG**.
 Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
 
 ## Bước 2: Kiểm tra trạng thái
@@ -30,6 +31,8 @@ Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*
 - `phase-*/TASKS.md` (BẮT BUỘC — mỗi phase phải có VÀ phải có ít nhất 1 task, không chấp nhận phase rỗng)
 - `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS trong CONTEXT.md. Các stack khác bỏ qua)
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (BẮT BUỘC)
+
+**Cross-check CODE_REPORT**: MỖI task có trạng thái ✅ trong `phase-X/TASKS.md` PHẢI có ít nhất 1 `phase-X/reports/CODE_REPORT_TASK_[N].md` trong CÙNG phase directory. Quét từng phase riêng, KHÔNG quét cross-phase. Nếu thiếu report cho task cụ thể → cảnh báo: "Thiếu CODE_REPORT cho task [N] trong phase [X]. Chạy `/sk:write-code [N]` để bổ sung."
 
 Kiểm tra:
 - Tất cả tasks trong MỌI phase đều ✅?
@@ -79,8 +82,10 @@ Viết `.planning/milestones/[version]/MILESTONE_COMPLETE.md`:
 ## Nợ kỹ thuật (nếu có)
 ```
 
+> CHỈ tạo sections có dữ liệu. Bỏ 'Tổng hợp API' nếu không có backend.
+
 ## Bước 5: CHANGELOG.md
-Tạo/cập nhật `.planning/CHANGELOG.md`:
+Tạo/cập nhật `.planning/CHANGELOG.md` (CHANGELOG mới nhất ở trên — prepend). Đọc CHANGELOG hiện tại, chèn entry mới SAU dòng heading `# Nhật ký thay đổi` và TRƯỚC entry đầu tiên hiện có (mới nhất hiện tại):
 
 ```markdown
 # Nhật ký thay đổi
@@ -98,7 +103,7 @@ Tạo/cập nhật `.planning/CHANGELOG.md`:
 Tìm milestone hiện tại trong ROADMAP → cập nhật `Trạng thái: 🔄` → `Trạng thái: ✅`
 
 ## Bước 7: Cập nhật CURRENT_MILESTONE.md
-Đọc ROADMAP.md → tìm milestone tiếp theo + phase đầu tiên của milestone đó.
+Đọc ROADMAP.md → tìm milestone tiếp theo (status ⬜ hoặc 🔄, version nhỏ nhất chưa hoàn tất). So sánh version bằng semver (tách major.minor thành số), KHÔNG dùng string comparison. Lấy phase ĐẦU TIÊN (số nhỏ nhất) của milestone đó.
 
 Nếu CÒN milestone tiếp:
 ```markdown
@@ -121,7 +126,10 @@ Nếu HẾT milestone:
 ## Bước 8: Git commit + tag (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```bash
 # Commit báo cáo milestone
-git add .planning/milestones/[version]/ .planning/ROADMAP.md .planning/CURRENT_MILESTONE.md .planning/CHANGELOG.md .planning/bugs/
+# CHỈ git add bug reports thuộc milestone hiện tại (filter theo version), KHÔNG add toàn bộ .planning/bugs/
+git add .planning/milestones/[version]/ .planning/ROADMAP.md .planning/CURRENT_MILESTONE.md .planning/CHANGELOG.md
+# Add từng bug report thuộc milestone (đã filter ở Bước 3):
+git add .planning/bugs/BUG_[matching files thuộc version hiện tại].md
 git commit -m "[PHIÊN BẢN] v[x.x] - [Tên milestone]
 
 Chức năng đã triển khai:
@@ -133,7 +141,8 @@ Lỗi đã sửa:
 
 Tổng: [X] tasks hoàn tất, [Y] lỗi đã sửa"
 
-# Tạo git tag
+# Kiểm tra tag đã tồn tại: git tag -l v[x.x]
+# Nếu tag đã tồn tại → hỏi user: "Tag v[x.x] đã tồn tại. Ghi đè hay bỏ qua?"
 git tag -a v[x.x] -m "Phiên bản v[x.x] - [Tên milestone]
 
 Chức năng:

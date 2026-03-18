@@ -23,7 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 ## Bước 1: Thu thập ngữ cảnh lỗi + kiểm tra git
 Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
 
-Nếu có bug reports đang mở (Glob `.planning/bugs/BUG_*.md` → Grep `Trạng thái: Chưa xử lý|Đang sửa`):
+Nếu có bug reports đang mở (Glob `.planning/bugs/BUG_*.md` → Grep `> Trạng thái: (Chưa xử lý|Đang sửa)` — pattern phải match cả format có `> ` prefix):
 - Liệt kê bugs mở cho user chọn: "Có [X] bug đang mở. Bạn muốn xử lý bug nào?"
 - Nếu user chọn bug có sẵn → đọc bug report, pre-populate version + mô tả + chức năng → nhảy Bước 3
 
@@ -35,11 +35,12 @@ Nếu thiếu thông tin → hỏi user bổ sung.
 - Nếu CURRENT_MILESTONE.md không tồn tại → hỏi user "Lỗi này thuộc phiên bản nào?", dùng version user cung cấp, bỏ qua logic so sánh version bên dưới
 - So sánh version lỗi với version hiện tại:
   - Bug thuộc version CŨ hơn (VD: bug ở v1.0, hiện tại v1.1) → milestone đã hoàn tất → tạo patch:
-    - Glob `.planning/bugs/BUG_*.md` → Grep `Patch version: [version-gốc]\.` → tìm patch cao nhất hiện có
+    - Glob `.planning/bugs/BUG_*.md` → Grep `Patch version: [version-gốc]` (match cả `1.0` chính xác lẫn `1.0.1`, `1.0.2`). Sau đó filter kết quả: chỉ lấy entries có patch version dạng `[version-gốc].N` (3 số) → tìm patch cao nhất hiện có
     - Nếu chưa có patch → dùng `[version-gốc].1` (VD: `1.0.1`)
     - Nếu đã có → tăng: `1.0.1` → `1.0.2`, `1.0.2` → `1.0.3`
-  - Bug thuộc version HIỆN TẠI → milestone chưa hoàn tất → dùng version hiện tại
+  - Bug thuộc version HIỆN TẠI → milestone chưa hoàn tất → Patch version = `[version].0` (VD: `1.1.0`). Nếu đã có bugs trước → tìm patch version cao nhất trong `.planning/bugs/` cho cùng version và increment.
 - Nếu user không chỉ rõ version lỗi → hỏi "Lỗi này thuộc phiên bản nào?"
+- Kiểm tra thư mục `.planning/milestones/[version-gốc]/` tồn tại. Nếu không → thông báo: "Thư mục milestone v[x.x] không tồn tại. Kiểm tra version." và DỪNG.
 
 ## Bước 3: Đọc context kỹ thuật
 Dùng **version gốc** (VD: `1.0`) để đọc, KHÔNG dùng patch version (VD: `1.0.1`) — vì PLAN.md nằm ở thư mục version gốc:
@@ -55,7 +56,7 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 2. Backend: "Luồng xử lý từ controller → service → database cho [chức năng]?"
 3. Frontend: "Components, stores, API calls liên quan đến [chức năng]?"
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research. Cảnh báo: "FastCode không khả dụng, research bằng Grep/Read (độ chính xác có thể thấp hơn)."
 
 **Nếu lỗi liên quan đến thư viện** → tra cứu API qua Context7:
 1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện, query: mô tả lỗi) → lấy library ID
@@ -85,7 +86,7 @@ Viết `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 
 ```markdown
 # Báo cáo lỗi
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Nghiêm trọng/Trung bình/Nhẹ
+> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Nghiêm trọng/Cao/Trung bình/Nhẹ
 > Trạng thái: Đang sửa | Chức năng: [Tên] | Task: [N] (nếu biết)
 > Patch version: [x.x.x] | Lần sửa: 1
 
@@ -142,13 +143,21 @@ Files đã sửa:
 
 ### User xác nhận ĐÃ FIX:
 - Bug report: Trạng thái → Đã giải quyết, tick checklist
-- Tìm TASKS.md chứa task bị 🐛 (Glob `.planning/milestones/[version-gốc]/phase-*/TASKS.md` → Grep task liên quan) → xóa 🐛, đổi ✅
+- Tìm TASKS.md chứa task bị 🐛: dùng version GỐC của bug (VD: `1.0` từ patch version `1.0.2`) để tìm TASKS.md, KHÔNG dùng version hiện tại từ CURRENT_MILESTONE. (Glob `.planning/milestones/[version-gốc]/phase-*/TASKS.md` → Grep task liên quan) → xóa 🐛, đổi ✅
+- Cập nhật trạng thái CẢ HAI nơi: (1) bảng Tổng quan, (2) task detail block `> Trạng thái:`.
+- Nếu HAS_GIT:
+```
+git add .planning/bugs/BUG_[...].md
+git add .planning/milestones/[version-gốc]/phase-*/TASKS.md
+git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt lỗi]'
+```
 
 ### User báo CHƯA FIX:
 - Thu thập thêm thông tin
 - Bug report: tăng "Lần sửa" (2, 3, 4...), thêm section "Lần sửa [N]"
 - Quay lại **Bước 5** phân tích lại
 - Commit mỗi lần sửa với prefix [LỖI]
+- Nếu đã thử fix 3+ lần → gợi ý: "Đã thử [N] lần. Cân nhắc phân tích lại từ đầu hoặc thay đổi approach."
 - **TIẾP TỤC cho đến khi user xác nhận thành công**
 </process>
 
@@ -162,5 +171,5 @@ Files đã sửa:
 - Mỗi lần fix: commit riêng với prefix [LỖI]
 - Patch version tăng dần: 1.0 → 1.0.1 → 1.0.2
 - Nếu fix ảnh hưởng chức năng khác → THÔNG BÁO user
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Nếu FastCode MCP lỗi → fallback sang Grep/Read, KHÔNG DỪNG hoàn toàn
 </rules>

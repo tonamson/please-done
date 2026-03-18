@@ -60,8 +60,13 @@ Nếu `code_qa` lỗi ở bước này → ghi warning, tiếp tục sang Bướ
 ### Nếu isNewProject = false:
 Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Glob `**/nest-cli.json` → **hasBackend = true**
+- Fallback backend: Glob `**/app.module.ts` hoặc `**/main.ts` (NestJS không có nest-cli) → **hasBackend = true**
+- Fallback backend: Glob `**/app.js` hoặc `**/app.ts` + Grep `express` trong package.json → **hasBackend = true** (Express)
 - Glob `**/next.config.*` → **hasFrontend = true**
+- Fallback frontend: Glob `**/vite.config.*` → **hasFrontend = true** (Vite)
+- Fallback frontend: Glob `**/*.tsx` + `**/*.jsx` — nếu có nhiều files (>5) → **hasFrontend = true** (React generic)
 - Glob `**/*.module.ts` → Grep `MongooseModule|TypeOrmModule|PrismaService` → xác định DB type
+- Khi detect stack không có rules file tương ứng trong `[SKILLS_DIR]/commands/sk/rules/` → thông báo: "Phát hiện [stack] nhưng chưa có rules template. Chỉ áp dụng general.md."
 
 Đọc nhanh:
 - `package.json` (backend + frontend nếu tách thư mục) → dependencies chính
@@ -83,7 +88,7 @@ mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules
 Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy giá trị `SKILLS_DIR`.
 Nếu `.skconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG**, thông báo: "Không tìm thấy .skconfig. Chạy lại `install.sh`."
 
-**Xóa tất cả files cũ** trong `.planning/rules/` trước khi copy → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa).
+**Chỉ xóa các files template**: `general.md`, `backend.md`, `frontend.md`. Giữ nguyên files custom khác (nếu có). → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa) mà không mất rules do user tự thêm.
 
 Đọc rules từ `[SKILLS_DIR]/commands/sk/rules/` → Write vào `.planning/rules/`:
 
@@ -98,7 +103,9 @@ Tạo `.planning/CONTEXT.md`:
 ```markdown
 # Context dự án
 > Khởi tạo: [DD_MM_YYYY HH:MM]
-> Đường dẫn: [absolute path]
+> Cập nhật: —
+> Đường dẫn Backend: [path hoặc —]
+> Đường dẫn Frontend: [path hoặc —]
 > FastCode MCP: Hoạt động
 > Dự án mới: [Có/Không]
 

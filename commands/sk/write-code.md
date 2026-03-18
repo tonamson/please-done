@@ -36,27 +36,28 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
   - KHÔNG → **DỪNG**, thông báo: "PLAN.md không tồn tại. Chạy `/sk:plan` để tạo."
 - Đọc PLAN.md → thiết kế kỹ thuật
 - Đọc TASKS.md → danh sách tasks
-- Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)
+- Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 7)
 
 Chọn task:
 - **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/sk:test` (nếu có Backend), `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
-  - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?"
+  - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?" Nếu user xác nhận tiếp tục → đổi trạng thái ❌ → 🔄, tiếp tục Bước 2.
   - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/sk:fix-bug` thay vì viết lại code."
 - Nếu không → ưu tiên task 🔄 (resume task đang dở) trước, nếu không có thì task tiếp theo ⬜ theo thứ tự:
   - Task ⬜ có `Phụ thuộc: Không` hoặc tất cả dependencies đã ✅ → **sẵn sàng**, pick task này
   - Task ⬜ nhưng Phụ thuộc task chưa ✅ (⬜/🔄/❌/🐛) → **bỏ qua**, tìm task ⬜ tiếp theo
   - Bỏ qua tasks ❌ hoặc 🐛
 - **Nếu TẤT CẢ tasks còn lại bị ❌, 🐛, hoặc bị chặn bởi dependency chưa ✅**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
+- Nếu scan hết tất cả tasks mà không tìm được task sẵn sàng (còn tasks ⬜ nhưng tất cả bị chặn bởi dependencies) → thông báo: "Phát hiện circular dependency hoặc missing dependency giữa [tasks]. Kiểm tra lại TASKS.md."
 
 Cập nhật trạng thái → 🔄
 
 ### Bước 1.5: Phân tích dependency + nhóm wave (CHỈ khi `--parallel`)
 Nếu `$ARGUMENTS` chứa `--parallel`:
 
-1. **Đọc TASKS.md** → lấy tất cả tasks ⬜ còn lại + cột `Phụ thuộc` của mỗi task
+1. **Đọc TASKS.md** → lấy tất cả tasks ⬜ còn lại + cột `Phụ thuộc` của mỗi task. Nếu KHÔNG có task ⬜ nào (tất cả ✅/❌/🐛) → DỪNG parallel, thông báo tương tự Bước 1 (không còn task sẵn sàng)
 2. **Phân tích dependency graph**:
    - Task KHÔNG phụ thuộc task khác (hoặc chỉ phụ thuộc task ✅ đã xong) → **sẵn sàng**
    - Task phụ thuộc task ⬜/🔄 khác → **chờ**
@@ -65,8 +66,8 @@ Nếu `$ARGUMENTS` chứa `--parallel`:
    - **Wave 2**: tasks phụ thuộc vào tasks trong Wave 1
    - **Wave N**: tasks phụ thuộc vào Wave N-1
 4. **Xác định tasks có thể song song trong mỗi wave**:
-   - Tasks trong cùng wave mà **KHÔNG chia sẻ files** (kiểm tra cột `Files` trong TASKS.md) → chạy **song song bằng Agent tool**
-   - Tasks trong cùng wave nhưng **SỬA CHUNG file** → chạy **tuần tự** trong wave đó
+   - Tasks trong cùng wave mà **KHÔNG chia sẻ files** (đọc từng task detail block, lấy trường `> Files:` để kiểm tra xung đột files giữa các tasks) → chạy **song song bằng Agent tool**
+   - Tasks trong cùng wave nhưng **SỬA CHUNG file** (theo trường `> Files:`) → chạy **tuần tự** trong wave đó
 5. **Đặc biệt: Backend + Frontend song song**:
    - Task Backend (API) + Task Frontend consume API đó → NẾU PLAN.md đã có thiết kế API (method, path, request/response format) → Frontend agent dùng response shape từ PLAN.md để code trước, KHÔNG cần chờ Backend xong → **nhóm cùng wave**
    - Frontend agent đọc PLAN.md → mục "API Endpoints" → dùng response format đã thiết kế để tạo types, API functions, components
@@ -96,6 +97,7 @@ Xác nhận chạy? (y/n)
 - Chi tiết task trong TASKS.md (mô tả, checklist, ghi chú kỹ thuật)
 - PLAN.md sections liên quan (thiết kế kỹ thuật, API, database)
 - PLAN.md section `Quyết định thiết kế` (nếu có) → các quyết định đã chốt với user trong chế độ DISCUSS — code PHẢI tuân thủ
+- Nếu PLAN.md thiếu thông tin cần thiết cho task (VD: thiếu response format, thiếu DB schema, thiếu component props) → **DỪNG**, thông báo: "PLAN.md thiếu [thông tin cụ thể]. Chạy `/sk:plan --discuss` để bổ sung, hoặc xác nhận để Claude tự quyết định (sẽ ghi vào CODE_REPORT)."
 - `.planning/docs/*.md` → chỉ đọc **mục lục nhanh**, rồi đọc sections liên quan đến task bằng offset/limit
 - `.planning/rules/` chứa đầy đủ quy tắc code — đọc file rules phù hợp với Loại task
 
@@ -151,7 +153,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
 
-Nếu thất bại → sửa code, chạy lại cho đến khi pass.
+Nếu lint/build fail → sửa code và chạy lại. Tối đa 3 lần. Nếu vẫn fail sau 3 lần → **DỪNG**, báo user kèm error message. Có thể cần sửa PLAN.md.
 Nếu chưa có lint/build config (project mới) → skip bước này, ghi chú trong report.
 
 ## Bước 6: Tạo báo cáo
@@ -174,11 +176,10 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 [Quyết định kỹ thuật đáng lưu ý, nếu có]
 ```
 
-## Bước 7: Cập nhật TASKS.md → ✅
-
-## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
+## Bước 7: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
 git add [source code files đã tạo/sửa ở Bước 4]
+git add [migration files nếu có (Prisma: prisma/migrations/, TypeORM: src/migrations/)]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N].md
 git commit -m "[TASK-N] [Tóm tắt tiếng Việt]
@@ -187,10 +188,22 @@ Mô tả: [Chi tiết task đã hoàn thành]
 Files: [danh sách files]"
 ```
 
+## Bước 8: Cập nhật TASKS.md → ✅ (SAU commit thành công)
+Cập nhật trạng thái task: 🔄 → ✅ trong CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái: 🔄` → `> Trạng thái: ✅`).
+Cập nhật trường `> Files:` trong task detail nếu files thực tế khác với files trong plan.
+Nếu git commit ở Bước 7 FAIL → giữ task ở 🔄, KHÔNG đánh dấu ✅. Sửa lỗi commit trước.
+
+Nếu CONTEXT.md có `Dự án mới: Có` VÀ đây là task đầu tiên hoàn tất → cập nhật thành `Dự án mới: Không` + cập nhật `Cập nhật: [DD_MM_YYYY HH:MM]`.
+
 ## Bước 9: Cập nhật ROADMAP (khi phase hoàn tất)
 Nếu TẤT CẢ tasks trong phase đều ✅ (không còn ⬜, 🔄, ❌, hoặc 🐛):
 - Đọc `.planning/ROADMAP.md` → tìm phase hiện tại (VD: `#### Phase 1.1:`)
 - Đánh dấu tất cả deliverables: `- [ ]` → `- [x]`
+
+Khi tất cả tasks trong phase hiện tại ✅:
+- Kiểm tra ROADMAP: milestone có phase tiếp theo không?
+- Nếu phase tiếp đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp.
+- Nếu phase tiếp chưa plan → giữ nguyên, gợi ý `/sk:plan [phase tiếp]`.
 
 ## Bước 10: Tiếp tục hoặc dừng
 
@@ -219,7 +232,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
    - Thu thập kết quả từ mỗi agent (files đã tạo/sửa, build status)
    - Kiểm tra conflicts: nếu 2 agents sửa cùng file → **DỪNG**, báo user giải quyết
    - Nếu agent nào build fail → **DỪNG wave**, báo lỗi task cụ thể
-   - Nếu tất cả OK → tạo report cho mỗi task (Bước 6) → cập nhật TASKS.md → ✅ (Bước 7) → commit từng task riêng (Bước 8)
+   - Nếu tất cả OK → tạo report cho mỗi task (Bước 6) → commit từng task riêng (Bước 7) → cập nhật TASKS.md → ✅ (Bước 8)
 
 5. **Verify integration** (sau wave có cả Backend + Frontend):
    - So sánh TypeScript interfaces/types trong frontend với response DTO/entity trong backend (đọc cả 2 files, kiểm tra field names + types khớp nhau)
@@ -264,6 +277,7 @@ DỪNG sau mỗi task, thông báo:
 - Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend theo Loại task)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
+- Nếu quyết định thiết kế KHÔNG THỂ tuân thủ (do constraint kỹ thuật phát hiện khi code) → **DỪNG**, thông báo user và ghi nhận trong CODE_REPORT. KHÔNG tự ý thay đổi.
 - PHẢI lint + build sau khi code
 - PHẢI commit sau khi pass build, commit message tiếng Việt có dấu
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ

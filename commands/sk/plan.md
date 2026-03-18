@@ -16,6 +16,7 @@ User input: $ARGUMENTS
 Phân tích tham số:
 - Nếu `$ARGUMENTS` chứa `--discuss` → chế độ DISCUSS
 - Ngược lại (mặc định, kể cả khi có `--auto` hoặc không có flag) → chế độ AUTO
+- Nếu cả `--discuss` lẫn `--auto` xuất hiện → ưu tiên `--discuss`
 - Phần còn lại của `$ARGUMENTS` (bỏ flags) = thông tin phase/deliverable
 
 Đọc:
@@ -37,6 +38,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu có phases trước (VD: phase-1.1 tồn tại khi planning phase 1.2) → đọc PLAN.md/TASKS.md phases trước để nắm context đã triển khai
 
 Nếu chưa có roadmap → thông báo chạy `/sk:roadmap` trước.
+Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/sk:roadmap` để tạo."
 Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/sk:roadmap` để thêm milestones mới."
 
 ## Bước 1.5: Kiểm tra phase đã tồn tại
@@ -45,7 +47,7 @@ Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
 - Nếu CÓ tasks đã hoàn thành (✅) hoặc đang thực hiện (🔄) → **CẢNH BÁO**:
   > "Phase [x.x] đã có plan với tiến trình ([N1] ✅ hoàn tất, [N2] 🔄 đang làm). Bạn muốn:
   > 1. LÊN KẾ HOẠCH LẠI phase này (ghi đè)
-  > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP]
+  > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP] — Cập nhật biến phase sang phase user chọn, quay lại đầu Bước 2 với phase mới.
   > 3. HỦY"
   - Nếu không còn phase nào chưa plan → chỉ hiện option 1 và 3
 - Nếu KHÔNG có tasks hoàn thành (tất cả ⬜) → cho phép ghi đè không cần hỏi
@@ -66,6 +68,7 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 Dùng FastCode cho câu hỏi broad. Sau đó dùng Grep/Read verify chi tiết cụ thể nếu cần (VD: đọc file entity thực tế, kiểm tra imports).
 
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+Nếu FastCode trả về kết quả rỗng cho tất cả queries → cảnh báo: "FastCode không tìm thấy code liên quan. Nên chạy `/sk:scan` để cập nhật index." Tiếp tục thiết kế với context hạn chế.
 
 ### Nếu project mới (chưa có code):
 - Skip FastCode (không có gì để index)
@@ -167,7 +170,7 @@ Xác nhận để tôi tiếp tục thiết kế kỹ thuật?
 Cho mỗi deliverable, thiết kế theo loại:
 
 - Nếu chế độ **DISCUSS**: thiết kế PHẢI tuân thủ các quyết định đã chốt ở Bước 3.5 — KHÔNG được thay đổi hay bỏ qua quyết định user đã chọn
-- Nếu chế độ **AUTO**: Claude tự quyết định toàn bộ, ưu tiên phương án đơn giản, hiệu quả nhất
+- Nếu chế độ **AUTO**: Claude tự quyết định toàn bộ, ưu tiên phương án đơn giản, hiệu quả nhất. Mọi quyết định sẽ được ghi nhận ở Bước 4.5 sau khi thiết kế xong.
 
 **Backend (nếu có — đọc CONTEXT.md xác định framework: NestJS, Express, v.v.):**
 - API endpoints (method, path, request/response)
@@ -192,6 +195,16 @@ Cho mỗi deliverable, thiết kế theo loại:
 **Chung:**
 - Files cần tạo/sửa
 - Thư viện cần thêm
+
+## Bước 4.5: Ghi nhận quyết định thiết kế (CHỈ khi chế độ AUTO)
+> **Bỏ qua nếu chế độ DISCUSS** (đã xử lý ở Bước 3.5).
+
+Sau khi thiết kế xong (Bước 4), Claude PHẢI review lại và ghi nhận:
+1. Xác định các vấn đề đã có nhiều cách triển khai hợp lệ
+2. Với mỗi vấn đề, ghi: Phương án chọn, Lý do, Alternatives đã loại
+3. Lưu vào bảng "Quyết định thiết kế" trong PLAN.md
+
+**Mục đích**: Cho developer review quyết định Claude tự đưa ra, phát hiện sớm lỗi business logic TRƯỚC khi code.
 
 ## Bước 5: Chia công việc
 Đọc CONTEXT.md → Tech Stack để xác định project có Backend, Frontend, hay cả hai.
@@ -224,9 +237,15 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 [Mô tả]
 
 ## Quyết định thiết kế
+<!-- Chế độ DISCUSS → dùng bảng này: -->
 | # | Vấn đề | Quyết định | Nguồn |
 |---|--------|-----------|-------|
 | 1 | [Tên] | [Phương án] | User chọn / Claude quyết định |
+
+<!-- Chế độ AUTO → dùng bảng này thay thế (KHÔNG dùng bảng DISCUSS): -->
+| # | Vấn đề | Phương án đã chọn | Lý do | Alternatives đã loại |
+|---|--------|-------------------|-------|---------------------|
+| 1 | [Tên] | [Phương án] | [Tại sao chọn] | [PA khác → tại sao loại] |
 
 ## Research
 ### Thư viện có sẵn
@@ -254,7 +273,7 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 ```
 
 **CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan đến stack (VD: bỏ API Endpoints nếu không có backend, bỏ Database nếu không có DB).
-**Section "Quyết định thiết kế"**: CHỈ tạo khi chế độ DISCUSS — bỏ hoàn toàn section này khi chế độ AUTO.
+**Section "Quyết định thiết kế"**: LUÔN tạo ở CẢ HAI chế độ. AUTO dùng bảng mở rộng (có cột Lý do + Alternatives). DISCUSS dùng bảng gốc (có cột Nguồn). Nếu không có quyết định nào (tất cả đã rõ ràng) → ghi "Không có quyết định thiết kế đặc biệt — tất cả đã xác định rõ từ ROADMAP/CONTEXT."
 
 ## Bước 7: Tạo TASKS.md
 Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
@@ -293,7 +312,16 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 
 ## Bước 9: Thông báo
 In tóm tắt plan + danh sách tasks cho user review.
+- Nếu phase vừa plan KHÁC phase hiện tại trong CURRENT_MILESTONE → ghi rõ: "Lưu ý: Phase hiện tại vẫn là [x.x]. Plan này cho phase [y.y] (chưa active)."
 - Nếu chế độ DISCUSS: ghi nhận số vấn đề đã thảo luận vs tự quyết định
+- Nếu chế độ AUTO: in bảng tóm tắt các quyết định Claude đã tự đưa ra (từ Bước 4.5) để user review TRƯỚC khi chạy `/sk:write-code`. Format:
+  ```
+  ### Claude đã tự quyết định [N] vấn đề thiết kế:
+  | # | Vấn đề | Phương án | Lý do tóm tắt |
+  |---|--------|----------|---------------|
+  Xem chi tiết đầy đủ (bao gồm alternatives đã loại) trong PLAN.md → Section "Quyết định thiết kế".
+  ⚠️ Hãy review các quyết định trên trước khi viết code. Nếu cần thay đổi, chạy `/sk:plan --discuss` để thảo luận lại.
+  ```
 </process>
 
 <rules>

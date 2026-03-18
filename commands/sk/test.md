@@ -22,7 +22,12 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
-- **Nếu project KHÔNG có Backend NestJS** (chỉ Frontend, hoặc stack khác): DỪNG, thông báo "Skill test hiện chỉ hỗ trợ Backend NestJS. Project này không áp dụng được."
+- Xác định backend framework từ CONTEXT.md.
+- **Nếu NestJS** → tiếp tục flow bên dưới (giữ nguyên)
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/sk:test` chỉ hỗ trợ tự động hóa test cho NestJS. Project của bạn dùng [X]. Bạn có thể:
+  1. Viết test thủ công (tạo file Jest + Supertest theo pattern chuẩn)
+  2. Bỏ qua automated test cho phase này"
+- **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 10)
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
@@ -31,7 +36,9 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
   - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có tasks. Chạy `/sk:plan` trước."
 - Đọc PLAN.md → thiết kế kỹ thuật, API endpoints, request/response format
+- Nếu `$ARGUMENTS` chứa `--all` → đọc PLAN.md, TASKS.md, CODE_REPORT_TASK_*.md từ TẤT CẢ phase directories (`milestones/[version]/phase-*/`), không chỉ phase hiện tại. Cần context tất cả phases để debug regression. Chạy toàn bộ test suite (tất cả tasks ✅ trong mọi phase), không chỉ tasks mới.
 - Nếu `$ARGUMENTS` chỉ định task → kiểm tra trạng thái task đó:
+  - Task number chỉ áp dụng cho phase hiện tại trong CURRENT_MILESTONE. Nếu không tìm thấy task [N] trong phase hiện tại → tìm trong các phase khác cùng milestone. Nếu tìm thấy → thông báo: "Task [N] thuộc phase [x.x], không phải phase hiện tại [y.y]. Vẫn muốn test?"
   - ✅ → test riêng task đó
   - KHÔNG ✅ (⬜/🔄/❌/🐛) → **DỪNG**, thông báo: "Task [N] chưa hoàn tất (trạng thái: [icon]). Chỉ test được task có trạng thái ✅. Chạy `/sk:write-code [N]` trước."
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
@@ -46,6 +53,8 @@ Nếu chưa có → thông báo user cài: `npm install --save-dev @nestjs/testi
 ## Bước 3: Đọc code để hiểu logic
 Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md):
 - "Endpoint [X] làm gì? Request/response format? Validations? Error cases?"
+
+**Lưu ý**: Ưu tiên đọc code thực tế (FastCode/Grep) để viết test dựa trên IMPLEMENTATION. Reference PLAN.md để kiểm tra compliance, nhưng KHÔNG dùng PLAN.md làm source-of-truth cho test — code thực tế có thể khác plan.
 
 Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
 
@@ -112,8 +121,11 @@ describe('UsersController', () => {
 ## Bước 5: Chạy test
 Đọc CONTEXT.md → xác định thư mục backend (Glob `**/nest-cli.json`):
 ```bash
-cd [đường-dẫn-backend] && npm test -- --verbose 2>&1
+cd [đường-dẫn-backend] && npm test -- --verbose --testPathPattern=[pattern] 2>&1
 ```
+`[pattern]` xác định theo chế độ:
+- **Mặc định**: regex match tên files `.spec.ts` của phase hiện tại. Chỉ chạy tests thuộc phase đang test, tránh tests cũ fail gây nhiễu.
+- **`--all` (regression)**: Bỏ `--testPathPattern` hoàn toàn, chạy tất cả `.spec.ts` trong source tree. Dùng CODE_REPORT_TASK_*.md từ tất cả phases để biết danh sách spec files nếu cần filter.
 
 Hiển thị kết quả:
 ```
@@ -163,8 +175,10 @@ Tạo `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md` với header tối thiểu:
 ```markdown
 # Báo cáo lỗi (từ kiểm thử)
 > Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: [Nghiêm trọng/Cao/Trung bình/Nhẹ — theo ảnh hưởng]
-> Trạng thái: Chưa xử lý | Chức năng: [Tên] | Task: [N]
-> Patch version: [version hiện tại từ CURRENT_MILESTONE]
+> Trạng thái: Chưa xử lý | Chức năng: [Tên]
+> Task: [N] (số task trong TASKS.md bị fail — giúp fix-bug biết chính xác task cần đổi trạng thái)
+> Patch version: [version của milestone chứa task bị fail]
+> Patch version LUÔN 3 số (x.y.z) theo convention general.md. Xác định version dựa trên TASKS.md chứa task fail (từ path `milestones/[version]/phase-*/TASKS.md`), KHÔNG mặc định lấy CURRENT_MILESTONE (vì milestone có thể đã advance). Nếu bug thuộc version đó → `[version].0` (VD: `1.0.0`). Nếu tìm thấy patch version trước → increment (VD: `1.0.1` → `1.0.2`).
 
 ## Mô tả lỗi
 Test case: [tên test] | Đầu vào: [...] | Kỳ vọng: [...] | Thực tế: [...]
@@ -174,6 +188,7 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 ## Bước 9: Cập nhật TASKS.md
 - Pass hết → giữ ✅
 - Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass), đề xuất `/sk:fix-bug`
+- Nếu test fail có thể do shared code (service dùng chung giữa nhiều tasks) → ghi trong BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Đổi 🐛 cho task có test fail, ghi chú suspected tasks.
 
 ## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```

@@ -1,5 +1,32 @@
 # Nhật ký thay đổi Skills
 
+## [1.2.0] - 18_03_2026
+### Thêm mới
+- **Transparency cho AUTO mode**: `plan.md`, `roadmap.md` ghi lại mọi quyết định Claude tự đưa ra (phương án, lý do, alternatives đã loại) — user review được trước khi viết code
+- **Quyết định chiến lược trong ROADMAP**: roadmap.md thêm section bắt buộc ghi lý do phân chia milestones, thứ tự ưu tiên
+- **Format specs chuẩn trong `general.md`**: CURRENT_MILESTONE.md format, TASKS.md dependency format, phase/version numbering convention, icon matching patterns
+- **Multi-stack detection**: `init.md`, `scan.md` detect Express, Vite, React generic ngoài NestJS/NextJS; `test.md` hỗ trợ thông báo + fallback cho non-NestJS
+- **Phase auto-advance**: `write-code.md` tự advance CURRENT_MILESTONE sang phase tiếp khi phase hiện tại hoàn tất
+- **`--all` regression test**: `test.md` đọc context cross-phase, xác định patch version theo milestone chứa task fail
+- **Task cross-phase lookup**: `test.md` tìm task ở phase khác nếu không có trong phase hiện tại
+
+### Thay đổi
+- `write-code.md`: Đảo thứ tự Bước 7/8 — git commit TRƯỚC, đánh dấu ✅ SAU (rollback nếu commit fail)
+- `write-code.md`: Thêm stop khi PLAN.md thiếu info, circular dependency detection, lint/build retry limit (3 lần), update `Dự án mới` flag sau task đầu tiên
+- `write-code.md`: Parallel mode thêm empty wave guard, file conflict detection qua `> Files:` field
+- `plan.md`: Bước 4.5 ghi nhận quyết định SAU thiết kế (không phải trước), thêm check CURRENT_MILESTONE tồn tại, xử lý conflicting flags `--discuss --auto`
+- `scan.md`: Rules xóa chỉ template files (giữ custom rules), thêm path validation CONTEXT.md, explicit guard Bước 6 cho project mới
+- `roadmap.md`: Thêm cleanup/backup khi GHI ĐÈ, version conflict check khi VIẾT TIẾP, phân biệt câu hỏi theo mode
+- `fix-bug.md`: Thêm git commit sau user confirm fix, fallback Grep/Read khi FastCode lỗi, patch version regex nhất quán, retry suggestion sau 3 lần
+- `test.md`: Shared code bug attribution, testPathPattern cho phase hiện tại, patch version 3 số convention
+- `complete-milestone.md`: CODE_REPORT verify per-task per-phase (không cross-phase), CHANGELOG prepend, guard chống chạy lại, git tag check
+- `what-next.md`: Đọc ROADMAP cho ưu tiên 7, cross-check bugs vs tasks, renumber ưu tiên 1-8, TEST_REPORT content check
+- `fetch-doc.md`: Version detection từ package.json theo tên thư viện, SPA content detection, clarify 10 filter → 5 fetch, HTTP error handling, monorepo version conflict
+- `update.md`: Semver comparison rõ ràng, branch check trước pull, submodule check, rollback bằng commit hash, CHANGELOG chỉ hiện entries mới
+- `init.md`: CONTEXT.md thêm dòng `Cập nhật:`, monorepo path support, xóa rules chỉ template files
+- Bug severity 4 levels thống nhất giữa `fix-bug.md` và `test.md`
+- TASKS.md update CẢ HAI nơi (bảng + detail block) nhất quán toàn bộ skills
+
 ## [1.1.2] - 18_03_2026
 ### Thay đổi
 - `complete-milestone.md`: Thêm gợi ý chạy `/sk:scan` sau khi hoàn tất milestone để cập nhật kiến trúc
