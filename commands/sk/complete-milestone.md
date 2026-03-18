@@ -147,6 +147,7 @@ Lỗi đã sửa:
 - Tóm tắt milestone + chức năng + lỗi đã sửa
 - Git tag đã tạo
 - Hỏi user push tag: `git push origin v[x.x]`
+- Gợi ý: "Nên chạy `/sk:scan` để cập nhật báo cáo kiến trúc dự án sau khi hoàn tất milestone."
 - Next milestone (nếu có)
 </process>
 
