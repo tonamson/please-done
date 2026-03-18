@@ -80,9 +80,9 @@ Nếu có task 🐛 nhưng không có bug report mở tương ứng → cảnh b
 > ❌ Tất cả [X] tasks còn lại đều bị chặn hoặc có lỗi.
 > → Chạy `/pd:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
 
-### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test
-CHỈ áp dụng khi project có Backend NestJS VÀ chưa có TEST_REPORT.
-Kiểm tra NỘI DUNG TEST_REPORT (nếu file tồn tại): Grep pattern `❌` trong TEST_REPORT để xác định có tests fail → gợi ý fix trước.
+### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test hoặc test fail
+CHỈ áp dụng khi project có Backend NestJS VÀ (chưa có TEST_REPORT HOẶC TEST_REPORT có tests fail).
+Kiểm tra: Nếu TEST_REPORT không tồn tại → gợi ý `/pd:test`. Nếu tồn tại → Grep pattern `❌` → nếu có tests fail → gợi ý `/pd:fix-bug` trước.
 > ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report (hoặc có tests fail).
 > → Chạy `/pd:test` để kiểm thử (hoặc `/pd:fix-bug` nếu có tests fail)
 

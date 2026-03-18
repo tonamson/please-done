@@ -40,7 +40,9 @@ Nếu `.planning/CONTEXT.md` đã tồn tại:
 - Thông báo: "Đã có CONTEXT.md từ session trước. Bạn muốn:
   1. Giữ nguyên và bỏ qua init
   2. Khởi tạo lại từ đầu"
-- Nếu giữ → thông báo ngắn: "Giữ nguyên CONTEXT.md hiện có. Môi trường sẵn sàng." kèm gợi ý `/pd:scan` hoặc `/pd:what-next`. KHÔNG chạy tiếp các bước sau.
+- Nếu giữ → kiểm tra `.planning/rules/general.md` tồn tại:
+  - Nếu THIẾU → cảnh báo: "Rules files bị thiếu. Nên chọn 'Khởi tạo lại' để tái tạo rules." Hỏi lại user.
+  - Nếu CÓ → thông báo ngắn: "Giữ nguyên CONTEXT.md hiện có. Môi trường sẵn sàng." kèm gợi ý `/pd:scan` hoặc `/pd:what-next`. KHÔNG chạy tiếp các bước sau.
 - Nếu khởi tạo lại → tiếp tục Bước 3 bình thường
 
 ## Bước 3: Kiểm tra project có code chưa
@@ -60,7 +62,8 @@ Nếu `code_qa` lỗi ở bước này → ghi warning, tiếp tục sang Bướ
 ### Nếu isNewProject = false:
 Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Glob `**/nest-cli.json` → **hasBackend = true**
-- Fallback backend: Glob `**/app.module.ts` hoặc `**/main.ts` (NestJS không có nest-cli) → **hasBackend = true**
+- Fallback backend: Glob `**/app.module.ts` → **hasBackend = true** (NestJS không có nest-cli)
+- Fallback backend: Glob `**/main.ts` → Grep `NestFactory` trong file đó → **hasBackend = true** (KHÔNG dùng main.ts alone — quá broad, match Vite/Angular/vanilla TS)
 - Fallback backend: Glob `**/app.js` hoặc `**/app.ts` + Grep `express` trong package.json → **hasBackend = true** (Express)
 - Glob `**/next.config.*` → **hasFrontend = true**
 - Fallback frontend: Glob `**/vite.config.*` → **hasFrontend = true** (Vite)

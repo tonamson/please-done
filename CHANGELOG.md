@@ -1,5 +1,32 @@
 # Nhật ký thay đổi Skills
 
+## [2.3.0] - 19_03_2026
+### Thêm mới
+- **DISCUSS mode dùng AskUserQuestion**: `plan.md` viết lại toàn bộ chế độ DISCUSS — user chọn bằng phím mũi tên thay vì gõ A/B/C. Hỗ trợ multiSelect, single select, chia nhóm 5+ vấn đề
+- **Vòng lặp thảo luận mở rộng (3.5.4)**: User có thể chọn "Thảo luận thêm" sau bảng tóm tắt → Claude đưa vấn đề mới → loop đến khi user hài lòng
+- **DISCUSS hybrid table**: PLAN.md phân biệt rõ "User chọn" vs "Claude quyết định" với ghi chú bổ sung cho quyết định tự đưa ra
+- **Tracking commit**: `write-code.md` tạo commit `[TRACKING]` riêng khi phase hoàn tất — tách khỏi commit task code
+- **7 eval tests mới**: Rules-missing check, 3.5.4 loop, back/cancel keywords, hybrid table, tracking commit, bug report header, TEST_REPORT failures. Tổng 41 tests (100% pass)
+
+### Thay đổi
+- `plan.md`: Bước 4.5 mở rộng — cover 6 trường hợp DISCUSS/AUTO (skip-all, cancel, partial, full, 0 issues)
+- `plan.md`: Ngôn ngữ options PHẢI đơn giản cho người không phải dev, kèm VD tốt/xấu
+- `plan.md`: Xử lý keyword "back"/"cancel" qua Other — quay lại vấn đề trước hoặc hủy thảo luận
+- `init.md`: Kiểm tra rules files khi user giữ CONTEXT.md — cảnh báo nếu general.md bị thiếu
+- `init.md`: Sửa false positive NestJS detection — main.ts phải chứa `NestFactory` (tránh nhầm Vite/Angular)
+- `new-milestone.md`: Bước 6 phân biệt rõ hành vi GHI ĐÈ vs VIẾT TIẾP cho ROADMAP
+- `test.md`: Bug report header 2 dòng khớp fix-bug.md — `Trạng thái | Chức năng | Task` và `Patch version | Lần sửa`
+- `test.md`: Cập nhật trạng thái 🐛 CẢ HAI nơi (bảng + detail block)
+- `what-next.md`: Ưu tiên 6 tách rõ "chưa test" vs "test fail" — gợi ý /pd:fix-bug khi TEST_REPORT có ❌
+- `write-code.md`: --auto DỪNG tại ranh giới phase ban đầu (KHÔNG tự nhảy sang phase tiếp dù CURRENT_MILESTONE đã advance)
+- `install.js`: Dedup runtimes khi dùng --all + --claude cùng lúc
+- `install.js`: Banner word-wrapping cho platform names dài
+- `claude.js`: Cleanup symlink trước khi tạo mới (ngăn EEXIST)
+- `utils.js`: Bảo vệ null/undefined + truncate trong banner lines
+
+### Sửa lỗi
+- 2 eval tests cũ fail do scenario thiếu data → sửa: --auto phase boundary scenario rõ hơn, what-next all-phases-done bổ sung đầy đủ TEST_REPORT
+
 ## [2.2.1] - 18_03_2026
 ### Thay đổi
 - `what-next.md`: Thêm rule bắt buộc output tiếng Việt có dấu (trước đó không đọc general.md nên thiếu rule ngôn ngữ)

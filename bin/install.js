@@ -285,7 +285,8 @@ async function main() {
     }
   }
 
-  // Execute
+  // Execute (deduplicate nếu user dùng --all + --claude cùng lúc)
+  runtimes = [...new Set(runtimes)];
   for (const runtime of runtimes) {
     if (flags.uninstall) {
       await uninstall(runtime, isGlobal, flags.configDir);
@@ -298,12 +299,34 @@ async function main() {
   console.log('');
   if (!flags.uninstall) {
     const platformNames = runtimes.map(r => PLATFORMS[r].name).join(', ');
-    log.banner([
-      '  Cài đặt hoàn tất!'.padEnd(39),
-      `  Platforms: ${platformNames}`.padEnd(39).slice(0, 39),
-      ''.padEnd(39),
-      '  Khởi động lại editor để load skills.'.padEnd(39),
-    ]);
+    const platformLine = `  Platforms: ${platformNames}`;
+    const bannerLines = [
+      '  Cài đặt hoàn tất!',
+      platformLine,
+      '',
+      '  Khởi động lại editor để load skills.',
+    ];
+    // Nếu platform names dài → tách thành nhiều dòng vừa banner width
+    if (platformLine.length > 39) {
+      const names = runtimes.map(r => PLATFORMS[r].name);
+      const prefix = '  Platforms: ';
+      const cont = '             '; // same indent
+      const maxLen = 39;
+      const lines = [];
+      let current = prefix;
+      for (let i = 0; i < names.length; i++) {
+        const sep = i === 0 ? '' : ', ';
+        if ((current + sep + names[i]).length > maxLen && current !== prefix && current !== cont) {
+          lines.push(current);
+          current = cont + names[i];
+        } else {
+          current += sep + names[i];
+        }
+      }
+      if (current.trim()) lines.push(current);
+      bannerLines.splice(1, 1, ...lines);
+    }
+    log.banner(bannerLines);
   }
 }
 

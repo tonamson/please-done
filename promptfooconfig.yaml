@@ -115,6 +115,32 @@ tests:
           5. PHẢI chỉ copy general.md (KHÔNG copy backend.md hay frontend.md)
           6. PHẢI tạo CONTEXT.md với "Dự án mới: Có"
 
+  - description: "pd:init — Vite project with main.ts → must NOT detect as NestJS backend"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/vite-app.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,html} → tìm thấy 30+ files .tsx
+        - Glob **/nest-cli.json → KHÔNG tìm thấy
+        - Glob **/app.module.ts → KHÔNG tìm thấy
+        - Glob **/main.ts → tìm thấy /app/vite-app/src/main.ts
+        - Grep NestFactory trong main.ts → KHÔNG tìm thấy (file chứa: import React; ReactDOM.createRoot...)
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/vite.config.* → tìm thấy /app/vite-app/vite.config.ts
+        - Glob **/*.tsx → 20+ files
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra response cho Vite project có main.ts:
+          1. KHÔNG ĐƯỢC detect hasBackend = true (main.ts không chứa NestFactory)
+          2. PHẢI detect hasFrontend = true (qua vite.config.ts hoặc nhiều .tsx files)
+          3. PHẢI copy general.md + frontend.md (KHÔNG copy backend.md)
+          4. CONTEXT.md KHÔNG ĐƯỢC ghi NestJS trong Tech Stack
+
   - description: "pd:init — FastCode MCP fails → MUST STOP"
     vars:
       skill_file: commands/pd/init.md
@@ -147,6 +173,27 @@ tests:
           1. PHẢI hỏi user chọn: giữ nguyên hoặc khởi tạo lại
           2. KHÔNG ĐƯỢC ghi đè CONTEXT.md mà không hỏi
           3. Nếu giữ → gợi ý /pd:scan hoặc /pd:what-next
+
+  - description: "pd:init — CONTEXT.md exists, user keeps, but rules missing → warn"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/backend.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → ĐÃ TỒN TẠI (từ session trước)
+        - User chọn: "Giữ nguyên và bỏ qua init"
+        - .planning/rules/general.md → KHÔNG TỒN TẠI (bị xóa manual)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi user giữ CONTEXT.md nhưng rules files bị thiếu:
+          1. PHẢI kiểm tra .planning/rules/general.md tồn tại
+          2. PHẢI phát hiện general.md THIẾU
+          3. PHẢI cảnh báo "Rules files bị thiếu"
+          4. PHẢI gợi ý chọn "Khởi tạo lại" để tái tạo rules
+          5. PHẢI hỏi lại user (KHÔNG tự động tiếp tục)
+          6. KHÔNG ĐƯỢC chỉ gợi ý /pd:scan và kết thúc — phải xử lý rules thiếu trước
 
   # ══════════════════════════════════════════════════════════════
   # pd:scan — Quét dự án
@@ -327,12 +374,84 @@ tests:
         value: |
           Kiểm tra plan DISCUSS mode:
           1. PHẢI phát hiện flag --discuss → chuyển chế độ DISCUSS
-          2. PHẢI liệt kê danh sách vấn đề cần quyết định (có đánh số)
-          3. PHẢI chờ user chọn (KHÔNG tự chọn thay user)
-          4. PHẢI hiển thị options cho mỗi vấn đề (A, B, C...)
-          5. Option A PHẢI là recommend
-          6. Option cuối LUÔN là "Bạn có cách riêng"
-          7. PHẢI có bước tổng hợp quyết định trước khi thiết kế
+          2. PHẢI liệt kê danh sách vấn đề cần quyết định
+          3. PHẢI chờ user chọn vấn đề muốn thảo luận (dùng AskUserQuestion multiSelect)
+          4. PHẢI hiển thị options cho mỗi vấn đề (dùng AskUserQuestion với label + description)
+          5. Option đầu tiên PHẢI là recommend (có ghi "Đề xuất")
+          6. User luôn có thể chọn "Other" để mô tả cách riêng
+          7. PHẢI có bước tổng hợp quyết định (bảng tóm tắt) trước khi thiết kế
+
+  - description: "pd:plan — DISCUSS mode → extended discussion loop (3.5.4)"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        $ARGUMENTS: --discuss
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - Tất cả prerequisites tồn tại (CONTEXT, ROADMAP, CURRENT_MILESTONE, SCAN_REPORT)
+        - Phase 1.1: "Authentication — Đăng nhập, phân quyền"
+        - Claude xác định 2 vấn đề: (1) Phương thức xác thực, (2) Lưu trữ token
+        - User chọn thảo luận cả 2 vấn đề → chốt xong
+        - Ở bước tóm tắt 3.5.3, user chọn "Thảo luận thêm vấn đề khác"
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra extended discussion loop (Bước 3.5.4):
+          1. Sau khi user chọn "Thảo luận thêm vấn đề khác" ở 3.5.3 → PHẢI chuyển sang 3.5.4
+          2. Claude PHẢI đưa ra vấn đề MỚI (KHÔNG lặp lại 2 vấn đề đã chốt)
+          3. Vấn đề mới có thể phát sinh từ quyết định đã chốt (VD: chọn JWT → cần quyết định refresh token)
+          4. PHẢI dùng AskUserQuestion để user chọn vấn đề mới (multiSelect nếu ≥2)
+          5. Nếu user chọn vấn đề mới → thảo luận theo format 3.5.2 → quay lại 3.5.3 với bảng ĐẦY ĐỦ (cũ + mới)
+          6. Nếu Claude không tìm thêm vấn đề → PHẢI hỏi user có vấn đề riêng không (AskUserQuestion: Có/Không)
+          7. Nếu user chọn "Không, tiếp tục thiết kế" → đi thẳng Bước 4 (KHÔNG quay lại 3.5.3)
+
+  - description: "pd:plan — DISCUSS mode → back/cancel keywords in Other"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        $ARGUMENTS: --discuss
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - Tất cả prerequisites tồn tại
+        - Phase 1.1: "CRUD Users + Auth"
+        - Claude xác định 3 vấn đề
+        - User chọn thảo luận vấn đề 1 và 2
+        - Đang thảo luận vấn đề 2 (AskUserQuestion hiển thị options)
+        - User chọn "Other" và gõ "back"
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra response có ĐỀ CẬP đến việc xử lý keyword "back" và "cancel" từ Other:
+          1. Response PHẢI đề cập: khi user gõ "back" ở vấn đề 2 → quay lại vấn đề trước (vấn đề 1)
+          2. Response PHẢI đề cập: khi user gõ "back" ở vấn đề ĐẦU TIÊN → quay lại bước chọn vấn đề (3.5.1)
+          3. Response PHẢI đề cập: khi user gõ "cancel" → GIỮ quyết định đã chốt + Claude tự quyết định phần còn lại
+          4. Response PHẢI đề cập: sau cancel sẽ hiển thị bảng tóm tắt (3.5.3) bao gồm cả quyết định đã chốt lẫn Claude quyết định
+          5. Response PHẢI đề cập: nội dung khác (không phải back/cancel) được coi là mô tả phương án riêng
+          6. Response NÊN đề cập đến text hướng dẫn "back"/"cancel" (nhưng thiếu điểm này vẫn pass nếu 5 điểm trên đạt)
+
+  - description: "pd:plan — DISCUSS hybrid → PLAN.md table format"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        $ARGUMENTS: --discuss
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - Tất cả prerequisites tồn tại
+        - Phase 1.1: "CRUD Users + Auth"
+        - Claude xác định 4 vấn đề
+        - User chọn thảo luận vấn đề 1 và 3 → chốt xong
+        - Vấn đề 2 và 4: user KHÔNG chọn → Claude tự quyết định (recommend)
+        - User xác nhận "Tiếp tục thiết kế" ở 3.5.3
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra response có MÔ TẢ ĐÚNG cách tạo section "Quyết định thiết kế" trong PLAN.md cho DISCUSS hybrid:
+          1. Response PHẢI đề cập tạo section/bảng "Quyết định thiết kế" trong PLAN.md
+          2. Response PHẢI đề cập dùng bảng có cột "Nguồn" — phân biệt "User chọn" vs "Claude quyết định"
+          3. Response PHẢI đề cập: vấn đề user đã thảo luận (1, 3) ghi nguồn là user, vấn đề user không chọn (2, 4) ghi nguồn là Claude
+          4. Response PHẢI đề cập: các vấn đề Claude tự quyết định cần kèm ghi chú bổ sung (Lý do + Alternatives đã loại) — có thể dưới bảng hoặc inline
+          5. Response NÊN đề cập chế độ Discuss trong header PLAN.md (nhưng thiếu điểm này vẫn pass nếu 4 điểm trên đạt — header là chi tiết format, không phải logic)
+          6. KHÔNG yêu cầu response show bảng markdown thật — chỉ cần mô tả đúng cấu trúc và logic phân biệt nguồn quyết định
 
   - description: "pd:plan — Missing ROADMAP → STOP"
     vars:
@@ -422,6 +541,60 @@ tests:
           2. PHẢI gợi ý /pd:test, /pd:plan, hoặc /pd:complete-milestone
           3. KHÔNG ĐƯỢC cố pick hay viết code cho task nào
 
+  - description: "pd:write-code — --auto must STOP at phase boundary"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        $ARGUMENTS: --auto
+        Project NestJS tại /app/backend.
+        QUAN TRỌNG: User bắt đầu chạy `--auto` khi phase HIỆN TẠI là 1.1.
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md ban đầu (lúc --auto bắt đầu) → version: 1.0, phase: 1.1
+        - Phase 1.1 TASKS.md: Task 1: ✅, Task 2: ✅ (tất cả tasks trong phase 1.1 đã ✅)
+        - ROADMAP.md có Phase 1.2 (đã plan, có TASKS.md với Task 3: ⬜, Task 4: ⬜)
+        - Bước 9 cập nhật ROADMAP (phase 1.1 deliverables [x]) + advance CURRENT_MILESTONE.md phase sang 1.2
+        - SAU Bước 9, CURRENT_MILESTONE.md giờ ghi phase: 1.2
+        - Bước 10 (--auto): phải kiểm tra "phase ban đầu" (1.1) đã hết tasks → DỪNG
+        Câu hỏi: --auto loop có DỪNG tại ranh giới phase 1.1 hay tự nhảy sang tasks phase 1.2?
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi chạy --auto và phase BAN ĐẦU (1.1) đã hoàn tất tất cả tasks:
+          1. PHẢI DỪNG auto loop tại ranh giới phase 1.1 — vì skill ghi rõ: "Còn task 🔄 hoặc ⬜ trong phase BAN ĐẦU (phase tại thời điểm bắt đầu --auto, KHÔNG phải phase sau khi Bước 9 advance)"
+          2. PHẢI thông báo "Phase 1.1 hoàn tất [2] tasks"
+          3. PHẢI gợi ý /pd:test, /pd:plan, hoặc /pd:complete-milestone
+          4. KHÔNG ĐƯỢC tự pick Task 3 hoặc Task 4 từ phase 1.2 — dù CURRENT_MILESTONE đã advance sang 1.2
+          5. Lý do DỪNG: skill nói "DỪNG auto loop (KHÔNG tự nhảy sang phase tiếp dù CURRENT_MILESTONE đã advance)"
+
+  - description: "pd:write-code — Phase complete → tracking commit"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project NestJS tại /app/backend. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS, "Dự án mới: Không"
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - PLAN.md → thiết kế API /users
+        - TASKS.md: Task 1: ✅, Task 2: ✅, Task 3: 🔄 (đang thực hiện — task cuối)
+        - Task 3 vừa được hoàn tất thành công (build pass, commit [TASK-3] xong)
+        - Sau khi cập nhật Task 3 → ✅: TẤT CẢ tasks đều ✅
+        - git rev-parse → có git repo
+        - ROADMAP.md có Phase 1.2 (chưa plan, chưa có TASKS.md)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi task cuối hoàn tất → tất cả tasks ✅ → phase hoàn tất:
+          1. PHẢI cập nhật ROADMAP.md (đánh dấu deliverables [x])
+          2. PHẢI kiểm tra phase tiếp: Phase 1.2 chưa plan → giữ nguyên CURRENT_MILESTONE (KHÔNG advance)
+          3. PHẢI tạo tracking commit RIÊNG BIỆT (khác commit [TASK-3]):
+             - git add TASKS.md, ROADMAP.md, CURRENT_MILESTONE.md
+             - Commit message prefix: [TRACKING]
+             - Message chứa "Phase [x.x] hoàn tất"
+          4. Tracking commit PHẢI SAU commit [TASK-3] — KHÔNG gộp chung
+          5. PHẢI gợi ý /pd:plan 1.2 (phase tiếp chưa plan)
+      - type: icontains
+        value: "[TRACKING]"
+
   - description: "pd:write-code — Dependency blocked + resume priority"
     vars:
       skill_file: commands/pd/write-code.md
@@ -487,6 +660,33 @@ tests:
         value: ".spec.ts"
       - type: contains
         value: "TEST_REPORT"
+
+  - description: "pd:test — Bug report header format must match fix-bug.md"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS, database Prisma
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → API POST /users, validation rules
+        - TASKS.md → Task 1: ✅ (Users CRUD)
+        - @nestjs/testing, supertest đã cài
+        - mcp__fastcode__code_qa → trả về users.controller.ts, users.service.ts
+        - npm test chạy → 1 test fail: "POST /users email trùng trả 500 thay vì 409"
+        - git rev-parse → có git repo
+        - .planning/bugs/ → chưa có bug nào thuộc v1.0
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra bug report header format khi test fail:
+          1. PHẢI tạo BUG_[timestamp].md
+          2. Header dòng 1 PHẢI chứa: "Trạng thái: Chưa xử lý | Chức năng: [Tên] | Task: [N]" — CẢ BA trên CÙNG MỘT DÒNG, phân cách bằng pipe |
+          3. Header dòng 2 PHẢI chứa: "Patch version: [x.x.x] | Lần sửa: 0" — CẢ HAI trên CÙNG MỘT DÒNG
+          4. Lần sửa PHẢI = 0 (bug mới, chưa fix)
+          5. Patch version PHẢI là 3 số (VD: 1.0.0), KHÔNG phải 2 số (1.0)
+          6. Patch version = 1.0.0 (vì chưa có patch trước cho v1.0)
+          7. PHẢI cập nhật TASKS.md: Task 1 → 🐛 ở CẢ HAI nơi (bảng Tổng quan + task detail block)
 
   - description: "pd:test — Frontend-only project → manual checklist"
     vars:
@@ -707,23 +907,55 @@ tests:
       - type: icontains
         value: "/pd:init"
 
+  - description: "pd:what-next — All tasks ✅ but TEST_REPORT has failures → suggest fix-bug"
+    vars:
+      skill_file: commands/pd/what-next.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Backend NestJS
+        - .planning/scan/SCAN_REPORT.md → tồn tại
+        - .planning/ROADMAP.md → tồn tại, Milestone 1 (v1.0) có Phase 1.1
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → Task 1: ✅, Task 2: ✅ (tất cả ✅)
+        - .planning/milestones/1.0/phase-1.1/TEST_REPORT.md → TỒN TẠI, nội dung chứa "❌" (1 test fail)
+        - .planning/bugs/ → không có bugs mở
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi tất cả tasks ✅ nhưng TEST_REPORT có test fail:
+          1. PHẢI phát hiện TEST_REPORT tồn tại
+          2. PHẢI Grep pattern ❌ trong TEST_REPORT → phát hiện có tests fail
+          3. PHẢI gợi ý /pd:fix-bug (KHÔNG phải /pd:test — vì đã có report, cần fix trước)
+          4. KHÔNG gợi ý /pd:complete-milestone (vì tests chưa pass hết)
+          5. KHÔNG gợi ý chuyển sang phase tiếp (tests chưa giải quyết)
+      - type: icontains
+        value: "/pd:fix-bug"
+
   - description: "pd:what-next — All phases done → suggest complete milestone"
     vars:
       skill_file: commands/pd/what-next.md
       scenario: |
         Kết quả tool calls giả lập:
         - .planning/CONTEXT.md → tồn tại, Backend NestJS
-        - .planning/ROADMAP.md → tồn tại, Milestone 1 (v1.0) có Phase 1.1 và 1.2
+        - .planning/scan/SCAN_REPORT.md → tồn tại
+        - .planning/ROADMAP.md → tồn tại, Milestone 1 (v1.0) CHỈ có 2 phases: Phase 1.1 và Phase 1.2 (không có phase nào khác)
         - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.2, status: Đang thực hiện
-        - phase-1.1/TASKS.md → tất cả ✅
-        - phase-1.2/TASKS.md → tất cả ✅
-        - phase-1.1/TEST_REPORT.md → tồn tại, tất cả pass
-        - .planning/bugs/ → không có bugs mở
+        - .planning/bugs/ → Glob BUG_*.md trả về 0 files (không có bugs nào)
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → 3 tasks: Task 1 ✅, Task 2 ✅, Task 3 ✅ (tất cả ✅)
+        - .planning/milestones/1.0/phase-1.2/TASKS.md → 2 tasks: Task 1 ✅, Task 2 ✅ (tất cả ✅)
+        - .planning/milestones/1.0/phase-1.1/TEST_REPORT.md → tồn tại, KHÔNG chứa ❌ (tất cả pass)
+        - .planning/milestones/1.0/phase-1.2/TEST_REPORT.md → tồn tại, KHÔNG chứa ❌ (tất cả pass)
+        Tóm lại: 0 bugs mở, 0 tasks chưa ✅, tất cả test pass, ROADMAP chỉ có 2 phases đều xong.
     assert:
       - type: llm-rubric
         value: |
-          1. PHẢI detect tất cả phases hoàn tất
-          2. PHẢI gợi ý /pd:complete-milestone
+          Theo skill what-next Ưu tiên 8: "Tất cả phases trong milestone hoàn tất → sẵn sàng đóng milestone":
+          1. Bước 2: 0 bugs mở → không chặn
+          2. Bước 3: Tất cả tasks ✅ trong phase 1.1 VÀ 1.2 → không còn tasks 🔄/⬜/🐛/❌
+          3. Bước 3 kiểm tra ROADMAP: milestone 1.0 chỉ có phase 1.1 và 1.2, cả hai đều hoàn tất → không còn phase nào chưa triển khai
+          4. TEST_REPORT tồn tại cho cả 2 phases, không có ❌ → test đã pass
+          5. PHẢI kết luận: tất cả phases hoàn tất → Ưu tiên 8 → gợi ý /pd:complete-milestone
+          6. KHÔNG gợi ý /pd:test hay /pd:plan vì tất cả đã xong
       - type: icontains
         value: "/pd:complete-milestone"
 

@@ -61,7 +61,10 @@ Claude PHẢI xác định các quyết định chiến lược đã tự đưa 
 Lưu vào bảng "Quyết định chiến lược" trong ROADMAP.md (Bước 6).
 
 ## Bước 6: Tạo ROADMAP.md
-Viết `.planning/ROADMAP.md`:
+**Nếu "GHI ĐÈ":** Viết mới toàn bộ `.planning/ROADMAP.md`.
+**Nếu "VIẾT TIẾP":** Đọc ROADMAP hiện tại → giữ nguyên milestones cũ (KHÔNG sửa trạng thái/nội dung) → append milestones mới SAU milestone cuối cùng → cập nhật `Cập nhật lần cuối: [DD_MM_YYYY]` ở header. Nếu có thêm quyết định chiến lược → append vào bảng "Quyết định chiến lược" hiện có.
+
+Template ROADMAP.md:
 
 ```markdown
 # Lộ trình dự án

@@ -2,7 +2,7 @@
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.2.1**
+**Phiên bản hiện tại: v2.3.0**
 
 ## Nền tảng hỗ trợ
 
@@ -169,19 +169,12 @@ Rules được `init` tự động sao chép vào `.planning/rules/` theo tech s
 
 #### Chế độ THẢO LUẬN (`--discuss`)
 
-Claude phân tích deliverable, liệt kê các vấn đề cần quyết định → người dùng chọn vấn đề muốn bàn → Claude đưa ra phương án cho từng vấn đề:
+Claude phân tích deliverable, liệt kê các vấn đề cần quyết định → người dùng chọn bằng phím mũi tên → Claude đưa ra phương án cho từng vấn đề:
 
-```
-Chọn phương án:
-  A. JWT + HttpOnly Cookie ← khuyến nghị
-  B. Session-based auth
-  C. OAuth2 + Social login
-  D. Bạn có cách riêng — mô tả phương án của bạn
-```
-
-- Phương án A luôn là khuyến nghị (đơn giản, hiệu quả nhất)
-- Phương án cuối luôn cho người dùng tự mô tả cách riêng
-- Hỗ trợ: `back` (quay lại), `cancel` (chuyển tự động), `skip` (Claude tự quyết định)
+- Người dùng chọn vấn đề muốn thảo luận (multiSelect — chọn nhiều cùng lúc)
+- Mỗi vấn đề hiện danh sách phương án — phương án đầu luôn là khuyến nghị (ghi "Đề xuất")
+- Chọn "Other" để mô tả cách riêng, gõ `back` quay lại vấn đề trước, `cancel` hủy thảo luận
+- Sau khi chốt → bảng tóm tắt → có thể "Thảo luận thêm vấn đề khác" (Claude đưa vấn đề mới)
 - Quyết định được lưu vào PLAN.md mục "Quyết định thiết kế" → `write-code` tuân thủ
 
 ### Tùy chọn write-code
@@ -368,7 +361,7 @@ Bộ đánh giá chất lượng prompt theo [phương pháp Anthropic](https://
 # Thiết lập: tạo .env với ANTHROPIC_API_KEY
 # Cài promptfoo: npm install -g promptfoo
 
-npm run eval            # 32 bài kiểm tra tuân thủ quy trình
+npm run eval            # 41 bài kiểm tra tuân thủ quy trình
 npm run eval:trigger    # 19 bài kiểm tra độ chính xác kích hoạt
 npm run eval:full       # Cả 2 + lưu lịch sử benchmark
 npm run eval:compare    # So sánh benchmark qua thời gian
@@ -380,5 +373,5 @@ npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
 
 | Bộ kiểm tra | Số lượng | Tỷ lệ đạt |
 |-------------|----------|------------|
-| Tuân thủ quy trình | 32 | 100% |
+| Tuân thủ quy trình | 41 | 100% |
 | Độ chính xác kích hoạt | 19 | 94.7% |

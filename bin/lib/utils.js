@@ -31,10 +31,10 @@ const log = {
   step: (num, total, msg) => console.log(colorize('yellow', `[${num}/${total}] ${msg}`)),
   banner: (lines) => {
     const width = 40;
-    const border = width + 1; // +1 for leading space in content lines
+    const border = width + 1; // ║ + space(1) + content(width-1) + ║ = width+1 between borders
     console.log(colorize('cyan', `╔${'═'.repeat(border)}╗`));
     for (const line of lines) {
-      const padded = line.padEnd(width);
+      const padded = (line || '').padEnd(width).slice(0, width);
       console.log(colorize('cyan', `║ ${padded}║`));
     }
     console.log(colorize('cyan', `╚${'═'.repeat(border)}╝`));

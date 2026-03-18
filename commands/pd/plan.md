@@ -40,6 +40,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 Nếu chưa có roadmap → thông báo chạy `/pd:new-milestone` trước.
 Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/pd:new-milestone` để tạo."
 Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/pd:new-milestone` để thêm milestones mới."
+Nếu phase hiện tại trong ROADMAP không có deliverables (mô tả rỗng hoặc chỉ có tiêu đề) → **DỪNG**, thông báo: "Phase [x.x] chưa có deliverables cụ thể trong ROADMAP. Cập nhật ROADMAP hoặc chạy `/pd:new-milestone` để bổ sung."
 
 ## Bước 1.5: Kiểm tra phase đã tồn tại
 Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
@@ -47,7 +48,7 @@ Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
 - Nếu CÓ tasks đã hoàn thành (✅) hoặc đang thực hiện (🔄) → **CẢNH BÁO**:
   > "Phase [x.x] đã có plan với tiến trình ([N1] ✅ hoàn tất, [N2] 🔄 đang làm). Bạn muốn:
   > 1. LÊN KẾ HOẠCH LẠI phase này (ghi đè)
-  > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP] — Cập nhật biến phase sang phase user chọn, quay lại đầu Bước 2 với phase mới.
+  > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP] — Cập nhật biến phase sang phase user chọn, quay lại đầu Bước 1.5 để kiểm tra phase mới.
   > 3. HỦY"
   - Nếu không còn phase nào chưa plan → chỉ hiện option 1 và 3
 - Nếu KHÔNG có tasks hoàn thành (tất cả ⬜) → cho phép ghi đè không cần hỏi
@@ -89,82 +90,205 @@ Nếu FastCode trả về kết quả rỗng cho tất cả queries → cảnh b
 Sau khi research xong, Claude phân tích deliverable của phase hiện tại và xác định các **vấn đề cần quyết định** — những điểm có nhiều cách triển khai hợp lệ mà lựa chọn khác nhau sẽ ảnh hưởng đến kết quả.
 
 ### 3.5.1: Liệt kê vấn đề cần thảo luận
-Hiển thị danh sách các vấn đề dạng **checklist có đánh số**, mỗi vấn đề kèm mô tả ngắn 1 dòng:
-
-```
-Tôi đã phân tích phase này và xác định [N] vấn đề cần quyết định.
-Chọn số thứ tự các vấn đề bạn muốn thảo luận (VD: 1,3,5), hoặc "all" để thảo luận tất cả, hoặc "skip" để tôi tự quyết định:
-
-1. [Tên vấn đề] — [mô tả ngắn]
-2. [Tên vấn đề] — [mô tả ngắn]
-3. [Tên vấn đề] — [mô tả ngắn]
-...
-```
+Sau khi phân tích, Claude xác định các vấn đề cần quyết định và dùng `AskUserQuestion` để user chọn bằng phím mũi tên.
 
 **Nếu KHÔNG có vấn đề nào cần quyết định** (tất cả đã rõ ràng từ ROADMAP/CONTEXT) → thông báo user: "Phase này không có vấn đề nào cần thảo luận thêm — tôi sẽ tự quyết định." → chuyển sang Bước 4 (AUTO).
 
 **Cách xác định vấn đề:**
-- Scope tính năng (VD: đăng nhập cho trang nào, lấy thông tin gì)
-- Phương pháp xác thực (JWT, session, OAuth, v.v.)
-- Cấu trúc dữ liệu (fields nào cần lưu, relations)
-- UI/UX flow (bao nhiêu bước, redirect đi đâu)
-- Tích hợp bên thứ 3 (dùng service nào)
-- Phân quyền (roles, permissions model)
-- Caching / performance strategy
-- Error handling approach
+- Phạm vi tính năng (VD: đăng nhập cho trang nào, lấy thông tin gì)
+- Cách xác thực người dùng
+- Dữ liệu cần lưu trữ
+- Luồng thao tác của người dùng (bao nhiêu bước, chuyển trang đi đâu)
+- Tích hợp dịch vụ bên ngoài
+- Phân quyền truy cập
+- Chiến lược hiệu suất / bộ nhớ đệm
+- Xử lý lỗi
 - Chỉ liệt kê vấn đề THỰC SỰ có nhiều lựa chọn hợp lệ — KHÔNG liệt kê những thứ đã rõ ràng từ ROADMAP/CONTEXT
 
-**Chờ user trả lời** trước khi tiếp tục.
-- Nếu user nhập số không hợp lệ (ngoài phạm vi 1-N) → thông báo: "Vui lòng nhập số từ 1-[N], 'all', hoặc 'skip'." → chờ lại
-- Nếu user nhập text không rõ ý → hỏi lại 1 lần, nếu vẫn không rõ → coi như "skip"
+**Hiển thị bằng `AskUserQuestion`:**
+
+**Trường hợp đúng 1 vấn đề** → dùng single select (vì multiSelect cần tối thiểu 2 options):
+```
+AskUserQuestion({
+  questions: [{
+    question: "Tôi xác định 1 vấn đề cần quyết định: [Tên vấn đề]. Bạn muốn thảo luận không?",
+    header: "Thảo luận",
+    multiSelect: false,
+    options: [
+      { label: "Thảo luận", description: "[mô tả ngắn vấn đề]" },
+      { label: "Bỏ qua", description: "Claude tự quyết định vấn đề này" }
+    ]
+  }]
+})
+```
+
+**Trường hợp 2-4 vấn đề** → dùng 1 câu hỏi `multiSelect: true`:
+```
+AskUserQuestion({
+  questions: [{
+    question: "Tôi xác định [N] vấn đề cần quyết định. Chọn vấn đề bạn muốn thảo luận (có thể chọn nhiều):",
+    header: "Thảo luận",
+    multiSelect: true,
+    options: [
+      { label: "[Tên vấn đề 1]", description: "[mô tả ngắn, dễ hiểu]" },
+      { label: "[Tên vấn đề 2]", description: "[mô tả ngắn, dễ hiểu]" },
+      ...
+    ]
+  }]
+})
+```
+- User dùng phím mũi tên + space để chọn nhiều vấn đề, Enter để xác nhận
+- Chọn tất cả = thảo luận tất cả, không chọn gì rồi submit = bỏ qua (Claude tự quyết định)
+
+**Trường hợp 5+ vấn đề** → hỏi phạm vi trước, rồi chia nhóm:
+1. `AskUserQuestion` đầu tiên (single select):
+   - "Thảo luận tất cả [N] vấn đề (Đề xuất)"
+   - "Chọn vấn đề cụ thể"
+   - "Bỏ qua — Claude tự quyết định"
+2. Nếu user chọn "Chọn vấn đề cụ thể" → tiếp tục với `AskUserQuestion` `multiSelect: true`, chia thành các nhóm ≤4 vấn đề theo chủ đề
 
 ### 3.5.2: Thảo luận từng vấn đề đã chọn
-Với MỖI vấn đề user chọn, hiển thị **danh sách options** theo format:
+Với MỖI vấn đề user chọn:
+1. In tiêu đề + giải thích ngắn bối cảnh vấn đề bằng text thường
+2. Dùng `AskUserQuestion` để user chọn phương án bằng phím mũi tên
 
+**Format:**
 ```
-### Vấn đề [N]: [Tên vấn đề]
-[Giải thích ngắn gọn bối cảnh vấn đề]
+Trước tiên, in text:
+"### Vấn đề [N]: [Tên vấn đề]
+[Giải thích ngắn gọn bối cảnh — viết cho người KHÔNG phải dev cũng hiểu]"
 
-Chọn phương án:
-  A. [Phương án — recommend] ← đơn giản, hiệu quả nhất
-  B. [Phương án khác]
-  C. [Phương án khác]
-  ... (thêm nếu cần)
-  [Chữ cái cuối]. Bạn có cách riêng — mô tả phương án của bạn
-
-Lựa chọn của bạn:
+Sau đó gọi AskUserQuestion:
+AskUserQuestion({
+  questions: [{
+    question: "[Tên vấn đề] — chọn cách bạn muốn:",
+    header: "Vấn đề [N]",
+    multiSelect: false,
+    options: [
+      { label: "[Tên phương án] (Đề xuất)", description: "[Giải thích đơn giản: làm gì, ưu/nhược chính]" },
+      { label: "[Tên phương án khác]", description: "[Giải thích đơn giản]" },
+      { label: "[Tên phương án khác]", description: "[Giải thích đơn giản]" }
+    ]
+  }]
+})
 ```
 
 **Quy tắc options:**
-- **Option A** luôn là recommend — giải pháp tốt nhất, đơn giản nhất, phổ biến nhất
-- **Options B-D**: các phương án thay thế, sắp xếp từ đơn giản → phức tạp. Số lượng B-D linh hoạt (2-3 options), KHÔNG cần ép đủ 4 nếu chỉ có 2-3 phương án hợp lý
-- **Option cuối** (luôn là chữ cái cuối trong danh sách) LUÔN là: "Bạn có cách riêng — mô tả phương án của bạn". Option này cho phép user tự mô tả giải pháp khác hoàn toàn
-- Mỗi option kèm **1 dòng giải thích** ưu/nhược chính
-- Nếu user chọn option cuối (cách riêng) → chờ user mô tả → xác nhận hiểu đúng trước khi tiếp
+- **Option đầu tiên** luôn là recommend — thêm "(Đề xuất)" ở cuối label
+- **Options còn lại** (tối đa 3 options nữa): các phương án thay thế, sắp xếp từ đơn giản → phức tạp
+- **"Other"** (tự động có sẵn từ AskUserQuestion) = "Bạn có cách riêng" — user tự mô tả
+- Nếu user chọn "Other" → chờ user mô tả → xác nhận hiểu đúng trước khi tiếp
+- Tổng tối đa 4 options (không tính Other)
 
-**Chờ user chọn** trước khi chuyển sang vấn đề tiếp theo.
-- Nếu user nhập chữ cái không hợp lệ → thông báo options hợp lệ, chờ lại
-- Nếu user muốn quay lại vấn đề trước → cho phép: "Gõ 'back' để quay lại vấn đề trước"
-- Nếu user muốn hủy toàn bộ thảo luận → cho phép: "Gõ 'cancel' để hủy — tôi sẽ tự quyết định tất cả (AUTO)"
+**Quy tắc ngôn ngữ trong options (QUAN TRỌNG):**
+- Viết description cho **người không phải dev** cũng hiểu được
+- KHÔNG dùng thuật ngữ kỹ thuật trần (VD: "httpOnly cookies", "XSS", "CSRF") mà không giải thích
+- Thay vào đó, giải thích bằng **kết quả/hệ quả** người dùng cảm nhận được
+- VD tốt: "Lưu thông tin đăng nhập trong cookie bảo mật — hacker không thể đánh cắp qua lỗi website. Cần thêm việc ở phần server."
+- VD xấu: "httpOnly cookies — An toàn nhất (không thể đọc từ JS). Nhưng cần sửa backend (set-cookie thay vì trả token trong body), cần Next.js middleware xử lý cookie, và phải handle CSRF."
+- Thuật ngữ kỹ thuật chỉ dùng khi KHÔNG có cách diễn đạt đơn giản hơn, và phải kèm giải thích trong ngoặc
+- Ưu/nhược viết dạng: "Ưu: ..., Nhược: ..." — ngắn gọn, rõ ràng
+
+**Điều hướng bổ sung** — in text nhỏ sau mỗi AskUserQuestion:
+- "💡 Chọn 'Other' và gõ 'back' để quay lại vấn đề trước, hoặc 'cancel' để hủy thảo luận."
+
+**Xử lý keyword từ "Other":**
+- Nếu user chọn "Other" và gõ `back` → quay lại vấn đề trước (hiển thị lại AskUserQuestion của vấn đề trước). Nếu đang ở **vấn đề đầu tiên** → quay lại bước 3.5.1 (chọn lại vấn đề muốn thảo luận)
+- Nếu user chọn "Other" và gõ `cancel` → GIỮ các quyết định đã chốt trước đó, các vấn đề chưa thảo luận Claude tự quyết định (recommend) → chuyển sang 3.5.3 hiển thị bảng tóm tắt đầy đủ để user xác nhận trước khi tiếp tục
+- Nếu user chọn "Other" và gõ nội dung khác → coi đó là mô tả phương án riêng của user → xác nhận hiểu đúng trước khi tiếp
 
 ### 3.5.3: Tổng hợp quyết định
 Sau khi thảo luận xong TẤT CẢ vấn đề user chọn:
-- Hiển thị bảng tóm tắt các quyết định đã chốt
+- Hiển thị bảng tóm tắt các quyết định đã chốt (bằng text)
 - Các vấn đề user KHÔNG chọn thảo luận → Claude tự quyết định (dùng phương án recommend)
-- Chờ user xác nhận trước khi tiếp tục sang Bước 4
-- Nếu user muốn thay đổi quyết định → cho phép chọn lại vấn đề cụ thể: "Gõ số vấn đề muốn thay đổi, hoặc 'ok' để tiếp tục"
+- Dùng `AskUserQuestion` để user chọn bước tiếp theo
 
+**Format:**
 ```
-### Tóm tắt quyết định
+Trước tiên, in text bảng tóm tắt:
+"### Tóm tắt quyết định
 
 | # | Vấn đề | Quyết định | Nguồn |
 |---|--------|-----------|-------|
 | 1 | [Tên] | [Phương án đã chọn] | User chọn |
 | 2 | [Tên] | [Phương án recommend] | Claude quyết định |
-| ... | ... | ... | ... |
+| ... | ... | ... | ... |"
 
-Xác nhận để tôi tiếp tục thiết kế kỹ thuật?
+Sau đó gọi AskUserQuestion:
+AskUserQuestion({
+  questions: [{
+    question: "Bạn muốn làm gì tiếp theo?",
+    header: "Tiếp theo",
+    multiSelect: false,
+    options: [
+      { label: "Tiếp tục thiết kế", description: "Các quyết định đã ổn — bắt đầu thiết kế kỹ thuật chi tiết" },
+      { label: "Thảo luận thêm vấn đề khác", description: "Tôi sẽ đưa ra thêm các vấn đề chưa được bàn, hoặc bạn tự đề xuất" },
+      { label: "Thay đổi quyết định", description: "Chọn lại phương án cho bất kỳ vấn đề nào trong bảng" }
+    ]
+  }]
+})
 ```
+
+**Xử lý lựa chọn:**
+- "Tiếp tục thiết kế" → chuyển sang Bước 4
+- "Thảo luận thêm vấn đề khác" → chuyển sang Bước 3.5.4
+- "Thay đổi quyết định" → nếu chỉ có 1 vấn đề → thảo luận lại trực tiếp (quay lại 3.5.2, không cần hỏi chọn); nếu 2+ vấn đề → dùng `AskUserQuestion` `multiSelect: true` liệt kê các vấn đề đã chốt để user chọn vấn đề muốn thay đổi → thảo luận lại (quay lại 3.5.2) → quay lại 3.5.3. Nếu tổng vấn đề đã chốt > 4 → chia nhóm giống cách xử lý 5+ ở 3.5.1
+
+### 3.5.4: Thảo luận mở rộng (khi user chọn "Thảo luận thêm vấn đề khác")
+Claude phân tích lại deliverable và đưa ra **danh sách vấn đề bổ sung** chưa từng được đề cập (không trùng 3.5.1 VÀ không trùng các vòng 3.5.4 trước đó). Các vấn đề mới có thể bao gồm:
+- Vấn đề phát sinh từ các quyết định đã chốt (VD: chọn cookie bảo mật → cần quyết định cách chống giả mạo request)
+- Vấn đề ở tầng sâu hơn mà ban đầu chưa liệt kê (VD: ghi log, thử lại khi lỗi, giới hạn tần suất gọi)
+- Vấn đề user muốn tự đề xuất
+
+**Hiển thị bằng `AskUserQuestion`:**
+
+**Nếu Claude tìm thêm vấn đề mới (≤4):**
+```
+In text: "Dựa trên các quyết định đã chốt, tôi xác định thêm [N] vấn đề có thể thảo luận:"
+
+AskUserQuestion({
+  questions: [{
+    question: "Chọn vấn đề bạn muốn thảo luận thêm (có thể chọn nhiều):",
+    header: "Bổ sung",
+    multiSelect: true,
+    options: [
+      { label: "[Vấn đề mới 1]", description: "[mô tả ngắn, dễ hiểu]" },
+      { label: "[Vấn đề mới 2]", description: "[mô tả ngắn, dễ hiểu]" },
+      ...
+    ]
+  }]
+})
+```
+- User chọn "Other" → nếu gõ `cancel` → coi như không chọn gì, chuyển thẳng **Bước 4**; nếu gõ `back` → quay lại 3.5.3; nếu gõ nội dung khác → coi đó là vấn đề user đề xuất → Claude phân tích → đưa options bằng AskUserQuestion giống 3.5.2 → sau khi chốt, quay lại 3.5.3 hiển thị bảng tóm tắt đầy đủ
+- Nếu user không chọn gì → không còn vấn đề muốn thảo luận → chuyển thẳng sang **Bước 4**
+
+**Nếu Claude KHÔNG tìm thêm vấn đề nào:**
+```
+AskUserQuestion({
+  questions: [{
+    question: "Tôi không tìm thêm vấn đề nào cần thảo luận. Bạn có vấn đề riêng muốn đưa ra không?",
+    header: "Vấn đề riêng",
+    multiSelect: false,
+    options: [
+      { label: "Không, tiếp tục thiết kế", description: "Đã thảo luận đủ — chuyển sang thiết kế kỹ thuật" },
+      { label: "Có, tôi muốn hỏi thêm", description: "Mô tả vấn đề bạn muốn thảo luận" }
+    ]
+  }]
+})
+```
+- Nếu "Có" → chờ user mô tả (text input) → Claude phân tích vấn đề user đề xuất → đưa options bằng AskUserQuestion giống 3.5.2 → sau khi chốt, quay lại 3.5.3 hiển thị bảng tóm tắt đầy đủ
+- Nếu "Không" → chuyển thẳng sang **Bước 4** (KHÔNG quay lại 3.5.3 vì user đã xác nhận "tiếp tục thiết kế")
+
+**Nếu 5+ vấn đề mới** → áp dụng cùng cách xử lý như 3.5.1 (hỏi phạm vi trước, rồi chia nhóm)
+
+**Sau khi thảo luận xong vấn đề bổ sung** (user đã chọn và thảo luận ít nhất 1 vấn đề mới):
+- Mỗi vấn đề mới thảo luận theo đúng format 3.5.2 (AskUserQuestion chọn phương án)
+- Quay lại bước 3.5.3 — hiển thị lại bảng tóm tắt ĐẦY ĐỦ (cả vấn đề cũ + mới) + AskUserQuestion 3 lựa chọn
+- **Vòng lặp 3.5.3 ↔ 3.5.4** tiếp tục cho đến khi user chọn "Tiếp tục thiết kế" ở 3.5.3, hoặc không chọn/chọn "Không" ở 3.5.4
+
+**Lưu ý phân biệt 2 lối thoát khỏi 3.5.4:**
+- User không chọn vấn đề nào (multiSelect empty), hoặc chọn "Không, tiếp tục thiết kế" → đi thẳng Bước 4
+- User thảo luận xong ít nhất 1 vấn đề mới → quay 3.5.3 để xác nhận tổng thể (vì bảng tóm tắt đã thay đổi)
 
 ## Bước 4: Thiết kế kỹ thuật
 Cho mỗi deliverable, thiết kế theo loại:
@@ -196,8 +320,14 @@ Cho mỗi deliverable, thiết kế theo loại:
 - Files cần tạo/sửa
 - Thư viện cần thêm
 
-## Bước 4.5: Ghi nhận quyết định thiết kế (CHỈ khi chế độ AUTO)
-> **Bỏ qua nếu chế độ DISCUSS** (đã xử lý ở Bước 3.5).
+## Bước 4.5: Ghi nhận quyết định thiết kế
+> **THỰC HIỆN khi** Claude tự đưa ra ít nhất 1 quyết định mà user KHÔNG thảo luận. Cụ thể:
+> - Chế độ AUTO → LUÔN thực hiện
+> - Chế độ DISCUSS skip-all (user bỏ qua tất cả ở 3.5.1) → thực hiện
+> - Chế độ DISCUSS cancel (user hủy giữa chừng) → thực hiện cho các vấn đề CHƯA thảo luận
+> - Chế độ DISCUSS user chọn một số vấn đề (skip phần còn lại) → thực hiện cho các vấn đề user KHÔNG chọn
+> - Chế độ DISCUSS user thảo luận TẤT CẢ vấn đề → **bỏ qua** (không có quyết định tự đưa ra)
+> - Chế độ DISCUSS nhưng KHÔNG có vấn đề nào cần quyết định (0 issues ở 3.5.1) → **bỏ qua** (không có quyết định nào để ghi)
 
 Sau khi thiết kế xong (Bước 4), Claude PHẢI review lại và ghi nhận:
 1. Xác định các vấn đề đã có nhiều cách triển khai hợp lệ
@@ -273,7 +403,11 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 ```
 
 **CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan đến stack (VD: bỏ API Endpoints nếu không có backend, bỏ Database nếu không có DB).
-**Section "Quyết định thiết kế"**: LUÔN tạo ở CẢ HAI chế độ. AUTO dùng bảng mở rộng (có cột Lý do + Alternatives). DISCUSS dùng bảng gốc (có cột Nguồn). Nếu không có quyết định nào (tất cả đã rõ ràng) → ghi "Không có quyết định thiết kế đặc biệt — tất cả đã xác định rõ từ ROADMAP/CONTEXT."
+**Section "Quyết định thiết kế"**: LUÔN tạo ở CẢ HAI chế độ. Chọn bảng dựa trên thực tế diễn ra:
+- **AUTO thuần** (hoặc DISCUSS skip-all) → bảng mở rộng (Lý do + Alternatives)
+- **DISCUSS thuần** (user thảo luận TẤT CẢ vấn đề) → bảng gốc (cột Nguồn)
+- **DISCUSS hybrid** (user thảo luận một số, skip/cancel phần còn lại) → dùng bảng gốc (cột Nguồn), nhưng các vấn đề "Claude quyết định" PHẢI kèm thêm dòng ghi chú bên dưới bảng giải thích Lý do + Alternatives cho từng vấn đề Claude tự quyết
+- Nếu không có quyết định nào (tất cả đã rõ ràng) → ghi "Không có quyết định thiết kế đặc biệt — tất cả đã xác định rõ từ ROADMAP/CONTEXT."
 
 ## Bước 7: Tạo TASKS.md
 Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
@@ -313,8 +447,8 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 ## Bước 9: Thông báo
 In tóm tắt plan + danh sách tasks cho user review.
 - Nếu phase vừa plan KHÁC phase hiện tại trong CURRENT_MILESTONE → ghi rõ: "Lưu ý: Phase hiện tại vẫn là [x.x]. Plan này cho phase [y.y] (chưa active)."
-- Nếu chế độ DISCUSS: ghi nhận số vấn đề đã thảo luận vs tự quyết định
-- Nếu chế độ AUTO: in bảng tóm tắt các quyết định Claude đã tự đưa ra (từ Bước 4.5) để user review TRƯỚC khi chạy `/pd:write-code`. Format:
+- Nếu chế độ DISCUSS và không có vấn đề Claude tự quyết (user thảo luận tất cả, hoặc không có vấn đề nào cần quyết định): ghi nhận số vấn đề đã thảo luận (có thể = 0)
+- Nếu chế độ AUTO, DISCUSS skip-all, hoặc DISCUSS hybrid (có vấn đề Claude tự quyết): in bảng tóm tắt các quyết định Claude đã tự đưa ra (từ Bước 4.5) để user review TRƯỚC khi chạy `/pd:write-code`. Format:
   ```
   ### Claude đã tự quyết định [N] vấn đề thiết kế:
   | # | Vấn đề | Phương án | Lý do tóm tắt |
@@ -333,8 +467,13 @@ In tóm tắt plan + danh sách tasks cho user review.
 - KHÔNG hỏi lại FastCode thông tin đã có trong SCAN_REPORT
 - Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
 - Chế độ AUTO (mặc định): KHÔNG hỏi user bất kỳ câu hỏi thiết kế nào — tự quyết định tất cả
-- Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi lần hiển thị danh sách/options — KHÔNG tự chọn thay user
-- Chế độ DISCUSS: Nếu user chọn "skip" ở bước 3.5.1 → chuyển sang AUTO cho phần còn lại
-- Chế độ DISCUSS: Option cuối trong danh sách LUÔN là "Bạn có cách riêng" — KHÔNG được bỏ
+- Chế độ DISCUSS: PHẢI dùng `AskUserQuestion` cho mọi lựa chọn — user chọn bằng phím mũi tên, KHÔNG yêu cầu gõ A/B/C hoặc số
+- Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi `AskUserQuestion` — KHÔNG tự chọn thay user
+- Chế độ DISCUSS: Nếu user bỏ qua tất cả ở 3.5.1 → chuyển sang AUTO cho phần còn lại (Bước 4 + 4.5 + bảng AUTO)
+- Chế độ DISCUSS: Nếu user cancel giữa 3.5.2 → GIỮ quyết định đã chốt + Claude quyết định phần còn lại → hiển thị 3.5.3 tóm tắt → user xác nhận
+- Chế độ DISCUSS: "Other" (tự động từ AskUserQuestion) thay thế cho "Bạn có cách riêng" — user luôn có thể tự mô tả
 - Chế độ DISCUSS: Thiết kế kỹ thuật PHẢI phản ánh đúng quyết định user đã chốt — vi phạm = lỗi
+- Chế độ DISCUSS: Bước 3.5.3 ↔ 3.5.4 tạo vòng lặp — user có thể chọn "Thảo luận thêm" bao nhiêu lần tùy thích. Vòng lặp kết thúc khi user chọn "Tiếp tục thiết kế" ở 3.5.3, HOẶC không chọn/chọn "Không" ở 3.5.4 → đi thẳng Bước 4
+- Chế độ DISCUSS: Khi user chọn "Thảo luận thêm", Claude PHẢI đưa ra vấn đề MỚI — KHÔNG lặp lại vấn đề đã chốt VÀ KHÔNG hiện lại vấn đề đã từng đưa ra nhưng user bỏ qua
+- Chế độ DISCUSS: Ngôn ngữ trong options PHẢI đơn giản, dễ hiểu — viết cho người KHÔNG phải developer. Giải thích bằng kết quả/hệ quả thay vì thuật ngữ kỹ thuật. Thuật ngữ kỹ thuật chỉ dùng khi không có cách diễn đạt đơn giản hơn, và phải kèm giải thích ngắn
 </rules>

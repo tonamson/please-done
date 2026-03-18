@@ -205,6 +205,18 @@ Khi tất cả tasks trong phase hiện tại ✅:
 - Nếu phase tiếp đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp.
 - Nếu phase tiếp chưa plan → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`.
 
+**Tracking commit** (CHỈ khi HAS_GIT = true VÀ tất cả tasks trong phase ✅):
+```
+git add .planning/milestones/[version]/phase-[phase]/TASKS.md
+git add .planning/ROADMAP.md
+git add .planning/CURRENT_MILESTONE.md
+# Nếu CONTEXT.md đã cập nhật ở Bước 8 ("Dự án mới" flag):
+git add .planning/CONTEXT.md
+git commit -m "[TRACKING] Phase [x.x] hoàn tất
+
+Tổng: [N] tasks ✅"
+```
+
 ## Bước 10: Tiếp tục hoặc dừng
 
 ### Chế độ `--parallel` (multi-agent song song)
@@ -257,8 +269,8 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ```
 
 ### Chế độ `--auto` (tuần tự)
-Còn task 🔄 hoặc ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
-- Hết task 🔄 và ⬜ (tất cả ✅) → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`"
+Còn task 🔄 hoặc ⬜ trong phase **ban đầu** (phase tại thời điểm bắt đầu `--auto`, KHÔNG phải phase sau khi Bước 9 advance) → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
+- Hết task 🔄 và ⬜ trong phase ban đầu (tất cả ✅) → Bước 9 đã chạy trong normal flow (sau Bước 8) và đã tạo tracking commit → **DỪNG auto loop** (KHÔNG tự nhảy sang phase tiếp dù CURRENT_MILESTONE đã advance) → thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`"
 - **TẤT CẢ tasks còn lại đều bị ❌, 🐛, hoặc ⬜ nhưng bị chặn bởi dependency chưa ✅** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/pd:fix-bug`
 - Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
 - Nếu lint/build được skip (project chưa setup build tools) → tiếp tục task tiếp theo bình thường

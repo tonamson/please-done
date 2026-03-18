@@ -175,9 +175,9 @@ Tạo `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md` với header tối thiểu:
 ```markdown
 # Báo cáo lỗi (từ kiểm thử)
 > Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: [Nghiêm trọng/Cao/Trung bình/Nhẹ — theo ảnh hưởng]
-> Trạng thái: Chưa xử lý | Chức năng: [Tên]
-> Task: [N] (số task trong TASKS.md bị fail — giúp fix-bug biết chính xác task cần đổi trạng thái)
-> Patch version: [version của milestone chứa task bị fail]
+> Trạng thái: Chưa xử lý | Chức năng: [Tên] | Task: [N]
+> Patch version: [x.x.x] | Lần sửa: 0
+> Format header PHẢI khớp fix-bug.md: `Trạng thái | Chức năng | Task` cùng dòng, `Patch version | Lần sửa` cùng dòng — để fix-bug Grep parse được.
 > Patch version LUÔN 3 số (x.y.z) theo convention general.md. Xác định version dựa trên TASKS.md chứa task fail (từ path `milestones/[version]/phase-*/TASKS.md`), KHÔNG mặc định lấy CURRENT_MILESTONE (vì milestone có thể đã advance). Nếu bug thuộc version đó → `[version].0` (VD: `1.0.0`). Nếu tìm thấy patch version trước → increment (VD: `1.0.1` → `1.0.2`).
 
 ## Mô tả lỗi
@@ -187,7 +187,7 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 
 ## Bước 9: Cập nhật TASKS.md
 - Pass hết → giữ ✅
-- Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass), đề xuất `/pd:fix-bug`
+- Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass). Cập nhật CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block `> Trạng thái:`. Đề xuất `/pd:fix-bug`
 - Nếu test fail có thể do shared code (service dùng chung giữa nhiều tasks) → ghi trong BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Đổi 🐛 cho task có test fail, ghi chú suspected tasks.
 
 ## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)

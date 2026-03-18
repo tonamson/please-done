@@ -158,6 +158,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const skills = listSkillFiles(skillsSrc);
   for (const skill of skills) {
     const dest = path.join(commandsDir, `${skill.name}.md`);
+    try { fs.lstatSync(dest); fs.unlinkSync(dest); } catch { /* not exists */ }
     fs.symlinkSync(skill.filePath, dest);
     log.success(`/pd:${skill.name}`);
   }
