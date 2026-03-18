@@ -1,5 +1,16 @@
 # Nhật ký thay đổi Skills
 
+## [1.1.1] - 18_03_2026
+### Thêm mới
+- Thông báo version mới trên status line (góc trái dưới) — `⬆ Skills v[x.x.x] — /sk:update`
+- SessionStart hook (`sk-check-update.js`) — kiểm tra remote version khi bắt đầu session, cache 10 phút
+- Tích hợp vào GSD statusline — hiện cùng dòng với thông tin GSD
+
+### Sửa lỗi
+- Fix `update.md` Bước 8: "Ghi thêm" gây duplicate CURRENT_VERSION — đổi thành thay thế idempotent
+- Fix `what-next.md` context/rules: ghi rõ dùng Bash cho version check (trước nói "chỉ Read/Glob")
+- Xóa `check-update.sh` orphaned (đã thay bằng `sk-check-update.js`)
+
 ## [1.1.0] - 18_03_2026
 ### Thêm mới
 - `/sk:update` — Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog, gợi ý restart

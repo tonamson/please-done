@@ -11,7 +11,7 @@ Quét trạng thái toàn bộ .planning/ để xác định công việc đang 
 User input: $ARGUMENTS (không cần)
 
 Skill này KHÔNG cần đọc rules — chỉ đọc trạng thái planning files.
-Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob).
+Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob, Bash cho version check).
 </context>
 
 <process>
@@ -126,7 +126,7 @@ Nếu fetch lỗi hoặc version giống → bỏ qua.
 </process>
 
 <rules>
-- KHÔNG gọi FastCode MCP — chỉ dùng Read/Glob để đọc planning files
+- KHÔNG gọi FastCode MCP — chỉ dùng Read/Glob để đọc planning files (Bash cho version check ở Bước 6)
 - KHÔNG sửa bất kỳ file nào — chỉ đọc và báo cáo
 - KHÔNG cần CONTEXT.md để chạy — nếu thiếu thì gợi ý `/sk:init`
 - Chỉ gợi ý 1 hành động chính (ưu tiên cao nhất), có thể kèm gợi ý phụ

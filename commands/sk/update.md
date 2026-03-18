@@ -93,7 +93,10 @@ cd [SKILLS_DIR] && git submodule update --init --recursive 2>/dev/null
 Nếu FastCode submodule có thay đổi → thông báo: "FastCode cũng đã được cập nhật."
 
 ## Bước 8: Cập nhật .skconfig
-Ghi thêm `CURRENT_VERSION=[REMOTE_VERSION]` vào `.skconfig` (không xóa SKILLS_DIR/FASTCODE_DIR).
+Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.skconfig`:
+- Nếu dòng `CURRENT_VERSION=` đã tồn tại → **thay thế** giá trị (KHÔNG append thêm dòng mới)
+- Nếu chưa có → thêm dòng mới
+- Giữ nguyên SKILLS_DIR/FASTCODE_DIR
 
 ## Bước 9: Thông báo
 ```
