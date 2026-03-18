@@ -1,5 +1,11 @@
 # Nhật ký thay đổi Skills
 
+## [2.2.1] - 18_03_2026
+### Thay đổi
+- `what-next.md`: Thêm rule bắt buộc output tiếng Việt có dấu (trước đó không đọc general.md nên thiếu rule ngôn ngữ)
+- `update.md`: Tương tự — thêm rule tiếng Việt trực tiếp trong `<rules>`
+- `README.md`: Bổ sung hướng dẫn bảo mật đa tầng cho tất cả 5 platforms (built-in rules + platform deny list + .gitignore)
+
 ## [2.2.0] - 18_03_2026
 ### Thêm mới
 - **Eval suite (Promptfoo)**: Bộ đánh giá chất lượng prompt theo Anthropic best practices
