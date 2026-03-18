@@ -1,5 +1,9 @@
 # Nhật ký thay đổi Skills
 
+## [1.2.1] - 18_03_2026
+### Thay đổi
+- `general.md`: Thêm quy tắc bảo mật — khi code dùng biến môi trường mới, BẮT BUỘC thêm key vào `.env.example` với giá trị placeholder
+
 ## [1.2.0] - 18_03_2026
 ### Thêm mới
 - **Transparency cho AUTO mode**: `plan.md`, `roadmap.md` ghi lại mọi quyết định Claude tự đưa ra (phương án, lý do, alternatives đã loại) — user review được trước khi viết code
