@@ -148,4 +148,5 @@ rm -f ~/.claude/cache/pd-update-check.json
 - PHẢI hiển thị changelog trước khi cập nhật
 - PHẢI xóa `~/.claude/cache/pd-update-check.json` sau khi cập nhật thành công — để status line ngừng hiện thông báo
 - PHẢI gợi ý restart sau khi cập nhật xong
+- Mọi output PHẢI bằng tiếng Việt có dấu — bao gồm thông báo, changelog summary, hướng dẫn
 </rules>

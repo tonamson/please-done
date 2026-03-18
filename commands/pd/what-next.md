@@ -140,4 +140,5 @@ Nếu fetch lỗi hoặc version giống → bỏ qua.
 - Hiển thị task đang dở (🔄) với số thứ tự + tên cụ thể để user dễ tiếp tục
 - Hiển thị bugs mở với mô tả ngắn
 - Tuân thủ format ngày tháng DD_MM_YYYY từ general.md
+- Mọi output PHẢI bằng tiếng Việt có dấu — bao gồm thông báo, gợi ý, bảng tiến trình
 </rules>
