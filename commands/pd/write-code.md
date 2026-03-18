@@ -1,6 +1,6 @@
 ---
 name: pd:write-code
-description: Viết code theo task, JSDoc tiếng Việt, lint, build, commit và báo cáo
+description: Viết code theo task đã plan trong TASKS.md, lint, build, commit và báo cáo (yêu cầu có PLAN.md + TASKS.md trước)
 ---
 
 <objective>

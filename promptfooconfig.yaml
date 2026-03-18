@@ -1,0 +1,782 @@
+# Please Done Skills — Evaluation Suite
+# Đánh giá: Claude có thực thi đúng workflow từng skill không?
+#
+# Chạy:  npm run eval
+# Xem:   npm run eval:view
+# Filter: npm run eval:filter -- "pd:init"
+# Full:  npm run eval:full (workflow + trigger + benchmark)
+#
+# ═══════════════════════════════════════════════════════════════
+# SKILL CLASSIFICATION (theo Anthropic blog best practices)
+# ═══════════════════════════════════════════════════════════════
+#
+# Tất cả 11 skills thuộc loại: ENCODED PREFERENCE
+# → Encode workflow chuẩn mà Claude có thể tự làm từng bước,
+#   nhưng skill đảm bảo thứ tự, format, output nhất quán.
+#
+# Core Workflow (thứ tự bắt buộc):
+#   pd:init            — Encoded Preference — khởi tạo môi trường
+#   pd:scan            — Encoded Preference — quét + báo cáo project
+#   pd:new-milestone   — Encoded Preference — lập roadmap chiến lược
+#   pd:plan            — Encoded Preference — thiết kế kỹ thuật + chia task
+#   pd:write-code      — Encoded Preference — viết code theo plan
+#   pd:test            — Encoded Preference — kiểm thử Jest/Supertest
+#   pd:fix-bug         — Encoded Preference — debug loop có báo cáo
+#   pd:complete-milestone — Encoded Preference — đóng version + git tag
+#
+# Utility (chạy bất kỳ lúc nào):
+#   pd:what-next       — Encoded Preference — gợi ý bước tiếp theo
+#   pd:fetch-doc       — Encoded Preference — tải + cache documentation
+#   pd:update          — Encoded Preference — self-update từ GitHub
+#
+# Vì là Encoded Preference → eval focus vào WORKFLOW FIDELITY:
+#   skill có follow đúng thứ tự, format, rules không?
+# ═══════════════════════════════════════════════════════════════
+
+description: "Please Done Skills — Workflow Compliance Evaluation"
+
+prompts:
+  - file://evals/prompt-wrapper.js
+
+providers:
+  - id: anthropic:messages:claude-sonnet-4-20250514
+    label: "Claude Sonnet"
+    config:
+      max_tokens: 4096
+      temperature: 0
+
+# Model dùng để chấm điểm llm-rubric
+defaultTest:
+  options:
+    provider:
+      id: anthropic:messages:claude-sonnet-4-20250514
+      config:
+        temperature: 0
+
+tests:
+  # ══════════════════════════════════════════════════════════════
+  # pd:init — Khởi tạo môi trường
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:init — Existing NestJS project (detect backend, copy rules)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/my-backend.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công, trả về danh sách repos
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,html} → tìm thấy 50+ files .ts
+        - Glob **/nest-cli.json → tìm thấy /app/my-backend/nest-cli.json
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - package.json có: @nestjs/core@10.3.0, @nestjs/common, prisma
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - Chưa có thư mục .planning/
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra response có follow đúng workflow pd:init không:
+          1. PHẢI kiểm tra FastCode MCP (gọi mcp__fastcode__list_indexed_repos)
+          2. PHẢI kiểm tra CONTEXT.md chưa tồn tại → tiếp tục (KHÔNG hỏi user)
+          3. PHẢI kiểm tra có source files → isNewProject = false
+          4. PHẢI gọi mcp__fastcode__code_qa để index project
+          5. PHẢI detect NestJS qua nest-cli.json → hasBackend = true
+          6. PHẢI detect KHÔNG có frontend → hasFrontend = false
+          7. PHẢI tạo thư mục .planning/ (scan, docs, bugs, rules)
+          8. PHẢI copy general.md + backend.md vào .planning/rules/ (KHÔNG copy frontend.md)
+          9. PHẢI tạo CONTEXT.md dưới 50 dòng
+          10. PHẢI hiển thị bảng thông báo hoàn tất
+      - type: contains
+        value: "mcp__fastcode"
+      - type: contains
+        value: "backend.md"
+      - type: contains
+        value: "general.md"
+
+  - description: "pd:init — New empty project (no source code)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/new-project.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,html} → KHÔNG tìm thấy file nào
+        - Chỉ có package.json và README.md
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra response cho project mới:
+          1. PHẢI kiểm tra FastCode MCP thành công
+          2. PHẢI detect không có source files → isNewProject = true
+          3. KHÔNG ĐƯỢC gọi mcp__fastcode__code_qa (skip indexing vì project mới)
+          4. PHẢI hỏi user "Dự án mới chưa có code. Bạn muốn xây dựng gì?"
+          5. PHẢI chỉ copy general.md (KHÔNG copy backend.md hay frontend.md)
+          6. PHẢI tạo CONTEXT.md với "Dự án mới: Có"
+
+  - description: "pd:init — FastCode MCP fails → MUST STOP"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/project.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → THẤT BẠI (connection error)
+    assert:
+      - type: llm-rubric
+        value: |
+          Response PHẢI DỪNG NGAY khi FastCode MCP thất bại:
+          1. PHẢI thông báo "FastCode MCP không hoạt động"
+          2. PHẢI liệt kê các bước kiểm tra (install, API key, restart)
+          3. KHÔNG ĐƯỢC tiếp tục bất kỳ bước nào sau đó (detect stack, tạo CONTEXT, v.v.)
+      - type: icontains
+        value: "fastcode"
+
+  - description: "pd:init — CONTEXT.md already exists → ask user"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/backend.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → ĐÃ TỒN TẠI (từ session trước)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi CONTEXT.md đã tồn tại:
+          1. PHẢI hỏi user chọn: giữ nguyên hoặc khởi tạo lại
+          2. KHÔNG ĐƯỢC ghi đè CONTEXT.md mà không hỏi
+          3. Nếu giữ → gợi ý /pd:scan hoặc /pd:what-next
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:scan — Quét dự án
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:scan — Full scan NestJS + NextJS project"
+    vars:
+      skill_file: commands/pd/scan.md
+      scenario: |
+        Project tại /app/fullstack.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, có Backend NestJS + Frontend NextJS
+        - Glob **/*.{ts,tsx,js,jsx,py,html} → 200+ files
+        - nest-cli.json tồn tại, next.config.ts tồn tại
+        - package.json có: @nestjs/core, next, antd, prisma
+        - npm audit → 2 moderate vulnerabilities
+        - mcp__fastcode__code_qa → trả về danh sách modules, controllers
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra scan workflow:
+          1. PHẢI đọc CONTEXT.md trước
+          2. PHẢI quét bằng built-in tools (Glob, Read, Grep)
+          3. PHẢI quét Backend patterns (@Module, @Controller, @Injectable, routes)
+          4. PHẢI quét Frontend patterns (pages, components, stores, hooks)
+          5. PHẢI gọi mcp__fastcode__code_qa bổ sung
+          6. PHẢI chạy npm audit và báo cáo vulnerabilities
+          7. PHẢI tạo SCAN_REPORT.md với sections có dữ liệu
+          8. PHẢI cập nhật CONTEXT.md sau khi quét
+          9. KHÔNG ĐƯỢC đọc file .env
+      - type: contains
+        value: "SCAN_REPORT"
+      - type: contains
+        value: "npm audit"
+
+  - description: "pd:scan — New project (no code) → minimal report"
+    vars:
+      skill_file: commands/pd/scan.md
+      scenario: |
+        Project tại /app/new-project.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, ghi "Dự án mới: Có"
+        - Glob **/*.{ts,tsx,js,jsx,py,html} → KHÔNG tìm thấy file nào
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra scan project mới:
+          1. PHẢI detect không có source files → nhảy sang tạo report tối giản
+          2. KHÔNG ĐƯỢC gọi FastCode MCP (không có code để quét)
+          3. KHÔNG ĐƯỢC chạy npm audit
+          4. KHÔNG ĐƯỢC chạy Bước 6 cập nhật CONTEXT.md
+          5. Report phải ghi "Dự án mới, chưa có code"
+
+  - description: "pd:scan — Missing CONTEXT.md → STOP"
+    vars:
+      skill_file: commands/pd/scan.md
+      scenario: |
+        Project tại /app/project.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI DỪNG và gợi ý chạy /pd:init trước.
+          KHÔNG ĐƯỢC tiếp tục quét khi chưa có CONTEXT.md.
+      - type: icontains
+        value: "/pd:init"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:new-milestone — Lập roadmap
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:new-milestone — Fresh project, create roadmap"
+    vars:
+      skill_file: commands/pd/new-milestone.md
+      scenario: |
+        Project tại /app/new-project.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, "Dự án mới: Có"
+        - .planning/scan/SCAN_REPORT.md → KHÔNG tồn tại (project mới, cho phép)
+        - .planning/ROADMAP.md → KHÔNG tồn tại
+        - User input: "Xây dựng hệ thống quản lý kho hàng với NestJS + NextJS"
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI cho phép tiếp tục dù không có scan report (project mới)
+          2. PHẢI kiểm tra ROADMAP không tồn tại → tạo mới (KHÔNG hỏi overwrite)
+          3. PHẢI tạo ROADMAP.md với milestones, phases, deliverables
+          4. PHẢI tạo CURRENT_MILESTONE.md pointing tới milestone đầu tiên
+          5. PHẢI tạo thư mục milestones/[version]/
+          6. PHẢI có section "Quyết định chiến lược" trong ROADMAP
+          7. Auth/Security phải trong milestone đầu
+      - type: contains
+        value: "ROADMAP.md"
+      - type: contains
+        value: "CURRENT_MILESTONE"
+
+  - description: "pd:new-milestone — Existing roadmap → ask overwrite or append"
+    vars:
+      skill_file: commands/pd/new-milestone.md
+      scenario: |
+        Project tại /app/existing-project.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại
+        - .planning/scan/SCAN_REPORT.md → tồn tại
+        - .planning/ROADMAP.md → ĐÃ TỒN TẠI (có 2 milestones hiện tại)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi ROADMAP đã tồn tại:
+          1. PHẢI hỏi user chọn "GHI ĐÈ" hoặc "VIẾT TIẾP"
+          2. KHÔNG ĐƯỢC tự ý ghi đè hoặc append mà không hỏi
+
+  - description: "pd:new-milestone — Existing code but no scan → STOP"
+    vars:
+      skill_file: commands/pd/new-milestone.md
+      scenario: |
+        Project tại /app/existing.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, "Dự án mới: Không" (project có code)
+        - .planning/scan/SCAN_REPORT.md → KHÔNG tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Project có code nhưng thiếu scan report:
+          1. PHẢI thông báo chạy /pd:scan trước
+          2. PHẢI DỪNG, KHÔNG tạo roadmap
+      - type: icontains
+        value: "/pd:scan"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:plan — Lập kế hoạch kỹ thuật
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:plan — AUTO mode, full prerequisites"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        Project NestJS + NextJS tại /app/fullstack.
+        $ARGUMENTS: (trống → AUTO mode mặc định)
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Backend NestJS + Frontend NextJS
+        - .planning/ROADMAP.md → tồn tại, Phase 1.1: "CRUD Users"
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - .planning/scan/SCAN_REPORT.md → tồn tại, liệt kê modules hiện có
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → KHÔNG tồn tại (chưa plan)
+        - mcp__fastcode__code_qa → trả về patterns, services, entities hiện có
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra plan AUTO mode:
+          1. PHẢI đọc context (CONTEXT, ROADMAP, CURRENT_MILESTONE, SCAN_REPORT)
+          2. KHÔNG ĐƯỢC hỏi user câu hỏi thiết kế nào (AUTO mode)
+          3. PHẢI research qua FastCode + Context7
+          4. PHẢI thiết kế kỹ thuật (API endpoints, database, DTOs)
+          5. PHẢI ghi nhận quyết định thiết kế (Bước 4.5 — bảng có Lý do + Alternatives)
+          6. PHẢI tạo PLAN.md với đủ sections
+          7. PHẢI tạo TASKS.md với bảng Tổng quan + task details
+          8. Tasks PHẢI có cột Loại (Backend/Frontend) + cột Phụ thuộc chính xác
+          9. PHẢI cập nhật tracking (CURRENT_MILESTONE + ROADMAP)
+          10. Cuối cùng PHẢI in bảng quyết định Claude đã tự đưa ra để user review
+      - type: contains
+        value: "PLAN.md"
+      - type: contains
+        value: "TASKS.md"
+
+  - description: "pd:plan — DISCUSS mode → list issues, show options"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        $ARGUMENTS: --discuss
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - Tất cả prerequisites tồn tại (CONTEXT, ROADMAP, CURRENT_MILESTONE, SCAN_REPORT)
+        - Phase 1.1: "Authentication — Đăng nhập, phân quyền"
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra plan DISCUSS mode:
+          1. PHẢI phát hiện flag --discuss → chuyển chế độ DISCUSS
+          2. PHẢI liệt kê danh sách vấn đề cần quyết định (có đánh số)
+          3. PHẢI chờ user chọn (KHÔNG tự chọn thay user)
+          4. PHẢI hiển thị options cho mỗi vấn đề (A, B, C...)
+          5. Option A PHẢI là recommend
+          6. Option cuối LUÔN là "Bạn có cách riêng"
+          7. PHẢI có bước tổng hợp quyết định trước khi thiết kế
+
+  - description: "pd:plan — Missing ROADMAP → STOP"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        Project tại /app/project.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại
+        - .planning/ROADMAP.md → KHÔNG tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI DỪNG khi không có ROADMAP.md.
+          PHẢI gợi ý chạy /pd:new-milestone.
+      - type: icontains
+        value: "/pd:new-milestone"
+
+  - description: "pd:plan — Phase already has tasks with progress → warn"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        Project tại /app/backend.
+        Kết quả tool calls giả lập:
+        - Tất cả prerequisites tồn tại
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → ĐÃ TỒN TẠI
+        - TASKS.md chứa: Task 1: ✅, Task 2: 🔄, Task 3: ⬜
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi phase đã có TASKS.md với tasks đã hoàn thành/đang làm:
+          1. PHẢI CẢNH BÁO user (có tasks ✅ và 🔄)
+          2. PHẢI cho user chọn: ghi đè, chuyển phase, hoặc hủy
+          3. KHÔNG ĐƯỢC tự ý ghi đè TASKS.md
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:write-code — Viết code theo task
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:write-code — Default mode, pick next available task"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project NestJS tại /app/backend. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → thiết kế API /users, database User entity
+        - TASKS.md:
+          Task 1: ✅ (Phụ thuộc: Không)
+          Task 2: ⬜ (Phụ thuộc: Task 1) — Create User Service
+          Task 3: ⬜ (Phụ thuộc: Task 2) — Create User Controller
+        - git rev-parse → có git repo
+        - rules/general.md, rules/backend.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI pick Task 2 (Task 1 đã ✅, dependency met)
+          2. KHÔNG pick Task 3 (phụ thuộc Task 2 chưa xong)
+          3. PHẢI cập nhật Task 2 → 🔄
+          4. PHẢI đọc PLAN.md + task detail trước khi code
+          5. PHẢI research qua FastCode
+          6. PHẢI viết code tuân thủ rules (JSDoc tiếng Việt, semicolons, single quotes)
+          7. PHẢI chạy lint + build
+          8. PHẢI tạo CODE_REPORT_TASK_2.md
+          9. PHẢI git commit với prefix [TASK-2]
+          10. PHẢI cập nhật Task 2 → ✅
+          11. PHẢI DỪNG sau 1 task (default mode), hỏi user tiếp không
+      - type: contains
+        value: "CODE_REPORT"
+      - type: icontains
+        value: "[TASK-"
+
+  - description: "pd:write-code — All tasks completed → STOP"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project tại /app/backend. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - TASKS.md → Task 1: ✅, Task 2: ✅, Task 3: ✅ (tất cả hoàn tất)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi TẤT CẢ tasks đều ✅:
+          1. PHẢI DỪNG, thông báo phase hoàn tất
+          2. PHẢI gợi ý /pd:test, /pd:plan, hoặc /pd:complete-milestone
+          3. KHÔNG ĐƯỢC cố pick hay viết code cho task nào
+
+  - description: "pd:write-code — Dependency blocked + resume priority"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - TASKS.md:
+          Task 1: ✅
+          Task 2: ⬜ (Phụ thuộc: Task 3)
+          Task 3: 🔄 (đang thực hiện)
+          Task 4: ⬜ (Phụ thuộc: Không)
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI ưu tiên Task 3 (🔄 resume trước)
+          2. Nếu không resume Task 3, PHẢI pick Task 4 (không dependency, sẵn sàng)
+          3. KHÔNG ĐƯỢC pick Task 2 (phụ thuộc Task 3 chưa xong)
+
+  - description: "pd:write-code — Missing PLAN.md → STOP"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → tồn tại
+        - .planning/milestones/1.0/phase-1.1/PLAN.md → KHÔNG tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI DỪNG khi PLAN.md không tồn tại.
+          PHẢI gợi ý chạy /pd:plan.
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:test — Kiểm thử
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:test — NestJS project with completed tasks"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project NestJS tại /app/backend.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS, database Prisma/PostgreSQL
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → API POST /users, GET /users/:id
+        - TASKS.md → Task 1: ✅ (Users CRUD), Task 2: ✅ (Auth)
+        - @nestjs/testing, supertest đã cài trong devDependencies
+        - mcp__fastcode__code_qa → trả về chi tiết controllers, services, DTOs
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI kiểm tra NestJS → tiếp tục automated test
+          2. PHẢI kiểm tra test infrastructure (Jest, @nestjs/testing, supertest)
+          3. PHẢI đọc code THỰC TẾ qua FastCode trước khi viết test
+          4. PHẢI viết .spec.ts files đặt cạnh source file
+          5. Test cases: happy path + validation + edge cases
+          6. Mỗi test PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG
+          7. PHẢI chạy npm test và hiển thị bảng kết quả
+          8. PHẢI yêu cầu user xác nhận database + API
+          9. PHẢI tạo TEST_REPORT.md
+          10. PHẢI commit với prefix [KIỂM THỬ]
+      - type: contains
+        value: ".spec.ts"
+      - type: contains
+        value: "TEST_REPORT"
+
+  - description: "pd:test — Frontend-only project → manual checklist"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project NextJS tại /app/frontend (KHÔNG có backend).
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Frontend NextJS only, không có Backend
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - TASKS.md → Task 1: ✅ (Homepage), Task 2: ✅ (Dashboard)
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi project frontend-only:
+          1. PHẢI detect không có Backend
+          2. PHẢI tạo checklist kiểm thử thủ công
+          3. KHÔNG ĐƯỢC viết .spec.ts tự động
+          4. PHẢI DỪNG flow test tự động
+
+  - description: "pd:test — No completed tasks → STOP"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - TASKS.md → Task 1: ⬜, Task 2: 🔄 (không có task ✅ nào)
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI DỪNG vì không có task ✅ nào.
+          PHẢI gợi ý chạy /pd:write-code trước.
+      - type: icontains
+        value: "/pd:write-code"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:fix-bug — Debug và sửa lỗi
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:fix-bug — Bug in current milestone, fresh report"
+    vars:
+      skill_file: commands/pd/fix-bug.md
+      scenario: |
+        Project NestJS tại /app/backend.
+        $ARGUMENTS: "API POST /users trả về 500 khi email trùng"
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Backend NestJS, Prisma
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - .planning/bugs/ → không có bug reports nào
+        - git rev-parse → có git repo
+        - mcp__fastcode__code_qa → trả về users.service.ts, users.controller.ts
+        - PLAN.md + CODE_REPORT → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI thu thập ngữ cảnh lỗi từ $ARGUMENTS
+          2. PHẢI xác định patch version (1.0.0 vì chưa có patch trước)
+          3. PHẢI đọc PLAN.md + CODE_REPORT trước khi fix
+          4. PHẢI research code qua FastCode
+          5. PHẢI trace luồng: controller → service → database
+          6. PHẢI tạo BUG_[timestamp].md với code TRƯỚC/SAU
+          7. PHẢI fix code + chạy lint/build
+          8. PHẢI commit với prefix [LỖI]
+          9. PHẢI yêu cầu user xác nhận (KHÔNG tự đóng bug)
+      - type: icontains
+        value: "BUG_"
+      - type: icontains
+        value: "[LỖI]"
+
+  - description: "pd:fix-bug — Existing open bugs → list for user to choose"
+    vars:
+      skill_file: commands/pd/fix-bug.md
+      scenario: |
+        Project tại /app/backend. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → tồn tại
+        - .planning/bugs/ chứa 2 bug reports:
+          - BUG_15_03_2026_10_30_00.md → Trạng thái: Chưa xử lý, "Login trả 401"
+          - BUG_16_03_2026_14_00_00.md → Trạng thái: Đang sửa, "Upload file timeout"
+    assert:
+      - type: llm-rubric
+        value: |
+          Khi có bug reports mở:
+          1. PHẢI liệt kê bugs đang mở cho user chọn
+          2. PHẢI hiển thị thông tin tóm tắt mỗi bug
+          3. KHÔNG ĐƯỢC tự ý chọn bug — phải chờ user
+
+  - description: "pd:fix-bug — Bug from old milestone → patch version increment"
+    vars:
+      skill_file: commands/pd/fix-bug.md
+      scenario: |
+        $ARGUMENTS: "Endpoint /products trả về 404"
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md → version: 1.1 (milestone hiện tại)
+        - User cho biết bug thuộc v1.0 (milestone cũ)
+        - .planning/bugs/ đã có BUG_10_03_2026.md → Patch version: 1.0.1 (Đã giải quyết)
+        - .planning/milestones/1.0/ → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Bug thuộc milestone cũ (1.0), milestone hiện tại là 1.1:
+          1. PHẢI xác định patch version = 1.0.2 (vì 1.0.1 đã dùng)
+          2. PHẢI đọc PLAN/CODE_REPORT từ milestones/1.0/ (KHÔNG phải 1.1)
+          3. Patch version PHẢI là 3 số (1.0.2, KHÔNG phải 1.0)
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:complete-milestone — Hoàn tất milestone
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:complete-milestone — All tasks ✅, no bugs → complete"
+    vars:
+      skill_file: commands/pd/complete-milestone.md
+      scenario: |
+        Project tại /app/backend.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → tồn tại, Backend NestJS
+        - CURRENT_MILESTONE.md → version: 1.0, milestone: "MVP Backend", status: Đang thực hiện
+        - .planning/milestones/1.0/ chứa phase-1.1/ và phase-1.2/
+        - ROADMAP.md liệt kê Phase 1.1 và Phase 1.2 cho milestone 1.0
+        - phase-1.1/TASKS.md → 3 tasks, tất cả ✅
+        - phase-1.2/TASKS.md → 2 tasks, tất cả ✅
+        - phase-1.1/reports/ → CODE_REPORT_TASK_1, 2, 3
+        - phase-1.2/reports/ → CODE_REPORT_TASK_1, 2
+        - phase-1.1/TEST_REPORT.md → tất cả pass
+        - .planning/bugs/ → 1 bug, Trạng thái: Đã giải quyết, Patch version: 1.0.1
+        - ROADMAP.md → Milestone 1 (v1.0) + Milestone 2 (v1.1) status ⬜
+        - git rev-parse → có git
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI kiểm tra tất cả tasks ✅ trong MỌI phase (1.1 + 1.2)
+          2. PHẢI cross-check CODE_REPORT cho mỗi task ✅
+          3. PHẢI kiểm tra bugs → đã giải quyết → cho phép
+          4. PHẢI tạo MILESTONE_COMPLETE.md
+          5. PHẢI tạo/cập nhật CHANGELOG.md (prepend)
+          6. PHẢI cập nhật ROADMAP → milestone ✅
+          7. PHẢI cập nhật CURRENT_MILESTONE → chuyển sang v1.1
+          8. PHẢI cập nhật VERSION + package.json version
+          9. PHẢI git commit [PHIÊN BẢN] + tạo tag v1.0
+      - type: contains
+        value: "MILESTONE_COMPLETE"
+      - type: contains
+        value: "CHANGELOG"
+      - type: icontains
+        value: "v1.0"
+
+  - description: "pd:complete-milestone — Open bugs → BLOCK"
+    vars:
+      skill_file: commands/pd/complete-milestone.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md → version: 1.0
+        - Tất cả tasks ✅ trong mọi phase
+        - .planning/bugs/BUG_18_03_2026.md → Trạng thái: Chưa xử lý, Patch version: 1.0.1
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI CHẶN completion:
+          1. PHẢI phát hiện bug mở thuộc milestone 1.0
+          2. PHẢI thông báo không thể hoàn tất
+          3. PHẢI gợi ý /pd:fix-bug
+          4. KHÔNG ĐƯỢC tạo MILESTONE_COMPLETE.md
+      - type: icontains
+        value: "/pd:fix-bug"
+
+  - description: "pd:complete-milestone — Incomplete tasks → BLOCK"
+    vars:
+      skill_file: commands/pd/complete-milestone.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - CURRENT_MILESTONE.md → version: 1.0
+        - phase-1.1/TASKS.md → Task 1: ✅, Task 2: ⬜, Task 3: 🔄
+        - .planning/bugs/ → không có bugs
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI CHẶN khi còn tasks chưa ✅:
+          1. PHẢI phát hiện Task 2 ⬜ và Task 3 🔄
+          2. PHẢI gợi ý /pd:write-code hoặc /pd:fix-bug
+          3. KHÔNG ĐƯỢC tạo MILESTONE_COMPLETE.md
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:what-next — Gợi ý bước tiếp theo
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:what-next — Tasks in progress → suggest continue"
+    vars:
+      skill_file: commands/pd/what-next.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại
+        - .planning/scan/SCAN_REPORT.md → tồn tại
+        - .planning/ROADMAP.md → tồn tại
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → Task 1: ✅, Task 2: 🔄, Task 3: ⬜
+        - .planning/bugs/ → không có bugs mở
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI phát hiện Task 2 đang 🔄
+          2. PHẢI gợi ý /pd:write-code 2 (ưu tiên task đang dở)
+          3. PHẢI hiển thị bảng tiến trình
+          4. KHÔNG ĐƯỢC gọi FastCode MCP
+          5. KHÔNG ĐƯỢC sửa bất kỳ file nào
+      - type: icontains
+        value: "/pd:write-code"
+
+  - description: "pd:what-next — No CONTEXT.md → suggest init"
+    vars:
+      skill_file: commands/pd/what-next.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          PHẢI gợi ý /pd:init. DỪNG ngay, không kiểm tra gì thêm.
+      - type: icontains
+        value: "/pd:init"
+
+  - description: "pd:what-next — All phases done → suggest complete milestone"
+    vars:
+      skill_file: commands/pd/what-next.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Backend NestJS
+        - .planning/ROADMAP.md → tồn tại, Milestone 1 (v1.0) có Phase 1.1 và 1.2
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.2, status: Đang thực hiện
+        - phase-1.1/TASKS.md → tất cả ✅
+        - phase-1.2/TASKS.md → tất cả ✅
+        - phase-1.1/TEST_REPORT.md → tồn tại, tất cả pass
+        - .planning/bugs/ → không có bugs mở
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI detect tất cả phases hoàn tất
+          2. PHẢI gợi ý /pd:complete-milestone
+      - type: icontains
+        value: "/pd:complete-milestone"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:fetch-doc — Tải tài liệu
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:fetch-doc — Fetch NestJS guards documentation"
+    vars:
+      skill_file: commands/pd/fetch-doc.md
+      scenario: |
+        $ARGUMENTS: https://docs.nestjs.com/guards
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại
+        - .planning/docs/ → tồn tại
+        - .planning/docs/nestjs-guards.md → KHÔNG tồn tại (chưa fetch)
+        - package.json (backend) → @nestjs/core: "^10.3.0"
+        - WebFetch https://docs.nestjs.com/guards → nội dung guards overview, code examples
+        - WebFetch trang liên quan → 3 trang: custom-decorators, interceptors, middleware
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI extract tên file từ URL → "nestjs-guards"
+          2. PHẢI xác định version từ package.json → 10.3.0
+          3. PHẢI kiểm tra doc chưa tồn tại → tiến hành fetch
+          4. PHẢI fetch trang chính + trang liên quan (tối đa 5)
+          5. PHẢI tạo .planning/docs/nestjs-guards.md
+          6. File PHẢI có mục lục nhanh (bảng: #, Section, Từ khóa, Dòng)
+          7. PHẢI giữ nguyên code examples
+      - type: icontains
+        value: "nestjs-guards"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:update — Cập nhật skills
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:update — Remote version newer → show changelog, ask user"
+    vars:
+      skill_file: commands/pd/update.md
+      scenario: |
+        $ARGUMENTS: (trống → check mode)
+        Kết quả tool calls giả lập:
+        - .pdconfig → SKILLS_DIR=/home/user/skills
+        - VERSION file → 2.0.0
+        - git fetch origin main → thành công
+        - git show origin/main:VERSION → 2.1.0
+        - CHANGELOG.md remote → có entries mới cho v2.1.0 và v2.0.1
+    assert:
+      - type: llm-rubric
+        value: |
+          1. PHẢI đọc LOCAL_VERSION = 2.0.0
+          2. PHẢI fetch remote → REMOTE_VERSION = 2.1.0
+          3. PHẢI detect remote mới hơn
+          4. PHẢI hiển thị changelog (chỉ entries mới hơn 2.0.0)
+          5. PHẢI hỏi user muốn cập nhật không (check mode, KHÔNG tự update)
+          6. KHÔNG ĐƯỢC tự cập nhật khi không có --apply

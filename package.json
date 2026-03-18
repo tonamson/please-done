@@ -28,7 +28,13 @@
     "uninstall:opencode": "node bin/install.js --uninstall --opencode",
     "uninstall:copilot": "node bin/install.js --uninstall --copilot",
     "uninstall:all": "node bin/install.js --uninstall --all",
-    "test": "echo \"No tests configured\" && exit 0"
+    "test": "echo \"No tests configured\" && exit 0",
+    "eval": "node evals/run.js",
+    "eval:trigger": "node evals/run.js --trigger",
+    "eval:full": "node evals/run.js --full",
+    "eval:compare": "node evals/run.js --compare",
+    "eval:view": "promptfoo view",
+    "eval:filter": "node evals/run.js --filter-pattern"
   },
   "keywords": [
     "claude-code",
