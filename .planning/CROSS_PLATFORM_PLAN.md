@@ -10,8 +10,8 @@
 ```
 Source (Claude Code native)          Install-time Transpiler          Target Platforms
 ┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────┐
-│ commands/sk/*.md     │            │                  │──────────→ │ Claude Code     │
-│ commands/sk/rules/*  │───────────→│  bin/install.js  │──────────→ │ Codex CLI       │
+│ commands/pd/*.md     │            │                  │──────────→ │ Claude Code     │
+│ commands/pd/rules/*  │───────────→│  bin/install.js  │──────────→ │ Codex CLI       │
 │ FastCode MCP config  │            │  (Node.js, 0 dep)│──────────→ │ Gemini CLI      │
 │ VERSION, CHANGELOG   │            │                  │──────────→ │ OpenCode        │
 └──────────────────────┘            └──────────────────┘──────────→ │ Copilot         │
@@ -44,7 +44,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 ### Command Invocation
 | Claude Code | Codex | Gemini CLI | OpenCode | Copilot |
 |---|---|---|---|---|
-| `/sk:init` | `$sk-init` | `/sk:init` | `/sk-init` | `/sk:init` |
+| `/pd:init` | `$pd-init` | `/pd:init` | `/pd-init` | `/pd:init` |
 
 ### Config Paths
 | Claude Code | Codex | Gemini CLI | OpenCode | Copilot |
@@ -76,7 +76,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 2. Tạo `bin/lib/platforms.js` — Platform registry
    - `getDirName(runtime)` → tên thư mục config
    - `getGlobalDir(runtime)` → đường dẫn tuyệt đối config dir
-   - `getCommandPrefix(runtime)` → prefix gọi skill (`/sk:`, `$sk-`, `/sk-`)
+   - `getCommandPrefix(runtime)` → prefix gọi skill (`/pd:`, `$pd-`, `/pd-`)
    - `getConfigPathSegment(runtime)` → path replacement mapping
 3. Tạo `bin/lib/utils.js` — Tiện ích chung
    - `fileHash(path)` → SHA256
@@ -94,9 +94,9 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 
 **Công việc:**
 1. `bin/lib/installers/claude.js`
-   - Copy `commands/sk/*.md` → `~/.claude/commands/sk/` (symlink hoặc copy)
-   - Copy `commands/sk/rules/*.md` → cùng vị trí
-   - Generate `.skconfig` với SKILLS_DIR, FASTCODE_DIR, CURRENT_VERSION
+   - Copy `commands/pd/*.md` → `~/.claude/commands/pd/` (symlink hoặc copy)
+   - Copy `commands/pd/rules/*.md` → cùng vị trí
+   - Generate `.pdconfig` với SKILLS_DIR, FASTCODE_DIR, CURRENT_VERSION
 2. MCP server registration
    - FastCode: `claude mcp add --scope user fastcode ...`
    - Context7: `claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp@latest`
@@ -105,7 +105,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
    - Check Python 3.12+ + uv
    - Create venv, install requirements
    - Prompt Gemini API Key → write `.env` (interactive)
-4. Write file manifest (`sk-file-manifest.json`)
+4. Write file manifest (`pd-file-manifest.json`)
 5. Verify installation: đọc lại các file, check MCP status
 
 **Output**: `npx skills-cc --claude` tương đương `./install.sh`
@@ -121,7 +121,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
    - `generateCodexSkillAdapter(skillName)` → XML block map AskUserQuestion/Task
    - `convertToCodexAgent(content)` → `<codex_agent_role>` XML header
    - `generateAgentToml(name, content)` → per-agent `.toml` file
-   - Path: `/sk:X` → `$sk-X`, `~/.claude/` → `~/.codex/`
+   - Path: `/pd:X` → `$pd-X`, `~/.claude/` → `~/.codex/`
 2. `bin/lib/converters/gemini.js`
    - `convertToGemini(content)` → tool name mapping, escape `${VAR}`
    - `convertGeminiToolName(name)` → Read→read_file, Bash→run_shell_command...
@@ -145,17 +145,17 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 
 **Công việc:**
 1. `bin/lib/installers/codex.js`
-   - Convert commands → `~/.codex/skills/sk-*/SKILL.md`
+   - Convert commands → `~/.codex/skills/pd-*/SKILL.md`
    - Generate `config.toml` với MCP servers + agent configs
    - Idempotent merge (marker-based)
 2. `bin/lib/installers/gemini.js`
-   - Convert commands → `~/.gemini/commands/sk/*.md`
+   - Convert commands → `~/.gemini/commands/pd/*.md`
    - MCP config trong `settings.json` (same format as Claude)
 3. `bin/lib/installers/opencode.js`
-   - Convert commands → `~/.config/opencode/command/sk-*.md` (flat)
+   - Convert commands → `~/.config/opencode/command/pd-*.md` (flat)
    - MCP config format riêng
 4. `bin/lib/installers/copilot.js`
-   - Convert commands → `~/.copilot/skills/sk-*/SKILL.md`
+   - Convert commands → `~/.copilot/skills/pd-*/SKILL.md`
    - Merge instructions vào `copilot-instructions.md`
 5. Mỗi installer phải:
    - Clean old files trước khi copy mới (idempotent)
@@ -176,7 +176,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
    - `saveLocalPatches(configDir)` → backup file user modified
    - `reportLocalPatches(configDir)` → thông báo file đã backup
 2. Uninstall per platform
-   - `--uninstall --claude` → remove commands, MCP entries, .skconfig
+   - `--uninstall --claude` → remove commands, MCP entries, .pdconfig
    - `--uninstall --codex` → remove skills, clean config.toml sections
    - `--uninstall --gemini` → remove commands, clean settings
    - `--uninstall --opencode` → remove flattened commands
@@ -229,6 +229,6 @@ Giai đoạn 6 (npm + docs)    ← phụ thuộc GĐ5
 |---|---|
 | FastCode MCP chỉ chạy local (Python) | Hướng dẫn setup FastCode riêng per platform, installer chỉ generate MCP config |
 | Platform thay đổi format | Converter tách riêng file, dễ update |
-| Codex không có slash commands | Dùng `$sk-*` skills + XML adapter header |
-| OpenCode flatten commands | Prefix `sk-` thay vì nested directory |
+| Codex không có slash commands | Dùng `$pd-*` skills + XML adapter header |
+| OpenCode flatten commands | Prefix `pd-` thay vì nested directory |
 | User modify installed files | Manifest SHA256 + backup patches trước khi re-install |

@@ -1,5 +1,5 @@
 ---
-name: sk:fix-bug
+name: pd:fix-bug
 description: Debug lỗi, research, báo cáo, fix, commit [LỖI] và xác nhận cho đến khi thành công
 ---
 
@@ -15,7 +15,7 @@ User input: $ARGUMENTS
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/backend.md` hoặc `frontend.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
 
 <process>

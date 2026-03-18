@@ -1,14 +1,14 @@
 // Converter: Claude Code → Codex CLI
 //
 // Codex dùng "skills" thay vì slash commands.
-// Mỗi skill nằm trong thư mục riêng: skills/sk-[name]/SKILL.md
-// Gọi bằng prefix $: $sk-init, $sk-write-code
+// Mỗi skill nằm trong thư mục riêng: skills/pd-[name]/SKILL.md
+// Gọi bằng prefix $: $pd-init, $pd-write-code
 // MCP config trong config.toml dạng TOML.
 
 'use strict';
 
 const { parseFrontmatter, buildFrontmatter } = require('../utils');
-const { convertToolName, convertCommandRef } = require('../platforms');
+const { convertCommandRef } = require('../platforms');
 
 /**
  * Tạo XML adapter header — dạy Codex cách map khái niệm Claude → Codex.
@@ -16,8 +16,8 @@ const { convertToolName, convertCommandRef } = require('../platforms');
 function generateSkillAdapter(skillName) {
   return `<codex_skill_adapter>
 ## Cách gọi skill này
-Skill name: \`$sk-${skillName}\`
-Khi user gọi \`$sk-${skillName} {{args}}\`, thực hiện toàn bộ instructions bên dưới.
+Skill name: \`$pd-${skillName}\`
+Khi user gọi \`$pd-${skillName} {{args}}\`, thực hiện toàn bộ instructions bên dưới.
 
 ## Tool mapping
 - \`AskUserQuestion\` → \`request_user_input\`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
@@ -42,14 +42,14 @@ function convertSkill(content, skillName) {
 
   // Frontmatter: chỉ giữ name + description
   const newFm = {
-    name: `sk-${skillName}`,
+    name: `pd-${skillName}`,
     description: frontmatter.description || '',
   };
 
   // Body transformations
   let newBody = body;
 
-  // Replace command references: /sk:xxx → $sk-xxx
+  // Replace command references: /pd:xxx → $pd-xxx
   newBody = convertCommandRef('codex', newBody);
 
   // Replace $ARGUMENTS → {{GSD_ARGS}}
@@ -73,7 +73,7 @@ function convertSkill(content, skillName) {
 function generateMcpToml(fastcodeDir) {
   return `
 # ─── Skills MCP Servers ───────────────────────────────────
-# [SK_SKILLS_MCP_START]
+# [PD_SKILLS_MCP_START]
 
 [mcp_servers.fastcode]
 command = "${fastcodeDir}/.venv/bin/python"
@@ -85,7 +85,7 @@ command = "npx"
 args = ["-y", "@upstash/context7-mcp@latest"]
 enabled = true
 
-# [SK_SKILLS_MCP_END]
+# [PD_SKILLS_MCP_END]
 `;
 }
 
@@ -94,17 +94,24 @@ enabled = true
  * Idempotent — nếu đã có marker thì thay thế, không duplicate.
  */
 function mergeCodexConfig(existingContent, mcpBlock) {
-  const startMarker = '# [SK_SKILLS_MCP_START]';
-  const endMarker = '# [SK_SKILLS_MCP_END]';
+  const startMarker = '# [PD_SKILLS_MCP_START]';
+  const endMarker = '# [PD_SKILLS_MCP_END]';
+  // Fallback: tìm marker cũ từ bản sk → xóa khi upgrade
+  const legacyStart = '# [SK_SKILLS_MCP_START]';
+  const legacyEnd = '# [SK_SKILLS_MCP_END]';
 
-  if (existingContent.includes(startMarker)) {
-    // Replace existing block
-    const startIdx = existingContent.indexOf(startMarker);
-    const endIdx = existingContent.indexOf(endMarker);
-    if (endIdx > startIdx) {
-      return existingContent.slice(0, startIdx) +
-        mcpBlock.trim().split('\n').slice(2, -1).join('\n') + '\n' +
-        existingContent.slice(endIdx + endMarker.length);
+  // Thử marker mới trước
+  for (const [sm, em] of [[startMarker, endMarker], [legacyStart, legacyEnd]]) {
+    if (existingContent.includes(sm)) {
+      const startIdx = existingContent.indexOf(sm);
+      const endIdx = existingContent.indexOf(em);
+      if (endIdx > startIdx) {
+        // Giữ lại markers để idempotent — lần merge sau vẫn tìm được
+        const inner = mcpBlock.trim().split('\n').slice(2, -1).join('\n');
+        return existingContent.slice(0, startIdx) +
+          startMarker + '\n' + inner + '\n' + endMarker +
+          existingContent.slice(endIdx + em.length);
+      }
     }
   }
 
@@ -117,7 +124,9 @@ function mergeCodexConfig(existingContent, mcpBlock) {
  */
 function stripCodexConfig(content) {
   const startMarker = '# ─── Skills MCP Servers';
-  const endMarker = '# [SK_SKILLS_MCP_END]';
+  // Tìm end marker mới hoặc cũ
+  let endMarker = '# [PD_SKILLS_MCP_END]';
+  if (!content.includes(endMarker)) endMarker = '# [SK_SKILLS_MCP_END]';
 
   const startIdx = content.indexOf(startMarker);
   if (startIdx === -1) return content;

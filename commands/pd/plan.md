@@ -1,5 +1,5 @@
 ---
-name: sk:plan
+name: pd:plan
 description: Lập kế hoạch kỹ thuật + chia danh sách công việc cho milestone hiện tại
 ---
 
@@ -24,7 +24,7 @@ Phân tích tham số:
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` → theo stack có trong project
 
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
 
 <process>
@@ -37,9 +37,9 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu `$ARGUMENTS` chỉ định phase cụ thể → dùng phase đó
 - Nếu có phases trước (VD: phase-1.1 tồn tại khi planning phase 1.2) → đọc PLAN.md/TASKS.md phases trước để nắm context đã triển khai
 
-Nếu chưa có roadmap → thông báo chạy `/sk:new-milestone` trước.
-Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/sk:new-milestone` để tạo."
-Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/sk:new-milestone` để thêm milestones mới."
+Nếu chưa có roadmap → thông báo chạy `/pd:new-milestone` trước.
+Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/pd:new-milestone` để tạo."
+Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/pd:new-milestone` để thêm milestones mới."
 
 ## Bước 1.5: Kiểm tra phase đã tồn tại
 Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
@@ -67,8 +67,8 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 
 Dùng FastCode cho câu hỏi broad. Sau đó dùng Grep/Read verify chi tiết cụ thể nếu cần (VD: đọc file entity thực tế, kiểm tra imports).
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
-Nếu FastCode trả về kết quả rỗng cho tất cả queries → cảnh báo: "FastCode không tìm thấy code liên quan. Nên chạy `/sk:scan` để cập nhật index." Tiếp tục thiết kế với context hạn chế.
+Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
+Nếu FastCode trả về kết quả rỗng cho tất cả queries → cảnh báo: "FastCode không tìm thấy code liên quan. Nên chạy `/pd:scan` để cập nhật index." Tiếp tục thiết kế với context hạn chế.
 
 ### Nếu project mới (chưa có code):
 - Skip FastCode (không có gì để index)
@@ -314,13 +314,13 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 In tóm tắt plan + danh sách tasks cho user review.
 - Nếu phase vừa plan KHÁC phase hiện tại trong CURRENT_MILESTONE → ghi rõ: "Lưu ý: Phase hiện tại vẫn là [x.x]. Plan này cho phase [y.y] (chưa active)."
 - Nếu chế độ DISCUSS: ghi nhận số vấn đề đã thảo luận vs tự quyết định
-- Nếu chế độ AUTO: in bảng tóm tắt các quyết định Claude đã tự đưa ra (từ Bước 4.5) để user review TRƯỚC khi chạy `/sk:write-code`. Format:
+- Nếu chế độ AUTO: in bảng tóm tắt các quyết định Claude đã tự đưa ra (từ Bước 4.5) để user review TRƯỚC khi chạy `/pd:write-code`. Format:
   ```
   ### Claude đã tự quyết định [N] vấn đề thiết kế:
   | # | Vấn đề | Phương án | Lý do tóm tắt |
   |---|--------|----------|---------------|
   Xem chi tiết đầy đủ (bao gồm alternatives đã loại) trong PLAN.md → Section "Quyết định thiết kế".
-  ⚠️ Hãy review các quyết định trên trước khi viết code. Nếu cần thay đổi, chạy `/sk:plan --discuss` để thảo luận lại.
+  ⚠️ Hãy review các quyết định trên trước khi viết code. Nếu cần thay đổi, chạy `/pd:plan --discuss` để thảo luận lại.
   ```
 </process>
 
@@ -331,7 +331,7 @@ In tóm tắt plan + danh sách tasks cho user review.
 - Frontend-only tasks (UI, SEO, layout) được làm độc lập, KHÔNG cần chờ backend
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - KHÔNG hỏi lại FastCode thông tin đã có trong SCAN_REPORT
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
 - Chế độ AUTO (mặc định): KHÔNG hỏi user bất kỳ câu hỏi thiết kế nào — tự quyết định tất cả
 - Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi lần hiển thị danh sách/options — KHÔNG tự chọn thay user
 - Chế độ DISCUSS: Nếu user chọn "skip" ở bước 3.5.1 → chuyển sang AUTO cho phần còn lại

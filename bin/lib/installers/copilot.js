@@ -1,6 +1,6 @@
 // GitHub Copilot installer.
-// Skills → ~/.copilot/skills/sk-[name]/SKILL.md (global)
-//        → .github/skills/sk-[name]/SKILL.md (local)
+// Skills → ~/.copilot/skills/pd-[name]/SKILL.md (global)
+//        → .github/skills/pd-[name]/SKILL.md (local)
 // Instructions → copilot-instructions.md
 
 'use strict';
@@ -17,7 +17,7 @@ const {
 } = require('../converters/copilot');
 
 async function install(skillsDir, targetDir, options = {}) {
-  const skillsSrc = path.join(skillsDir, 'commands', 'sk');
+  const skillsSrc = path.join(skillsDir, 'commands', 'pd');
   const isGlobal = options.isGlobal !== false;
   const skillsDestDir = path.join(targetDir, 'skills');
   const instructionsFile = path.join(targetDir, 'copilot-instructions.md');
@@ -27,21 +27,21 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const skills = listSkillFiles(skillsSrc);
 
-  // Clean old sk-* skill dirs
+  // Clean old pd-* và legacy sk-* skill dirs
   if (fs.existsSync(skillsDestDir)) {
-    const existing = fs.readdirSync(skillsDestDir).filter(d => d.startsWith('sk-'));
+    const existing = fs.readdirSync(skillsDestDir).filter(d => d.startsWith('pd-') || d.startsWith('sk-'));
     for (const d of existing) {
       fs.rmSync(path.join(skillsDestDir, d), { recursive: true, force: true });
     }
   }
 
   for (const skill of skills) {
-    const skillDir = path.join(skillsDestDir, `sk-${skill.name}`);
+    const skillDir = path.join(skillsDestDir, `pd-${skill.name}`);
     fs.mkdirSync(skillDir, { recursive: true });
 
     const converted = convertSkill(skill.content, isGlobal);
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), converted, 'utf8');
-    log.success(`/sk:${skill.name}`);
+    log.success(`/pd:${skill.name}`);
   }
 
   // ─── Step 2: Copy rules ──────────────────────────────
@@ -49,7 +49,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
-    const rulesDestDir = path.join(skillsDestDir, 'sk-rules');
+    const rulesDestDir = path.join(skillsDestDir, 'pd-rules');
     fs.mkdirSync(rulesDestDir, { recursive: true });
     const ruleFiles = fs.readdirSync(rulesDir).filter(f => f.endsWith('.md'));
     for (const rf of ruleFiles) {
@@ -88,16 +88,16 @@ async function install(skillsDir, targetDir, options = {}) {
   // Summary
   console.log('');
   log.info(`Skills v${options.version} — ${skills.length} skills cho GitHub Copilot`);
-  log.info('Gọi bằng: /sk:init, /sk:write-code, /sk:plan ...');
+  log.info('Gọi bằng: /pd:init, /pd:write-code, /pd:plan ...');
 }
 
 async function uninstall(targetDir) {
   const skillsDir = path.join(targetDir, 'skills');
   const instructionsFile = path.join(targetDir, 'copilot-instructions.md');
 
-  // Remove sk-* skill directories
+  // Remove pd-* và legacy sk-* skill directories
   if (fs.existsSync(skillsDir)) {
-    const dirs = fs.readdirSync(skillsDir).filter(d => d.startsWith('sk-'));
+    const dirs = fs.readdirSync(skillsDir).filter(d => d.startsWith('pd-') || d.startsWith('sk-'));
     for (const d of dirs) {
       fs.rmSync(path.join(skillsDir, d), { recursive: true, force: true });
     }

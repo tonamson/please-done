@@ -1,10 +1,10 @@
 /**
  * Converter: Claude Code → OpenCode
  *
- * OpenCode dùng flat command structure: command/sk-*.md (không nested).
+ * OpenCode dùng flat command structure: command/pd-*.md (không nested).
  * Frontmatter: strip name (dùng filename), strip tools/color/skills,
  * add model: inherit cho agents.
- * Slash commands: /sk:xxx → /sk-xxx (dấu gạch ngang thay dấu hai chấm).
+ * Slash commands: /pd:xxx → /pd-xxx (dấu gạch ngang thay dấu hai chấm).
  */
 
 'use strict';
@@ -35,7 +35,7 @@ function convertSkill(content) {
   // Body transformations
   let newBody = body;
 
-  // Replace command references: /sk:xxx → /sk-xxx
+  // Replace command references: /pd:xxx → /pd-xxx
   newBody = convertCommandRef('opencode', newBody);
 
   // Replace paths: ~/.claude/ → ~/.config/opencode/
@@ -70,10 +70,10 @@ function convertAgent(content) {
 }
 
 /**
- * Flatten skill name: init → sk-init (dùng làm filename).
+ * Flatten skill name: init → pd-init (dùng làm filename).
  */
 function flattenName(skillName) {
-  return `sk-${skillName}`;
+  return `pd-${skillName}`;
 }
 
 module.exports = {

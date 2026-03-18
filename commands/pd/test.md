@@ -1,5 +1,5 @@
 ---
-name: sk:test
+name: pd:test
 description: Viết test files (Jest + Supertest), chạy kiểm thử, xác nhận với user, báo cáo lỗi
 ---
 
@@ -15,7 +15,7 @@ User input: $ARGUMENTS
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint
 
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
 
 <process>
@@ -24,7 +24,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
 - Xác định backend framework từ CONTEXT.md.
 - **Nếu NestJS** → tiếp tục flow bên dưới (giữ nguyên)
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/sk:test` chỉ hỗ trợ tự động hóa test cho NestJS. Project của bạn dùng [X]. Bạn có thể:
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS. Project của bạn dùng [X]. Bạn có thể:
   1. Viết test thủ công (tạo file Jest + Supertest theo pattern chuẩn)
   2. Bỏ qua automated test cho phase này"
 - **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.
@@ -32,18 +32,18 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
-  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/pd:plan` trước."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
-  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có tasks. Chạy `/sk:plan` trước."
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có tasks. Chạy `/pd:plan` trước."
 - Đọc PLAN.md → thiết kế kỹ thuật, API endpoints, request/response format
 - Nếu `$ARGUMENTS` chứa `--all` → đọc PLAN.md, TASKS.md, CODE_REPORT_TASK_*.md từ TẤT CẢ phase directories (`milestones/[version]/phase-*/`), không chỉ phase hiện tại. Cần context tất cả phases để debug regression. Chạy toàn bộ test suite (tất cả tasks ✅ trong mọi phase), không chỉ tasks mới.
 - Nếu `$ARGUMENTS` chỉ định task → kiểm tra trạng thái task đó:
   - Task number chỉ áp dụng cho phase hiện tại trong CURRENT_MILESTONE. Nếu không tìm thấy task [N] trong phase hiện tại → tìm trong các phase khác cùng milestone. Nếu tìm thấy → thông báo: "Task [N] thuộc phase [x.x], không phải phase hiện tại [y.y]. Vẫn muốn test?"
   - ✅ → test riêng task đó
-  - KHÔNG ✅ (⬜/🔄/❌/🐛) → **DỪNG**, thông báo: "Task [N] chưa hoàn tất (trạng thái: [icon]). Chỉ test được task có trạng thái ✅. Chạy `/sk:write-code [N]` trước."
+  - KHÔNG ✅ (⬜/🔄/❌/🐛) → **DỪNG**, thông báo: "Task [N] chưa hoàn tất (trạng thái: [icon]). Chỉ test được task có trạng thái ✅. Chạy `/pd:write-code [N]` trước."
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
-- **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/sk:write-code` trước."
+- **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/pd:write-code` trước."
 - `.planning/rules/backend.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
 
 ## Bước 2: Kiểm tra test infrastructure
@@ -56,7 +56,7 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 
 **Lưu ý**: Ưu tiên đọc code thực tế (FastCode/Grep) để viết test dựa trên IMPLEMENTATION. Reference PLAN.md để kiểm tra compliance, nhưng KHÔNG dùng PLAN.md làm source-of-truth cho test — code thực tế có thể khác plan.
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
 
 ## Bước 4: Viết test files (.spec.ts)
 Đặt cạnh source file: `src/modules/users/users.controller.spec.ts`
@@ -187,7 +187,7 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 
 ## Bước 9: Cập nhật TASKS.md
 - Pass hết → giữ ✅
-- Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass), đề xuất `/sk:fix-bug`
+- Có test fail → CHỈ đổi 🐛 cho task cụ thể có test fail (giữ ✅ cho tasks có test pass), đề xuất `/pd:fix-bug`
 - Nếu test fail có thể do shared code (service dùng chung giữa nhiều tasks) → ghi trong BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Đổi 🐛 cho task có test fail, ghi chú suspected tasks.
 
 ## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
@@ -214,5 +214,5 @@ Kết quả: X/Y đạt"
 - PHẢI yêu cầu user xác nhận giao diện + database (mắt người đánh giá)
 - PHẢI đọc PLAN.md trước khi viết test
 - Token trong test report rút gọn (eyJhb...xxx)
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
 </rules>

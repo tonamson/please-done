@@ -52,7 +52,7 @@ Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
 
 ## Kiểm tra phiên bản Skills
 Trước khi bắt đầu công việc chính, kiểm tra nhanh (CHỈ 1 lần đầu mỗi conversation, KHÔNG lặp lại):
-1. Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`
+1. Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`
 2. So sánh version: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
-3. Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → hiện 1 dòng: `💡 Skills v[REMOTE] đã có. Chạy /sk:update để cập nhật.`
+3. Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → hiện 1 dòng: `💡 Skills v[REMOTE] đã có. Chạy /pd:update để cập nhật.`
 4. Nếu fetch lỗi (không có mạng) hoặc version giống → bỏ qua, KHÔNG thông báo gì

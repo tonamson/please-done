@@ -23,9 +23,9 @@ function ask(rl, question) {
  * Install skills cho Claude Code.
  */
 async function install(skillsDir, targetDir, options = {}) {
-  const commandsDir = path.join(targetDir, 'commands', 'sk');
+  const commandsDir = path.join(targetDir, 'commands', 'pd');
   const fastcodeDir = path.join(skillsDir, 'FastCode');
-  const skillsSrc = path.join(skillsDir, 'commands', 'sk');
+  const skillsSrc = path.join(skillsDir, 'commands', 'pd');
 
   // ─── Step 1: Check prerequisites ──────────────────────
   log.step(1, TOTAL_STEPS, 'Kiểm tra yêu cầu...');
@@ -95,13 +95,9 @@ async function install(skillsDir, targetDir, options = {}) {
   const venvDir = path.join(fastcodeDir, '.venv');
   if (!fs.existsSync(venvDir)) {
     try {
-      exec(`cd "${fastcodeDir}" && uv venv --python=3.12`, { timeout: 60000 });
+      exec(`cd "${fastcodeDir}" && uv venv --python=${pyMajor}.${pyMinor}`, { timeout: 60000 });
     } catch {
-      try {
-        exec(`cd "${fastcodeDir}" && uv venv --python=3.13`, { timeout: 60000 });
-      } catch {
-        exec(`cd "${fastcodeDir}" && uv venv`, { timeout: 60000 });
-      }
+      exec(`cd "${fastcodeDir}" && uv venv`, { timeout: 60000 });
     }
     log.success('Virtual environment đã tạo');
   } else {
@@ -142,11 +138,19 @@ async function install(skillsDir, targetDir, options = {}) {
 
   fs.mkdirSync(commandsDir, { recursive: true });
 
-  // Remove old files
+  // Cleanup thư mục cũ từ bản sk nếu còn tồn tại
+  const legacySkDir = path.join(targetDir, 'commands', 'sk');
+  if (fs.existsSync(legacySkDir)) {
+    fs.rmSync(legacySkDir, { recursive: true, force: true });
+    log.success('Đã xóa thư mục skills cũ (commands/sk)');
+  }
+
+  // Remove old files (lstatSync để detect cả broken symlinks)
   if (fs.existsSync(commandsDir)) {
     const oldFiles = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
     for (const f of oldFiles) {
-      fs.unlinkSync(path.join(commandsDir, f));
+      const fp = path.join(commandsDir, f);
+      try { fs.lstatSync(fp); fs.unlinkSync(fp); } catch { /* already gone */ }
     }
   }
 
@@ -155,14 +159,14 @@ async function install(skillsDir, targetDir, options = {}) {
   for (const skill of skills) {
     const dest = path.join(commandsDir, `${skill.name}.md`);
     fs.symlinkSync(skill.filePath, dest);
-    log.success(`/sk:${skill.name}`);
+    log.success(`/pd:${skill.name}`);
   }
 
-  // Symlink rules directory
+  // Symlink rules directory (lstatSync để clean broken symlinks)
   const rulesDir = path.join(skillsSrc, 'rules');
   const rulesLink = path.join(commandsDir, 'rules');
   if (fs.existsSync(rulesDir)) {
-    if (fs.existsSync(rulesLink)) fs.unlinkSync(rulesLink);
+    try { fs.lstatSync(rulesLink); fs.unlinkSync(rulesLink); } catch { /* not exists */ }
     fs.symlinkSync(rulesDir, rulesLink);
     log.success('Rules directory linked');
   }
@@ -196,8 +200,8 @@ async function install(skillsDir, targetDir, options = {}) {
     log.warn('npx not found — bỏ qua Context7 MCP');
   }
 
-  // ─── Save .skconfig ───────────────────────────────────
-  const configFile = path.join(commandsDir, '.skconfig');
+  // ─── Save .pdconfig ───────────────────────────────────
+  const configFile = path.join(commandsDir, '.pdconfig');
   let savedVersion = '';
   if (fs.existsSync(configFile)) {
     const existing = fs.readFileSync(configFile, 'utf8');
@@ -213,24 +217,26 @@ async function install(skillsDir, targetDir, options = {}) {
   // ─── Summary ──────────────────────────────────────────
   console.log('');
   log.info(`Skills v${options.version} installed (${skills.length} skills):`);
-  console.log('  /sk:init               Khởi tạo (CHẠY ĐẦU TIÊN)');
-  console.log('  /sk:scan               Quét dự án + npm audit');
-  console.log('  /sk:new-milestone      Lập lộ trình');
-  console.log('  /sk:plan               Kế hoạch + chia công việc');
-  console.log('  /sk:fetch-doc          Tải tài liệu (cache local)');
-  console.log('  /sk:write-code         Viết code + commit [TASK-N]');
-  console.log('  /sk:test               Jest + Supertest + commit [KIỂM THỬ]');
-  console.log('  /sk:fix-bug            Debug + commit [LỖI]');
-  console.log('  /sk:what-next          Kiểm tra tiến trình');
-  console.log('  /sk:complete-milestone Commit [PHIÊN BẢN] + git tag');
-  console.log('  /sk:update             Kiểm tra + cập nhật skills');
+  for (const skill of skills) {
+    const descMatch = skill.content.match(/^description:\s*(.+)$/m);
+    const desc = descMatch ? descMatch[1] : '';
+    console.log(`  /pd:${skill.name.padEnd(20)} ${desc}`);
+  }
 }
 
 /**
  * Uninstall skills khỏi Claude Code.
  */
 async function uninstall(targetDir) {
-  const commandsDir = path.join(targetDir, 'commands', 'sk');
+  const commandsDir = path.join(targetDir, 'commands', 'pd');
+  // Cleanup thư mục cũ từ bản sk nếu còn tồn tại
+  const legacyDir = path.join(targetDir, 'commands', 'sk');
+  for (const dir of [legacyDir]) {
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+      log.success('Đã xóa thư mục skills cũ (commands/sk)');
+    }
+  }
 
   // Remove skill symlinks
   if (fs.existsSync(commandsDir)) {
@@ -238,13 +244,13 @@ async function uninstall(targetDir) {
     for (const f of files) {
       const fp = path.join(commandsDir, f);
       const stat = fs.lstatSync(fp);
-      if (stat.isSymbolicLink() || f.endsWith('.md') || f === '.skconfig') {
+      if (stat.isSymbolicLink() || f.endsWith('.md') || f === '.pdconfig') {
         fs.unlinkSync(fp);
       }
     }
-    // Remove rules symlink
+    // Remove rules symlink (lstatSync để detect broken symlinks)
     const rulesLink = path.join(commandsDir, 'rules');
-    if (fs.existsSync(rulesLink)) fs.unlinkSync(rulesLink);
+    try { fs.lstatSync(rulesLink); fs.unlinkSync(rulesLink); } catch { /* not exists */ }
 
     // Remove empty dir
     try { fs.rmdirSync(commandsDir); } catch { /* not empty */ }
@@ -285,7 +291,7 @@ async function promptGeminiKey(envFile) {
     content = content.replace(/OPENAI_API_KEY=.*/, `OPENAI_API_KEY=${key}`);
     fs.writeFileSync(envFile, content, 'utf8');
   } else {
-    fs.writeFileSync(envFile, `OPENAI_API_KEY=${key}\nBASE_URL=https://generativelanguage.googleapis.com/v1beta/openai\nMODEL=gemini-3-flash-preview\n`, 'utf8');
+    fs.writeFileSync(envFile, `OPENAI_API_KEY=${key}\nBASE_URL=https://generativelanguage.googleapis.com/v1beta/openai\nMODEL=gemini-2.5-flash-lite\n`, 'utf8');
   }
 
   log.success('API key đã lưu');

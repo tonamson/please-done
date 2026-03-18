@@ -1,5 +1,5 @@
 ---
-name: sk:scan
+name: pd:scan
 description: Quét toàn bộ dự án, phân tích cấu trúc, thư viện, bảo mật và tạo báo cáo
 ---
 
@@ -10,8 +10,8 @@ Quét toàn bộ dự án, phân tích cấu trúc code, dependencies, kiến tr
 <context>
 User input: $ARGUMENTS
 
-Đọc `.planning/CONTEXT.md` (đã tạo bởi /sk:init).
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Đọc `.planning/CONTEXT.md` (đã tạo bởi /pd:init).
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 (Scan KHÔNG cần đọc rules files — chỉ quét và báo cáo, không viết code.)
 </context>
 
@@ -61,7 +61,7 @@ Detect package manager: `yarn.lock` → yarn | `pnpm-lock.yaml` → pnpm | mặc
 Chạy audit trong từng thư mục có `package.json` (backend, frontend, hoặc cả hai):
 ```bash
 # Lệnh audit theo package manager:
-# npm:  cd [dir] && npm audit --production 2>&1 | tail -30
+# npm:  cd [dir] && npm audit --omit=dev 2>&1 | tail -30
 # yarn: cd [dir] && yarn audit --groups production 2>&1 | tail -30
 # pnpm: cd [dir] && pnpm audit --prod 2>&1 | tail -30
 ```
@@ -142,7 +142,7 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
    Dùng kết quả detect từ Bước 2a. Nếu kết quả từ Bước 2a không có (edge case) → re-detect tương tự Bước 2a.
 
 2. **Cập nhật CONTEXT.md** (giữ format gốc từ init, DƯỚI 50 dòng):
-   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files). Nếu project mới (Bước 2 skip Bước 3,4,6) → flag KHÔNG được update bởi scan. Flag sẽ được update khi `/sk:write-code` hoàn tất task đầu tiên hoặc khi scan chạy lại sau khi có code.
+   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files). Nếu project mới (Bước 2 skip Bước 3,4,6) → flag KHÔNG được update bởi scan. Flag sẽ được update khi `/pd:write-code` hoàn tất task đầu tiên hoặc khi scan chạy lại sau khi có code.
    - Cập nhật dòng `> Cập nhật: [DD_MM_YYYY HH:MM]` (dòng này đã có sẵn từ init template, chỉ cần update value)
    - Tech Stack: cập nhật theo kết quả scan mới
    - Thư viện chính: cập nhật từ package.json hiện tại (tối đa 20 dòng, bỏ devDeps)
@@ -152,8 +152,8 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
 3. **Re-copy rules nếu tech stack thay đổi**:
    So sánh hasBackend/hasFrontend mới với tech stack cũ trong CONTEXT.md:
    - Nếu KHÁC (VD: thêm frontend mới, xóa backend):
-     - Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`
-     - Nếu `.skconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .skconfig"
+     - Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`
+     - Nếu `.pdconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .pdconfig"
      - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend theo stack mới)
    - Nếu GIỐNG → không cần copy lại
 

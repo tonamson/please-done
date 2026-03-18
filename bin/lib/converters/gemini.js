@@ -7,7 +7,6 @@
 'use strict';
 
 const { parseFrontmatter, buildFrontmatter } = require('../utils');
-const { convertToolName } = require('../platforms');
 
 // Tool name mapping Claude → Gemini
 const GEMINI_TOOL_MAP = {

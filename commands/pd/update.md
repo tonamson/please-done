@@ -1,5 +1,5 @@
 ---
-name: sk:update
+name: pd:update
 description: Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog
 ---
 
@@ -12,14 +12,14 @@ User input: $ARGUMENTS
 - Không có flag hoặc `--check` → chỉ kiểm tra, KHÔNG cập nhật
 - `--apply` → kiểm tra + cập nhật luôn
 
-Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`.
-Nếu `.skconfig` không tồn tại → **DỪNG**, thông báo: "Chưa cài đặt skills. Chạy `install.sh` trước."
+Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`.
+Nếu `.pdconfig` không tồn tại → **DỪNG**, thông báo: "Chưa cài đặt skills. Chạy `node bin/install.js` trước."
 </context>
 
 <process>
 
 ## Bước 1: Đọc version hiện tại
-- Đọc `.skconfig` → lấy `SKILLS_DIR`
+- Đọc `.pdconfig` → lấy `SKILLS_DIR`
 - Đọc `[SKILLS_DIR]/VERSION` → `LOCAL_VERSION`
 - Nếu file VERSION không tồn tại → gán `LOCAL_VERSION = unknown`
 
@@ -74,7 +74,7 @@ Thực hiện cập nhật ngay → nhảy sang Bước 6.
 ### Nếu không có flag hoặc `--check`:
 Hỏi user: "Bạn muốn cập nhật ngay? (y/n)"
 - **y** → nhảy sang Bước 6
-- **n** → **DỪNG**, thông báo: "Bạn có thể chạy `/sk:update --apply` khi sẵn sàng."
+- **n** → **DỪNG**, thông báo: "Bạn có thể chạy `/pd:update --apply` khi sẵn sàng."
 
 ## Bước 6: Cập nhật
 Kiểm tra branch hiện tại: `git -C [SKILLS_DIR] branch --show-current`. Nếu KHÔNG phải `main` → `git -C [SKILLS_DIR] checkout main` trước khi pull. Nếu checkout fail (có uncommitted changes) → cảnh báo user và **DỪNG**.
@@ -101,17 +101,17 @@ cd [SKILLS_DIR] && [ -f .gitmodules ] && git submodule update --init --recursive
 ```
 Nếu `.gitmodules` tồn tại VÀ FastCode submodule có thay đổi → thông báo: "FastCode cũng đã được cập nhật."
 
-## Bước 8: Cập nhật .skconfig + xóa cache thông báo
+## Bước 8: Cập nhật .pdconfig + xóa cache thông báo
 Ghi nhớ `OLD_VERSION` = `LOCAL_VERSION` (trước khi cập nhật) để dùng cho rollback guidance.
 
-Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.skconfig`:
+Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.pdconfig`:
 - Nếu dòng `CURRENT_VERSION=` đã tồn tại → **thay thế** giá trị (KHÔNG append thêm dòng mới)
 - Nếu chưa có → thêm dòng mới
 - Giữ nguyên SKILLS_DIR/FASTCODE_DIR
 
 Xóa cache thông báo update trên status line:
 ```bash
-rm -f ~/.claude/cache/sk-update-check.json
+rm -f ~/.claude/cache/pd-update-check.json
 ```
 → Status line sẽ ngừng hiện `⬆ Skills v[x.x.x]` ngay lập tức.
 
@@ -146,6 +146,6 @@ rm -f ~/.claude/cache/sk-update-check.json
 - `--check` (mặc định): chỉ kiểm tra, hỏi trước khi update
 - `--apply`: cập nhật ngay không hỏi
 - PHẢI hiển thị changelog trước khi cập nhật
-- PHẢI xóa `~/.claude/cache/sk-update-check.json` sau khi cập nhật thành công — để status line ngừng hiện thông báo
+- PHẢI xóa `~/.claude/cache/pd-update-check.json` sau khi cập nhật thành công — để status line ngừng hiện thông báo
 - PHẢI gợi ý restart sau khi cập nhật xong
 </rules>

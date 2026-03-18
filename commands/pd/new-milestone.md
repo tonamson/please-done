@@ -1,5 +1,5 @@
 ---
-name: sk:new-milestone
+name: pd:new-milestone
 description: Lập kế hoạch chiến lược dự án, tạo roadmap với milestones rõ ràng
 ---
 
@@ -11,10 +11,10 @@ Lập kế hoạch chiến lược tổng thể, tạo roadmap với milestones,
 User input: $ARGUMENTS
 
 Đọc:
-- `.planning/CONTEXT.md` (đã tạo bởi /sk:init)
+- `.planning/CONTEXT.md` (đã tạo bởi /pd:init)
 - `.planning/rules/general.md` → ngôn ngữ, ngày tháng, version format, icons
 
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
 
 <process>
@@ -22,7 +22,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 ## Bước 1: Kiểm tra scan report
 - Nếu KHÔNG có `.planning/scan/SCAN_REPORT.md`:
   - Đọc CONTEXT.md → nếu là project mới (chưa có code) → cho phép tiếp tục KHÔNG cần scan (user cung cấp yêu cầu ở Bước 3)
-  - Nếu project đã có code → thông báo chạy `/sk:scan` trước, DỪNG
+  - Nếu project đã có code → thông báo chạy `/pd:scan` trước, DỪNG
 - Nếu CÓ → đọc, đặc biệt "Trạng thái hoàn thành", "Thư viện", và "Vấn đề & Đề xuất" (đưa technical debts vào roadmap planning)
 
 ## Bước 2: Kiểm tra roadmap hiện có
@@ -120,7 +120,7 @@ In bảng tóm tắt quyết định chiến lược để user review:
 | # | Vấn đề | Quyết định | Lý do tóm tắt |
 |---|--------|-----------|---------------|
 Xem chi tiết đầy đủ (bao gồm alternatives đã loại) trong ROADMAP.md → Section "Quyết định chiến lược".
-⚠️ Hãy review các quyết định trên trước khi chạy /sk:plan.
+⚠️ Hãy review các quyết định trên trước khi chạy /pd:plan.
 ```
 </process>
 

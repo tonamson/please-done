@@ -1,5 +1,5 @@
 ---
-name: sk:init
+name: pd:init
 description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo context gọn cho các skill sau
 ---
 
@@ -10,7 +10,7 @@ Skill đầu tiên phải chạy trước mọi skill khác. Kiểm tra FastCode
 <context>
 User input: $ARGUMENTS (path dự án, mặc định thư mục hiện tại)
 
-Rules templates: đọc `.skconfig` tại `~/.claude/commands/sk/.skconfig` → lấy `SKILLS_DIR` → rules nằm tại `[SKILLS_DIR]/commands/sk/rules/`:
+Rules templates: đọc `.pdconfig` tại `~/.claude/commands/pd/.pdconfig` → lấy `SKILLS_DIR` → rules nằm tại `[SKILLS_DIR]/commands/pd/rules/`:
 - `general.md` — quy tắc chung (luôn copy)
 - `backend.md` — quy tắc NestJS (chỉ copy nếu có backend)
 - `frontend.md` — quy tắc NextJS (chỉ copy nếu có frontend)
@@ -30,17 +30,17 @@ Gọi `mcp__fastcode__list_indexed_repos` để kiểm tra MCP server:
 - **THẤT BẠI** → **DỪNG NGAY**, thông báo:
   > "FastCode MCP không hoạt động. Không thể tiếp tục.
   > Kiểm tra:
-  > 1. Đã chạy `install.sh` chưa?
+  > 1. Đã chạy `node bin/install.js` chưa?
   > 2. API key Gemini đã điền trong `FastCode/.env` chưa?
   > 3. Đã khởi động lại Claude Code sau khi cài chưa?
-  > Chạy lại `/sk:init` sau khi khắc phục."
+  > Chạy lại `/pd:init` sau khi khắc phục."
 
 ## Bước 2.5: Kiểm tra CONTEXT.md hiện có
 Nếu `.planning/CONTEXT.md` đã tồn tại:
 - Thông báo: "Đã có CONTEXT.md từ session trước. Bạn muốn:
   1. Giữ nguyên và bỏ qua init
   2. Khởi tạo lại từ đầu"
-- Nếu giữ → thông báo ngắn: "Giữ nguyên CONTEXT.md hiện có. Môi trường sẵn sàng." kèm gợi ý `/sk:scan` hoặc `/sk:what-next`. KHÔNG chạy tiếp các bước sau.
+- Nếu giữ → thông báo ngắn: "Giữ nguyên CONTEXT.md hiện có. Môi trường sẵn sàng." kèm gợi ý `/pd:scan` hoặc `/pd:what-next`. KHÔNG chạy tiếp các bước sau.
 - Nếu khởi tạo lại → tiếp tục Bước 3 bình thường
 
 ## Bước 3: Kiểm tra project có code chưa
@@ -66,7 +66,7 @@ Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Fallback frontend: Glob `**/vite.config.*` → **hasFrontend = true** (Vite)
 - Fallback frontend: Glob `**/*.tsx` + `**/*.jsx` — nếu có nhiều files (>5) → **hasFrontend = true** (React generic)
 - Glob `**/*.module.ts` → Grep `MongooseModule|TypeOrmModule|PrismaService` → xác định DB type
-- Khi detect stack không có rules file tương ứng trong `[SKILLS_DIR]/commands/sk/rules/` → thông báo: "Phát hiện [stack] nhưng chưa có rules template. Chỉ áp dụng general.md."
+- Khi detect stack không có rules file tương ứng trong `[SKILLS_DIR]/commands/pd/rules/` → thông báo: "Phát hiện [stack] nhưng chưa có rules template. Chỉ áp dụng general.md."
 
 Đọc nhanh:
 - `package.json` (backend + frontend nếu tách thư mục) → dependencies chính
@@ -85,12 +85,12 @@ mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules
 ```
 
 ## Bước 6: Copy rules vào .planning/rules/
-Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy giá trị `SKILLS_DIR`.
-Nếu `.skconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG**, thông báo: "Không tìm thấy .skconfig. Chạy lại `install.sh`."
+Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy giá trị `SKILLS_DIR`.
+Nếu `.pdconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG**, thông báo: "Không tìm thấy .pdconfig. Chạy lại `node bin/install.js`."
 
 **Chỉ xóa các files template**: `general.md`, `backend.md`, `frontend.md`. Giữ nguyên files custom khác (nếu có). → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa) mà không mất rules do user tự thêm.
 
-Đọc rules từ `[SKILLS_DIR]/commands/sk/rules/` → Write vào `.planning/rules/`:
+Đọc rules từ `[SKILLS_DIR]/commands/pd/rules/` → Write vào `.planning/rules/`:
 
 - **Luôn copy**: `general.md`
 - **Nếu hasBackend = true**: copy `backend.md`
@@ -147,18 +147,18 @@ Quy tắc code nằm tại `.planning/rules/`:
 ║   - frontend.md (nếu có)            ║
 ╠══════════════════════════════════════╣
 ║ Tiếp theo:                          ║
-║   /sk:scan   → Quét chi tiết        ║
-║   /sk:new-milestone → Lập lộ trình   ║
+║   /pd:scan   → Quét chi tiết        ║
+║   /pd:new-milestone → Lập lộ trình   ║
 ╚══════════════════════════════════════╝
 ```
 </process>
 
 <rules>
 - CONTEXT.md DƯỚI 50 dòng — chỉ info dự án, KHÔNG chứa coding rules
-- Coding rules nằm riêng trong `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/sk/rules/` (path lấy từ `.skconfig`)
+- Coding rules nằm riêng trong `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/pd/rules/` (path lấy từ `.pdconfig`)
 - Chỉ copy rules files phù hợp với tech stack detected (hasBackend/hasFrontend)
 - Project mới (isNewProject = true): skip FastCode indexing, hỏi user mô tả dự án, chỉ copy general.md
-- Sau này thêm stack mới (React Native, Flutter...) = thêm 1 file `commands/sk/rules/[stack].md` + thêm detection pattern ở Bước 4
+- Sau này thêm stack mới (React Native, Flutter...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
 - FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại, KHÔNG có fallback
 - CẤM đọc/ghi/hiển thị nội dung file nhạy cảm (`.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`)
 - Nếu đã có CONTEXT.md từ session trước → hỏi user muốn khởi tạo lại hay giữ

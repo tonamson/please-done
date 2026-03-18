@@ -7,8 +7,8 @@ const fs = require('fs');
 const path = require('path');
 const { fileHash, log } = require('./utils');
 
-const MANIFEST_NAME = 'sk-file-manifest.json';
-const PATCHES_DIR = 'sk-local-patches';
+const MANIFEST_NAME = 'pd-file-manifest.json';
+const PATCHES_DIR = 'pd-local-patches';
 
 /**
  * Quét recursive tất cả files trong dir, trả về { relativePath: sha256 }
@@ -65,6 +65,13 @@ function writeManifest(configDir, version, installedDirs) {
   };
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
+
+  // Xóa manifest cũ từ bản sk nếu tồn tại
+  const legacyManifest = path.join(configDir, 'sk-file-manifest.json');
+  if (fs.existsSync(legacyManifest)) {
+    try { fs.unlinkSync(legacyManifest); } catch { /* ignore */ }
+  }
+
   return manifest;
 }
 
@@ -73,13 +80,19 @@ function writeManifest(configDir, version, installedDirs) {
  */
 function readManifest(configDir) {
   const manifestPath = path.join(configDir, MANIFEST_NAME);
-  if (!fs.existsSync(manifestPath)) return null;
+  // Fallback: đọc manifest cũ từ bản sk nếu manifest mới chưa có
+  const legacyPath = path.join(configDir, 'sk-file-manifest.json');
 
-  try {
-    return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-  } catch {
-    return null;
+  for (const mp of [manifestPath, legacyPath]) {
+    if (fs.existsSync(mp)) {
+      try {
+        return JSON.parse(fs.readFileSync(mp, 'utf8'));
+      } catch {
+        continue;
+      }
+    }
   }
+  return null;
 }
 
 /**
@@ -170,7 +183,7 @@ function reportLocalPatches(configDir) {
 /**
  * Scan files đã install tìm leaked paths (VD: ~/.claude/ còn sót trong non-Claude platform).
  */
-function scanLeakedPaths(configDir, searchPattern, excludePattern) {
+function scanLeakedPaths(configDir, searchPattern) {
   const leaked = [];
 
   function scanDir(dir) {
@@ -186,7 +199,6 @@ function scanLeakedPaths(configDir, searchPattern, excludePattern) {
       } else if (entry.name.endsWith('.md') || entry.name.endsWith('.toml')) {
         const content = fs.readFileSync(fullPath, 'utf8');
         if (content.includes(searchPattern)) {
-          if (excludePattern && content.includes(excludePattern)) continue;
           leaked.push(path.relative(configDir, fullPath));
         }
       }

@@ -5,6 +5,9 @@ FastCode/data/
 FastCode/__pycache__/
 FastCode/**/__pycache__/
 
+# Dependencies
+node_modules/
+
 # OS
 .DS_Store
 Thumbs.db

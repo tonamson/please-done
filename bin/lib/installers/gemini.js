@@ -1,5 +1,5 @@
 // Gemini CLI installer.
-// Skills → ~/.gemini/commands/sk/[name].md
+// Skills → ~/.gemini/commands/pd/[name].md
 // MCP config → ~/.gemini/settings.json (mcpServers)
 
 'use strict';
@@ -11,8 +11,8 @@ const { log, listSkillFiles } = require('../utils');
 const { convertSkill, generateMcpConfig } = require('../converters/gemini');
 
 async function install(skillsDir, targetDir, options = {}) {
-  const skillsSrc = path.join(skillsDir, 'commands', 'sk');
-  const commandsDir = path.join(targetDir, 'commands', 'sk');
+  const skillsSrc = path.join(skillsDir, 'commands', 'pd');
+  const commandsDir = path.join(targetDir, 'commands', 'pd');
   const fastcodeDir = path.join(skillsDir, 'FastCode');
   const settingsFile = path.join(targetDir, 'settings.json');
 
@@ -20,6 +20,13 @@ async function install(skillsDir, targetDir, options = {}) {
   log.step(1, 3, 'Chuyển đổi skills cho Gemini CLI...');
 
   fs.mkdirSync(commandsDir, { recursive: true });
+
+  // Cleanup thư mục cũ từ bản sk
+  const legacyDir = path.join(targetDir, 'commands', 'sk');
+  if (fs.existsSync(legacyDir)) {
+    fs.rmSync(legacyDir, { recursive: true, force: true });
+    log.success('Đã xóa thư mục skills cũ (commands/sk)');
+  }
 
   // Clean old files
   if (fs.existsSync(commandsDir)) {
@@ -31,7 +38,7 @@ async function install(skillsDir, targetDir, options = {}) {
   for (const skill of skills) {
     const converted = convertSkill(skill.content);
     fs.writeFileSync(path.join(commandsDir, `${skill.name}.md`), converted, 'utf8');
-    log.success(`/sk:${skill.name}`);
+    log.success(`/pd:${skill.name}`);
   }
 
   // ─── Step 2: Copy rules ──────────────────────────────
@@ -59,7 +66,9 @@ async function install(skillsDir, targetDir, options = {}) {
   if (fs.existsSync(settingsFile)) {
     try {
       settings = JSON.parse(fs.readFileSync(settingsFile, 'utf8'));
-    } catch { /* invalid JSON, overwrite */ }
+    } catch {
+      log.warn('settings.json không hợp lệ — sẽ ghi đè với config mới');
+    }
   }
 
   settings.mcpServers = { ...(settings.mcpServers || {}), ...mcpServers };
@@ -69,18 +78,21 @@ async function install(skillsDir, targetDir, options = {}) {
   // Summary
   console.log('');
   log.info(`Skills v${options.version} — ${skills.length} skills cho Gemini CLI`);
-  log.info('Gọi bằng: /sk:init, /sk:write-code, /sk:plan ...');
+  log.info('Gọi bằng: /pd:init, /pd:write-code, /pd:plan ...');
 }
 
 async function uninstall(targetDir) {
-  const commandsDir = path.join(targetDir, 'commands', 'sk');
+  const commandsDir = path.join(targetDir, 'commands', 'pd');
   const settingsFile = path.join(targetDir, 'settings.json');
 
-  // Remove commands
-  if (fs.existsSync(commandsDir)) {
-    fs.rmSync(commandsDir, { recursive: true, force: true });
-    log.success('Skills removed');
+  // Remove commands (pd + legacy sk)
+  const legacyDir = path.join(targetDir, 'commands', 'sk');
+  for (const dir of [commandsDir, legacyDir]) {
+    if (fs.existsSync(dir)) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
   }
+  log.success('Skills removed');
 
   // Clean MCP from settings.json
   if (fs.existsSync(settingsFile)) {

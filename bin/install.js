@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
 /**
- * Skills Installer — Cross-platform installer cho bộ /sk:* skills.
+ * Skills Installer — Cross-platform installer cho bộ /pd:* skills.
  *
  * Hỗ trợ: Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot.
  * Kiến trúc: Write Once (Claude Code) → Transpile at Install → Native per Platform.
  *
  * Usage:
- *   npx skills-cc                    # Interactive — chọn platform
- *   npx skills-cc --claude           # Cài cho Claude Code
- *   npx skills-cc --codex            # Cài cho Codex CLI
- *   npx skills-cc --gemini           # Cài cho Gemini CLI
- *   npx skills-cc --opencode         # Cài cho OpenCode
- *   npx skills-cc --copilot          # Cài cho GitHub Copilot
- *   npx skills-cc --all              # Cài tất cả platforms
- *   npx skills-cc --uninstall --codex  # Gỡ khỏi Codex
- *   npx skills-cc --global           # Global install (default)
- *   npx skills-cc --local            # Local install (project-level)
+ *   npx please-done                    # Interactive — chọn platform
+ *   npx please-done --claude           # Cài cho Claude Code
+ *   npx please-done --codex            # Cài cho Codex CLI
+ *   npx please-done --gemini           # Cài cho Gemini CLI
+ *   npx please-done --opencode         # Cài cho OpenCode
+ *   npx please-done --copilot          # Cài cho GitHub Copilot
+ *   npx please-done --all              # Cài tất cả platforms
+ *   npx please-done --uninstall --codex  # Gỡ khỏi Codex
+ *   npx please-done --global           # Global install (default)
+ *   npx please-done --local            # Local install (project-level)
  */
 
 'use strict';
@@ -32,7 +32,6 @@ const { saveLocalPatches, writeManifest, reportLocalPatches, scanLeakedPaths } =
 // ─── Constants ────────────────────────────────────────────
 const SCRIPT_DIR = path.resolve(__dirname, '..');
 const VERSION = fs.readFileSync(path.join(SCRIPT_DIR, 'VERSION'), 'utf8').trim();
-const SKILLS_SRC = path.join(SCRIPT_DIR, 'commands', 'sk');
 
 // ─── Arg parsing ──────────────────────────────────────────
 function parseArgs(argv) {
@@ -57,7 +56,10 @@ function parseArgs(argv) {
       case '--global': case '-g': flags.isGlobal = true; break;
       case '--local': case '-l': flags.isGlobal = false; break;
       case '--uninstall': case '-u': flags.uninstall = true; break;
-      case '--config-dir': case '-c': flags.configDir = args[++i]; break;
+      case '--config-dir': case '-c':
+        if (i + 1 < args.length) flags.configDir = args[++i];
+        else { log.error('--config-dir requires a value'); process.exit(1); }
+        break;
       case '--help': case '-h': flags.help = true; break;
       default:
         if (arg.startsWith('-')) {
@@ -96,7 +98,7 @@ async function promptRuntime() {
   console.log(`  ${runtimes.length + 1}. Tất cả`);
   console.log('');
 
-  const answer = await ask(rl, 'Chọn (1-6): ');
+  const answer = await ask(rl, `Chọn (1-${runtimes.length + 1}): `);
   rl.close();
 
   const num = parseInt(answer, 10);
@@ -124,9 +126,9 @@ async function promptLocation() {
 // ─── Installed dirs per platform (cho manifest tracking) ──
 function getInstalledDirs(runtime) {
   switch (runtime) {
-    case 'claude': return ['commands/sk'];
+    case 'claude': return ['commands/pd'];
     case 'codex': return ['skills'];
-    case 'gemini': return ['commands/sk'];
+    case 'gemini': return ['commands/pd'];
     case 'opencode': return ['command'];
     case 'copilot': return ['skills'];
     default: return [];
@@ -219,10 +221,10 @@ async function uninstall(runtime, isGlobal, configDir) {
 function showHelp() {
   console.log(`
 Skills Installer v${VERSION}
-Cross-platform installer cho bộ /sk:* skills.
+Cross-platform installer cho bộ /pd:* skills.
 
 Usage:
-  npx skills-cc [options]
+  npx please-done [options]
 
 Platforms:
   --claude          Cài cho Claude Code
@@ -240,10 +242,10 @@ Options:
   -h, --help        Hiện help
 
 Examples:
-  npx skills-cc                     Interactive mode
-  npx skills-cc --claude            Cài cho Claude Code
-  npx skills-cc --all --global      Cài tất cả (global)
-  npx skills-cc -u --codex          Gỡ khỏi Codex
+  npx please-done                     Interactive mode
+  npx please-done --claude            Cài cho Claude Code
+  npx please-done --all --global      Cài tất cả (global)
+  npx please-done -u --codex          Gỡ khỏi Codex
 `);
 }
 
@@ -312,6 +314,6 @@ main().catch((err) => {
 });
 
 // Test exports
-if (process.env.SK_TEST_MODE) {
+if (process.env.PD_TEST_MODE) {
   module.exports = { parseArgs, install, uninstall };
 }

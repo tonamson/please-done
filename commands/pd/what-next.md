@@ -1,5 +1,5 @@
 ---
-name: sk:what-next
+name: pd:what-next
 description: Kiểm tra tiến trình dự án, gợi ý command tiếp theo khi quên hoặc bị gián đoạn
 ---
 
@@ -20,11 +20,11 @@ Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob,
 Đọc lần lượt (dừng ở điểm THIẾU đầu tiên):
 
 1. `.planning/CONTEXT.md` → tồn tại?
-   - KHÔNG → gợi ý `/sk:init`, DỪNG
+   - KHÔNG → gợi ý `/pd:init`, DỪNG
 2. `.planning/scan/SCAN_REPORT.md` → tồn tại?
    - KHÔNG → ghi nhận thiếu scan (gợi ý phụ ở Bước 5), KHÔNG DỪNG — tiếp tục kiểm tra
 3. `.planning/ROADMAP.md` → tồn tại?
-   - KHÔNG → gợi ý `/sk:new-milestone`, DỪNG
+   - KHÔNG → gợi ý `/pd:new-milestone`, DỪNG
 4. `.planning/CURRENT_MILESTONE.md` → đọc `version`, `phase`, `status`
    - status = `Hoàn tất toàn bộ` → thông báo "Tất cả milestones đã hoàn tất!", DỪNG
 
@@ -39,10 +39,10 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 Đọc version + phase từ CURRENT_MILESTONE.md:
 
 1. **Chưa có plan?** Glob `.planning/milestones/[version]/phase-[phase]/TASKS.md`
-   - KHÔNG tồn tại → gợi ý `/sk:plan`, DỪNG
+   - KHÔNG tồn tại → gợi ý `/pd:plan`, DỪNG
 
 2. **Đọc TASKS.md** → đếm theo trạng thái:
-   - Nếu TASKS.md tồn tại nhưng 0 tasks (đếm tất cả trạng thái = 0) → cảnh báo: "TASKS.md rỗng, có thể cần chạy `/sk:plan` lại." và DỪNG.
+   - Nếu TASKS.md tồn tại nhưng 0 tasks (đếm tất cả trạng thái = 0) → cảnh báo: "TASKS.md rỗng, có thể cần chạy `/pd:plan` lại." và DỪNG.
    - 🔄 (đang thực hiện) → ghi nhận task numbers
    - ⬜ (chưa bắt đầu) → ghi nhận task numbers
    - 🐛 (có lỗi) → ghi nhận task numbers
@@ -60,41 +60,41 @@ Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo
 
 ### Ưu tiên 1: Có bugs đang mở
 > 🐛 Có [X] bug chưa giải quyết.
-> → Chạy `/sk:fix-bug` để xử lý
+> → Chạy `/pd:fix-bug` để xử lý
 
 ### Ưu tiên 2: Có task đang làm dở (🔄)
 > 🔄 Task [N]: [tên] đang thực hiện.
-> → Chạy `/sk:write-code [N]` để tiếp tục
+> → Chạy `/pd:write-code [N]` để tiếp tục
 
 ### Ưu tiên 3: Có task bị lỗi (🐛)
 Nếu có task 🐛 nhưng không có bug report mở tương ứng → cảnh báo: "Task [N] có trạng thái 🐛 nhưng không tìm thấy bug report mở. Có thể cần cập nhật trạng thái task."
 > 🐛 Task [N]: [tên] có lỗi cần sửa.
-> → Chạy `/sk:fix-bug` để debug
+> → Chạy `/pd:fix-bug` để debug
 
 ### Ưu tiên 4: Còn task chưa bắt đầu (⬜)
 > ⬜ Còn [X] tasks chưa bắt đầu trong phase [x.x].
-> → Chạy `/sk:write-code` để pick task tiếp theo
-> → Hoặc `/sk:write-code --parallel` để chạy song song tasks độc lập
+> → Chạy `/pd:write-code` để pick task tiếp theo
+> → Hoặc `/pd:write-code --parallel` để chạy song song tasks độc lập
 
 ### Ưu tiên 5: TẤT CẢ tasks còn lại bị chặn (❌) hoặc lỗi (🐛)
 > ❌ Tất cả [X] tasks còn lại đều bị chặn hoặc có lỗi.
-> → Chạy `/sk:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
+> → Chạy `/pd:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
 
 ### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test
 CHỈ áp dụng khi project có Backend NestJS VÀ chưa có TEST_REPORT.
 Kiểm tra NỘI DUNG TEST_REPORT (nếu file tồn tại): Grep pattern `❌` trong TEST_REPORT để xác định có tests fail → gợi ý fix trước.
 > ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report (hoặc có tests fail).
-> → Chạy `/sk:test` để kiểm thử (hoặc `/sk:fix-bug` nếu có tests fail)
+> → Chạy `/pd:test` để kiểm thử (hoặc `/pd:fix-bug` nếu có tests fail)
 
 ### Ưu tiên 7: Phase hiện tại hoàn tất, còn phases tiếp theo
 Áp dụng khi tất cả tasks ✅ VÀ (không cần test HOẶC đã có TEST_REPORT pass). Bao gồm frontend-only projects.
 Đọc ROADMAP.md → kiểm tra milestone hiện tại còn phases chưa plan:
 > ✅ Phase [x.x] hoàn tất. Milestone còn phase [y.y] chưa triển khai.
-> → Chạy `/sk:plan [y.y]` để lên kế hoạch phase tiếp
+> → Chạy `/pd:plan [y.y]` để lên kế hoạch phase tiếp
 
 ### Ưu tiên 8: Tất cả phases hoàn tất → sẵn sàng đóng milestone
 > ✅ Tất cả phases trong milestone v[x.x] đã hoàn tất.
-> → Chạy `/sk:complete-milestone` để đóng phiên bản
+> → Chạy `/pd:complete-milestone` để đóng phiên bản
 
 ## Bước 5: Hiển thị báo cáo
 ```
@@ -117,16 +117,16 @@ Kiểm tra NỘI DUNG TEST_REPORT (nếu file tồn tại): Grep pattern `❌` t
 ```
 
 Nếu không có SCAN_REPORT nhưng có ROADMAP → thêm dòng gợi ý phụ:
-> 💡 Nên chạy `/sk:scan` để cập nhật báo cáo quét dự án.
+> 💡 Nên chạy `/pd:scan` để cập nhật báo cáo quét dự án.
 
 ## Bước 6: Kiểm tra phiên bản Skills (CHỈ nếu chưa kiểm tra trong conversation này)
 Nếu đã kiểm tra version trong conversation hiện tại (VD: skill trước đã thông báo) → bỏ qua bước này.
 
-Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`.
+Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`.
 Kiểm tra `git rev-parse --git-dir` trong SKILLS_DIR trước khi fetch. Nếu không phải git repo → bỏ qua version check.
 So sánh version: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
 Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → thêm dòng trong báo cáo:
-> 💡 Skills v[REMOTE] đã có. Chạy `/sk:update` để cập nhật.
+> 💡 Skills v[REMOTE] đã có. Chạy `/pd:update` để cập nhật.
 
 Nếu fetch lỗi hoặc version giống → bỏ qua.
 
@@ -135,7 +135,7 @@ Nếu fetch lỗi hoặc version giống → bỏ qua.
 <rules>
 - KHÔNG gọi FastCode MCP — chỉ dùng Read/Glob để đọc planning files (Bash cho version check ở Bước 6)
 - KHÔNG sửa bất kỳ file nào — chỉ đọc và báo cáo
-- KHÔNG cần CONTEXT.md để chạy — nếu thiếu thì gợi ý `/sk:init`
+- KHÔNG cần CONTEXT.md để chạy — nếu thiếu thì gợi ý `/pd:init`
 - Chỉ gợi ý 1 hành động chính (ưu tiên cao nhất), có thể kèm gợi ý phụ
 - Hiển thị task đang dở (🔄) với số thứ tự + tên cụ thể để user dễ tiếp tục
 - Hiển thị bugs mở với mô tả ngắn

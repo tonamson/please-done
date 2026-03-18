@@ -37,50 +37,50 @@ const PLATFORMS = {
   claude: {
     name: 'Claude Code',
     dirName: '.claude',
-    commandPrefix: '/sk:',
+    commandPrefix: '/pd:',
     commandSeparator: ':',
     envVar: 'CLAUDE_CONFIG_DIR',
-    skillFormat: 'nested',       // commands/sk/*.md
+    skillFormat: 'nested',       // commands/pd/*.md
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.claude,
   },
   codex: {
     name: 'Codex CLI',
     dirName: '.codex',
-    commandPrefix: '$sk-',
+    commandPrefix: '$pd-',
     commandSeparator: '-',
     envVar: 'CODEX_HOME',
-    skillFormat: 'skill-dir',    // skills/sk-*/SKILL.md
+    skillFormat: 'skill-dir',    // skills/pd-*/SKILL.md
     frontmatterFormat: 'yaml',   // body YAML, config in TOML
     toolMap: TOOL_MAP.codex,
   },
   gemini: {
     name: 'Gemini CLI',
     dirName: '.gemini',
-    commandPrefix: '/sk:',
+    commandPrefix: '/pd:',
     commandSeparator: ':',
     envVar: 'GEMINI_CONFIG_DIR',
-    skillFormat: 'nested',       // commands/sk/*.md
+    skillFormat: 'nested',       // commands/pd/*.md
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.gemini,
   },
   opencode: {
     name: 'OpenCode',
     dirName: '.opencode',
-    commandPrefix: '/sk-',
+    commandPrefix: '/pd-',
     commandSeparator: '-',
     envVar: 'OPENCODE_CONFIG_DIR',
-    skillFormat: 'flat',         // command/sk-*.md
+    skillFormat: 'flat',         // command/pd-*.md
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.opencode,
   },
   copilot: {
     name: 'GitHub Copilot',
     dirName: '.github',
-    commandPrefix: '/sk:',
+    commandPrefix: '/pd:',
     commandSeparator: ':',
     envVar: 'COPILOT_CONFIG_DIR',
-    skillFormat: 'skill-dir',    // skills/sk-*/SKILL.md
+    skillFormat: 'skill-dir',    // skills/pd-*/SKILL.md
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.copilot,
   },
@@ -130,34 +130,15 @@ function getLocalDir(runtime, projectDir) {
 }
 
 /**
- * Lấy path segment cần replace trong content.
- * Claude dùng ~/.claude/ → platform khác dùng đường dẫn tương ứng.
- */
-function getPathReplacement(runtime, targetDir) {
-  const resolved = path.resolve(targetDir);
-  // Luôn dùng forward slashes
-  return resolved.replace(/\\/g, '/') + '/';
-}
-
-/**
- * Convert tool name từ Claude sang platform target.
- * Trả về tên gốc nếu không có mapping.
- */
-function convertToolName(runtime, claudeToolName) {
-  const map = PLATFORMS[runtime]?.toolMap || {};
-  return map[claudeToolName] || claudeToolName;
-}
-
-/**
  * Convert command reference trong content body.
- * VD: /sk:init → $sk-init (Codex), /sk-init (OpenCode)
+ * VD: /pd:init → $pd-init (Codex), /pd-init (OpenCode)
  */
 function convertCommandRef(runtime, content) {
   const platform = PLATFORMS[runtime];
   if (!platform || runtime === 'claude') return content;
 
-  // Replace /sk:name → platform prefix + name
-  return content.replace(/\/sk:([a-z-]+)/g, (match, name) => {
+  // Replace /pd:name → platform prefix + name
+  return content.replace(/\/pd:([a-z0-9-]+)/g, (match, name) => {
     return `${platform.commandPrefix}${name}`;
   });
 }
@@ -173,8 +154,6 @@ module.exports = {
   PLATFORMS,
   getGlobalDir,
   getLocalDir,
-  getPathReplacement,
-  convertToolName,
   convertCommandRef,
   getAllRuntimes,
 };

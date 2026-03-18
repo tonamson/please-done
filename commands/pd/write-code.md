@@ -1,5 +1,5 @@
 ---
-name: sk:write-code
+name: pd:write-code
 description: Viết code theo task, JSDoc tiếng Việt, lint, build, commit và báo cáo
 ---
 
@@ -22,7 +22,7 @@ User input: $ARGUMENTS
 - `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
 
-Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
+Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
 
 <process>
@@ -31,25 +31,25 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn task để thực hiện."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/TASKS.md` tồn tại:
-  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/sk:plan` trước."
+  - KHÔNG → **DỪNG**, thông báo: "Phase [phase] chưa có plan. Chạy `/pd:plan` trước."
 - Kiểm tra `.planning/milestones/[version]/phase-[phase]/PLAN.md` tồn tại:
-  - KHÔNG → **DỪNG**, thông báo: "PLAN.md không tồn tại. Chạy `/sk:plan` để tạo."
+  - KHÔNG → **DỪNG**, thông báo: "PLAN.md không tồn tại. Chạy `/pd:plan` để tạo."
 - Đọc PLAN.md → thiết kế kỹ thuật
 - Đọc TASKS.md → danh sách tasks
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 7)
 
 Chọn task:
-- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/sk:test` (nếu có Backend), `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`
+- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
   - ❌ → hỏi user: "Task [N] đang bị chặn. Xác nhận vẫn muốn tiếp tục?" Nếu user xác nhận tiếp tục → đổi trạng thái ❌ → 🔄, tiếp tục Bước 2.
-  - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/sk:fix-bug` thay vì viết lại code."
+  - 🐛 → thông báo: "Task [N] có lỗi. Nên chạy `/pd:fix-bug` thay vì viết lại code."
 - Nếu không → ưu tiên task 🔄 (resume task đang dở) trước, nếu không có thì task tiếp theo ⬜ theo thứ tự:
   - Task ⬜ có `Phụ thuộc: Không` hoặc tất cả dependencies đã ✅ → **sẵn sàng**, pick task này
   - Task ⬜ nhưng Phụ thuộc task chưa ✅ (⬜/🔄/❌/🐛) → **bỏ qua**, tìm task ⬜ tiếp theo
   - Bỏ qua tasks ❌ hoặc 🐛
-- **Nếu TẤT CẢ tasks còn lại bị ❌, 🐛, hoặc bị chặn bởi dependency chưa ✅**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/sk:fix-bug` cho tasks 🐛.
+- **Nếu TẤT CẢ tasks còn lại bị ❌, 🐛, hoặc bị chặn bởi dependency chưa ✅**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/pd:fix-bug` cho tasks 🐛.
 - Nếu scan hết tất cả tasks mà không tìm được task sẵn sàng (còn tasks ⬜ nhưng tất cả bị chặn bởi dependencies) → thông báo: "Phát hiện circular dependency hoặc missing dependency giữa [tasks]. Kiểm tra lại TASKS.md."
 
 Cập nhật trạng thái → 🔄
@@ -97,7 +97,7 @@ Xác nhận chạy? (y/n)
 - Chi tiết task trong TASKS.md (mô tả, checklist, ghi chú kỹ thuật)
 - PLAN.md sections liên quan (thiết kế kỹ thuật, API, database)
 - PLAN.md section `Quyết định thiết kế` (nếu có) → các quyết định đã chốt với user trong chế độ DISCUSS — code PHẢI tuân thủ
-- Nếu PLAN.md thiếu thông tin cần thiết cho task (VD: thiếu response format, thiếu DB schema, thiếu component props) → **DỪNG**, thông báo: "PLAN.md thiếu [thông tin cụ thể]. Chạy `/sk:plan --discuss` để bổ sung, hoặc xác nhận để Claude tự quyết định (sẽ ghi vào CODE_REPORT)."
+- Nếu PLAN.md thiếu thông tin cần thiết cho task (VD: thiếu response format, thiếu DB schema, thiếu component props) → **DỪNG**, thông báo: "PLAN.md thiếu [thông tin cụ thể]. Chạy `/pd:plan --discuss` để bổ sung, hoặc xác nhận để Claude tự quyết định (sẽ ghi vào CODE_REPORT)."
 - `.planning/docs/*.md` → chỉ đọc **mục lục nhanh**, rồi đọc sections liên quan đến task bằng offset/limit
 - `.planning/rules/` chứa đầy đủ quy tắc code — đọc file rules phù hợp với Loại task
 
@@ -108,7 +108,7 @@ Xác nhận chạy? (y/n)
   1. "Patterns đang dùng cho [loại file cần tạo]."
   2. "Functions/services tái sử dụng cho [task]."
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
 
 **Tra cứu API thư viện qua Context7** (nếu task dùng thư viện bên ngoài):
 1. `mcp__context7__resolve-library-id` (libraryName: "nestjs", query: "mô tả ngắn task") → lấy Context7 library ID
@@ -117,7 +117,7 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 - Ưu tiên Context7 hơn đoán API từ memory — đảm bảo đúng version + đúng cú pháp
 - **Giao diện Admin**: BẮT BUỘC tra Context7 (antd) cho mỗi component Ant Design mới — verify props, cú pháp, tham số
 - **Guard/JWT/Role**: BẮT BUỘC tra Context7 (nestjs) + FastCode pattern hiện có trước khi viết
-- Nếu Context7 MCP không có → dùng `.planning/docs/` (từ `/sk:fetch-doc`) hoặc knowledge sẵn có
+- Nếu Context7 MCP không có → dùng `.planning/docs/` (từ `/pd:fetch-doc`) hoặc knowledge sẵn có
 
 ## Bước 4: Viết code
 Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
@@ -203,7 +203,7 @@ Nếu TẤT CẢ tasks trong phase đều ✅ (không còn ⬜, 🔄, ❌, hoặ
 Khi tất cả tasks trong phase hiện tại ✅:
 - Kiểm tra ROADMAP: milestone có phase tiếp theo không?
 - Nếu phase tiếp đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp.
-- Nếu phase tiếp chưa plan → giữ nguyên, gợi ý `/sk:plan [phase tiếp]`.
+- Nếu phase tiếp chưa plan → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`.
 
 ## Bước 10: Tiếp tục hoặc dừng
 
@@ -250,16 +250,16 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ║ Waves: [X] | Song song: [Y] tasks | Tuần tự: [Z]║
 ╠══════════════════════════════════════════════════╣
 ║ Gợi ý:                                          ║
-║   /sk:test              → Kiểm thử (NestJS only) ║
-║   /sk:plan [phase tiếp] → Phase tiếp theo       ║
-║   /sk:complete-milestone → Đóng milestone        ║
+║   /pd:test              → Kiểm thử (NestJS only) ║
+║   /pd:plan [phase tiếp] → Phase tiếp theo       ║
+║   /pd:complete-milestone → Đóng milestone        ║
 ╚══════════════════════════════════════════════════╝
 ```
 
 ### Chế độ `--auto` (tuần tự)
 Còn task 🔄 hoặc ⬜ trong phase → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
-- Hết task 🔄 và ⬜ (tất cả ✅) → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/sk:test`, `/sk:plan [phase tiếp]`, hoặc `/sk:complete-milestone`"
-- **TẤT CẢ tasks còn lại đều bị ❌, 🐛, hoặc ⬜ nhưng bị chặn bởi dependency chưa ✅** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/sk:fix-bug`
+- Hết task 🔄 và ⬜ (tất cả ✅) → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`"
+- **TẤT CẢ tasks còn lại đều bị ❌, 🐛, hoặc ⬜ nhưng bị chặn bởi dependency chưa ✅** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/pd:fix-bug`
 - Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
 - Nếu lint/build được skip (project chưa setup build tools) → tiếp tục task tiếp theo bình thường
 
@@ -268,9 +268,9 @@ DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
-  - `/sk:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS)
-  - `/sk:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
-  - `/sk:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
+  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS)
+  - `/pd:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
+  - `/pd:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
 </process>
 
 <rules>
@@ -283,7 +283,7 @@ DỪNG sau mỗi task, thông báo:
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - Tái sử dụng code/thư viện có sẵn
 - Nếu tasks blocked → THÔNG BÁO user, KHÔNG pick bừa
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
 
 **Quy tắc Parallel (--parallel):**
 - CHỈ chạy song song tasks KHÔNG chia sẻ files VÀ KHÔNG có dependency trực tiếp

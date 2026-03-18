@@ -1,18 +1,18 @@
-# Skills — Cross-platform AI Coding Skills
+# Please Done — Cross-platform AI Coding Skills
 
-Bộ skills (`/sk:*`) cho AI coding CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
+Please Done là bộ skills (`/pd:*`) cho AI coding CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v2.0.1**
+**Phiên bản hiện tại: v2.1.0**
 
 ## Platforms hỗ trợ
 
 | Platform | Gọi skill bằng | Config dir |
 |----------|----------------|------------|
-| **Claude Code** | `/sk:init`, `/sk:plan`... | `~/.claude/commands/sk/` |
-| **Codex CLI** | `$sk-init`, `$sk-plan`... | `~/.codex/skills/sk-*/` |
-| **Gemini CLI** | `/sk:init`, `/sk:plan`... | `~/.gemini/commands/sk/` |
-| **OpenCode** | `/sk-init`, `/sk-plan`... | `~/.config/opencode/command/` |
-| **GitHub Copilot** | `/sk:init`, `/sk:plan`... | `~/.copilot/skills/sk-*/` |
+| **Claude Code** | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/` |
+| **Codex CLI** | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/` |
+| **Gemini CLI** | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/` |
+| **OpenCode** | `/pd-init`, `/pd-plan`... | `~/.config/opencode/command/` |
+| **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/` |
 
 Kiến trúc: Write Once (Claude Code) → Transpile at Install → Native per Platform.
 
@@ -31,8 +31,8 @@ Kiến trúc: Write Once (Claude Code) → Transpile at Install → Native per P
 ## Cài đặt
 
 ```bash
-git clone https://github.com/tonamson/skills.git
-cd skills
+git clone https://github.com/tonamson/done-please.git
+cd done-please
 ```
 
 ```bash
@@ -90,37 +90,37 @@ node bin/install.js --uninstall --copilot
 node bin/install.js --uninstall --all
 ```
 
-Uninstall chỉ xóa files có prefix `sk-` — không đụng config/files khác của user.
+Uninstall chỉ xóa files có prefix `pd-` — không đụng config/files khác của user.
 
-## Cập nhật Skills
+## Cập nhật Please Done
 
 Khi có phiên bản mới, status line sẽ hiện:
 
 ```
-⬆ Skills v[x.x.x] — /sk:update
+⬆ Please Done v[x.x.x] — /pd:update
 ```
 
 Cập nhật bằng lệnh:
 
 ```bash
 # Trong AI coding CLI:
-/sk:update           # Kiểm tra + hỏi trước khi update
-/sk:update --apply   # Cập nhật ngay không hỏi
+/pd:update           # Kiểm tra + hỏi trước khi update
+/pd:update --apply   # Cập nhật ngay không hỏi
 ```
 
-Sau khi cập nhật → thoát CLI → chạy lại để load skills mới.
+Sau khi cập nhật → thoát CLI → chạy lại để load phiên bản Please Done mới.
 
 ## Sau khi cài
 
 ```bash
-# 1. Khởi động lại CLI để load skills mới
+# 1. Khởi động lại CLI để load Please Done mới
 # 2. Mở dự án bất kỳ
 cd /path/to/your/project
 
 # 3. Chạy skill đầu tiên
-/sk:init        # Claude Code, Gemini, Copilot
-$sk-init        # Codex
-/sk-init        # OpenCode
+/pd:init        # Claude Code, Gemini, Copilot
+$pd-init        # Codex
+/pd-init        # OpenCode
 ```
 
 ## Danh sách Skills
@@ -222,7 +222,7 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ├── docs/                         # Tài liệu cache (fetch-doc) kèm version + mục lục
 ├── bugs/
 │   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, patch version)
-├── rules/                        # Coding rules (copy từ skills repo theo stack)
+├── rules/                        # Coding rules (copy từ repo Please Done theo stack)
 │   ├── general.md                # Quy tắc chung (luôn có)
 │   ├── backend.md                # NestJS conventions (nếu có backend)
 │   └── frontend.md               # NextJS conventions (nếu có frontend)
@@ -241,8 +241,8 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ```
 Source (Claude Code native)          Install-time Transpiler          Target Platforms
 ┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────┐
-│ commands/sk/*.md     │            │                  │──────────→ │ Claude Code     │
-│ commands/sk/rules/*  │───────────→│  bin/install.js  │──────────→ │ Codex CLI       │
+│ commands/pd/*.md     │            │                  │──────────→ │ Claude Code     │
+│ commands/pd/rules/*  │───────────→│  bin/install.js  │──────────→ │ Codex CLI       │
 │ VERSION, CHANGELOG   │            │  (Node.js, 0 dep)│──────────→ │ Gemini CLI      │
 └──────────────────────┘            │                  │──────────→ │ OpenCode        │
                                     └──────────────────┘──────────→ │ GitHub Copilot  │
@@ -250,7 +250,7 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 ```
 
 **Nguyên tắc:**
-- Skills chỉ viết 1 lần bằng format Claude Code
+- Các skill chỉ viết 1 lần bằng format Claude Code
 - Installer convert sang format native cho từng platform
 - Zero runtime dependencies (chỉ Node.js stdlib)
 - SHA256 manifest tracking — auto-backup files user đã modify trước khi re-install
@@ -261,8 +261,8 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 | Thành phần | Claude Code | Codex | Gemini | OpenCode | Copilot |
 |------------|-------------|-------|--------|----------|---------|
 | **Tool names** | Read, Write, Bash | Giữ nguyên | read_file, write_file, run_shell_command | Giữ nguyên | read, write, execute |
-| **Command prefix** | /sk: | $sk- | /sk: | /sk- | /sk: |
-| **Skill format** | Nested .md | SKILL.md + XML adapter | Nested .md | Flat sk-*.md | SKILL.md |
+| **Command prefix** | /pd: | $pd- | /pd: | /pd- | /pd: |
+| **Skill format** | Nested .md | SKILL.md + XML adapter | Nested .md | Flat pd-*.md | SKILL.md |
 | **MCP config** | settings.json | config.toml (TOML) | settings.json | Config riêng | instructions.md |
 
 ## MCP Servers
@@ -272,11 +272,40 @@ Source (Claude Code native)          Install-time Transpiler          Target Pla
 | **FastCode** | Index + phân tích code dự án (dùng Gemini API) | Có |
 | **Context7** | Tra cứu API docs thư viện đúng version | Không (nhưng nên có) |
 
-Skills tự động gọi FastCode để research code hiện có và Context7 để tra cứu docs thư viện. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `init` kiểm tra lại.
+Please Done tự động gọi FastCode để research code hiện có và Context7 để tra cứu docs thư viện. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `init` kiểm tra lại.
+
+## Bảo mật
+
+### Bảo vệ file nhạy cảm
+
+Các lệnh phân tích và quét codebase của Please Done đọc file để hiểu dự án. **Bảo vệ file chứa secrets** bằng cách thêm vào deny list của Claude Code:
+
+1. Mở cài đặt Claude Code (`.claude/settings.json` hoặc global)
+2. Thêm pattern file nhạy cảm vào deny list:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/secrets/*)",
+      "Read(**/*credential*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  }
+}
+```
+
+Cấu hình này ngăn Claude đọc các file trên hoàn toàn, bất kể bạn chạy lệnh gì.
+
+> [!IMPORTANT]
+> Please Done đã có sẵn cơ chế chống commit secrets, nhưng phòng thủ nhiều lớp luôn tốt hơn. Chặn quyền đọc file nhạy cảm là tuyến phòng thủ đầu tiên.
 
 ## Commit Conventions
 
-Skills tự động commit với prefix tiếng Việt (bỏ qua nếu project không có git):
+Please Done tự động commit với prefix tiếng Việt (bỏ qua nếu project không có git):
 
 | Prefix | Skill | Khi nào |
 |--------|-------|---------|
@@ -306,4 +335,4 @@ Skills tự động commit với prefix tiếng Việt (bỏ qua nếu project k
 
 NestJS và NextJS có rules + phân tích chi tiết. Các stack khác được detect nhưng chỉ liệt kê files, áp dụng `general.md`.
 
-**Mở rộng stack mới**: Thêm file `commands/sk/rules/[stack].md` + detection pattern trong `init.md` Bước 4.
+**Mở rộng stack mới**: Thêm file `commands/pd/rules/[stack].md` + detection pattern trong `init.md` Bước 4.

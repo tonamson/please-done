@@ -1,8 +1,17 @@
 # Nhật ký thay đổi Skills
 
+## [2.1.0] - 18_03_2026
+### Sửa lỗi
+- **Codex `mergeCodexConfig` mất markers**: Merge lần 2+ bị duplicate append do markers bị strip — giờ giữ lại markers để idempotent
+- **`--config-dir` không có giá trị**: parseArgs crash với `undefined` khi flag là arg cuối — thêm bounds check + thông báo lỗi
+- **Gemini JSON parse thầm lặng**: settings.json bị corrupt mất data không cảnh báo — thêm `log.warn`
+
+### Thêm mới
+- **npm scripts đầy đủ**: Thêm `install:opencode`, `install:copilot`, `uninstall:codex`, `uninstall:gemini`, `uninstall:opencode`, `uninstall:copilot`, `uninstall:all`
+
 ## [2.0.1] - 18_03_2026
 ### Thay đổi
-- **Đổi tên skill**: `sk:roadmap` → `sk:new-milestone` — đồng bộ naming convention với `sk:complete-milestone`
+- **Đổi tên skill**: `pd:roadmap` → `pd:new-milestone` — đồng bộ naming convention với `pd:complete-milestone`
 - Cập nhật references trong: `init.md`, `plan.md`, `what-next.md`, `complete-milestone.md`, `README.md`, `claude.js` installer
 
 ## [2.0.0] - 18_03_2026
@@ -12,8 +21,8 @@
 - Converters: transpile skills từ Claude Code format sang native format cho từng platform (tool names, command prefix, paths, frontmatter)
 - Codex: XML skill adapter header (`<codex_skill_adapter>`), MCP config trong `config.toml` (TOML)
 - Gemini: tool name mapping (Read→read_file, Bash→run_shell_command), MCP config trong `settings.json`
-- OpenCode: flat command structure (`command/sk-*.md`), strip frontmatter fields
-- Copilot: skill directories (`skills/sk-*/SKILL.md`), merge instructions vào `copilot-instructions.md`
+- OpenCode: flat command structure (`command/pd-*.md`), strip frontmatter fields
+- Copilot: skill directories (`skills/pd-*/SKILL.md`), merge instructions vào `copilot-instructions.md`
 - SHA256 manifest tracking — detect + auto-backup files user đã modify trước khi re-install
 - Leaked path scan — verify không còn `~/.claude/` trong output non-Claude platforms
 - Uninstall tích hợp (`--uninstall`) — clean per platform, marker-based idempotent
@@ -63,26 +72,26 @@
 
 ## [1.1.2] - 18_03_2026
 ### Thay đổi
-- `complete-milestone.md`: Thêm gợi ý chạy `/sk:scan` sau khi hoàn tất milestone để cập nhật kiến trúc
-- `update.md`: Xóa cache status line (`sk-update-check.json`) sau khi cập nhật thành công — ngừng hiện thông báo ngay
+- `complete-milestone.md`: Thêm gợi ý chạy `/pd:scan` sau khi hoàn tất milestone để cập nhật kiến trúc
+- `update.md`: Xóa cache status line (`pd-update-check.json`) sau khi cập nhật thành công — ngừng hiện thông báo ngay
 - `update.md`: Thêm rule bắt buộc xóa cache sau update
 
 ## [1.1.1] - 18_03_2026
 ### Thêm mới
-- Thông báo version mới trên status line (góc trái dưới) — `⬆ Skills v[x.x.x] — /sk:update`
-- SessionStart hook (`sk-check-update.js`) — kiểm tra remote version khi bắt đầu session, cache 10 phút
+- Thông báo version mới trên status line (góc trái dưới) — `⬆ Skills v[x.x.x] — /pd:update`
+- SessionStart hook (`pd-check-update.js`) — kiểm tra remote version khi bắt đầu session, cache 10 phút
 - Tích hợp vào GSD statusline — hiện cùng dòng với thông tin GSD
 
 ### Sửa lỗi
 - Fix `update.md` Bước 8: "Ghi thêm" gây duplicate CURRENT_VERSION — đổi thành thay thế idempotent
 - Fix `what-next.md` context/rules: ghi rõ dùng Bash cho version check (trước nói "chỉ Read/Glob")
-- Xóa `check-update.sh` orphaned (đã thay bằng `sk-check-update.js`)
+- Xóa `check-update.sh` orphaned (đã thay bằng `pd-check-update.js`)
 
 ## [1.1.0] - 18_03_2026
 ### Thêm mới
-- `/sk:update` — Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog, gợi ý restart
-- `/sk:plan --discuss` — Chế độ thảo luận tương tác: liệt kê vấn đề, user chọn thảo luận, options A-E cho từng vấn đề
-- `/sk:plan --auto` — Chế độ mặc định, Claude tự quyết định toàn bộ thiết kế
+- `/pd:update` — Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog, gợi ý restart
+- `/pd:plan --discuss` — Chế độ thảo luận tương tác: liệt kê vấn đề, user chọn thảo luận, options A-E cho từng vấn đề
+- `/pd:plan --auto` — Chế độ mặc định, Claude tự quyết định toàn bộ thiết kế
 - Kiểm tra phiên bản tự động — hiện thông báo khi có version mới (1 lần/conversation)
 - `VERSION` + `CHANGELOG.md` — Hệ thống tracking phiên bản cho bộ skills
 
@@ -92,12 +101,12 @@
 - `write-code.md`: Đọc + tuân thủ section "Quyết định thiết kế" từ PLAN.md (Bước 2 + rules)
 - `general.md`: Thêm section kiểm tra phiên bản Skills tự động
 - `what-next.md`: Thêm Bước 6 kiểm tra phiên bản (guard chống duplicate check)
-- `install.sh`: Hiện version khi cài, liệt kê `/sk:update`, bảo toàn CURRENT_VERSION trong .skconfig
+- `install.sh`: Hiện version khi cài, liệt kê `/pd:update`, bảo toàn CURRENT_VERSION trong .pdconfig
 
 ### Sửa lỗi
 - Fix XML structure toàn bộ 11 skills: tags balanced, bỏ `</output>` thừa, consistent endings
 - Fix template comment `(CHỈ tạo section này nếu chế độ DISCUSS)` nằm trong code block — di chuyển ra ngoài
-- Fix `install.sh` ghi đè `.skconfig` mất CURRENT_VERSION — preserve trước khi overwrite
+- Fix `install.sh` ghi đè `.pdconfig` mất CURRENT_VERSION — preserve trước khi overwrite
 - Fix `update.md` không handle LOCAL > REMOTE — thêm semver comparison đầy đủ (4 nhánh)
 - Fix `plan.md` DISCUSS flow thiếu error handling — thêm xử lý input không hợp lệ, back, cancel
 

@@ -1,6 +1,6 @@
 // Converter: Claude Code → GitHub Copilot
 //
-// Copilot dùng skills trong thư mục: skills/sk-[name]/SKILL.md
+// Copilot dùng skills trong thư mục: skills/pd-[name]/SKILL.md
 // Tool names được map khác (Read→read, Bash→execute).
 // MCP tool references: mcp__context7__* → io.github.upstash/context7/*
 // Instructions merge vào copilot-instructions.md.
@@ -64,19 +64,19 @@ function convertSkill(content, isGlobal) {
  */
 function generateInstructions(skillNames) {
   const lines = [
-    '<!-- SK_SKILLS_START -->',
+    '<!-- PD_SKILLS_START -->',
     '## Skills',
     '',
-    'Bộ skills `/sk:*` hỗ trợ workflow phát triển phần mềm:',
+    'Bộ skills `/pd:*` hỗ trợ workflow phát triển phần mềm:',
     '',
   ];
 
   for (const name of skillNames) {
-    lines.push(`- \`/sk:${name}\` — Xem skills/sk-${name}/SKILL.md`);
+    lines.push(`- \`/pd:${name}\` — Xem skills/pd-${name}/SKILL.md`);
   }
 
   lines.push('');
-  lines.push('<!-- SK_SKILLS_END -->');
+  lines.push('<!-- PD_SKILLS_END -->');
 
   return lines.join('\n');
 }
@@ -86,18 +86,22 @@ function generateInstructions(skillNames) {
  * Idempotent — thay thế giữa markers nếu đã có.
  */
 function mergeInstructions(existingContent, instructionsBlock) {
-  const startMarker = '<!-- SK_SKILLS_START -->';
-  const endMarker = '<!-- SK_SKILLS_END -->';
+  const startMarker = '<!-- PD_SKILLS_START -->';
+  const endMarker = '<!-- PD_SKILLS_END -->';
+  const legacyStart = '<!-- SK_SKILLS_START -->';
+  const legacyEnd = '<!-- SK_SKILLS_END -->';
 
-  if (existingContent.includes(startMarker)) {
-    const startIdx = existingContent.indexOf(startMarker);
-    const endIdx = existingContent.indexOf(endMarker);
-    if (endIdx > startIdx) {
-      return (
-        existingContent.slice(0, startIdx) +
-        instructionsBlock +
-        existingContent.slice(endIdx + endMarker.length)
-      );
+  for (const [sm, em] of [[startMarker, endMarker], [legacyStart, legacyEnd]]) {
+    if (existingContent.includes(sm)) {
+      const startIdx = existingContent.indexOf(sm);
+      const endIdx = existingContent.indexOf(em);
+      if (endIdx > startIdx) {
+        return (
+          existingContent.slice(0, startIdx) +
+          instructionsBlock +
+          existingContent.slice(endIdx + em.length)
+        );
+      }
     }
   }
 
@@ -108,8 +112,13 @@ function mergeInstructions(existingContent, instructionsBlock) {
  * Strip skills instructions khỏi copilot-instructions.md (uninstall).
  */
 function stripInstructions(content) {
-  const startMarker = '<!-- SK_SKILLS_START -->';
-  const endMarker = '<!-- SK_SKILLS_END -->';
+  // Tìm marker mới hoặc cũ
+  let startMarker = '<!-- PD_SKILLS_START -->';
+  let endMarker = '<!-- PD_SKILLS_END -->';
+  if (!content.includes(startMarker)) {
+    startMarker = '<!-- SK_SKILLS_START -->';
+    endMarker = '<!-- SK_SKILLS_END -->';
+  }
 
   const startIdx = content.indexOf(startMarker);
   if (startIdx === -1) return content;
