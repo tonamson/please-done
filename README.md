@@ -2,6 +2,8 @@
 
 Custom skills (`/sk:*`) cho Claude Code CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
+**Phiên bản hiện tại: v1.1.1**
+
 ## Yêu cầu
 
 - [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code) (đã cài và đăng nhập)
@@ -45,6 +47,24 @@ Nếu cần cài thủ công:
 claude mcp add --scope user context7 -- npx -y @upstash/context7-mcp@latest
 ```
 
+## Cập nhật Skills
+
+Khi có phiên bản mới, status line ở góc trái dưới sẽ hiện:
+
+```
+⬆ Skills v[x.x.x] — /sk:update
+```
+
+Cập nhật bằng lệnh:
+
+```bash
+# Trong Claude Code:
+/sk:update           # Kiểm tra + hỏi trước khi update
+/sk:update --apply   # Cập nhật ngay không hỏi
+```
+
+Sau khi cập nhật → thoát Claude Code (Ctrl+C) → chạy lại `claude` để load skills mới.
+
 ## Sau khi cài
 
 ```bash
@@ -65,7 +85,7 @@ cd /path/to/your/project
 | 1 | `/sk:init` | Kiểm tra FastCode MCP, index project, detect tech stack, tạo CONTEXT.md + copy rules | - |
 | 2 | `/sk:scan` | Quét cấu trúc code, dependencies, kiến trúc, npm audit, tạo SCAN_REPORT | init |
 | 3 | `/sk:roadmap` | Lập kế hoạch milestones + phases + dependencies | init, scan (*) |
-| 4 | `/sk:plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase | roadmap |
+| 4 | `/sk:plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase (xem [options](#skplan-options)) | roadmap |
 | 5 | `/sk:write-code` | Viết code theo task, lint, build, commit `[TASK-N]` (xem [options](#skwrite-code-options)) | plan |
 | 6 | `/sk:test` | Viết Jest + Supertest tests, chạy, yêu cầu user xác nhận (Backend NestJS only) | write-code |
 | 7 | `/sk:fix-bug` | Research lỗi, phân tích, fix, commit `[LỖI]`, lặp đến khi user xác nhận | init |
@@ -79,16 +99,43 @@ cd /path/to/your/project
 |-------|--------|
 | `/sk:what-next` | Quét trạng thái .planning/, hiển thị tiến trình, gợi ý command tiếp theo |
 | `/sk:fetch-doc` | Tải tài liệu từ URL, lưu markdown local kèm version + mục lục phân section |
+| `/sk:update` | Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog, gợi ý restart |
 
 ### Rules (coding conventions)
 
 | File | Áp dụng khi | Nội dung chính |
 |------|-------------|----------------|
-| `rules/general.md` | Luôn luôn | Code style, ngôn ngữ, icons, version format, git, bảo mật |
+| `rules/general.md` | Luôn luôn | Code style, ngôn ngữ, icons, version format, git, bảo mật, kiểm tra phiên bản |
 | `rules/backend.md` | Có NestJS | Controller, Service, DTO, Entity, Response, Guard, Build & Lint |
 | `rules/frontend.md` | Có NextJS | Component, Ant Design v6, Zustand, API layer, Pages, Admin, Build & Lint |
 
 Rules được `/sk:init` tự động copy vào `.planning/rules/` theo tech stack detected. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+
+### sk:plan options
+
+| Lệnh | Hành vi |
+|-------|---------|
+| `/sk:plan` | Chế độ **AUTO** — Claude tự quyết định toàn bộ thiết kế |
+| `/sk:plan --discuss` | Chế độ **DISCUSS** — thảo luận tương tác tính năng với user |
+| `/sk:plan 1.2` | Plan cho phase cụ thể |
+| `/sk:plan 1.2 --discuss` | Plan phase 1.2 với thảo luận |
+
+#### Chế độ DISCUSS (`--discuss`)
+
+Claude phân tích deliverable, liệt kê các vấn đề cần quyết định → user chọn vấn đề muốn bàn → Claude đưa options cho từng vấn đề:
+
+```
+Chọn phương án:
+  A. JWT + HttpOnly Cookie ← recommend
+  B. Session-based auth
+  C. OAuth2 + Social login
+  D. Bạn có cách riêng — mô tả phương án của bạn
+```
+
+- Option A luôn là recommend (đơn giản, hiệu quả nhất)
+- Option cuối luôn cho user tự mô tả cách riêng
+- Hỗ trợ: `back` (quay lại), `cancel` (chuyển AUTO), `skip` (Claude tự quyết định)
+- Quyết định được lưu vào PLAN.md section "Quyết định thiết kế" → `write-code` tuân thủ
 
 ### sk:write-code options
 
@@ -145,7 +192,7 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 └── milestones/[version]/
     ├── MILESTONE_COMPLETE.md     # Tổng kết milestone (tạo khi complete)
     └── phase-[x.x]/
-        ├── PLAN.md               # Thiết kế kỹ thuật + API + database
+        ├── PLAN.md               # Thiết kế kỹ thuật + API + database + quyết định
         ├── TASKS.md              # Danh sách tasks + trạng thái
         ├── TEST_REPORT.md        # Kết quả kiểm thử (Backend only)
         └── reports/
