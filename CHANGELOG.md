@@ -1,5 +1,26 @@
 # Nhật ký thay đổi Skills
 
+## [2.0.0] - 18_03_2026
+### Thêm mới
+- **Cross-platform installer**: Hỗ trợ 5 platforms — Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot
+- `bin/install.js`: CLI installer với interactive mode, flags per platform (`--claude`, `--codex`, `--gemini`, `--opencode`, `--copilot`, `--all`)
+- Converters: transpile skills từ Claude Code format sang native format cho từng platform (tool names, command prefix, paths, frontmatter)
+- Codex: XML skill adapter header (`<codex_skill_adapter>`), MCP config trong `config.toml` (TOML)
+- Gemini: tool name mapping (Read→read_file, Bash→run_shell_command), MCP config trong `settings.json`
+- OpenCode: flat command structure (`command/sk-*.md`), strip frontmatter fields
+- Copilot: skill directories (`skills/sk-*/SKILL.md`), merge instructions vào `copilot-instructions.md`
+- SHA256 manifest tracking — detect + auto-backup files user đã modify trước khi re-install
+- Leaked path scan — verify không còn `~/.claude/` trong output non-Claude platforms
+- Uninstall tích hợp (`--uninstall`) — clean per platform, marker-based idempotent
+
+### Thay đổi
+- `complete-milestone.md`: Thêm Bước 8 cập nhật `VERSION` và `package.json` khi hoàn tất milestone
+- `general.md`: Thêm quy tắc bảo mật — khi code dùng biến môi trường mới, BẮT BUỘC thêm key vào `.env.example`
+
+### Xóa
+- `install.sh` — thay bằng `bin/install.js --claude`
+- `uninstall.sh` — thay bằng `bin/install.js --uninstall --claude`
+
 ## [1.2.2] - 18_03_2026
 ### Thay đổi
 - `complete-milestone.md`: Thêm Bước 8 cập nhật `VERSION` và `package.json` khi hoàn tất milestone, git add các file version trong commit

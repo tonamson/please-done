@@ -2,7 +2,7 @@
 
 Bộ skills (`/sk:*`) cho AI coding CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v1.2.2**
+**Phiên bản hiện tại: v2.0.0**
 
 ## Platforms hỗ trợ
 
@@ -35,8 +35,6 @@ git clone https://github.com/tonamson/skills.git
 cd skills
 ```
 
-### Cross-platform installer (Node.js)
-
 ```bash
 # Interactive — chọn platform
 node bin/install.js
@@ -53,12 +51,6 @@ node bin/install.js --all
 
 # Local install (chỉ project hiện tại)
 node bin/install.js --claude --local
-```
-
-### Bash installer (chỉ Claude Code)
-
-```bash
-./install.sh
 ```
 
 ### Installer tự động thực hiện
@@ -96,9 +88,6 @@ node bin/install.js --uninstall --copilot
 
 # Gỡ tất cả
 node bin/install.js --uninstall --all
-
-# Bash (chỉ Claude Code)
-./uninstall.sh
 ```
 
 Uninstall chỉ xóa files có prefix `sk-` — không đụng config/files khác của user.
