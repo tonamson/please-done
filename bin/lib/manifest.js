@@ -24,7 +24,15 @@ function generateManifest(dir, baseDir) {
     const fullPath = path.join(dir, entry.name);
     const relPath = path.relative(baseDir, fullPath);
 
-    if (entry.isDirectory()) {
+    // Resolve symlinks — stat thật để biết file hay directory
+    let stat;
+    try {
+      stat = fs.statSync(fullPath);
+    } catch {
+      continue; // broken symlink
+    }
+
+    if (stat.isDirectory()) {
       Object.assign(result, generateManifest(fullPath, baseDir));
     } else {
       result[relPath] = fileHash(fullPath);
