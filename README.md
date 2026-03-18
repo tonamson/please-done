@@ -276,32 +276,53 @@ Please Done tự động gọi FastCode để research code hiện có và Conte
 
 ## Bảo mật
 
-### Bảo vệ file nhạy cảm
+### Bảo vệ built-in trong skills
 
-Các lệnh phân tích và quét codebase của Please Done đọc file để hiểu dự án. **Bảo vệ file chứa secrets** bằng cách thêm vào deny list của Claude Code:
+Tất cả skills tuân thủ quy tắc bảo mật trong `rules/general.md`:
 
-1. Mở cài đặt Claude Code (`.claude/settings.json` hoặc global)
-2. Thêm pattern file nhạy cảm vào deny list:
+| Quy tắc | Mô tả |
+|---------|--------|
+| **CẤM đọc/hiển thị nội dung** | `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*` |
+| **Chỉ ghi tên biến** | Khi scan/report gặp env var → ghi tên key, KHÔNG ghi giá trị |
+| **Bắt buộc `.env.example`** | Khi code dùng biến môi trường mới → thêm key vào `.env.example` với giá trị placeholder |
 
+Đây là lớp phòng thủ **trong prompt** — skills tự từ chối đọc file nhạy cảm dù user yêu cầu.
+
+### Bảo vệ ở tầng platform (khuyến nghị)
+
+Lớp phòng thủ trong prompt có thể bị bypass. Nên thêm deny list **ở tầng platform** để chặn hoàn toàn:
+
+**Claude Code** — `.claude/settings.json`:
 ```json
 {
   "permissions": {
     "deny": [
-      "Read(.env)",
-      "Read(.env.*)",
-      "Read(**/secrets/*)",
-      "Read(**/*credential*)",
-      "Read(**/*.pem)",
-      "Read(**/*.key)"
+      "Read(.env)", "Read(.env.*)",
+      "Read(**/secrets/*)", "Read(**/*credential*)",
+      "Read(**/*.pem)", "Read(**/*.key)"
     ]
   }
 }
 ```
 
-Cấu hình này ngăn Claude đọc các file trên hoàn toàn, bất kể bạn chạy lệnh gì.
+**Codex CLI** — thêm vào `~/.codex/instructions.md`:
+```
+NEVER read files matching: .env, .env.*, *.pem, *.key, *credential*, secrets/*
+```
+
+**Gemini CLI** — `~/.gemini/settings.json`:
+```json
+{
+  "blocked_file_patterns": [
+    ".env", ".env.*", "*.pem", "*.key", "*credential*", "secrets/**"
+  ]
+}
+```
+
+**OpenCode / Copilot** — thêm vào `.gitignore` (đã có sẵn) + instructions file của platform tương ứng với nội dung tương tự Codex.
 
 > [!IMPORTANT]
-> Please Done đã có sẵn cơ chế chống commit secrets, nhưng phòng thủ nhiều lớp luôn tốt hơn. Chặn quyền đọc file nhạy cảm là tuyến phòng thủ đầu tiên.
+> Phòng thủ nhiều lớp luôn tốt hơn: **Lớp 1** — Platform deny list chặn đọc file. **Lớp 2** — Skills từ chối đọc/hiển thị nội dung nhạy cảm. **Lớp 3** — `.gitignore` ngăn commit file secrets.
 
 ## Commit Conventions
 
