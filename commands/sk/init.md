@@ -148,7 +148,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 ╠══════════════════════════════════════╣
 ║ Tiếp theo:                          ║
 ║   /sk:scan   → Quét chi tiết        ║
-║   /sk:roadmap → Lập lộ trình        ║
+║   /sk:new-milestone → Lập lộ trình   ║
 ╚══════════════════════════════════════╝
 ```
 </process>

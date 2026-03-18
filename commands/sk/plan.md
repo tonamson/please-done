@@ -37,9 +37,9 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 - Nếu `$ARGUMENTS` chỉ định phase cụ thể → dùng phase đó
 - Nếu có phases trước (VD: phase-1.1 tồn tại khi planning phase 1.2) → đọc PLAN.md/TASKS.md phases trước để nắm context đã triển khai
 
-Nếu chưa có roadmap → thông báo chạy `/sk:roadmap` trước.
-Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/sk:roadmap` để tạo."
-Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/sk:roadmap` để thêm milestones mới."
+Nếu chưa có roadmap → thông báo chạy `/sk:new-milestone` trước.
+Nếu CURRENT_MILESTONE.md không tồn tại → thông báo: "Thiếu CURRENT_MILESTONE.md. Chạy `/sk:new-milestone` để tạo."
+Nếu CURRENT_MILESTONE status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Chạy `/sk:new-milestone` để thêm milestones mới."
 
 ## Bước 1.5: Kiểm tra phase đã tồn tại
 Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:

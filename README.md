@@ -2,7 +2,7 @@
 
 Bộ skills (`/sk:*`) cho AI coding CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v2.0.0**
+**Phiên bản hiện tại: v2.0.1**
 
 ## Platforms hỗ trợ
 
@@ -131,14 +131,14 @@ $sk-init        # Codex
 |---|-------|--------|----------------|
 | 1 | `init` | Kiểm tra FastCode MCP, index project, detect tech stack, tạo CONTEXT.md + copy rules | - |
 | 2 | `scan` | Quét cấu trúc code, dependencies, kiến trúc, npm audit, tạo SCAN_REPORT | init |
-| 3 | `roadmap` | Lập kế hoạch milestones + phases + dependencies | init, scan (*) |
-| 4 | `plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase | roadmap |
+| 3 | `new-milestone` | Lập kế hoạch milestones + phases + dependencies | init, scan (*) |
+| 4 | `plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase | new-milestone |
 | 5 | `write-code` | Viết code theo task, lint, build, commit `[TASK-N]` | plan |
 | 6 | `test` | Viết Jest + Supertest tests, chạy, yêu cầu user xác nhận (Backend NestJS only) | write-code |
 | 7 | `fix-bug` | Research lỗi, phân tích, fix, commit `[LỖI]`, lặp đến khi user xác nhận | init |
 | 8 | `complete-milestone` | Kiểm tra bugs, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag | all tasks ✅ |
 
-(*) Project mới chưa có code: `roadmap` cho phép bỏ qua scan.
+(*) Project mới chưa có code: `new-milestone` cho phép bỏ qua scan.
 
 ### Utility
 

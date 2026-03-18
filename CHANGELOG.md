@@ -1,5 +1,10 @@
 # Nhật ký thay đổi Skills
 
+## [2.0.1] - 18_03_2026
+### Thay đổi
+- **Đổi tên skill**: `sk:roadmap` → `sk:new-milestone` — đồng bộ naming convention với `sk:complete-milestone`
+- Cập nhật references trong: `init.md`, `plan.md`, `what-next.md`, `complete-milestone.md`, `README.md`, `claude.js` installer
+
 ## [2.0.0] - 18_03_2026
 ### Thêm mới
 - **Cross-platform installer**: Hỗ trợ 5 platforms — Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot

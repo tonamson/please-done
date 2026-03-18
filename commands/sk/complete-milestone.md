@@ -21,7 +21,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/sk:init` trước.
 
 ## Bước 1: Lấy version + kiểm tra git
 Đọc `.planning/CURRENT_MILESTONE.md` → `version` (số thuần) + `status`. KHÔNG hỏi user nhập.
-Nếu CURRENT_MILESTONE.md không tồn tại → **DỪNG**, thông báo: "Chạy `/sk:roadmap` trước."
+Nếu CURRENT_MILESTONE.md không tồn tại → **DỪNG**, thông báo: "Chạy `/sk:new-milestone` trước."
 Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không có gì để complete."
 Nếu `.planning/milestones/[version]/MILESTONE_COMPLETE.md` đã tồn tại → thông báo: "Milestone v[x.x] đã được hoàn tất trước đó." và **DỪNG**.
 Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 8)

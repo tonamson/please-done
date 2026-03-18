@@ -1,5 +1,5 @@
 ---
-name: sk:roadmap
+name: sk:new-milestone
 description: Lập kế hoạch chiến lược dự án, tạo roadmap với milestones rõ ràng
 ---
 

@@ -24,7 +24,7 @@ Skill này KHÔNG gọi FastCode MCP — chỉ dùng built-in tools (Read, Glob,
 2. `.planning/scan/SCAN_REPORT.md` → tồn tại?
    - KHÔNG → ghi nhận thiếu scan (gợi ý phụ ở Bước 5), KHÔNG DỪNG — tiếp tục kiểm tra
 3. `.planning/ROADMAP.md` → tồn tại?
-   - KHÔNG → gợi ý `/sk:roadmap`, DỪNG
+   - KHÔNG → gợi ý `/sk:new-milestone`, DỪNG
 4. `.planning/CURRENT_MILESTONE.md` → đọc `version`, `phase`, `status`
    - status = `Hoàn tất toàn bộ` → thông báo "Tất cả milestones đã hoàn tất!", DỪNG
 

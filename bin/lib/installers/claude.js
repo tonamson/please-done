@@ -215,7 +215,7 @@ async function install(skillsDir, targetDir, options = {}) {
   log.info(`Skills v${options.version} installed (${skills.length} skills):`);
   console.log('  /sk:init               Khởi tạo (CHẠY ĐẦU TIÊN)');
   console.log('  /sk:scan               Quét dự án + npm audit');
-  console.log('  /sk:roadmap            Lập lộ trình');
+  console.log('  /sk:new-milestone      Lập lộ trình');
   console.log('  /sk:plan               Kế hoạch + chia công việc');
   console.log('  /sk:fetch-doc          Tải tài liệu (cache local)');
   console.log('  /sk:write-code         Viết code + commit [TASK-N]');
