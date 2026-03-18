@@ -48,6 +48,7 @@ Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
 ## Bảo mật
 - CẤM đọc/ghi/hiển thị nội dung: `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`
 - Chỉ ghi TÊN biến, KHÔNG ghi giá trị
+- Khi code sử dụng biến môi trường mới → **BẮT BUỘC** thêm key đó vào `.env.example` với giá trị placeholder (VD: `DATABASE_URL=postgresql://user:pass@localhost:5432/dbname`)
 
 ## Kiểm tra phiên bản Skills
 Trước khi bắt đầu công việc chính, kiểm tra nhanh (CHỈ 1 lần đầu mỗi conversation, KHÔNG lặp lại):
