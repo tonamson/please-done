@@ -194,8 +194,16 @@ fi
 
 # Lưu config path để skills biết repo ở đâu
 CONFIG_FILE="$COMMANDS_DIR/.skconfig"
+# Preserve CURRENT_VERSION if exists (written by /sk:update)
+SAVED_VERSION=""
+if [ -f "$CONFIG_FILE" ]; then
+    SAVED_VERSION=$(grep '^CURRENT_VERSION=' "$CONFIG_FILE" 2>/dev/null | head -1 || true)
+fi
 echo "SKILLS_DIR=$SCRIPT_DIR" > "$CONFIG_FILE"
 echo "FASTCODE_DIR=$FASTCODE_DIR" >> "$CONFIG_FILE"
+if [ -n "$SAVED_VERSION" ]; then
+    echo "$SAVED_VERSION" >> "$CONFIG_FILE"
+fi
 printf "${GREEN}  ✓ Config saved: $CONFIG_FILE${NC}\n"
 
 # ─── Done ────────────────────────────────────────────────
@@ -205,7 +213,8 @@ printf "${CYAN}║         Installation Complete!        ║${NC}\n"
 printf "${CYAN}╚══════════════════════════════════════╝${NC}\n"
 echo ""
 SKILL_COUNT=$(ls -1 "$COMMANDS_DIR"/*.md 2>/dev/null | wc -l | tr -d ' ')
-printf "Skills installed ($SKILL_COUNT):\n"
+SKILL_VERSION=$(cat "$SCRIPT_DIR/VERSION" 2>/dev/null || echo "unknown")
+printf "Skills v${SKILL_VERSION} installed ($SKILL_COUNT):\n"
 printf "  /sk:init               Khởi tạo (CHẠY ĐẦU TIÊN)\n"
 printf "  /sk:scan               Quét dự án + npm audit\n"
 printf "  /sk:roadmap            Lập lộ trình\n"
@@ -216,6 +225,7 @@ printf "  /sk:test               Jest + Supertest + commit [KIỂM THỬ]\n"
 printf "  /sk:fix-bug            Debug + commit [LỖI]\n"
 printf "  /sk:what-next          Kiểm tra tiến trình + gợi ý bước tiếp\n"
 printf "  /sk:complete-milestone Commit [PHIÊN BẢN] + git tag\n"
+printf "  /sk:update             Kiểm tra + cập nhật skills mới\n"
 echo ""
 printf "${YELLOW}TIẾP THEO:${NC}\n"
 printf "  1. Khởi động lại Claude Code để load skills mới\n"

@@ -95,6 +95,7 @@ Xác nhận chạy? (y/n)
 ## Bước 2: Đọc context cho task
 - Chi tiết task trong TASKS.md (mô tả, checklist, ghi chú kỹ thuật)
 - PLAN.md sections liên quan (thiết kế kỹ thuật, API, database)
+- PLAN.md section `Quyết định thiết kế` (nếu có) → các quyết định đã chốt với user trong chế độ DISCUSS — code PHẢI tuân thủ
 - `.planning/docs/*.md` → chỉ đọc **mục lục nhanh**, rồi đọc sections liên quan đến task bằng offset/limit
 - `.planning/rules/` chứa đầy đủ quy tắc code — đọc file rules phù hợp với Loại task
 
@@ -262,6 +263,7 @@ DỪNG sau mỗi task, thông báo:
 <rules>
 - Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend theo Loại task)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
+- Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
 - PHẢI lint + build sau khi code
 - PHẢI commit sau khi pass build, commit message tiếng Việt có dấu
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ

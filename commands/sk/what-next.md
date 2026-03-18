@@ -113,6 +113,16 @@ Chỉ áp dụng nếu project CÓ Backend (đọc CONTEXT.md → Tech Stack):
 Nếu không có SCAN_REPORT nhưng có ROADMAP → thêm dòng gợi ý phụ:
 > 💡 Nên chạy `/sk:scan` để cập nhật báo cáo quét dự án.
 
+## Bước 6: Kiểm tra phiên bản Skills (CHỈ nếu chưa kiểm tra trong conversation này)
+Nếu đã kiểm tra version trong conversation hiện tại (VD: skill trước đã thông báo) → bỏ qua bước này.
+
+Đọc `.skconfig` (Bash: `cat ~/.claude/commands/sk/.skconfig`) → lấy `SKILLS_DIR`.
+So sánh version: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
+Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → thêm dòng trong báo cáo:
+> 💡 Skills v[REMOTE] đã có. Chạy `/sk:update` để cập nhật.
+
+Nếu fetch lỗi hoặc version giống → bỏ qua.
+
 </process>
 
 <rules>

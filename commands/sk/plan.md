@@ -5,10 +5,18 @@ description: Lập kế hoạch kỹ thuật + chia danh sách công việc cho 
 
 <objective>
 Research dự án, thiết kế giải pháp kỹ thuật, chia thành danh sách công việc cụ thể. Tạo PLAN.md và TASKS.md trong một bước.
+Hỗ trợ 2 chế độ:
+- `--auto` (mặc định): Claude tự quyết định toàn bộ thiết kế, tính năng, giải pháp kỹ thuật
+- `--discuss`: Thảo luận tương tác — Claude liệt kê các vấn đề cần quyết định, user chọn vấn đề muốn bàn, Claude đưa ra options cho từng vấn đề
 </objective>
 
 <context>
 User input: $ARGUMENTS
+
+Phân tích tham số:
+- Nếu `$ARGUMENTS` chứa `--discuss` → chế độ DISCUSS
+- Ngược lại (mặc định, kể cả khi có `--auto` hoặc không có flag) → chế độ AUTO
+- Phần còn lại của `$ARGUMENTS` (bỏ flags) = thông tin phase/deliverable
 
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
@@ -72,8 +80,94 @@ Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/sk:init
 
 **KHÔNG hỏi lại thông tin đã có trong SCAN_REPORT.**
 
+## Bước 3.5: Thảo luận tính năng (CHỈ khi chế độ DISCUSS)
+> **Bỏ qua bước này nếu chế độ AUTO.**
+
+Sau khi research xong, Claude phân tích deliverable của phase hiện tại và xác định các **vấn đề cần quyết định** — những điểm có nhiều cách triển khai hợp lệ mà lựa chọn khác nhau sẽ ảnh hưởng đến kết quả.
+
+### 3.5.1: Liệt kê vấn đề cần thảo luận
+Hiển thị danh sách các vấn đề dạng **checklist có đánh số**, mỗi vấn đề kèm mô tả ngắn 1 dòng:
+
+```
+Tôi đã phân tích phase này và xác định [N] vấn đề cần quyết định.
+Chọn số thứ tự các vấn đề bạn muốn thảo luận (VD: 1,3,5), hoặc "all" để thảo luận tất cả, hoặc "skip" để tôi tự quyết định:
+
+1. [Tên vấn đề] — [mô tả ngắn]
+2. [Tên vấn đề] — [mô tả ngắn]
+3. [Tên vấn đề] — [mô tả ngắn]
+...
+```
+
+**Nếu KHÔNG có vấn đề nào cần quyết định** (tất cả đã rõ ràng từ ROADMAP/CONTEXT) → thông báo user: "Phase này không có vấn đề nào cần thảo luận thêm — tôi sẽ tự quyết định." → chuyển sang Bước 4 (AUTO).
+
+**Cách xác định vấn đề:**
+- Scope tính năng (VD: đăng nhập cho trang nào, lấy thông tin gì)
+- Phương pháp xác thực (JWT, session, OAuth, v.v.)
+- Cấu trúc dữ liệu (fields nào cần lưu, relations)
+- UI/UX flow (bao nhiêu bước, redirect đi đâu)
+- Tích hợp bên thứ 3 (dùng service nào)
+- Phân quyền (roles, permissions model)
+- Caching / performance strategy
+- Error handling approach
+- Chỉ liệt kê vấn đề THỰC SỰ có nhiều lựa chọn hợp lệ — KHÔNG liệt kê những thứ đã rõ ràng từ ROADMAP/CONTEXT
+
+**Chờ user trả lời** trước khi tiếp tục.
+- Nếu user nhập số không hợp lệ (ngoài phạm vi 1-N) → thông báo: "Vui lòng nhập số từ 1-[N], 'all', hoặc 'skip'." → chờ lại
+- Nếu user nhập text không rõ ý → hỏi lại 1 lần, nếu vẫn không rõ → coi như "skip"
+
+### 3.5.2: Thảo luận từng vấn đề đã chọn
+Với MỖI vấn đề user chọn, hiển thị **danh sách options** theo format:
+
+```
+### Vấn đề [N]: [Tên vấn đề]
+[Giải thích ngắn gọn bối cảnh vấn đề]
+
+Chọn phương án:
+  A. [Phương án — recommend] ← đơn giản, hiệu quả nhất
+  B. [Phương án khác]
+  C. [Phương án khác]
+  ... (thêm nếu cần)
+  [Chữ cái cuối]. Bạn có cách riêng — mô tả phương án của bạn
+
+Lựa chọn của bạn:
+```
+
+**Quy tắc options:**
+- **Option A** luôn là recommend — giải pháp tốt nhất, đơn giản nhất, phổ biến nhất
+- **Options B-D**: các phương án thay thế, sắp xếp từ đơn giản → phức tạp. Số lượng B-D linh hoạt (2-3 options), KHÔNG cần ép đủ 4 nếu chỉ có 2-3 phương án hợp lý
+- **Option cuối** (luôn là chữ cái cuối trong danh sách) LUÔN là: "Bạn có cách riêng — mô tả phương án của bạn". Option này cho phép user tự mô tả giải pháp khác hoàn toàn
+- Mỗi option kèm **1 dòng giải thích** ưu/nhược chính
+- Nếu user chọn option cuối (cách riêng) → chờ user mô tả → xác nhận hiểu đúng trước khi tiếp
+
+**Chờ user chọn** trước khi chuyển sang vấn đề tiếp theo.
+- Nếu user nhập chữ cái không hợp lệ → thông báo options hợp lệ, chờ lại
+- Nếu user muốn quay lại vấn đề trước → cho phép: "Gõ 'back' để quay lại vấn đề trước"
+- Nếu user muốn hủy toàn bộ thảo luận → cho phép: "Gõ 'cancel' để hủy — tôi sẽ tự quyết định tất cả (AUTO)"
+
+### 3.5.3: Tổng hợp quyết định
+Sau khi thảo luận xong TẤT CẢ vấn đề user chọn:
+- Hiển thị bảng tóm tắt các quyết định đã chốt
+- Các vấn đề user KHÔNG chọn thảo luận → Claude tự quyết định (dùng phương án recommend)
+- Chờ user xác nhận trước khi tiếp tục sang Bước 4
+- Nếu user muốn thay đổi quyết định → cho phép chọn lại vấn đề cụ thể: "Gõ số vấn đề muốn thay đổi, hoặc 'ok' để tiếp tục"
+
+```
+### Tóm tắt quyết định
+
+| # | Vấn đề | Quyết định | Nguồn |
+|---|--------|-----------|-------|
+| 1 | [Tên] | [Phương án đã chọn] | User chọn |
+| 2 | [Tên] | [Phương án recommend] | Claude quyết định |
+| ... | ... | ... | ... |
+
+Xác nhận để tôi tiếp tục thiết kế kỹ thuật?
+```
+
 ## Bước 4: Thiết kế kỹ thuật
 Cho mỗi deliverable, thiết kế theo loại:
+
+- Nếu chế độ **DISCUSS**: thiết kế PHẢI tuân thủ các quyết định đã chốt ở Bước 3.5 — KHÔNG được thay đổi hay bỏ qua quyết định user đã chọn
+- Nếu chế độ **AUTO**: Claude tự quyết định toàn bộ, ưu tiên phương án đơn giản, hiệu quả nhất
 
 **Backend (nếu có — đọc CONTEXT.md xác định framework: NestJS, Express, v.v.):**
 - API endpoints (method, path, request/response)
@@ -123,10 +217,16 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 # Kế hoạch triển khai
 > Milestone: [tên] (v[x.x])
 > Phase: [x.x]
+> Chế độ: [Auto | Discuss]
 > Ngày tạo: [DD_MM_YYYY]
 
 ## Mục tiêu
 [Mô tả]
+
+## Quyết định thiết kế
+| # | Vấn đề | Quyết định | Nguồn |
+|---|--------|-----------|-------|
+| 1 | [Tên] | [Phương án] | User chọn / Claude quyết định |
 
 ## Research
 ### Thư viện có sẵn
@@ -154,6 +254,7 @@ Viết `.planning/milestones/[version]/phase-[phase]/PLAN.md`:
 ```
 
 **CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan đến stack (VD: bỏ API Endpoints nếu không có backend, bỏ Database nếu không có DB).
+**Section "Quyết định thiết kế"**: CHỈ tạo khi chế độ DISCUSS — bỏ hoàn toàn section này khi chế độ AUTO.
 
 ## Bước 7: Tạo TASKS.md
 Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
@@ -192,6 +293,7 @@ Viết `.planning/milestones/[version]/phase-[phase]/TASKS.md`:
 
 ## Bước 9: Thông báo
 In tóm tắt plan + danh sách tasks cho user review.
+- Nếu chế độ DISCUSS: ghi nhận số vấn đề đã thảo luận vs tự quyết định
 </process>
 
 <rules>
@@ -202,4 +304,9 @@ In tóm tắt plan + danh sách tasks cho user review.
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - KHÔNG hỏi lại FastCode thông tin đã có trong SCAN_REPORT
 - Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/sk:init`
+- Chế độ AUTO (mặc định): KHÔNG hỏi user bất kỳ câu hỏi thiết kế nào — tự quyết định tất cả
+- Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi lần hiển thị danh sách/options — KHÔNG tự chọn thay user
+- Chế độ DISCUSS: Nếu user chọn "skip" ở bước 3.5.1 → chuyển sang AUTO cho phần còn lại
+- Chế độ DISCUSS: Option cuối trong danh sách LUÔN là "Bạn có cách riêng" — KHÔNG được bỏ
+- Chế độ DISCUSS: Thiết kế kỹ thuật PHẢI phản ánh đúng quyết định user đã chốt — vi phạm = lỗi
 </rules>
