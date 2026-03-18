@@ -27,7 +27,7 @@ Khi user gọi \`$sk-${skillName} {{args}}\`, thực hiện toàn bộ instructi
 
 ## Quy ước
 - \`$ARGUMENTS\` chính là \`{{GSD_ARGS}}\` — input từ user khi gọi skill
-- Paths \`~/.claude/\` đã được thay bằng \`~/.codex/\`
+- Tất cả paths config đã được chuyển sang \`~/.codex/\`
 - Các MCP tools (\`mcp__*\`) hoạt động tự động qua config.toml
 </codex_skill_adapter>
 
