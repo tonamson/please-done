@@ -2,7 +2,7 @@
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — workflow phát triển có cấu trúc, từ khởi tạo đến release.
 
-**Phiên bản hiện tại: v2.1.0**
+**Phiên bản hiện tại: v2.2.0**
 
 ## Platforms hỗ trợ
 
@@ -133,7 +133,7 @@ $pd-init        # Codex
 | 2 | `scan` | Quét cấu trúc code, dependencies, kiến trúc, npm audit, tạo SCAN_REPORT | init |
 | 3 | `new-milestone` | Lập kế hoạch milestones + phases + dependencies | init, scan (*) |
 | 4 | `plan` | Research dự án, thiết kế kỹ thuật, chia danh sách tasks cho phase | new-milestone |
-| 5 | `write-code` | Viết code theo task, lint, build, commit `[TASK-N]` | plan |
+| 5 | `write-code` | Thực thi task từ TASKS.md, lint, build, commit `[TASK-N]` | plan |
 | 6 | `test` | Viết Jest + Supertest tests, chạy, yêu cầu user xác nhận (Backend NestJS only) | write-code |
 | 7 | `fix-bug` | Research lỗi, phân tích, fix, commit `[LỖI]`, lặp đến khi user xác nhận | init |
 | 8 | `complete-milestone` | Kiểm tra bugs, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag | all tasks ✅ |
@@ -336,3 +336,28 @@ Please Done tự động commit với prefix tiếng Việt (bỏ qua nếu proj
 NestJS và NextJS có rules + phân tích chi tiết. Các stack khác được detect nhưng chỉ liệt kê files, áp dụng `general.md`.
 
 **Mở rộng stack mới**: Thêm file `commands/pd/rules/[stack].md` + detection pattern trong `init.md` Bước 4.
+
+## Eval Suite (Promptfoo)
+
+Bộ eval đánh giá chất lượng prompt theo [Anthropic best practices](https://claude.com/blog/improving-skill-creator-test-measure-and-refine-agent-skills). Tất cả skills thuộc loại **Encoded Preference** — eval focus vào workflow fidelity.
+
+### Chạy eval
+
+```bash
+# Setup: tạo .env với ANTHROPIC_API_KEY
+# Cài promptfoo: npm install -g promptfoo
+
+npm run eval            # 32 workflow compliance tests
+npm run eval:trigger    # 19 trigger accuracy tests
+npm run eval:full       # Cả 2 + lưu benchmark history
+npm run eval:compare    # So sánh benchmark qua thời gian
+npm run eval:view       # Xem kết quả trong browser
+npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
+```
+
+### Kết quả hiện tại
+
+| Suite | Tests | Pass rate |
+|-------|-------|-----------|
+| Workflow Compliance | 32 | 100% |
+| Trigger Accuracy | 19 | 94.7% |

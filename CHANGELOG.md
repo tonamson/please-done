@@ -1,5 +1,17 @@
 # Nhật ký thay đổi Skills
 
+## [2.2.0] - 18_03_2026
+### Thêm mới
+- **Eval suite (Promptfoo)**: Bộ đánh giá chất lượng prompt theo Anthropic best practices
+- **32 workflow compliance tests**: Kiểm tra mỗi skill follow đúng process, branch logic, prerequisite handling
+- **19 trigger accuracy tests**: Kiểm tra description trigger đúng skill (true positive, true negative, disambiguation)
+- **Benchmark history**: Lưu kết quả JSON + so sánh trend qua thời gian (`npm run eval:compare`)
+- **Full eval pipeline**: `npm run eval:full` chạy workflow + trigger + benchmark trong 1 lệnh
+- **Skill classification**: Ghi rõ tất cả 11 skills thuộc loại "Encoded Preference" trong config
+
+### Thay đổi
+- `write-code.md`: Sửa description rõ ràng hơn — giảm false positive trigger cho việc lẻ (refactor, README)
+
 ## [2.1.0] - 18_03_2026
 ### Sửa lỗi
 - **Codex `mergeCodexConfig` mất markers**: Merge lần 2+ bị duplicate append do markers bị strip — giờ giữ lại markers để idempotent
