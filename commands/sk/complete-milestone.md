@@ -123,11 +123,20 @@ Nếu HẾT milestone:
 - status: Hoàn tất toàn bộ
 ```
 
-## Bước 8: Git commit + tag (CHỈ nếu HAS_GIT = true, xem Bước 1)
+## Bước 8: Cập nhật version dự án
+Cập nhật version milestone vào các file version nếu tồn tại:
+- `VERSION` ở root → ghi `[x.y]` (2 số, khớp milestone version)
+- `package.json` ở root → cập nhật field `"version"` thành `"[x.y].0"` (semver 3 số)
+
+Nếu KHÔNG có file nào → bỏ qua bước này.
+
+## Bước 9: Git commit + tag (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```bash
 # Commit báo cáo milestone
 # CHỈ git add bug reports thuộc milestone hiện tại (filter theo version), KHÔNG add toàn bộ .planning/bugs/
 git add .planning/milestones/[version]/ .planning/ROADMAP.md .planning/CURRENT_MILESTONE.md .planning/CHANGELOG.md
+# Add VERSION/package.json nếu đã cập nhật ở Bước 8:
+git add VERSION package.json 2>/dev/null
 # Add từng bug report thuộc milestone (đã filter ở Bước 3):
 git add .planning/bugs/BUG_[matching files thuộc version hiện tại].md
 git commit -m "[PHIÊN BẢN] v[x.x] - [Tên milestone]
@@ -152,7 +161,7 @@ Lỗi đã sửa:
 - [lỗi 1]"
 ```
 
-## Bước 9: Thông báo
+## Bước 10: Thông báo
 - Tóm tắt milestone + chức năng + lỗi đã sửa
 - Git tag đã tạo
 - Hỏi user push tag: `git push origin v[x.x]`

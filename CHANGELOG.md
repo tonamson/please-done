@@ -1,5 +1,9 @@
 # Nhật ký thay đổi Skills
 
+## [1.2.2] - 18_03_2026
+### Thay đổi
+- `complete-milestone.md`: Thêm Bước 8 cập nhật `VERSION` và `package.json` khi hoàn tất milestone, git add các file version trong commit
+
 ## [1.2.1] - 18_03_2026
 ### Thay đổi
 - `general.md`: Thêm quy tắc bảo mật — khi code dùng biến môi trường mới, BẮT BUỘC thêm key vào `.env.example` với giá trị placeholder
