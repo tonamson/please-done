@@ -1,7 +1,7 @@
 # Quy tắc chung
 
 ## Code style (TS/JS)
-- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs) — Solidity theo rules riêng trong solidity.md
+- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs) — Solidity theo rules riêng trong solidity.md — Flutter/Dart theo rules riêng trong flutter.md (snake_case files)
 - Import: `@/` cross-module, `./` cùng module
 - File: kebab-case (create-user.dto.ts, admin-api.ts) | Class/Component: PascalCase
 - Giới hạn: mục tiêu 300 dòng, BẮT BUỘC tách >500

@@ -22,7 +22,7 @@ Phân tích tham số:
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` → theo stack có trong project
+- `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` và/hoặc `.planning/rules/flutter.md` → theo stack có trong project
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -326,6 +326,14 @@ Cho mỗi deliverable, thiết kế theo loại:
 - Token interactions (SafeERC20, IERC20)
 - Security: signature verification pattern (nếu cần off-chain authorization)
 - Tham khảo `.planning/docs/solidity/templates.md` cho base patterns
+
+**Flutter (nếu có — đọc CONTEXT.md xác định):**
+- Architecture: modules structure (Logic + State + View + Binding), GetX patterns
+- Navigation: route structure (AppRoutes, AppPages), middleware guards
+- State management: GetxController lifecycle, reactive patterns (.obs, Obx)
+- Design system: token-based UI (AppColors, AppSpacing, AppTextStyles)
+- Data layer: models (manual fromJson/toJson), repositories, Dio interceptors
+- Tham khảo `.planning/docs/flutter/` cho patterns chi tiết
 
 **Stack khác (Chrome extension, CLI, v.v.):**
 - Thiết kế theo đặc thù stack (VD: manifest.json, background/content scripts, popup UI...)

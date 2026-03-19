@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` → theo loại lỗi (CHỈ nếu file tồn tại)
+- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -87,6 +87,11 @@ Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack)
 - Tra cứu `.planning/docs/solidity/audit-checklist.md` cho security checklist
 - Tra cứu `.planning/docs/solidity/templates.md` cho pattern reference
 
+**Nếu lỗi Flutter (Dart + GetX):**
+- Trace luồng: View (Obx/GetBuilder) → Logic (GetxController) → Repository → API (Dio) → Response
+- Kiểm tra: GetX lifecycle (onInit/onClose thiếu dispose), reactive state (.obs không update UI, Obx scope quá rộng), navigation (route sai, arguments null), design tokens (hardcode thay vì dùng AppColors/AppSpacing), Dio interceptors (auth header thiếu, retry logic), form validation (formKey state)
+- Tra cứu `.planning/docs/flutter/` cho state management, navigation patterns
+
 **Chung:**
 - Tìm điểm gây lỗi: file + dòng code
 - Giải thích tại sao gây lỗi
@@ -134,8 +139,8 @@ File: `[path]`
 ## Bước 7: Fix code
 - Áp dụng fix, tuân thủ quy tắc trong `.planning/rules/`
 - Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` → mục **Build & Lint**)
-- Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity)
+- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**)
+- Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity) hoặc `test/**/*_test.dart` (Flutter)
 
 ## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
@@ -173,7 +178,7 @@ git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt lỗi]'
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity theo loại lỗi)
+- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity/flutter theo loại lỗi)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + CODE_REPORT trước khi fix
 - PHẢI research trước khi fix, KHÔNG đoán mò

@@ -1,5 +1,13 @@
 # Nhật ký thay đổi Skills
 
+## [2.6.0] - 19_03_2026
+### Thêm mới
+- **Flutter stack support** — rules (`flutter.md`), 8 reference docs (`flutter-refs/`), detection, scan, plan, write-code, test, fix-bug
+- Architecture: GetX (Logic + State + View + Binding), design tokens, Dio, manual fromJson/toJson
+- Testing: flutter_test + mocktail (unit + widget tests)
+- Detection: `pubspec.yaml` + Grep `flutter` | Fallback: `lib/main.dart`
+- Tất cả 8 skill files + README + AUDIT_CHECKLIST cập nhật cho Flutter
+
 ## [2.5.1] - 19_03_2026
 ### Sửa lỗi
 - **Solidity rules**: Thêm rule DoS attack vectors (unbounded loops, batch fail-silently, call revert), CẤM `selfdestruct` (EIP-6780), custom errors gas optimization

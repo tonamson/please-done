@@ -102,7 +102,7 @@ Mỗi item PHẢI ghi kết quả cụ thể (line number + evidence). KHÔNG đ
 ### B2. Cross-skill consistency
 
 - [ ] Thuật ngữ "Backend" — khi dùng generic có match tất cả backend stacks (NestJS, WordPress...) không? Khi chỉ NestJS → ghi rõ "(NestJS)"
-- [ ] Condition test suggestion — TẤT CẢ skills dùng cùng condition: "Backend NestJS HOẶC WordPress HOẶC Solidity"
+- [ ] Condition test suggestion — TẤT CẢ skills dùng cùng condition: "Backend NestJS HOẶC WordPress HOẶC Solidity HOẶC Flutter"
 - [ ] FastCode failure handling — TẤT CẢ skills dùng cùng pattern: fallback Grep/Read + warning
 - [ ] Security list — TẤT CẢ skills có `<rules>` security → danh sách GIỐNG NHAU
 - [ ] Stack detection conditions trong scan.md = init.md (cùng Glob/Grep patterns)
@@ -113,10 +113,10 @@ Liệt kê TẤT CẢ output templates → verify mỗi template có section cho
 
 | Template | File | Stacks phải có |
 |----------|------|----------------|
-| SCAN_REPORT | scan.md | Backend, Frontend, WordPress, Solidity |
+| SCAN_REPORT | scan.md | Backend, Frontend, WordPress, Solidity, Flutter |
 | CODE_REPORT | write-code.md | API Endpoints, Database, Contract Functions, Hooks & Filters |
 | TEST_REPORT | test.md | Headings generic (không hardcode 1 framework) |
-| MILESTONE_COMPLETE | complete-milestone.md | Tổng hợp API, Smart Contracts, WordPress |
+| MILESTONE_COMPLETE | complete-milestone.md | Tổng hợp API, Smart Contracts, WordPress, Flutter |
 | BUG_REPORT | fix-bug.md | Generic (không stack-specific heading) |
 | Notification box | init.md | Liệt kê TẤT CẢ rules files copied |
 
@@ -151,7 +151,7 @@ Liệt kê TẤT CẢ output templates → verify mỗi template có section cho
 - [ ] Numeric limits hợp lý? (VD: file 500 dòng, array max 50) — có ghi "tùy chỉnh nếu cần"?
 
 **11. Thiếu sót:**
-- [ ] Security rules đủ coverage? (smart contract: reentrancy, access control, overflow, flash loan, frontrunning, oracle, signature replay, tx.origin, DoS)
+- [ ] Security rules đủ coverage? (smart contract: reentrancy, access control, overflow, flash loan, frontrunning, oracle, signature replay, tx.origin, DoS) (flutter: secure storage, obfuscation, certificate pinning, env vars, notification payload validation)
 - [ ] Pattern phổ biến có rule? (VD: middleware, interceptor, rescue functions)
 
 **12. Cross-platform:**

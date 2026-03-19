@@ -29,15 +29,15 @@ Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng 
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*/`:
 - `phase-*/TASKS.md` (BẮT BUỘC — mỗi phase phải có VÀ phải có ít nhất 1 task, không chấp nhận phase rỗng)
-- `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS, WordPress, hoặc Solidity trong CONTEXT.md. Các stack khác bỏ qua)
+- `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS, WordPress, Solidity, hoặc Flutter trong CONTEXT.md. Các stack khác bỏ qua)
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (BẮT BUỘC)
 
 **Cross-check CODE_REPORT**: MỖI task có trạng thái ✅ trong `phase-X/TASKS.md` PHẢI có ít nhất 1 `phase-X/reports/CODE_REPORT_TASK_[N].md` trong CÙNG phase directory. Quét từng phase riêng, KHÔNG quét cross-phase. Nếu thiếu report cho task cụ thể → cảnh báo: "Thiếu CODE_REPORT cho task [N] trong phase [X]. Chạy `/pd:write-code [N]` để bổ sung."
 
 Kiểm tra:
 - Tất cả tasks trong MỌI phase đều ✅?
-- Nếu project có Backend NestJS, WordPress, hoặc Solidity VÀ có TEST_REPORT → tất cả tests đạt?
-- Nếu project KHÔNG có Backend NestJS, WordPress, hoặc Solidity → bỏ qua kiểm tra TEST_REPORT
+- Nếu project có Backend NestJS, WordPress, Solidity, hoặc Flutter VÀ có TEST_REPORT → tất cả tests đạt?
+- Nếu project KHÔNG có Backend NestJS, WordPress, Solidity, hoặc Flutter → bỏ qua kiểm tra TEST_REPORT
 - Nếu có tasks CHƯA hoàn tất (⬜, 🔄, ❌, 🐛) → **CHẶN**:
   > "Không thể hoàn tất. Còn [X] tasks chưa ✅ trong milestone v[x.x]. Chạy `/pd:write-code` hoặc `/pd:fix-bug` trước."
 
@@ -82,13 +82,16 @@ Viết `.planning/milestones/[version]/MILESTONE_COMPLETE.md`:
 ## WordPress
 | Plugin/Theme | Chức năng chính | Hooks | Custom Tables |
 
+## Flutter
+| Module | Screens | Logic Controllers | Packages |
+
 ## Lỗi đã sửa
 | # | Mô tả | Nguyên nhân | File report |
 
 ## Nợ kỹ thuật (nếu có)
 ```
 
-> CHỈ tạo sections có dữ liệu. Bỏ 'Tổng hợp API' nếu không có backend. Bỏ 'Smart Contracts' nếu không có Solidity. Bỏ 'WordPress' nếu không có WordPress.
+> CHỈ tạo sections có dữ liệu. Bỏ 'Tổng hợp API' nếu không có backend. Bỏ 'Smart Contracts' nếu không có Solidity. Bỏ 'WordPress' nếu không có WordPress. Bỏ 'Flutter' nếu không có Flutter.
 
 ## Bước 5: CHANGELOG.md
 Tạo/cập nhật `.planning/CHANGELOG.md` (CHANGELOG mới nhất ở trên — prepend). Đọc CHANGELOG hiện tại, chèn entry mới SAU dòng heading `# Nhật ký thay đổi` và TRƯỚC entry đầu tiên hiện có (mới nhất hiện tại):

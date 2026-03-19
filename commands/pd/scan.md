@@ -23,7 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Tạo `.planning/scan/` nếu chưa có
 
 ## Bước 2: Kiểm tra project có code không
-Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache — KHÔNG bao gồm .json/.css để khớp với init.md):
+Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — KHÔNG bao gồm .json/.css để khớp với init.md):
 - **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
   - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
   - Trạng thái hoàn thành: "Chưa bắt đầu"
@@ -62,6 +62,13 @@ Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}` (trừ node_modules, .venv, .plannin
   - Events: Grep `^\s*event ` (glob: `*.sol`) → liệt kê events
   - Modifiers: Grep `^\s*modifier\s+\w+` (glob: `*.sol`) → liệt kê custom modifiers
   - Security patterns: Grep `nonReentrant|whenNotPaused|onlyOwner` (glob: `*.sol`) → đếm security modifiers sử dụng
+
+  **Flutter:** (CHỈ quét nếu tồn tại `**/pubspec.yaml` với `flutter` dependency)
+  - Screens: Glob `**/modules/**/*_view.dart` hoặc `**/features/**/*_view.dart` → liệt kê views
+  - Controllers: Grep `extends GetxController` (glob: `*.dart`) → liệt kê controllers
+  - Routes: Grep `GetPage\(` (glob: `*.dart`) → liệt kê routes
+  - Models: Grep `fromJson|toJson` (glob: `*.dart`) → liệt kê models
+  - Dependencies: Read `pubspec.yaml` → liệt kê packages
 
 ## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
 Validate đường dẫn trong CONTEXT.md khớp với thư mục hiện tại (`pwd`). Nếu khác → cảnh báo user trước khi tiếp tục.
@@ -168,6 +175,18 @@ Modules | Controllers & Routes | Services | Entities | Guards & Middleware
 ### Events
 | Contract | Events |
 
+## Phân tích Flutter
+(CHỈ tạo nếu project có Flutter — kiểm tra bằng `**/pubspec.yaml` với `flutter` dependency)
+
+### Screens & Navigation
+| Route | View | Logic | Binding |
+
+### State Management
+| Controller | State | Reactive Variables |
+
+### Packages
+| Tên | Phiên bản | Mục đích |
+
 ## Cơ sở dữ liệu
 Entities | Quan hệ | Migrations (ghi rõ Prisma/Mongoose)
 
@@ -198,13 +217,14 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
    - Rules: cập nhật danh sách rules files thực tế trong `.planning/rules/`
 
 3. **Re-copy rules nếu tech stack thay đổi**:
-   So sánh hasBackend/hasFrontend/hasWordPress/hasSolidity mới với tech stack cũ trong CONTEXT.md:
-   - Nếu KHÁC (VD: thêm frontend mới, xóa backend, thêm WordPress, thêm Solidity):
+   So sánh hasBackend/hasFrontend/hasWordPress/hasSolidity/hasFlutter mới với tech stack cũ trong CONTEXT.md:
+   - Nếu KHÁC (VD: thêm frontend mới, xóa backend, thêm WordPress, thêm Solidity, thêm Flutter):
      - Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`
      - Nếu `.pdconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .pdconfig"
-     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `solidity.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend/wordpress/solidity theo stack mới)
+     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend/wordpress/solidity/flutter theo stack mới)
      - Nếu hasWordPress thay đổi: copy/xóa `wordpress-refs/` → `.planning/docs/wordpress/` tương ứng
      - Nếu hasSolidity thay đổi: copy/xóa `solidity-refs/` → `.planning/docs/solidity/` tương ứng
+     - Nếu hasFlutter thay đổi: copy/xóa `flutter-refs/` → `.planning/docs/flutter/` tương ứng
    - Nếu GIỐNG → không cần copy lại
 
 ## Bước 7: Thông báo
@@ -222,6 +242,7 @@ In tóm tắt kết quả cho user. Nếu CONTEXT.md hoặc rules đã được 
 - Phân tích Frontend CHỈ khi detect được frontend framework (NextJS qua `next.config.*`, Vite qua `vite.config.*`, hoặc nhiều file `.tsx/.jsx`) — bỏ qua nếu không detect được. Các stack ngoài NextJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Phân tích WordPress CHỈ khi detect được (`**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`) — quét plugins, themes, custom tables, REST API, hooks
 - Phân tích Solidity CHỈ khi detect được (`**/hardhat.config.*` hoặc `**/foundry.toml` hoặc `**/contracts/**/*.sol`) — quét contracts, OZ imports, interfaces, events, modifiers, security patterns
+- Phân tích Flutter CHỈ khi detect được (`**/pubspec.yaml` với `flutter` dependency) — quét screens, controllers, routes, models, packages
 - Phân tích Backend CHỈ khi detect được backend framework (NestJS qua `nest-cli.json`/`app.module.ts`, Express qua `app.js`/`app.ts` + `express` trong package.json) — bỏ qua nếu không detect được. Các stack ngoài NestJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
 - PHẢI cập nhật CONTEXT.md sau khi quét — đảm bảo context luôn phản ánh trạng thái hiện tại của dự án

@@ -16,6 +16,7 @@ User input: $ARGUMENTS
 - `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress + Build & Lint (CHỈ nếu file tồn tại, đọc khi WordPress flow)
 - `.planning/rules/solidity.md` → quy tắc Solidity + Build & Lint (CHỈ nếu file tồn tại, đọc khi Solidity flow)
+- `.planning/rules/flutter.md` → quy tắc Flutter + Build & Lint (CHỈ nếu file tồn tại, đọc khi Flutter flow)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -60,7 +61,24 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
      - Signature verification (nếu có): valid signature, expired deadline, wrong signer, hash replay, wrong msg.sender
   6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận on-chain state (tương tự Bước 6)
   7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress, và Solidity. Project của bạn dùng [X]. Bạn có thể:
+- **Nếu Flutter** → chuyển sang flow flutter_test + mocktail:
+  1. Kiểm tra `flutter_test` + `mocktail` đã có trong `dev_dependencies` (`pubspec.yaml`)
+  2. Đọc `.planning/docs/flutter/testing.md` (nếu có) để lấy test patterns (unit, widget, integration)
+  3. Viết test files:
+     - Unit tests: `test/unit/[feature]/[feature]_logic_test.dart` — test Logic/Repository
+     - Widget tests: `test/widget/[feature]/[feature]_view_test.dart` — test View rendering
+  4. Chạy: `flutter test --verbose`
+  5. **Test bắt buộc**:
+     - Logic: fetch data success + error handling
+     - Logic: reactive state updates (.obs values change correctly)
+     - Logic: onClose() disposes resources
+     - Widget: hiển thị loading state
+     - Widget: hiển thị data list
+     - Widget: tap actions gọi đúng logic method
+     - Form: validation rules
+  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận
+  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress, Solidity, và Flutter. Project của bạn dùng [X]. Bạn có thể:
   1. Viết test thủ công (tạo file test theo pattern chuẩn của framework)
   2. Bỏ qua automated test cho phase này"
 - **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.
@@ -196,7 +214,7 @@ Viết `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
 > Milestone: [tên] (v[x.x])
 > Tổng: [X] tests | ✅ [Y] đạt | ❌ [Z] lỗi
 
-## Kết quả tự động ([Jest|PHPUnit|Hardhat|Foundry])
+## Kết quả tự động ([Jest|PHPUnit|Hardhat|Foundry|FlutterTest])
 | Test case | Đầu vào | Kỳ vọng | Thực tế | KQ |
 
 ## Xác nhận giao diện (Frontend — bỏ nếu không có)
@@ -228,7 +246,7 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 
 ## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
-git add [test files — *.spec.ts (NestJS) | test-*.php (WordPress) | test/*.ts hoặc test/*.t.sol (Solidity)]
+git add [test files — *.spec.ts (NestJS) | test-*.php (WordPress) | test/*.ts hoặc test/*.t.sol (Solidity) | test/**/*_test.dart (Flutter)]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
 # Nếu có bug report từ Bước 8:
@@ -244,7 +262,7 @@ Kết quả: X/Y đạt"
 
 <rules>
 - Tuân thủ quy tắc trong `.planning/rules/` (ngôn ngữ, ngày tháng, bảo mật)
-- PHẢI viết test files commit vào repo — NestJS: `.spec.ts` (Jest + Supertest), WordPress: `test-*.php` (PHPUnit), Solidity: `test/*.ts` (Hardhat) hoặc `test/*.t.sol` (Foundry) — KHÔNG chỉ chạy CURL
+- PHẢI viết test files commit vào repo — NestJS: `.spec.ts` (Jest + Supertest), WordPress: `test-*.php` (PHPUnit), Solidity: `test/*.ts` (Hardhat) hoặc `test/*.t.sol` (Foundry), Flutter: `test/**/*_test.dart` (flutter_test + mocktail) — KHÔNG chỉ chạy CURL
 - Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG
 - PHẢI yêu cầu user xác nhận giao diện + database (mắt người đánh giá)
 - PHẢI đọc PLAN.md trước khi viết test

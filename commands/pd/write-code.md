@@ -23,6 +23,7 @@ User input: $ARGUMENTS
 - `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress/PHP (đọc khi task WordPress, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/wordpress/*.md` cho patterns phức tạp (plugin architecture, theme, Gutenberg, WooCommerce, v.v.)
 - `.planning/rules/solidity.md` → quy tắc Solidity smart contract (đọc khi task Solidity, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/solidity/*.md` cho templates + audit checklist
+- `.planning/rules/flutter.md` → quy tắc Flutter/Dart (đọc khi task Flutter, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/flutter/*.md` cho patterns (state management, navigation, design system, testing)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -41,7 +42,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 7)
 
 Chọn task:
-- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS, WordPress, hoặc Solidity), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
+- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS, WordPress, Solidity, hoặc Flutter), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
@@ -167,6 +168,19 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - Build: `npx hardhat compile` (Hardhat) hoặc `forge build` (Foundry)
 - Test: `npx hardhat test` (Hardhat) hoặc `forge test` (Foundry)
 
+**Nếu task Flutter (Dart + GetX):**
+- Tuân thủ quy tắc trong `.planning/rules/flutter.md` (architecture, GetX patterns, design tokens)
+- BẮT BUỘC: Architecture Logic + State + View + Binding cho mỗi feature/module
+- BẮT BUỘC: Design tokens (AppColors, AppSpacing, AppTextStyles) — CẤM hardcode colors, magic numbers
+- BẮT BUỘC: `onClose()` dispose resources (TextEditingController, StreamSubscription, Timer, ScrollController)
+- BẮT BUỘC: Models viết `fromJson()`/`toJson()` thủ công — CẤM dùng json_serializable/freezed
+- BẮT BUỘC: Obx() wrap CHỈ phần reactive — CẤM wrap toàn bộ Scaffold
+- Security: `flutter_secure_storage` cho tokens, `flutter_dotenv` cho env vars
+- Tra cứu `.planning/docs/flutter/` cho state management, navigation, design system patterns
+- Tra cứu Context7 (`flutter`, `get`) cho API cụ thể
+- Build: `flutter build apk` (Android) / `flutter build ios` (iOS)
+- Test: `flutter test`
+
 **Nếu task stack khác** (Chrome extension, CLI, v.v.):
 - Tuân thủ thiết kế trong PLAN.md + quy tắc chung trong `general.md`
 - Tra cứu docs thư viện qua Context7 nếu cần
@@ -174,7 +188,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 ## Bước 5: Lint + Build
 Đọc CONTEXT.md → Tech Stack → xác định thư mục + công cụ build.
 
-**Nếu có rules file** (backend.md/frontend.md/wordpress.md/solidity.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
+**Nếu có rules file** (backend.md/frontend.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
 **Nếu không có rules file** (stack khác): đọc `package.json` hoặc `composer.json` scripts → dùng `npm run lint` / `npm run build` hoặc `composer run lint` nếu có, hoặc skip nếu project chưa setup build.
 
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
@@ -200,6 +214,9 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 
 ## Contract Functions (nếu có — Solidity)
 | Function | Visibility | Modifiers | Mô tả |
+
+## Screens & Navigation (nếu có — Flutter)
+| Route | View | Logic | Mô tả |
 
 ## Hooks & Filters (nếu có — WordPress)
 | Loại | Hook name | Callback | Mô tả |
@@ -258,7 +275,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 1. **Spawn Agent tool** cho mỗi task song song trong wave — mỗi agent nhận đầy đủ:
    - PLAN.md (toàn bộ thiết kế kỹ thuật)
    - Task detail từ TASKS.md (task cụ thể agent cần làm)
-   - Rules files phù hợp (general + backend/frontend/wordpress/solidity theo Loại task)
+   - Rules files phù hợp (general + backend/frontend/wordpress/solidity/flutter theo Loại task)
    - CONTEXT.md (tech stack, thư viện)
    - Docs liên quan (nếu có)
    - Chỉ dẫn: thực hiện Bước 2→3→4→5 cho task được giao (agent CHỈ viết code + lint/build, KHÔNG tạo report/cập nhật TASKS/commit)
@@ -294,7 +311,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ║ Waves: [X] | Song song: [Y] tasks | Tuần tự: [Z]║
 ╠══════════════════════════════════════════════════╣
 ║ Gợi ý:                                          ║
-║   /pd:test              → Kiểm thử (NestJS/WP/Sol)║
+║   /pd:test              → Kiểm thử (NestJS/WP/Sol/Flutter)║
 ║   /pd:plan [phase tiếp] → Phase tiếp theo       ║
 ║   /pd:complete-milestone → Đóng milestone        ║
 ╚══════════════════════════════════════════════════╝
@@ -312,13 +329,13 @@ DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
-  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS, WordPress, hoặc Solidity)
+  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS, WordPress, Solidity, hoặc Flutter)
   - `/pd:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
   - `/pd:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
 </process>
 
 <rules>
-- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity theo Loại task)
+- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity/flutter theo Loại task)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
