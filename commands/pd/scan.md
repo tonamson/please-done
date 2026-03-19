@@ -23,7 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Tạo `.planning/scan/` nếu chưa có
 
 ## Bước 2: Kiểm tra project có code không
-Glob `**/*.{ts,tsx,js,jsx,py,php,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin — KHÔNG bao gồm .json/.css để khớp với init.md):
+Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache — KHÔNG bao gồm .json/.css để khớp với init.md):
 - **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
   - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
   - Trạng thái hoàn thành: "Chưa bắt đầu"
@@ -31,13 +31,13 @@ Glob `**/*.{ts,tsx,js,jsx,py,php,html}` (trừ node_modules, .venv, .planning, w
 - **CÓ source files** → tiếp tục quét bình thường
 
 ## Bước 2a: Quét cấu trúc bằng built-in tools
-- **Glob** tìm file: `**/*.ts`, `**/*.tsx`, `**/*.json`, `**/*.prisma`, `**/Dockerfile`
+- **Glob** tìm file: `**/*.ts`, `**/*.tsx`, `**/*.json`, `**/*.prisma`, `**/*.sol`, `**/Dockerfile`
 - **Read** config: `package.json`, `tsconfig.json`, `nest-cli.json`, `next.config.*`, `prisma/schema.prisma`
 - **Grep** patterns:
 
   **Backend (NestJS):**
-  - `@Module`, `@Controller`, `@Injectable`, `@Entity`, `@Guard`
-  - Routes: `@Get`, `@Post`, `@Put`, `@Patch`, `@Delete`
+  - `@Module`, `@Controller`, `@Injectable`, `@Entity`, `@Guard` (glob: `*.ts`)
+  - Routes: `@Get`, `@Post`, `@Put`, `@Patch`, `@Delete` (glob: `*.ts`)
 
   **Frontend (NextJS):** (CHỈ quét nếu tồn tại `next.config.*`)
   - Pages: Glob `**/app/**/page.tsx` → liệt kê tất cả routes
@@ -51,9 +51,17 @@ Glob `**/*.{ts,tsx,js,jsx,py,php,html}` (trừ node_modules, .venv, .planning, w
   **WordPress:** (CHỈ quét nếu tồn tại `**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`)
   - Plugins: Glob `**/wp-content/plugins/*/` → liệt kê plugins
   - Themes: Glob `**/wp-content/themes/*/style.css` → liệt kê themes
-  - Custom tables: Grep `dbDelta|\\$wpdb->prefix` → liệt kê custom tables
-  - REST API: Grep `register_rest_route` → liệt kê endpoints
-  - Hooks: Grep `add_action|add_filter` → đếm hooks registered
+  - Custom tables: Grep `dbDelta|\$wpdb->prefix` (glob: `*.php`) → liệt kê custom tables
+  - REST API: Grep `register_rest_route` (glob: `*.php`) → liệt kê endpoints
+  - Hooks: Grep `add_action|add_filter` (glob: `*.php`) → đếm hooks registered
+
+  **Solidity:** (CHỈ quét nếu tồn tại `**/hardhat.config.*` hoặc `**/foundry.toml` hoặc `**/contracts/**/*.sol`)
+  - Contracts: Glob `**/contracts/**/*.sol` hoặc `**/src/**/*.sol` → liệt kê contracts
+  - Imports: Grep `import.*@openzeppelin` (glob: `*.sol`) → liệt kê OZ dependencies
+  - Interfaces: Grep `^\s*interface\s+` (glob: `*.sol`) → liệt kê interfaces
+  - Events: Grep `^\s*event ` (glob: `*.sol`) → liệt kê events
+  - Modifiers: Grep `^\s*modifier\s+\w+` (glob: `*.sol`) → liệt kê custom modifiers
+  - Security patterns: Grep `nonReentrant|whenNotPaused|onlyOwner` (glob: `*.sol`) → đếm security modifiers sử dụng
 
 ## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
 Validate đường dẫn trong CONTEXT.md khớp với thư mục hiện tại (`pwd`). Nếu khác → cảnh báo user trước khi tiếp tục.
@@ -99,11 +107,11 @@ Viết `.planning/scan/SCAN_REPORT.md`:
 ## Cảnh báo bảo mật
 [Kết quả npm audit - nếu có lỗ hổng]
 
-## Phân tích Backend (NestJS)
+## Phân tích Backend
 Modules | Controllers & Routes | Services | Entities | Guards & Middleware
 
-## Phân tích Frontend (NextJS)
-(CHỈ tạo nếu project có NextJS — kiểm tra bằng `next.config.*`)
+## Phân tích Frontend
+(CHỈ tạo nếu project có frontend framework — kiểm tra bằng `next.config.*`, `vite.config.*`)
 
 ### Cấu trúc thư mục
 [Tree structure: app/, components/, hooks/, lib/, stores/, types/]
@@ -114,18 +122,51 @@ Modules | Controllers & Routes | Services | Entities | Guards & Middleware
 ### Components
 | Thư mục | Số file | Danh sách |
 
-### State Management (Zustand)
+### State Management
 | Store | File | Persist | Mô tả |
 
 ### API Layer
 | Hàm | File | Server/Client | Endpoint |
 
 ### UI Framework
-- Ant Design version, theme config, locale
-- Styling approach (inline styles / CSS modules / Tailwind)
+- Framework + version, theme config, locale
+- Styling approach (inline styles / CSS modules / Tailwind / styled-components)
 
 ### SEO
 - Metadata exports, generateMetadata, robots.ts, sitemap.ts, JSON-LD
+
+## Phân tích WordPress
+(CHỈ tạo nếu project có WordPress — kiểm tra bằng `**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`)
+
+### Plugins
+| Tên | Đường dẫn | Mô tả |
+
+### Themes
+| Tên | Đường dẫn | Parent Theme |
+
+### Custom Tables
+| Tên bảng | Plugin/Theme | Mô tả |
+
+### REST API Endpoints
+| Route | Callback | Permission |
+
+### Hooks
+| Loại | Hook name | Callback | Priority |
+
+## Phân tích Solidity
+(CHỈ tạo nếu project có Solidity framework — kiểm tra bằng `hardhat.config.*`, `foundry.toml`, hoặc `contracts/**/*.sol`)
+
+### Contracts
+| Tên | Base Contract | Mô tả |
+
+### OZ Imports
+| Contract | Imports |
+
+### Security Modifiers
+| Contract | nonReentrant | whenNotPaused | onlyOwner/onlyRole |
+
+### Events
+| Contract | Events |
 
 ## Cơ sở dữ liệu
 Entities | Quan hệ | Migrations (ghi rõ Prisma/Mongoose)
@@ -157,12 +198,13 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
    - Rules: cập nhật danh sách rules files thực tế trong `.planning/rules/`
 
 3. **Re-copy rules nếu tech stack thay đổi**:
-   So sánh hasBackend/hasFrontend/hasWordPress mới với tech stack cũ trong CONTEXT.md:
-   - Nếu KHÁC (VD: thêm frontend mới, xóa backend, thêm WordPress):
+   So sánh hasBackend/hasFrontend/hasWordPress/hasSolidity mới với tech stack cũ trong CONTEXT.md:
+   - Nếu KHÁC (VD: thêm frontend mới, xóa backend, thêm WordPress, thêm Solidity):
      - Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`
      - Nếu `.pdconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .pdconfig"
-     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend/wordpress theo stack mới)
+     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `solidity.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend/wordpress/solidity theo stack mới)
      - Nếu hasWordPress thay đổi: copy/xóa `wordpress-refs/` → `.planning/docs/wordpress/` tương ứng
+     - Nếu hasSolidity thay đổi: copy/xóa `solidity-refs/` → `.planning/docs/solidity/` tương ứng
    - Nếu GIỐNG → không cần copy lại
 
 ## Bước 7: Thông báo
@@ -176,9 +218,10 @@ In tóm tắt kết quả cho user. Nếu CONTEXT.md hoặc rules đã được 
 - CHỈ tạo sections có dữ liệu trong report, bỏ section rỗng
 - Section "Trạng thái hoàn thành" BẮT BUỘC
 - PHẢI liệt kê thư viện từ package.json + chạy audit **NẾU project có package.json**. Nếu không có package.json → bỏ section Thư viện và Cảnh báo bảo mật
-- CẤM đọc/hiển thị nội dung `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
+- CẤM đọc/hiển thị nội dung `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
 - Phân tích Frontend CHỈ khi detect được frontend framework (NextJS qua `next.config.*`, Vite qua `vite.config.*`, hoặc nhiều file `.tsx/.jsx`) — bỏ qua nếu không detect được. Các stack ngoài NextJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Phân tích WordPress CHỈ khi detect được (`**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`) — quét plugins, themes, custom tables, REST API, hooks
+- Phân tích Solidity CHỈ khi detect được (`**/hardhat.config.*` hoặc `**/foundry.toml` hoặc `**/contracts/**/*.sol`) — quét contracts, OZ imports, interfaces, events, modifiers, security patterns
 - Phân tích Backend CHỈ khi detect được backend framework (NestJS qua `nest-cli.json`/`app.module.ts`, Express qua `app.js`/`app.ts` + `express` trong package.json) — bỏ qua nếu không detect được. Các stack ngoài NestJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
 - PHẢI cập nhật CONTEXT.md sau khi quét — đảm bảo context luôn phản ánh trạng thái hiện tại của dự án

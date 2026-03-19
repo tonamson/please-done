@@ -22,6 +22,7 @@ User input: $ARGUMENTS
 - `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress/PHP (đọc khi task WordPress, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/wordpress/*.md` cho patterns phức tạp (plugin architecture, theme, Gutenberg, WooCommerce, v.v.)
+- `.planning/rules/solidity.md` → quy tắc Solidity smart contract (đọc khi task Solidity, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/solidity/*.md` cho templates + audit checklist
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -40,7 +41,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 7)
 
 Chọn task:
-- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS hoặc WordPress), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
+- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS, WordPress, hoặc Solidity), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
@@ -109,7 +110,7 @@ Xác nhận chạy? (y/n)
   1. "Patterns đang dùng cho [loại file cần tạo]."
   2. "Functions/services tái sử dụng cho [task]."
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research code. Ghi warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd:init` kiểm tra lại sau."
 
 **Tra cứu API thư viện qua Context7** (nếu task dùng thư viện bên ngoài):
 1. `mcp__context7__resolve-library-id` (libraryName: "nestjs", query: "mô tả ngắn task") → lấy Context7 library ID
@@ -128,7 +129,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - **Tên biến/function/class/file** → tiếng Anh
 - **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500
 
-**Nếu task Backend:**
+**Nếu task Backend (NestJS):**
 - **Database migration** nếu thay đổi schema:
   - Prisma: `npx prisma migrate dev --name [tên]`
   - MongoDB: migration script hoặc `migrate-mongo`
@@ -150,6 +151,19 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - Gutenberg blocks: dùng `@wordpress/scripts` build toolchain
 - PHP lint: `composer run lint` (nếu đã setup PHPCS + WordPress standards)
 
+**Nếu task Solidity (smart contract):**
+- Tuân thủ quy tắc trong `.planning/rules/solidity.md` (security, coding standards, OZ imports, SafeERC20)
+- BẮT BUỘC: SPDX-License-Identifier + pragma solidity + OpenZeppelin imports
+- BẮT BUỘC: `clearUnknownToken` function trong mọi contract
+- BẮT BUỘC: `rescueETH` function nếu contract có `receive()` hoặc nhận ETH
+- BẮT BUỘC: NatSpec comments (`@title`, `@dev`, `@notice`, `@param`, `@return`)
+- Security checklist: `nonReentrant` + `whenNotPaused` theo bảng trong solidity.md, DoS prevention, Flash Loan, Frontrunning/MEV, CẤM `tx.origin`
+- Tra cứu `.planning/docs/solidity/templates.md` cho base contract pattern
+- Tra cứu `.planning/docs/solidity/audit-checklist.md` khi review code
+- Tra cứu Context7 (`openzeppelin`, `hardhat`, `foundry`) cho API cụ thể
+- Build: `npx hardhat compile` (Hardhat) hoặc `forge build` (Foundry)
+- Test: `npx hardhat test` (Hardhat) hoặc `forge test` (Foundry)
+
 **Nếu task stack khác** (Chrome extension, CLI, v.v.):
 - Tuân thủ thiết kế trong PLAN.md + quy tắc chung trong `general.md`
 - Tra cứu docs thư viện qua Context7 nếu cần
@@ -157,7 +171,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 ## Bước 5: Lint + Build
 Đọc CONTEXT.md → Tech Stack → xác định thư mục + công cụ build.
 
-**Nếu có rules file** (backend.md/frontend.md/wordpress.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
+**Nếu có rules file** (backend.md/frontend.md/wordpress.md/solidity.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
 **Nếu không có rules file** (stack khác): đọc `package.json` hoặc `composer.json` scripts → dùng `npm run lint` / `npm run build` hoặc `composer run lint` nếu có, hoặc skip nếu project chưa setup build.
 
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
@@ -175,11 +189,17 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 ## Files đã tạo/sửa
 | Hành động | File | Mô tả ngắn |
 
-## API Endpoints (nếu có)
+## API Endpoints (nếu có — Backend/WordPress REST)
 | Phương thức | Đường dẫn | Mô tả |
 
-## Database (nếu có)
+## Database (nếu có — Backend/WordPress)
 [Migration + schema thay đổi]
+
+## Contract Functions (nếu có — Solidity)
+| Function | Visibility | Modifiers | Mô tả |
+
+## Hooks & Filters (nếu có — WordPress)
+| Loại | Hook name | Callback | Mô tả |
 
 ## Ghi chú
 [Quyết định kỹ thuật đáng lưu ý, nếu có]
@@ -271,7 +291,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ║ Waves: [X] | Song song: [Y] tasks | Tuần tự: [Z]║
 ╠══════════════════════════════════════════════════╣
 ║ Gợi ý:                                          ║
-║   /pd:test              → Kiểm thử (NestJS/WP)   ║
+║   /pd:test              → Kiểm thử (NestJS/WP/Sol)║
 ║   /pd:plan [phase tiếp] → Phase tiếp theo       ║
 ║   /pd:complete-milestone → Đóng milestone        ║
 ╚══════════════════════════════════════════════════╝
@@ -289,13 +309,14 @@ DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
-  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS hoặc WordPress)
+  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS, WordPress, hoặc Solidity)
   - `/pd:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
   - `/pd:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
 </process>
 
 <rules>
 - Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend theo Loại task)
+- CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
 - Nếu quyết định thiết kế KHÔNG THỂ tuân thủ (do constraint kỹ thuật phát hiện khi code) → **DỪNG**, thông báo user và ghi nhận trong CODE_REPORT. KHÔNG tự ý thay đổi.

@@ -22,7 +22,7 @@ Phân tích tham số:
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` và/hoặc `.planning/rules/wordpress.md` → theo stack có trong project
+- `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` → theo stack có trong project
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -68,7 +68,7 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 
 Dùng FastCode cho câu hỏi broad. Sau đó dùng Grep/Read verify chi tiết cụ thể nếu cần (VD: đọc file entity thực tế, kiểm tra imports).
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research code. Ghi warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd:init` kiểm tra lại sau."
 Nếu FastCode trả về kết quả rỗng cho tất cả queries → cảnh báo: "FastCode không tìm thấy code liên quan. Nên chạy `/pd:scan` để cập nhật index." Tiếp tục thiết kế với context hạn chế.
 
 ### Nếu project mới (chưa có code):
@@ -311,6 +311,21 @@ Cho mỗi deliverable, thiết kế theo loại:
 - Zustand stores (state mới hay mở rộng store có sẵn)
 - API integration (thêm function vào lib/api.ts hay lib/admin-api.ts)
 - UI: Ant Design components dự kiến dùng
+
+**WordPress (nếu có — đọc CONTEXT.md xác định):**
+- Plugin/Theme architecture (main file, hooks, class structure)
+- Custom post types, taxonomies
+- Database: custom tables (dbDelta schema), options API
+- REST API endpoints (register_rest_route)
+- Admin pages, settings
+
+**Solidity (nếu có — đọc CONTEXT.md xác định framework: Hardhat, Foundry):**
+- Contract architecture (inheritance chain, base contracts: Ownable/AccessControl)
+- Functions: visibility, modifiers (whenNotPaused, nonReentrant, onlyOwner)
+- State variables, structs, mappings, events
+- Token interactions (SafeERC20, IERC20)
+- Security: signature verification pattern (nếu cần off-chain authorization)
+- Tham khảo `.planning/docs/solidity/templates.md` cho base patterns
 
 **Stack khác (Chrome extension, CLI, v.v.):**
 - Thiết kế theo đặc thù stack (VD: manifest.json, background/content scripts, popup UI...)

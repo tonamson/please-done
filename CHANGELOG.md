@@ -1,5 +1,72 @@
 # Nhật ký thay đổi Skills
 
+## [2.5.1] - 19_03_2026
+### Sửa lỗi
+- **Solidity rules**: Thêm rule DoS attack vectors (unbounded loops, batch fail-silently, call revert), CẤM `selfdestruct` (EIP-6780), custom errors gas optimization
+- **Audit checklist**: Thêm section 9a DoS (5 checklist items + code examples), event emit order check, `selfdestruct` check, escape clause cho array max 50
+- **Templates**: Uncomment `OperatorUpdated` event declaration (Template 1a + Template 2 combo bị compile error nếu quên uncomment)
+- **Scan.md**: Thêm glob filter `(glob: "*.php")` cho WordPress grep patterns, `(glob: "*.ts")` cho NestJS patterns
+- **FastCode failure handling**: Thống nhất fallback Grep/Read + warning cho plan.md, write-code.md, test.md (trước đó DỪNG hoàn toàn)
+- **Complete-milestone.md**: Thêm `## WordPress` section trong MILESTONE_COMPLETE template
+- **Test.md**: `## Xác nhận database` → `## Xác nhận dữ liệu (Database/On-chain state)`. Bước 2 + Bước 4 heading thêm "(CHỈ NestJS flow)"
+- **Write-code.md**: `Nếu task Backend:` → `Nếu task Backend (NestJS):`. Security checklist thêm DoS, Flash Loan, Frontrunning/MEV, CẤM tx.origin
+- **README.md**: Thêm `test/*.ts` cho Hardhat test files. Copilot config `instructions.md` → `copilot-instructions.md`
+
+## [2.5.0] - 19_03_2026
+### Thêm mới
+- **Solidity smart contract stack support**: Thêm `solidity.md` rules (coding standards, OpenZeppelin imports, SafeERC20, security modifiers, NatSpec, gas optimization, signature verification)
+- **2 Solidity reference docs** (`solidity-refs/`): templates (base contract + signature verification pattern), audit-checklist (12 categories + pre-deploy checklist) — copy vào `.planning/docs/solidity/` khi init
+- **Solidity detection**: `init.md` + `scan.md` detect qua `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`
+- **Solidity test flow**: `test.md` hỗ trợ Hardhat (ethers.js + chai) + Foundry (forge-std) bên cạnh Jest/Supertest/PHPUnit
+- **Solidity scan patterns**: `scan.md` quét contracts, OZ imports, interfaces, events, custom modifiers, security patterns
+- **Solidity bug tracing**: `fix-bug.md` trace function call → require checks → state changes → external interactions → events
+- **3 eval tests Solidity**: init detection, write-code rules compliance, Hardhat test flow
+- **3 eval tests bổ sung Solidity (audit)**: Foundry detection, scan Solidity patterns, fix-bug Solidity trace
+
+### Thay đổi
+- `init.md`: Glob thêm `.sol` + exclude `artifacts/cache`. Detection patterns `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`. Copy `solidity-refs/` → `.planning/docs/solidity/`. Notification box + rules list thêm solidity.md
+- `scan.md`: Glob thêm `.sol`, Solidity scan section mới (contracts, OZ imports, interfaces, events, modifiers, security patterns)
+- `plan.md`: `<context>` đọc `solidity.md` rules theo stack
+- `write-code.md`: Solidity task section (SPDX, pragma, OZ imports, clearUnknownToken, NatSpec, security checklist, compile/test commands). Test suggestions bao gồm Solidity
+- `test.md`: Hardhat + Foundry test flow mới (deploy, core function, access control, input validation, reentrancy, pause/unpause, clearUnknownToken)
+- `fix-bug.md`: `<context>` + Bước 5 + Bước 7 bao gồm Solidity trace + audit checklist reference
+- `what-next.md`: Ưu tiên 6 bao gồm Solidity cho test suggestion
+- `complete-milestone.md`: TEST_REPORT check bao gồm Solidity
+- `general.md`: Code style ghi rõ "Solidity theo rules riêng trong solidity.md"
+
+### Sửa lỗi
+- `README.md`: Phiên bản hiện tại ghi v2.4.0 → sửa thành v2.5.0 (khớp VERSION + package.json)
+- `audit-checklist.md`: `safeApprove (hoặc forceApprove)` → `forceApprove` (OZ v5 đã deprecate `safeApprove`)
+- `scan.md`: Grep `event .*Event` → `^\s*event ` (pattern cũ bỏ sót events không kết thúc bằng "Event" như Transfer, Approval)
+- `solidity.md`: Thiếu indent convention (4 spaces) + file naming convention (PascalCase cho .sol files) — thêm section Code style
+- **Signature verification security overhaul** (3 files):
+  - `solidity.md`: `block.chainid` + `address(this)` nâng từ "Khuyến nghị" → **BẮT BUỘC** (cross-chain replay là attack vector thực tế). Thêm `mapping(bytes32)` thay `mapping(bytes)`, EIP-712 requirement khi user ký qua wallet
+  - `templates.md`: Template 2 rewrite — hash include chainid + address(this), đổi `signatureUsed` → `hashUsed` (bytes32 key, rẻ gas + immune malleability), rename `OPERATOR` → `operator` (state variable phải camelCase), thêm EIP-712 guidance, cập nhật diagram + NatSpec + checklist
+  - `audit-checklist.md`: Section 6 tách thành 4 subsections (hash binding, verification logic, EIP-712, replay), thêm `block.chainid` + `address(this)` + `hashUsed` vào checklist bắt buộc
+- **Audit lần 3** — `templates.md`: snake_case → camelCase naming, Template 2 compatibility notes. `solidity.md`: NatSpec English exception explicit. `scan.md`: interface grep broadened. `plan.md`: Solidity/WordPress design sections
+- **Audit lần 4** (CRITICAL):
+  - **4 non-Claude installers** (`codex.js`, `gemini.js`, `opencode.js`, `copilot.js`): `readdirSync().filter('.md')` bỏ sót subdirectories `solidity-refs/`, `wordpress-refs/` → thêm recursive copy
+  - `test.md`: TEST_REPORT heading "Kết quả tự động (Jest)" hardcoded → parameterize `[Jest|PHPUnit|Hardhat|Foundry]`
+  - `what-next.md`: Bước 3.5 ghi "Backend" → "Backend NestJS, WordPress, hoặc Solidity" (khớp Priority 6)
+  - `scan.md`: Modifier grep `modifier ` quá broad → `^\s*modifier\s+\w+`
+  - `templates.md`: Template 1b constructor thiếu `require(addr != address(0))` cho AccessControl
+  - `solidity.md`: Thêm `forceApprove` (OZ v5) vào Bảo mật section
+  - 4 eval tests mới: Solidity TEST_REPORT heading, what-next Solidity routing, mixed NestJS+Solidity init, WordPress TEST_REPORT heading. Tổng 56 workflow tests
+- **Audit lần 5**:
+  - `scan.md`: SCAN_REPORT template thiếu section "Phân tích Solidity" (Backend/Frontend/WordPress có, Solidity không) → thêm section với Contracts, OZ Imports, Security Modifiers, Events
+  - `test.md`: Description/objective hardcoded "Jest + Supertest cho NestJS" → sửa thành multi-framework (Jest + Supertest, PHPUnit, Hardhat/Foundry)
+  - `codex.js` + `opencode.js`: Regex `/pd:([a-z0-9-]+)` thiếu underscore `_` → sửa thành `[a-z0-9_-]+` (phòng tương lai skill name có underscore)
+  - 2 eval tests mới: SCAN_REPORT Solidity section, Foundry test flow. Tổng 58 workflow tests
+- **Audit lần 6**:
+  - `platforms.js`: Regex `/pd:([a-z0-9-]+)` thiếu underscore → `[a-z0-9_-]+` (khớp với codex/opencode đã sửa lần 5)
+  - `copilot.js` installer: Rules copy thiếu Write, Edit replacements → thêm 2 tool name replacements (khớp converter COPILOT_TOOL_MAP)
+  - `gemini.js` installer: Rules copy THIẾU TOÀN BỘ tool name replacements → thêm Read→read_file, Write→write_file, Edit→edit_file, Bash→run_shell_command, Glob→glob, Grep→search_file_content
+  - `scan.md`: SCAN_REPORT template heading hardcoded "(NestJS)"/"(NextJS)" → generic "Phân tích Backend"/"Phân tích Frontend"
+  - `templates.md`: `clearUnknownToken` thiếu `nonReentrant` modifier (risk ERC777 reentrancy) → thêm cho cả Template 1a + 1b. Thêm `forceApprove` comment/example cho cả 2 templates
+  - `test.md`: Description hardcode framework names → generic "(NestJS/WordPress/Solidity)"
+  - `general.md`: Commit message format ambiguous khi không có git → thêm "(chỉ khi git tồn tại)"
+  - `promptfooconfig.yaml`: write-code Solidity test thêm assertions cho forceApprove + clearUnknownToken nonReentrant
+
 ## [2.4.0] - 19_03_2026
 ### Thêm mới
 - **WordPress stack support**: Thêm `wordpress.md` rules (coding standards, security, hooks, database, REST API, performance, i18n, enqueue assets)

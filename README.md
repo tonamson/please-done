@@ -2,7 +2,7 @@
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.4.0**
+**Phiên bản hiện tại: v2.5.1**
 
 ## Nền tảng hỗ trợ
 
@@ -139,7 +139,7 @@ $pd-init        # Codex
 | 3   | `new-milestone`      | Lập kế hoạch milestones + phases + phụ thuộc                                                    | init, scan (*) |
 | 4   | `plan`               | Nghiên cứu dự án, thiết kế kỹ thuật, chia danh sách công việc cho phase                         | new-milestone  |
 | 5   | `write-code`         | Thực thi task từ TASKS.md, kiểm tra cú pháp, build, commit `[TASK-N]`                           | plan           |
-| 6   | `test`               | Viết tests (Jest/Supertest hoặc PHPUnit), chạy, yêu cầu người dùng xác nhận (Backend NestJS + WordPress) | write-code     |
+| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, hoặc Hardhat/Foundry), chạy, yêu cầu xác nhận (NestJS + WordPress + Solidity) | write-code     |
 | 7   | `fix-bug`            | Nghiên cứu lỗi, phân tích, sửa, commit `[LỖI]`, lặp đến khi người dùng xác nhận                 | init           |
 | 8   | `complete-milestone` | Kiểm tra lỗi, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag                                       | tất cả tasks ✅ |
 
@@ -166,9 +166,11 @@ $pd-init        # Codex
 | `rules/frontend.md`     | Có NextJS    | Component, Ant Design v6, Zustand, API layer, Pages, Admin                                                                             |
 | `rules/wordpress.md`    | Có WordPress | Security (sanitize/escape/nonce), Hooks, $wpdb, REST API, Performance, WP Coding Standards                                             |
 | `rules/wordpress-refs/` | Có WordPress | 9 tài liệu tham khảo chi tiết: plugin architecture, theme, Gutenberg, WooCommerce, security, DB migrations, WP-CLI, multisite, testing |
+| `rules/solidity.md`     | Có Solidity  | OpenZeppelin imports, SafeERC20, Security modifiers, NatSpec, Gas optimization, Signature verification, Hardhat/Foundry                |
+| `rules/solidity-refs/`  | Có Solidity  | 2 tài liệu tham khảo: contract templates (base + signature pattern), audit checklist (12 categories + pre-deploy)                      |
 
 
-Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. WordPress references được copy vào `.planning/docs/wordpress/` để tra cứu khi code. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. WordPress references được copy vào `.planning/docs/wordpress/`, Solidity references vào `.planning/docs/solidity/` để tra cứu khi code. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
 
 ### Tùy chọn plan
 
@@ -229,20 +231,22 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ├── scan/
 │   └── SCAN_REPORT.md            # Báo cáo quét dự án + kiểm tra bảo mật thư viện
 ├── docs/                         # Tài liệu cache (fetch-doc) kèm phiên bản + mục lục
-│   └── wordpress/                # Tài liệu tham khảo WordPress (nếu có WordPress)
+│   ├── wordpress/                # Tài liệu tham khảo WordPress (nếu có WordPress)
+│   └── solidity/                 # Tài liệu tham khảo Solidity (nếu có Solidity)
 ├── bugs/
 │   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, phiên bản vá)
 ├── rules/                        # Quy tắc viết code (sao chép từ repo Please Done theo stack)
 │   ├── general.md                # Quy tắc chung (luôn có)
 │   ├── backend.md                # Quy ước NestJS (nếu có backend)
 │   ├── frontend.md               # Quy ước NextJS (nếu có frontend)
-│   └── wordpress.md              # Quy ước WordPress (nếu có WordPress)
+│   ├── wordpress.md              # Quy ước WordPress (nếu có WordPress)
+│   └── solidity.md               # Quy ước Solidity (nếu có Solidity)
 └── milestones/[version]/
     ├── MILESTONE_COMPLETE.md     # Tổng kết milestone (tạo khi hoàn tất)
     └── phase-[x.x]/
         ├── PLAN.md               # Thiết kế kỹ thuật + API + cơ sở dữ liệu + quyết định
         ├── TASKS.md              # Danh sách công việc + trạng thái
-        ├── TEST_REPORT.md        # Kết quả kiểm thử (chỉ Backend)
+        ├── TEST_REPORT.md        # Kết quả kiểm thử (NestJS/WordPress/Solidity)
         └── reports/
             └── CODE_REPORT_TASK_[N].md  # Báo cáo từng task
 ```
@@ -276,7 +280,7 @@ Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài        
 | **Tên công cụ**     | Read, Write, Bash | Giữ nguyên             | read_file, write_file, run_shell_command | Giữ nguyên     | read, write, execute |
 | **Tiền tố lệnh**    | /pd:              | $pd-                   | /pd:                                     | /pd-           | /pd:                 |
 | **Định dạng skill** | .md lồng nhau     | SKILL.md + XML adapter | .md lồng nhau                            | pd-*.md phẳng  | SKILL.md             |
-| **Cấu hình MCP**    | settings.json     | config.toml (TOML)     | settings.json                            | Cấu hình riêng | instructions.md      |
+| **Cấu hình MCP**    | settings.json     | config.toml (TOML)     | settings.json                            | Cấu hình riêng | copilot-instructions.md |
 
 
 ## Máy chủ MCP
@@ -353,7 +357,7 @@ Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu
 | Tiền tố       | Skill              | Khi nào                                |
 | ------------- | ------------------ | -------------------------------------- |
 | `[TASK-N]`    | write-code         | Hoàn thành 1 task                                  |
-| `[KIỂM THỬ]`  | test               | Thêm file kiểm thử (.spec.ts hoặc test-*.php)      |
+| `[KIỂM THỬ]`  | test               | Thêm file kiểm thử (.spec.ts, test-*.php, hoặc test/*.ts/test/*.t.sol) |
 | `[LỖI]`       | fix-bug            | Mỗi lần sửa lỗi (có thể nhiều lần/lỗi)             |
 | `[TRACKING]`  | write-code         | Phase hoàn tất tất cả tasks (tracking commit riêng) |
 | `[PHIÊN BẢN]` | complete-milestone | Đóng milestone + tạo git tag                        |
@@ -381,9 +385,10 @@ Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu
 | Frontend | NextJS App Router | -                                 | `next.config.`*                                  |
 | Frontend | Vite/React        | -                                 | `vite.config.*`, nhiều tệp `.tsx/.jsx`           |
 | CMS      | WordPress         | MySQL (wp-config.php)             | `wp-config.php`, `wp-content/`                   |
+| Blockchain | Solidity (Hardhat/Foundry) | On-chain (EVM)           | `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol` |
 
 
-NestJS, NextJS và WordPress có rules + phân tích chi tiết. Các stack khác được nhận diện nhưng chỉ liệt kê files, áp dụng `general.md`.
+NestJS, NextJS, WordPress, và Solidity có rules + phân tích chi tiết. Các stack khác được nhận diện nhưng chỉ liệt kê files, áp dụng `general.md`.
 
 **Mở rộng stack mới**: Thêm tệp `commands/pd/rules/[stack].md` + mẫu nhận diện trong `init.md` Bước 4.
 
@@ -397,7 +402,7 @@ Bộ đánh giá chất lượng prompt theo [phương pháp Anthropic](https://
 # Thiết lập: tạo .env với ANTHROPIC_API_KEY
 # Cài promptfoo: npm install -g promptfoo
 
-npm run eval            # 41 bài kiểm tra tuân thủ quy trình
+npm run eval            # 58 bài kiểm tra tuân thủ quy trình
 npm run eval:trigger    # 19 bài kiểm tra độ chính xác kích hoạt
 npm run eval:full       # Cả 2 + lưu lịch sử benchmark
 npm run eval:compare    # So sánh benchmark qua thời gian
@@ -410,7 +415,7 @@ npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
 
 | Bộ kiểm tra            | Số lượng | Tỷ lệ đạt |
 | ---------------------- | -------- | --------- |
-| Tuân thủ quy trình     | 41       | 100%      |
+| Tuân thủ quy trình     | 58       | —         |
 | Độ chính xác kích hoạt | 19       | 94.7%     |
 
 

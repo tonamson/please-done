@@ -1,10 +1,10 @@
 ---
 name: pd:test
-description: Viết test files (Jest + Supertest), chạy kiểm thử, xác nhận với user, báo cáo lỗi
+description: Viết test files, chạy kiểm thử (NestJS/WordPress/Solidity), xác nhận với user, báo cáo lỗi
 ---
 
 <objective>
-Viết test files (.spec.ts) dùng Jest + Supertest cho NestJS. Test với dữ liệu đầu vào cụ thể, kiểm tra đầu ra đúng logic. Chạy test, yêu cầu user xác nhận giao diện/database, commit test files.
+Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPress, Hardhat/Foundry cho Solidity). Test với dữ liệu đầu vào cụ thể, kiểm tra đầu ra đúng logic. Chạy test, yêu cầu user xác nhận giao diện/database, commit test files.
 </objective>
 
 <context>
@@ -15,6 +15,7 @@ User input: $ARGUMENTS
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress + Build & Lint (CHỈ nếu file tồn tại, đọc khi WordPress flow)
+- `.planning/rules/solidity.md` → quy tắc Solidity + Build & Lint (CHỈ nếu file tồn tại, đọc khi Solidity flow)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -31,8 +32,35 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
   3. Viết test files `tests/test-*.php` (class extends `WP_UnitTestCase`)
   4. Dùng factory methods: `$this->factory()->post->create()`, `$this->factory()->user->create()`
   5. Chạy: `./vendor/bin/phpunit --verbose` hoặc `composer test`
-  6. Phần còn lại (report, bug, commit) — theo đúng flow chung bên dưới
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS và WordPress. Project của bạn dùng [X]. Bạn có thể:
+  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận database + API (tương tự Bước 6)
+  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
+- **Nếu Solidity** → chuyển sang flow Hardhat/Foundry test:
+  1. Detect framework: Glob `**/hardhat.config.*` → Hardhat | Glob `**/foundry.toml` → Foundry
+  2. Đọc `.planning/docs/solidity/audit-checklist.md` (nếu có) để lấy security checklist
+  3. **Hardhat flow**: Viết test files `test/*.ts` hoặc `test/*.js` (dùng ethers.js + chai)
+     - Import: `import { ethers } from "hardhat"`, `import { expect } from "chai"`
+     - Pattern: `describe("ContractName", () => { ... })` — deploy contract trong `beforeEach`
+     - Test: deploy, function calls, revert cases, event emission, access control
+     - Chạy: `npx hardhat test --verbose`
+  4. **Foundry flow**: Viết test files `test/*.t.sol` (contract extends `Test` từ forge-std)
+     - Import: `import "forge-std/Test.sol"`
+     - Pattern: `contract MyContractTest is Test { ... }` — deploy trong `setUp()`
+     - Test functions prefix `test` (pass) hoặc `testFail` (expect revert)
+     - Chạy: `forge test -vvv`
+  5. **Test bắt buộc cho mọi Solidity contract**:
+     - Deploy + constructor args
+     - Core function happy path
+     - Access control (onlyOwner revert khi non-owner gọi)
+     - Input validation (require revert messages)
+     - Reentrancy guard (nếu có nonReentrant)
+     - Pause/unpause behavior
+     - clearUnknownToken function
+     - rescueETH function (nếu contract có receive() hoặc nhận ETH)
+     - Event emission (verify đúng event + đúng params sau mỗi state change)
+     - Signature verification (nếu có): valid signature, expired deadline, wrong signer, hash replay, wrong msg.sender
+  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận on-chain state (tương tự Bước 6)
+  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress, và Solidity. Project của bạn dùng [X]. Bạn có thể:
   1. Viết test thủ công (tạo file test theo pattern chuẩn của framework)
   2. Bỏ qua automated test cho phase này"
 - **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.
@@ -54,7 +82,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/pd:write-code` trước."
 - `.planning/rules/backend.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
 
-## Bước 2: Kiểm tra test infrastructure
+## Bước 2: Kiểm tra test infrastructure (CHỈ NestJS flow)
 Kiểm tra Jest config + dependencies (`@nestjs/testing`, `supertest`, `jest`).
 Nếu chưa có → thông báo user cài: `npm install --save-dev @nestjs/testing supertest @types/supertest`
 
@@ -64,9 +92,9 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md)
 
 **Lưu ý**: Ưu tiên đọc code thực tế (FastCode/Grep) để viết test dựa trên IMPLEMENTATION. Reference PLAN.md để kiểm tra compliance, nhưng KHÔNG dùng PLAN.md làm source-of-truth cho test — code thực tế có thể khác plan.
 
-Nếu FastCode MCP lỗi khi gọi → DỪNG, thông báo user chạy `/pd:init` kiểm tra lại.
+Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để đọc code. Ghi warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd:init` kiểm tra lại sau."
 
-## Bước 4: Viết test files (.spec.ts)
+## Bước 4: Viết test files (CHỈ NestJS flow — .spec.ts)
 Đặt cạnh source file: `src/modules/users/users.controller.spec.ts`
 
 ### Cấu trúc mẫu:
@@ -168,14 +196,14 @@ Viết `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
 > Milestone: [tên] (v[x.x])
 > Tổng: [X] tests | ✅ [Y] đạt | ❌ [Z] lỗi
 
-## Kết quả tự động (Jest)
+## Kết quả tự động ([Jest|PHPUnit|Hardhat|Foundry])
 | Test case | Đầu vào | Kỳ vọng | Thực tế | KQ |
 
-## Xác nhận giao diện
+## Xác nhận giao diện (Frontend — bỏ nếu không có)
 | Chức năng | Kết quả | Ghi chú |
 
-## Xác nhận database
-| Bảng/Collection | Kết quả | Ghi chú |
+## Xác nhận dữ liệu (Database/On-chain state — bỏ nếu không có)
+| Bảng/Collection/Contract | Kết quả | Ghi chú |
 ```
 
 ## Bước 8: Bug Report (nếu có lỗi)
@@ -200,7 +228,7 @@ Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone fil
 
 ## Bước 10: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
-git add [*.spec.ts files]
+git add [test files — *.spec.ts (NestJS) | test-*.php (WordPress) | test/*.ts hoặc test/*.t.sol (Solidity)]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
 # Nếu có bug report từ Bước 8:
@@ -216,8 +244,7 @@ Kết quả: X/Y đạt"
 
 <rules>
 - Tuân thủ quy tắc trong `.planning/rules/` (ngôn ngữ, ngày tháng, bảo mật)
-- PHẢI viết .spec.ts commit vào repo - KHÔNG chỉ chạy CURL
-- Dùng Jest + @nestjs/testing + Supertest (chuẩn ngành)
+- PHẢI viết test files commit vào repo — NestJS: `.spec.ts` (Jest + Supertest), WordPress: `test-*.php` (PHPUnit), Solidity: `test/*.ts` (Hardhat) hoặc `test/*.t.sol` (Foundry) — KHÔNG chỉ chạy CURL
 - Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG
 - PHẢI yêu cầu user xác nhận giao diện + database (mắt người đánh giá)
 - PHẢI đọc PLAN.md trước khi viết test
