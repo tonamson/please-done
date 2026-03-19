@@ -22,6 +22,7 @@ User input: $ARGUMENTS
 - `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress/PHP (đọc khi task WordPress, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/wordpress/*.md` cho patterns phức tạp (plugin architecture, theme, Gutenberg, WooCommerce, v.v.)
+- `.planning/rules/flutter.md` → quy tắc Flutter/Dart (đọc khi task Flutter, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/flutter/*.md` cho patterns phức tạp (state management, navigation, testing, platform channels, v.v.)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -40,7 +41,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 7)
 
 Chọn task:
-- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS hoặc WordPress), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
+- **Nếu TẤT CẢ tasks đều ✅** (không còn ⬜, 🔄, ❌, 🐛) → **DỪNG**, thông báo: "Phase [x.x] đã hoàn tất tất cả [N] tasks." + gợi ý: `/pd:test` (nếu có Backend NestJS, WordPress, hoặc Flutter), `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 - Nếu `$ARGUMENTS` chỉ định task number → đọc trạng thái task đó:
   - ⬜ hoặc 🔄 → tiếp tục (🔄 = resume task đang làm dở)
   - ✅ → hỏi user: "Task [N] đã hoàn tất. Bạn muốn thực hiện lại?"
@@ -150,6 +151,19 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - Gutenberg blocks: dùng `@wordpress/scripts` build toolchain
 - PHP lint: `composer run lint` (nếu đã setup PHPCS + WordPress standards)
 
+**Nếu task Flutter (mobile/web app):**
+- Tuân thủ quy tắc trong `.planning/rules/flutter.md` (GetX, Clean Architecture, Dart conventions)
+- Mỗi screen = 4 files trong `presentation/screens/[tên_screen]/`: `*_binding.dart`, `*_logic.dart`, `*_state.dart`, `*_view.dart`
+- State tách riêng: `.obs` variables trong `*_state.dart`, business logic trong `*_logic.dart`
+- DI: Binding class cho mỗi screen, `Get.lazyPut()` cho lazy loading
+- Navigation: `Get.toNamed()` — CẤM `Navigator.push()`
+- API: qua Service/Provider (`shared/services/`, `data/providers/`) — CẤM gọi API trực tiếp từ Logic
+- Entity: `data/models/*_entity.dart` — `fromJson()` + `toJson()` + `copyWith()`
+- Shared widgets: `core/widgets/` nhóm theo chức năng — tái sử dụng, KHÔNG tạo trùng
+- `const` constructors mọi nơi có thể — trailing commas cho formatting
+- Tra cứu `.planning/docs/flutter/` cho patterns phức tạp (đọc mục lục nhanh, rồi sections liên quan)
+- Tra cứu Context7 (`flutter`, `get`) cho API cụ thể
+
 **Nếu task stack khác** (Chrome extension, CLI, v.v.):
 - Tuân thủ thiết kế trong PLAN.md + quy tắc chung trong `general.md`
 - Tra cứu docs thư viện qua Context7 nếu cần
@@ -157,7 +171,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 ## Bước 5: Lint + Build
 Đọc CONTEXT.md → Tech Stack → xác định thư mục + công cụ build.
 
-**Nếu có rules file** (backend.md/frontend.md/wordpress.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
+**Nếu có rules file** (backend.md/frontend.md/wordpress.md/flutter.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
 **Nếu không có rules file** (stack khác): đọc `package.json` hoặc `composer.json` scripts → dùng `npm run lint` / `npm run build` hoặc `composer run lint` nếu có, hoặc skip nếu project chưa setup build.
 
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
@@ -289,7 +303,7 @@ DỪNG sau mỗi task, thông báo:
 - Task hoàn thành + files + build status
 - Nếu còn task ⬜ → hỏi: "Còn [X] tasks. Tiếp tục task tiếp theo không?"
 - Nếu hết task ⬜ → đề xuất:
-  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS hoặc WordPress)
+  - `/pd:test` → chạy kiểm thử (CHỈ gợi ý nếu CONTEXT.md có Backend NestJS, WordPress, hoặc Flutter)
   - `/pd:plan [phase tiếp]` → lên kế hoạch phase tiếp theo
   - `/pd:complete-milestone` → hoàn tất milestone (nếu đây là phase cuối)
 </process>

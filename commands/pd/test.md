@@ -15,6 +15,7 @@ User input: $ARGUMENTS
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress + Build & Lint (CHỈ nếu file tồn tại, đọc khi WordPress flow)
+- `.planning/rules/flutter.md` → quy tắc Flutter/Dart + Build & Lint (CHỈ nếu file tồn tại, đọc khi Flutter flow)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -22,8 +23,8 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 <process>
 
 ## Bước 1: Xác định scope + đọc context
-- Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
-- Xác định backend framework từ CONTEXT.md.
+- Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend hoặc Flutter không
+- Xác định framework từ CONTEXT.md.
 - **Nếu NestJS** → tiếp tục flow Jest + Supertest bên dưới (giữ nguyên)
 - **Nếu WordPress** → chuyển sang flow PHPUnit + WP_UnitTestCase:
   1. Kiểm tra PHPUnit + WordPress test suite đã cài (`composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit`)
@@ -32,7 +33,17 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
   4. Dùng factory methods: `$this->factory()->post->create()`, `$this->factory()->user->create()`
   5. Chạy: `./vendor/bin/phpunit --verbose` hoặc `composer test`
   6. Phần còn lại (report, bug, commit) — theo đúng flow chung bên dưới
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS và WordPress. Project của bạn dùng [X]. Bạn có thể:
+- **Nếu Flutter** → chuyển sang flow flutter test + mocktail:
+  1. Kiểm tra dev_dependencies đã có `flutter_test` + `mocktail` (`flutter pub add --dev mocktail` nếu thiếu)
+  2. Đọc `.planning/docs/flutter/testing.md` (nếu có) để lấy patterns GetX test
+  3. Viết test files `test/modules/[feature]/*_test.dart`:
+     - Unit tests: mock Repository, test Controller logic (fetch, error handling, state changes)
+     - Widget tests: mock Controller, test View render đúng (loading, data, empty, error states)
+  4. Setup: `Get.put()` trong `setUp()`, `Get.reset()` trong `tearDown()`
+  5. Pattern: Arrange (mock data) → Act (gọi method/pump widget) → Assert (verify state/widget)
+  6. Chạy: `flutter test --verbose` hoặc `flutter test test/modules/[feature]/`
+  7. Phần còn lại (report, bug, commit) — theo đúng flow chung bên dưới
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress và Flutter. Project của bạn dùng [X]. Bạn có thể:
   1. Viết test thủ công (tạo file test theo pattern chuẩn của framework)
   2. Bỏ qua automated test cho phase này"
 - **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.

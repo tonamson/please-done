@@ -29,15 +29,15 @@ Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng 
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*/`:
 - `phase-*/TASKS.md` (BẮT BUỘC — mỗi phase phải có VÀ phải có ít nhất 1 task, không chấp nhận phase rỗng)
-- `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS hoặc WordPress trong CONTEXT.md. Các stack khác bỏ qua)
+- `phase-*/TEST_REPORT.md` (CHỈ kiểm tra nếu project có Backend NestJS, WordPress, hoặc Flutter trong CONTEXT.md. Các stack khác bỏ qua)
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (BẮT BUỘC)
 
 **Cross-check CODE_REPORT**: MỖI task có trạng thái ✅ trong `phase-X/TASKS.md` PHẢI có ít nhất 1 `phase-X/reports/CODE_REPORT_TASK_[N].md` trong CÙNG phase directory. Quét từng phase riêng, KHÔNG quét cross-phase. Nếu thiếu report cho task cụ thể → cảnh báo: "Thiếu CODE_REPORT cho task [N] trong phase [X]. Chạy `/pd:write-code [N]` để bổ sung."
 
 Kiểm tra:
 - Tất cả tasks trong MỌI phase đều ✅?
-- Nếu project có Backend VÀ có TEST_REPORT → tất cả tests đạt?
-- Nếu project KHÔNG có Backend → bỏ qua kiểm tra TEST_REPORT
+- Nếu project có (Backend HOẶC Flutter) VÀ có TEST_REPORT → tất cả tests đạt?
+- Nếu project KHÔNG có Backend VÀ KHÔNG có Flutter → bỏ qua kiểm tra TEST_REPORT
 - Nếu có tasks CHƯA hoàn tất (⬜, 🔄, ❌, 🐛) → **CHẶN**:
   > "Không thể hoàn tất. Còn [X] tasks chưa ✅ trong milestone v[x.x]. Chạy `/pd:write-code` hoặc `/pd:fix-bug` trước."
 

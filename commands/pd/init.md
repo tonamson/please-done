@@ -15,6 +15,7 @@ Rules templates: đọc `.pdconfig` tại `~/.claude/commands/pd/.pdconfig` → 
 - `backend.md` — quy tắc NestJS (chỉ copy nếu có backend)
 - `frontend.md` — quy tắc NextJS (chỉ copy nếu có frontend)
 - `wordpress.md` — quy tắc WordPress (chỉ copy nếu có WordPress)
+- `flutter.md` — quy tắc Flutter/Dart (chỉ copy nếu có Flutter)
 </context>
 
 <process>
@@ -47,7 +48,7 @@ Nếu `.planning/CONTEXT.md` đã tồn tại:
 - Nếu khởi tạo lại → tiếp tục Bước 3 bình thường
 
 ## Bước 3: Kiểm tra project có code chưa
-Glob `**/*.{ts,tsx,js,jsx,py,php,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin) — KHÔNG bao gồm `.json` vì `package.json` alone không phải source code:
+Glob `**/*.{ts,tsx,js,jsx,py,php,html,dart}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, .dart_tool) — KHÔNG bao gồm `.json` vì `package.json` alone không phải source code:
 - **CÓ source files** → `isNewProject = false`, tiếp tục Bước 3a
 - **KHÔNG có source files** (folder trống/chỉ có README/package.json) → `isNewProject = true`, nhảy sang Bước 4
 
@@ -73,6 +74,9 @@ Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Glob `**/wp-config.php` → **hasWordPress = true**
 - Fallback WordPress: Glob `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css` → **hasWordPress = true**
 - Nếu hasWordPress = true: `hasBackend` và `hasFrontend` giữ nguyên (WordPress project có thể kết hợp NestJS API hoặc React frontend)
+- Glob `**/pubspec.yaml` → Grep `flutter:` trong file đó → **hasFlutter = true**
+- Fallback Flutter: Glob `**/*.dart` (trừ .dart_tool) — nếu có nhiều files (>3) → **hasFlutter = true**
+- Nếu hasFlutter = true: `hasBackend` và `hasFrontend` giữ nguyên (Flutter project có thể kết hợp NestJS API backend)
 - Khi detect stack không có rules file tương ứng trong `[SKILLS_DIR]/commands/pd/rules/` → thông báo: "Phát hiện [stack] nhưng chưa có rules template. Chỉ áp dụng general.md."
 
 Đọc nhanh:
@@ -95,7 +99,7 @@ mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules
 Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy giá trị `SKILLS_DIR`.
 Nếu `.pdconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG**, thông báo: "Không tìm thấy .pdconfig. Chạy lại `node bin/install.js`."
 
-**Chỉ xóa các files template**: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`. Giữ nguyên files custom khác (nếu có). → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa) mà không mất rules do user tự thêm.
+**Chỉ xóa các files template**: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `flutter.md`. Giữ nguyên files custom khác (nếu có). → đảm bảo rules phù hợp với tech stack hiện tại (VD: nếu backend bị xóa, backend.md cũ cũng bị xóa) mà không mất rules do user tự thêm.
 
 Đọc rules từ `[SKILLS_DIR]/commands/pd/rules/` → Write vào `.planning/rules/`:
 
@@ -103,6 +107,7 @@ Nếu `.pdconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG
 - **Nếu hasBackend = true**: copy `backend.md`
 - **Nếu hasFrontend = true**: copy `frontend.md`
 - **Nếu hasWordPress = true**: copy `wordpress.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/wordpress-refs/` → `.planning/docs/wordpress/` (reference docs cho tra cứu khi code)
+- **Nếu hasFlutter = true**: copy `flutter.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/flutter-refs/` → `.planning/docs/flutter/` (reference docs cho tra cứu khi code)
 - **Nếu project mới hoặc stack khác** (Chrome extension, CLI, v.v.): CHỈ copy `general.md`
 
 ## Bước 7: Tạo CONTEXT.md (GỌN — chỉ chứa info dự án)
@@ -154,6 +159,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 ║   - backend.md (nếu có)             ║
 ║   - frontend.md (nếu có)            ║
 ║   - wordpress.md (nếu có)           ║
+║   - flutter.md (nếu có)            ║
 ╠══════════════════════════════════════╣
 ║ Tiếp theo:                          ║
 ║   /pd:scan   → Quét chi tiết        ║
@@ -165,10 +171,11 @@ Quy tắc code nằm tại `.planning/rules/`:
 <rules>
 - CONTEXT.md DƯỚI 50 dòng — chỉ info dự án, KHÔNG chứa coding rules
 - Coding rules nằm riêng trong `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/pd/rules/` (path lấy từ `.pdconfig`)
-- Chỉ copy rules files phù hợp với tech stack detected (hasBackend/hasFrontend/hasWordPress)
+- Chỉ copy rules files phù hợp với tech stack detected (hasBackend/hasFrontend/hasWordPress/hasFlutter)
 - Nếu hasWordPress = true: copy `wordpress.md` vào `.planning/rules/` + copy `wordpress-refs/` vào `.planning/docs/wordpress/`
+- Nếu hasFlutter = true: copy `flutter.md` vào `.planning/rules/` + copy `flutter-refs/` vào `.planning/docs/flutter/`
 - Project mới (isNewProject = true): skip FastCode indexing, hỏi user mô tả dự án, chỉ copy general.md
-- Sau này thêm stack mới (React Native, Flutter...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
+- Sau này thêm stack mới (React Native...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
 - FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại, KHÔNG có fallback
 - CẤM đọc/ghi/hiển thị nội dung file nhạy cảm (`.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - Nếu đã có CONTEXT.md từ session trước → hỏi user muốn khởi tạo lại hay giữ

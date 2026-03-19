@@ -1,7 +1,7 @@
 # Quy tắc chung
 
 ## Code style (TS/JS)
-- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs)
+- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs) — Dart theo rules riêng trong flutter.md (2 spaces, single quotes, trailing commas)
 - Import: `@/` cross-module, `./` cùng module
 - File: kebab-case (create-user.dto.ts, admin-api.ts) | Class/Component: PascalCase
 - Giới hạn: mục tiêu 300 dòng, BẮT BUỘC tách >500
@@ -41,7 +41,7 @@ Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
 - **Inline trước, extract sau** — Không tạo helper/utility cho logic chỉ dùng 1 lần. 3 dòng lặp vẫn tốt hơn 1 premature abstraction
 - **YAGNI** — Chỉ code đúng requirement hiện tại. Không thêm configurability, feature flag, extensibility "phòng xa"
 - **Ít file mới nhất có thể** — Ưu tiên sửa file hiện có. Chỉ tách file mới khi vượt giới hạn dòng (xem Code style) hoặc có lý do kiến trúc rõ ràng
-- **Dùng đúng built-in của framework** — Không tự chế khi framework đã có sẵn (NestJS Guard/Pipe/Interceptor, Laravel Policy/Passport, WordPress nonce/capability...). Không wrap, không viết lại
+- **Dùng đúng built-in của framework** — Không tự chế khi framework đã có sẵn (NestJS Guard/Pipe/Interceptor, Laravel Policy/Passport, WordPress nonce/capability, Flutter/GetX Bindings/Middleware...). Không wrap, không viết lại
 - **Tra docs framework trước khi viết** — BẮT BUỘC dùng MCP context7 (`resolve-library-id` → `query-docs`) tra xem framework/library đã có hàm/class/helper cho việc đó chưa. Chỉ tự viết khi xác nhận không có sẵn
 - **Tra code project trước khi viết** — BẮT BUỘC dùng MCP FastCode (`code_qa`) hỏi xem project đã có hàm/util/service nào làm việc tương tự chưa để tái sử dụng, tránh viết trùng lặp
 - **Đếm trước khi viết** — 1 feature nhỏ mà cần >2 file mới hoặc >3 function mới → dừng lại đơn giản hóa
