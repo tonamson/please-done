@@ -1,5 +1,16 @@
 # Nhật ký thay đổi Skills
 
+## [2.6.2] - 19_03_2026
+### Thay đổi
+- **Rename**: `backend.md` → `nestjs.md`, `frontend.md` → `nextjs.md` — đồng bộ naming convention [stack]-refs/
+- **nestjs-refs/**: 5 reference docs (authentication, database-patterns, testing, swagger, error-handling)
+- **nextjs-refs/**: 5 reference docs (server-components, authentication, seo-metadata, api-integration, zustand-patterns)
+- **nestjs.md**: thêm `## Cấu trúc dự án`, `## Bảo mật (BẮT BUỘC)` (rate limiting, helmet, CORS, validation), `## Tham khảo chi tiết`
+- **nextjs.md**: thêm `## Bảo mật (BẮT BUỘC)` (XSS, token storage, env vars, form validation), `## Tham khảo chi tiết`
+- **Detection flags**: `hasBackend` → `hasNestJS`, `hasFrontend` → `hasNextJS` (Express/Vite/React giữ hasBackend/hasFrontend)
+- **INTEGRATION_GUIDE.md**: cập nhật ~34 anchor patterns cho đúng trạng thái hiện tại
+- **README.md**: fix test skill description thiếu Flutter, cập nhật nestjs-refs/nextjs-refs descriptions
+
 ## [2.6.1] - 19_03_2026
 ### Sửa lỗi
 - **test.md**: description + objective thiếu Flutter (chỉ ghi NestJS/WordPress/Solidity)
