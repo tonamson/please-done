@@ -77,6 +77,7 @@ Dùng built-in tools (Glob, Grep, Read) quét nhanh:
 - Glob `**/pubspec.yaml` → Grep `flutter:` trong file đó → **hasFlutter = true**
 - Fallback Flutter: Glob `**/*.dart` (trừ .dart_tool) — nếu có nhiều files (>3) → **hasFlutter = true**
 - Nếu hasFlutter = true: `hasBackend` và `hasFrontend` giữ nguyên (Flutter project có thể kết hợp NestJS API backend)
+- Nếu hasFlutter = true: kiểm tra Dart MCP Server (Bash: `dart mcp-server --version 2>/dev/null`). Nếu không có → gợi ý: "💡 Dart MCP Server chưa cài. Cài bằng: `claude mcp add --transport stdio dart -- dart mcp-server` (yêu cầu Dart 3.9+). MCP này giúp analyze, fix lỗi, inspect widget tree, search pub.dev trực tiếp."
 - Khi detect stack không có rules file tương ứng trong `[SKILLS_DIR]/commands/pd/rules/` → thông báo: "Phát hiện [stack] nhưng chưa có rules template. Chỉ áp dụng general.md."
 
 Đọc nhanh:

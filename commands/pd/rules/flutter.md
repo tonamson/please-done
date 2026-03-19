@@ -280,8 +280,29 @@ assets/                             → images/, fonts/, translations/
 - Translation files: `core/l10n/intl_*.arb` hoặc `assets/translations/` tùy dự án
 - CẤM hardcode strings hiển thị cho user
 
-## Tra cứu API (MCP Context7 — BẮT BUỘC)
-- **TRƯỚC khi viết code dùng API của thư viện** → BẮT BUỘC tra Context7:
+## MCP Tools cho Flutter (BẮT BUỘC khi có)
+
+### 1. Dart MCP Server (`dart mcp-server`) — Yêu cầu Dart 3.9+
+Cài đặt: `claude mcp add --transport stdio dart -- dart mcp-server`
+
+**Dùng cho:**
+- **Analyze & Fix**: phát hiện + sửa lỗi static analysis + runtime errors trong project
+- **Symbol Resolution**: resolve symbol → lấy documentation + signature (tra API chính xác hơn đoán)
+- **Widget Tree Inspection**: introspect widget tree của app đang chạy → debug layout
+- **pub.dev Search**: tìm packages phù hợp trực tiếp từ pub.dev (ratings, popularity)
+- **Dependency Management**: thêm/xóa packages trong `pubspec.yaml` tự động
+- **Run Tests**: chạy tests + phân tích kết quả
+- **Code Format**: format code theo `dart format` config
+
+**Khi nào dùng:**
+- **Viết code**: resolve symbol để verify API đúng version trước khi dùng
+- **Fix bug**: lấy runtime errors từ app đang chạy + inspect widget tree
+- **Thêm package**: search pub.dev → thêm dependency → verify compatibility
+- **Test**: chạy tests qua MCP thay vì Bash trực tiếp — kết quả structured hơn
+- Nếu Dart MCP Server không có (chưa cài hoặc Dart < 3.9) → fallback sang Context7 + Bash
+
+### 2. Context7 MCP — Tra cứu docs thư viện
+- **TRƯỚC khi viết code dùng API của thư viện** → tra Context7:
   1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện) → lấy library ID
   2. `mcp__context7__query-docs` (libraryId: ID, query: câu hỏi cụ thể) → lấy docs đúng version
 - **Thư viện cần tra khi code Flutter:**
@@ -294,8 +315,14 @@ assets/                             → images/, fonts/, translations/
   - `hive` / `sqflite` — Box API, adapters, migration
   - `cached_network_image` — CachedNetworkImage widget, CacheManager
   - `toastification` — toastification.show(), ToastificationType, positioning
-- **Ưu tiên Context7 hơn đoán từ memory** — đảm bảo đúng version + đúng cú pháp
-- Nếu Context7 MCP không có → dùng `.planning/docs/flutter/` hoặc knowledge sẵn có
+
+### Thứ tự ưu tiên
+1. **Dart MCP Server** (nếu có) — chính xác nhất, trực tiếp từ SDK + project thực tế
+2. **Context7** — docs thư viện đúng version
+3. **FastCode** (`code_qa`) — tìm patterns đã có trong project
+4. `.planning/docs/flutter/` — reference docs local
+5. Knowledge sẵn có — fallback cuối cùng
+
 - TỰ ĐỘNG tra cứu khi dùng API mới — KHÔNG cần user yêu cầu
 
 ## Build & Lint
