@@ -280,6 +280,24 @@ assets/                             → images/, fonts/, translations/
 - Translation files: `core/l10n/intl_*.arb` hoặc `assets/translations/` tùy dự án
 - CẤM hardcode strings hiển thị cho user
 
+## Tra cứu API (MCP Context7 — BẮT BUỘC)
+- **TRƯỚC khi viết code dùng API của thư viện** → BẮT BUỘC tra Context7:
+  1. `mcp__context7__resolve-library-id` (libraryName: tên thư viện) → lấy library ID
+  2. `mcp__context7__query-docs` (libraryId: ID, query: câu hỏi cụ thể) → lấy docs đúng version
+- **Thư viện cần tra khi code Flutter:**
+  - `flutter` — Widget API, Material/Cupertino, Navigator, ThemeData, MediaQuery
+  - `get` (GetX) — Controller lifecycle, Obx/GetBuilder, Get.toNamed, Bindings, Workers
+  - `dio` — Interceptors, FormData, CancelToken, retry, error handling
+  - `flutter_screenutil` — ScreenUtil.init(), `.w`, `.h`, `.sp`, `.r` API
+  - `firebase_messaging` — FCM setup, onMessage, onBackgroundMessage, getInitialMessage
+  - `flutter_local_notifications` — AndroidNotificationDetails, show(), channel setup
+  - `hive` / `sqflite` — Box API, adapters, migration
+  - `cached_network_image` — CachedNetworkImage widget, CacheManager
+  - `toastification` — toastification.show(), ToastificationType, positioning
+- **Ưu tiên Context7 hơn đoán từ memory** — đảm bảo đúng version + đúng cú pháp
+- Nếu Context7 MCP không có → dùng `.planning/docs/flutter/` hoặc knowledge sẵn có
+- TỰ ĐỘNG tra cứu khi dùng API mới — KHÔNG cần user yêu cầu
+
 ## Build & Lint
 - Lint: `dart analyze` hoặc `flutter analyze`
 - Format: `dart format lib/ test/`
