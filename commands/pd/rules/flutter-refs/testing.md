@@ -11,9 +11,9 @@ dev_dependencies:
     sdk: flutter
 ```
 
-## Unit Tests (Controllers, Repositories, Services)
+## Unit Tests (Logic, Repositories, Services)
 ```dart
-// test/modules/home/controllers/home_controller_test.dart
+// test/unit/home/home_logic_test.dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
@@ -21,21 +21,21 @@ import 'package:mocktail/mocktail.dart';
 class MockUserRepository extends Mock implements UserRepository {}
 
 void main() {
-  late HomeController controller;
+  late HomeLogic logic;
   late MockUserRepository mockRepo;
 
   setUp(() {
     mockRepo = MockUserRepository();
     Get.put<UserRepository>(mockRepo);
-    controller = HomeController();
-    Get.put(controller);
+    logic = HomeLogic();
+    Get.put(logic);
   });
 
   tearDown(() {
     Get.reset();
   });
 
-  group('HomeController', () {
+  group('HomeLogic', () {
     test('fetchUsers - tải danh sách thành công', () async {
       // Arrange
       final users = [
@@ -45,11 +45,11 @@ void main() {
       when(() => mockRepo.getUsers()).thenAnswer((_) async => users);
 
       // Act
-      await controller.fetchUsers();
+      await logic.fetchUsers();
 
       // Assert
-      expect(controller.userList.length, equals(2));
-      expect(controller.isLoading, isFalse);
+      expect(logic.state.userList.length, equals(2));
+      expect(logic.state.isLoading.value, isFalse);
       verify(() => mockRepo.getUsers()).called(1);
     });
 
@@ -58,19 +58,19 @@ void main() {
       when(() => mockRepo.getUsers()).thenThrow(Exception('Network error'));
 
       // Act
-      await controller.fetchUsers();
+      await logic.fetchUsers();
 
       // Assert
-      expect(controller.userList.isEmpty, isTrue);
-      expect(controller.isLoading, isFalse);
+      expect(logic.state.userList.isEmpty, isTrue);
+      expect(logic.state.isLoading.value, isFalse);
     });
 
     test('selectUser - cập nhật selectedIndex', () {
       // Act
-      controller.selectUser(2);
+      logic.selectUser(2);
 
       // Assert
-      expect(controller.selectedIndex, equals(2));
+      expect(logic.state.selectedIndex.value, equals(2));
     });
   });
 }
@@ -78,22 +78,25 @@ void main() {
 
 ## Widget Tests
 ```dart
-// test/modules/home/views/home_view_test.dart
+// test/widget/home/home_view_test.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockHomeController extends GetxController
+class MockHomeLogic extends GetxController
     with Mock
-    implements HomeController {}
+    implements HomeLogic {
+  @override
+  final state = HomeState(); // Real state object — mock logic methods, not state
+}
 
 void main() {
-  late MockHomeController mockController;
+  late MockHomeLogic mockLogic;
 
   setUp(() {
-    mockController = MockHomeController();
-    Get.put<HomeController>(mockController);
+    mockLogic = MockHomeLogic();
+    Get.put<HomeLogic>(mockLogic);
   });
 
   tearDown(() {
@@ -101,11 +104,11 @@ void main() {
   });
 
   testWidgets('HomeView - hiển thị danh sách users', (tester) async {
-    // Arrange
-    when(() => mockController.isLoading).thenReturn(false);
-    when(() => mockController.userList).thenReturn([
+    // Arrange — set state trực tiếp (real state, không cần when/thenReturn)
+    mockLogic.state.isLoading.value = false;
+    mockLogic.state.userList.assignAll([
       User(id: '1', name: 'Nguyễn Văn A', email: 'a@test.com'),
-    ].obs);
+    ]);
 
     // Act
     await tester.pumpWidget(
@@ -120,8 +123,8 @@ void main() {
 
   testWidgets('HomeView - hiển thị loading indicator', (tester) async {
     // Arrange
-    when(() => mockController.isLoading).thenReturn(true);
-    when(() => mockController.userList).thenReturn(<User>[].obs);
+    mockLogic.state.isLoading.value = true;
+    mockLogic.state.userList.clear();
 
     // Act
     await tester.pumpWidget(
@@ -134,12 +137,11 @@ void main() {
 
   testWidgets('HomeView - tap vào user gọi selectUser', (tester) async {
     // Arrange
-    when(() => mockController.isLoading).thenReturn(false);
-    when(() => mockController.userList).thenReturn([
+    mockLogic.state.isLoading.value = false;
+    mockLogic.state.userList.assignAll([
       User(id: '1', name: 'Test User', email: 'test@test.com'),
-    ].obs);
-    when(() => mockController.selectedIndex).thenReturn(0);
-    when(() => mockController.selectUser(any())).thenReturn(null);
+    ]);
+    when(() => mockLogic.selectUser(any())).thenReturn(null);
 
     // Act
     await tester.pumpWidget(
@@ -149,7 +151,7 @@ void main() {
     await tester.tap(find.text('Test User'));
 
     // Assert
-    verify(() => mockController.selectUser(0)).called(1);
+    verify(() => mockLogic.selectUser(0)).called(1);
   });
 }
 ```
@@ -219,7 +221,7 @@ flutter test
 flutter test --coverage
 
 # Specific file
-flutter test test/modules/home/controllers/home_controller_test.dart
+flutter test test/unit/home/home_logic_test.dart
 
 # Integration tests
 flutter test integration_test/app_test.dart

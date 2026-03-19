@@ -30,6 +30,14 @@ const TOOL_MAP = {
     Glob: 'glob',
     Grep: 'search',
   },
+  cursor: {
+    Read: 'read_file',
+    Write: 'write_to_file',
+    Edit: 'edit_file',
+    Bash: 'run_terminal_command',
+    Glob: 'list_files',
+    Grep: 'codebase_search',
+  },
 };
 
 // ─── Platform definitions ─────────────────────────────────
@@ -84,6 +92,16 @@ const PLATFORMS = {
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.copilot,
   },
+  cursor: {
+    name: 'Cursor',
+    dirName: '.cursor',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'CURSOR_CONFIG_DIR',
+    skillFormat: 'cursor',         // skills/pd-*/SKILL.md + rules/pd-*.mdc
+    frontmatterFormat: 'cursor',
+    toolMap: TOOL_MAP.cursor,
+  },
 };
 
 /**
@@ -115,6 +133,8 @@ function getGlobalDir(runtime, explicitDir) {
     }
     case 'copilot':
       return path.join(home, '.copilot');
+    case 'cursor':
+      return path.join(home, '.cursor');
     default:
       return path.join(home, platform.dirName);
   }

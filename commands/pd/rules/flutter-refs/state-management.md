@@ -2,7 +2,7 @@
 
 ## GetxController Lifecycle
 ```dart
-class MyController extends GetxController {
+class MyLogic extends GetxController {
   @override
   void onInit() {
     super.onInit();
@@ -13,7 +13,7 @@ class MyController extends GetxController {
   void onReady() {
     super.onReady();
     // Gọi sau khi widget rendered lần đầu (1 frame sau onInit)
-    // Dùng cho: show dialogs, snackbars, animations
+    // Dùng cho: show dialogs, toasts, animations
   }
 
   @override
@@ -77,19 +77,19 @@ void onInit() {
 ```dart
 // Obx: reactive (stream-based), tự động rebuild khi .obs thay đổi
 // Dùng cho: data thay đổi thường xuyên, UI cần realtime update
-Obx(() => Text('${controller.count}'));
+Obx(() => Text('${controller.state.count}'));
 
 // GetBuilder: manual update, nhẹ hơn Obx
 // Dùng cho: data ít thay đổi, complex widgets, performance-sensitive
-GetBuilder<MyController>(
+GetBuilder<MyLogic>(
   id: 'profile', // Optional: specific update ID
-  builder: (ctrl) => Text(ctrl.profileName),
+  builder: (ctrl) => Text(ctrl.state.profileName),
 );
 // Trigger update: controller.update(['profile']);
 
 // GetX widget: reactive + access controller
-GetX<MyController>(
-  builder: (ctrl) => Text('${ctrl.count}'),
+GetX<MyLogic>(
+  builder: (ctrl) => Text('${ctrl.state.count}'),
 );
 ```
 
@@ -97,76 +97,91 @@ GetX<MyController>(
 
 ### Loading/Error/Data Pattern
 ```dart
-class DataController extends GetxController {
-  final _status = Rx<DataStatus>(DataStatus.initial);
-  final _data = Rxn<MyData>();
-  final _error = ''.obs;
-
-  DataStatus get status => _status.value;
-  MyData? get data => _data.value;
-  String get error => _error.value;
-
-  Future<void> fetchData() async {
-    _status.value = DataStatus.loading;
-    try {
-      _data.value = await _repository.getData();
-      _status.value = DataStatus.success;
-    } catch (e) {
-      _error.value = e.toString();
-      _status.value = DataStatus.error;
-    }
-  }
+// data_state.dart — reactive state tách riêng
+class DataState {
+  final status = Rx<DataStatus>(DataStatus.initial);
+  final data = Rxn<MyData>();
+  final error = ''.obs;
 }
 
 enum DataStatus { initial, loading, success, error }
+
+// data_logic.dart — business logic
+class DataLogic extends GetxController {
+  final state = DataState();
+  final _repository = Get.find<MyRepository>();
+
+  Future<void> fetchData() async {
+    state.status.value = DataStatus.loading;
+    try {
+      state.data.value = await _repository.getData();
+      state.status.value = DataStatus.success;
+    } catch (e) {
+      state.error.value = e.toString();
+      state.status.value = DataStatus.error;
+    }
+  }
+}
 ```
 
 ### Pagination Pattern
 ```dart
-class ListController extends GetxController {
-  final _items = <Item>[].obs;
-  final _page = 1.obs;
-  final _hasMore = true.obs;
-  final _isLoadingMore = false.obs;
+// list_state.dart
+class ListState {
+  final items = <Item>[].obs;
+  final page = 1.obs;
+  final hasMore = true.obs;
+  final isLoadingMore = false.obs;
+}
+
+// list_logic.dart
+class ListLogic extends GetxController {
+  final state = ListState();
+  final _repository = Get.find<ItemRepository>();
 
   Future<void> loadMore() async {
-    if (!_hasMore.value || _isLoadingMore.value) return;
-    _isLoadingMore.value = true;
+    if (!state.hasMore.value || state.isLoadingMore.value) return;
+    state.isLoadingMore.value = true;
     try {
-      final newItems = await _repository.getItems(page: _page.value);
+      final newItems = await _repository.getItems(page: state.page.value);
       if (newItems.isEmpty) {
-        _hasMore.value = false;
+        state.hasMore.value = false;
       } else {
-        _items.addAll(newItems);
-        _page.value++;
+        state.items.addAll(newItems);
+        state.page.value++;
       }
     } finally {
-      _isLoadingMore.value = false;
+      state.isLoadingMore.value = false;
     }
   }
 
   Future<void> refresh() async {
-    _page.value = 1;
-    _hasMore.value = true;
-    _items.clear();
+    state.page.value = 1;
+    state.hasMore.value = true;
+    state.items.clear();
     await loadMore();
   }
 }
 ```
 
-### Form Controller Pattern
+### Form Pattern (tách Logic + State)
 ```dart
-class FormController extends GetxController {
+// create_item_state.dart
+class CreateItemState {
+  final isSubmitting = false.obs;
+}
+
+// create_item_logic.dart
+class CreateItemLogic extends GetxController {
+  final state = CreateItemState();
   final formKey = GlobalKey<FormState>();
   final nameController = TextEditingController();
   final emailController = TextEditingController();
-  final _isSubmitting = false.obs;
-
-  bool get isSubmitting => _isSubmitting.value;
+  final _repository = Get.find<ItemRepository>();
 
   Future<void> submit() async {
-    if (!formKey.currentState!.validate()) return;
-    _isSubmitting.value = true;
+    if (!(formKey.currentState?.validate() ?? false)) return;
+    state.isSubmitting.value = true;
     try {
       await _repository.create(
         name: nameController.text.trim(),
@@ -177,7 +192,7 @@ class FormController extends GetxController {
     } catch (e) {
       ErrorHandler.handleError(e);
     } finally {
-      _isSubmitting.value = false;
+      state.isSubmitting.value = false;
     }
   }
 

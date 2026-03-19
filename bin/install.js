@@ -3,7 +3,7 @@
 /**
  * Skills Installer — Cross-platform installer cho bộ /pd:* skills.
  *
- * Hỗ trợ: Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot.
+ * Hỗ trợ: Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot, Cursor.
  * Kiến trúc: Write Once (Claude Code) → Transpile at Install → Native per Platform.
  *
  * Usage:
@@ -13,6 +13,7 @@
  *   npx please-done --gemini           # Cài cho Gemini CLI
  *   npx please-done --opencode         # Cài cho OpenCode
  *   npx please-done --copilot          # Cài cho GitHub Copilot
+ *   npx please-done --cursor           # Cài cho Cursor
  *   npx please-done --all              # Cài tất cả platforms
  *   npx please-done --uninstall --codex  # Gỡ khỏi Codex
  *   npx please-done --global           # Global install (default)
@@ -52,6 +53,7 @@ function parseArgs(argv) {
       case '--gemini': flags.runtimes.push('gemini'); break;
       case '--opencode': flags.runtimes.push('opencode'); break;
       case '--copilot': flags.runtimes.push('copilot'); break;
+      case '--cursor': flags.runtimes.push('cursor'); break;
       case '--all': flags.runtimes = getAllRuntimes(); break;
       case '--global': case '-g': flags.isGlobal = true; break;
       case '--local': case '-l': flags.isGlobal = false; break;
@@ -131,6 +133,7 @@ function getInstalledDirs(runtime) {
     case 'gemini': return ['commands/pd'];
     case 'opencode': return ['command'];
     case 'copilot': return ['skills'];
+    case 'cursor': return ['skills', 'rules'];
     default: return [];
   }
 }
@@ -232,6 +235,7 @@ Platforms:
   --gemini          Cài cho Gemini CLI
   --opencode        Cài cho OpenCode
   --copilot         Cài cho GitHub Copilot
+  --cursor          Cài cho Cursor
   --all             Cài tất cả platforms
 
 Options:

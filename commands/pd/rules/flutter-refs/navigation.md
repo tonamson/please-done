@@ -142,12 +142,12 @@ GetPage(
 
 ## Bottom Navigation with Nested Routes
 ```dart
-class MainView extends GetView<MainController> {
+class MainView extends GetView<MainLogic> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Obx(() => IndexedStack(
-        index: controller.currentIndex,
+        index: controller.state.currentIndex.value,
         children: const [
           HomeView(),
           SearchView(),
@@ -155,7 +155,7 @@ class MainView extends GetView<MainController> {
         ],
       )),
       bottomNavigationBar: Obx(() => BottomNavigationBar(
-        currentIndex: controller.currentIndex,
+        currentIndex: controller.state.currentIndex.value,
         onTap: controller.changePage,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
@@ -188,13 +188,15 @@ Get.dialog(
 
 // Bottom sheet
 Get.bottomSheet(
-  Container(
-    padding: const EdgeInsets.all(16),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+  DecoratedBox(
+    decoration: BoxDecoration(
+      color: AppColors.surface,
+      borderRadius: AppBorders.radiusXl,
     ),
-    child: Column(children: [...]),
+    child: Padding(
+      padding: EdgeInsets.all(AppSpacing.lg),
+      child: Column(children: [...]),
+    ),
   ),
   isScrollControlled: true,
 );

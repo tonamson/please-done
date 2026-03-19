@@ -25,7 +25,7 @@ abstract class AppColors {
 }
 
 // ✅ ĐÚNG
-Container(color: AppColors.primary)
+ColoredBox(color: AppColors.primary)
 Text('Hello', style: TextStyle(color: AppColors.textPrimary))
 
 // ❌ SAI — CẤM
@@ -106,7 +106,7 @@ abstract class AppBorders {
 }
 
 // ✅ ĐÚNG
-Container(decoration: BoxDecoration(borderRadius: AppBorders.radiusMd))
+DecoratedBox(decoration: BoxDecoration(borderRadius: AppBorders.radiusMd))
 
 // ❌ SAI
 Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)))
@@ -128,7 +128,7 @@ class AppTheme {
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
+        foregroundColor: AppColors.surface,
         shape: RoundedRectangleBorder(borderRadius: AppBorders.radiusMd),
         padding: EdgeInsets.symmetric(
           horizontal: AppSpacing.xl,
@@ -154,7 +154,7 @@ extension ThemeX on BuildContext {
 
 // Sử dụng
 Text('Hello', style: context.textTheme.bodyLarge)
-Container(color: context.colorScheme.primary)
+ColoredBox(color: context.colorScheme.primary)
 ```
 
 ## DLS Widget Pattern

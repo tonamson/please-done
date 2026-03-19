@@ -43,7 +43,7 @@ class NotificationService {
 
 ### Handle 3 Lifecycle States
 ```dart
-void _setupMessageHandlers() {
+Future<void> _setupMessageHandlers() async {
   // 1. FOREGROUND — app đang mở
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     // Hiển thị local notification (vì FCM không auto-show khi foreground)
@@ -76,13 +76,13 @@ void _handleNotificationTap(RemoteMessage message) {
 
   switch (data['type']) {
     case 'order':
-      Get.toNamed('/order/${data['id']}');
+      Get.toNamed(AppRoutes.ORDER_DETAIL, parameters: {'id': data['id']});
       break;
     case 'chat':
-      Get.toNamed('/chat/${data['id']}');
+      Get.toNamed(AppRoutes.CHAT_DETAIL, parameters: {'id': data['id']});
       break;
     default:
-      Get.toNamed('/home');
+      Get.toNamed(AppRoutes.HOME);
   }
 }
 ```
