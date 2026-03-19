@@ -20,6 +20,9 @@ const TOOL_MAP = {
     Bash: 'run_shell_command',
     Glob: 'glob',
     Grep: 'search_file_content',
+    Agent: 'Task',
+    WebFetch: 'web_fetch',
+    WebSearch: 'web_search',
   },
   opencode: {},
   copilot: {
@@ -29,6 +32,9 @@ const TOOL_MAP = {
     Bash: 'execute',
     Glob: 'glob',
     Grep: 'search',
+    Agent: 'agent',
+    WebFetch: 'fetch',
+    WebSearch: 'search_web',
   },
 };
 
@@ -138,7 +144,7 @@ function convertCommandRef(runtime, content) {
   if (!platform || runtime === 'claude') return content;
 
   // Replace /pd:name → platform prefix + name
-  return content.replace(/\/pd:([a-z0-9-]+)/g, (match, name) => {
+  return content.replace(/\/pd:([a-z0-9_-]+)/g, (match, name) => {
     return `${platform.commandPrefix}${name}`;
   });
 }

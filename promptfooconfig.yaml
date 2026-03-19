@@ -20,7 +20,7 @@
 #   pd:new-milestone   — Encoded Preference — lập roadmap chiến lược
 #   pd:plan            — Encoded Preference — thiết kế kỹ thuật + chia task
 #   pd:write-code      — Encoded Preference — viết code theo plan
-#   pd:test            — Encoded Preference — kiểm thử Jest/Supertest + PHPUnit
+#   pd:test            — Encoded Preference — kiểm thử [Jest/Supertest|PHPUnit|Hardhat/Foundry]
 #   pd:fix-bug         — Encoded Preference — debug loop có báo cáo
 #   pd:complete-milestone — Encoded Preference — đóng version + git tag
 #
@@ -66,7 +66,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công, trả về danh sách repos
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 50+ files .ts
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 50+ files .ts
         - Glob **/nest-cli.json → tìm thấy /app/my-backend/nest-cli.json
         - Glob **/next.config.* → KHÔNG tìm thấy
         - package.json có: @nestjs/core@10.3.0, @nestjs/common, prisma
@@ -101,7 +101,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → KHÔNG tìm thấy file nào
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → KHÔNG tìm thấy file nào
         - Chỉ có package.json và README.md
         - .pdconfig có SKILLS_DIR=/home/user/skills
     assert:
@@ -123,7 +123,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 30+ files .tsx
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 30+ files .tsx
         - Glob **/nest-cli.json → KHÔNG tìm thấy
         - Glob **/app.module.ts → KHÔNG tìm thấy
         - Glob **/main.ts → tìm thấy /app/vite-app/src/main.ts
@@ -149,7 +149,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 10+ files .php
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 10+ files .php
         - Glob **/nest-cli.json → KHÔNG tìm thấy
         - Glob **/next.config.* → KHÔNG tìm thấy
         - Glob **/wp-config.php → tìm thấy /app/wordpress-site/wp-config.php
@@ -224,6 +224,185 @@ tests:
       - type: icontains
         value: "phpunit"
 
+  - description: "pd:init — Solidity project (detect hardhat, copy rules + refs)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 5 files .sol + 3 files .ts (test/scripts)
+        - Glob **/nest-cli.json → KHÔNG tìm thấy
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/wp-config.php → KHÔNG tìm thấy
+        - Glob **/hardhat.config.* → tìm thấy /app/my-defi-protocol/hardhat.config.ts
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/solidity.md → tồn tại
+        - [SKILLS_DIR]/commands/pd/rules/solidity-refs/ → tồn tại (2 files)
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra Solidity detection và rules copy:
+          1. PHẢI detect Solidity qua hardhat.config.ts → hasSolidity = true
+          2. hasBackend và hasFrontend có thể false (Solidity project thuần, không có NestJS/NextJS)
+          3. PHẢI copy general.md vào .planning/rules/
+          4. PHẢI copy solidity.md vào .planning/rules/
+          5. PHẢI copy solidity-refs/ vào .planning/docs/solidity/ (2 reference files)
+          6. KHÔNG copy backend.md, frontend.md, hoặc wordpress.md
+          7. CONTEXT.md PHẢI ghi Solidity/Hardhat trong Tech Stack
+      - type: icontains
+        value: "solidity"
+
+  - description: "pd:write-code — Solidity task must read solidity.md rules + security checklist"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project Solidity tại /app/my-defi-protocol. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Solidity (Hardhat), không có NestJS/NextJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → thiết kế Staking contract: stake/unstake/claim rewards
+        - TASKS.md: Task 1: ⬜ (Phụ thuộc: Không) — Staking Contract core
+        - .planning/rules/solidity.md → tồn tại
+        - .planning/docs/solidity/templates.md → tồn tại
+        - .planning/docs/solidity/audit-checklist.md → tồn tại
+        - git rev-parse → có git repo
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra Solidity write-code compliance:
+          1. PHẢI đọc .planning/rules/solidity.md trước khi viết code
+          2. PHẢI có SPDX-License-Identifier + pragma solidity trong header
+          3. PHẢI dùng OpenZeppelin imports (Ownable/AccessControl, Pausable, ReentrancyGuard)
+          4. PHẢI dùng named import {} (KHÔNG wildcard import)
+          5. PHẢI có SafeERC20 (using SafeERC20 for IERC20) nếu có transfer token
+          6. PHẢI có clearUnknownToken function VỚI nonReentrant modifier (chống ERC777 reentrancy)
+          7. PHẢI có NatSpec comments (@title, @dev, @param)
+          8. PHẢI có nonReentrant + whenNotPaused trên public functions có transfer
+          9. PHẢI tra cứu .planning/docs/solidity/ cho templates/audit-checklist
+          10. Build: PHẢI dùng npx hardhat compile (KHÔNG phải npm run build hay eslint)
+          11. Token approval PHẢI dùng forceApprove (OZ v5), KHÔNG dùng safeApprove (deprecated)
+      - type: icontains
+        value: "solidity"
+
+  - description: "pd:test — Solidity project → Hardhat test flow"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project Solidity tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Solidity (Hardhat), không có NestJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → Staking contract: stake/unstake/claim
+        - TASKS.md → Task 1: ✅ (Staking contract core)
+        - hardhat.config.ts → tồn tại
+        - .planning/docs/solidity/audit-checklist.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra test flow cho Solidity:
+          1. PHẢI detect Solidity + Hardhat (KHÔNG phải NestJS/WordPress) → chuyển sang Hardhat test flow
+          2. PHẢI viết test files dùng ethers.js + chai (KHÔNG phải Jest/Supertest/PHPUnit)
+          3. PHẢI có describe/beforeEach pattern, deploy contract trong beforeEach
+          4. PHẢI test: deploy, core function happy path, access control (onlyOwner revert), input validation (require revert), pause/unpause, clearUnknownToken
+          5. PHẢI chạy npx hardhat test (KHÔNG phải npm test hay phpunit)
+          6. KHÔNG viết .spec.ts hay test-*.php files
+      - type: icontains
+        value: "hardhat"
+
+  - description: "pd:init — Foundry Solidity project (detect foundry.toml, no hardhat)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/my-nft-project.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 8 files .sol
+        - Glob **/nest-cli.json → KHÔNG tìm thấy
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/wp-config.php → KHÔNG tìm thấy
+        - Glob **/hardhat.config.* → KHÔNG tìm thấy
+        - Glob **/foundry.toml → tìm thấy /app/my-nft-project/foundry.toml
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/solidity.md → tồn tại
+        - [SKILLS_DIR]/commands/pd/rules/solidity-refs/ → tồn tại (2 files)
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra Foundry detection (khác Hardhat):
+          1. PHẢI detect Solidity qua foundry.toml (fallback thứ 2) → hasSolidity = true
+          2. KHÔNG detect qua hardhat.config (không tồn tại)
+          3. PHẢI copy general.md + solidity.md vào .planning/rules/
+          4. PHẢI copy solidity-refs/ vào .planning/docs/solidity/
+          5. KHÔNG copy backend.md, frontend.md, hoặc wordpress.md
+          6. CONTEXT.md PHẢI ghi Solidity/Foundry trong Tech Stack
+      - type: icontains
+        value: "foundry"
+
+  - description: "pd:scan — Solidity project scan patterns"
+    vars:
+      skill_file: commands/pd/scan.md
+      scenario: |
+        Project Solidity tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Solidity (Hardhat)
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → 10 files .sol + 5 files .ts (test/scripts)
+        - Glob **/hardhat.config.* → tìm thấy
+        - Glob **/contracts/**/*.sol → 6 contracts: StakingPool.sol, RewardToken.sol, interfaces/IStaking.sol...
+        - Grep import.*@openzeppelin → 12 matches (Ownable, Pausable, ReentrancyGuard, SafeERC20, IERC20...)
+        - Grep ^\s*event → 8 events (StakeEvent, UnstakeEvent, ClaimEvent, Transfer...)
+        - Grep modifier → 2 custom modifiers
+        - Grep nonReentrant|whenNotPaused|onlyOwner → 15 matches
+        - mcp__fastcode__code_qa → trả về contract structures
+        - Không có package.json (Foundry-only) → skip npm audit
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra scan Solidity patterns:
+          1. PHẢI detect Solidity qua hardhat.config hoặc foundry.toml
+          2. PHẢI quét contracts (Glob contracts/**/*.sol hoặc src/**/*.sol)
+          3. PHẢI quét OZ imports (Grep import.*@openzeppelin)
+          4. PHẢI quét interfaces (Grep pattern phải bắt tất cả interface declarations, không chỉ I-prefix)
+          5. PHẢI quét events (Grep ^\s*event)
+          6. PHẢI quét custom modifiers (Grep modifier)
+          7. PHẢI quét security patterns (nonReentrant, whenNotPaused, onlyOwner)
+          8. PHẢI tạo SCAN_REPORT.md với section Solidity
+          9. Nếu không có package.json → KHÔNG chạy npm audit (skip section)
+      - type: icontains
+        value: "solidity"
+
+  - description: "pd:fix-bug — Solidity bug tracing (reentrancy vulnerability)"
+    vars:
+      skill_file: commands/pd/fix-bug.md
+      scenario: |
+        Project Solidity tại /app/my-defi-protocol.
+        $ARGUMENTS: "Hàm withdraw bị reentrancy attack trên testnet"
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Solidity (Hardhat), không có NestJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - .planning/bugs/ → không có bug reports nào
+        - .planning/milestones/1.0/ → tồn tại
+        - git rev-parse → có git repo
+        - mcp__fastcode__code_qa → trả về StakingPool.sol với hàm withdraw thiếu nonReentrant
+        - PLAN.md + CODE_REPORT → tồn tại
+        - .planning/rules/solidity.md → tồn tại
+        - .planning/docs/solidity/audit-checklist.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra fix-bug flow cho Solidity:
+          1. PHẢI đọc .planning/rules/solidity.md + .planning/docs/solidity/audit-checklist.md
+          2. PHẢI trace luồng Solidity: function call → require checks → state changes → external interactions → events
+          3. PHẢI phân tích reentrancy: kiểm tra nonReentrant modifier, checks-effects-interactions pattern
+          4. PHẢI tạo BUG_[timestamp].md với code TRƯỚC (thiếu nonReentrant) / SAU (thêm nonReentrant + CEI order)
+          5. PHẢI chạy build: npx hardhat compile (KHÔNG phải npm run build)
+          6. PHẢI commit với prefix [LỖI]
+          7. PHẢI yêu cầu user xác nhận
+      - type: icontains
+        value: "nonReentrant"
+
   - description: "pd:init — FastCode MCP fails → MUST STOP"
     vars:
       skill_file: commands/pd/init.md
@@ -289,7 +468,7 @@ tests:
         Project tại /app/fullstack.
         Kết quả tool calls giả lập:
         - .planning/CONTEXT.md → tồn tại, có Backend NestJS + Frontend NextJS
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → 200+ files
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → 200+ files
         - nest-cli.json tồn tại, next.config.ts tồn tại
         - package.json có: @nestjs/core, next, antd, prisma
         - npm audit → 2 moderate vulnerabilities
@@ -319,7 +498,7 @@ tests:
         Project tại /app/new-project.
         Kết quả tool calls giả lập:
         - .planning/CONTEXT.md → tồn tại, ghi "Dự án mới: Có"
-        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → KHÔNG tìm thấy file nào
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → KHÔNG tìm thấy file nào
     assert:
       - type: llm-rubric
         value: |
@@ -1072,6 +1251,74 @@ tests:
         value: "nestjs-guards"
 
   # ══════════════════════════════════════════════════════════════
+  # pd:plan — Solidity project design
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:plan — Solidity project AUTO mode (contract design elements)"
+    vars:
+      skill_file: commands/pd/plan.md
+      scenario: |
+        Project Solidity (Hardhat) tại /app/my-defi-protocol.
+        $ARGUMENTS: (trống → AUTO mode mặc định)
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Solidity (Hardhat), không có NestJS/NextJS/WordPress
+        - .planning/ROADMAP.md → tồn tại, Phase 1.1: "Core Staking Contract"
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - .planning/scan/SCAN_REPORT.md → tồn tại, liệt kê contracts hiện có
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → KHÔNG tồn tại (chưa plan)
+        - .planning/rules/solidity.md → tồn tại
+        - .planning/docs/solidity/templates.md → tồn tại
+        - mcp__fastcode__code_qa → trả về hiện có: RewardToken.sol (ERC20), hardhat.config.ts
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra plan cho Solidity project có bao gồm thiết kế đặc thù:
+          1. PHẢI đọc .planning/rules/solidity.md + .planning/docs/solidity/templates.md
+          2. Thiết kế PHẢI bao gồm: contract architecture (Ownable hoặc AccessControl)
+          3. Thiết kế PHẢI bao gồm: functions với modifiers (whenNotPaused, nonReentrant)
+          4. Thiết kế PHẢI bao gồm: state variables, events
+          5. Thiết kế PHẢI bao gồm: security patterns (SafeERC20, clearUnknownToken)
+          6. PHẢI tạo PLAN.md + TASKS.md
+          7. Tasks PHẢI có Loại: Solidity (hoặc tương đương)
+          8. KHÔNG thiết kế API endpoints hay Database (không có backend)
+      - type: icontains
+        value: "solidity"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:complete-milestone — Solidity project
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:complete-milestone — Solidity project with TEST_REPORT"
+    vars:
+      skill_file: commands/pd/complete-milestone.md
+      scenario: |
+        Project Solidity (Hardhat) tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → tồn tại, Solidity (Hardhat), không có NestJS/NextJS
+        - CURRENT_MILESTONE.md → version: 1.0, milestone: "Core Contracts", status: Đang thực hiện
+        - .planning/milestones/1.0/ chứa phase-1.1/
+        - ROADMAP.md liệt kê Phase 1.1 cho milestone 1.0
+        - phase-1.1/TASKS.md → 2 tasks, tất cả ✅
+        - phase-1.1/reports/ → CODE_REPORT_TASK_1, CODE_REPORT_TASK_2
+        - phase-1.1/TEST_REPORT.md → tồn tại, tất cả pass (Hardhat tests)
+        - .planning/bugs/ → không có bugs
+        - ROADMAP.md → chỉ có Milestone 1 (v1.0), không có milestone tiếp
+        - git rev-parse → có git
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra complete-milestone cho Solidity project:
+          1. PHẢI kiểm tra TEST_REPORT vì project có Solidity (Hardhat)
+          2. PHẢI phát hiện TEST_REPORT tồn tại + tests pass → cho phép
+          3. PHẢI tạo MILESTONE_COMPLETE.md
+          4. PHẢI tạo CHANGELOG.md
+          5. PHẢI cập nhật ROADMAP → ✅
+          6. PHẢI git commit [PHIÊN BẢN] + tạo tag v1.0
+          7. PHẢI cập nhật CURRENT_MILESTONE → "Hoàn tất toàn bộ" (không có milestone tiếp)
+      - type: icontains
+        value: "v1.0"
+
+  # ══════════════════════════════════════════════════════════════
   # pd:update — Cập nhật skills
   # ══════════════════════════════════════════════════════════════
 
@@ -1095,3 +1342,173 @@ tests:
           4. PHẢI hiển thị changelog (chỉ entries mới hơn 2.0.0)
           5. PHẢI hỏi user muốn cập nhật không (check mode, KHÔNG tự update)
           6. KHÔNG ĐƯỢC tự cập nhật khi không có --apply
+
+  # ══════════════════════════════════════════════════════════════
+  # AUDIT REGRESSION — Tests bắt các issues từ audit lần 4
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:test — Solidity project TEST_REPORT must use Hardhat/Foundry, NOT Jest"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project Solidity (Hardhat) tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Solidity (Hardhat), KHÔNG có NestJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → Staking contract
+        - TASKS.md → Task 1: ✅ (Staking contract)
+        - hardhat.config.ts → tồn tại
+        - .planning/docs/solidity/audit-checklist.md → tồn tại
+        - Tests chạy xong, 5 passed 0 failed
+        - git rev-parse → có git repo
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra TEST_REPORT cho Solidity project:
+          1. PHẢI tạo TEST_REPORT.md
+          2. Heading section kết quả tự động PHẢI ghi "Hardhat" hoặc "Foundry" — KHÔNG ĐƯỢC ghi "Jest"
+          3. Nếu response đề cập tạo TEST_REPORT, heading KHÔNG chứa từ "Jest"
+          4. Tool chạy test PHẢI là `npx hardhat test` (KHÔNG phải `npm test`)
+      - type: not-icontains
+        value: "Kết quả tự động (Jest)"
+
+  - description: "pd:what-next — Solidity project all tasks ✅, no TEST_REPORT → suggest test"
+    vars:
+      skill_file: commands/pd/what-next.md
+      scenario: |
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Solidity (Hardhat), KHÔNG có NestJS
+        - .planning/scan/SCAN_REPORT.md → tồn tại
+        - .planning/ROADMAP.md → tồn tại, Milestone 1 (v1.0) có Phase 1.1
+        - .planning/CURRENT_MILESTONE.md → version: 1.0, phase: 1.1, status: Đang thực hiện
+        - .planning/milestones/1.0/phase-1.1/TASKS.md → Task 1: ✅, Task 2: ✅ (tất cả ✅)
+        - .planning/milestones/1.0/phase-1.1/TEST_REPORT.md → KHÔNG tồn tại
+        - .planning/bugs/ → không có bugs mở
+    assert:
+      - type: llm-rubric
+        value: |
+          Solidity project, tất cả tasks ✅, chưa có TEST_REPORT:
+          1. PHẢI kiểm tra TEST_REPORT cho Solidity (vì Solidity là stack hỗ trợ test tự động)
+          2. PHẢI phát hiện TEST_REPORT KHÔNG tồn tại
+          3. PHẢI gợi ý /pd:test (KHÔNG bỏ qua vì "không phải Backend NestJS")
+          4. KHÔNG gợi ý /pd:complete-milestone (chưa test)
+      - type: icontains
+        value: "/pd:test"
+
+  - description: "pd:init — Mixed NestJS + Solidity project → copy both rules"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/defi-backend. Monorepo có cả NestJS backend + Solidity contracts.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → tìm thấy 30+ files .ts + 5 files .sol
+        - Glob **/nest-cli.json → tìm thấy /app/defi-backend/nest-cli.json
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/wp-config.php → KHÔNG tìm thấy
+        - Glob **/hardhat.config.* → tìm thấy /app/defi-backend/hardhat.config.ts
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/backend.md → tồn tại
+        - [SKILLS_DIR]/commands/pd/rules/solidity.md → tồn tại
+        - [SKILLS_DIR]/commands/pd/rules/solidity-refs/ → tồn tại (2 files)
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra init cho mixed NestJS + Solidity project:
+          1. PHẢI detect hasBackend = true (qua nest-cli.json)
+          2. PHẢI detect hasSolidity = true (qua hardhat.config.ts)
+          3. PHẢI copy general.md VÀ backend.md VÀ solidity.md vào .planning/rules/
+          4. PHẢI copy solidity-refs/ vào .planning/docs/solidity/
+          5. CONTEXT.md PHẢI ghi CẢ NestJS VÀ Solidity/Hardhat trong Tech Stack
+          6. KHÔNG copy frontend.md hay wordpress.md
+      - type: icontains
+        value: "backend.md"
+      - type: icontains
+        value: "solidity.md"
+
+  - description: "pd:test — WordPress TEST_REPORT heading must say PHPUnit, NOT Jest"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project WordPress tại /app/wordpress-site.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → WordPress (plugin development), KHÔNG có NestJS
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → custom post type
+        - TASKS.md → Task 1: ✅ (Register CPT)
+        - composer.json có phpunit/phpunit, wp-phpunit/wp-phpunit
+        - .planning/docs/wordpress/testing.md → tồn tại
+        - Tests chạy xong, 3 passed 0 failed
+        - git rev-parse → có git repo
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra TEST_REPORT cho WordPress project:
+          1. PHẢI tạo TEST_REPORT.md
+          2. Heading section kết quả tự động PHẢI ghi "PHPUnit" — KHÔNG ĐƯỢC ghi "Jest"
+          3. Tool chạy test PHẢI là ./vendor/bin/phpunit (KHÔNG phải npm test)
+      - type: not-icontains
+        value: "Kết quả tự động (Jest)"
+
+  # ══════════════════════════════════════════════════════════════
+  # AUDIT REGRESSION — Tests bắt các issues từ audit lần 5
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:scan — Solidity project SCAN_REPORT PHẢI có section Phân tích Solidity"
+    vars:
+      skill_file: commands/pd/scan.md
+      scenario: |
+        Project Solidity tại /app/my-defi-protocol.
+        Kết quả tool calls giả lập:
+        - .planning/CONTEXT.md → tồn tại, Solidity (Hardhat)
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → 8 files .sol
+        - Glob **/hardhat.config.* → tìm thấy
+        - Glob **/contracts/**/*.sol → 4 contracts: StakingPool.sol, RewardToken.sol, ...
+        - Grep import.*@openzeppelin → 8 matches
+        - Grep ^\s*event → 5 events
+        - Grep modifier → 1 custom modifier
+        - Grep nonReentrant|whenNotPaused|onlyOwner → 10 matches
+        - Grep ^\s*interface\s+ → 2 interfaces
+        - mcp__fastcode__code_qa → trả về contract structures
+        - KHÔNG có NestJS/NextJS/WordPress
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra SCAN_REPORT cho Solidity-only project:
+          1. PHẢI tạo SCAN_REPORT.md
+          2. PHẢI có section "Phân tích Solidity" (hoặc heading tương đương chứa từ "Solidity")
+          3. Section Solidity PHẢI chứa: Contracts (danh sách), OZ Imports, Security Modifiers, Events
+          4. KHÔNG ĐƯỢC có section "Phân tích Backend (NestJS)" hay "Phân tích Frontend (NextJS)" (vì project KHÔNG có NestJS/NextJS)
+          5. PHẢI có section "Trạng thái hoàn thành"
+      - type: icontains
+        value: "Solidity"
+
+  - description: "pd:test — Foundry project → forge test flow (KHÔNG Hardhat)"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project Solidity tại /app/my-nft-project.
+        $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → Solidity (Foundry), KHÔNG có NestJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → NFT Marketplace contract
+        - TASKS.md → Task 1: ✅ (Marketplace contract)
+        - foundry.toml → tồn tại
+        - Glob **/hardhat.config.* → KHÔNG tìm thấy
+        - .planning/docs/solidity/audit-checklist.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra test flow cho Foundry (KHÔNG phải Hardhat):
+          1. PHẢI detect Foundry (qua foundry.toml, KHÔNG detect Hardhat)
+          2. PHẢI viết test files dùng Solidity (test/*.t.sol), KHÔNG phải TypeScript (test/*.ts)
+          3. PHẢI dùng forge-std/Test.sol import
+          4. PHẢI dùng pattern contract ... is Test { setUp() ... }
+          5. PHẢI chạy `forge test` (KHÔNG phải npx hardhat test hay npm test)
+          6. TEST_REPORT heading PHẢI ghi "Foundry" (KHÔNG "Jest" hay "Hardhat")
+      - type: icontains
+        value: "forge"
+      - type: not-icontains
+        value: "Kết quả tự động (Jest)"

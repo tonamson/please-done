@@ -28,10 +28,14 @@ async function install(skillsDir, targetDir, options = {}) {
     log.success('Đã xóa thư mục skills cũ (commands/sk)');
   }
 
-  // Clean old files
+  // Clean old files + rules subdirectory
   if (fs.existsSync(commandsDir)) {
     const old = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
     for (const f of old) fs.unlinkSync(path.join(commandsDir, f));
+    const oldRulesDir = path.join(commandsDir, 'rules');
+    if (fs.existsSync(oldRulesDir)) {
+      fs.rmSync(oldRulesDir, { recursive: true, force: true });
+    }
   }
 
   const skills = listSkillFiles(skillsSrc);
@@ -48,11 +52,32 @@ async function install(skillsDir, targetDir, options = {}) {
   const rulesDestDir = path.join(commandsDir, 'rules');
   if (fs.existsSync(rulesDir)) {
     fs.mkdirSync(rulesDestDir, { recursive: true });
-    const ruleFiles = fs.readdirSync(rulesDir).filter(f => f.endsWith('.md'));
-    for (const rf of ruleFiles) {
-      let content = fs.readFileSync(path.join(rulesDir, rf), 'utf8');
-      content = content.replace(/~\/\.claude\//g, '~/.gemini/');
-      fs.writeFileSync(path.join(rulesDestDir, rf), content, 'utf8');
+    const entries = fs.readdirSync(rulesDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(rulesDir, entry.name);
+      if (entry.isFile() && entry.name.endsWith('.md')) {
+        let content = fs.readFileSync(srcPath, 'utf8');
+        content = content.replace(/~\/\.claude\//g, '~/.gemini/');
+        content = content.replace(/\bRead\b(?!\()/g, 'read_file');
+        content = content.replace(/\bWrite\b(?!\()/g, 'write_file');
+        content = content.replace(/\bEdit\b(?!\()/g, 'edit_file');
+        content = content.replace(/\bBash\b(?!\()/g, 'run_shell_command');
+        content = content.replace(/\bGlob\b(?!\()/g, 'glob');
+        content = content.replace(/\bGrep\b(?!\()/g, 'search_file_content');
+        content = content.replace(/\bAgent\b(?!\()/g, 'Task');
+        content = content.replace(/\bWebFetch\b(?!\()/g, 'web_fetch');
+        content = content.replace(/\bWebSearch\b(?!\()/g, 'web_search');
+        fs.writeFileSync(path.join(rulesDestDir, entry.name), content, 'utf8');
+      } else if (entry.isDirectory()) {
+        const subDestDir = path.join(rulesDestDir, entry.name);
+        fs.mkdirSync(subDestDir, { recursive: true });
+        // -refs/ subdirectories contain code examples — only replace paths, NOT tool names
+        for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {
+          let content = fs.readFileSync(path.join(srcPath, sf), 'utf8');
+          content = content.replace(/~\/\.claude\//g, '~/.gemini/');
+          fs.writeFileSync(path.join(subDestDir, sf), content, 'utf8');
+        }
+      }
     }
     log.success('Rules copied');
   }

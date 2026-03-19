@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` → theo loại lỗi (CHỈ nếu file tồn tại)
+- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -66,7 +66,7 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research. C
 
 ## Bước 5: Phân tích + xác định nguyên nhân
 Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack).
-Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` tương ứng:
+Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` hoặc `.planning/rules/solidity.md` tương ứng:
 
 **Nếu lỗi Backend (NestJS):**
 - Trace luồng: request → controller → service → database → response
@@ -80,6 +80,12 @@ Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack)
 - Trace luồng: hook/action → callback → database ($wpdb) → output
 - Kiểm tra: sanitize/escape thiếu, nonce verify, capability check, prepared statements, `defined('ABSPATH')` check
 - Tra cứu `.planning/docs/wordpress/` cho patterns phức tạp
+
+**Nếu lỗi Solidity (Smart Contract):**
+- Trace luồng: function call → require checks → state changes → external interactions → events
+- Kiểm tra: reentrancy (nonReentrant thiếu, checks-effects-interactions sai thứ tự), access control (modifier thiếu), SafeERC20 (dùng transfer thay vì safeTransfer), overflow/underflow (unchecked block), signature verification (hash thiếu params, deadline check, hashUsed order), event emission (thiếu emit sau state change, sai params), rescue functions (clearUnknownToken/rescueETH balance check, address(0) check), flash loan (balance-dependent logic bị manipulate)
+- Tra cứu `.planning/docs/solidity/audit-checklist.md` cho security checklist
+- Tra cứu `.planning/docs/solidity/templates.md` cho pattern reference
 
 **Chung:**
 - Tìm điểm gây lỗi: file + dòng code
@@ -104,7 +110,7 @@ Viết `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 ## Phân tích nguyên nhân
 ### Code TRƯỚC khi sửa:
 File: `[path]`
-```typescript
+```
 [code gây lỗi]
 ```
 ### Nguyên nhân: [giải thích]
@@ -112,7 +118,7 @@ File: `[path]`
 ## Giải pháp
 ### Code SAU khi sửa:
 File: `[path]`
-```typescript
+```
 [code đã sửa]
 ```
 
@@ -128,8 +134,8 @@ File: `[path]`
 ## Bước 7: Fix code
 - Áp dụng fix, tuân thủ quy tắc trong `.planning/rules/`
 - Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` → mục **Build & Lint**)
-- Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress)
+- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` → mục **Build & Lint**)
+- Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity)
 
 ## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
@@ -167,7 +173,8 @@ git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt lỗi]'
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress theo loại lỗi)
+- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity theo loại lỗi)
+- CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + CODE_REPORT trước khi fix
 - PHẢI research trước khi fix, KHÔNG đoán mò
 - PHẢI viết bug report với code TRƯỚC/SAU

@@ -40,13 +40,22 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
-    const ruleFiles = fs.readdirSync(rulesDir).filter(f => f.endsWith('.md'));
-    for (const rf of ruleFiles) {
-      let content = fs.readFileSync(path.join(rulesDir, rf), 'utf8');
-      content = content.replace(/~\/\.claude\//g, '~/.config/opencode/');
-      content = content.replace(/\/pd:([a-z0-9-]+)/g, '/pd-$1');
-      const filename = `pd-rules-${rf}`;
-      fs.writeFileSync(path.join(commandDir, filename), content, 'utf8');
+    const entries = fs.readdirSync(rulesDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(rulesDir, entry.name);
+      if (entry.isFile() && entry.name.endsWith('.md')) {
+        let content = fs.readFileSync(srcPath, 'utf8');
+        content = content.replace(/~\/\.claude\//g, '~/.config/opencode/');
+        content = content.replace(/\/pd:([a-z0-9_-]+)/g, '/pd-$1');
+        fs.writeFileSync(path.join(commandDir, `pd-rules-${entry.name}`), content, 'utf8');
+      } else if (entry.isDirectory()) {
+        for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {
+          let content = fs.readFileSync(path.join(srcPath, sf), 'utf8');
+          content = content.replace(/~\/\.claude\//g, '~/.config/opencode/');
+          content = content.replace(/\/pd:([a-z0-9_-]+)/g, '/pd-$1');
+          fs.writeFileSync(path.join(commandDir, `pd-rules-${entry.name}-${sf}`), content, 'utf8');
+        }
+      }
     }
     log.success('Rules copied');
   }

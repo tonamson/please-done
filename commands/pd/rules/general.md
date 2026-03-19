@@ -1,7 +1,7 @@
 # Quy tắc chung
 
 ## Code style (TS/JS)
-- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs)
+- Có semicolons, 2 spaces indent, single quotes (JSX attributes dùng double quotes) — PHP theo rules riêng trong wordpress.md (tabs) — Solidity theo rules riêng trong solidity.md
 - Import: `@/` cross-module, `./` cùng module
 - File: kebab-case (create-user.dto.ts, admin-api.ts) | Class/Component: PascalCase
 - Giới hạn: mục tiêu 300 dòng, BẮT BUỘC tách >500
@@ -49,7 +49,7 @@ Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
 
 ## Git & Commit
 - Kiểm tra project có git không (Bash: `git rev-parse --git-dir 2>/dev/null`). Nếu KHÔNG có git → **BỎ QUA** tất cả bước git add/commit/tag trong mọi skill
-- Format: `[TASK-N]`, `[KIỂM THỬ]`, `[LỖI]`, `[PHIÊN BẢN]`, `[TRACKING]` - tiếng Việt có dấu
+- Commit message format (chỉ khi git tồn tại): `[TASK-N]`, `[KIỂM THỬ]`, `[LỖI]`, `[PHIÊN BẢN]`, `[TRACKING]` - tiếng Việt có dấu
 
 ## Bảo mật
 - CẤM đọc/ghi/hiển thị nội dung: `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`

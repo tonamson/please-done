@@ -51,19 +51,34 @@ async function install(skillsDir, targetDir, options = {}) {
   if (fs.existsSync(rulesDir)) {
     const rulesDestDir = path.join(skillsDestDir, 'pd-rules');
     fs.mkdirSync(rulesDestDir, { recursive: true });
-    const ruleFiles = fs.readdirSync(rulesDir).filter(f => f.endsWith('.md'));
-    for (const rf of ruleFiles) {
-      let content = fs.readFileSync(path.join(rulesDir, rf), 'utf8');
-      const pathReplace = isGlobal ? '~/.copilot/' : '.github/';
+    const pathReplace = isGlobal ? '~/.copilot/' : '.github/';
+    const replaceContent = (content) => {
       content = content.replace(/~\/\.claude\//g, pathReplace);
-
-      // Replace tool names in rules
       content = content.replace(/\bRead\b(?!\()/g, 'read');
+      content = content.replace(/\bWrite\b(?!\()/g, 'write');
+      content = content.replace(/\bEdit\b(?!\()/g, 'edit');
       content = content.replace(/\bBash\b(?!\()/g, 'execute');
       content = content.replace(/\bGlob\b(?!\()/g, 'glob');
       content = content.replace(/\bGrep\b(?!\()/g, 'search');
-
-      fs.writeFileSync(path.join(rulesDestDir, rf), content, 'utf8');
+      content = content.replace(/\bAgent\b(?!\()/g, 'agent');
+      content = content.replace(/\bWebFetch\b(?!\()/g, 'fetch');
+      content = content.replace(/\bWebSearch\b(?!\()/g, 'search_web');
+      return content;
+    };
+    const entries = fs.readdirSync(rulesDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const srcPath = path.join(rulesDir, entry.name);
+      if (entry.isFile() && entry.name.endsWith('.md')) {
+        fs.writeFileSync(path.join(rulesDestDir, entry.name), replaceContent(fs.readFileSync(srcPath, 'utf8')), 'utf8');
+      } else if (entry.isDirectory()) {
+        const subDestDir = path.join(rulesDestDir, entry.name);
+        fs.mkdirSync(subDestDir, { recursive: true });
+        // -refs/ subdirectories contain code examples — only replace paths, NOT tool names
+        const pathOnly = (c) => c.replace(/~\/\.claude\//g, pathReplace);
+        for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {
+          fs.writeFileSync(path.join(subDestDir, sf), pathOnly(fs.readFileSync(path.join(srcPath, sf), 'utf8')), 'utf8');
+        }
+      }
     }
     log.success('Rules copied');
   }
