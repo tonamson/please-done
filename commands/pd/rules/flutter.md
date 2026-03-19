@@ -93,6 +93,19 @@ assets/                             → images/, fonts/, translations/
 - Quotes: single quotes cho strings — KHÔNG double quotes (trừ interpolation phức tạp)
 - Null safety BẮT BUỘC — KHÔNG dùng `!` (force unwrap) trừ khi chắc chắn 100%. Ưu tiên `??`, `?.`, `?? ''`
 - `late` CHỈ dùng cho biến chắc chắn khởi tạo trước khi dùng (lifecycle methods)
+- Immutability: ưu tiên `const` > `final` > `var` — CẤM `var` cho class members, dùng `final` hoặc explicit type
+- CẤM global variables — private globals (nếu bắt buộc) phải prefix `_`
+- Dùng `--dart-define` cho secrets thay vì `.env` nếu không cần runtime config
+
+## Dart Language Patterns (3.x+)
+- **Pattern Matching**: dùng `switch (value)` với patterns + destructuring thay if-else chain
+- **Sealed Classes**: `sealed class` cho exhaustive state handling (Result, ViewState...)
+- **Records**: `(String, int)` để return multiple values — thay vì tạo class wrapper
+- **Extensions**: `extension on Type` để thêm utility methods — đặt trong `shared/utils/extensions/`
+- **Collection operators**: dùng `collection-if`, `collection-for`, spread `...` thay vì imperative loops
+- **Tear-offs**: `list.forEach(print)` thay vì `list.forEach((e) => print(e))`
+- **Async**: `async/await` thay vì `Future.then()`. Dùng `unawaited()` cho fire-and-forget
+- **Wildcards (3.7+)**: `_` cho unused variables trong declarations + patterns
 
 ## State Management (GetX — tách Logic + State)
 - Pattern: tách **state** (`.obs` variables) ra file `*_state.dart`, **logic** (business methods) ở `*_logic.dart`
@@ -192,20 +205,48 @@ assets/                             → images/, fonts/, translations/
 - Response wrapper: `ApiResponse<T>` với `data`, `message`, `statusCode`
 
 ## Bảo mật
-- API keys, secrets: lưu trong `.env` → đọc qua `flutter_dotenv` — CẤM hardcode
-- Token storage: `flutter_secure_storage` — CẤM `SharedPreferences` cho tokens
-- Certificate pinning cho production (tùy yêu cầu)
-- Obfuscate code: `flutter build apk --obfuscate --split-debug-info=build/debug-info`
+- API keys, secrets: dùng `--dart-define` hoặc `.env` + `flutter_dotenv` — CẤM hardcode trong Dart code
+- Token storage: `flutter_secure_storage` — CẤM `SharedPreferences` cho tokens/PII
+- Certificate pinning: `dio_certificate_pinning` cho high-security apps
+- Root/Jailbreak detection: `flutter_jailbreak_detection` cho apps tài chính/nhạy cảm
+- Obfuscate code: `flutter build apk --obfuscate --split-debug-info=build/debug-info` — BẮT BUỘC cho release. Lưu ý: chỉ là deterrent, logic nhạy cảm nên để backend
+- PII masking: mask email, phone trong logs và analytics
 - Input validation: validate form trước khi gửi API, sanitize user input
-- Deep link: validate params trước khi navigate
+- Deep link: validate payload data nghiêm ngặt trước khi navigate — CẤM navigate trực tiếp từ raw JSON
 
-## UI & Theming
-- `ThemeData` tập trung trong `app_theme.dart` — CẤM hardcode colors/fonts trong widgets
-- `AppColors`, `AppTextStyles` constants — tham chiếu từ theme
+## UI & Theming (Design System)
+- `ThemeData` tập trung trong `core/styles/theme.dart` — CẤM hardcode colors/fonts trong widgets
+- **Design Tokens BẮT BUỘC**: dùng tokens cho mọi visual property:
+  - Colors: `AppColors.*` — CẤM `Color(0xFF...)`, CẤM `Colors.red`
+  - Spacing: `AppSpacing.*` hoặc `SizedBox`/`Gap` với constants — CẤM magic numbers (`SizedBox(height: 10)`)
+  - Typography: `AppTextStyles.*` hoặc `textTheme.*` — CẤM inline `TextStyle(fontSize: 14)`
+  - Borders: dùng tokens — CẤM raw `BorderRadius.circular(8)` trực tiếp
 - Responsive: `flutter_screenutil` (`ScreenUtil`) — dùng `.w`, `.h`, `.sp`, `.r` cho adaptive sizing. CẤM `responsive_framework`
-- Spacing/sizing: dùng constants (VD: `AppSpacing.sm = 8.0`) — CẤM magic numbers
 - Dark mode: hỗ trợ qua `ThemeData.dark()` nếu yêu cầu
 - Images: `assets/images/` + khai báo trong `pubspec.yaml` → dùng `Image.asset()`
+- Dùng DLS widgets (`core/widgets/`) khi có — ưu tiên hơn raw Material widgets
+
+## Idiomatic Flutter
+- **Async + Context**: `if (context.mounted)` BẮT BUỘC kiểm tra trước khi dùng `BuildContext` sau `await`
+- **Widget composition**: extract complex UI thành small `const` widgets — tránh deep nesting, tránh helper methods trả Widget (dùng class Widget riêng)
+- **Layout**: `Gap(n)` hoặc `SizedBox` cho spacing — ưu tiên hơn `Padding` cho simple gaps
+- **Empty UI**: dùng `const SizedBox.shrink()` cho empty state
+- **Optimization**: dùng `ColoredBox`/`Padding`/`DecoratedBox` thay `Container` khi chỉ cần 1 property
+- **Theme access**: dùng extension methods cho `Theme.of(context)` — gọn hơn
+
+## Mobile UX
+- **Touch targets**: tối thiểu 44x44pt (iOS) / 48x48dp (Android) — thêm padding nếu cần
+- **Safe areas**: wrap content trong `SafeArea` — tránh notch, home indicator
+- **Keyboard**: auto-scroll inputs khi keyboard mở, set đúng `TextInputType` (email/number) + `TextInputAction`
+- **Haptic feedback**: dùng `HapticFeedback.lightImpact()` cho interactions quan trọng
+- **Typography**: body text tối thiểu 16sp, line height 1.5x
+
+## Animation
+- **Timing**: Short 100-150ms (toggles, press) | Medium 250-350ms (navigation, modals) | Long 400-600ms (complex transitions) — CẤM >600ms
+- **Easing**: `Curves.fastOutSlowIn` (Material) hoặc `Curves.easeInOut` — CẤM `Curves.linear` (robotic)
+- **Performance**: animate `transform` (scale/translation) + `opacity` — CẤM animate `width`/`height`/`padding` (trigger layout rebuild)
+- **Implicit animations**: `AnimatedContainer`, `AnimatedOpacity`, `FadeTransition`, `SlideTransition` cho simple cases
+- **Dispose**: BẮT BUỘC `dispose()` mọi `AnimationController` trong `onClose()` / `dispose()`
 
 ## Error Handling
 - Centralized `ErrorHandler` class — xử lý DioException, FormatException, generic errors
@@ -223,13 +264,15 @@ assets/                             → images/, fonts/, translations/
 - Cache strategy: API response cache với TTL, invalidate khi cần
 
 ## Performance
-- `const` widgets: BẮT BUỘC dùng `const` constructor khi widget không thay đổi
-- `ListView.builder()` thay vì `ListView(children: [...])` cho danh sách dài
-- Image: cache với `cached_network_image`, resize phù hợp
+- `const` widgets: BẮT BUỘC dùng `const` constructor khi widget không thay đổi — `debugRepaintRainbowEnabled` để debug rebuilds
+- `ListView.builder()` thay vì `ListView(children: [...])` cho danh sách dài — item recycling
+- Image: cache với `cached_network_image` + `memCacheWidth`, `precachePicture` cho SVGs
+- Heavy tasks: dùng `compute()` hoặc `Isolate` cho parsing JSON lớn, image processing — KHÔNG chạy trong UI thread
 - Lazy loading: pagination cho lists. GetX: `Get.lazyPut()` | Non-GetX: lazy init trong DI container
-- Avoid rebuilds: wrap CHỈ phần widget cần reactive (GetX: `Obx()` scope nhỏ | Bloc: `BlocSelector` | Riverpod: `select`), KHÔNG wrap cả Scaffold
+- Avoid rebuilds: wrap CHỈ phần widget cần reactive (GetX: `Obx()` scope nhỏ | Bloc: `BlocSelector`/`buildWhen` | Riverpod: `select`), KHÔNG wrap cả Scaffold
 - Memory: dispose resources khi screen bị hủy (GetX: `onClose()` | StatefulWidget: `dispose()`)
 - `RepaintBoundary` cho widgets animate thường xuyên
+- CẤM logic nặng trong `build()` — parsing/sorting phải ở Business Layer
 
 ## Internationalization (i18n)
 - Ưu tiên `intl` package + `.arb` files (`core/l10n/`) — chuẩn Flutter, hoạt động với mọi state management
@@ -248,19 +291,41 @@ assets/                             → images/, fonts/, translations/
 - Custom lint rules: `analysis_options.yaml` với `flutter_lints` hoặc `very_good_analysis`
 
 ## Testing
-- Unit tests: `test/` thư mục, file `*_test.dart`
-- Widget tests: `testWidgets()` + `WidgetTester`
-- Integration tests: `integration_test/` thư mục
-- Mock: `mocktail` hoặc `mockito` — mock repositories, services
+- **Testing Pyramid**: ~70% Unit Tests, ~20% Widget Tests, ~10% Integration Tests
+- Unit tests: `test/unit/` — business logic, mapping, controllers/blocs (mọi edge case: Success, Failure, Exception)
+- Widget tests: `test/widget/` — UI interactions (button clicks, error states, loading indicators)
+- Integration tests: `integration_test/` — E2E flows
+- Mock: `mocktail` (preferred, no codegen) — mock I/O (repositories, services). CẤM mock data classes/entities, dùng real instances
 - GetX test setup: `Get.put()` trong `setUp()`, `Get.reset()` trong `tearDown()`
 - Test pattern: Arrange → Act → Assert
+- Mỗi test PHẢI có `expect()` — CẤM test chỉ chạy mà không assert
+- CẤM `Future.delayed()` trong tests — dùng `FakeAsync` hoặc expectations cho timing
+- Code coverage target: 80%+ cho Domain + Logic layers
 - Chạy: `flutter test` (unit + widget), `flutter test integration_test/` (integration)
+
+## Notifications (Push + Local)
+- Stack: `firebase_messaging` (Push) + `flutter_local_notifications` (Local/Foreground)
+- Xử lý đầy đủ 3 states: Foreground, Background, Terminated (`getInitialMessage()`)
+- Permission: hiển thị custom dialog giải thích lợi ích TRƯỚC khi gọi system request — CẤM hỏi permission ngay khi mở app
+- Validate notification payload nghiêm ngặt trước khi navigate
+- iOS: clear app badge khi user vào screen liên quan
+
+## CI/CD
+- Pipeline: `flutter analyze` → `dart format` → `flutter test` → build — fail fast (analyze trước test)
+- Android: build App Bundle (`.aab`) cho Play Store
+- iOS: sign + build `.ipa` (cần macOS runner)
+- Timeout: luôn set `timeout-minutes` (30m) cho CI jobs — tránh hung jobs
+- Secrets: KHÔNG commit keys — dùng GitHub Secrets hoặc secure vaults
+- Versioning: automate version bumping từ git tags
 
 ## Tham khảo chi tiết
 Khi cần patterns phức tạp → đọc `.planning/docs/flutter/`:
 - `state-management.md` — GetX patterns, Workers, reactive programming
 - `navigation.md` — Routes, middleware, deep linking, nested navigation
-- `testing.md` — Unit/widget/integration test setup, mocking, golden tests
+- `testing.md` — Unit/widget/integration test setup, mocking, robot pattern
 - `platform-channels.md` — Native code integration (Android/iOS), MethodChannel
 - `performance.md` — Profiling, optimization, memory management, build modes
 - `packages.md` — Recommended packages, version management, pub.dev guidelines
+- `cicd.md` — GitHub Actions, Fastlane, automated deployment
+- `notifications.md` — FCM setup, local notifications, lifecycle handling
+- `design-system.md` — Token enforcement, DLS patterns, anti-patterns
