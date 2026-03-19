@@ -138,51 +138,6 @@ function fileHash(filePath) {
 }
 
 /**
- * Copy file với path replacement.
- * Thay thế ~/.claude/ → targetPrefix trong nội dung .md files.
- */
-function copyFileWithReplace(src, dest, replacements) {
-  const ext = path.extname(src).toLowerCase();
-
-  fs.mkdirSync(path.dirname(dest), { recursive: true });
-
-  if (['.md', '.toml', '.json', '.txt'].includes(ext)) {
-    let content = fs.readFileSync(src, 'utf8');
-    for (const [search, replace] of replacements) {
-      content = content.split(search).join(replace);
-    }
-    fs.writeFileSync(dest, content, 'utf8');
-  } else {
-    fs.copyFileSync(src, dest);
-  }
-}
-
-/**
- * Copy toàn bộ directory với replacements.
- */
-function copyDirWithReplace(srcDir, destDir, replacements) {
-  if (!fs.existsSync(srcDir)) return;
-
-  // Clean dest trước (idempotent)
-  if (fs.existsSync(destDir)) {
-    fs.rmSync(destDir, { recursive: true, force: true });
-  }
-  fs.mkdirSync(destDir, { recursive: true });
-
-  const entries = fs.readdirSync(srcDir, { withFileTypes: true });
-  for (const entry of entries) {
-    const srcPath = path.join(srcDir, entry.name);
-    const destPath = path.join(destDir, entry.name);
-
-    if (entry.isDirectory()) {
-      copyDirWithReplace(srcPath, destPath, replacements);
-    } else {
-      copyFileWithReplace(srcPath, destPath, replacements);
-    }
-  }
-}
-
-/**
  * Đọc danh sách skill files từ source directory.
  * Trả về array of { name, filePath, content }
  */
@@ -249,8 +204,6 @@ module.exports = {
   buildFrontmatter,
   assembleMd,
   fileHash,
-  copyFileWithReplace,
-  copyDirWithReplace,
   listSkillFiles,
   commandExists,
   exec,

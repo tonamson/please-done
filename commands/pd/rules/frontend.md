@@ -13,7 +13,7 @@
 - Default export cho component chính, named function cho sub-components cùng file
 - Props interface ngay trên component: `interface XxxProps { ... }`
 - `'use client'` CHỈ khi cần (hooks, state, browser APIs) — Server Components mặc định
-- Sub-components nội bộ = named functions cùng file (GridCard, ListCard), KHÔNG tách file riêng
+- Sub-components nội bộ = named functions cùng file (GridCard, ListCard), KHÔNG tách file riêng. Ngoại lệ: nếu file >500 dòng do nhiều sub-components → tách domain components thành file riêng cùng thư mục
 - Section separators: `/* ===== Section ===== */` hoặc `/* ───── Section ───── */`
 
 ## UI & Styling
@@ -54,9 +54,7 @@
 - Submit handler: `async function handleFinish(values: FormValues)` với try/catch + loading state
 
 ## Giao diện Admin (Backend Interface)
-- **Thuần Ant Design v6** — BẮT BUỘC tra cứu `mcp__context7__query-docs` (antd) trước khi dùng component/API mới
-- Mỗi lần tạo/sửa component admin → research Context7 để verify props, cú pháp, tham số đúng version
-- Nếu Context7 không có → dùng FastCode `mcp__fastcode__code_qa` kiểm tra pattern đang dùng trong project
+- **Thuần Ant Design v6** — tra context7 + FastCode trước khi viết (xem general.md — KISS + YAGNI), đặc biệt khi dùng component/API mới của antd
 
 ### Phân quyền giao diện
 - Mỗi page/menu admin PHẢI kiểm tra role trước khi render
@@ -70,6 +68,11 @@
 - Lưu vào Zustand store: `useAuthStore` với `user.roles` / `user.permissions`
 - Helper: `hasRole(role)`, `hasPermission(perm)` → dùng để ẩn/hiện/disable
 - Khi backend thêm Guard/Role mới cho API → frontend PHẢI cập nhật ẩn/hiện tương ứng
+
+## Error Handling & Loading
+- Error boundary: `error.tsx` trong mỗi route segment quan trọng — `'use client'` + `reset()` function
+- Loading: `loading.tsx` cho route segments cần loading UI — dùng antd `Spin` hoặc `Skeleton`
+- `<Suspense fallback={...}>` wrap async Server Components khi cần streaming
 
 ## Build & Lint
 - Lint: `npx eslint --fix`

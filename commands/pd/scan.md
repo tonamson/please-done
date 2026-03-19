@@ -23,7 +23,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Tạo `.planning/scan/` nếu chưa có
 
 ## Bước 2: Kiểm tra project có code không
-Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning — KHÔNG bao gồm .json/.css để khớp với init.md):
+Glob `**/*.{ts,tsx,js,jsx,py,php,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin — KHÔNG bao gồm .json/.css để khớp với init.md):
 - **KHÔNG có source files** (project mới) → nhảy sang **Bước 5** tạo scan report tối giản:
   - Ghi: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]"
   - Trạng thái hoàn thành: "Chưa bắt đầu"
@@ -47,6 +47,13 @@ Glob `**/*.{ts,tsx,js,jsx,py,html}` (trừ node_modules, .venv, .planning — KH
   - Hooks: Glob `**/hooks/use*.{ts,tsx}` → liệt kê custom hooks
   - API Layer: Glob `**/lib/api.ts`, `**/lib/admin-api.ts` → nếu tồn tại thì Read → liệt kê API functions
   - Types: Glob `**/types/*.ts` → liệt kê type files
+
+  **WordPress:** (CHỈ quét nếu tồn tại `**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`)
+  - Plugins: Glob `**/wp-content/plugins/*/` → liệt kê plugins
+  - Themes: Glob `**/wp-content/themes/*/style.css` → liệt kê themes
+  - Custom tables: Grep `dbDelta|\\$wpdb->prefix` → liệt kê custom tables
+  - REST API: Grep `register_rest_route` → liệt kê endpoints
+  - Hooks: Grep `add_action|add_filter` → đếm hooks registered
 
 ## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
 Validate đường dẫn trong CONTEXT.md khớp với thư mục hiện tại (`pwd`). Nếu khác → cảnh báo user trước khi tiếp tục.
@@ -150,11 +157,12 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
    - Rules: cập nhật danh sách rules files thực tế trong `.planning/rules/`
 
 3. **Re-copy rules nếu tech stack thay đổi**:
-   So sánh hasBackend/hasFrontend mới với tech stack cũ trong CONTEXT.md:
-   - Nếu KHÁC (VD: thêm frontend mới, xóa backend):
+   So sánh hasBackend/hasFrontend/hasWordPress mới với tech stack cũ trong CONTEXT.md:
+   - Nếu KHÁC (VD: thêm frontend mới, xóa backend, thêm WordPress):
      - Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`
      - Nếu `.pdconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .pdconfig"
-     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend theo stack mới)
+     - Nếu CÓ → Chỉ xóa các files template: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + backend/frontend/wordpress theo stack mới)
+     - Nếu hasWordPress thay đổi: copy/xóa `wordpress-refs/` → `.planning/docs/wordpress/` tương ứng
    - Nếu GIỐNG → không cần copy lại
 
 ## Bước 7: Thông báo
@@ -168,8 +176,9 @@ In tóm tắt kết quả cho user. Nếu CONTEXT.md hoặc rules đã được 
 - CHỈ tạo sections có dữ liệu trong report, bỏ section rỗng
 - Section "Trạng thái hoàn thành" BẮT BUỘC
 - PHẢI liệt kê thư viện từ package.json + chạy audit **NẾU project có package.json**. Nếu không có package.json → bỏ section Thư viện và Cảnh báo bảo mật
-- CẤM đọc/hiển thị nội dung `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
+- CẤM đọc/hiển thị nội dung `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` — chỉ ghi tên file tồn tại, KHÔNG đọc nội dung
 - Phân tích Frontend CHỈ khi detect được frontend framework (NextJS qua `next.config.*`, Vite qua `vite.config.*`, hoặc nhiều file `.tsx/.jsx`) — bỏ qua nếu không detect được. Các stack ngoài NextJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
+- Phân tích WordPress CHỈ khi detect được (`**/wp-config.php` hoặc `**/wp-content/plugins/*/` hoặc `**/wp-content/themes/*/style.css`) — quét plugins, themes, custom tables, REST API, hooks
 - Phân tích Backend CHỈ khi detect được backend framework (NestJS qua `nest-cli.json`/`app.module.ts`, Express qua `app.js`/`app.ts` + `express` trong package.json) — bỏ qua nếu không detect được. Các stack ngoài NestJS: chỉ liệt kê files, KHÔNG phân tích chi tiết
 - Nếu FastCode MCP lỗi → ghi warning trong report, tiếp tục với built-in tools (KHÔNG DỪNG)
 - PHẢI cập nhật CONTEXT.md sau khi quét — đảm bảo context luôn phản ánh trạng thái hiện tại của dự án

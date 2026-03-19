@@ -1,6 +1,6 @@
 {
   "name": "please-done",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Cross-platform AI coding skills — Claude Code, Codex, Gemini CLI, OpenCode, Copilot",
   "bin": {
     "please-done": "bin/install.js"

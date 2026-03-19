@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` hoặc `frontend.md` → theo loại lỗi (CHỈ nếu file tồn tại)
+- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -66,7 +66,7 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research. C
 
 ## Bước 5: Phân tích + xác định nguyên nhân
 Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack).
-Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` tương ứng:
+Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` tương ứng:
 
 **Nếu lỗi Backend (NestJS):**
 - Trace luồng: request → controller → service → database → response
@@ -75,6 +75,11 @@ Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack)
 **Nếu lỗi Frontend (NextJS):**
 - Trace luồng: page/component → store (Zustand) → API call (`lib/api.ts`) → render
 - Kiểm tra: `'use client'` thiếu/thừa, hydration mismatch (server vs client render), state không sync, API response handling, antd component props sai, inline style logic
+
+**Nếu lỗi WordPress (Plugin/Theme):**
+- Trace luồng: hook/action → callback → database ($wpdb) → output
+- Kiểm tra: sanitize/escape thiếu, nonce verify, capability check, prepared statements, `defined('ABSPATH')` check
+- Tra cứu `.planning/docs/wordpress/` cho patterns phức tạp
 
 **Chung:**
 - Tìm điểm gây lỗi: file + dòng code
@@ -123,8 +128,8 @@ File: `[path]`
 ## Bước 7: Fix code
 - Áp dụng fix, tuân thủ quy tắc trong `.planning/rules/`
 - Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` → mục **Build & Lint**)
-- Thêm/cập nhật test case cho bug trong .spec.ts (chỉ Backend)
+- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` → mục **Build & Lint**)
+- Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress)
 
 ## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
 ```
@@ -162,7 +167,7 @@ git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt lỗi]'
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend theo loại lỗi)
+- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress theo loại lỗi)
 - PHẢI đọc PLAN.md + CODE_REPORT trước khi fix
 - PHẢI research trước khi fix, KHÔNG đoán mò
 - PHẢI viết bug report với code TRƯỚC/SAU

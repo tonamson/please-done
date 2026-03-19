@@ -1,5 +1,37 @@
 # Nhật ký thay đổi Skills
 
+## [2.4.0] - 19_03_2026
+### Thêm mới
+- **WordPress stack support**: Thêm `wordpress.md` rules (coding standards, security, hooks, database, REST API, performance, i18n, enqueue assets)
+- **9 WordPress reference docs** (`wordpress-refs/`): plugin-architecture, theme-development, gutenberg-blocks, woocommerce, security-hardening, database-migrations, wp-cli, multisite, testing — copy vào `.planning/docs/wordpress/` khi init
+- **WordPress detection**: `init.md` + `scan.md` detect qua `wp-config.php`, `wp-content/plugins/*/`, `wp-content/themes/*/style.css`
+- **WordPress test flow**: `test.md` hỗ trợ PHPUnit + `WP_UnitTestCase` bên cạnh Jest/Supertest
+- **WordPress scan patterns**: `scan.md` quét plugins, themes, custom tables (`dbDelta`/`$wpdb->prefix`), REST API (`register_rest_route`), hooks (`add_action`/`add_filter`)
+- **WordPress bug tracing**: `fix-bug.md` trace hook/action → callback → $wpdb → output, kiểm tra sanitize/escape/nonce/capability/prepared statements
+- **3 eval tests WordPress**: init detection, write-code rules compliance, PHPUnit test flow
+
+### Thay đổi
+- `init.md`: Glob thêm `.php` + exclude `wp-includes/wp-admin` (tránh core WP files). `<context>` + Bước 8 notification + `<rules>` security list đều bao gồm WordPress
+- `scan.md`: Glob thêm `.php`, Grep patterns dùng `|` (ripgrep syntax thay vì `\|`), WordPress scan section mới, `<rules>` security thêm `wp-config.php`
+- `plan.md`: `<context>` đọc `wordpress.md` rules theo stack
+- `write-code.md`: WordPress task section (ABSPATH check, docs tra cứu, Context7, `composer run lint`). Test suggestions: "NestJS hoặc WordPress" thay vì "NestJS only". Fallback lint: `composer run lint`
+- `fix-bug.md`: `<context>` + Bước 5 + Bước 7 bao gồm WordPress
+- `what-next.md`: Ưu tiên 6 bao gồm WordPress cho test suggestion
+- `complete-milestone.md`: TEST_REPORT check bao gồm WordPress
+- `general.md`: Code style ghi rõ "(TS/JS) — PHP theo rules riêng". Bảo mật thêm `wp-config.php`. Commit format thêm `[TRACKING]`
+- `backend.md`: Decorator `@Roles` (sửa từ `@Group/@Role`), RequestWithUser gợi ý, MongoDB prefix `m` có VD, Middleware & Interceptor section mới, Soft delete 3 patterns (TypeORM/Mongoose/Prisma)
+- `frontend.md`: Sub-components escape clause (>500 dòng), Error Handling & Loading section mới
+- `README.md`: Bảng rules + cây `.planning/` bao gồm WordPress, bảng tech stack thêm WordPress row
+- `promptfooconfig.yaml`: Glob patterns thêm `.php`, lint command đồng bộ, comment PHPUnit
+
+### Sửa lỗi
+- `wordpress.md`: `update_meta_cache` → `update_post_meta_cache` (đúng WP_Query parameter)
+- `wordpress.md`: `composer run phpcs` → `composer run lint` (khớp testing.md reference)
+- `init.md`: Glob thiếu `.php` → WordPress PHP-only project bị coi là "dự án mới" (critical)
+- `scan.md`: Grep `\|` → `|` (ripgrep syntax)
+- `write-code.md`: 4 chỗ reference NestJS-only cho test → sửa bao gồm WordPress
+- `promptfooconfig.yaml`: 6× glob thiếu `.php`, 1× `composer phpcs` cũ
+
 ## [2.3.0] - 19_03_2026
 ### Thêm mới
 - **DISCUSS mode dùng AskUserQuestion**: `plan.md` viết lại toàn bộ chế độ DISCUSS — user chọn bằng phím mũi tên thay vì gõ A/B/C. Hỗ trợ multiSelect, single select, chia nhóm 5+ vấn đề

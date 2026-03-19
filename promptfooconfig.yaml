@@ -20,7 +20,7 @@
 #   pd:new-milestone   — Encoded Preference — lập roadmap chiến lược
 #   pd:plan            — Encoded Preference — thiết kế kỹ thuật + chia task
 #   pd:write-code      — Encoded Preference — viết code theo plan
-#   pd:test            — Encoded Preference — kiểm thử Jest/Supertest
+#   pd:test            — Encoded Preference — kiểm thử Jest/Supertest + PHPUnit
 #   pd:fix-bug         — Encoded Preference — debug loop có báo cáo
 #   pd:complete-milestone — Encoded Preference — đóng version + git tag
 #
@@ -66,7 +66,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công, trả về danh sách repos
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,html} → tìm thấy 50+ files .ts
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 50+ files .ts
         - Glob **/nest-cli.json → tìm thấy /app/my-backend/nest-cli.json
         - Glob **/next.config.* → KHÔNG tìm thấy
         - package.json có: @nestjs/core@10.3.0, @nestjs/common, prisma
@@ -101,7 +101,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,html} → KHÔNG tìm thấy file nào
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → KHÔNG tìm thấy file nào
         - Chỉ có package.json và README.md
         - .pdconfig có SKILLS_DIR=/home/user/skills
     assert:
@@ -123,7 +123,7 @@ tests:
         Kết quả tool calls giả lập:
         - mcp__fastcode__list_indexed_repos → thành công
         - .planning/CONTEXT.md → KHÔNG tồn tại
-        - Glob **/*.{ts,tsx,js,jsx,py,html} → tìm thấy 30+ files .tsx
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 30+ files .tsx
         - Glob **/nest-cli.json → KHÔNG tìm thấy
         - Glob **/app.module.ts → KHÔNG tìm thấy
         - Glob **/main.ts → tìm thấy /app/vite-app/src/main.ts
@@ -140,6 +140,89 @@ tests:
           2. PHẢI detect hasFrontend = true (qua vite.config.ts hoặc nhiều .tsx files)
           3. PHẢI copy general.md + frontend.md (KHÔNG copy backend.md)
           4. CONTEXT.md KHÔNG ĐƯỢC ghi NestJS trong Tech Stack
+
+  - description: "pd:init — WordPress project (detect wp-config.php, copy rules + refs)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/wordpress-site.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → tìm thấy 10+ files .php
+        - Glob **/nest-cli.json → KHÔNG tìm thấy
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/wp-config.php → tìm thấy /app/wordpress-site/wp-config.php
+        - Glob **/wp-content/plugins/*/ → tìm thấy /app/wordpress-site/wp-content/plugins/my-plugin/
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/wordpress.md → tồn tại
+        - [SKILLS_DIR]/commands/pd/rules/wordpress-refs/ → tồn tại (9 files)
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra WordPress detection và rules copy:
+          1. PHẢI detect WordPress qua wp-config.php → hasWordPress = true
+          2. hasBackend và hasFrontend có thể false (WordPress project thuần, không có NestJS/NextJS)
+          3. PHẢI copy general.md vào .planning/rules/
+          4. PHẢI copy wordpress.md vào .planning/rules/
+          5. PHẢI copy wordpress-refs/ vào .planning/docs/wordpress/ (9 reference files)
+          6. KHÔNG copy backend.md hoặc frontend.md (không có NestJS/NextJS)
+          7. CONTEXT.md PHẢI ghi WordPress trong Tech Stack
+      - type: icontains
+        value: "wordpress"
+
+  - description: "pd:write-code — WordPress task must read wordpress.md rules"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project WordPress tại /app/wordpress-site. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → WordPress (plugin development), không có NestJS/NextJS
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → thiết kế custom post type "Book" + REST API endpoint
+        - TASKS.md: Task 1: ⬜ (Phụ thuộc: Không) — Register Custom Post Type
+        - .planning/rules/wordpress.md → tồn tại
+        - .planning/docs/wordpress/plugin-architecture.md → tồn tại
+        - git rev-parse → có git repo
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra write-code cho WordPress task:
+          1. PHẢI đọc .planning/rules/wordpress.md trước khi code
+          2. PHẢI tuân thủ WordPress coding standards (tabs, snake_case, Yoda conditions)
+          3. PHẢI có defined('ABSPATH') check ở đầu file PHP
+          4. PHẢI prefix functions/classes với plugin slug
+          5. PHẢI dùng sanitize/escape cho input/output
+          6. PHẢI tra cứu .planning/docs/wordpress/ cho patterns phức tạp (nếu cần)
+          7. PHẢI chạy lint (composer run lint) nếu đã setup
+      - type: icontains
+        value: "wordpress"
+
+  - description: "pd:test — WordPress project → PHPUnit + WP_UnitTestCase"
+    vars:
+      skill_file: commands/pd/test.md
+      scenario: |
+        Project WordPress tại /app/wordpress-site.
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → WordPress (plugin development), không có NestJS
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → custom post type + REST API
+        - TASKS.md → Task 1: ✅ (Register CPT), Task 2: ✅ (REST endpoint)
+        - composer.json có phpunit/phpunit, wp-phpunit/wp-phpunit
+        - .planning/docs/wordpress/testing.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra test flow cho WordPress:
+          1. PHẢI detect WordPress (KHÔNG phải NestJS) → chuyển sang PHPUnit flow
+          2. PHẢI kiểm tra PHPUnit + wp-phpunit đã cài
+          3. PHẢI đọc .planning/docs/wordpress/testing.md cho patterns
+          4. PHẢI viết test files dùng WP_UnitTestCase (KHÔNG phải Jest/Supertest)
+          5. PHẢI dùng factory methods ($this->factory()->post->create())
+          6. PHẢI chạy ./vendor/bin/phpunit (KHÔNG phải npm test)
+          7. KHÔNG viết .spec.ts files
+      - type: icontains
+        value: "phpunit"
 
   - description: "pd:init — FastCode MCP fails → MUST STOP"
     vars:
@@ -206,7 +289,7 @@ tests:
         Project tại /app/fullstack.
         Kết quả tool calls giả lập:
         - .planning/CONTEXT.md → tồn tại, có Backend NestJS + Frontend NextJS
-        - Glob **/*.{ts,tsx,js,jsx,py,html} → 200+ files
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → 200+ files
         - nest-cli.json tồn tại, next.config.ts tồn tại
         - package.json có: @nestjs/core, next, antd, prisma
         - npm audit → 2 moderate vulnerabilities
@@ -236,7 +319,7 @@ tests:
         Project tại /app/new-project.
         Kết quả tool calls giả lập:
         - .planning/CONTEXT.md → tồn tại, ghi "Dự án mới: Có"
-        - Glob **/*.{ts,tsx,js,jsx,py,html} → KHÔNG tìm thấy file nào
+        - Glob **/*.{ts,tsx,js,jsx,py,php,html} → KHÔNG tìm thấy file nào
     assert:
       - type: llm-rubric
         value: |

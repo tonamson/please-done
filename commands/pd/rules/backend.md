@@ -2,8 +2,8 @@
 
 ## Controller
 - CHỈ delegate, KHÔNG business logic
-- Decorator stack: JSDoc → @Post → @HttpCode → @UseGuards → @Group/@Role
-- @Req() req: any để lấy req.user
+- Decorator stack: JSDoc → @Post → @HttpCode → @UseGuards → @Roles
+- @Req() req: any để lấy req.user (project phức tạp nên dùng custom interface RequestWithUser)
 
 ## Service
 - private readonly logger = new Logger(XxxService.name)
@@ -16,7 +16,7 @@
 - Validation decorators mỗi dòng 1 cái, barrel export qua dto/index.ts nếu nhiều DTOs
 
 ## Entity
-- MongoDB: @Schema({ versionKey:false, timestamps:true }) + snake_case + prefix m + mongoose-paginate-v2
+- MongoDB: @Schema({ versionKey:false, timestamps:true }) + snake_case + prefix `m` (VD: collection `mUsers`) + mongoose-paginate-v2
 - TypeORM: camelCase + suffix Repo + @Column({ comment:'tiếng Việt' }) + @DeleteDateColumn() soft delete
 - Prisma: @@map("tên_bảng") + @@index + camelCase
 
@@ -35,18 +35,24 @@
 - Không xác định được → mặc định tiếng Việt
 
 ## Phân quyền API (Guard + JWT)
-- BẮT BUỘC tra cứu `mcp__context7__query-docs` (nestjs) khi tạo/sửa Guard, JWT strategy, Role decorator
-- Dùng FastCode `mcp__fastcode__code_qa` kiểm tra pattern Guard/Role đang dùng trong project trước khi viết mới
+- Tra context7 + FastCode trước khi viết (xem general.md — KISS + YAGNI), đặc biệt khi tạo/sửa Guard, JWT strategy, Role decorator
 - `@UseGuards(JwtAuthGuard, RolesGuard)` trên controller/route cần bảo vệ
 - `@Roles('admin', 'editor')` decorator chỉ định role được phép
 - JWT payload chứa: `{ sub, email, roles }` — KHÔNG chứa thông tin nhạy cảm
 - Guard trả `ForbiddenException` / `UnauthorizedException` với message rõ ràng
 - Khi thêm/sửa Guard cho API → ghi chú trong CODE_REPORT để frontend biết cập nhật ẩn/hiện
 
+## Middleware & Interceptor
+- Middleware: implement `NestMiddleware`, register trong module `configure(consumer)` — dùng cho logging, CORS, rate limiting
+- Interceptor: implement `NestInterceptor`, dùng `@UseInterceptors()` — dùng cho transform response, caching, timeout
+
 ## Bảo mật code
 - Password: bcrypt(10), strip khỏi response
 - Sort: whitelist allowedSortFields chống injection
-- Soft delete: @DeleteDateColumn() thay vì xóa thật
+- Soft delete:
+  - TypeORM: `@DeleteDateColumn()` thay vì xóa thật
+  - Mongoose: thêm field `deletedAt: Date` + middleware filter `{ deletedAt: null }`
+  - Prisma: field `deletedAt DateTime?` + middleware filter
 
 ## Build & Lint
 - Lint: `npx eslint src/ --fix`

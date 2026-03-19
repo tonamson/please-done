@@ -51,25 +51,6 @@ function convertSkill(content) {
 }
 
 /**
- * Convert agent file (thêm model: inherit, mode: subagent).
- */
-function convertAgent(content) {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  const newFm = {};
-  if (frontmatter.description) newFm.description = frontmatter.description;
-  newFm.model = 'inherit';
-  newFm.mode = 'subagent';
-
-  let newBody = body;
-  newBody = convertCommandRef('opencode', newBody);
-  newBody = newBody.replace(/~\/\.claude\//g, '~/.config/opencode/');
-  newBody = newBody.replace(/AskUserQuestion/g, 'question');
-
-  return `---\n${buildFrontmatter(newFm)}\n---\n${newBody}`;
-}
-
-/**
  * Flatten skill name: init → pd-init (dùng làm filename).
  */
 function flattenName(skillName) {
@@ -78,6 +59,5 @@ function flattenName(skillName) {
 
 module.exports = {
   convertSkill,
-  convertAgent,
   flattenName,
 };

@@ -13,7 +13,8 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, database type
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint
+- `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
+- `.planning/rules/wordpress.md` → quy tắc WordPress + Build & Lint (CHỈ nếu file tồn tại, đọc khi WordPress flow)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -23,9 +24,16 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
 - Xác định backend framework từ CONTEXT.md.
-- **Nếu NestJS** → tiếp tục flow bên dưới (giữ nguyên)
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS. Project của bạn dùng [X]. Bạn có thể:
-  1. Viết test thủ công (tạo file Jest + Supertest theo pattern chuẩn)
+- **Nếu NestJS** → tiếp tục flow Jest + Supertest bên dưới (giữ nguyên)
+- **Nếu WordPress** → chuyển sang flow PHPUnit + WP_UnitTestCase:
+  1. Kiểm tra PHPUnit + WordPress test suite đã cài (`composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit`)
+  2. Đọc `.planning/docs/wordpress/testing.md` (nếu có) để lấy patterns WP_UnitTestCase
+  3. Viết test files `tests/test-*.php` (class extends `WP_UnitTestCase`)
+  4. Dùng factory methods: `$this->factory()->post->create()`, `$this->factory()->user->create()`
+  5. Chạy: `./vendor/bin/phpunit --verbose` hoặc `composer test`
+  6. Phần còn lại (report, bug, commit) — theo đúng flow chung bên dưới
+- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS và WordPress. Project của bạn dùng [X]. Bạn có thể:
+  1. Viết test thủ công (tạo file test theo pattern chuẩn của framework)
   2. Bỏ qua automated test cho phase này"
 - **Frontend-only projects** → tạo checklist kiểm thử thủ công từ PLAN.md: liệt kê pages, components, user flows cần verify. DỪNG flow test tự động.
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 10)

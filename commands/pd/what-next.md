@@ -81,7 +81,7 @@ Nếu có task 🐛 nhưng không có bug report mở tương ứng → cảnh b
 > → Chạy `/pd:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
 
 ### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test hoặc test fail
-CHỈ áp dụng khi project có Backend NestJS VÀ (chưa có TEST_REPORT HOẶC TEST_REPORT có tests fail).
+CHỈ áp dụng khi project có (Backend NestJS HOẶC WordPress) VÀ (chưa có TEST_REPORT HOẶC TEST_REPORT có tests fail).
 Kiểm tra: Nếu TEST_REPORT không tồn tại → gợi ý `/pd:test`. Nếu tồn tại → Grep pattern `❌` → nếu có tests fail → gợi ý `/pd:fix-bug` trước.
 > ✅ Phase [x.x] hoàn tất [N] tasks. Chưa có test report (hoặc có tests fail).
 > → Chạy `/pd:test` để kiểm thử (hoặc `/pd:fix-bug` nếu có tests fail)
