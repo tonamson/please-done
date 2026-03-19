@@ -2,7 +2,7 @@
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.6.0**
+**Phiên bản hiện tại: v2.6.1**
 
 ## Nền tảng hỗ trợ
 

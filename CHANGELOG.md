@@ -1,5 +1,11 @@
 # Nhật ký thay đổi Skills
 
+## [2.6.1] - 19_03_2026
+### Sửa lỗi
+- **test.md**: description + objective thiếu Flutter (chỉ ghi NestJS/WordPress/Solidity)
+- **fix-bug.md**: Bước 5 danh sách rules đọc thiếu `flutter.md`
+- **init.md**: ví dụ "stack tương lai" còn Flutter dù đã tích hợp (→ Laravel)
+
 ## [2.6.0] - 19_03_2026
 ### Thêm mới
 - **Flutter stack support** — rules (`flutter.md`), 8 reference docs (`flutter-refs/`), detection, scan, plan, write-code, test, fix-bug
