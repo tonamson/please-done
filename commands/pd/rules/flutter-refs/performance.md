@@ -6,13 +6,13 @@
 ```dart
 // ✅ ĐÚNG: const widget — không rebuild
 const Text('Hello');
-const SizedBox(height: 16);
+const SizedBox(height: AppSpacing.lg); // Dùng design token
 const Icon(Icons.home);
 const MyCustomWidget(title: 'Static');
 
 // ❌ SAI: không const khi có thể
 Text('Hello'); // Tạo instance mới mỗi lần rebuild
-SizedBox(height: 16);
+SizedBox(height: 16); // Magic number
 ```
 
 ### Minimize Rebuild Scope
@@ -23,7 +23,7 @@ Scaffold(
   body: Column(
     children: [
       const HeaderWidget(), // Không rebuild
-      Obx(() => Text('Count: ${controller.count}')), // Chỉ phần này rebuild
+      Obx(() => Text('Count: ${controller.state.count}')), // Chỉ phần này rebuild
       const FooterWidget(), // Không rebuild
     ],
   ),
@@ -31,7 +31,7 @@ Scaffold(
 
 // ❌ SAI: Obx wrap cả Scaffold
 Obx(() => Scaffold(
-  appBar: AppBar(title: Text('Count: ${controller.count}')),
+  appBar: AppBar(title: Text('Count: ${controller.state.count}')),
   body: HugeWidgetTree(), // Toàn bộ rebuild!
 ));
 ```
@@ -113,13 +113,16 @@ Image.asset(
 @override
 void onInit() {
   super.onInit();
-  precacheImage(const AssetImage('assets/hero.png'), Get.context!);
+  final context = Get.context;
+  if (context != null) {
+    precacheImage(const AssetImage('assets/hero.png'), context);
+  }
 }
 ```
 
 ## Memory Management
 ```dart
-class MyController extends GetxController {
+class MyLogic extends GetxController {
   StreamSubscription? _subscription;
   Timer? _timer;
   final _scrollController = ScrollController();
