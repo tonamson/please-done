@@ -258,7 +258,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 1. **Spawn Agent tool** cho mỗi task song song trong wave — mỗi agent nhận đầy đủ:
    - PLAN.md (toàn bộ thiết kế kỹ thuật)
    - Task detail từ TASKS.md (task cụ thể agent cần làm)
-   - Rules files phù hợp (general + backend/frontend theo Loại task)
+   - Rules files phù hợp (general + backend/frontend/wordpress/solidity theo Loại task)
    - CONTEXT.md (tech stack, thư viện)
    - Docs liên quan (nếu có)
    - Chỉ dẫn: thực hiện Bước 2→3→4→5 cho task được giao (agent CHỈ viết code + lint/build, KHÔNG tạo report/cập nhật TASKS/commit)
@@ -318,7 +318,7 @@ DỪNG sau mỗi task, thông báo:
 </process>
 
 <rules>
-- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend theo Loại task)
+- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity theo Loại task)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
