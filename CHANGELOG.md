@@ -1,5 +1,15 @@
 # Nhật ký thay đổi Skills
 
+## [2.7.0] - 19_03_2026
+### Thêm mới
+- **Semgrep auto-scan**: Quét lỗ hổng bảo mật tự động (OWASP Top 10, injection, XSS, hardcoded secrets) mỗi khi AI viết/sửa code
+- **Semgrep MCP server**: AI có thể chủ động gọi Semgrep để quét toàn bộ dự án hoặc kiểm tra pattern cụ thể
+- **PostToolUse hook**: Hook `semgrep-scan.sh` chạy sau mỗi Edit/Write file code (.ts, .js, .py, .sol, .php...) — cảnh báo ngay nếu phát hiện lỗ hổng
+- **Lớp bảo mật thứ 4**: Bổ sung Semgrep vào mô hình phòng thủ nhiều lớp (platform deny → skill rules → .gitignore → semgrep scan)
+
+### Thay đổi
+- **README.md**: Thêm Semgrep vào bảng MCP servers, hướng dẫn cài đặt Semgrep MCP tại local (CLI + MCP + hook), cập nhật mô hình bảo mật 4 lớp
+
 ## [2.6.2] - 19_03_2026
 ### Thay đổi
 - **Rename**: `backend.md` → `nestjs.md`, `frontend.md` → `nextjs.md` — đồng bộ naming convention [stack]-refs/

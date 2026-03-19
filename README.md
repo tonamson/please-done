@@ -2,7 +2,7 @@
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.6.2**
+**Phiên bản hiện tại: v2.7.0**
 
 ## Nền tảng hỗ trợ
 
@@ -298,9 +298,112 @@ Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài        
 | ------------ | ---------------------------------------------------- | -------------------- |
 | **FastCode** | Lập chỉ mục + phân tích code dự án (dùng Gemini API) | Có                   |
 | **Context7** | Tra cứu tài liệu API thư viện đúng phiên bản         | Không (nhưng nên có) |
+| **Semgrep**  | Quét lỗ hổng bảo mật tự động khi viết code           | Không (nhưng nên có) |
 
 
-Please Done tự động gọi FastCode để nghiên cứu code hiện có và Context7 để tra cứu tài liệu thư viện. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `init` kiểm tra lại.
+Please Done tự động gọi FastCode để nghiên cứu code hiện có, Context7 để tra cứu tài liệu thư viện, và Semgrep để quét lỗ hổng bảo mật realtime khi viết code. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `init` kiểm tra lại.
+
+### Semgrep MCP (cài thủ công)
+
+Semgrep quét lỗ hổng bảo mật (OWASP Top 10, injection, XSS, hardcoded secrets...) tự động mỗi khi AI viết hoặc sửa code. Hoạt động qua 2 lớp:
+
+**Lớp 1 — Hook tự động**: Sau mỗi lệnh Edit/Write file code, hook chạy `semgrep scan` trên file vừa thay đổi. Nếu phát hiện lỗ hổng → cảnh báo ngay trong terminal → AI tự sửa trước khi tiếp tục.
+
+**Lớp 2 — MCP server**: AI có thể chủ động gọi Semgrep MCP để quét toàn bộ dự án hoặc kiểm tra pattern cụ thể.
+
+#### Cài đặt Semgrep MCP tại máy local
+
+**Bước 1** — Cài Semgrep CLI:
+
+```bash
+# macOS / Linux
+pip install semgrep
+# hoặc
+brew install semgrep
+
+# Kiểm tra
+semgrep --version
+```
+
+**Bước 2** — Thêm MCP server vào dự án (tạo `.mcp.json` ở root):
+
+```json
+{
+  "mcpServers": {
+    "semgrep": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["semgrep-mcp"],
+      "env": {}
+    }
+  }
+}
+```
+
+> Yêu cầu `uv` (Python package manager): `pip install uv` hoặc `brew install uv`
+
+**Bước 3** — Cấu hình hook auto-scan (Claude Code):
+
+Tạo `.claude/hooks/semgrep-scan.sh`:
+
+```bash
+#!/bin/bash
+# Auto-scan security vulnerabilities after Edit/Write code files
+
+if [[ "$CLAUDE_TOOL_NAME" != "Edit" && "$CLAUDE_TOOL_NAME" != "Write" ]]; then
+  exit 0
+fi
+
+FILE_PATH=$(echo "$CLAUDE_TOOL_INPUT" | python3 -c "import sys,json; print(json.load(sys.stdin).get('file_path',''))" 2>/dev/null)
+
+if [[ -z "$FILE_PATH" || ! -f "$FILE_PATH" ]]; then
+  exit 0
+fi
+
+# Chỉ quét file code (bỏ qua docs, config)
+EXT="${FILE_PATH##*.}"
+case "$EXT" in
+  ts|tsx|js|jsx|py|sol|go|java|rb|php|rs|c|cpp|h) ;;
+  *) exit 0 ;;
+esac
+
+RESULT=$(semgrep scan --config auto --quiet --no-git-ignore "$FILE_PATH" 2>/dev/null)
+
+if [[ -n "$RESULT" ]]; then
+  echo "⚠️ SEMGREP SECURITY SCAN — Found issues in $FILE_PATH:"
+  echo ""
+  echo "$RESULT"
+  echo ""
+  echo "→ Please fix these security vulnerabilities before proceeding."
+fi
+```
+
+```bash
+chmod +x .claude/hooks/semgrep-scan.sh
+```
+
+Thêm hook vào `.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/semgrep-scan.sh",
+            "timeout": 30000
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+**Kết quả**: Mỗi khi AI viết/sửa file `.ts`, `.js`, `.py`, `.sol`, `.php`... → Semgrep tự quét → cảnh báo nếu có lỗ hổng → AI sửa ngay.
 
 ## Bảo mật
 
@@ -355,7 +458,7 @@ NEVER read files matching: .env, .env.*, *.pem, *.key, *credential*, secrets/*
 **OpenCode / Copilot** — thêm vào `.gitignore` (đã có sẵn) + tệp hướng dẫn của nền tảng tương ứng với nội dung tương tự Codex.
 
 > [!IMPORTANT]
-> Phòng thủ nhiều lớp luôn tốt hơn: **Lớp 1** — Danh sách chặn nền tảng ngăn đọc file. **Lớp 2** — Skills từ chối đọc/hiển thị nội dung nhạy cảm. **Lớp 3** — `.gitignore` ngăn commit file bí mật.
+> Phòng thủ nhiều lớp luôn tốt hơn: **Lớp 1** — Danh sách chặn nền tảng ngăn đọc file. **Lớp 2** — Skills từ chối đọc/hiển thị nội dung nhạy cảm. **Lớp 3** — `.gitignore` ngăn commit file bí mật. **Lớp 4** — Semgrep auto-scan phát hiện lỗ hổng ngay khi viết code.
 
 ## Quy ước Commit
 
