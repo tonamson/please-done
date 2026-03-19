@@ -163,9 +163,9 @@ $pd-init        # Codex
 | ----------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `rules/general.md`      | Luôn luôn    | Phong cách code, ngôn ngữ, biểu tượng, định dạng phiên bản, git, bảo mật                                                               |
 | `rules/nestjs.md`       | Có NestJS    | Controller, Service, DTO, Entity, Response, Guard, Build & Lint                                                                        |
-| `rules/nestjs-refs/`    | Có NestJS    | Tài liệu tham khảo NestJS chi tiết                                                                                                    |
+| `rules/nestjs-refs/`    | Có NestJS    | 5 tài liệu tham khảo: authentication, database patterns, testing, Swagger, error handling                                              |
 | `rules/nextjs.md`       | Có NextJS    | Component, Ant Design v6, Zustand, API layer, Pages, Admin                                                                             |
-| `rules/nextjs-refs/`    | Có NextJS    | Tài liệu tham khảo NextJS chi tiết                                                                                                    |
+| `rules/nextjs-refs/`    | Có NextJS    | 5 tài liệu tham khảo: server components, authentication, SEO metadata, API integration, Zustand patterns                               |
 | `rules/wordpress.md`    | Có WordPress | Security (sanitize/escape/nonce), Hooks, $wpdb, REST API, Performance, WP Coding Standards                                             |
 | `rules/wordpress-refs/` | Có WordPress | 9 tài liệu tham khảo chi tiết: plugin architecture, theme, Gutenberg, WooCommerce, security, DB migrations, WP-CLI, multisite, testing |
 | `rules/solidity.md`     | Có Solidity  | OpenZeppelin imports, SafeERC20, Security modifiers, NatSpec, Gas optimization, Signature verification, Hardhat/Foundry                |
