@@ -310,6 +310,22 @@ assets/                             → images/, fonts/, translations/
 - Validate notification payload nghiêm ngặt trước khi navigate
 - iOS: clear app badge khi user vào screen liên quan
 
+## Audit & Ghi nhận lỗi
+- Khi scan/review/fix-bug phát hiện vi phạm rules Flutter → ghi vào `.planning/bugs/` hoặc `CODE_REPORT` cụ thể:
+  - Loại lỗi + rule bị vi phạm
+  - File + dòng code
+  - Cách sửa đúng
+- Mục đích: không lặp lại cùng loại lỗi — lỗi đã gặp 1 lần = CẤM gặp lại
+- **Lỗi thường gặp (đã phát hiện)**:
+  - Dùng `Get.snackbar()` thay vì `toastification` / Dialog → sửa: toast cho lỗi nhẹ, dialog cho lỗi nặng
+  - Dùng `json_serializable` / `freezed` cho Model/Entity → sửa: viết `fromJson`/`toJson`/`copyWith` tay
+  - Dùng `responsive_framework` → sửa: dùng `flutter_screenutil`
+  - Hardcode `Color(0xFF...)`, `Colors.xxx`, `SizedBox(height: 16)` → sửa: dùng design tokens
+  - Dùng `Navigator.push()` trong project GetX → sửa: dùng `Get.toNamed()`
+  - Thiếu `context.mounted` check sau `await` → sửa: `if (context.mounted)` trước khi dùng context
+  - Dùng `Container` khi chỉ cần 1 property → sửa: `ColoredBox` / `Padding` / `DecoratedBox`
+  - Animate `width`/`height`/`padding` → sửa: animate `transform` + `opacity`
+
 ## Tham khảo chi tiết
 Khi cần patterns phức tạp → đọc `.planning/docs/flutter/`:
 - `state-management.md` — GetX patterns, Workers, reactive programming
