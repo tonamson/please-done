@@ -52,7 +52,7 @@
 | `mocktail` | Mocking | No codegen needed |
 | `flutter_lints` | Lint rules | Official Flutter lints |
 | `very_good_analysis` | Strict lint rules | VGV recommended |
-| `build_runner` | Code generation | json_serializable, freezed |
+| `build_runner` | Code generation | CHỈ dùng cho intl, assets generation — CẤM cho model serialization |
 
 ## Version Management (pubspec.yaml)
 ```yaml

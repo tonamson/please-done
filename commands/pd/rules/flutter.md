@@ -310,14 +310,6 @@ assets/                             → images/, fonts/, translations/
 - Validate notification payload nghiêm ngặt trước khi navigate
 - iOS: clear app badge khi user vào screen liên quan
 
-## CI/CD
-- Pipeline: `flutter analyze` → `dart format` → `flutter test` → build — fail fast (analyze trước test)
-- Android: build App Bundle (`.aab`) cho Play Store
-- iOS: sign + build `.ipa` (cần macOS runner)
-- Timeout: luôn set `timeout-minutes` (30m) cho CI jobs — tránh hung jobs
-- Secrets: KHÔNG commit keys — dùng GitHub Secrets hoặc secure vaults
-- Versioning: automate version bumping từ git tags
-
 ## Tham khảo chi tiết
 Khi cần patterns phức tạp → đọc `.planning/docs/flutter/`:
 - `state-management.md` — GetX patterns, Workers, reactive programming
@@ -326,6 +318,5 @@ Khi cần patterns phức tạp → đọc `.planning/docs/flutter/`:
 - `platform-channels.md` — Native code integration (Android/iOS), MethodChannel
 - `performance.md` — Profiling, optimization, memory management, build modes
 - `packages.md` — Recommended packages, version management, pub.dev guidelines
-- `cicd.md` — GitHub Actions, Fastlane, automated deployment
 - `notifications.md` — FCM setup, local notifications, lifecycle handling
 - `design-system.md` — Token enforcement, DLS patterns, anti-patterns

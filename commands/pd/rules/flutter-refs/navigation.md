@@ -199,11 +199,6 @@ Get.bottomSheet(
   isScrollControlled: true,
 );
 
-// Snackbar
-Get.snackbar(
-  'Thành công',
-  'Đã lưu thay đổi',
-  snackPosition: SnackPosition.BOTTOM,
-  duration: const Duration(seconds: 3),
-);
+// Toast (dùng toastification — CẤM Get.snackbar cho hiển thị lỗi/thông báo)
+// Xem shared/utils/ui/toast.dart cho helper functions
 ```

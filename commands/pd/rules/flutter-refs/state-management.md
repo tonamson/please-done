@@ -173,7 +173,7 @@ class FormController extends GetxController {
         email: emailController.text.trim(),
       );
       Get.back(result: true);
-      Get.snackbar('Thành công', 'Đã tạo thành công');
+      // Hiển thị thành công qua toastification (xem shared/utils/ui/toast.dart)
     } catch (e) {
       ErrorHandler.handleError(e);
     } finally {
