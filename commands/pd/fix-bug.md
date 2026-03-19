@@ -66,7 +66,7 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research. C
 
 ## Bước 5: Phân tích + xác định nguyên nhân
 Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack).
-Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` hoặc `.planning/rules/solidity.md` tương ứng:
+Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` hoặc `.planning/rules/solidity.md` hoặc `.planning/rules/flutter.md` tương ứng:
 
 **Nếu lỗi Backend (NestJS):**
 - Trace luồng: request → controller → service → database → response

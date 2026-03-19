@@ -1,10 +1,10 @@
 ---
 name: pd:test
-description: Viết test files, chạy kiểm thử (NestJS/WordPress/Solidity), xác nhận với user, báo cáo lỗi
+description: Viết test files, chạy kiểm thử (NestJS/WordPress/Solidity/Flutter), xác nhận với user, báo cáo lỗi
 ---
 
 <objective>
-Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPress, Hardhat/Foundry cho Solidity). Test với dữ liệu đầu vào cụ thể, kiểm tra đầu ra đúng logic. Chạy test, yêu cầu user xác nhận giao diện/database, commit test files.
+Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPress, Hardhat/Foundry cho Solidity, flutter_test + mocktail cho Flutter). Test với dữ liệu đầu vào cụ thể, kiểm tra đầu ra đúng logic. Chạy test, yêu cầu user xác nhận giao diện/database, commit test files.
 </objective>
 
 <context>

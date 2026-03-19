@@ -187,7 +187,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 - Nếu hasSolidity = true: copy `solidity.md` vào `.planning/rules/` + copy `solidity-refs/` vào `.planning/docs/solidity/`
 - Nếu hasFlutter = true: copy `flutter.md` vào `.planning/rules/` + copy `flutter-refs/` vào `.planning/docs/flutter/`
 - Project mới (isNewProject = true): skip FastCode indexing, hỏi user mô tả dự án, chỉ copy general.md
-- Sau này thêm stack mới (React Native, Flutter...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
+- Sau này thêm stack mới (React Native, Laravel...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
 - FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại, KHÔNG có fallback
 - CẤM đọc/ghi/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - Nếu đã có CONTEXT.md từ session trước → hỏi user muốn khởi tạo lại hay giữ
