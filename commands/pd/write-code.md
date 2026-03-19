@@ -19,8 +19,8 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
 - `.planning/rules/general.md` → quy tắc chung (luôn đọc)
-- `.planning/rules/backend.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
-- `.planning/rules/frontend.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
+- `.planning/rules/nestjs.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/nestjs/*.md` cho patterns phức tạp
+- `.planning/rules/nextjs.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/nextjs/*.md` cho patterns phức tạp
 - `.planning/rules/wordpress.md` → quy tắc WordPress/PHP (đọc khi task WordPress, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/wordpress/*.md` cho patterns phức tạp (plugin architecture, theme, Gutenberg, WooCommerce, v.v.)
 - `.planning/rules/solidity.md` → quy tắc Solidity smart contract (đọc khi task Solidity, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/solidity/*.md` cho templates + audit checklist
 - `.planning/rules/flutter.md` → quy tắc Flutter/Dart (đọc khi task Flutter, CHỈ nếu file tồn tại). Tra cứu `.planning/docs/flutter/*.md` cho patterns (state management, navigation, design system, testing)
@@ -126,7 +126,7 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research co
 Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
 - **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU (ngoại lệ: Solidity NatSpec dùng tiếng Anh — xem solidity.md)
-- **Error/Exception messages** → theo quy tắc trong `.planning/rules/backend.md` hoặc `frontend.md` (match ngôn ngữ throw/message đang dùng trong dự án)
+- **Error/Exception messages** → theo quy tắc trong `.planning/rules/nestjs.md` hoặc `nextjs.md` (match ngôn ngữ throw/message đang dùng trong dự án)
 - **Tên biến/function/class/file** → tiếng Anh
 - **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500 (Solidity: 500/800 — xem solidity.md)
 
@@ -137,7 +137,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
   - TypeORM: `npx typeorm migration:generate -n [Tên]`
 
 **Nếu task Frontend (NextJS):**
-- Tuân thủ cấu trúc thư mục frontend trong `.planning/rules/frontend.md`
+- Tuân thủ cấu trúc thư mục frontend trong `.planning/rules/nextjs.md`
 - Inline styles `style={{}}` — KHÔNG CSS modules, KHÔNG Tailwind
 - Ant Design v6 components + `theme.useToken()` cho dynamic values
 - `'use client'` CHỈ khi cần — Server Components mặc định
@@ -188,7 +188,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 ## Bước 5: Lint + Build
 Đọc CONTEXT.md → Tech Stack → xác định thư mục + công cụ build.
 
-**Nếu có rules file** (backend.md/frontend.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
+**Nếu có rules file** (nestjs.md/nextjs.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
 **Nếu không có rules file** (stack khác): đọc `package.json` hoặc `composer.json` scripts → dùng `npm run lint` / `npm run build` hoặc `composer run lint` nếu có, hoặc skip nếu project chưa setup build.
 
 Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
@@ -275,7 +275,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 1. **Spawn Agent tool** cho mỗi task song song trong wave — mỗi agent nhận đầy đủ:
    - PLAN.md (toàn bộ thiết kế kỹ thuật)
    - Task detail từ TASKS.md (task cụ thể agent cần làm)
-   - Rules files phù hợp (general + backend/frontend/wordpress/solidity/flutter theo Loại task)
+   - Rules files phù hợp (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
    - CONTEXT.md (tech stack, thư viện)
    - Docs liên quan (nếu có)
    - Chỉ dẫn: thực hiện Bước 2→3→4→5 cho task được giao (agent CHỈ viết code + lint/build, KHÔNG tạo report/cập nhật TASKS/commit)
@@ -335,7 +335,7 @@ DỪNG sau mỗi task, thông báo:
 </process>
 
 <rules>
-- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity/flutter theo Loại task)
+- Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi

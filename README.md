@@ -139,7 +139,7 @@ $pd-init        # Codex
 | 3   | `new-milestone`      | Lập kế hoạch milestones + phases + phụ thuộc                                                                       | init, scan (*) |
 | 4   | `plan`               | Nghiên cứu dự án, thiết kế kỹ thuật, chia danh sách công việc cho phase                                            | new-milestone  |
 | 5   | `write-code`         | Thực thi task từ TASKS.md, kiểm tra cú pháp, build, commit `[TASK-N]`                                              | plan           |
-| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, hoặc Hardhat/Foundry), chạy, yêu cầu xác nhận (NestJS + WordPress + Solidity) | write-code     |
+| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, hoặc flutter_test), chạy, yêu cầu xác nhận (NestJS + WordPress + Solidity + Flutter) | write-code     |
 | 7   | `fix-bug`            | Nghiên cứu lỗi, phân tích, sửa, commit `[LỖI]`, lặp đến khi người dùng xác nhận                                    | init           |
 | 8   | `complete-milestone` | Kiểm tra lỗi, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag                                                          | tất cả tasks ✅ |
 
@@ -162,8 +162,10 @@ $pd-init        # Codex
 | Tệp                     | Áp dụng khi  | Nội dung chính                                                                                                                         |
 | ----------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | `rules/general.md`      | Luôn luôn    | Phong cách code, ngôn ngữ, biểu tượng, định dạng phiên bản, git, bảo mật                                                               |
-| `rules/backend.md`      | Có NestJS    | Controller, Service, DTO, Entity, Response, Guard, Build & Lint                                                                        |
-| `rules/frontend.md`     | Có NextJS    | Component, Ant Design v6, Zustand, API layer, Pages, Admin                                                                             |
+| `rules/nestjs.md`       | Có NestJS    | Controller, Service, DTO, Entity, Response, Guard, Build & Lint                                                                        |
+| `rules/nestjs-refs/`    | Có NestJS    | Tài liệu tham khảo NestJS chi tiết                                                                                                    |
+| `rules/nextjs.md`       | Có NextJS    | Component, Ant Design v6, Zustand, API layer, Pages, Admin                                                                             |
+| `rules/nextjs-refs/`    | Có NextJS    | Tài liệu tham khảo NextJS chi tiết                                                                                                    |
 | `rules/wordpress.md`    | Có WordPress | Security (sanitize/escape/nonce), Hooks, $wpdb, REST API, Performance, WP Coding Standards                                             |
 | `rules/wordpress-refs/` | Có WordPress | 9 tài liệu tham khảo chi tiết: plugin architecture, theme, Gutenberg, WooCommerce, security, DB migrations, WP-CLI, multisite, testing |
 | `rules/solidity.md`     | Có Solidity  | OpenZeppelin imports, SafeERC20, Security modifiers, NatSpec, Gas optimization, Signature verification, Hardhat/Foundry                |
@@ -172,7 +174,7 @@ $pd-init        # Codex
 | `rules/flutter-refs/`  | Có Flutter   | 8 tài liệu tham khảo: state management, navigation, design system, testing, performance, platform channels, packages, notifications   |
 
 
-Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. WordPress references được copy vào `.planning/docs/wordpress/`, Solidity references vào `.planning/docs/solidity/`, Flutter references vào `.planning/docs/flutter/` để tra cứu khi code. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. NestJS references được copy vào `.planning/docs/nestjs/`, NextJS references vào `.planning/docs/nextjs/`, WordPress references vào `.planning/docs/wordpress/`, Solidity references vào `.planning/docs/solidity/`, Flutter references vào `.planning/docs/flutter/` để tra cứu khi code. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
 
 ### Tùy chọn plan
 
@@ -233,6 +235,8 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ├── scan/
 │   └── SCAN_REPORT.md            # Báo cáo quét dự án + kiểm tra bảo mật thư viện
 ├── docs/                         # Tài liệu cache (fetch-doc) kèm phiên bản + mục lục
+│   ├── nestjs/                   # Tài liệu tham khảo NestJS (nếu có NestJS)
+│   ├── nextjs/                   # Tài liệu tham khảo NextJS (nếu có NextJS)
 │   ├── wordpress/                # Tài liệu tham khảo WordPress (nếu có WordPress)
 │   ├── solidity/                 # Tài liệu tham khảo Solidity (nếu có Solidity)
 │   └── flutter/                  # Tài liệu tham khảo Flutter (nếu có Flutter)
@@ -240,8 +244,8 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 │   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, phiên bản vá)
 ├── rules/                        # Quy tắc viết code (sao chép từ repo Please Done theo stack)
 │   ├── general.md                # Quy tắc chung (luôn có)
-│   ├── backend.md                # Quy ước NestJS (nếu có backend)
-│   ├── frontend.md               # Quy ước NextJS (nếu có frontend)
+│   ├── nestjs.md                 # Quy ước NestJS (nếu có NestJS)
+│   ├── nextjs.md                 # Quy ước NextJS (nếu có NextJS)
 │   ├── wordpress.md              # Quy ước WordPress (nếu có WordPress)
 │   ├── solidity.md               # Quy ước Solidity (nếu có Solidity)
 │   └── flutter.md                # Quy ước Flutter (nếu có Flutter)

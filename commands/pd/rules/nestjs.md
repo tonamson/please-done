@@ -1,5 +1,28 @@
 # Quy tắc Backend (NestJS)
 
+## Cấu trúc dự án
+```
+src/
+├── app.module.ts         → Root module
+├── main.ts               → Bootstrap (NestFactory)
+├── modules/
+│   └── [feature]/
+│       ├── [feature].module.ts
+│       ├── [feature].controller.ts
+│       ├── [feature].service.ts
+│       ├── dto/           → Create, Update, Query DTOs
+│       ├── entities/      → Entity/Schema definitions
+│       └── enums/         → Feature-specific enums
+├── common/
+│   ├── guards/            → JwtAuthGuard, RolesGuard
+│   ├── decorators/        → @Roles(), @CurrentUser()
+│   ├── interceptors/      → Transform, Logging
+│   ├── middleware/         → CORS, Rate limiting
+│   ├── filters/           → Exception filters
+│   └── pipes/             → Validation pipes
+└── config/                → ConfigModule schemas
+```
+
 ## Controller
 - CHỈ delegate, KHÔNG business logic
 - Decorator stack: JSDoc → @Post → @HttpCode → @UseGuards → @Roles
@@ -46,10 +69,14 @@
 - Middleware: implement `NestMiddleware`, register trong module `configure(consumer)` — dùng cho logging, CORS, rate limiting
 - Interceptor: implement `NestInterceptor`, dùng `@UseInterceptors()` — dùng cho transform response, caching, timeout
 
-## Bảo mật code
-- Password: bcrypt(10), strip khỏi response
-- Sort: whitelist allowedSortFields chống injection
-- Soft delete:
+## Bảo mật (BẮT BUỘC)
+- **Password**: bcrypt(10), strip khỏi response — CẤM trả password trong bất kỳ API response nào
+- **Sort injection**: whitelist `allowedSortFields` — CẤM truyền trực tiếp user input vào ORDER BY
+- **Rate limiting**: `@nestjs/throttler` — BẮT BUỘC cho auth endpoints (login, register, forgot-password)
+- **Helmet**: `app.use(helmet())` trong `main.ts` — bảo vệ HTTP headers
+- **CORS**: cấu hình `origin` whitelist trong `main.ts` — CẤM `origin: '*'` cho production
+- **Input validation**: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` global — chặn fields không khai báo trong DTO
+- **Soft delete**:
   - TypeORM: `@DeleteDateColumn()` thay vì xóa thật
   - Mongoose: thêm field `deletedAt: Date` + middleware filter `{ deletedAt: null }`
   - Prisma: field `deletedAt DateTime?` + middleware filter
@@ -58,3 +85,11 @@
 - Lint: `npx eslint src/ --fix`
 - Build: `npx nest build`
 - Detect thư mục: Glob `**/nest-cli.json` → thư mục chứa = backend root
+
+## Tham khảo chi tiết
+Khi cần patterns phức tạp → đọc `.planning/docs/nestjs/`:
+- `authentication.md` — JWT, Passport, Guards, Roles, refresh tokens
+- `database-patterns.md` — TypeORM/Mongoose/Prisma advanced patterns, pagination, transactions
+- `testing.md` — Jest + Supertest unit/e2e test patterns
+- `swagger.md` — OpenAPI decorators, DTO documentation, response schemas
+- `error-handling.md` — Exception filters, custom exceptions, validation pipes

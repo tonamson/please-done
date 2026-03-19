@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, database type
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
+- `.planning/rules/nestjs.md` → quy tắc NestJS + Build & Lint (CHỈ nếu file tồn tại)
 - `.planning/rules/wordpress.md` → quy tắc WordPress + Build & Lint (CHỈ nếu file tồn tại, đọc khi WordPress flow)
 - `.planning/rules/solidity.md` → quy tắc Solidity + Build & Lint (CHỈ nếu file tồn tại, đọc khi Solidity flow)
 - `.planning/rules/flutter.md` → quy tắc Flutter + Build & Lint (CHỈ nếu file tồn tại, đọc khi Flutter flow)
@@ -98,7 +98,7 @@ Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
 - **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/pd:write-code` trước."
-- `.planning/rules/backend.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
+- `.planning/rules/nestjs.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
 
 ## Bước 2: Kiểm tra test infrastructure (CHỈ NestJS flow)
 Kiểm tra Jest config + dependencies (`@nestjs/testing`, `supertest`, `jest`).

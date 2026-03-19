@@ -13,7 +13,7 @@ User input: $ARGUMENTS
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → theo loại lỗi (CHỈ nếu file tồn tại)
+- `.planning/rules/nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
@@ -66,7 +66,7 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research. C
 
 ## Bước 5: Phân tích + xác định nguyên nhân
 Xác định lỗi thuộc Backend hay Frontend (từ CONTEXT.md → Tech Stack).
-Đọc `.planning/rules/backend.md` hoặc `.planning/rules/frontend.md` hoặc `.planning/rules/wordpress.md` hoặc `.planning/rules/solidity.md` hoặc `.planning/rules/flutter.md` tương ứng:
+Đọc `.planning/rules/nestjs.md` hoặc `.planning/rules/nextjs.md` hoặc `.planning/rules/wordpress.md` hoặc `.planning/rules/solidity.md` hoặc `.planning/rules/flutter.md` tương ứng:
 
 **Nếu lỗi Backend (NestJS):**
 - Trace luồng: request → controller → service → database → response
@@ -139,7 +139,7 @@ File: `[path]`
 ## Bước 7: Fix code
 - Áp dụng fix, tuân thủ quy tắc trong `.planning/rules/`
 - Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Chạy lint + build đúng thư mục (xem `.planning/rules/backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**)
+- Chạy lint + build đúng thư mục (xem `.planning/rules/nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**)
 - Thêm/cập nhật test case cho bug: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity) hoặc `test/**/*_test.dart` (Flutter)
 
 ## Bước 8: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
@@ -178,7 +178,7 @@ git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt lỗi]'
 </process>
 
 <rules>
-- Tuân thủ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity/flutter theo loại lỗi)
+- Tuân thủ quy tắc trong `.planning/rules/` (general + nestjs/nextjs/wordpress/solidity/flutter theo loại lỗi)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + CODE_REPORT trước khi fix
 - PHẢI research trước khi fix, KHÔNG đoán mò

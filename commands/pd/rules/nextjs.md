@@ -1,6 +1,6 @@
 # Quy tắc Frontend (NextJS App Router)
 
-## Cấu trúc thư mục
+## Cấu trúc dự án
     src/
     ├── app/          → Pages (App Router), URL kebab-case (mặc định tiếng Anh, xem mục Pages)
     ├── components/   → PascalCase, nhóm theo domain (admin/, product/, cart/, layout/, ui/)
@@ -74,7 +74,23 @@
 - Loading: `loading.tsx` cho route segments cần loading UI — dùng antd `Spin` hoặc `Skeleton`
 - `<Suspense fallback={...}>` wrap async Server Components khi cần streaming
 
+## Bảo mật (BẮT BUỘC)
+- **XSS**: KHÔNG dùng `dangerouslySetInnerHTML` — nếu bắt buộc phải dùng (VD: render rich text từ CMS) → sanitize bằng `DOMPurify` trước khi render
+- **Token storage**: lưu JWT token trong `httpOnly cookie` (tốt nhất) hoặc `memory` (Zustand store, mất khi refresh) — CẤM lưu `localStorage`/`sessionStorage` (XSS đọc được)
+- **API calls**: KHÔNG gửi token qua URL query params — chỉ qua `Authorization: Bearer` header
+- **Environment variables**: `NEXT_PUBLIC_*` = public (browser thấy được) — CẤM đặt secrets vào `NEXT_PUBLIC_*`. Server-only secrets dùng `process.env.SECRET_KEY` (không prefix)
+- **Form submission**: validate cả client-side (antd rules) VÀ server-side (backend DTO) — client validation chỉ là UX, KHÔNG thay thế server validation
+- **External links**: `target="_blank"` phải kèm `rel="noopener noreferrer"` — chống tab hijacking
+
 ## Build & Lint
 - Lint: `npx eslint --fix`
 - Build: `npx next build`
 - Detect thư mục: Glob `**/next.config.*` → thư mục chứa = frontend root
+
+## Tham khảo chi tiết
+Khi cần patterns phức tạp → đọc `.planning/docs/nextjs/`:
+- `server-components.md` — RSC, streaming, Suspense, data fetching, Server Actions
+- `authentication.md` — Middleware auth, protected routes, session, JWT cookie
+- `seo-metadata.md` — Metadata API, generateMetadata, sitemap, robots, JSON-LD
+- `api-integration.md` — Server-side/client-side fetch patterns, type-safe API, error handling
+- `zustand-patterns.md` — Store setup, SSR hydration, computed values, persist options

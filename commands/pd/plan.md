@@ -22,7 +22,7 @@ Phân tích tham số:
 Đọc:
 - `.planning/CONTEXT.md` → tech stack, thư viện, milestone
 - `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/backend.md` và/hoặc `.planning/rules/frontend.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` và/hoặc `.planning/rules/flutter.md` → theo stack có trong project
+- `.planning/rules/nestjs.md` và/hoặc `.planning/rules/nextjs.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` và/hoặc `.planning/rules/flutter.md` → theo stack có trong project
 
 Nếu chưa có CONTEXT.md → thông báo chạy `/pd:init` trước.
 </context>
