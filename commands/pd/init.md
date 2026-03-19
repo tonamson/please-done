@@ -161,6 +161,9 @@ Quy tắc code nằm tại `.planning/rules/`:
 ║   - frontend.md (nếu có)            ║
 ║   - wordpress.md (nếu có)           ║
 ║   - solidity.md (nếu có)            ║
+║ Docs:    .planning/docs/            ║
+║   - wordpress/ (nếu có WordPress)   ║
+║   - solidity/ (nếu có Solidity)     ║
 ╠══════════════════════════════════════╣
 ║ Tiếp theo:                          ║
 ║   /pd:scan   → Quét chi tiết        ║

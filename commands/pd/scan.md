@@ -42,7 +42,7 @@ Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}` (trừ node_modules, .venv, .plannin
   **Frontend (NextJS):** (CHỈ quét nếu tồn tại `next.config.*`)
   - Pages: Glob `**/app/**/page.tsx` → liệt kê tất cả routes
   - Components: Glob `**/components/**/*.tsx` → đếm + nhóm theo domain
-  - Client vs Server: Grep `'use client'` → đếm client components
+  - Client vs Server: Grep `'use client'` (glob: `*.{tsx,jsx}`) → đếm client components
   - Stores: Glob `**/stores/use*.{ts,tsx}` → liệt kê Zustand stores
   - Hooks: Glob `**/hooks/use*.{ts,tsx}` → liệt kê custom hooks
   - API Layer: Glob `**/lib/api.ts`, `**/lib/admin-api.ts` → nếu tồn tại thì Read → liệt kê API functions

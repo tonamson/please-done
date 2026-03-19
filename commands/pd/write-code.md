@@ -124,10 +124,10 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research co
 ## Bước 4: Viết code
 Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
-- **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU
+- **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU (ngoại lệ: Solidity NatSpec dùng tiếng Anh — xem solidity.md)
 - **Error/Exception messages** → theo quy tắc trong `.planning/rules/backend.md` hoặc `frontend.md` (match ngôn ngữ throw/message đang dùng trong dự án)
 - **Tên biến/function/class/file** → tiếng Anh
-- **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500
+- **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500 (Solidity: 500/800 — xem solidity.md)
 
 **Nếu task Backend (NestJS):**
 - **Database migration** nếu thay đổi schema:
@@ -153,11 +153,14 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
 **Nếu task Solidity (smart contract):**
 - Tuân thủ quy tắc trong `.planning/rules/solidity.md` (security, coding standards, OZ imports, SafeERC20)
-- BẮT BUỘC: SPDX-License-Identifier + pragma solidity + OpenZeppelin imports
+- BẮT BUỘC: SPDX-License-Identifier + pragma solidity + named imports `{}` (CẤM wildcard)
+- BẮT BUỘC: `using SafeERC20 for IERC20` cho mọi lệnh transfer/approve token
 - BẮT BUỘC: `clearUnknownToken` function trong mọi contract
 - BẮT BUỘC: `rescueETH` function nếu contract có `receive()` hoặc nhận ETH
-- BẮT BUỘC: NatSpec comments (`@title`, `@dev`, `@notice`, `@param`, `@return`)
-- Security checklist: `nonReentrant` + `whenNotPaused` theo bảng trong solidity.md, DoS prevention, Flash Loan, Frontrunning/MEV, CẤM `tx.origin`
+- BẮT BUỘC: NatSpec comments tiếng Anh (`@title`, `@dev`, `@notice`, `@param`, `@return`)
+- BẮT BUỘC: Signature hash include `block.chainid + address(this) + msg.sender + deadline`
+- BẮT BUỘC: Slippage parameter (`_minAmountOut`) cho swap/trade functions
+- Security checklist: `nonReentrant` + `whenNotPaused` theo bảng trong solidity.md, DoS prevention, Flash Loan, Frontrunning/MEV, CẤM `tx.origin`, CẤM `delegatecall` (trừ proxy pattern), CẤM `unchecked` (trừ khi có comment verify)
 - Tra cứu `.planning/docs/solidity/templates.md` cho base contract pattern
 - Tra cứu `.planning/docs/solidity/audit-checklist.md` khi review code
 - Tra cứu Context7 (`openzeppelin`, `hardhat`, `foundry`) cho API cụ thể
@@ -325,7 +328,7 @@ DỪNG sau mỗi task, thông báo:
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - Tái sử dụng code/thư viện có sẵn
 - Nếu tasks blocked → THÔNG BÁO user, KHÔNG pick bừa
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
+- Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
 
 **Quy tắc Parallel (--parallel):**
 - CHỈ chạy song song tasks KHÔNG chia sẻ files VÀ KHÔNG có dependency trực tiếp

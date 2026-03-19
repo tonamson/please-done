@@ -97,7 +97,10 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
      * @dev Grants ownership to `initialOwner`.
      * @param initialOwner Address that will own the contract. Must not be address(0).
      */
-    constructor(address initialOwner) Ownable(initialOwner) {}
+    constructor(address initialOwner) Ownable(initialOwner) {
+        // OZ v5 Ownable tự revert nếu initialOwner == address(0)
+        // require không cần thiết nhưng giữ cho nhất quán với Template 1b
+    }
 
     // =========================================================
     // Core Functions

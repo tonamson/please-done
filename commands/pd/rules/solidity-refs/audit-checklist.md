@@ -135,6 +135,7 @@ Full checklist khi review contract trước khi deploy production.
 - [ ] Các action nhạy cảm có bị front-run không?
 - [ ] Swap/trade functions có slippage parameter (`_minAmountOut`)?
 - [ ] Price-sensitive actions có deadline parameter?
+- [ ] Auction/bid functions có dùng commit-reveal pattern? (chống frontrunning bid values)
 
 ### 6e. Flash Loan Protection
 - [ ] Contract có logic phụ thuộc vào balance (price oracle, share calculation)?
@@ -225,12 +226,27 @@ Full checklist khi review contract trước khi deploy production.
 
 ---
 
+## 13. Dangerous Patterns
+
+- [ ] Không dùng `delegatecall` trừ proxy pattern (UUPS/Transparent)?
+- [ ] Không dùng `unchecked {}` trừ khi có comment verify overflow impossible?
+- [ ] Không dùng `selfdestruct`? (deprecated EIP-6780)
+- [ ] Không dùng `tx.origin` cho authentication?
+
+## 14. Gas Optimization Review
+
+- [ ] Variables chỉ set 1 lần trong constructor → `immutable`?
+- [ ] Dùng `uint256` thay vì `uint8/uint16` (EVM pad 32 bytes)?
+- [ ] Struct fields packed (cùng type cạnh nhau)?
+- [ ] External function array params dùng `calldata` thay `memory`?
+- [ ] Loops: cache array length, `++i` thay `i++`?
+- [ ] Cân nhắc custom errors thay `require(cond, "string")`?
+
 ## Pre-deploy Checklist
 
 - [ ] Test trên local (Hardhat/Foundry)?
 - [ ] Test trên testnet (Sepolia/Amoy)?
 - [ ] Verify source code trên Etherscan?
 - [ ] Set đúng role address (không để msg.sender production)?
-- [ ] Không dùng `selfdestruct`? (deprecated từ EIP-6780)
 - [ ] Multisig cho owner nếu là protocol lớn?
 - [ ] Audit bởi bên thứ 3 nếu TVL > $100k?

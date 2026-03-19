@@ -249,5 +249,5 @@ Kết quả: X/Y đạt"
 - PHẢI yêu cầu user xác nhận giao diện + database (mắt người đánh giá)
 - PHẢI đọc PLAN.md trước khi viết test
 - Token trong test report rút gọn (eyJhb...xxx)
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
+- Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
 </rules>

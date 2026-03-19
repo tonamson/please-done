@@ -480,7 +480,7 @@ In tóm tắt plan + danh sách tasks cho user review.
 - Frontend-only tasks (UI, SEO, layout) được làm độc lập, KHÔNG cần chờ backend
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - KHÔNG hỏi lại FastCode thông tin đã có trong SCAN_REPORT
-- Nếu FastCode MCP lỗi → DỪNG, yêu cầu chạy `/pd:init`
+- Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
 - Chế độ AUTO (mặc định): KHÔNG hỏi user bất kỳ câu hỏi thiết kế nào — tự quyết định tất cả
 - Chế độ DISCUSS: PHẢI dùng `AskUserQuestion` cho mọi lựa chọn — user chọn bằng phím mũi tên, KHÔNG yêu cầu gõ A/B/C hoặc số
 - Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi `AskUserQuestion` — KHÔNG tự chọn thay user

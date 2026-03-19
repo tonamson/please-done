@@ -48,11 +48,10 @@ Xem full template tại `.planning/docs/solidity/templates.md → Template 1a / 
 
 ## Contract structure order
 1. Constants (`private`, `UPPER_SNAKE_CASE`)
-2. State variables (public trước, private sau)
+2. State variables + Mappings (public trước, private sau)
 3. Structs
-4. Mappings
-5. Modifiers
-6. Events
+4. Events
+5. Modifiers (nếu có custom)
 7. Constructor
 8. External/Public functions
 9. Internal/Private functions
@@ -113,6 +112,8 @@ emit StateChangedEvent(newValue); // SAU — không TRƯỚC
 - **CẤM `tx.origin`**: KHÔNG dùng `tx.origin` cho authentication — dùng `msg.sender`. `tx.origin` dễ bị phishing attack (user gọi contract A, contract A gọi contract B → `tx.origin` = user nhưng `msg.sender` = contract A)
 - **Denial of Service (DoS)**: Mọi loop qua array → BẮT BUỘC giới hạn length (xem Input Validation). KHÔNG loop qua unbounded storage array. Khi batch transfer/call → dùng pattern "fail silently per item" thay vì revert toàn bộ (1 recipient fail không chặn cả batch). Lưu ý `call{value:}` tới untrusted address → receiver có thể revert cố ý để chặn execution
 - **CẤM `selfdestruct`**: Đã deprecated từ EIP-6780 (Cancun upgrade). Không còn xóa code/storage trừ khi gọi trong cùng transaction tạo contract
+- **CẤM `delegatecall`**: Không dùng `delegatecall` trừ khi implement proxy pattern rõ ràng (UUPS/Transparent). `delegatecall` cho phép execute code trong context contract gọi — cực kỳ nguy hiểm nếu target không tin cậy
+- **CẤM `unchecked`**: Không dùng `unchecked {}` blocks trừ khi có comment giải thích lý do + manual verification overflow/underflow không thể xảy ra. Solidity ^0.8 auto-protect, `unchecked` bypass protection này
 
 ## Signature Verification (off-chain authorization)
 - Hash **BẮT BUỘC** include `block.chainid + address(this) + msg.sender + deadline` — các params còn lại (token, amount, trans_id...) tuỳ ngữ cảnh contract
