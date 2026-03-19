@@ -292,3 +292,18 @@ Khi thêm/xóa items có đếm:
 - [ ] Số skills → count files `commands/pd/*.md` = README bảng skills ?
 - [ ] Số rules files → count `commands/pd/rules/*.md` = README bảng rules ?
 - [ ] Số reference docs → count `*-refs/*.md` = README mô tả ?
+
+---
+
+## G. Hoàn tất Audit
+
+Sau khi audit xong và fix tất cả bugs phát hiện:
+
+1. **Commit fixes** — mỗi fix riêng hoặc gộp 1 commit với prefix `Audit fix:`
+2. **Bump patch version** (x.y.N+1) — cập nhật 4 files:
+   - `VERSION`
+   - `package.json` field `"version"`
+   - `README.md` phiên bản hiện tại
+   - `CHANGELOG.md` — entry mới liệt kê từng fix
+3. **Commit version bump** — message: `v[x.y.z]: Audit fix — [tóm tắt fixes]`
+4. **Push** (nếu user yêu cầu)
