@@ -49,7 +49,7 @@ Khi tìm/cập nhật trạng thái trong ROADMAP.md hoặc TASKS.md:
 
 ## Git & Commit
 - Kiểm tra project có git không (Bash: `git rev-parse --git-dir 2>/dev/null`). Nếu KHÔNG có git → **BỎ QUA** tất cả bước git add/commit/tag trong mọi skill
-- Commit message format (chỉ khi git tồn tại): `[TASK-N]`, `[KIỂM THỬ]`, `[LỖI]`, `[PHIÊN BẢN]`, `[TRACKING]` - tiếng Việt có dấu
+- Commit message format (chỉ khi git tồn tại): `[TASK-N]`, `[KIỂM THỬ]`, `[LỖI]`, `[PHIÊN BẢN]`, `[TRACKING]`, `[AUDIT]` - tiếng Việt có dấu
 
 ## Bảo mật
 - CẤM đọc/ghi/hiển thị nội dung: `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`

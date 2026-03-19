@@ -365,6 +365,7 @@ Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu
 | `[LỖI]`       | fix-bug            | Mỗi lần sửa lỗi (có thể nhiều lần/lỗi)                                 |
 | `[TRACKING]`  | write-code         | Phase hoàn tất tất cả tasks (tracking commit riêng)                    |
 | `[PHIÊN BẢN]` | complete-milestone | Đóng milestone + tạo git tag                                           |
+| `[AUDIT]`     | audit              | Sửa lỗi phát hiện từ audit + patch bump + git tag                      |
 
 
 ## Biểu tượng trạng thái
