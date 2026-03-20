@@ -32,10 +32,10 @@ Glob `.planning/debug/SESSION_*.md` → Grep `> Trạng thái:` → lọc các t
 - `Chờ quyết định` — đã tìm nguyên nhân gốc, chờ user chọn phương án
 - `Tạm dừng` — user chủ động dừng, có thể quay lại
 
-Trạng thái **KHÔNG tự động tiếp tục** (bỏ qua khi liệt kê, nhưng có thể mở lại nếu user chủ động chọn):
+Trạng thái **KHÔNG tự động liệt kê** (không tự tiếp tục; chỉ mở lại khi user nêu rõ phiên điều tra hoặc lỗi cũ):
 - `Đã tìm nguyên nhân` — đã xong điều tra, đang ở bước sửa
 - `Đã giải quyết` — đã đóng
-- `Chưa kết luận` — cần user bổ sung thông tin mới → nếu user chọn mở lại, đọc SESSION → nhảy **Bước 5c** với thông tin mới
+- `Chưa kết luận` — cần user bổ sung thông tin mới → nếu user nêu lại lỗi này, đọc SESSION → nhảy **Bước 5c** với thông tin mới
 
 - Nếu có phiên có thể tiếp tục VÀ không có $ARGUMENTS:
   - Liệt kê các phiên với trạng thái + giả thuyết hiện tại + việc cần làm tiếp
@@ -60,6 +60,10 @@ Thu thập đủ 5 thông tin — từ $ARGUMENTS hoặc hỏi user:
 
 Nếu $ARGUMENTS đã chứa đủ thông tin → KHÔNG hỏi thêm, tự trích xuất.
 Nếu thiếu thông tin quan trọng (đặc biệt #2 và #5) → hỏi user bổ sung.
+
+**Cách hỏi:** Khi hỏi, ĐƯA RA gợi ý đáp án phổ biến dựa trên ngữ cảnh để user chọn nhanh, ĐỒNG THỜI cho phép user tự nhập nếu không có đáp án nào đúng ý.
+VD: "Lỗi cụ thể là gì? (1) Số tiền sai (2) Thu hồi nhầm người (3) Không thu hồi — hoặc mô tả khác?"
+Nếu sau 5 triệu chứng mà vẫn chưa đủ ngữ cảnh để hình thành giả thuyết → TỰ linh hoạt hỏi thêm (route nào, payload gì, dữ liệu mẫu, log console...). Không giới hạn số câu hỏi.
 
 ## Bước 2: Xác định patch version
 - Đọc `.planning/CURRENT_MILESTONE.md` → version hiện tại (VD: `1.1`)
