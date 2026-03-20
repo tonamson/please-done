@@ -17,7 +17,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const configToml = path.join(targetDir, 'config.toml');
 
   // ─── Step 1: Convert & copy skills ────────────────────
-  log.step(1, 3, 'Chuyển đổi skills cho Codex...');
+  log.step(1, 4, 'Chuyển đổi skills cho Codex...');
 
   const skills = listSkillFiles(skillsSrc);
 
@@ -33,13 +33,13 @@ async function install(skillsDir, targetDir, options = {}) {
     const skillDir = path.join(skillsDestDir, `pd-${skill.name}`);
     fs.mkdirSync(skillDir, { recursive: true });
 
-    const converted = convertSkill(skill.content, skill.name);
+    const converted = convertSkill(skill.content, skill.name, skillsDir);
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), converted, 'utf8');
     log.success(`$pd-${skill.name}`);
   }
 
   // ─── Step 2: Copy rules vào mỗi skill dir ────────────
-  log.step(2, 3, 'Copy rules...');
+  log.step(2, 4, 'Copy rules...');
 
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
@@ -67,8 +67,24 @@ async function install(skillsDir, targetDir, options = {}) {
     log.success('Rules copied');
   }
 
-  // ─── Step 3: MCP config trong config.toml ─────────────
-  log.step(3, 3, 'Cấu hình MCP servers...');
+  // ─── Step 3: Save .pdconfig ──────────────────────────
+  log.step(3, 4, 'Lưu cấu hình .pdconfig...');
+
+  const pdconfigFile = path.join(targetDir, '.pdconfig');
+  let savedVersion = '';
+  if (fs.existsSync(pdconfigFile)) {
+    const existing = fs.readFileSync(pdconfigFile, 'utf8');
+    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
+    if (match) savedVersion = match[0];
+  }
+
+  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
+  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
+  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  log.success(`Config saved: ${pdconfigFile}`);
+
+  // ─── Step 4: MCP config trong config.toml ─────────────
+  log.step(4, 4, 'Cấu hình MCP servers...');
 
   const mcpBlock = generateMcpToml(fastcodeDir);
 

@@ -1,6 +1,14 @@
 ---
 name: pd:fetch-doc
 description: Tải tài liệu từ URL theo version thư viện hiện tại, lưu local để research nhanh
+argument-hint: "<URL> [tên-tùy-chỉnh]"
+allowed-tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - WebFetch
 ---
 
 <objective>

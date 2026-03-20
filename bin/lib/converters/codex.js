@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { parseFrontmatter, buildFrontmatter } = require('../utils');
+const { parseFrontmatter, buildFrontmatter, inlineWorkflow } = require('../utils');
 const { convertCommandRef } = require('../platforms');
 
 /**
@@ -29,6 +29,8 @@ Khi user gọi \`$pd-${skillName} {{args}}\`, thực hiện toàn bộ instructi
 - \`$ARGUMENTS\` chính là \`{{GSD_ARGS}}\` — input từ user khi gọi skill
 - Tất cả paths config đã được chuyển sang \`~/.codex/\`
 - Các MCP tools (\`mcp__*\`) hoạt động tự động qua config.toml
+- Đọc \`~/.codex/.pdconfig\` (cat ~/.codex/.pdconfig) → lấy \`SKILLS_DIR\`
+- Các tham chiếu \`[SKILLS_DIR]/templates/*\`, \`[SKILLS_DIR]/references/*\` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 
 `;
@@ -36,8 +38,11 @@ Khi user gọi \`$pd-${skillName} {{args}}\`, thực hiện toàn bộ instructi
 
 /**
  * Convert nội dung skill từ Claude format sang Codex format.
+ * @param {string} content — nội dung command file gốc
+ * @param {string} skillName — tên skill (VD: 'plan', 'write-code')
+ * @param {string} [skillsDir] — đường dẫn repo gốc (để đọc workflow files)
  */
-function convertSkill(content, skillName) {
+function convertSkill(content, skillName, skillsDir) {
   const { frontmatter, body } = parseFrontmatter(content);
 
   // Frontmatter: chỉ giữ name + description
@@ -49,6 +54,11 @@ function convertSkill(content, skillName) {
   // Body transformations
   let newBody = body;
 
+  // Inline workflow content (PHẢI chạy TRƯỚC các text replacements khác)
+  if (skillsDir) {
+    newBody = inlineWorkflow(newBody, skillsDir);
+  }
+
   // Replace command references: /pd:xxx → $pd-xxx
   newBody = convertCommandRef('codex', newBody);
 
@@ -57,6 +67,9 @@ function convertSkill(content, skillName) {
 
   // Replace paths: ~/.claude/ → ~/.codex/
   newBody = newBody.replace(/~\/\.claude\//g, '~/.codex/');
+
+  // Fix .pdconfig path: ~/.codex/commands/pd/.pdconfig → ~/.codex/.pdconfig
+  newBody = newBody.replace(/~\/\.codex\/commands\/pd\/\.pdconfig/g, '~/.codex/.pdconfig');
 
   // AskUserQuestion → request_user_input (trong body text)
   newBody = newBody.replace(/AskUserQuestion/g, 'request_user_input');

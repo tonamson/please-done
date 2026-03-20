@@ -1,6 +1,6 @@
 {
   "name": "please-done",
-  "version": "2.7.1",
+  "version": "2.7.2",
   "description": "Cross-platform AI coding skills — Claude Code, Codex, Gemini CLI, OpenCode, Copilot",
   "bin": {
     "please-done": "bin/install.js"
@@ -8,6 +8,9 @@
   "files": [
     "bin",
     "commands",
+    "workflows",
+    "templates",
+    "references",
     "VERSION",
     "CHANGELOG.md",
     "env.example"
@@ -28,7 +31,10 @@
     "uninstall:opencode": "node bin/install.js --uninstall --opencode",
     "uninstall:copilot": "node bin/install.js --uninstall --copilot",
     "uninstall:all": "node bin/install.js --uninstall --all",
-    "test": "echo \"No tests configured\" && exit 0",
+    "test": "node --test 'test/*.test.js'",
+    "test:converters": "node --test test/smoke-converters.test.js",
+    "test:installers": "node --test test/smoke-installers.test.js",
+    "test:utils": "node --test test/smoke-utils.test.js",
     "eval": "node evals/run.js",
     "eval:trigger": "node evals/run.js --trigger",
     "eval:full": "node evals/run.js --full",

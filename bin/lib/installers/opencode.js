@@ -17,7 +17,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const commandDir = path.join(targetDir, 'command');
 
   // ─── Step 1: Convert & copy skills (flat) ─────────────
-  log.step(1, 2, 'Chuyển đổi skills cho OpenCode...');
+  log.step(1, 3, 'Chuyển đổi skills cho OpenCode...');
 
   fs.mkdirSync(commandDir, { recursive: true });
 
@@ -29,14 +29,30 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const skills = listSkillFiles(skillsSrc);
   for (const skill of skills) {
-    const converted = convertSkill(skill.content);
+    const converted = convertSkill(skill.content, skillsDir);
     const filename = `${flattenName(skill.name)}.md`;
     fs.writeFileSync(path.join(commandDir, filename), converted, 'utf8');
     log.success(`/pd-${skill.name}`);
   }
 
-  // ─── Step 2: Copy rules (inline vào command dir) ──────
-  log.step(2, 2, 'Copy rules...');
+  // ─── Step 2: Save .pdconfig ─────────────────────────
+  log.step(2, 3, 'Lưu cấu hình .pdconfig...');
+
+  const fastcodeDir = path.join(skillsDir, 'FastCode');
+  const pdconfigFile = path.join(targetDir, '.pdconfig');
+  let savedVersion = '';
+  if (fs.existsSync(pdconfigFile)) {
+    const existing = fs.readFileSync(pdconfigFile, 'utf8');
+    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
+    if (match) savedVersion = match[0];
+  }
+  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
+  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
+  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  log.success(`Config saved: ${pdconfigFile}`);
+
+  // ─── Step 3: Copy rules (inline vào command dir) ──────
+  log.step(3, 3, 'Copy rules...');
 
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {

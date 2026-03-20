@@ -1,13 +1,13 @@
 # Please Done — Bộ Skills AI Coding Đa Nền Tảng
 
-[![Version](https://img.shields.io/badge/version-2.7.1-blue.svg)](https://github.com/tonamson/please-done/releases)
+[![Version](https://img.shields.io/badge/version-2.7.2-blue.svg)](https://github.com/tonamson/please-done/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
 [![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#nền-tảng-hỗ-trợ)
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.7.1**
+**Phiên bản hiện tại: v2.7.2**
 
 ## Mục lục
 
@@ -290,11 +290,12 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài          Nền tảng đích
 ┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────┐
 │ commands/pd/*.md     │            │                  │──────────→ │ Claude Code     │
-│ commands/pd/rules/*  │───────────→│  bin/install.js  │──────────→ │ Codex CLI       │
-│ VERSION, CHANGELOG   │            │  (Node.js, 0 dep)│──────────→ │ Gemini CLI      │
-└──────────────────────┘            │                  │──────────→ │ OpenCode        │
-                                    └──────────────────┘──────────→ │ GitHub Copilot  │
-                                                                    └─────────────────┘
+│ workflows/*.md       │            │                  │──────────→ │ Codex CLI       │
+│ references/*.md      │───────────→│  bin/install.js  │──────────→ │ Gemini CLI      │
+│ templates/*.md       │            │  (Node.js, 0 dep)│──────────→ │ OpenCode        │
+│ commands/pd/rules/*  │            │                  │──────────→ │ GitHub Copilot  │
+│ VERSION, CHANGELOG   │            └──────────────────┘            └─────────────────┘
+└──────────────────────┘
 ```
 
 **Nguyên tắc:**
@@ -528,7 +529,7 @@ Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu
 
 NestJS, NextJS, WordPress, Solidity, và Flutter có rules + phân tích chi tiết. Các stack khác được nhận diện nhưng chỉ liệt kê files, áp dụng `general.md`.
 
-**Mở rộng stack mới**: Thêm tệp `commands/pd/rules/[stack].md` + mẫu nhận diện trong `init.md` Bước 4.
+**Mở rộng stack mới**: Thêm tệp `commands/pd/rules/[stack].md` + mẫu nhận diện trong `workflows/init.md` Bước 4.
 
 ## Bộ đánh giá (Promptfoo)
 
@@ -563,7 +564,6 @@ npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
 | Tệp                                          | Nội dung                                                                 |
 | --------------------------------------------- | ------------------------------------------------------------------------ |
 | [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)  | Hướng dẫn tích hợp: anchor patterns, cross-references giữa skills       |
-| [AUDIT_CHECKLIST.md](AUDIT_CHECKLIST.md)       | Checklist audit chất lượng khi thay đổi skills hoặc thêm stack mới      |
 | [CHANGELOG.md](CHANGELOG.md)                  | Nhật ký thay đổi chi tiết theo từng phiên bản                           |
 
 

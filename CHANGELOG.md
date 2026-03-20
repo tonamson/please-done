@@ -1,5 +1,10 @@
 # Nhật ký thay đổi Skills
 
+## [2.7.2] - 21_03_2026
+### Sửa lỗi
+- **Version sync**: Đồng bộ version public toàn repo từ `2.7.1` lên `2.7.2` tại `VERSION`, `package.json`, `package-lock.json`, `README.md`
+- **Release hygiene**: Sửa lệch metadata giữa `package.json` và `package-lock.json` để chuẩn bị publish ổn định hơn
+
 ## [2.7.1] - 20_03_2026
 ### Thay đổi
 - **README.md**: Thêm badges (version, license, node, platforms), mục lục (TOC), section "Tài liệu bổ sung" (link INTEGRATION_GUIDE, AUDIT_CHECKLIST, CHANGELOG), section "Giấy phép" (MIT)

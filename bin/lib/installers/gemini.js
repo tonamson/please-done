@@ -17,7 +17,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const settingsFile = path.join(targetDir, 'settings.json');
 
   // ─── Step 1: Convert & copy skills ────────────────────
-  log.step(1, 3, 'Chuyển đổi skills cho Gemini CLI...');
+  log.step(1, 4, 'Chuyển đổi skills cho Gemini CLI...');
 
   fs.mkdirSync(commandsDir, { recursive: true });
 
@@ -40,13 +40,13 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const skills = listSkillFiles(skillsSrc);
   for (const skill of skills) {
-    const converted = convertSkill(skill.content);
+    const converted = convertSkill(skill.content, skillsDir);
     fs.writeFileSync(path.join(commandsDir, `${skill.name}.md`), converted, 'utf8');
     log.success(`/pd:${skill.name}`);
   }
 
   // ─── Step 2: Copy rules ──────────────────────────────
-  log.step(2, 3, 'Copy rules...');
+  log.step(2, 4, 'Copy rules...');
 
   const rulesDir = path.join(skillsSrc, 'rules');
   const rulesDestDir = path.join(commandsDir, 'rules');
@@ -82,8 +82,23 @@ async function install(skillsDir, targetDir, options = {}) {
     log.success('Rules copied');
   }
 
-  // ─── Step 3: MCP config ──────────────────────────────
-  log.step(3, 3, 'Cấu hình MCP servers...');
+  // ─── Step 3: Save .pdconfig ─────────────────────────
+  log.step(3, 4, 'Lưu cấu hình .pdconfig...');
+
+  const pdconfigFile = path.join(commandsDir, '.pdconfig');
+  let savedVersion = '';
+  if (fs.existsSync(pdconfigFile)) {
+    const existing = fs.readFileSync(pdconfigFile, 'utf8');
+    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
+    if (match) savedVersion = match[0];
+  }
+  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
+  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
+  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  log.success(`Config saved: ${pdconfigFile}`);
+
+  // ─── Step 4: MCP config ──────────────────────────────
+  log.step(4, 4, 'Cấu hình MCP servers...');
 
   const mcpServers = generateMcpConfig(fastcodeDir);
 

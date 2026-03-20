@@ -7,7 +7,7 @@
 
 'use strict';
 
-const { parseFrontmatter, buildFrontmatter } = require('../utils');
+const { parseFrontmatter, buildFrontmatter, inlineWorkflow } = require('../utils');
 
 // Tool name mapping Claude → Copilot
 const COPILOT_TOOL_MAP = {
@@ -25,7 +25,7 @@ const COPILOT_TOOL_MAP = {
 /**
  * Convert nội dung skill từ Claude format sang Copilot format.
  */
-function convertSkill(content, isGlobal) {
+function convertSkill(content, isGlobal, skillsDir) {
   const { frontmatter, body } = parseFrontmatter(content);
 
   // Frontmatter: giữ name + description
@@ -37,12 +37,17 @@ function convertSkill(content, isGlobal) {
   // Body transformations
   let newBody = body;
 
-  // Replace paths
-  if (isGlobal) {
-    newBody = newBody.replace(/~\/\.claude\//g, '~/.copilot/');
-  } else {
-    newBody = newBody.replace(/~\/\.claude\//g, '.github/');
+  // Inline workflow content (TRƯỚC text replacements)
+  if (skillsDir) {
+    newBody = inlineWorkflow(newBody, skillsDir);
   }
+
+  // Replace paths
+  const configBase = isGlobal ? '~/.copilot/' : '.github/';
+  newBody = newBody.replace(/~\/\.claude\//g, configBase);
+
+  // Fix .pdconfig path: remove commands/pd/ prefix since Copilot uses skills/ structure
+  newBody = newBody.replace(new RegExp(`${configBase.replace(/[/.]/g, '\\$&')}commands/pd/\\.pdconfig`, 'g'), `${configBase}.pdconfig`);
 
   // Replace tool names in body
   for (const [claude, copilot] of Object.entries(COPILOT_TOOL_MAP)) {

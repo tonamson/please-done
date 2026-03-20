@@ -1,6 +1,13 @@
 ---
 name: pd:update
 description: Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog
+argument-hint: "[--check | --apply]"
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Bash
+  - AskUserQuestion
 ---
 
 <objective>
@@ -12,7 +19,8 @@ User input: $ARGUMENTS
 - Không có flag hoặc `--check` → chỉ kiểm tra, KHÔNG cập nhật
 - `--apply` → kiểm tra + cập nhật luôn
 
-Đọc `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → lấy `SKILLS_DIR`.
+Đọc `.pdconfig` → lấy `SKILLS_DIR`.
+(Claude Code: `cat ~/.claude/commands/pd/.pdconfig` — nền tảng khác: trình cài đặt chuyển đổi đường dẫn tự động)
 Nếu `.pdconfig` không tồn tại → **DỪNG**, thông báo: "Chưa cài đặt skills. Chạy `node bin/install.js` trước."
 </context>
 
@@ -111,7 +119,7 @@ Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.pdconfig`:
 
 Xóa cache thông báo update trên status line:
 ```bash
-rm -f ~/.claude/cache/pd-update-check.json
+rm -f ~/.claude/cache/pd-update-check.json   # đường dẫn nền tảng — converter tự chuyển đổi
 ```
 → Status line sẽ ngừng hiện `⬆ Skills v[x.x.x]` ngay lập tức.
 
@@ -123,10 +131,10 @@ rm -f ~/.claude/cache/pd-update-check.json
 ║ v[OLD] → v[NEW]                     ║
 ╠══════════════════════════════════════╣
 ║ ⚠ QUAN TRỌNG:                       ║
-║ Thoát Claude Code và khởi động lại  ║
-║ để load skills phiên bản mới.       ║
+║ Đóng và khởi động lại phiên làm    ║
+║ việc để load skills phiên bản mới.  ║
 ║                                      ║
-║ Nhấn Ctrl+C → chạy lại `claude`     ║
+║ Nhấn Ctrl+C → mở lại trợ lý AI     ║
 ║                                      ║
 ║ Nếu gặp vấn đề sau update:          ║
 ║ cd [SKILLS_DIR] && git checkout      ║

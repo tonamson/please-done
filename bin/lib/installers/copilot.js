@@ -23,7 +23,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const instructionsFile = path.join(targetDir, 'copilot-instructions.md');
 
   // ─── Step 1: Convert & copy skills ────────────────────
-  log.step(1, 3, 'Chuyển đổi skills cho Copilot...');
+  log.step(1, 4, 'Chuyển đổi skills cho Copilot...');
 
   const skills = listSkillFiles(skillsSrc);
 
@@ -39,13 +39,29 @@ async function install(skillsDir, targetDir, options = {}) {
     const skillDir = path.join(skillsDestDir, `pd-${skill.name}`);
     fs.mkdirSync(skillDir, { recursive: true });
 
-    const converted = convertSkill(skill.content, isGlobal);
+    const converted = convertSkill(skill.content, isGlobal, skillsDir);
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), converted, 'utf8');
     log.success(`/pd:${skill.name}`);
   }
 
-  // ─── Step 2: Copy rules ──────────────────────────────
-  log.step(2, 3, 'Copy rules...');
+  // ─── Step 2: Save .pdconfig ─────────────────────────
+  log.step(2, 4, 'Lưu cấu hình .pdconfig...');
+
+  const fastcodeDir = path.join(skillsDir, 'FastCode');
+  const pdconfigFile = path.join(targetDir, '.pdconfig');
+  let savedVersion = '';
+  if (fs.existsSync(pdconfigFile)) {
+    const existing = fs.readFileSync(pdconfigFile, 'utf8');
+    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
+    if (match) savedVersion = match[0];
+  }
+  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
+  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
+  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  log.success(`Config saved: ${pdconfigFile}`);
+
+  // ─── Step 3: Copy rules ──────────────────────────────
+  log.step(3, 4, 'Copy rules...');
 
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
@@ -83,8 +99,8 @@ async function install(skillsDir, targetDir, options = {}) {
     log.success('Rules copied');
   }
 
-  // ─── Step 3: Merge instructions ──────────────────────
-  log.step(3, 3, 'Cập nhật copilot-instructions.md...');
+  // ─── Step 4: Merge instructions ──────────────────────
+  log.step(4, 4, 'Cập nhật copilot-instructions.md...');
 
   fs.mkdirSync(targetDir, { recursive: true });
 

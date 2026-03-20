@@ -6,7 +6,7 @@
 
 'use strict';
 
-const { parseFrontmatter, buildFrontmatter } = require('../utils');
+const { parseFrontmatter, buildFrontmatter, inlineWorkflow } = require('../utils');
 
 // Tool name mapping Claude → Gemini
 const GEMINI_TOOL_MAP = {
@@ -34,7 +34,7 @@ function convertGeminiTool(toolName) {
 /**
  * Convert nội dung skill từ Claude format sang Gemini format.
  */
-function convertSkill(content) {
+function convertSkill(content, skillsDir) {
   const { frontmatter, body } = parseFrontmatter(content);
 
   // Frontmatter transformations
@@ -53,6 +53,11 @@ function convertSkill(content) {
 
   // Body transformations
   let newBody = body;
+
+  // Inline workflow content (TRƯỚC text replacements)
+  if (skillsDir) {
+    newBody = inlineWorkflow(newBody, skillsDir);
+  }
 
   // Replace paths: ~/.claude/ → ~/.gemini/
   newBody = newBody.replace(/~\/\.claude\//g, '~/.gemini/');
