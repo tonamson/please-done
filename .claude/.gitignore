@@ -1,3 +1,6 @@
 *
 !.gitignore
 !settings.json
+!hooks/
+hooks/*
+!hooks/semgrep-scan.sh
