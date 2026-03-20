@@ -25,7 +25,7 @@ Mỗi item PHẢI ghi kết quả cụ thể (line number + evidence). KHÔNG đ
 - [ ] Bước 6 Copy rules: thêm `has[Stack]` condition + copy file (dòng 107-111). Nếu có `-refs/` → copy vào `.planning/docs/[stack]/`
 - [ ] Bước 6 Delete list: thêm `[stack].md` vào danh sách xóa template (dòng 103)
 - [ ] Bước 8 Notification: thêm `[stack].md (nếu có)` vào notification box (dòng 149-169)
-- [ ] `<rules>` section: thêm `has[Stack]` flag + copy condition (dòng 172-183). Thêm file nhạy cảm vào security list nếu có
+- [ ] `<rules>` section: thêm `has[Stack]` flag + copy condition (dòng 184-198). Thêm file nhạy cảm vào security list nếu có
 
 ### A3. Cập nhật `scan.md` (4 touch points)
 
@@ -182,7 +182,7 @@ Liệt kê TẤT CẢ output templates → verify mỗi template có section cho
 Kiểm tra TẤT CẢ 5 installers: `claude.js`, `codex.js`, `copilot.js`, `gemini.js`, `opencode.js`
 
 - [ ] `readdirSync` rules directory → dùng `withFileTypes: true` phân biệt file vs directory?
-- [ ] Subdirectories (`wordpress-refs/`, `solidity-refs/`, `[stack]-refs/`) → được copy recursive?
+- [ ] Subdirectories (`nestjs-refs/`, `nextjs-refs/`, `wordpress-refs/`, `solidity-refs/`, `flutter-refs/`, `[stack]-refs/`) → được copy recursive?
 - [ ] Uninstall → xóa TẤT CẢ files đã install (cả subdirectories)?
 - [ ] Install/uninstall symmetry: mọi file install tạo → uninstall phải xóa
 

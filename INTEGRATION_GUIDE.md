@@ -90,9 +90,9 @@ Mỗi stack cần **ít nhất 1 primary + 1 fallback** detection pattern:
 | NextJS | `**/next.config.*` | `**/vite.config.*`, nhiều files `.tsx/.jsx` |
 | WordPress | `**/wp-config.php` | `**/wp-content/plugins/*/`, `**/wp-content/themes/*/style.css` |
 | Solidity | `**/hardhat.config.*` | `**/foundry.toml`, `**/contracts/**/*.sol` |
+| Flutter | `**/pubspec.yaml` + Grep `flutter` | `**/lib/main.dart` |
 | **[Stack mới]** | **[?]** | **[?]** |
 
-VD Flutter: Primary `**/pubspec.yaml` + Grep `flutter` | Fallback: `**/lib/main.dart`
 VD Laravel: Primary `**/artisan` | Fallback: `**/composer.json` + Grep `laravel/framework`
 
 Ghi nhận: `has[Stack] = true` flag name + detection patterns → dùng ở Phase 2.
@@ -141,7 +141,7 @@ Thêm:
 
 Delete list:
 ```
-Anchor: **Chỉ xóa các files template**: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `solidity.md`.
+Anchor: **Chỉ xóa các files template**: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`.
 Sửa:   Thêm `, [stack].md` vào danh sách
 ```
 
@@ -238,7 +238,7 @@ Thêm:   - Nếu has[Stack] thay đổi: copy/xóa `[stack]-refs/` → `.plannin
 
 Delete list:
 ```
-Anchor: `general.md`, `backend.md`, `frontend.md`, `wordpress.md`, `solidity.md`. Giữ nguyên files custom
+Anchor: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Giữ nguyên files custom
 Sửa:   Thêm `, [stack].md`
 ```
 
@@ -311,7 +311,7 @@ Thêm:
 
 **④ Bước 5 — Build & Lint reference**
 ```
-Anchor: (backend.md/frontend.md/wordpress.md/solidity.md): đọc mục **Build & Lint**
+Anchor: (nestjs.md/nextjs.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint**
 Sửa:   Thêm /[stack].md vào danh sách
 ```
 
@@ -328,13 +328,13 @@ VD Flutter: `## Screens & Widgets (nếu có — Flutter)` | VD Laravel: `## Rou
 
 Parallel agent spawn:
 ```
-Anchor: Rules files phù hợp (general + backend/frontend/wordpress/solidity theo Loại task)
+Anchor: Rules files phù hợp (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
 Sửa:   Thêm /[stack] vào danh sách
 ```
 
 `<rules>` section:
 ```
-Anchor: Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + backend/frontend/wordpress/solidity theo Loại task)
+Anchor: Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
 Sửa:   Thêm /[stack] vào danh sách
 ```
 
@@ -362,7 +362,7 @@ Sửa:   Thêm , [Stack]
 
 **① `<context>` — đọc rules**
 ```
-Anchor: `backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md`
+Anchor: `nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md`
 Sửa:   Thêm hoặc `[stack].md`
 ```
 
@@ -379,7 +379,7 @@ Thêm:
 
 **③ Bước 7 — Lint reference + test file pattern**
 ```
-Anchor: `backend.md` hoặc `frontend.md` hoặc `wordpress.md` hoặc `solidity.md` → mục **Build & Lint**
+Anchor: `nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**
 Sửa:   Thêm hoặc `[stack].md`
 
 Anchor: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity)
