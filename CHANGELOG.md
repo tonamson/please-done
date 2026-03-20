@@ -1,5 +1,11 @@
 # Nhật ký thay đổi Skills
 
+## [2.7.1] - 20_03_2026
+### Thay đổi
+- **README.md**: Thêm badges (version, license, node, platforms), mục lục (TOC), section "Tài liệu bổ sung" (link INTEGRATION_GUIDE, AUDIT_CHECKLIST, CHANGELOG), section "Giấy phép" (MIT)
+- **README.md**: Bỏ cột "Tỷ lệ đạt" trong bảng eval, cải thiện format mô tả test skill và commit patterns
+- **LICENSE**: Tạo file MIT license
+
 ## [2.7.0] - 19_03_2026
 ### Thêm mới
 - **Semgrep auto-scan**: Quét lỗ hổng bảo mật tự động (OWASP Top 10, injection, XSS, hardcoded secrets) mỗi khi AI viết/sửa code

@@ -1,8 +1,33 @@
 # Please Done — Bộ Skills AI Coding Đa Nền Tảng
 
+[![Version](https://img.shields.io/badge/version-2.7.1-blue.svg)](https://github.com/tonamson/please-done/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
+[![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#nền-tảng-hỗ-trợ)
+
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.7.0**
+**Phiên bản hiện tại: v2.7.1**
+
+## Mục lục
+
+- [Nền tảng hỗ trợ](#nền-tảng-hỗ-trợ)
+- [Yêu cầu](#yêu-cầu)
+- [Cài đặt](#cài-đặt)
+- [Gỡ cài đặt](#gỡ-cài-đặt)
+- [Cập nhật Please Done](#cập-nhật-please-done)
+- [Sau khi cài](#sau-khi-cài)
+- [Danh sách Skills](#danh-sách-skills)
+- [Cấu trúc `.planning/`](#cấu-trúc-planning)
+- [Kiến trúc đa nền tảng](#kiến-trúc-đa-nền-tảng)
+- [Máy chủ MCP](#máy-chủ-mcp)
+- [Bảo mật](#bảo-mật)
+- [Quy ước Commit](#quy-ước-commit)
+- [Biểu tượng trạng thái](#biểu-tượng-trạng-thái)
+- [Tech Stack hỗ trợ](#tech-stack-hỗ-trợ)
+- [Bộ đánh giá (Promptfoo)](#bộ-đánh-giá-promptfoo)
+- [Tài liệu bổ sung](#tài-liệu-bổ-sung)
+- [Giấy phép](#giấy-phép)
 
 ## Nền tảng hỗ trợ
 
@@ -139,7 +164,7 @@ $pd-init        # Codex
 | 3   | `new-milestone`      | Lập kế hoạch milestones + phases + phụ thuộc                                                                       | init, scan (*) |
 | 4   | `plan`               | Nghiên cứu dự án, thiết kế kỹ thuật, chia danh sách công việc cho phase                                            | new-milestone  |
 | 5   | `write-code`         | Thực thi task từ TASKS.md, kiểm tra cú pháp, build, commit `[TASK-N]`                                              | plan           |
-| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, hoặc flutter_test), chạy, yêu cầu xác nhận (NestJS + WordPress + Solidity + Flutter) | write-code     |
+| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, flutter_test), chạy, yêu cầu xác nhận | write-code     |
 | 7   | `fix-bug`            | Nghiên cứu lỗi, phân tích, sửa, commit `[LỖI]`, lặp đến khi người dùng xác nhận                                    | init           |
 | 8   | `complete-milestone` | Kiểm tra lỗi, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag                                                          | tất cả tasks ✅ |
 
@@ -468,7 +493,7 @@ Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu
 | Tiền tố       | Skill              | Khi nào                                                                |
 | ------------- | ------------------ | ---------------------------------------------------------------------- |
 | `[TASK-N]`    | write-code         | Hoàn thành 1 task                                                      |
-| `[KIỂM THỬ]`  | test               | Thêm file kiểm thử (.spec.ts, test-*.php, test/*.ts/test/*.t.sol, hoặc test/**/*_test.dart) |
+| `[KIỂM THỬ]`  | test               | Thêm file kiểm thử (`.spec.ts`, `test-*.php`, `test/*.ts`, `test/*.t.sol`, `test/**/*_test.dart`) |
 | `[LỖI]`       | fix-bug            | Mỗi lần sửa lỗi (có thể nhiều lần/lỗi)                                 |
 | `[TRACKING]`  | write-code         | Phase hoàn tất tất cả tasks (tracking commit riêng)                    |
 | `[PHIÊN BẢN]` | complete-milestone | Đóng milestone + tạo git tag                                           |
@@ -526,9 +551,22 @@ npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
 ### Kết quả hiện tại
 
 
-| Bộ kiểm tra            | Số lượng | Tỷ lệ đạt |
-| ---------------------- | -------- | --------- |
-| Tuân thủ quy trình     | 58       | —         |
-| Độ chính xác kích hoạt | 19       | 94.7%     |
+| Bộ kiểm tra            | Số lượng |
+| ---------------------- | -------- |
+| Tuân thủ quy trình     | 58       |
+| Độ chính xác kích hoạt | 19       |
 
 
+## Tài liệu bổ sung
+
+
+| Tệp                                          | Nội dung                                                                 |
+| --------------------------------------------- | ------------------------------------------------------------------------ |
+| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)  | Hướng dẫn tích hợp: anchor patterns, cross-references giữa skills       |
+| [AUDIT_CHECKLIST.md](AUDIT_CHECKLIST.md)       | Checklist audit chất lượng khi thay đổi skills hoặc thêm stack mới      |
+| [CHANGELOG.md](CHANGELOG.md)                  | Nhật ký thay đổi chi tiết theo từng phiên bản                           |
+
+
+## Giấy phép
+
+[MIT](LICENSE) - Xem file LICENSE để biết chi tiết.
