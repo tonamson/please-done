@@ -1,95 +1,34 @@
 # Quy tắc Backend (NestJS)
 
-## Cấu trúc dự án
-```
-src/
-├── app.module.ts         → Root module
-├── main.ts               → Bootstrap (NestFactory)
-├── modules/
-│   └── [feature]/
-│       ├── [feature].module.ts
-│       ├── [feature].controller.ts
-│       ├── [feature].service.ts
-│       ├── dto/           → Create, Update, Query DTOs
-│       ├── entities/      → Entity/Schema definitions
-│       └── enums/         → Feature-specific enums
-├── common/
-│   ├── guards/            → JwtAuthGuard, RolesGuard
-│   ├── decorators/        → @Roles(), @CurrentUser()
-│   ├── interceptors/      → Transform, Logging
-│   ├── middleware/         → CORS, Rate limiting
-│   ├── filters/           → Exception filters
-│   └── pipes/             → Validation pipes
-└── config/                → ConfigModule schemas
-```
+> Chỉ chứa quy ước riêng. Kiến thức NestJS chuẩn → tra Context7 (`resolve-library-id` → `query-docs`).
 
-## Controller
-- CHỈ delegate, KHÔNG business logic
-- Decorator stack: JSDoc → @Post → @HttpCode → @UseGuards → @Roles
-- @Req() req: any để lấy req.user (project phức tạp nên dùng custom interface RequestWithUser)
+## Quy ước đặc biệt
+- **MongoDB collection**: prefix `m` + snake_case (VD: `mUsers`, `mOrder_items`)
+- **Mongoose schema**: `@Schema({ versionKey: false, timestamps: true })` + `mongoose-paginate-v2`
+- **TypeORM**: camelCase + suffix `Repo` + `@Column({ comment: 'tiếng Việt' })` + `@DeleteDateColumn()` soft delete
+- **Prisma**: `@@map("tên_bảng")` + `@@index` + camelCase
+- **DTO**: `@ApiProperty({ description: 'tiếng Việt', example: '...' })` BẮT BUỘC mỗi field
+- **Decorator stack order**: JSDoc → @Post → @HttpCode → @UseGuards → @Roles
+- **Controller**: CHỈ delegate, KHÔNG chứa business logic
+- **Enum values**: STRING UPPER_SNAKE_CASE, file: `enums/tên-enum.enum.ts`
 
-## Service
-- private readonly logger = new Logger(XxxService.name)
-- Async + try/catch: re-throw NestJS exceptions, wrap unknown → message theo ngôn ngữ throw lỗi của dự án (xem mục Ngôn ngữ message)
-- Config: this.configService.get('KEY'), KHÔNG hardcode
+## Phân trang & Response
+- Format: `{ docs, page, limit, totalDocs, totalPages }`
+- Query lỗi: return `{ docs: [], page, limit, totalPages: 1 }`
+- Mutate lỗi: throw NestJS exception
 
-## DTO
-- @ApiProperty({ description: 'tiếng Việt', example: '...' }) BẮT BUỘC
-- Create: required | Update: optional trừ id | Query: page/limit/search/sortBy/sortOrder | Detail: id
-- Validation decorators mỗi dòng 1 cái, barrel export qua dto/index.ts nếu nhiều DTOs
+## Ngôn ngữ message
+- Grep pattern `throw`/`message` trong code hiện có → dùng ngôn ngữ project đang dùng
+- Không xác định → mặc định tiếng Việt
 
-## Entity
-- MongoDB: @Schema({ versionKey:false, timestamps:true }) + snake_case + prefix `m` (VD: collection `mUsers`) + mongoose-paginate-v2
-- TypeORM: camelCase + suffix Repo + @Column({ comment:'tiếng Việt' }) + @DeleteDateColumn() soft delete
-- Prisma: @@map("tên_bảng") + @@index + camelCase
-
-## Enum
-- File: enums/tên-enum.enum.ts | Values: STRING UPPER_SNAKE_CASE
-
-## Response & Error
-- Phân trang: { docs, page, limit, totalDocs, totalPages }
-- Query lỗi: return { docs:[], page, limit, totalPages:1 }
-- Mutate lỗi: throw NestJS exception (ngôn ngữ theo dự án)
-
-## Ngôn ngữ message (DTO validation, error, exception)
-- Grep pattern throw/message trong code hiện có để xác định ngôn ngữ dự án dùng
-- Dự án throw tiếng Việt → dùng tiếng Việt
-- Dự án throw tiếng Anh → dùng tiếng Anh
-- Không xác định được → mặc định tiếng Việt
-
-## Phân quyền API (Guard + JWT)
-- Tra context7 + FastCode trước khi viết (xem general.md — KISS + YAGNI), đặc biệt khi tạo/sửa Guard, JWT strategy, Role decorator
-- `@UseGuards(JwtAuthGuard, RolesGuard)` trên controller/route cần bảo vệ
-- `@Roles('admin', 'editor')` decorator chỉ định role được phép
-- JWT payload chứa: `{ sub, email, roles }` — KHÔNG chứa thông tin nhạy cảm
-- Guard trả `ForbiddenException` / `UnauthorizedException` với message rõ ràng
-- Khi thêm/sửa Guard cho API → ghi chú trong CODE_REPORT để frontend biết cập nhật ẩn/hiện
-
-## Middleware & Interceptor
-- Middleware: implement `NestMiddleware`, register trong module `configure(consumer)` — dùng cho logging, CORS, rate limiting
-- Interceptor: implement `NestInterceptor`, dùng `@UseInterceptors()` — dùng cho transform response, caching, timeout
-
-## Bảo mật (BẮT BUỘC)
-- **Password**: bcrypt(10), strip khỏi response — CẤM trả password trong bất kỳ API response nào
-- **Sort injection**: whitelist `allowedSortFields` — CẤM truyền trực tiếp user input vào ORDER BY
-- **Rate limiting**: `@nestjs/throttler` — BẮT BUỘC cho auth endpoints (login, register, forgot-password)
-- **Helmet**: `app.use(helmet())` trong `main.ts` — bảo vệ HTTP headers
-- **CORS**: cấu hình `origin` whitelist trong `main.ts` — CẤM `origin: '*'` cho production
-- **Input validation**: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` global — chặn fields không khai báo trong DTO
-- **Soft delete**:
-  - TypeORM: `@DeleteDateColumn()` thay vì xóa thật
-  - Mongoose: thêm field `deletedAt: Date` + middleware filter `{ deletedAt: null }`
-  - Prisma: field `deletedAt DateTime?` + middleware filter
+## Bảo mật
+- Password: bcrypt(10), strip khỏi response
+- Sort: whitelist `allowedSortFields`, CẤM truyền user input trực tiếp
+- Rate limiting: `@nestjs/throttler` cho auth endpoints
+- Input validation: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` global
+- Soft delete: `deletedAt` field (TypeORM: `@DeleteDateColumn()`, Mongoose: field + middleware filter, Prisma: field + middleware)
 
 ## Build & Lint
 - Lint: `npx eslint src/ --fix`
 - Build: `npx nest build`
 - Detect thư mục: Glob `**/nest-cli.json` → thư mục chứa = backend root
-
-## Tham khảo chi tiết
-Khi cần patterns phức tạp → đọc `.planning/docs/nestjs/`:
-- `authentication.md` — JWT, Passport, Guards, Roles, refresh tokens
-- `database-patterns.md` — TypeORM/Mongoose/Prisma advanced patterns, pagination, transactions
-- `testing.md` — Jest + Supertest unit/e2e test patterns
-- `swagger.md` — OpenAPI decorators, DTO documentation, response schemas
-- `error-handling.md` — Exception filters, custom exceptions, validation pipes

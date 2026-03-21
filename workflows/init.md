@@ -82,7 +82,7 @@ Hỏi user: "Dự án mới chưa có code. Bạn muốn xây dựng gì?"
 
 ## Bước 5: Tạo .planning/ structure
 ```bash
-mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules
+mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules .planning/docs/solidity
 ```
 
 ## Bước 6: Copy rules vào .planning/rules/
@@ -95,12 +95,14 @@ Nếu `.pdconfig` không tồn tại hoặc không có `SKILLS_DIR` → **DỪNG
 Đọc rules từ `[SKILLS_DIR]/commands/pd/rules/` → Write vào `.planning/rules/`:
 
 - **Luôn copy**: `general.md`
-- **Nếu hasNestJS = true**: copy `nestjs.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/nestjs-refs/` → `.planning/docs/nestjs/` (reference docs cho tra cứu khi code)
-- **Nếu hasNextJS = true**: copy `nextjs.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/nextjs-refs/` → `.planning/docs/nextjs/` (reference docs cho tra cứu khi code)
-- **Nếu hasWordPress = true**: copy `wordpress.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/wordpress-refs/` → `.planning/docs/wordpress/` (reference docs cho tra cứu khi code)
-- **Nếu hasSolidity = true**: copy `solidity.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/solidity-refs/` → `.planning/docs/solidity/` (reference docs cho tra cứu khi code)
-- **Nếu hasFlutter = true**: copy `flutter.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/flutter-refs/` → `.planning/docs/flutter/` (reference docs cho tra cứu khi code)
+- **Nếu hasNestJS = true**: copy `nestjs.md`
+- **Nếu hasNextJS = true**: copy `nextjs.md`
+- **Nếu hasWordPress = true**: copy `wordpress.md`
+- **Nếu hasSolidity = true**: copy `solidity.md` + copy thư mục `[SKILLS_DIR]/commands/pd/rules/solidity-refs/` → `.planning/docs/solidity/` (templates + audit checklist)
+- **Nếu hasFlutter = true**: copy `flutter.md`
 - **Nếu project mới hoặc stack khác** (Chrome extension, CLI, v.v.): CHỈ copy `general.md`
+
+> Các stack khác (NestJS, NextJS, WordPress, Flutter) không cần copy docs — dùng Context7 MCP tra cứu tài liệu đúng version khi cần.
 
 ## Bước 7: Tạo CONTEXT.md (GỌN — chỉ chứa info dự án)
 Tạo `.planning/CONTEXT.md`:
@@ -154,11 +156,7 @@ Quy tắc code nằm tại `.planning/rules/`:
 ║   - solidity.md (nếu có)            ║
 ║   - flutter.md (nếu có)             ║
 ║ Docs:    .planning/docs/            ║
-║   - nestjs/ (nếu có NestJS)         ║
-║   - nextjs/ (nếu có NextJS)        ║
-║   - wordpress/ (nếu có WordPress)   ║
 ║   - solidity/ (nếu có Solidity)     ║
-║   - flutter/ (nếu có Flutter)       ║
 ╠══════════════════════════════════════╣
 ║ Tiếp theo:                          ║
 ║   /pd:scan   → Quét chi tiết        ║
@@ -171,11 +169,11 @@ Quy tắc code nằm tại `.planning/rules/`:
 - CONTEXT.md DƯỚI 50 dòng — chỉ info dự án, KHÔNG chứa coding rules
 - Coding rules nằm riêng trong `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/pd/rules/` (path lấy từ `.pdconfig`)
 - Chỉ copy rules files phù hợp với tech stack detected (hasNestJS/hasNextJS/hasWordPress/hasSolidity/hasFlutter)
-- Nếu hasNestJS = true: copy `nestjs.md` vào `.planning/rules/` + copy `nestjs-refs/` vào `.planning/docs/nestjs/`
-- Nếu hasNextJS = true: copy `nextjs.md` vào `.planning/rules/` + copy `nextjs-refs/` vào `.planning/docs/nextjs/`
-- Nếu hasWordPress = true: copy `wordpress.md` vào `.planning/rules/` + copy `wordpress-refs/` vào `.planning/docs/wordpress/`
+- Nếu hasNestJS = true: copy `nestjs.md` vào `.planning/rules/`
+- Nếu hasNextJS = true: copy `nextjs.md` vào `.planning/rules/`
+- Nếu hasWordPress = true: copy `wordpress.md` vào `.planning/rules/`
 - Nếu hasSolidity = true: copy `solidity.md` vào `.planning/rules/` + copy `solidity-refs/` vào `.planning/docs/solidity/`
-- Nếu hasFlutter = true: copy `flutter.md` vào `.planning/rules/` + copy `flutter-refs/` vào `.planning/docs/flutter/`
+- Nếu hasFlutter = true: copy `flutter.md` vào `.planning/rules/`
 - Project mới (isNewProject = true): skip FastCode indexing, hỏi user mô tả dự án, chỉ copy general.md
 - Sau này thêm stack mới (React Native, Laravel...) = thêm 1 file `commands/pd/rules/[stack].md` + thêm detection pattern ở Bước 4
 - FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại, KHÔNG có fallback

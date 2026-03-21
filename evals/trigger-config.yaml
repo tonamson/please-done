@@ -102,6 +102,20 @@ tests:
       - type: icontains
         value: "pd:update"
 
+  - description: "Trigger pd:conventions — tạo quy ước"
+    vars:
+      user_request: "Tạo file conventions cho project này"
+    assert:
+      - type: icontains
+        value: "pd:conventions"
+
+  - description: "Trigger pd:conventions — CLAUDE.md"
+    vars:
+      user_request: "Phân tích code style rồi tạo CLAUDE.md"
+    assert:
+      - type: icontains
+        value: "pd:conventions"
+
   # ══════════════════════════════════════════════════════════════
   # TRUE NEGATIVES — request KHÔNG nên trigger skill nào
   # ══════════════════════════════════════════════════════════════

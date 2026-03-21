@@ -12,9 +12,9 @@ Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPres
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → xác định test framework:
   - **NestJS** → Jest + Supertest (flow bên dưới Bước 2-5)
-  - **WordPress** → PHPUnit + WP_UnitTestCase (đọc `.planning/docs/wordpress/testing.md` cho patterns). Viết `tests/test-*.php`, chạy `composer test`
+  - **WordPress** → PHPUnit + WP_UnitTestCase (tra Context7 cho patterns). Viết `tests/test-*.php`, chạy `composer test`
   - **Solidity** → Hardhat (`npx hardhat test`) hoặc Foundry (`forge test -vvv`). Đọc `.planning/docs/solidity/audit-checklist.md` cho test bắt buộc (deploy, access control, reentrancy, events, signatures)
-  - **Flutter** → flutter_test + mocktail (đọc `.planning/docs/flutter/testing.md` cho patterns). Unit: `test/unit/`, Widget: `test/widget/`, chạy `flutter test`
+  - **Flutter** → flutter_test + mocktail (tra Context7 cho patterns). Unit: `test/unit/`, Widget: `test/widget/`, chạy `flutter test`
   - **Framework khác** → thông báo hỗ trợ NestJS/WP/Solidity/Flutter. User có thể viết test thủ công hoặc bỏ qua
   - **Frontend-only** → kiểm thử thủ công: liệt kê chức năng + kết quả kỳ vọng, user xác nhận từng mục
 - Tất cả stacks: hiển thị kết quả → yêu cầu user xác nhận → tạo TEST_REPORT (Bước 7) → bug report nếu fail (Bước 8) → commit (Bước 10)

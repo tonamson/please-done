@@ -156,7 +156,7 @@ tests:
         - Glob **/wp-content/plugins/*/ → tìm thấy /app/wordpress-site/wp-content/plugins/my-plugin/
         - .pdconfig có SKILLS_DIR=/home/user/skills
         - [SKILLS_DIR]/commands/pd/rules/wordpress.md → tồn tại
-        - [SKILLS_DIR]/commands/pd/rules/wordpress-refs/ → tồn tại (9 files)
+        - [SKILLS_DIR]/commands/pd/rules/wordpress.md → tồn tại
     assert:
       - type: llm-rubric
         value: |
@@ -165,8 +165,7 @@ tests:
           2. hasBackend và hasFrontend có thể false (WordPress project thuần, không có NestJS/NextJS)
           3. PHẢI copy general.md vào .planning/rules/
           4. PHẢI copy wordpress.md vào .planning/rules/
-          5. PHẢI copy wordpress-refs/ vào .planning/docs/wordpress/ (9 reference files)
-          6. KHÔNG copy backend.md hoặc frontend.md (không có NestJS/NextJS)
+          5. KHÔNG copy backend.md hoặc frontend.md (không có NestJS/NextJS)
           7. CONTEXT.md PHẢI ghi WordPress trong Tech Stack
       - type: icontains
         value: "wordpress"
@@ -182,7 +181,7 @@ tests:
         - PLAN.md → thiết kế custom post type "Book" + REST API endpoint
         - TASKS.md: Task 1: ⬜ (Phụ thuộc: Không) — Register Custom Post Type
         - .planning/rules/wordpress.md → tồn tại
-        - .planning/docs/wordpress/plugin-architecture.md → tồn tại
+        - .planning/rules/wordpress.md → tồn tại
         - git rev-parse → có git repo
     assert:
       - type: llm-rubric
@@ -193,7 +192,7 @@ tests:
           3. PHẢI có defined('ABSPATH') check ở đầu file PHP
           4. PHẢI prefix functions/classes với plugin slug
           5. PHẢI dùng sanitize/escape cho input/output
-          6. PHẢI tra cứu .planning/docs/wordpress/ cho patterns phức tạp (nếu cần)
+          6. PHẢI tra Context7 cho patterns phức tạp (nếu cần)
           7. PHẢI chạy lint (composer run lint) nếu đã setup
       - type: icontains
         value: "wordpress"
@@ -209,14 +208,14 @@ tests:
         - PLAN.md → custom post type + REST API
         - TASKS.md → Task 1: ✅ (Register CPT), Task 2: ✅ (REST endpoint)
         - composer.json có phpunit/phpunit, wp-phpunit/wp-phpunit
-        - .planning/docs/wordpress/testing.md → tồn tại
+        - .planning/rules/wordpress.md → tồn tại
     assert:
       - type: llm-rubric
         value: |
           Kiểm tra test flow cho WordPress:
           1. PHẢI detect WordPress (KHÔNG phải NestJS) → chuyển sang PHPUnit flow
           2. PHẢI kiểm tra PHPUnit + wp-phpunit đã cài
-          3. PHẢI đọc .planning/docs/wordpress/testing.md cho patterns
+          3. PHẢI tra Context7 cho WordPress testing patterns
           4. PHẢI viết test files dùng WP_UnitTestCase (KHÔNG phải Jest/Supertest)
           5. PHẢI dùng factory methods ($this->factory()->post->create())
           6. PHẢI chạy ./vendor/bin/phpunit (KHÔNG phải npm test)
@@ -1438,7 +1437,7 @@ tests:
         - PLAN.md → custom post type
         - TASKS.md → Task 1: ✅ (Register CPT)
         - composer.json có phpunit/phpunit, wp-phpunit/wp-phpunit
-        - .planning/docs/wordpress/testing.md → tồn tại
+        - .planning/rules/wordpress.md → tồn tại
         - Tests chạy xong, 3 passed 0 failed
         - git rev-parse → có git repo
     assert:
@@ -1483,6 +1482,117 @@ tests:
           5. PHẢI có section "Trạng thái hoàn thành"
       - type: icontains
         value: "Solidity"
+
+  # ══════════════════════════════════════════════════════════════
+  # pd:conventions — Tạo CLAUDE.md quy ước dự án
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:conventions — NestJS + NextJS project, detect patterns and generate CLAUDE.md"
+    vars:
+      skill_file: commands/pd/conventions.md
+      scenario: |
+        Project NestJS + NextJS tại /app/my-project.
+        Kết quả tool calls giả lập:
+        - CLAUDE.md → KHÔNG tồn tại
+        - Grep file naming → kebab-case (create-user.dto.ts, admin-api.ts)
+        - Grep functions → camelCase (createUser, findAllProducts)
+        - Grep import → @/ alias pattern
+        - Grep styled/className/style={{ → tìm thấy antd + style={{}} (inline styles)
+        - Grep zustand/create< → tìm thấy Zustand stores
+        - Grep axios → KHÔNG tìm thấy
+        - Grep fetch( → tìm thấy native fetch
+        - Grep describe(/it( → tìm thấy Jest tests
+        - Grep throw messages → tiếng Việt ("Email không tồn tại")
+        - .prettierrc → { semi: true, singleQuote: true, tabWidth: 2 }
+        - User trả lời: comments tiếng Việt, conventional commits, MongoDB prefix mUsers
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra conventions flow:
+          1. PHẢI kiểm tra CLAUDE.md tồn tại chưa
+          2. PHẢI scan code patterns (naming, imports, styling, state, API, testing, error messages)
+          3. PHẢI tổng hợp phát hiện và trình bày cho user
+          4. PHẢI hỏi user bổ sung (ngôn ngữ comments, commit style, quy ước đặc biệt)
+          5. PHẢI tạo CLAUDE.md ở root project
+          6. CLAUDE.md PHẢI dưới 50 dòng
+          7. CLAUDE.md KHÔNG ĐƯỢC chứa tutorial framework
+          8. PHẢI chứa conventions phát hiện (inline styles, Zustand, native fetch, tiếng Việt)
+          9. PHẢI chứa conventions từ user (MongoDB prefix, conventional commits)
+      - type: icontains
+        value: "CLAUDE.md"
+
+  - description: "pd:conventions — project đã có CLAUDE.md → hỏi bổ sung hay tạo lại"
+    vars:
+      skill_file: commands/pd/conventions.md
+      scenario: |
+        Project Flutter tại /app/my-app.
+        Kết quả tool calls giả lập:
+        - CLAUDE.md → ĐÃ tồn tại, nội dung: "# Conventions\n- State: GetX\n- HTTP: Dio"
+        - User chọn: Bổ sung thêm
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra xử lý CLAUDE.md hiện có:
+          1. PHẢI phát hiện CLAUDE.md đã tồn tại
+          2. PHẢI hỏi user: bổ sung hay tạo lại
+          3. Khi user chọn bổ sung → PHẢI giữ nội dung cũ và merge thêm conventions mới
+          4. KHÔNG ĐƯỢC xóa conventions cũ mà user đã viết
+
+  # ══════════════════════════════════════════════════════════════
+  # RULES OPTIMIZATION — Verify rules chỉ chứa conventions, không tutorial
+  # ══════════════════════════════════════════════════════════════
+
+  - description: "pd:init — NestJS project copies rules WITHOUT refs (post-optimization)"
+    vars:
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project NestJS tại /app/my-backend.
+        Kết quả tool calls giả lập:
+        - mcp__fastcode__list_indexed_repos → thành công
+        - .planning/CONTEXT.md → KHÔNG tồn tại
+        - Glob **/*.{ts,tsx,js,jsx,py,php,sol,html} → 20+ files .ts
+        - Glob **/nest-cli.json → tìm thấy /app/my-backend/nest-cli.json
+        - Glob **/next.config.* → KHÔNG tìm thấy
+        - Glob **/wp-config.php → KHÔNG tìm thấy
+        - Glob **/hardhat.config.* → KHÔNG tìm thấy
+        - Glob **/pubspec.yaml → KHÔNG tìm thấy
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/nestjs.md → tồn tại
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra init KHÔNG copy refs cho NestJS:
+          1. PHẢI copy general.md vào .planning/rules/
+          2. PHẢI copy nestjs.md vào .planning/rules/
+          3. KHÔNG ĐƯỢC copy nestjs-refs/ vào .planning/docs/nestjs/ (refs đã bị loại bỏ)
+          4. KHÔNG ĐƯỢC tạo thư mục .planning/docs/nestjs/
+          5. Tra cứu patterns phức tạp → dùng Context7 MCP
+      - type: icontains
+        value: "nestjs"
+
+  - description: "pd:write-code — NestJS task uses Context7 instead of refs"
+    vars:
+      skill_file: commands/pd/write-code.md
+      scenario: |
+        Project NestJS tại /app/my-backend. $ARGUMENTS: (trống)
+        Kết quả tool calls giả lập:
+        - CONTEXT.md → NestJS (Mongoose), không có NextJS/WordPress
+        - CURRENT_MILESTONE.md → version: 1.0, phase: 1.1
+        - PLAN.md → thiết kế User Authentication (JWT + Passport)
+        - TASKS.md: Task 1: ⬜ (Phụ thuộc: Không) — JWT Auth Module
+        - .planning/rules/nestjs.md → tồn tại (chỉ conventions, không tutorial)
+        - .planning/docs/nestjs/ → KHÔNG tồn tại
+        - git rev-parse → có git repo
+    assert:
+      - type: llm-rubric
+        value: |
+          Kiểm tra write-code dùng Context7 thay vì refs:
+          1. PHẢI đọc .planning/rules/nestjs.md (conventions)
+          2. PHẢI tra Context7 cho NestJS JWT/Passport patterns (vì không có .planning/docs/nestjs/)
+          3. KHÔNG ĐƯỢC báo lỗi thiếu .planning/docs/nestjs/
+          4. PHẢI tuân thủ conventions: MongoDB prefix m, @ApiProperty tiếng Việt, pagination format
+      - type: icontains
+        value: "nestjs"
 
   - description: "pd:test — Foundry project → forge test flow (KHÔNG Hardhat)"
     vars:

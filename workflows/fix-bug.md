@@ -153,7 +153,7 @@ Xác định lỗi thuộc stack nào (từ CONTEXT.md) → đọc `.planning/ru
 - **NestJS**: request → controller → service → database → response
 - **NextJS**: page/component → store → API call → hiển thị
 - **WordPress**: hook/action → callback → $wpdb → output
-- **Solidity**: function call → require → state change → external → events (tra cứu `.planning/docs/solidity/audit-checklist.md`)
+- **Solidity**: function call → require → state change → external → events (nếu có `.planning/docs/solidity/audit-checklist.md` → tra cứu)
 - **Flutter**: View (Obx) → Logic (GetxController) → Repository → API (Dio) → Response
 
 **Quy trình giả thuyết:**

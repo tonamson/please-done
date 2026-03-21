@@ -1,659 +1,455 @@
 # Hướng dẫn tích hợp Stack mới vào Please Done
 
-Tài liệu này hướng dẫn quy trình tích hợp 1 stack mới (VD: Flutter, Laravel, Go, Rust...) vào bộ skills Please Done.
+Tài liệu này hướng dẫn quy trình tích hợp 1 stack mới (VD: Laravel, Go, Rust, React Native...) vào bộ skills Please Done.
 
-**Input**: File `.skill` hoặc `.md` chứa coding standards — có thể generate từ Claude Chat, tài liệu nội bộ, hoặc viết tay.
+**Đầu vào**: Quy ước lập trình của stack — viết tay, tạo từ AI, hoặc rút từ tài liệu nội bộ.
 
-**Output**: Stack mới được tích hợp đầy đủ vào workflow 11 skills + 5 installers + README + AUDIT_CHECKLIST + eval tests.
-
-**Thời gian ước tính**: 30-60 phút (tùy độ phức tạp stack).
+**Đầu ra**: Stack mới được tích hợp đầy đủ vào workflow 12 skills + 5 trình cài đặt + README + eval tests.
 
 ---
 
 ## Mục lục
 
-- [Phase 1: Chuẩn bị file rules](#phase-1-chuẩn-bị-file-rules)
-- [Phase 2: Cập nhật 8 skill files](#phase-2-cập-nhật-8-skill-files)
-- [Phase 3: Cập nhật hạ tầng](#phase-3-cập-nhật-hạ-tầng)
-- [Phase 4: Validation](#phase-4-validation)
-- [Phase 5: Version bump + Commit](#phase-5-version-bump--commit)
-- [Tham khảo: Cấu trúc rules file chuẩn](#tham-khảo-cấu-trúc-rules-file-chuẩn)
-- [Tham khảo: Ví dụ .skill input → rules output](#tham-khảo-ví-dụ-skill-input--rules-output)
+- [Nguyên tắc rules](#nguyên-tắc-rules)
+- [Giai đoạn 1: Tạo file rules](#giai-đoạn-1-tạo-file-rules)
+- [Giai đoạn 2: Cập nhật workflows](#giai-đoạn-2-cập-nhật-workflows)
+- [Giai đoạn 3: Cập nhật hạ tầng](#giai-đoạn-3-cập-nhật-hạ-tầng)
+- [Giai đoạn 4: Kiểm tra](#giai-đoạn-4-kiểm-tra)
+- [Giai đoạn 5: Nâng version + Commit](#giai-đoạn-5-nâng-version--commit)
+- [Tham khảo: Format rules file](#tham-khảo-format-rules-file)
+- [Tham khảo: Ví dụ input → output](#tham-khảo-ví-dụ-input--output)
 
 ---
 
-## Phase 1: Chuẩn bị file rules
+## Nguyên tắc rules
 
-### 1.1. Chuyển đổi .skill → rules/[stack].md
+### Tại sao cần rules khi đã có `/pd:conventions`?
 
-File `.skill` từ Claude Chat thường có dạng tự do. Cần chuyển sang format chuẩn của Please Done rules.
+Please Done có 2 lớp quy ước bổ sung nhau:
 
-**Format chuẩn rules file** (xem chi tiết ở cuối tài liệu):
+- **Rules** (`commands/pd/rules/`) — config kỹ thuật cho workflows: lệnh build/lint, detection patterns, quy tắc bảo mật stack-specific. Được áp dụng **tự động** mỗi lần `/pd:init`. Nếu bạn fork repo, sửa rules = quy ước cá nhân áp dụng cho **mọi dự án cùng stack** mà không cần khai báo lại.
+- **CLAUDE.md** (tạo bởi `/pd:conventions`) — quy ước riêng của **từng dự án cụ thể** (coding style, architecture decisions). Claude Code tự load mỗi conversation.
+
+**Nói đơn giản**: Rules = quy ước chung theo stack (dùng lại nhiều dự án). CLAUDE.md = quy ước riêng từng dự án.
+
+### Nội dung rules
+
+Rules file CHỈ chứa **quy ước riêng** — những thứ AI không thể tự suy ra từ code hoặc từ training data.
+
+### Viết vào rules
+
+- Conventions đặc thù: naming prefix, folder structure bắt buộc, response format riêng
+- Lựa chọn công nghệ: thư viện nào dùng/cấm (VD: "dio only, CẤM http package")
+- Bảo mật stack-specific: functions sanitize/escape riêng của framework
+- Build & Lint commands + detect patterns
+
+### KHÔNG viết vào rules
+
+- Cách dùng framework (AI đã biết từ training data + tra Context7)
+- Code examples tutorial (VD: cách setup JWT, cách tạo controller)
+- Kiến thức phổ biến (VD: bcrypt cho password, CORS headers)
+
+### Kiểm tra nhanh
+
+Mỗi dòng trong rules, hỏi: **"Nếu không nói, AI có làm khác không?"**
+- Có → giữ (VD: "MongoDB collection prefix `m`" — AI sẽ không tự thêm prefix)
+- Không → xóa (VD: "dùng @Injectable() cho service" — AI đã biết)
+
+---
+
+## Giai đoạn 1: Tạo file rules
+
+### 1.1. Viết rules/[stack].md
+
+Tạo file tại `commands/pd/rules/[stack].md` theo format:
 
 ```markdown
 # Quy tắc [Stack] ([Framework])
 
-## Code style
-(Conventions KHÁC general.md — VD: indent, naming, file naming)
-(Ghi rõ "Ngoại lệ cho general.md: ..." nếu khác)
+> Chỉ chứa quy ước riêng. Kiến thức [Stack] chuẩn → tra Context7.
 
-## Cấu trúc dự án
-(Folder structure, file conventions)
+## Code style (khác general.md)
+- [CHỈ ghi nếu khác — VD: tabs thay spaces, 4 spaces thay 2]
 
-## [Sections đặc thù stack]
-(VD: Components, Routing, State management, API layer...)
+## [Quy ước đặc biệt]
+- [Conventions mà AI không tự biết]
 
-## Bảo mật (BẮT BUỘC)
-(Security rules cho stack)
+## Bảo mật
+- [Security rules đặc thù stack]
 
 ## Build & Lint
-(Lệnh lint + build + detect thư mục)
-
-## Tham khảo chi tiết
-(Pointer tới -refs/ nếu có)
+- Lint: `[lệnh lint]`
+- Build: `[lệnh build]`
+- Detect: Glob `**/[detection-file]`
 ```
 
-**Checklist chuyển đổi:**
+**Checklist:**
 
-- [ ] Mọi convention KHÁC `general.md` → ghi **explicit exception** + lý do
-- [ ] Mọi rule "BẮT BUỘC" → có code example minh họa
-- [ ] Mọi API/function name → verify tồn tại trong library version target
-- [ ] Section **Build & Lint** BẮT BUỘC — skills dùng section này để chạy lint/build
-- [ ] Section **Detect thư mục** BẮT BUỘC — ghi Glob pattern nhận diện (VD: `**/pubspec.yaml` cho Flutter)
-- [ ] File nhạy cảm stack-specific (nếu có) → liệt kê rõ (VD: `.env.local` cho Laravel)
+- [ ] Mỗi dòng trả lời "Có" cho câu hỏi "AI có làm khác không?"
+- [ ] Conventions khác `general.md` → ghi **explicit exception** + lý do
+- [ ] Section **Build & Lint** BẮT BUỘC — skills dùng section này
+- [ ] **Detect** pattern BẮT BUỘC — ghi Glob pattern nhận diện stack
+- [ ] File nhạy cảm stack-specific (nếu có) → liệt kê rõ
+- [ ] Mục tiêu: **dưới 50 dòng** — nếu dài hơn, cắt bớt tutorial
 
-Lưu file tại: `commands/pd/rules/[stack].md`
+### 1.2. Tạo -refs/ (hiếm khi cần)
 
-### 1.2. Tạo -refs/ (tuỳ chọn — chỉ khi stack phức tạp)
+Refs chỉ dành cho nội dung **custom không có trên docs chính thức** (VD: contract templates riêng, audit checklist riêng).
 
-Nếu stack cần reference docs chi tiết (templates, checklists, patterns) → tạo thư mục:
+KHÔNG tạo refs cho:
+- Tutorial framework (dùng Context7)
+- Code examples phổ biến (AI đã biết)
+- Docs có sẵn online
 
+Nếu thật sự cần:
 ```
 commands/pd/rules/[stack]-refs/
 ├── [topic-1].md
-├── [topic-2].md
-└── ...
+└── [topic-2].md
 ```
 
-**Lưu ý quan trọng cho -refs/ files:**
-- KHÔNG chứa pattern `/pd:` (sẽ bị command ref replacement)
-- Nếu có code examples dùng từ trùng tool names (`Read`, `Write`, `Edit`, `Bash`...) → OK, installers đã skip tool replacement cho -refs/ dirs
-- CHỈ dùng tiếng Anh cho code examples, tiếng Việt cho giải thích
+### 1.3. Xác định mẫu nhận diện
 
-### 1.3. Xác định detection patterns
+Mỗi stack cần **ít nhất 1 chính + 1 dự phòng**:
 
-Mỗi stack cần **ít nhất 1 primary + 1 fallback** detection pattern:
-
-| Stack | Primary | Fallback(s) |
+| Stack | Chính | Dự phòng |
 |---|---|---|
 | NestJS | `**/nest-cli.json` | `**/app.module.ts`, `**/main.ts` + Grep `NestFactory` |
-| NextJS | `**/next.config.*` | `**/vite.config.*`, nhiều files `.tsx/.jsx` |
-| WordPress | `**/wp-config.php` | `**/wp-content/plugins/*/`, `**/wp-content/themes/*/style.css` |
-| Solidity | `**/hardhat.config.*` | `**/foundry.toml`, `**/contracts/**/*.sol` |
+| NextJS | `**/next.config.*` | — |
+| WordPress | `**/wp-config.php` | `**/wp-content/plugins/*/` |
+| Solidity | `**/hardhat.config.*` | `**/foundry.toml` |
 | Flutter | `**/pubspec.yaml` + Grep `flutter` | `**/lib/main.dart` |
 | **[Stack mới]** | **[?]** | **[?]** |
 
-VD Laravel: Primary `**/artisan` | Fallback: `**/composer.json` + Grep `laravel/framework`
+VD Laravel: Chính `**/artisan` | Dự phòng: `**/composer.json` + Grep `laravel/framework`
 
-Ghi nhận: `has[Stack] = true` flag name + detection patterns → dùng ở Phase 2.
+Ghi nhận: `has[Stack]` flag + mẫu nhận diện → dùng ở Giai đoạn 2.
 
 ---
 
-## Phase 2: Cập nhật 8 skill files
+## Giai đoạn 2: Cập nhật workflows
 
-Quy ước trong hướng dẫn:
-- `[stack]` = tên viết thường (flutter, laravel, go...)
-- `[Stack]` = tên viết hoa đầu (Flutter, Laravel, Go...)
-- `has[Stack]` = biến detection flag (hasFlutter, hasLaravel...)
-- `[ext]` = file extension (dart, php, go...)
-- Tìm **anchor pattern** → chèn **SAU** dòng đó
+Quy ước:
+- `[stack]` = tên viết thường (laravel, go...)
+- `[Stack]` = tên viết hoa đầu (Laravel, Go...)
+- `has[Stack]` = cờ nhận diện
+- `[ext]` = phần mở rộng file (php, go...)
+- Tìm **mẫu neo** → chèn **SAU** dòng đó
 
-### 2.1. init.md (7 điểm chỉnh sửa)
+### 2.1. init.md (6 điểm)
 
-**① `<context>` — danh sách rules (sau dòng `solidity.md`)**
+**① Bước 3 — Glob file extensions**
 ```
-Anchor: - `solidity.md` — quy tắc Solidity smart contract (chỉ copy nếu có Solidity)
-Thêm:  - `[stack].md` — quy tắc [Stack] (chỉ copy nếu có [Stack])
-```
-
-**② Bước 3 — Glob file extensions (dòng chứa `.sol,html}`)**
-```
-Anchor: Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}`
-Sửa:   Glob `**/*.{ts,tsx,js,jsx,py,php,sol,[ext],html}`
+Anchor: Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}`
+Sửa:   Thêm ,[ext]
 ```
 
-**③ Bước 3 — Glob excludes (nếu stack có build output dirs)**
+**② Bước 4 — Detection patterns (sau block Flutter)**
 ```
-Anchor: trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache
-Thêm:   [build-dir] vào danh sách excludes (VD: `build` cho Flutter, `vendor` cho Laravel)
-```
-
-**④ Bước 4 — Detection patterns (sau block Solidity detection)**
-```
-Anchor dòng: - Nếu hasSolidity = true: `hasBackend` và `hasFrontend` giữ nguyên
 Thêm:
 - Glob `**/[primary-detection-file]` → **has[Stack] = true**
 - Fallback [Stack]: Glob `**/[fallback-file]` → **has[Stack] = true**
-- Nếu has[Stack] = true: `hasBackend` và `hasFrontend` giữ nguyên ([Stack] project có thể kết hợp NestJS API hoặc React frontend)
 ```
 
-**⑤ Bước 6 — Copy rules (2 chỗ)**
-
-Delete list:
+**③ Bước 6 — Delete list**
 ```
-Anchor: **Chỉ xóa các files template**: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`.
-Sửa:   Thêm `, [stack].md` vào danh sách
-```
-
-Copy condition (sau dòng `hasSolidity`):
-```
-Anchor: - **Nếu hasSolidity = true**: copy `solidity.md` + copy thư mục...
-Thêm:   - **Nếu has[Stack] = true**: copy `[stack].md`
-         (Nếu có -refs/) + copy thư mục `[SKILLS_DIR]/commands/pd/rules/[stack]-refs/` → `.planning/docs/[stack]/`
-```
-
-**⑥ Bước 8 — Notification box (2 chỗ)**
-
-Rules list:
-```
-Anchor: ║   - solidity.md (nếu có)            ║
-Thêm:   ║   - [stack].md (nếu có)             ║
-```
-
-Docs list (chỉ nếu có -refs/):
-```
-Anchor: ║   - solidity/ (nếu có Solidity)     ║
-Thêm:   ║   - [stack]/ (nếu có [Stack])       ║
-```
-
-**⑦ `<rules>` section (2 chỗ)**
-
-Detection flag:
-```
-Anchor: Chỉ copy rules files phù hợp với tech stack detected (hasBackend/hasFrontend/hasWordPress/hasSolidity)
-Sửa:   Thêm /has[Stack] vào danh sách
-```
-
-Copy rule (nếu có -refs/):
-```
-Anchor: - Nếu hasSolidity = true: copy `solidity.md` vào `.planning/rules/` + copy `solidity-refs/` vào `.planning/docs/solidity/`
-Thêm:   - Nếu has[Stack] = true: copy `[stack].md` vào `.planning/rules/` + copy `[stack]-refs/` vào `.planning/docs/[stack]/`
-```
-
-### 2.2. scan.md (5 điểm chỉnh sửa)
-
-**① Bước 2 — Glob file extensions + excludes**
-```
-Anchor: Glob `**/*.{ts,tsx,js,jsx,py,php,sol,html}`
-Sửa:   Thêm ,[ext] (VD: ,dart cho Flutter)
-```
-
-Nếu stack có build output dirs → thêm vào excludes (PHẢI khớp init.md Bước 3):
-```
-Anchor: trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache
-Sửa:   Thêm , [build-dir] (VD: build cho Flutter, vendor cho Laravel)
-```
-
-**② Bước 2a — Thêm scan section (sau Solidity scan section)**
-```
-Anchor: - Security patterns: Grep `nonReentrant|whenNotPaused|onlyOwner` (glob: `*.sol`)
-
-Thêm:
-  **[Stack]:** (CHỈ quét nếu tồn tại `**/[detection-file]` hoặc `**/[fallback-file]`)
-  - [Pattern 1]: Grep `[pattern]` (glob: `*.[ext]`) → [mô tả]
-  - [Pattern 2]: Grep `[pattern]` (glob: `*.[ext]`) → [mô tả]
-  ...
-```
-
-**QUAN TRỌNG**: Mọi Grep pattern PHẢI có `(glob: "*.[ext]")` filter.
-
-**③ Bước 5 — SCAN_REPORT template (sau ## Phân tích Solidity)**
-```
-Anchor: (sau toàn bộ block ## Phân tích Solidity ... ### Events)
-
-Thêm:
-## Phân tích [Stack]
-(CHỈ tạo nếu project có [Stack] — kiểm tra bằng `[detection patterns]`)
-
-### [Subsection 1]
-| Cột 1 | Cột 2 | Cột 3 |
-
-### [Subsection 2]
-...
-```
-
-**④ Bước 6 — Re-copy rules (2 chỗ)**
-
-Flag list:
-```
-Anchor: So sánh hasBackend/hasFrontend/hasWordPress/hasSolidity mới
-Sửa:   Thêm /has[Stack]
-```
-
-Copy/xóa condition (nếu có -refs/):
-```
-Anchor: - Nếu hasSolidity thay đổi: copy/xóa `solidity-refs/` → `.planning/docs/solidity/` tương ứng
-Thêm:   - Nếu has[Stack] thay đổi: copy/xóa `[stack]-refs/` → `.planning/docs/[stack]/` tương ứng
-```
-
-Delete list:
-```
-Anchor: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Giữ nguyên files custom
+Anchor: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`
 Sửa:   Thêm `, [stack].md`
 ```
 
-**⑤ `<rules>` section**
+**④ Bước 6 — Copy condition (sau dòng Flutter)**
 ```
-Anchor: - Phân tích Solidity CHỈ khi detect được (...)
-Thêm:   - Phân tích [Stack] CHỈ khi detect được (`**/[detection-patterns]`) — [mô tả ngắn quét gì]
-```
-
-### 2.3. plan.md (2 điểm chỉnh sửa)
-
-**① `<context>` — đọc rules theo stack**
-```
-Anchor: `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md`
-Sửa:   Thêm và/hoặc `.planning/rules/[stack].md`
+Thêm: - **Nếu has[Stack] = true**: copy `[stack].md`
+      (Nếu có -refs/) + copy thư mục `[SKILLS_DIR]/commands/pd/rules/[stack]-refs/` → `.planning/docs/[stack]/`
 ```
 
-**② Bước 4 — Design section (sau block Solidity, TRƯỚC "Stack khác")**
+**⑤ Bước 8 — Notification box**
 ```
-Anchor: - Tham khảo `.planning/docs/solidity/templates.md` cho base patterns
+Anchor: ║   - flutter.md (nếu có)             ║
+Thêm:   ║   - [stack].md (nếu có)             ║
+```
+
+**⑥ `<rules>` section**
+```
+Anchor: - Nếu hasFlutter = true: copy `flutter.md` vào `.planning/rules/`
+Thêm:   - Nếu has[Stack] = true: copy `[stack].md` vào `.planning/rules/`
+        (Nếu có -refs/) + copy `[stack]-refs/` vào `.planning/docs/[stack]/`
+```
+
+### 2.2. scan.md (4 điểm)
+
+**① Bước 2 — Glob extensions + excludes**
+```
+Anchor: Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}`
+Sửa:   Thêm ,[ext]
+(Nếu stack có build dirs → thêm vào excludes)
+```
+
+**② Bước 2a — Scan section (sau Flutter scan)**
+```
+Thêm:
+  **[Stack]:** (CHỈ quét nếu tồn tại `**/[detection-file]`)
+  - [Pattern 1]: Grep `[pattern]` (glob: `*.[ext]`) → [mô tả]
+  - ...
+```
+
+**③ Bước 5 — SCAN_REPORT template**
+```
+Anchor: (sau block Flutter)
+Thêm:
+## Phân tích [Stack]
+(CHỈ tạo nếu project có [Stack])
+### [Subsections phù hợp]
+```
+
+**④ `<rules>` + re-copy rules**
+```
+Anchor: has[Stack] flags + delete list + copy condition
+Sửa:   Thêm [stack] tương tự init.md
+```
+
+### 2.3. plan.md (1 điểm)
+
+**① Bước 4 — Design section (sau Flutter, TRƯỚC "Stack khác")**
+```
+Anchor: - **Flutter**: modules (Logic+State+View+Binding), navigation, design tokens, data layer
 
 Thêm:
-**[Stack] (nếu có — đọc CONTEXT.md xác định framework: [frameworks]):**
-- [Design concern 1] (VD: Widget architecture cho Flutter)
-- [Design concern 2] (VD: Route structure)
-- [Design concern 3] (VD: State management approach)
-- [≥3 design concerns cụ thể cho stack]
-- (Nếu có -refs/) Tham khảo `.planning/docs/[stack]/[file].md` cho [mô tả]
+- **[Stack]**: [design concern 1], [design concern 2], [concern 3]
 ```
 
-**Lưu ý**: Stack phức tạp (>5 concerns) → tạo design section riêng, KHÔNG dùng "Stack khác" chung.
+> plan.md đọc rules dynamically từ `.planning/rules/` — không cần sửa `<required_reading>`.
 
-### 2.4. write-code.md (7 điểm chỉnh sửa)
+### 2.4. write-code.md (4 điểm)
 
-**① `<context>` — đọc rules + docs (sau dòng solidity.md)**
+> write-code.md đọc rules dynamically từ `.planning/rules/` — không cần sửa `<required_reading>`.
+
+**① Bước 4 — Exceptions (CHỈ nếu stack có ngoại lệ)**
 ```
-Anchor: `.planning/rules/solidity.md` → quy tắc Solidity...
-Thêm:   - `.planning/rules/[stack].md` → quy tắc [Stack] (đọc khi task [Stack], CHỈ nếu file tồn tại). Tra cứu `.planning/docs/[stack]/*.md` cho patterns phức tạp
-```
-
-**② Bước 4 — General exceptions (CHỈ nếu stack có ngoại lệ)**
-
-Nếu stack có doc comment language khác (VD: Solidity NatSpec English):
-```
-Anchor: **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU (ngoại lệ: Solidity NatSpec dùng tiếng Anh — xem solidity.md)
-Sửa:   Thêm ngoại lệ: , [Stack] [loại comment] dùng [ngôn ngữ] — xem [stack].md
+Nếu doc language khác: thêm vào dòng JSDoc ngoại lệ
+Nếu file limit khác: thêm vào dòng giới hạn file
 ```
 
-Nếu stack có file limit khác default 300/500:
-```
-Anchor: **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500 (Solidity: 500/800 — xem solidity.md)
-Sửa:   Thêm , [Stack]: [X]/[Y] — xem [stack].md
-```
-
-**③ Bước 4 — Coding instructions (sau block Solidity, TRƯỚC "Nếu task stack khác")**
-```
-Anchor: - Test: `npx hardhat test` (Hardhat) hoặc `forge test` (Foundry)
-
-Thêm:
-**Nếu task [Stack] ([framework]):**
-- Tuân thủ quy tắc trong `.planning/rules/[stack].md`
-- [BẮT BUỘC rule 1 — tóm tắt từ rules file]
-- [BẮT BUỘC rule 2]
-- ...
-- Tra cứu `.planning/docs/[stack]/[file].md` cho [mô tả] (nếu có -refs/)
-- Tra cứu Context7 (`[library-name]`) cho API cụ thể
-- Build: `[build command]`
-- Test: `[test command]`
-```
-
-**④ Bước 5 — Build & Lint reference**
+**② Bước 5 — Build reference**
 ```
 Anchor: (nestjs.md/nextjs.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint**
-Sửa:   Thêm /[stack].md vào danh sách
+Sửa:   Thêm /[stack].md
 ```
 
-**⑤ Bước 6 — CODE_REPORT template (nếu stack có output format riêng)**
+**③ `<rules>` — rules list (2 chỗ)**
 ```
-Anchor: ## Contract Functions (nếu có — Solidity)
-Thêm:   ## [Section Name] (nếu có — [Stack])
-         | [Cột phù hợp] |
-```
-
-VD Flutter: `## Screens & Widgets (nếu có — Flutter)` | VD Laravel: `## Routes & Controllers (nếu có — Laravel)`
-
-**⑥ Rules file list trong parallel agent + `<rules>` (2 chỗ)**
-
-Parallel agent spawn:
-```
-Anchor: Rules files phù hợp (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
-Sửa:   Thêm /[stack] vào danh sách
+Anchor: (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
+Sửa:   Thêm /[stack]
 ```
 
-`<rules>` section:
+**④ Test suggestion (3 chỗ — CHỈ nếu stack có automated test)**
 ```
-Anchor: Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
-Sửa:   Thêm /[stack] vào danh sách
-```
-
-**⑦ Test suggestion condition (3 chỗ — CHỈ khi stack có automated test)**
-
-Bước 1 — khi tất cả tasks ✅:
-```
-Anchor: gợi ý: `/pd:test` (nếu có Backend NestJS, WordPress, hoặc Solidity)
+Anchor: Backend NestJS, WordPress, Solidity, hoặc Flutter
 Sửa:   Thêm , [Stack]
 ```
 
-Bước 10 parallel ending — notification box:
-```
-Anchor: /pd:test              → Kiểm thử (NestJS/WP/Sol)
-Sửa:   /pd:test              → Kiểm thử (NestJS/WP/Sol/[Abbr])
-```
+### 2.5. fix-bug.md (2 điểm)
 
-Bước 10 default mode ending:
-```
-Anchor: CHỈ gợi ý nếu CONTEXT.md có Backend NestJS, WordPress, hoặc Solidity
-Sửa:   Thêm , [Stack]
-```
+> fix-bug.md đọc rules dynamically — không cần sửa `<required_reading>`.
 
-### 2.5. fix-bug.md (3 điểm chỉnh sửa)
-
-**① `<context>` — đọc rules**
+**① Bước 5c — Trace path (sau Flutter)**
 ```
-Anchor: `nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md`
-Sửa:   Thêm hoặc `[stack].md`
-```
-
-**② Bước 5 — Trace path (sau block Solidity, TRƯỚC "Chung:")**
-```
-Anchor: - Tra cứu `.planning/docs/solidity/templates.md` cho pattern reference
-
 Thêm:
-**Nếu lỗi [Stack] ([Framework]):**
-- Trace luồng: [input] → [logic layer] → [state/data] → [output]
-- Kiểm tra: [common bug patterns cho stack]
-- (Nếu có -refs/) Tra cứu `.planning/docs/[stack]/[file].md` cho [mô tả]
+- **[Stack]**: [trace luồng đặc thù]
 ```
 
-**③ Bước 7 — Lint reference + test file pattern**
+**② Bước 8 — Lint reference + test pattern**
 ```
-Anchor: `nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**
+Anchor: `.planning/rules/nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → mục **Build & Lint**
 Sửa:   Thêm hoặc `[stack].md`
 
-Anchor: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity)
+Anchor: `.spec.ts` (NestJS) hoặc `test-*.php` (WordPress) hoặc `test/*.ts`/`test/*.t.sol` (Solidity) hoặc `test/**/*_test.dart` (Flutter)
 Sửa:   Thêm hoặc `[test-file-pattern]` ([Stack])
 ```
 
-### 2.6. test.md (5 điểm chỉnh sửa — CHỈ nếu stack có automated test)
+### 2.6. test.md (4 điểm — CHỈ nếu có automated test)
 
-Nếu stack KHÔNG có automated test support → bỏ qua section này.
+> test.md không có `<required_reading>` cho từng stack — đọc dynamically.
 
-**① `<context>` — đọc rules theo stack (sau dòng solidity.md)**
+**① Bước 1 — Flow routing (sau Flutter, TRƯỚC "framework khác")**
 ```
-Anchor: `.planning/rules/solidity.md` → quy tắc Solidity + Build & Lint (CHỈ nếu file tồn tại, đọc khi Solidity flow)
-Thêm:   - `.planning/rules/[stack].md` → quy tắc [Stack] + Build & Lint (CHỈ nếu file tồn tại, đọc khi [Stack] flow)
-```
-
-**② Bước 1 — Flow routing (sau block Solidity, TRƯỚC "Nếu framework khác")**
-```
-Anchor: 7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
-  (dòng cuối của Solidity block)
-
 Thêm:
-- **Nếu [Stack]** → chuyển sang flow [Test Framework]:
+- **[Stack]** → [Test Framework] (tra Context7 cho patterns):
   1. Kiểm tra [test framework] đã cài
-  2. (Nếu có -refs/) Đọc `.planning/docs/[stack]/[file].md` để lấy test patterns
-  3. Viết test files `[test-file-pattern]`
-  4. Chạy: `[test command]`
-  5. **Test bắt buộc**:
-     - [Mandatory test type 1]
-     - [Mandatory test type 2]
-     - ...
-  6. Hiển thị kết quả → yêu cầu user xác nhận
-  7. Phần còn lại — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
+  2. Viết test files `[test-file-pattern]`
+  3. Chạy: `[test command]`
+  4. Phần còn lại → Bước 7 (TEST_REPORT)
 ```
 
-**③ "Nếu framework khác" message — cập nhật danh sách stacks**
+**② "framework khác" message**
 ```
-Anchor: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress, và Solidity.
-Sửa:   Thêm , [Stack] vào danh sách
-```
-
-**④ TEST_REPORT template — test framework name**
-```
-Anchor: ## Kết quả tự động ([Jest|PHPUnit|Hardhat|Foundry])
-Sửa:   Thêm |[TestFramework] (VD: |FlutterTest)
+Anchor: hỗ trợ NestJS/WP/Solidity/Flutter
+Sửa:   Thêm /[Stack]
 ```
 
-**⑤ `<rules>` — test file convention**
+**③ TEST_REPORT template — framework name**
 ```
-Anchor: Solidity: `test/*.ts` (Hardhat) hoặc `test/*.t.sol` (Foundry)
-Sửa:   Thêm , [Stack]: `[test-file-pattern]` ([TestFramework])
-```
-
-### 2.7. what-next.md (2 điểm chỉnh sửa — CHỈ nếu stack có automated test)
-
-**① Bước 3.5 — TEST_REPORT condition**
-```
-Anchor: CHỈ nếu project có Backend NestJS, WordPress, hoặc Solidity trong CONTEXT.md
-Sửa:   Thêm , [Stack]
+Anchor: [Jest|PHPUnit|Hardhat|Foundry|FlutterTest]
+Sửa:   Thêm |[TestFramework]
 ```
 
-**② Ưu tiên 6 — Test condition**
+**④ `<rules>` — test file convention**
 ```
-Anchor: CHỈ áp dụng khi project có (Backend NestJS HOẶC WordPress HOẶC Solidity)
-Sửa:   Thêm HOẶC [Stack]
-```
-
-### 2.8. complete-milestone.md (3 điểm chỉnh sửa)
-
-**① MILESTONE_COMPLETE template (nếu stack cần section riêng)**
-```
-Anchor: ## WordPress
-        | Plugin/Theme | Chức năng chính | Hooks | Custom Tables |
-
-Thêm:
-## [Stack Section Name]
-| [Cột phù hợp] |
+Sửa: Thêm , [Stack]: `[test-file-pattern]` ([TestFramework])
 ```
 
-**② Comment "CHỈ tạo sections có dữ liệu"**
+### 2.7. what-next.md (0 điểm — thường không cần sửa)
+
+`what-next.md` hiện áp dụng test suggestion cho MỌI project (không filter theo stack). Chỉ cần sửa nếu stack mới cần logic routing đặc biệt trong gợi ý.
+
+### 2.8. complete-milestone.md (3 điểm)
+
+**① MILESTONE_COMPLETE template (nếu cần section riêng)**
 ```
-Anchor: > CHỈ tạo sections có dữ liệu. Bỏ 'Tổng hợp API' nếu không có backend. Bỏ 'Smart Contracts' nếu không có Solidity. Bỏ 'WordPress' nếu không có WordPress.
-Sửa:   Thêm Bỏ '[Stack Section]' nếu không có [Stack].
+Thêm: ## [Stack Section Name]
+      | [Cột phù hợp] |
 ```
 
-**③ TEST_REPORT check — CHỈ nếu stack có automated test**
+**② Comment "CHỉ tạo sections có dữ liệu"**
 ```
-Anchor: CHỈ kiểm tra nếu project có Backend NestJS, WordPress, hoặc Solidity
-Sửa:   Thêm , [Stack] (ở CẢ 3 chỗ: dòng kiểm tra, dòng "VÀ có TEST_REPORT", dòng "KHÔNG có")
+Sửa: Thêm Bỏ '[Section]' nếu không có [Stack].
+```
+
+**③ TEST_REPORT check (nếu có test)**
+```
+Anchor: Backend NestJS, WordPress, Solidity, hoặc Flutter
+Sửa:   Thêm , [Stack] (3 chỗ)
 ```
 
 ---
 
-## Phase 3: Cập nhật hạ tầng
+## Giai đoạn 3: Cập nhật hạ tầng
 
 ### 3.1. general.md (nếu cần)
 
-Chỉ cập nhật nếu stack mới có conventions KHÁC default:
+Chỉ cập nhật nếu stack có conventions KHÁC default:
 
-- [ ] **Code style**: nếu indent/naming khác → thêm dòng `[Stack] theo rules riêng trong [stack].md`
-- [ ] **Security list**: nếu có file nhạy cảm stack-specific → thêm vào danh sách dòng 55
+- [ ] **Code style**: nếu indent/naming khác → thêm ngoại lệ
+- [ ] **Security list**: nếu có file nhạy cảm stack-specific
 - [ ] **File line limits**: nếu stack cần giới hạn khác 300/500
 
-**QUAN TRỌNG**: Nếu thêm file nhạy cảm vào security list → PHẢI cập nhật ở TẤT CẢ skills có `<rules>` security (xem Section E4 trong AUDIT_CHECKLIST.md).
+### 3.2. README.md (3 điểm)
 
-### 3.2. README.md (4 điểm chỉnh sửa)
-
-**① Bảng Rules** (sau row `rules/solidity-refs/`):
+**① Bảng Rules:**
 ```markdown
-| `rules/[stack].md`    | Có [Stack] | [Mô tả ngắn nội dung rules] |
-| `rules/[stack]-refs/` | Có [Stack] | [N] tài liệu tham khảo: [danh sách topics] |
+| `rules/[stack].md` | Có [Stack] | Quy ước riêng: [mô tả ngắn] |
 ```
 
-**② Cây `.planning/`** — thêm vào rules section:
+**② Cây `.planning/` — rules section:**
 ```
-│   ├── [stack].md                # Quy ước [Stack] (nếu có [Stack])
-```
-
-Và docs section (nếu có -refs/):
-```
-│   ├── [stack]/                  # Tài liệu tham khảo [Stack] (nếu có [Stack])
+│   └── [stack].md                # Quy ước [Stack] (nếu có)
 ```
 
-**③ Bảng Tech Stack** — thêm row:
+**③ Bảng Tech Stack:**
 ```markdown
 | [Loại] | [Framework] | [Database nếu có] | `[detection patterns]` |
 ```
 
-**④ Commit format** — thêm test file pattern nếu khác:
-```markdown
-| `[KIỂM THỬ]` | test | Thêm file kiểm thử (..., [test-file-pattern]) |
-```
+### 3.3. Kiểm thử đánh giá (nên thêm)
 
-### 3.3. AUDIT_CHECKLIST.md (3 điểm chỉnh sửa)
+Thêm vào `promptfooconfig.yaml`:
 
-Checklist audit cũng cần cập nhật để future audits cover stack mới:
-
-**① B2 — Cross-skill consistency conditions**
-```
-Anchor: Condition test suggestion — TẤT CẢ skills dùng cùng condition: "Backend NestJS HOẶC WordPress HOẶC Solidity"
-Sửa:   Thêm HOẶC [Stack]
-```
-
-**② B3 — Template parity table**
-```
-Anchor: | SCAN_REPORT | scan.md | Backend, Frontend, WordPress, Solidity |
-Sửa:   Thêm , [Stack] vào cột "Stacks phải có" cho mỗi template row liên quan
-```
-
-**③ B4.11 — Security coverage (nếu stack có bảo mật đặc thù)**
-```
-Anchor: Security rules đủ coverage? (smart contract: reentrancy, access control, ...)
-Thêm:   ([stack]: [danh sách security concerns cần audit])
-```
-
-### 3.4. Installers (tự động — KHÔNG cần sửa)
-
-Installers đã xử lý đúng cho rules files mới:
-- `readdirSync(rulesDir, { withFileTypes: true })` → tự quét file `.md` mới
-- Subdirectory `-refs/` → tự copy recursive
-- Tool replacement → tự áp dụng (hoặc skip cho -refs/)
-
-**CHỈ cần verify** sau khi thêm: chạy `node bin/install.js --[platform]` và kiểm tra file rules đã copy đúng.
-
-### 3.5. Eval tests (nên thêm)
-
-**① Tạo fixture directories:**
-```bash
-mkdir -p evals/skills/init/fixtures/[stack]-project
-# Tạo detection files giả trong fixture dir:
-# VD Flutter: touch evals/skills/init/fixtures/flutter-project/pubspec.yaml
-# VD Laravel: touch evals/skills/init/fixtures/laravel-project/artisan
-```
-
-**② Thêm test cases vào `promptfooconfig.yaml`:**
 ```yaml
   - description: "pd:init — [Stack] project (detect [stack], copy rules)"
     vars:
-      skill_name: "init"
-      user_input: "/pd:init"
-      fixtures_dir: "evals/skills/init/fixtures/[stack]-project"
+      skill_file: commands/pd/init.md
+      scenario: |
+        Project tại /app/my-[stack]-project.
+        Kết quả tool calls giả lập:
+        - Glob **/[detection-file] → tìm thấy
+        - .pdconfig có SKILLS_DIR=/home/user/skills
+        - [SKILLS_DIR]/commands/pd/rules/[stack].md → tồn tại
     assert:
-      - type: contains
-        value: "[stack].md"
-      - type: contains
-        value: "has[Stack]"
+      - type: llm-rubric
+        value: |
+          1. PHẢI detect [Stack] → has[Stack] = true
+          2. PHẢI copy general.md + [stack].md vào .planning/rules/
+          3. CONTEXT.md PHẢI ghi [Stack] trong Tech Stack
+      - type: icontains
+        value: "[stack]"
 ```
 
-**③ Cập nhật README.md bảng eval** (nếu tổng tests thay đổi):
+Thêm vào `evals/trigger-config.yaml`:
+
+```yaml
+  - description: "Trigger pd:init — [stack] project"
+    vars:
+      user_request: "Khởi tạo project [stack]"
+    assert:
+      - type: icontains
+        value: "pd:init"
 ```
-Anchor: | Tuân thủ quy trình     | 58       | —         |
-Sửa:   Cập nhật số lượng tests
+
+### 3.4. Trình cài đặt (tự động)
+
+Trình cài đặt tự xử lý files mới — CHỈ cần kiểm tra sau khi thêm:
+```bash
+node bin/install.js --claude
+# Kiểm tra rules file đã copy đúng
 ```
 
 ---
 
-## Phase 4: Validation
+## Giai đoạn 4: Kiểm tra
 
-### 4.1. Chạy audit nhanh (Sibling Sweep)
-
-Sau khi sửa tất cả files, chạy grep verify:
+### 4.1. Kiểm tra bằng Grep
 
 ```bash
-# 1. Verify stack xuất hiện đủ chỗ trong init.md
-grep -c "[stack]" commands/pd/init.md
-# Expected: ≥7 (context + glob + detect + copy + delete list + notify + rules)
+# 1. Stack xuất hiện đủ chỗ trong init.md
+grep -c "[stack]" workflows/init.md
+# Expected: ≥6
 
-# 2. Verify stack xuất hiện trong scan.md
-grep -c "[Stack]" commands/pd/scan.md
-# Expected: ≥4 (scan section + template + re-copy + rules)
+# 2. Stack xuất hiện trong scan.md
+grep -c "[Stack]" workflows/scan.md
+# Expected: ≥4
 
-# 3. Verify conditions test suggestion đồng bộ
-grep -n "NestJS.*WordPress.*Solidity" commands/pd/write-code.md commands/pd/what-next.md commands/pd/complete-milestone.md
-# Expected: tất cả files có thêm [Stack]
+# 3. Conditions test suggestion đồng bộ
+grep -n "NestJS.*WordPress.*Solidity.*Flutter" workflows/write-code.md workflows/what-next.md workflows/complete-milestone.md
+# Expected: tất cả có thêm [Stack]
 
-# 4. Verify security list đồng bộ (nếu đã thêm file nhạy cảm)
-grep -n "\.env.*credentials.*\.pem" commands/pd/init.md commands/pd/scan.md commands/pd/write-code.md commands/pd/fix-bug.md commands/pd/rules/general.md
-# Expected: tất cả giống nhau
+# 4. Detection patterns init = scan
+grep "has[Stack]" workflows/init.md workflows/scan.md
+# Expected: cùng patterns
 
-# 5. Verify detection patterns init = scan
-grep "has[Stack]" commands/pd/init.md commands/pd/scan.md
-# Expected: cùng detection files
+# 5. Rules file dưới 50 dòng
+wc -l commands/pd/rules/[stack].md
+# Expected: ≤50
 
-# 6. Verify -refs/ không chứa /pd: patterns
-grep -r "/pd:" commands/pd/rules/[stack]-refs/ 2>/dev/null
-# Expected: 0 matches
-
-# 7. Verify README counts
-ls commands/pd/*.md | wc -l          # Số skills
-ls commands/pd/rules/*.md | wc -l    # Số rules files
-ls commands/pd/rules/[stack]-refs/*.md 2>/dev/null | wc -l  # Số ref docs
+# 6. Không còn tham chiếu hỏng
+grep -r "\.planning/docs/[stack]/" workflows/ commands/
+# Expected: 0 matches (trừ khi có -refs/)
 ```
 
-### 4.2. Chạy AUDIT_CHECKLIST.md Section A
-
-Dùng checklist đầy đủ trong `AUDIT_CHECKLIST.md` → Section A (A1-A11) để verify từng touch point.
-
-### 4.3. Test thực tế
+### 4.2. Kiểm tra thực tế
 
 ```bash
 # Cài lại skills
 node bin/install.js --claude
 
-# Test init detect stack mới
-# (trong project có [detection files])
+# Test trong project có [detection files]
 /pd:init
-
-# Verify:
-# - CONTEXT.md liệt kê [Stack]
-# - .planning/rules/[stack].md đã copy
-# - .planning/docs/[stack]/ đã copy (nếu có -refs/)
+# Verify: CONTEXT.md liệt kê [Stack], .planning/rules/[stack].md đã copy
 ```
 
 ---
 
-## Phase 5: Version bump + Commit
+## Giai đoạn 5: Nâng version + Commit
 
-### 5.1. Tăng version
+### 5.1. Phiên bản
 
-Thêm stack mới = **minor bump** (x.N+1.0):
+Thêm stack mới = **nâng phiên bản phụ** (x.N+1.0). Cập nhật: `VERSION`, `package.json`, `README.md`.
 
-```bash
-# Cập nhật 3 files:
-# VERSION: 2.5.1 → 2.6.0
-# package.json: "2.5.1" → "2.6.0"
-# README.md: v2.5.1 → v2.6.0
-```
-
-### 5.2. Cập nhật CHANGELOG.md
+### 5.2. CHANGELOG.md
 
 ```markdown
-## [2.6.0] - DD_MM_YYYY
+## [x.N+1.0] - DD_MM_YYYY
 ### Thêm mới
-- [Stack] stack support — rules, refs, detection, scan, write-code, test
+- [Stack] stack support — rules, detection, scan, write-code, test
 ```
 
 ### 5.3. Commit
@@ -661,147 +457,119 @@ Thêm stack mới = **minor bump** (x.N+1.0):
 ```bash
 git add commands/pd/rules/[stack].md
 git add commands/pd/rules/[stack]-refs/  # nếu có
-git add commands/pd/init.md commands/pd/scan.md commands/pd/plan.md
-git add commands/pd/write-code.md commands/pd/fix-bug.md commands/pd/test.md
-git add commands/pd/what-next.md commands/pd/complete-milestone.md
+git add workflows/init.md workflows/scan.md workflows/plan.md
+git add workflows/write-code.md workflows/fix-bug.md workflows/test.md
+git add workflows/what-next.md workflows/complete-milestone.md
 git add commands/pd/rules/general.md  # nếu đã sửa
 git add README.md CHANGELOG.md VERSION package.json
-git add AUDIT_CHECKLIST.md
-git add promptfooconfig.yaml evals/skills/  # nếu thêm eval tests + fixtures
+git add promptfooconfig.yaml evals/trigger-config.yaml
 
-git commit -m "v2.6.0: [Stack] stack — rules, refs, detection, scan, write-code, test, eval"
+git commit -m "v[x.N+1.0]: [Stack] stack — rules, detection, scan, write-code, test"
 ```
 
 ---
 
-## Tham khảo: Cấu trúc rules file chuẩn
+## Tham khảo: Format rules file
 
-Dựa trên 4 rules files hiện có, format chuẩn:
+Dựa trên 5 rules files hiện có (sau tối ưu), format chuẩn:
 
 ```markdown
 # Quy tắc [Stack] ([Framework])
 
-## Code style
-- [Indent rule — ghi rõ nếu khác general.md]
-- [Naming conventions]
-- [File naming]
-- Giới hạn file: [mục tiêu X dòng, BẮT BUỘC tách >Y] (ngoại lệ cho general.md 300/500 vì [lý do])
+> Chỉ chứa quy ước riêng. Kiến thức [Stack] chuẩn → tra Context7.
 
-## Cấu trúc dự án
-- [Folder structure]
-- [Key files]
+## Code style (khác general.md)
+- [CHỈ ghi nếu khác default — indent, naming, file naming]
+- Giới hạn file: [X/Y nếu khác 300/500]
 
-## [Domain-specific section 1]
-(VD: Components, Models, Controllers, Widgets...)
+## [Quy ước đặc biệt 1]
+- [Convention mà AI không tự biết]
 
-## [Domain-specific section 2]
-(VD: Routing, State management, API layer...)
+## [Quy ước đặc biệt 2]
+- [Convention mà AI không tự biết]
 
-## [Domain-specific section N]
-...
-
-## Bảo mật (BẮT BUỘC)
-- [Security rule 1 — phổ biến nhất cho stack]
-- [Security rule 2]
-- ...
+## Bảo mật
+- [Security rules đặc thù stack — KHÔNG lặp kiến thức phổ biến]
 
 ## Build & Lint
-- Lint: `[lint command]`
-- Build: `[build command]`
-- Test: `[test command]`
-- Detect thư mục: Glob `**/[detection-file]` → thư mục chứa = [stack] root
-
-## Tham khảo chi tiết
-Khi cần patterns phức tạp → đọc `.planning/docs/[stack]/`:
-- `[file-1].md` — [mô tả]
-- `[file-2].md` — [mô tả]
+- Lint: `[lệnh]`
+- Build: `[lệnh]`
+- Detect: Glob `**/[file]`
 ```
+
+**Mục tiêu: 30-50 dòng.** Nếu dài hơn → cắt tutorial, giữ conventions.
 
 ---
 
-## Tham khảo: Ví dụ .skill input → rules output
+## Tham khảo: Ví dụ input → output
 
-### Input (.skill từ Claude Chat — Flutter)
+### Input (từ user hoặc AI)
 
 ```
-Flutter Development Guidelines
+Laravel Development Guidelines
 
-Use 2 spaces indent. File names in snake_case.
-Widgets should be split by feature.
-Always use const constructors.
-State management: Riverpod preferred.
-Navigation: GoRouter.
-Use flutter_lints.
-Run flutter analyze before commit.
-Build with flutter build.
+Use PSR-12 coding standard. 4 spaces indent.
+Use Eloquent ORM, not raw queries.
+Repository pattern for data access.
+Form Requests for validation.
+API Resources for response formatting.
+Gates/Policies for authorization.
+Queue jobs for heavy tasks.
+Use Laravel Pint for linting.
+Run php artisan test for testing.
 ```
 
-### Output (rules/flutter.md)
+### Output (rules/laravel.md) — CHỈ quy ước riêng
 
 ```markdown
-# Quy tắc Flutter (Dart)
+# Quy tắc Laravel (PHP)
 
-## Code style
-- 2 spaces indent (giống general.md — không cần ngoại lệ)
-- File naming: snake_case (giống general.md)
-- Class/Widget: PascalCase
-- Giới hạn file: mục tiêu 300 dòng, BẮT BUỘC tách >500
+> Chỉ chứa quy ước riêng. Kiến thức Laravel chuẩn → tra Context7.
 
-## Cấu trúc dự án
-    lib/
-    ├── main.dart
-    ├── app/           → App config, routes, theme
-    ├── features/      → Feature-first: mỗi feature 1 thư mục
-    │   └── [feature]/ → screen/, widgets/, providers/, models/
-    ├── shared/        → Shared widgets, utils, constants
-    └── core/          → Services, API clients, DI
+## Code style (khác general.md)
+- Indentation: 4 spaces (PSR-12, khác 2 spaces JS/TS)
+- Naming: camelCase methods, snake_case DB columns, PascalCase classes
 
-## Widget
-- BẮT BUỘC `const` constructors khi widget không có mutable state
-- Split by feature — 1 widget/file, đặt trong `features/[name]/widgets/`
-- Prefer `StatelessWidget` — chỉ dùng `StatefulWidget` khi cần lifecycle methods
+## Quy ước bắt buộc
+- Data access: Repository pattern — KHÔNG gọi Eloquent trực tiếp từ Controller
+- Validation: Form Requests — KHÔNG validate trong Controller
+- Response: API Resources — KHÔNG return Model trực tiếp
+- Auth: Gates/Policies — KHÔNG check role bằng if/else trong Controller
+- Heavy tasks: Queue jobs — KHÔNG xử lý nặng trong request cycle
 
-## State Management (Riverpod)
-- `@riverpod` annotation cho code generation
-- Provider types: `Provider`, `StateNotifierProvider`, `FutureProvider`, `StreamProvider`
-- Dispose: `ref.onDispose()` cho cleanup resources
-
-## Navigation (GoRouter)
-- Route config tập trung trong `app/router.dart`
-- Named routes: `GoRoute(name: 'product', path: '/products/:id')`
-- Redirect guards cho auth
-
-## Bảo mật (BẮT BUỘC)
-- KHÔNG hardcode API keys — dùng `--dart-define` hoặc `flutter_dotenv`
-- Certificate pinning cho production API calls
-- Obfuscate release builds: `flutter build apk --obfuscate --split-debug-info=build/debug-info`
+## Bảo mật
+- Mass assignment: `$fillable` explicit — CẤM `$guarded = []`
+- Raw queries: `DB::select()` với bindings — CẤM nối chuỗi
+- File upload: `store()` với disk config — CẤM `move()`
 
 ## Build & Lint
-- Lint: `flutter analyze`
-- Build: `flutter build apk` (Android) / `flutter build ios` (iOS)
-- Test: `flutter test`
-- Detect thư mục: Glob `**/pubspec.yaml` + Grep `flutter` → Flutter project root
+- Lint: `./vendor/bin/pint`
+- Test: `php artisan test`
+- Detect: Glob `**/artisan` + Grep `laravel/framework` trong composer.json
 ```
+
+**22 dòng nội dung** — không tutorial, chỉ conventions.
 
 ---
 
-## Bảng tóm tắt touch points
+## Bảng tóm tắt điểm sửa
 
 | # | File | Điểm sửa | Bắt buộc |
 |---|---|---|---|
-| 1 | `rules/[stack].md` | Tạo mới | ✅ |
-| 2 | `rules/[stack]-refs/` | Tạo mới (nếu phức tạp) | Tuỳ chọn |
-| 3 | `init.md` | 7 điểm (≥10 sub-edits) | ✅ |
-| 4 | `scan.md` | 5 điểm (≥8 sub-edits) | ✅ |
-| 5 | `plan.md` | 2 điểm | ✅ |
-| 6 | `write-code.md` | 7 điểm (⑦ có 3 sub-edits) | ✅ |
-| 7 | `fix-bug.md` | 3 điểm | ✅ |
-| 8 | `test.md` | 5 điểm | Nếu có test |
-| 9 | `what-next.md` | 2 điểm | Nếu có test |
-| 10 | `complete-milestone.md` | 3 điểm | ✅ |
-| 11 | `general.md` | 0-3 điểm | Nếu conventions khác |
-| 12 | `README.md` | 4 điểm | ✅ |
-| 13 | `AUDIT_CHECKLIST.md` | 3 điểm | ✅ |
-| 14 | `promptfooconfig.yaml` | Tests + fixtures | Nên có |
-| 15 | Installers | 0 (tự động) | Verify only |
-| **Tổng** | **15 files** | **~48-55 điểm** | |
+| 1 | `rules/[stack].md` | Tạo mới (≤50 dòng) | Luôn |
+| 2 | `rules/[stack]-refs/` | Tạo mới | Hiếm khi cần |
+| 3 | `workflows/init.md` | 6 điểm | Luôn |
+| 4 | `workflows/scan.md` | 4 điểm | Luôn |
+| 5 | `workflows/plan.md` | 1 điểm | Luôn |
+| 6 | `workflows/write-code.md` | 4 điểm | Luôn |
+| 7 | `workflows/fix-bug.md` | 2 điểm | Luôn |
+| 8 | `workflows/test.md` | 4 điểm | Nếu có test |
+| 9 | `workflows/what-next.md` | 0 điểm | Hiếm khi cần |
+| 10 | `workflows/complete-milestone.md` | 3 điểm | Luôn |
+| 11 | `commands/pd/rules/general.md` | 0-3 điểm | Nếu khác default |
+| 12 | `README.md` | 3 điểm | Luôn |
+| 13 | `promptfooconfig.yaml` | Tests | Nên có |
+| 14 | Installers | 0 (tự động) | Verify only |
+| **Tổng** | **14 files** | **~30-36 điểm** | |
+
+> So với phiên bản trước (48-55 điểm): giảm ~40% nhờ bỏ hệ thống refs + context entries.

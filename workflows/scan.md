@@ -217,11 +217,7 @@ Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản 
        (Claude Code: `cat ~/.claude/commands/pd/.pdconfig` — nền tảng khác: trình cài đặt chuyển đổi đường dẫn tự động)
      - Nếu `.pdconfig` không tồn tại → bỏ qua re-copy, ghi warning trong thông báo: "Không thể cập nhật rules — thiếu .pdconfig"
      - Nếu CÓ → Chỉ xóa các files template: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Giữ nguyên files custom khác (nếu có). → copy lại rules phù hợp (general + nestjs/nextjs/wordpress/solidity/flutter theo stack mới)
-     - Nếu hasNestJS thay đổi: copy/xóa `nestjs-refs/` → `.planning/docs/nestjs/` tương ứng
-     - Nếu hasNextJS thay đổi: copy/xóa `nextjs-refs/` → `.planning/docs/nextjs/` tương ứng
-     - Nếu hasWordPress thay đổi: copy/xóa `wordpress-refs/` → `.planning/docs/wordpress/` tương ứng
      - Nếu hasSolidity thay đổi: copy/xóa `solidity-refs/` → `.planning/docs/solidity/` tương ứng
-     - Nếu hasFlutter thay đổi: copy/xóa `flutter-refs/` → `.planning/docs/flutter/` tương ứng
    - Nếu GIỐNG → không cần copy lại
 
 ## Bước 7: Thông báo

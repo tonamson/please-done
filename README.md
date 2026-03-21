@@ -193,32 +193,74 @@ $pd-init        # Codex
 ### Tiện ích
 
 
-| Skill       | Mô tả                                                                               |
-| ----------- | ----------------------------------------------------------------------------------- |
-| `what-next` | Quét trạng thái .planning/, hiển thị tiến trình, gợi ý lệnh tiếp theo               |
-| `fetch-doc` | Tải tài liệu từ URL, lưu markdown cục bộ kèm phiên bản + mục lục phân theo section  |
-| `update`    | Kiểm tra + cập nhật bộ skills từ GitHub, hiện nhật ký thay đổi, gợi ý khởi động lại |
+| Skill         | Mô tả                                                                               |
+| ------------- | ----------------------------------------------------------------------------------- |
+| `what-next`   | Quét trạng thái .planning/, hiển thị tiến trình, gợi ý lệnh tiếp theo               |
+| `conventions` | Phân tích code, phát hiện patterns, hỏi user → tạo CLAUDE.md quy ước riêng dự án    |
+| `fetch-doc`   | Tải tài liệu từ URL, lưu markdown cục bộ kèm phiên bản + mục lục phân theo section  |
+| `update`      | Kiểm tra + cập nhật bộ skills từ GitHub, hiện nhật ký thay đổi, gợi ý khởi động lại |
 
 
-### Rules (quy tắc viết code)
+### Hệ thống quy ước (Rules + CLAUDE.md)
+
+Please Done dùng **2 lớp quy ước** bổ sung nhau:
+
+| Lớp | Nguồn | Phạm vi | Áp dụng |
+| --- | --- | --- | --- |
+| **Rules** (`commands/pd/rules/`) | Có sẵn trong bộ skills | Chung cho mọi dự án cùng stack | Tự động khi `/pd:init` |
+| **CLAUDE.md** (root dự án) | Tạo bởi `/pd:conventions` hoặc viết tay | Riêng từng dự án | Tự động mỗi conversation |
+
+**Tại sao cần cả hai?**
+
+- **Rules** chứa config kỹ thuật mà workflows cần: lệnh build/lint, detection patterns nhận diện stack, quy tắc bảo mật đặc thù framework. Nếu bạn fork Please Done, hãy sửa rules theo quy ước riêng — mỗi lần `/pd:init`, quy ước của bạn tự động áp dụng cho mọi dự án cùng stack mà không cần khai báo lại.
+- **CLAUDE.md** chứa quy ước riêng của từng dự án cụ thể (coding style, architecture decisions, do/don't) mà rules chung không cover được.
+
+#### Rules (quy tắc viết code)
 
 
-| Tệp                     | Áp dụng khi  | Nội dung chính                                                                                                                         |
-| ----------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `rules/general.md`      | Luôn luôn    | Phong cách code, ngôn ngữ, biểu tượng, định dạng phiên bản, git, bảo mật                                                               |
-| `rules/nestjs.md`       | Có NestJS    | Controller, Service, DTO, Entity, Response, Guard, Build & Lint                                                                        |
-| `rules/nestjs-refs/`    | Có NestJS    | 5 tài liệu tham khảo: authentication, database patterns, testing, Swagger, error handling                                              |
-| `rules/nextjs.md`       | Có NextJS    | Component, Ant Design v6, Zustand, API layer, Pages, Admin                                                                             |
-| `rules/nextjs-refs/`    | Có NextJS    | 5 tài liệu tham khảo: server components, authentication, SEO metadata, API integration, Zustand patterns                               |
-| `rules/wordpress.md`    | Có WordPress | Security (sanitize/escape/nonce), Hooks, $wpdb, REST API, Performance, WP Coding Standards                                             |
-| `rules/wordpress-refs/` | Có WordPress | 9 tài liệu tham khảo chi tiết: plugin architecture, theme, Gutenberg, WooCommerce, security, DB migrations, WP-CLI, multisite, testing |
-| `rules/solidity.md`     | Có Solidity  | OpenZeppelin imports, SafeERC20, Security modifiers, NatSpec, Gas optimization, Signature verification, Hardhat/Foundry                |
-| `rules/solidity-refs/`  | Có Solidity  | 2 tài liệu tham khảo: contract templates (base + signature pattern), audit checklist (12 categories + pre-deploy)                      |
-| `rules/flutter.md`     | Có Flutter   | GetX architecture (Logic+State+View+Binding), design tokens, navigation, Dio, testing, security                                       |
-| `rules/flutter-refs/`  | Có Flutter   | 8 tài liệu tham khảo: state management, navigation, design system, testing, performance, platform channels, packages, notifications   |
+| Tệp                     | Áp dụng khi  | Nội dung chính                                                                         |
+| ----------------------- | ------------ | -------------------------------------------------------------------------------------- |
+| `rules/general.md`      | Luôn luôn    | Phong cách code, ngôn ngữ, biểu tượng, định dạng phiên bản, git, bảo mật               |
+| `rules/nestjs.md`       | Có NestJS    | Quy ước riêng: MongoDB prefix, DTO, pagination format, error language                   |
+| `rules/nextjs.md`       | Có NextJS    | Quy ước riêng: Ant Design v6, Zustand, native fetch, admin permissions                  |
+| `rules/wordpress.md`    | Có WordPress | Quy ước riêng: WP coding standards, sanitize/escape, $wpdb, REST API                    |
+| `rules/solidity.md`     | Có Solidity  | Quy ước riêng: OZ v5, SafeERC20, security modifiers, signature, gas                     |
+| `rules/solidity-refs/`  | Có Solidity  | Contract templates + audit checklist (2 tệp)                                            |
+| `rules/flutter.md`     | Có Flutter   | Quy ước riêng: Logic+State architecture, design tokens, Dio, manual fromJson             |
 
 
-Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. NestJS references được copy vào `.planning/docs/nestjs/`, NextJS references vào `.planning/docs/nextjs/`, WordPress references vào `.planning/docs/wordpress/`, Solidity references vào `.planning/docs/solidity/`, Flutter references vào `.planning/docs/flutter/` để tra cứu khi code. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. Rules chỉ chứa **quy ước riêng** — kiến thức framework chuẩn được tra qua Context7 MCP khi cần. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+
+> **Tùy chỉnh rules cho riêng bạn**: Fork repo Please Done → sửa file trong `commands/pd/rules/` theo quy ước cá nhân → cài skills từ fork. Mỗi lần `/pd:init`, quy ước của bạn tự động áp dụng mà không cần khai báo lại. Xem [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) để biết cách thêm stack mới hoặc chỉnh rules.
+
+#### Quy ước riêng dự án (CLAUDE.md)
+
+Ngoài rules có sẵn, mỗi dự án nên có file `CLAUDE.md` ở root chứa quy ước riêng của dự án đó. Claude Code tự động đọc file này mỗi conversation.
+
+**Chạy `/pd:conventions`** để tự động phân tích code + tạo CLAUDE.md, hoặc tự viết:
+
+```markdown
+# Quy ước dự án
+
+## Phong cách code
+- Semicolons, single quotes, 2 spaces indent
+- Import alias: @/ cho cross-module
+
+## Kiến trúc
+- Quản lý trạng thái: Zustand (không Redux)
+- CSS: Tailwind only
+- API: native fetch (không axios)
+
+## Nên / Không nên
+- Commit message tiếng Việt, conventional commits
+- Không mock database trong tests
+- Không tạo file mới nếu có thể sửa file cũ
+```
+
+Lợi ích:
+- **0 token cost từ skills** — Claude Code tự load
+- **Mỗi dự án khác nhau** — conventions khác nhau
+- **Dễ chỉnh sửa** — sửa trực tiếp file, không cần đụng skills
 
 ### Tùy chọn plan
 
@@ -278,12 +320,8 @@ Khi chạy skills trong một dự án, thư mục `.planning/` được tạo v
 ├── CHANGELOG.md                  # Nhật ký thay đổi (tạo khi complete-milestone)
 ├── scan/
 │   └── SCAN_REPORT.md            # Báo cáo quét dự án + kiểm tra bảo mật thư viện
-├── docs/                         # Tài liệu cache (fetch-doc) kèm phiên bản + mục lục
-│   ├── nestjs/                   # Tài liệu tham khảo NestJS (nếu có NestJS)
-│   ├── nextjs/                   # Tài liệu tham khảo NextJS (nếu có NextJS)
-│   ├── wordpress/                # Tài liệu tham khảo WordPress (nếu có WordPress)
-│   ├── solidity/                 # Tài liệu tham khảo Solidity (nếu có Solidity)
-│   └── flutter/                  # Tài liệu tham khảo Flutter (nếu có Flutter)
+├── docs/                         # Tài liệu cache (fetch-doc) + solidity refs
+│   └── solidity/                 # Contract templates + audit checklist (nếu có Solidity)
 ├── bugs/
 │   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, phiên bản vá)
 ├── rules/                        # Quy tắc viết code (sao chép từ repo Please Done theo stack)

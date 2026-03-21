@@ -1,96 +1,45 @@
 # Quy tắc Frontend (NextJS App Router)
 
-## Cấu trúc dự án
-    src/
-    ├── app/          → Pages (App Router), URL kebab-case (mặc định tiếng Anh, xem mục Pages)
-    ├── components/   → PascalCase, nhóm theo domain (admin/, product/, cart/, layout/, ui/)
-    ├── hooks/        → use[Name].ts (useHydration.ts)
-    ├── lib/          → kebab-case utilities (api.ts, admin-api.ts, format.ts, constants.ts)
-    ├── stores/       → Zustand: use[Name]Store.ts (useCartStore.ts)
-    ├── types/        → kebab-case interfaces (product.ts, cart.ts)
+> Chỉ chứa quy ước riêng. Kiến thức NextJS chuẩn → tra Context7 (`resolve-library-id` → `query-docs`).
 
-## Component
-- Default export cho component chính, named function cho sub-components cùng file
-- Props interface ngay trên component: `interface XxxProps { ... }`
-- `'use client'` CHỈ khi cần (hooks, state, browser APIs) — Server Components mặc định
-- Sub-components nội bộ = named functions cùng file (GridCard, ListCard), KHÔNG tách file riêng. Ngoại lệ: nếu file >500 dòng do nhiều sub-components → tách domain components thành file riêng cùng thư mục
+## Thư viện giao diện
+- **Ant Design v6** (`antd`) — ConfigProvider + AntdRegistry + viVN locale
+- **Styling**: inline `style={{}}` — CẤM CSS modules, CẤM Tailwind, CẤM styled-components
+- **Theme tokens**: `const { token } = theme.useToken()`
 - Section separators: `/* ===== Section ===== */` hoặc `/* ───── Section ───── */`
 
-## UI & Styling
-- Ant Design v6 (`antd`) — ConfigProvider + AntdRegistry + viVN locale
-- Inline styles `style={{}}` — CẤM CSS modules, CẤM Tailwind, CẤM styled-components
-- Theme tokens động qua `const { token } = theme.useToken()`
-- Layout dùng antd: Row/Col, Space, Card, Layout (Sider, Content, Header)
-
-## State Management (Zustand)
-- File: `use[Name]Store.ts` | Export: `export const use[Name]Store = create<State>()(persist(...))`
-- Pattern: `interface State` → `create<State>()(persist((set, get) => ({...}), { name, partialize }))`
-- Computed values = functions dùng `get()`, KHÔNG dùng derived state
+## Quản lý trạng thái (Zustand)
+- File: `use[Name]Store.ts`
+- Pattern: `create<State>()(persist((set, get) => ({...}), { name, partialize }))`
+- Computed values = functions dùng `get()`, KHÔNG derived state
 - JSDoc tiếng Việt cho mỗi action
 
-## API Layer
-- Server-side: `fetchFromApi<T>()` dùng `INTERNAL_API_URL` (gọi thẳng backend container)
-- Client-side: native `fetch()` dùng `PUBLIC_API_URL` (/api qua Nginx proxy)
-- KHÔNG dùng axios — chỉ native `fetch`
+## Tầng API
+- Server-side: `fetchFromApi<T>()` dùng `INTERNAL_API_URL`
+- Client-side: native `fetch()` dùng `PUBLIC_API_URL`
+- **KHÔNG dùng axios** — chỉ native `fetch`
 - Mỗi function: `export async function fetchXxx(): Promise<T>` + JSDoc kèm HTTP method + endpoint
-- Error: try parse `body.message` → `throw new Error('message')` (ngôn ngữ theo backend)
 - Admin API: truyền `token: string` param, set `Authorization: Bearer ${token}`
 
-## Pages (App Router)
-- URL kebab-case theo cấu trúc dự án, **mặc định tiếng Anh** (chỉ dùng tiếng Việt nếu dự án đang chuẩn hoá route tiếng Việt): `/products/[slug]`, `/cart`, `/checkout/confirm`
-- `export const dynamic = 'force-dynamic'` khi cần dữ liệu realtime
-- `Promise.allSettled` cho parallel data fetching, xử lý từng result riêng
-- `export async function generateMetadata()` cho SEO (title, description, OG, canonical)
-- Server Components mặc định — `notFound()` cho 404
+## Trang
+- URL kebab-case, mặc định tiếng Anh (chỉ tiếng Việt nếu project đang chuẩn hoá route tiếng Việt)
+- `Promise.allSettled` cho parallel data fetching
+- TypeScript: `interface` cho data shapes (KHÔNG dùng `type` cho objects)
 
-## TypeScript
-- `interface` cho data shapes (KHÔNG dùng `type` cho objects)
-- Generic response wrappers: `ApiResponse<T>`, `PaginatedResponse<T>`
-- camelCase cho properties, PascalCase cho type/interface names
+## Giao diện Admin — Phân quyền
+- Mỗi page/menu PHẢI kiểm tra role trước khi render
+- Buttons/actions: disable hoặc ẩn nếu user không có role
+- KHÔNG để user thao tác rồi mới báo 403 — chặn từ giao diện
+- Role/permissions từ JWT hoặc `/auth/me` → lưu `useAuthStore`
+- Khi backend thêm Guard/Role mới → frontend PHẢI cập nhật ẩn/hiện tương ứng
 
-## Form (antd Form)
-- `const [form] = Form.useForm<FormValues>()`
-- Validation dùng antd rules: `{ required, pattern, max, message: '...' }` (ngôn ngữ theo dự án, mặc định tiếng Việt)
-- Submit handler: `async function handleFinish(values: FormValues)` với try/catch + loading state
-
-## Giao diện Admin (Backend Interface)
-- **Thuần Ant Design v6** — tra context7 + FastCode trước khi viết (xem general.md — KISS + YAGNI), đặc biệt khi dùng component/API mới của antd
-
-### Phân quyền giao diện
-- Mỗi page/menu admin PHẢI kiểm tra role trước khi render
-- Route guard: redirect về `/admin/unauthorized` hoặc `/admin/login` nếu không có quyền
-- Menu items: ẩn hoàn toàn menu item nếu user không có role tương ứng
-- Buttons/actions: **disable hoặc ẩn** nếu API endpoint yêu cầu role mà user không có
-- KHÔNG để user thao tác rồi mới báo lỗi 403 từ API — phải chặn từ giao diện
-
-### Đồng bộ quyền Backend ↔ Frontend
-- Đọc role/permissions từ JWT token (decode payload) hoặc API `/auth/me`
-- Lưu vào Zustand store: `useAuthStore` với `user.roles` / `user.permissions`
-- Helper: `hasRole(role)`, `hasPermission(perm)` → dùng để ẩn/hiện/disable
-- Khi backend thêm Guard/Role mới cho API → frontend PHẢI cập nhật ẩn/hiện tương ứng
-
-## Error Handling & Loading
-- Error boundary: `error.tsx` trong mỗi route segment quan trọng — `'use client'` + `reset()` function
-- Loading: `loading.tsx` cho route segments cần loading UI — dùng antd `Spin` hoặc `Skeleton`
-- `<Suspense fallback={...}>` wrap async Server Components khi cần streaming
-
-## Bảo mật (BẮT BUỘC)
-- **XSS**: KHÔNG dùng `dangerouslySetInnerHTML` — nếu bắt buộc phải dùng (VD: render rich text từ CMS) → sanitize bằng `DOMPurify` trước khi render
-- **Token storage**: lưu JWT token trong `httpOnly cookie` (tốt nhất) hoặc `memory` (Zustand store, mất khi refresh) — CẤM lưu `localStorage`/`sessionStorage` (XSS đọc được)
-- **API calls**: KHÔNG gửi token qua URL query params — chỉ qua `Authorization: Bearer` header
-- **Environment variables**: `NEXT_PUBLIC_*` = public (browser thấy được) — CẤM đặt secrets vào `NEXT_PUBLIC_*`. Server-only secrets dùng `process.env.SECRET_KEY` (không prefix)
-- **Form submission**: validate cả client-side (antd rules) VÀ server-side (backend DTO) — client validation chỉ là UX, KHÔNG thay thế server validation
-- **External links**: `target="_blank"` phải kèm `rel="noopener noreferrer"` — chống tab hijacking
+## Bảo mật
+- XSS: KHÔNG `dangerouslySetInnerHTML`, nếu bắt buộc → DOMPurify
+- Token: httpOnly cookie hoặc memory — CẤM localStorage/sessionStorage
+- Secrets: CẤM đặt vào `NEXT_PUBLIC_*`
+- External links `target="_blank"`: kèm `rel="noopener noreferrer"`
 
 ## Build & Lint
 - Lint: `npx eslint --fix`
 - Build: `npx next build`
 - Detect thư mục: Glob `**/next.config.*` → thư mục chứa = frontend root
-
-## Tham khảo chi tiết
-Khi cần patterns phức tạp → đọc `.planning/docs/nextjs/`:
-- `server-components.md` — RSC, streaming, Suspense, data fetching, Server Actions
-- `authentication.md` — Middleware auth, protected routes, session, JWT cookie
-- `seo-metadata.md` — Metadata API, generateMetadata, sitemap, robots, JSON-LD
-- `api-integration.md` — Server-side/client-side fetch patterns, type-safe API, error handling
-- `zustand-patterns.md` — Store setup, SSR hydration, computed values, persist options
