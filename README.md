@@ -126,15 +126,23 @@ Gỡ cài đặt chỉ xóa files có tiền tố `pd-` — không đụng cấu
 Khi có phiên bản mới, thanh trạng thái sẽ hiện:
 
 ```
-⬆ Please Done v[x.x.x] — /pd:update
+⬆ Please Done v[x.x.x] — /pd:update hoặc $pd-update
 ```
 
 Cập nhật bằng lệnh:
 
 ```bash
-# Trong AI coding CLI:
-/pd:update           # Kiểm tra + hỏi trước khi cập nhật
-/pd:update --apply   # Cập nhật ngay không hỏi
+# Claude Code, Gemini CLI, GitHub Copilot
+/pd:update
+/pd:update --apply
+
+# Codex CLI
+$pd-update
+$pd-update --apply
+
+# OpenCode
+/pd-update
+/pd-update --apply
 ```
 
 Sau khi cập nhật → thoát CLI → chạy lại để tải phiên bản Please Done mới.
@@ -206,7 +214,7 @@ Rules được `init` tự động sao chép vào `.planning/rules/` theo tech s
 
 | Lệnh                 | Hành vi                                                                                         |
 | -------------------- | ----------------------------------------------------------------------------------------------- |
-| `plan`               | Chế độ **TỰ ĐỘNG** — Claude tự quyết định, ghi lại mọi quyết định + lý do để người dùng xem lại |
+| `plan`               | Chế độ **TỰ ĐỘNG** — assistant tự quyết định, ghi lại mọi quyết định + lý do để người dùng xem lại |
 | `plan --discuss`     | Chế độ **THẢO LUẬN** — trao đổi tương tác tính năng với người dùng                              |
 | `plan 1.2`           | Lập kế hoạch cho phase cụ thể                                                                   |
 | `plan 1.2 --discuss` | Lập kế hoạch phase 1.2 kèm thảo luận                                                            |
@@ -214,12 +222,12 @@ Rules được `init` tự động sao chép vào `.planning/rules/` theo tech s
 
 #### Chế độ THẢO LUẬN (`--discuss`)
 
-Claude phân tích deliverable, liệt kê các vấn đề cần quyết định → người dùng chọn bằng phím mũi tên → Claude đưa ra phương án cho từng vấn đề:
+Assistant phân tích deliverable, liệt kê các vấn đề cần quyết định → người dùng chọn bằng phím mũi tên nếu nền tảng hỗ trợ, hoặc trả lời bằng văn bản thường nếu không có UI chọn → assistant đưa ra phương án cho từng vấn đề:
 
 - Người dùng chọn vấn đề muốn thảo luận (multiSelect — chọn nhiều cùng lúc)
 - Mỗi vấn đề hiện danh sách phương án — phương án đầu luôn là khuyến nghị (ghi "Đề xuất")
 - Chọn "Other" để mô tả cách riêng, gõ `back` quay lại vấn đề trước, `cancel` hủy thảo luận
-- Sau khi chốt → bảng tóm tắt → có thể "Thảo luận thêm vấn đề khác" (Claude đưa vấn đề mới)
+- Sau khi chốt → bảng tóm tắt → có thể "Thảo luận thêm vấn đề khác" (assistant đưa vấn đề mới)
 - Quyết định được lưu vào PLAN.md mục "Quyết định thiết kế" → `write-code` tuân thủ
 
 ### Tùy chọn write-code
