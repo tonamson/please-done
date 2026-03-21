@@ -200,60 +200,10 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 - **Tên biến/function/class/file** → tiếng Anh
 - **Giới hạn file**: mục tiêu 300 dòng, BẮT BUỘC tách >500 (Solidity: 500/800 — xem solidity.md)
 
-**Nếu task Backend (NestJS):**
-- **Database migration** nếu thay đổi schema:
-  - Prisma: `npx prisma migrate dev --name [tên]`
-  - MongoDB: migration script hoặc `migrate-mongo`
-  - TypeORM: `npx typeorm migration:generate -n [Tên]`
-
-**Nếu task Frontend (NextJS):**
-- Tuân thủ cấu trúc thư mục frontend trong `.planning/rules/nextjs.md`
-- Inline styles `style={{}}` — KHÔNG CSS modules, KHÔNG Tailwind
-- Ant Design v6 components + `theme.useToken()` cho dynamic values
-- `'use client'` CHỈ khi cần — Server Components mặc định
-- Zustand stores theo pattern `create<State>()(persist(...))`
-- API calls: native `fetch`, KHÔNG axios
-
-**Nếu task WordPress (plugin/theme/block):**
-- Tuân thủ quy tắc trong `.planning/rules/wordpress.md` (security, coding standards, hooks)
-- Mỗi file PHP: BẮT BUỘC `defined( 'ABSPATH' )` check ở đầu
-- Tra cứu `.planning/docs/wordpress/` cho patterns phức tạp (đọc mục lục nhanh, rồi sections liên quan)
-- Tra cứu Context7 (`wordpress`, `woocommerce`) cho API cụ thể
-- Gutenberg blocks: dùng `@wordpress/scripts` build toolchain
-- PHP lint: `composer run lint` (nếu đã setup PHPCS + WordPress standards)
-
-**Nếu task Solidity (smart contract):**
-- Tuân thủ quy tắc trong `.planning/rules/solidity.md` (security, coding standards, OZ imports, SafeERC20)
-- BẮT BUỘC: SPDX-License-Identifier + pragma solidity + named imports `{}` (CẤM wildcard)
-- BẮT BUỘC: `using SafeERC20 for IERC20` cho mọi lệnh transfer/approve token
-- BẮT BUỘC: `clearUnknownToken` function trong mọi contract
-- BẮT BUỘC: `rescueETH` function nếu contract có `receive()` hoặc nhận ETH
-- BẮT BUỘC: NatSpec comments tiếng Anh (`@title`, `@dev`, `@notice`, `@param`, `@return`)
-- BẮT BUỘC: Signature hash include `block.chainid + address(this) + msg.sender + deadline`
-- BẮT BUỘC: Slippage parameter (`_minAmountOut`) cho swap/trade functions
-- Security checklist: `nonReentrant` + `whenNotPaused` theo bảng trong solidity.md, DoS prevention, Flash Loan, Frontrunning/MEV, CẤM `tx.origin`, CẤM `delegatecall` (trừ proxy pattern), CẤM `unchecked` (trừ khi có comment verify)
-- Tra cứu `.planning/docs/solidity/templates.md` cho base contract pattern
-- Tra cứu `.planning/docs/solidity/audit-checklist.md` khi review code
-- Tra cứu Context7 (`openzeppelin`, `hardhat`, `foundry`) cho API cụ thể
-- Build: `npx hardhat compile` (Hardhat) hoặc `forge build` (Foundry)
-- Test: `npx hardhat test` (Hardhat) hoặc `forge test` (Foundry)
-
-**Nếu task Flutter (Dart + GetX):**
-- Tuân thủ quy tắc trong `.planning/rules/flutter.md` (architecture, GetX patterns, design tokens)
-- BẮT BUỘC: Architecture Logic + State + View + Binding cho mỗi feature/module
-- BẮT BUỘC: Design tokens (AppColors, AppSpacing, AppTextStyles) — CẤM hardcode colors, magic numbers
-- BẮT BUỘC: `onClose()` dispose resources (TextEditingController, StreamSubscription, Timer, ScrollController)
-- BẮT BUỘC: Models viết `fromJson()`/`toJson()` thủ công — CẤM dùng json_serializable/freezed
-- BẮT BUỘC: Obx() wrap CHỈ phần reactive — CẤM wrap toàn bộ Scaffold
-- Security: `flutter_secure_storage` cho tokens, `flutter_dotenv` cho env vars
-- Tra cứu `.planning/docs/flutter/` cho state management, navigation, design system patterns
-- Tra cứu Context7 (`flutter`, `get`) cho API cụ thể
-- Build: `flutter build apk` (Android) / `flutter build ios` (iOS)
-- Test: `flutter test`
-
-**Nếu task stack khác** (Chrome extension, CLI, v.v.):
-- Tuân thủ thiết kế trong PLAN.md + quy tắc chung trong `general.md`
-- Tra cứu docs thư viện qua Context7 nếu cần
+**Quy tắc per-stack đã đọc ở Bước 2** → tuân thủ toàn bộ `.planning/rules/[stack].md` tương ứng. Đặc biệt:
+- **NestJS**: database migration khi thay đổi schema (Prisma/TypeORM/Mongoose)
+- **Solidity**: BẮT BUỘC SafeERC20, clearUnknownToken, rescueETH, NatSpec tiếng Anh, signature hash binding
+- Các stack khác: xem rules file tương ứng, tra cứu `.planning/docs/[stack]/` + Context7 khi cần
 
 **Cập nhật PROGRESS.md** sau mỗi file viết xong:
 - Đánh dấu `- [x] Viết code` khi hoàn tất tất cả files
@@ -508,38 +458,12 @@ DỪNG sau mỗi task, thông báo:
 - Nếu tasks blocked → THÔNG BÁO user, KHÔNG pick bừa
 - Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
 
-**Quy tắc sai lệch (khi viết code gặp vấn đề ngoài kế hoạch):**
-
-Trong lúc viết code, SẼ gặp vấn đề không có trong kế hoạch. Áp dụng 4 quy tắc sau theo thứ tự ưu tiên:
-
-*Quy tắc 1 — Tự sửa lỗi:*
-Khi nào: code chạy sai, lỗi logic, null pointer, type sai, query sai kết quả.
-Hành động: sửa ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
-
-*Quy tắc 2 — Tự bổ sung thiếu sót quan trọng (bao gồm bảo mật):*
-Khi nào: thiếu validation đầu vào, thiếu xử lý lỗi, thiếu kiểm tra quyền truy cập, thiếu null check, thiếu rate limiting, thiếu escape output (XSS), thiếu parameterized query (SQL injection), thiếu CSRF token cho form thay đổi dữ liệu, thiếu sanitize input.
-Hành động: bổ sung ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
-Quan trọng = cần thiết để code chạy đúng và an toàn. KHÔNG phải "tính năng mới".
-
-*Quy tắc 3 — Tự gỡ vấn đề chặn:*
-Khi nào: import sai, dependency thiếu, type không khớp, config lỗi, file thiếu.
-Hành động: sửa ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
-
-*Quy tắc 4 — DỪNG lại hỏi user:*
-Khi nào: cần thêm bảng DB mới (không phải thêm cột), đổi kiến trúc, đổi thư viện/framework, thay đổi luồng xác thực, thay đổi API công khai có ảnh hưởng đến người dùng.
-Hành động: **DỪNG**, thông báo user: vấn đề gì, đề xuất giải pháp, tại sao cần, ảnh hưởng ra sao. Chờ user quyết định.
-
-*Thứ tự ưu tiên*: Quy tắc 4 (kiến trúc) → kiểm tra trước. Nếu không phải kiến trúc → Quy tắc 1-3 (sửa ngay). Không chắc → coi như Quy tắc 4 (hỏi cho chắc).
-
-**Ranh giới phạm vi:**
-- CHỈ sửa lỗi DO TASK HIỆN TẠI gây ra. Lỗi có sẵn từ trước (warning cũ, lint errors ở file khác, test fail không liên quan) → ghi vào CODE_REPORT mục "Vấn đề hoãn lại", KHÔNG sửa.
-- KHÔNG chạy lại build/lint mong nó tự hết lỗi.
-
-**Giới hạn lần sửa tự động:**
-Tối đa 3 lần sửa tự động (Quy tắc 1-3) cho 1 task. Sau 3 lần vẫn lỗi → DỪNG, ghi vấn đề vào CODE_REPORT mục "Vấn đề hoãn lại", chuyển sang task tiếp theo (nếu --auto) hoặc báo user.
-
-**Chống phân tích tê liệt:**
-Nếu đọc liên tiếp 5+ lần (Read/Grep/Glob) mà CHƯA viết dòng code nào (Edit/Write) → DỪNG. Tự hỏi: "Tại sao chưa viết?" Rồi hoặc (1) viết code ngay — đã đủ context, hoặc (2) báo "bị chặn vì thiếu [thông tin cụ thể]". KHÔNG tiếp tục đọc vòng vòng.
+**Quy tắc sai lệch** (vấn đề ngoài kế hoạch khi viết code):
+- **Sửa ngay** (Quy tắc 1-3): lỗi logic/type/null, thiếu validation/auth/sanitize/CSRF, import sai/dependency thiếu/config lỗi → sửa ngay, ghi CODE_REPORT "Sai lệch". Tối đa 3 lần/task, sau đó DỪNG.
+- **DỪNG hỏi user** (Quy tắc 4): thêm bảng DB mới, đổi kiến trúc/framework/luồng xác thực, đổi API công khai → thông báo vấn đề + đề xuất + ảnh hưởng, chờ user quyết định.
+- *Ưu tiên*: kiểm tra Quy tắc 4 trước. Không chắc → hỏi.
+- **Ranh giới**: CHỈ sửa lỗi do task hiện tại gây ra. Lỗi có sẵn → ghi "Vấn đề hoãn lại", KHÔNG sửa.
+- **Chống tê liệt**: đọc 5+ lần liên tiếp mà chưa viết code → DỪNG, viết ngay hoặc báo bị chặn.
 
 **Quy tắc Khôi phục (PROGRESS.md):**
 - PHẢI tạo PROGRESS.md khi bắt đầu task mới — đây là điểm khôi phục khi gián đoạn

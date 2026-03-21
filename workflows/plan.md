@@ -334,52 +334,15 @@ Cho mỗi deliverable, thiết kế theo loại:
 - Nếu chế độ **DISCUSS**: thiết kế PHẢI tuân thủ các quyết định đã chốt ở Bước 3.5 — KHÔNG được thay đổi hay bỏ qua quyết định user đã chọn
 - Nếu chế độ **AUTO**: Claude tự quyết định toàn bộ, ưu tiên phương án đơn giản, hiệu quả nhất. Mọi quyết định sẽ được ghi nhận ở Bước 4.5 sau khi thiết kế xong.
 
-**Backend (nếu có — đọc CONTEXT.md xác định framework: NestJS, Express, v.v.):**
-- API endpoints (method, path, request/response)
-- Database entities/relations + **migration strategy**:
-  - Prisma: `npx prisma migrate dev --name [tên]`
-  - MongoDB/Mongoose: migration script hoặc `migrate-mongo`
-  - TypeORM: `npx typeorm migration:generate -n [Tên]`
-- DTOs, validators
-- Guards, middleware
+**Thiết kế theo stack** (đọc `.planning/rules/[stack].md` + `.planning/docs/[stack]/` cho patterns chi tiết):
+- **Backend**: API endpoints (method, path, request/response), database entities/relations + migration strategy, DTOs, guards
+- **Frontend**: pages/routes, components, stores, API integration, UI components
+- **WordPress**: plugin/theme architecture, hooks, custom tables, REST API
+- **Solidity**: contract architecture, functions + modifiers, events, token interactions, signature patterns
+- **Flutter**: modules (Logic+State+View+Binding), navigation, design tokens, data layer
+- **Stack khác**: thiết kế theo đặc thù stack, tham khảo Context7 / `.planning/docs/`
 
-**Frontend (nếu có — đọc CONTEXT.md xác định framework: NextJS, React, v.v.):**
-- Pages/routes cần tạo (app/ structure, Server hay Client Component)
-- Components cần tạo/sửa (domain folder nào, props interface)
-- Zustand stores (state mới hay mở rộng store có sẵn)
-- API integration (thêm function vào lib/api.ts hay lib/admin-api.ts)
-- UI: Ant Design components dự kiến dùng
-
-**WordPress (nếu có — đọc CONTEXT.md xác định):**
-- Plugin/Theme architecture (main file, hooks, class structure)
-- Custom post types, taxonomies
-- Database: custom tables (dbDelta schema), options API
-- REST API endpoints (register_rest_route)
-- Admin pages, settings
-
-**Solidity (nếu có — đọc CONTEXT.md xác định framework: Hardhat, Foundry):**
-- Contract architecture (inheritance chain, base contracts: Ownable/AccessControl)
-- Functions: visibility, modifiers (whenNotPaused, nonReentrant, onlyOwner)
-- State variables, structs, mappings, events
-- Token interactions (SafeERC20, IERC20)
-- Security: signature verification pattern (nếu cần off-chain authorization)
-- Tham khảo `.planning/docs/solidity/templates.md` cho base patterns
-
-**Flutter (nếu có — đọc CONTEXT.md xác định):**
-- Architecture: modules structure (Logic + State + View + Binding), GetX patterns
-- Navigation: route structure (AppRoutes, AppPages), middleware guards
-- State management: GetxController lifecycle, reactive patterns (.obs, Obx)
-- Design system: token-based UI (AppColors, AppSpacing, AppTextStyles)
-- Data layer: models (manual fromJson/toJson), repositories, Dio interceptors
-- Tham khảo `.planning/docs/flutter/` cho patterns chi tiết
-
-**Stack khác (Chrome extension, CLI, v.v.):**
-- Thiết kế theo đặc thù stack (VD: manifest.json, background/content scripts, popup UI...)
-- Tham khảo docs qua Context7 hoặc `.planning/docs/`
-
-**Chung:**
-- Files cần tạo/sửa
-- Thư viện cần thêm
+**Chung:** files cần tạo/sửa, thư viện cần thêm
 
 **UI/UX — Áp dụng @references/ui-brand.md:**
 
