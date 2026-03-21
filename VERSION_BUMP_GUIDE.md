@@ -191,6 +191,18 @@ Nếu có quy trình eval thì nên chạy thêm:
 npm run eval
 ```
 
+6. Tạo git tag:
+
+```bash
+git tag v2.8.0
+```
+
+7. Push tag lên remote (nếu sẵn sàng release):
+
+```bash
+git push origin v2.8.0
+```
+
 ## Checklist copy nhanh
 
 ```md
@@ -203,6 +215,8 @@ npm run eval
 - [ ] Kiểm tra không còn version cũ ở các file public
 - [ ] Chạy test tối thiểu
 - [ ] Chạy eval nếu có
+- [ ] Tạo git tag: `git tag v[version]`
+- [ ] Push tag: `git push origin v[version]` (khi sẵn sàng release)
 ```
 
 ## Gợi ý chuẩn hóa thêm
@@ -227,3 +241,4 @@ Nguyên tắc quan trọng nhất là:
 - tăng đúng cấp version
 - đồng bộ tất cả file public
 - ghi changelog rõ ràng
+- tạo git tag đánh dấu mốc release
