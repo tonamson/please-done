@@ -526,11 +526,11 @@ In tóm tắt plan + danh sách tasks cho user review.
 - KHÔNG hỏi lại FastCode thông tin đã có trong SCAN_REPORT
 - Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
 - Chế độ AUTO (mặc định): KHÔNG hỏi user bất kỳ câu hỏi thiết kế nào — tự quyết định tất cả
-- Chế độ DISCUSS: PHẢI dùng `AskUserQuestion` cho mọi lựa chọn — user chọn bằng phím mũi tên, KHÔNG yêu cầu gõ A/B/C hoặc số
-- Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi `AskUserQuestion` — KHÔNG tự chọn thay user
+- Chế độ DISCUSS: Ưu tiên dùng `AskUserQuestion` cho mọi lựa chọn — user chọn bằng phím mũi tên. Nếu `AskUserQuestion` không khả dụng → hỏi bằng văn bản thường (liệt kê options dạng danh sách, chờ user trả lời bằng text), KHÔNG yêu cầu gõ A/B/C hoặc số
+- Chế độ DISCUSS: PHẢI chờ user trả lời sau mỗi câu hỏi — KHÔNG tự chọn thay user
 - Chế độ DISCUSS: Nếu user bỏ qua tất cả ở 3.5.1 → chuyển sang AUTO cho phần còn lại (Bước 4 + 4.5 + bảng AUTO)
 - Chế độ DISCUSS: Nếu user cancel giữa 3.5.2 → GIỮ quyết định đã chốt + Claude quyết định phần còn lại → hiển thị 3.5.3 tóm tắt → user xác nhận
-- Chế độ DISCUSS: "Other" (tự động từ AskUserQuestion) thay thế cho "Bạn có cách riêng" — user luôn có thể tự mô tả
+- Chế độ DISCUSS: "Other" (tự động từ AskUserQuestion, hoặc ghi rõ "hoặc mô tả cách riêng" trong văn bản thường) — user luôn có thể tự mô tả
 - Chế độ DISCUSS: Thiết kế kỹ thuật PHẢI phản ánh đúng quyết định user đã chốt — vi phạm = lỗi
 - Chế độ DISCUSS: Bước 3.5.3 ↔ 3.5.4 tạo vòng lặp — user có thể chọn "Thảo luận thêm" bao nhiêu lần tùy thích. Vòng lặp kết thúc khi user chọn "Tiếp tục thiết kế" ở 3.5.3, HOẶC không chọn/chọn "Không" ở 3.5.4 → đi thẳng Bước 4
 - Chế độ DISCUSS: Khi user chọn "Thảo luận thêm", Claude PHẢI đưa ra vấn đề MỚI — KHÔNG lặp lại vấn đề đã chốt VÀ KHÔNG hiện lại vấn đề đã từng đưa ra nhưng user bỏ qua
