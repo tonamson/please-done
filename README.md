@@ -1,13 +1,13 @@
 # Please Done — Bộ Skills AI Coding Đa Nền Tảng
 
-[![Version](https://img.shields.io/badge/version-2.7.3-blue.svg)](https://github.com/tonamson/please-done/releases)
+[![Version](https://img.shields.io/badge/version-2.8.0-blue.svg)](https://github.com/tonamson/please-done/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
 [![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#nền-tảng-hỗ-trợ)
 
 Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-**Phiên bản hiện tại: v2.7.3**
+**Phiên bản hiện tại: v2.8.0**
 
 ## Mục lục
 

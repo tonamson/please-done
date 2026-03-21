@@ -1,5 +1,17 @@
 # Nhật ký thay đổi Skills
 
+## [2.8.0] - 21_03_2026
+### Thay đổi
+- **Rules**: Giảm chi phí token -79% (262K → 55K ký tự) — xóa 27 file tutorial framework, chỉ giữ quy ước riêng. Kiến thức framework tra Context7 MCP thay thế
+- **Rules headings**: Dịch tiếng Việt các heading/label tiếng Anh trong rules và tài liệu hướng dẫn
+- **README.md**: Thêm mục "Hệ thống quy ước" giải thích rõ tại sao cần cả Rules lẫn CLAUDE.md, hướng dẫn fork tùy chỉnh
+- **INTEGRATION_GUIDE.md**: Viết lại khớp cấu trúc rules mới, dịch tiếng Việt (Phase → Giai đoạn, Input/Output → Đầu vào/Đầu ra)
+- **Workflows**: Cập nhật init, scan, plan, write-code, fix-bug, test — bỏ tham chiếu refs đã xóa, dùng Context7
+
+### Thêm mới
+- **Skill `/pd:conventions`**: Quét code dự án, phát hiện quy ước lập trình, hỏi người dùng, tạo CLAUDE.md quy ước riêng (0 token cost — Claude Code tự load)
+- **Eval tests**: 4 workflow tests + 2 trigger tests cho conventions và tối ưu rules
+
 ## [2.7.3] - 21_03_2026
 ### Thay đổi
 - **security-checklist.md**: Bổ sung khung phân tích bảo mật theo ngữ cảnh (endpoint type, data sensitivity, auth type), quy tắc theo ngữ cảnh (PUBLIC/ADMIN/INTERNAL), phân tích nâng cao (trust boundaries, idempotency, response minimization, secure-by-default, operational security, phòng sai sót con người), review tổng thể trước commit
