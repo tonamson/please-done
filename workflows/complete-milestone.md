@@ -31,8 +31,15 @@ Quét TẤT CẢ phase directories trong `.planning/milestones/[version]/phase-*
 
 Kiểm tra:
 - Tất cả tasks trong MỌI phase đều ✅?
-- Có TEST_REPORT trong mỗi phase? Nếu THIẾU → cảnh báo: "Phase [X] thiếu TEST_REPORT. Chạy `/pd:test` trước."
-- Nếu có TEST_REPORT → tất cả tests đạt?
+- Có TEST_REPORT trong mỗi phase? Nếu THIẾU:
+  - Nếu phase có Backend (NestJS/WordPress/Solidity/Flutter) → cảnh báo: "Phase [X] thiếu TEST_REPORT. Chạy `/pd:test` trước."
+  - Nếu phase CHỈ có frontend-only hoặc stack không hỗ trợ test tự động → hỏi user: "Phase [X] chưa có TEST_REPORT. (1) Chạy `/pd:test` để kiểm thử thủ công, (2) Bỏ qua test cho phase này"
+  - Nếu user chọn bỏ qua → ghi chú trong MILESTONE_COMPLETE.md: "Phase [X]: kiểm thử bỏ qua (frontend-only/stack không hỗ trợ)"
+- Nếu có TEST_REPORT → kiểm tra 2 điều:
+  1. Tất cả tests đạt?
+  2. **TEST_REPORT không stale?** So sánh ngày trong TEST_REPORT (`> Ngày:`) với ngày commit cuối cùng có prefix `[LỖI]` trong milestone (chạy `git log --oneline --grep="\\[LỖI\\]" -1` trong phase directory). Nếu có commit `[LỖI]` SAU ngày TEST_REPORT → cảnh báo:
+     > "TEST_REPORT của phase [X] có thể cũ — có sửa lỗi sau ngày test ([ngày test] vs [ngày fix]). Chạy `/pd:test` lại để xác nhận."
+     > Hỏi user: "(1) Chạy lại test, (2) Bỏ qua — TEST_REPORT hiện tại vẫn hợp lệ"
 - Nếu có tasks CHƯA hoàn tất (⬜, 🔄, ❌, 🐛) → **CHẶN**:
   > "Không thể hoàn tất. Còn [X] tasks chưa ✅ trong milestone v[x.x]. Chạy `/pd:write-code` hoặc `/pd:fix-bug` trước."
 

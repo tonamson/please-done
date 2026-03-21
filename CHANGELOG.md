@@ -1,5 +1,25 @@
 # Nhật ký thay đổi Skills
 
+## [2.7.3] - 21_03_2026
+### Thay đổi
+- **security-checklist.md**: Bổ sung khung phân tích bảo mật theo ngữ cảnh (endpoint type, data sensitivity, auth type), quy tắc theo ngữ cảnh (PUBLIC/ADMIN/INTERNAL), phân tích nâng cao (trust boundaries, idempotency, response minimization, secure-by-default, operational security, phòng sai sót con người), review tổng thể trước commit
+- **write-code.md**: Tích hợp phân tích ngữ cảnh bảo mật vào Bước 2/4/6.5b, thêm mục "Review bảo mật" vào template CODE_REPORT, PLAN.md vào commit list, STATE.md "Đang code" lifecycle
+- **plan.md**: Thêm Bước 8.5 commit kế hoạch (bảo vệ PLAN.md + TASKS.md khỏi mất mát khi gián đoạn), STATE.md Phase chỉ cập nhật khi CURRENT_MILESTONE cũng đổi (tránh desync khi pre-plan)
+- **test.md**: Tự phát hiện phase cũ hoàn tất chưa test sau auto-advance
+- **what-next.md**: Thêm quét phases cũ chưa test + Ưu tiên 5.5 cảnh báo phase chưa test
+- **complete-milestone.md**: Kiểm tra TEST_REPORT staleness (so sánh ngày test vs commit [LỖI] cuối)
+- **state-machine.md**: Cập nhật flow auto-advance + test interaction, plan commit
+- **templates/state.md**: Thêm trạng thái "Đang code" + auto-advance sync
+
+### Sửa lỗi
+- **Codex converter**: Thêm fallback bắt buộc khi `request_user_input` không khả dụng — tránh gãy flow ở skills cần hỏi user
+
+### Thêm mới
+- **test/smoke-state-machine.test.js**: 60 test cases — full lifecycle, auto-advance, dependency logic (circular detection), version filtering (semver traps), crash recovery, what-next priority, SESSION lifecycle, re-plan, skip phases, DISCUSS_STATE, CURRENT_MILESTONE↔ROADMAP consistency, --auto boundary
+- **test/smoke-all-platforms.test.js**: 36 test cases — Claude installer (symlinks, idempotency, uninstall), cross-platform 5 platforms (tất cả skills/content/rules/leak/.pdconfig)
+- **test/smoke-integrity.test.js**: 10 test cases — cross-file refs, workflow resolution, full-skill conversion
+- **claude.js installSkillsOnly()**: Hàm testable tách từ Step 5, không ảnh hưởng install() gốc
+
 ## [2.7.2] - 21_03_2026
 ### Sửa lỗi
 - **Version sync**: Đồng bộ version public toàn repo từ `2.7.1` lên `2.7.2` tại `VERSION`, `package.json`, `package-lock.json`, `README.md`

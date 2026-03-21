@@ -46,8 +46,10 @@ Nếu milestone đầu tiên → "Chưa có bối cảnh tích lũy."]
 | Nghiên cứu hoàn tất | `Hoạt động cuối: [ngày] — Nghiên cứu lĩnh vực hoàn tất` |
 | Yêu cầu đã duyệt | `Hoạt động cuối: [ngày] — Yêu cầu milestone v[X.Y] đã duyệt` |
 | Lộ trình đã duyệt | `Hoạt động cuối: [ngày] — Lộ trình milestone v[X.Y] đã duyệt` |
-| Plan phase hoàn tất | Phase → [x.x], Trạng thái → `Kế hoạch hoàn tất, sẵn sàng code` |
+| Plan phase hoàn tất | Phase → [x.x] (CHỈ nếu CURRENT_MILESTONE cũng cập nhật), Kế hoạch → `Kế hoạch hoàn tất, sẵn sàng code` |
+| Bắt đầu code (task đầu tiên 🔄) | Kế hoạch → `Đang code` |
 | Phase code hoàn tất | `Hoạt động cuối: [ngày] — Phase [x.x] hoàn tất` |
+| Auto-advance (phase tiếp đã plan) | Phase → [phase mới], Kế hoạch → `Kế hoạch hoàn tất, sẵn sàng code` (đồng bộ CURRENT_MILESTONE) |
 | Đóng milestone | Trạng thái → `Milestone v[X.Y] hoàn tất` |
 
 **"Bối cảnh tích lũy" KHÔNG BAO GIỜ bị xóa sạch** — chỉ được bổ sung hoặc giữ nguyên.

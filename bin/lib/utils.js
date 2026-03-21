@@ -209,6 +209,25 @@ function extractXmlSection(content, tagName) {
 }
 
 /**
+ * Trích xuất các tham chiếu @templates/... và @references/... từ text.
+ * Trả về array unique theo thứ tự xuất hiện.
+ */
+function extractReadingRefs(content) {
+  const refs = [];
+  const seen = new Set();
+
+  for (const match of content.matchAll(/@(templates|references)\/([a-z0-9_/-]+\.md)/g)) {
+    const ref = `${match[1]}/${match[2]}`;
+    if (!seen.has(ref)) {
+      seen.add(ref);
+      refs.push(ref);
+    }
+  }
+
+  return refs;
+}
+
+/**
  * Inline nội dung workflow vào body của command.
  * Nếu command tham chiếu @workflows/X.md, đọc file workflow và:
  * - Thay <execution_context> bằng <required_reading> từ workflow
@@ -222,6 +241,7 @@ function inlineWorkflow(body, skillsDir) {
   const workflowMatch = body.match(/@workflows\/([a-z0-9_-]+\.md)/);
   if (!workflowMatch) return body;
 
+  const executionContext = extractXmlSection(body, 'execution_context') || '';
   const workflowPath = path.join(skillsDir, 'workflows', workflowMatch[1]);
   if (!fs.existsSync(workflowPath)) return body;
 
@@ -240,6 +260,17 @@ function inlineWorkflow(body, skillsDir) {
     reading = reading.replace(/@references\//g, '[SKILLS_DIR]/references/');
     // Bỏ dòng chung "Đọc tất cả files được tham chiếu..."
     reading = reading.replace(/Đọc tất cả files được tham chiếu trong execution_context.*?:\n?/g, '');
+
+    const workflowRefs = extractReadingRefs(wfRequiredReading);
+    const commandRefs = extractReadingRefs(executionContext);
+    const extraRefs = commandRefs.filter(ref => !workflowRefs.includes(ref));
+
+    if (extraRefs.length > 0) {
+      const extraLines = extraRefs
+        .map(ref => `- [SKILLS_DIR]/${ref}`)
+        .join('\n');
+      reading = `${reading.trim()}\n${extraLines}`;
+    }
 
     body = body.replace(
       /<execution_context>[\s\S]*?<\/execution_context>/,
@@ -295,5 +326,6 @@ module.exports = {
   exec,
   isWSL,
   extractXmlSection,
+  extractReadingRefs,
   inlineWorkflow,
 };

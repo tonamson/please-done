@@ -34,6 +34,7 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 @references/conventions.md
 @references/prioritization.md
 @references/ui-brand.md
+@references/security-checklist.md
 </execution_context>
 
 <context>
@@ -59,5 +60,5 @@ User input: $ARGUMENTS
 
 <process>
 Thực thi quy trình từ @workflows/write-code.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước, dependency analysis, parallel execution, và cổng kiểm tra.
+Tất cả logic (chọn task, viết code, lint/build, bảo mật, commit, cập nhật trạng thái) nằm trong workflow — command này chỉ cung cấp context + điểm vào.
 </process>

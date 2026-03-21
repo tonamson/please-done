@@ -15,7 +15,7 @@
 
 **Quy tắc cập nhật trạng thái:**
 - Cập nhật CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái:`)
-- Chỉ đánh ✅ SAU khi commit thành công
+- Đánh ✅ TRƯỚC commit (để commit bao gồm trạng thái hoàn tất). Nếu commit fail → revert về 🔄, sửa lỗi rồi thử lại
 - Chỉ đánh 🐛 khi có test fail hoặc bug report mở
 
 ## Quy tắc version
@@ -44,7 +44,11 @@ Bug thuộc milestone nếu `Patch version` khớp:
 **Pattern sử dụng:**
 ```
 Grep `Patch version: [version]` trong .planning/bugs/BUG_*.md
-→ lọc kết quả: chỉ lấy khớp chính xác `[version]` hoặc `[version].[digit]`
+→ lọc kết quả: chỉ lấy khớp CHÍNH XÁC `[version]` hoặc `[version].[digit]`
+→ PHẢI dùng word boundary hoặc so sánh chính xác — KHÔNG dùng substring match
+→ Cách an toàn: đọc giá trị `Patch version:`, tách bằng dấu chấm,
+  so sánh [major].[minor] bằng số (VD: "1.0.2" → major=1, minor=0 → khớp version "1.0")
+  KHÔNG match: "10.0" khi tìm "1.0", "1.10" khi tìm "1.1"
 ```
 
 ## Commit prefixes

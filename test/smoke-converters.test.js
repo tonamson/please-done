@@ -102,6 +102,12 @@ describe('Codex converter', () => {
     assert.match(result, /codex_skill_adapter/);
     assert.match(result, /Tool mapping/);
   });
+
+  it('adapter có fallback khi request_user_input không khả dụng', () => {
+    assert.match(result, /Fallback tương thích/);
+    assert.match(result, /request_user_input`? không khả dụng trong mode hiện tại/);
+    assert.match(result, /fallback sang hỏi văn bản thường/);
+  });
 });
 
 // ─── Copilot ──────────────────────────────────────────────

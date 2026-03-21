@@ -131,6 +131,37 @@ Khi `/pd:plan` thiết kế feature chưa có UI trước đó, PHẢI xét 7 kh
 | 6 | **Permission/Role state** | Ai được thấy feature này? Ai không? Khi không có quyền hiện gì? | PLAN.md — Guards/Middleware |
 | 7 | **Responsive** | Mobile khác desktop thế nào? Bảng → stack? Menu → hamburger? | PLAN.md — Thiết kế kỹ thuật |
 
+### Điều chỉnh theo stack
+
+UX Checklist 7 khía cạnh ở trên áp dụng cho **web frontend** (NextJS). Các stack khác cần điều chỉnh:
+
+**Backend-only (NestJS API, không có UI):**
+- Bỏ qua Lớp 2 + Lớp 3 hoàn toàn — không có giao diện
+- Lớp 1 (Product Framing) vẫn áp dụng: viết requirements/tiêu chí thành công hướng user
+
+**Solidity (smart contract):**
+- Thay 7 khía cạnh web bằng 5 khía cạnh on-chain:
+
+| # | Khía cạnh | Câu hỏi | Ghi vào |
+|---|-----------|---------|---------|
+| 1 | **Wallet interaction** | User kết nối ví thế nào? MetaMask? WalletConnect? | PLAN.md |
+| 2 | **Transaction flow** | Các bước approve → send → confirm → receipt? Gas estimation? | PLAN.md |
+| 3 | **Pending state** | Khi transaction pending hiện gì? Tx hash? Loading? | TASKS.md — tiêu chí |
+| 4 | **Revert/Error state** | Khi tx revert hiện gì? Parse revert reason? | TASKS.md — tiêu chí |
+| 5 | **Permission/Role** | Ai được gọi function? onlyOwner? Role-based? Wallet rejected? | PLAN.md |
+
+**Flutter (mobile):**
+- 7 khía cạnh web vẫn áp dụng nhưng điều chỉnh:
+  - **Responsive** → thay bằng **Platform-specific**: iOS vs Android khác gì? (navigation bar, back gesture, permissions dialog)
+  - **Entry point** → bao gồm: deep link, push notification, widget/shortcut
+  - Thêm: **Offline state** — khi mất mạng hiện gì? Cache? Retry?
+
+**WordPress (admin/block editor):**
+- 7 khía cạnh vẫn áp dụng nhưng điều chỉnh:
+  - **Entry point** → bao gồm: admin menu position, plugin settings page, block inserter
+  - **Empty state** → thay bằng: activation state (plugin vừa activate, chưa có config)
+  - Thêm: **Block editor integration** — block có preview? Sidebar inspector? Placeholder text?
+
 ### Câu hỏi nâng cao (xét khi feature phức tạp)
 
 | # | Khía cạnh | Câu hỏi |

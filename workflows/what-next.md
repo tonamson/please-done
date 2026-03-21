@@ -53,6 +53,11 @@ Glob `.planning/bugs/BUG_*.md` → đọc header mỗi file:
 
 5. **Đọc TEST_REPORT** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md` tồn tại? (kiểm tra cho MỌI project — backend lẫn frontend-only)
 
+6. **Quét phases cũ chưa test** (phát hiện auto-advance bỏ qua test):
+   - Glob `milestones/[version]/phase-*/TASKS.md` → với MỖI phase:
+     - Đọc TASKS.md → nếu TẤT CẢ tasks ✅ VÀ `phase-[N]/TEST_REPORT.md` KHÔNG tồn tại → ghi nhận là "phase hoàn tất chưa test"
+   - Danh sách này dùng ở Ưu tiên 5.5 (bên dưới)
+
 ## Bước 4: Phân tích + gợi ý
 Dựa trên dữ liệu thu thập, xác định trạng thái và gợi ý theo **thứ tự ưu tiên** (chỉ gợi ý 1 hành động chính):
 
@@ -80,6 +85,11 @@ Nếu có task 🐛 nhưng không có bug report mở tương ứng → cảnh b
 ### Ưu tiên 5: TẤT CẢ tasks còn lại bị chặn (❌) hoặc lỗi (🐛)
 > ❌ Tất cả [X] tasks còn lại đều bị chặn hoặc có lỗi.
 > → Chạy `/pd:fix-bug` để xử lý lỗi, hoặc kiểm tra lý do chặn
+
+### Ưu tiên 5.5: Phase cũ hoàn tất nhưng chưa test (phát hiện auto-advance)
+Nếu Bước 3.6 phát hiện phase(s) hoàn tất chưa test VÀ phase đó KHÁC phase hiện tại:
+> ⚠️ Phase [x.x] đã hoàn tất [N] tasks nhưng chưa có TEST_REPORT.
+> → Chạy `/pd:test` để kiểm thử phase [x.x] (sẽ tự phát hiện phase chưa test)
 
 ### Ưu tiên 6: Tất cả tasks ✅ nhưng chưa test hoặc test fail
 Áp dụng cho MỌI project (backend, frontend-only, hoặc kết hợp). Kiểm tra TEST_REPORT:
@@ -131,8 +141,9 @@ Nếu đã kiểm tra version trong conversation hiện tại (VD: skill trướ
 Đọc `.pdconfig` → lấy `SKILLS_DIR`.
 (Claude Code: `cat ~/.claude/commands/pd/.pdconfig` — nền tảng khác: trình cài đặt chuyển đổi đường dẫn tự động)
 Kiểm tra `git rev-parse --git-dir` trong SKILLS_DIR trước khi fetch. Nếu không phải git repo → bỏ qua version check.
-So sánh version: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
-Nếu `REMOTE` khác `LOCAL` và `REMOTE` không rỗng → thêm dòng trong báo cáo:
+So sánh version bằng semver (tách thành số, so sánh từng phần major.minor.patch — KHÔNG dùng string comparison):
+`LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` và `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
+Nếu `REMOTE` mới hơn `LOCAL` (semver so sánh) và `REMOTE` không rỗng → thêm dòng trong báo cáo:
 > 💡 Skills v[REMOTE] đã có. Chạy `/pd:update` để cập nhật.
 
 Nếu fetch lỗi hoặc version giống → bỏ qua.

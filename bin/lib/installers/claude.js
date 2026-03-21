@@ -298,4 +298,55 @@ async function promptGeminiKey(envFile) {
   log.success('API key đã lưu');
 }
 
-module.exports = { install, uninstall };
+/**
+ * Chỉ cài skill files (Step 5 + .pdconfig) — dùng cho testing.
+ * Không kiểm tra prerequisites, không setup Python/MCP.
+ */
+function installSkillsOnly(skillsDir, targetDir, options = {}) {
+  const commandsDir = path.join(targetDir, 'commands', 'pd');
+  const fastcodeDir = path.join(skillsDir, 'FastCode');
+  const skillsSrc = path.join(skillsDir, 'commands', 'pd');
+
+  fs.mkdirSync(commandsDir, { recursive: true });
+
+  // Cleanup legacy
+  const legacySkDir = path.join(targetDir, 'commands', 'sk');
+  if (fs.existsSync(legacySkDir)) {
+    fs.rmSync(legacySkDir, { recursive: true, force: true });
+  }
+
+  // Remove old files
+  if (fs.existsSync(commandsDir)) {
+    const oldFiles = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
+    for (const f of oldFiles) {
+      const fp = path.join(commandsDir, f);
+      try { fs.lstatSync(fp); fs.unlinkSync(fp); } catch { /* already gone */ }
+    }
+  }
+
+  // Symlink skill files
+  const skills = listSkillFiles(skillsSrc);
+  for (const skill of skills) {
+    const dest = path.join(commandsDir, `${skill.name}.md`);
+    try { fs.lstatSync(dest); fs.unlinkSync(dest); } catch { /* not exists */ }
+    fs.symlinkSync(skill.filePath, dest);
+  }
+
+  // Symlink rules directory
+  const rulesDir = path.join(skillsSrc, 'rules');
+  const rulesLink = path.join(commandsDir, 'rules');
+  if (fs.existsSync(rulesDir)) {
+    try { fs.lstatSync(rulesLink); fs.unlinkSync(rulesLink); } catch { /* not exists */ }
+    fs.symlinkSync(rulesDir, rulesLink);
+  }
+
+  // .pdconfig
+  const configFile = path.join(commandsDir, '.pdconfig');
+  let configContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
+  if (options.version) configContent += `CURRENT_VERSION=${options.version}\n`;
+  fs.writeFileSync(configFile, configContent, 'utf8');
+
+  return { skills, commandsDir };
+}
+
+module.exports = { install, uninstall, installSkillsOnly };

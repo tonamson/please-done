@@ -25,6 +25,10 @@ Khi user gọi \`$pd-${skillName} {{args}}\`, thực hiện toàn bộ instructi
   - Chờ kết quả: \`wait(agent_ids)\`
   - Kết thúc agent: \`close_agent()\`
 
+## Fallback tương thích
+- Nếu \`request_user_input\` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
+- Mọi chỗ ghi "PHẢI dùng \`request_user_input\`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
+
 ## Quy ước
 - \`$ARGUMENTS\` chính là \`{{GSD_ARGS}}\` — input từ user khi gọi skill
 - Tất cả paths config đã được chuyển sang \`~/.codex/\`

@@ -27,10 +27,11 @@ Chưa khởi tạo
 
 ```
 ⬜ Chưa plan
-  → [/pd:plan] → Đã plan (có PLAN.md + TASKS.md)
+  → [/pd:plan] → Đã plan (có PLAN.md + TASKS.md) → commit kế hoạch
     → [/pd:write-code] → Đang code (có task 🔄)
       → [tất cả tasks ✅] → Phase hoàn tất
         → auto-advance CURRENT_MILESTONE (nếu phase tiếp đã plan)
+          → [/pd:test] → tự phát hiện phase cũ chưa test
 ```
 
 ## Điều kiện tiên quyết
@@ -55,6 +56,11 @@ Khi TẤT CẢ tasks trong phase hiện tại ✅:
 1. `/pd:write-code` kiểm tra ROADMAP → có phase tiếp?
 2. Phase tiếp đã có TASKS.md? → auto-advance `phase` trong CURRENT_MILESTONE.md
 3. Phase tiếp chưa plan? → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`
+
+**Lưu ý auto-advance + test:**
+- Auto-advance xảy ra ngay khi phase hoàn tất, TRƯỚC khi user chạy `/pd:test`
+- `/pd:test` tự phát hiện phase cũ chưa test: khi phase hiện tại (mới) không có task ✅ → quét phases khác tìm phase hoàn tất chưa có TEST_REPORT → tự chuyển sang test phase đó
+- `/pd:what-next` cũng quét tất cả phases để phát hiện phase chưa test (Ưu tiên 5.5)
 
 ## Edge cases
 
@@ -91,5 +97,6 @@ Khi TẤT CẢ tasks trong phase hiện tại ✅:
 - Phiên bị ngắt → STATE.md + CURRENT_MILESTONE.md giữ context → user chạy `/pd:what-next`
 
 ### Circular dependency
-- Tasks phụ thuộc lẫn nhau → `/pd:write-code` phát hiện → thông báo user
+- Tasks phụ thuộc lẫn nhau → `/pd:write-code` phát hiện → thông báo user: "Phát hiện circular dependency hoặc missing dependency giữa [tasks]. Kiểm tra lại TASKS.md."
 - KHÔNG tự pick task khi tất cả bị chặn
+- **DỪNG** flow write-code — user cần sửa TASKS.md (xóa hoặc đảo dependency) rồi chạy lại `/pd:write-code`

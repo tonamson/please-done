@@ -46,6 +46,7 @@ Nếu `.planning/milestones/[version]/phase-[phase]/TASKS.md` đã tồn tại:
   > 2. CHUYỂN SANG phase chưa có plan: [liệt kê phases chưa plan từ ROADMAP] — Cập nhật biến phase sang phase user chọn, quay lại đầu Bước 1.5 để kiểm tra phase mới.
   > 3. HỦY"
   - Nếu không còn phase nào chưa plan → chỉ hiện option 1 và 3
+  - Nếu user chọn "Lên kế hoạch lại" → reset ROADMAP.md: tìm phase này, đổi deliverables `- [x]` → `- [ ]` (nếu trước đó đã đánh hoàn tất). Đảm bảo ROADMAP phản ánh đúng trạng thái thực tế sau khi ghi đè plan.
 - Nếu KHÔNG có tasks hoàn thành (tất cả ⬜):
   - Kiểm tra thêm: PLAN.md có tồn tại VÀ có đủ nội dung (ít nhất 1 section thiết kế)?
     - **CÓ cả PLAN.md lẫn TASKS.md hoàn chỉnh** (tất cả ⬜, chưa ai đụng vào) → có thể phiên trước bị gián đoạn sau khi tạo xong plan nhưng trước khi cập nhật tracking. Hỏi user:
@@ -471,11 +472,33 @@ Viết TASKS.md theo mẫu @templates/tasks.md tại đường dẫn `.planning/
 - Cập nhật field `status` → `Đang thực hiện` (nếu đang là `Chưa bắt đầu`)
 
 **STATE.md (nếu có):** Xem @templates/state.md cho quy tắc cập nhật.
-- Cập nhật "Vị trí hiện tại": Phase → [phase vừa lên kế hoạch], Trạng thái → `Kế hoạch hoàn tất, sẵn sàng code`
 - Cập nhật "Hoạt động cuối": `[DD_MM_YYYY] — Lên kế hoạch phase [x.x] hoàn tất`
+- Cập nhật "Vị trí hiện tại" → Phase: CHỈ cập nhật nếu CURRENT_MILESTONE.md `phase` cũng được cập nhật ở trên (phase hiện tại chưa plan hoặc đã hoàn tất). Nếu CURRENT_MILESTONE KHÔNG đổi (user pre-plan phase sau) → giữ nguyên STATE.md Phase (tránh desync)
+- Cập nhật "Kế hoạch" → `Kế hoạch hoàn tất, sẵn sàng code` (CHỈ khi Phase cũng được cập nhật)
 
 **ROADMAP.md:**
 - Tìm milestone hiện tại → cập nhật `Trạng thái: ⬜` → `Trạng thái: 🔄` (nếu đang là ⬜)
+
+---
+
+## Bước 8.5: Git commit kế hoạch (CHỈ nếu project có git)
+
+Kiểm tra git: `git rev-parse --git-dir 2>/dev/null`. Nếu KHÔNG có git → bỏ qua bước này.
+
+```bash
+git add .planning/milestones/[version]/phase-[phase]/PLAN.md
+git add .planning/milestones/[version]/phase-[phase]/TASKS.md
+# Nếu có DISCUSS_STATE.md (chế độ --discuss):
+git add .planning/milestones/[version]/phase-[phase]/DISCUSS_STATE.md 2>/dev/null
+# Tracking files đã cập nhật ở Bước 8:
+git add .planning/CURRENT_MILESTONE.md .planning/ROADMAP.md
+git add .planning/STATE.md 2>/dev/null
+git commit -m "docs: kế hoạch phase [x.x] — [mục tiêu phase ngắn gọn]
+
+Tasks: [N] tasks | Loại: [Backend/Frontend/Fullstack]"
+```
+
+Mục đích: bảo vệ công sức lập kế hoạch khỏi mất mát nếu phiên bị ngắt trước khi `/pd:write-code` chạy.
 
 ---
 

@@ -103,7 +103,8 @@ Nếu FastCode MCP lỗi khi gọi → chuyển sang Grep/Read để tìm hiểu
 ## Bước 5: Phân tích theo phương pháp khoa học
 
 ### 5a. Tạo/cập nhật phiên điều tra
-Viết `.planning/debug/SESSION_[tên-tắt].md` (tên-tắt = tên ngắn gọn chức năng lỗi, VD: `login-timeout`, `cart-empty`):
+Viết `.planning/debug/SESSION_[tên-tắt].md`:
+**Quy tắc đặt tên-tắt**: viết thường, dùng dấu gạch ngang `-` phân tách, tối đa 30 ký tự, mô tả ngắn chức năng lỗi. VD: `login-timeout`, `cart-empty`, `token-expired`.
 
 ```markdown
 # Phiên điều tra: [tên-tắt]

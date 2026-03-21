@@ -10,6 +10,9 @@ allowed-tools:
   - AskUserQuestion
 ---
 
+<execution_context>
+</execution_context>
+
 <objective>
 Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật bộ skills và gợi ý restart Claude Code.
 </objective>

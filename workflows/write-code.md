@@ -7,6 +7,8 @@ Hỗ trợ 3 chế độ: mặc định (1 task → dừng), --auto (tuần tự
 Đọc tất cả files được tham chiếu trước khi bắt đầu:
 - @references/conventions.md → biểu tượng trạng thái, commit prefixes, version, ngôn ngữ
 - @references/prioritization.md → thứ tự ưu tiên tasks
+- @references/security-checklist.md → bảng kiểm bảo mật (dùng ở Bước 6.5b)
+- @references/ui-brand.md → product framing, design continuity, UX gaps cho feature mới
 </required_reading>
 
 <process>
@@ -36,12 +38,21 @@ Chọn task:
 - **Nếu TẤT CẢ tasks còn lại bị ❌, 🐛, hoặc bị chặn bởi dependency chưa ✅**: thông báo user danh sách blocked/lỗi + lý do. KHÔNG pick bừa. Đề xuất `/pd:fix-bug` cho tasks 🐛.
 - Nếu scan hết tất cả tasks mà không tìm được task sẵn sàng (còn tasks ⬜ nhưng tất cả bị chặn bởi dependencies) → thông báo: "Phát hiện circular dependency hoặc missing dependency giữa [tasks]. Kiểm tra lại TASKS.md."
 
-Cập nhật trạng thái → 🔄
+**Persist 🔄 ngay lập tức** (trước khi tiếp tục):
+- Edit TASKS.md: cập nhật CẢ HAI nơi (bảng Tổng quan cột Trạng thái + task detail block `> Trạng thái:`) từ ⬜ → 🔄
+- Ghi thay đổi vào đĩa TRƯỚC khi tạo PROGRESS.md — đảm bảo cơ chế khôi phục (Bước 1.1) nhận diện đúng task đang làm dở nếu bị gián đoạn
+- **Cập nhật STATE.md (nếu có, CHỈ khi đây là task đầu tiên chuyển sang 🔄 trong phase):** Kế hoạch → `Đang code`
 
 Xem @references/conventions.md cho biểu tượng trạng thái
 
 ### Bước 1.1: Điểm khôi phục — phục hồi sau gián đoạn
 Đường dẫn: `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`
+
+**Trường hợp 0: Task ✅ + PROGRESS.md tồn tại** (gián đoạn giữa Bước 7a và 7b):
+PROGRESS.md chưa bị xóa → commit có thể chưa xong dù TASKS.md đã cập nhật ✅.
+1. Kiểm tra git: `git log --oneline -5 --grep="TASK-[N]"` → đã commit?
+   - **Đã commit** → chỉ xóa PROGRESS.md → xong
+   - **Chưa commit** → revert TASKS.md về 🔄 (cả bảng Tổng quan + task detail) → nhảy Bước 7 (commit lại)
 
 **Trường hợp 1: Task 🔄 + PROGRESS.md tồn tại** (phục hồi sau mất mạng/đóng phiên):
 1. Đọc PROGRESS.md → xác định giai đoạn cuối + files đã viết
@@ -51,7 +62,7 @@ Xem @references/conventions.md cho biểu tượng trạng thái
    - Git: `git log --oneline -5 --grep="TASK-[N]"` → đã commit chưa?
    - Git: `git diff --name-only` → có files chưa commit từ task này?
 3. Xác định điểm tiếp tục:
-   - Đã commit → chỉ cần cập nhật TASKS.md → ✅ → nhảy Bước 8
+   - Đã commit → xóa PROGRESS.md → xong (Bước 7a đã cập nhật ✅ trước commit)
    - Có CODE_REPORT nhưng chưa commit → nhảy Bước 7
    - Có files + lint/build đã pass (ghi trong PROGRESS.md) → nhảy Bước 6
    - Có files nhưng chưa lint/build → nhảy Bước 5
@@ -142,6 +153,12 @@ Xác nhận chạy? (y/n)
 - `.planning/docs/*.md` → chỉ đọc **mục lục nhanh**, rồi đọc sections liên quan đến task bằng offset/limit
 - `.planning/rules/` chứa đầy đủ quy tắc code — đọc file rules phù hợp với Loại task
 
+**Phân tích ngữ cảnh bảo mật** (xem @references/security-checklist.md Phần A):
+- Xác định loại endpoint (PUBLIC / ADMIN / INTERNAL) dựa trên task description + PLAN.md
+- Xác định mức nhạy cảm dữ liệu (CAO / TRUNG BÌNH / THẤP)
+- Xác định loại xác thực (JWT / SESSION / API_KEY / SIGNATURE / NONE)
+- Ghi nhận 3 yếu tố này để áp dụng ở Bước 4 và review ở Bước 6.5b
+
 ---
 
 ## Bước 3: Research code hiện có + tra cứu thư viện
@@ -165,6 +182,17 @@ Nếu FastCode MCP lỗi khi gọi → Fallback sang Grep/Read để research co
 ---
 
 ## Bước 4: Viết code
+
+Khi viết code và gặp vấn đề ngoài kế hoạch → áp dụng **Quy tắc xử lý sai lệch** (xem phần Rules → "Quy tắc sai lệch").
+
+**Áp dụng quy tắc bảo mật theo ngữ cảnh** đã xác định ở Bước 2 (xem @references/security-checklist.md Phần B + C):
+- PUBLIC → validate + sanitize mọi input, rate limiting, không lộ lỗi nội bộ
+- ADMIN → RBAC + kiểm tra quyền từng action + audit log + phòng leo quyền + xác nhận hành động hủy diệt
+- INTERNAL → validate input quan trọng + xác thực service-to-service + phòng giả định sai
+- Dữ liệu CAO → tối thiểu hóa lộ lọt, mask log, mã hóa nếu cần
+- Tuân thủ yêu cầu toàn cục (Phần C): phòng DoS, race condition, replay, timing attack, business logic abuse
+- Phân tích nâng cao (Phần C3): ranh giới tin cậy, idempotency, response minimization, secure-by-default, phòng sai sót con người
+
 Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 
 - **JSDoc + Logger + Comments** → TIẾNG VIỆT CÓ DẤU (ngoại lệ: Solidity NatSpec dùng tiếng Anh — xem solidity.md)
@@ -240,7 +268,7 @@ Tuân thủ **quy tắc code trong `.planning/rules/`**. Đặc biệt:
 **Nếu có rules file** (nestjs.md/nextjs.md/wordpress.md/solidity.md/flutter.md): đọc mục **Build & Lint** → lấy lệnh lint + build.
 **Nếu không có rules file** (stack khác): đọc `package.json` hoặc `composer.json` scripts → dùng `npm run lint` / `npm run build` hoặc `composer run lint` nếu có, hoặc skip nếu project chưa setup build.
 
-Chạy lệnh trong đúng thư mục của task. Output pipe qua `| tail -50` để gọn.
+Chạy lệnh trong đúng thư mục của task. Dùng Bash tool với timeout phù hợp. Nếu output quá dài, chạy lại với `2>&1` redirect và để Bash tool tự truncate.
 
 Nếu lint/build fail → sửa code và chạy lại. Tối đa 3 lần. Nếu vẫn fail sau 3 lần → **DỪNG**, báo user kèm error message. Có thể cần sửa PLAN.md.
 Nếu chưa có lint/build config (project mới) → skip bước này, ghi chú trong report.
@@ -272,19 +300,66 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 ## Hooks & Filters (nếu có — WordPress)
 | Loại | Hook name | Callback | Mô tả |
 
+## Review bảo mật
+> Ngữ cảnh: [PUBLIC|ADMIN|INTERNAL] | Dữ liệu: [CAO|TRUNG BÌNH|THẤP] | Auth: [JWT|SESSION|API_KEY|SIGNATURE|NONE]
+
+### Rủi ro đã xử lý
+| # | Rủi ro | Cách xử lý | Files |
+|---|--------|-----------|-------|
+
+### Giả định + giới hạn còn lại
+- [giả định bảo mật / rủi ro chấp nhận được, nếu có]
+
+## Sai lệch so với kế hoạch (nếu có)
+| # | Loại | Mô tả | Files |
+(Ghi lại mọi thay đổi ngoài kế hoạch: bug tự sửa, thiếu sót bổ sung, vấn đề chặn đã gỡ)
+
+## Vấn đề hoãn lại (nếu có)
+(Lỗi có sẵn từ trước, không thuộc phạm vi task này — ghi lại để xử lý sau)
+
 ## Ghi chú
 [Quyết định kỹ thuật đáng lưu ý, nếu có]
 ```
 
 ---
 
-## Bước 7: Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1)
+## Bước 6.5: Tự kiểm tra báo cáo + bảo mật (trước khi commit)
+
+### 6.5a — Kiểm tra báo cáo đúng
+Xác minh mọi thứ trong CODE_REPORT là thật — KHÔNG commit báo cáo sai:
+
+1. Từng file trong bảng "Files đã tạo/sửa" → kiểm tra **tồn tại thật** trên đĩa (`[ -f path ]`)
+2. Nếu có API endpoints → kiểm tra route/controller file tương ứng tồn tại
+3. Nếu có database migration → kiểm tra migration file tồn tại
+4. Nếu có ghi chú "Sai lệch" → kiểm tra mô tả khớp với thay đổi thực tế
+
+Nếu phát hiện file thiếu hoặc sai → quay lại Bước 4 sửa, rồi cập nhật CODE_REPORT.
+
+### 6.5b — Kiểm tra bảo mật code vừa viết
+1. Chạy **bảng kiểm kỹ thuật** (Phần D) trong @references/security-checklist.md cho các files vừa tạo/sửa ở Bước 4. Chỉ kiểm tra mục liên quan đến stack đang dùng.
+2. Thực hiện **review bảo mật tổng thể** (Phần E) dựa trên ngữ cảnh đã xác định ở Bước 2 — suy nghĩ như kẻ tấn công, kiểm tra kịch bản lạm dụng nghiệp vụ, verify biện pháp phòng thủ tương xứng.
+3. Ghi kết quả review vào CODE_REPORT mục "Review bảo mật" theo format trong Phần E3.
+
+Nếu phát hiện lỗ hổng → sửa ngay (Quy tắc sai lệch 1-2), ghi vào CODE_REPORT mục "Sai lệch".
+
+**Nếu đã sửa code ở bước 6.5** → chạy lại lint + build (như Bước 5). Nếu fail → sửa + retry tối đa 3 lần. Cập nhật CODE_REPORT nếu files thay đổi.
+
+---
+
+## Bước 7: Cập nhật TASKS.md + Git commit
+
+**7a — Cập nhật TASKS.md (luôn thực hiện, TRƯỚC commit):**
+- Cập nhật trạng thái task: 🔄 → ✅ trong CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái: 🔄` → `> Trạng thái: ✅`)
+- Cập nhật trường `> Files:` trong task detail nếu files thực tế khác với files trong plan
+
+**7b — Git commit (CHỈ nếu HAS_GIT = true, xem Bước 1):**
 
 Xem @references/conventions.md cho commit prefixes
 
 ```
 git add [source code files đã tạo/sửa ở Bước 4]
 git add [migration files nếu có (Prisma: prisma/migrations/, TypeORM: src/migrations/)]
+git add .planning/milestones/[version]/phase-[phase]/PLAN.md
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N].md
 git commit -m "[TASK-N] [Tóm tắt tiếng Việt]
@@ -293,18 +368,16 @@ Mô tả: [Chi tiết task đã hoàn thành]
 Files: [danh sách files]"
 ```
 
-**Sau commit thành công** → xóa PROGRESS.md (task hoàn tất, không cần khôi phục nữa):
+**Nếu commit FAIL** → revert TASKS.md về 🔄 (cả bảng Tổng quan + task detail), sửa lỗi commit rồi thử lại.
+
+**Sau commit thành công** (hoặc sau 7a nếu HAS_GIT = false) → xóa PROGRESS.md:
 ```bash
 rm -f .planning/milestones/[version]/phase-[phase]/PROGRESS.md
 ```
 
 ---
 
-## Bước 8: Cập nhật TASKS.md → ✅ (SAU commit thành công)
-Cập nhật trạng thái task: 🔄 → ✅ trong CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái: 🔄` → `> Trạng thái: ✅`).
-Cập nhật trường `> Files:` trong task detail nếu files thực tế khác với files trong plan.
-Nếu git commit ở Bước 7 FAIL → giữ task ở 🔄, KHÔNG đánh dấu ✅. Sửa lỗi commit trước.
-
+## Bước 8: Cập nhật CONTEXT.md (nếu cần)
 Nếu CONTEXT.md có `Dự án mới: Có` VÀ đây là task đầu tiên hoàn tất → cập nhật thành `Dự án mới: Không` + cập nhật `Cập nhật: [DD_MM_YYYY HH:MM]`.
 
 ---
@@ -322,10 +395,16 @@ Nếu TẤT CẢ tasks trong phase đều ✅ (không còn ⬜, 🔄, ❌, hoặ
 **Cập nhật STATE.md (nếu tồn tại):**
 - Cập nhật "Hoạt động cuối": `[DD_MM_YYYY] — Phase [x.x] hoàn tất`
 
+Khi tất cả tasks trong phase hiện tại ✅ VÀ auto-advance xảy ra (xem bên dưới):
+- Cập nhật STATE.md "Vị trí hiện tại" → Phase: [phase mới] (đồng bộ với CURRENT_MILESTONE)
+- Cập nhật STATE.md "Kế hoạch" → `Kế hoạch hoàn tất, sẵn sàng code` (phase mới đã có TASKS.md)
+
 Khi tất cả tasks trong phase hiện tại ✅:
-- Kiểm tra ROADMAP: milestone có phase tiếp theo không?
-- Nếu phase tiếp đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp.
-- Nếu phase tiếp chưa plan → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`.
+- Đọc ROADMAP.md → tìm phase tiếp theo trong CÙNG milestone (phase số kế tiếp, status ⬜ hoặc chưa triển khai)
+- **Verify trước khi advance**: phase tiếp PHẢI tồn tại trong ROADMAP VÀ thuộc cùng milestone version
+- Nếu phase tiếp tồn tại trong ROADMAP VÀ đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp
+- Nếu phase tiếp tồn tại trong ROADMAP nhưng chưa plan → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`
+- Nếu KHÔNG còn phase nào trong milestone → giữ nguyên, gợi ý `/pd:complete-milestone`
 
 **Tracking commit** (CHỈ khi HAS_GIT = true VÀ tất cả tasks trong phase ✅):
 ```
@@ -333,7 +412,7 @@ git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/ROADMAP.md
 git add .planning/CURRENT_MILESTONE.md
 # Nếu có REQUIREMENTS.md hoặc STATE.md:
-git add .planning/REQUIREMENTS.md .planning/STATE.md 2>/dev/null
+git add .planning/REQUIREMENTS.md .planning/STATE.md 2>/dev/null || true
 # Nếu CONTEXT.md đã cập nhật ở Bước 8 ("Dự án mới" flag):
 git add .planning/CONTEXT.md
 git commit -m "[TRACKING] Phase [x.x] hoàn tất
@@ -370,7 +449,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
    - Thu thập kết quả từ mỗi agent (files đã tạo/sửa, build status)
    - Kiểm tra conflicts: nếu 2 agents sửa cùng file → **DỪNG**, báo user giải quyết
    - Nếu agent nào build fail → **DỪNG wave**, báo lỗi task cụ thể
-   - Nếu tất cả OK → tạo report cho mỗi task (Bước 6) → commit từng task riêng (Bước 7) → cập nhật TASKS.md → ✅ (Bước 8)
+   - Nếu tất cả OK → tạo report cho mỗi task (Bước 6) → cập nhật TASKS.md + commit từng task (Bước 7)
 
 5. **Verify integration** (sau wave có cả Backend + Frontend):
    - So sánh TypeScript interfaces/types trong frontend với response DTO/entity trong backend (đọc cả 2 files, kiểm tra field names + types khớp nhau)
@@ -395,7 +474,9 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 ```
 
 ### Chế độ `--auto` (tuần tự)
-Còn task 🔄 hoặc ⬜ trong phase **ban đầu** (phase tại thời điểm bắt đầu `--auto`, KHÔNG phải phase sau khi Bước 9 advance) → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
+**Lưu phase ban đầu**: Khi bắt đầu `--auto`, ghi nhớ `INITIAL_PHASE = [phase hiện tại từ CURRENT_MILESTONE.md]`. Dùng giá trị này (KHÔNG đọc lại CURRENT_MILESTONE.md) để xác định scope auto loop.
+
+Còn task 🔄 hoặc ⬜ trong `INITIAL_PHASE` → quay lại **Bước 1** pick task tiếp theo (KHÔNG hỏi user, ưu tiên 🔄 trước ⬜). Dừng khi:
 - Hết task 🔄 và ⬜ trong phase ban đầu (tất cả ✅) → Bước 9 đã chạy trong normal flow (sau Bước 8) và đã tạo tracking commit → **DỪNG auto loop** (KHÔNG tự nhảy sang phase tiếp dù CURRENT_MILESTONE đã advance) → thông báo: "Phase [x.x] hoàn tất [N] tasks. Gợi ý: `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`"
 - **TẤT CẢ tasks còn lại đều bị ❌, 🐛, hoặc ⬜ nhưng bị chặn bởi dependency chưa ✅** → **DỪNG auto loop**, thông báo user danh sách tasks blocked/lỗi + đề xuất `/pd:fix-bug`
 - Gặp lỗi build BẮT BUỘC (lint/build fail) → dừng, báo lỗi
@@ -415,15 +496,50 @@ DỪNG sau mỗi task, thông báo:
 <rules>
 - Tuân thủ toàn bộ quy tắc trong `.planning/rules/` (general + nestjs/nextjs/wordpress/solidity/flutter theo Loại task)
 - CẤM đọc/hiển thị nội dung file nhạy cảm (`.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
+- CẤM hardcode secrets/keys/tokens/passwords trong source code — PHẢI dùng biến môi trường + thêm key vào `.env.example`
+- Khi thêm thư viện mới (`npm install`, `pip install`, `composer require`, thêm vào pubspec.yaml) → kiểm tra nhanh: (1) chạy `npm audit` / `composer audit` / `pip audit` / `flutter pub outdated` để phát hiện CVE đã biết, (2) ghi kết quả vào CODE_REPORT mục "Thư viện mới" để user verify. KHÔNG dùng Context7 cho kiểm tra bảo mật — Context7 chỉ cung cấp API docs
 - PHẢI đọc PLAN.md + task detail + docs liên quan trước khi code
 - Nếu PLAN.md có section `Quyết định thiết kế` → code PHẢI tuân thủ các quyết định đã chốt — KHÔNG được tự ý thay đổi
 - Nếu quyết định thiết kế KHÔNG THỂ tuân thủ (do constraint kỹ thuật phát hiện khi code) → **DỪNG**, thông báo user và ghi nhận trong CODE_REPORT. KHÔNG tự ý thay đổi.
-- PHẢI lint + build sau khi code
+- PHẢI lint + build sau khi code, VÀ chạy lại nếu sửa code ở bước bảo mật (6.5b)
 - PHẢI commit sau khi pass build, commit message tiếng Việt có dấu
 - Docs/: chỉ đọc mục lục + sections liên quan, KHÔNG đọc toàn bộ
 - Tái sử dụng code/thư viện có sẵn
 - Nếu tasks blocked → THÔNG BÁO user, KHÔNG pick bừa
 - Nếu FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
+
+**Quy tắc sai lệch (khi viết code gặp vấn đề ngoài kế hoạch):**
+
+Trong lúc viết code, SẼ gặp vấn đề không có trong kế hoạch. Áp dụng 4 quy tắc sau theo thứ tự ưu tiên:
+
+*Quy tắc 1 — Tự sửa lỗi:*
+Khi nào: code chạy sai, lỗi logic, null pointer, type sai, query sai kết quả.
+Hành động: sửa ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
+
+*Quy tắc 2 — Tự bổ sung thiếu sót quan trọng (bao gồm bảo mật):*
+Khi nào: thiếu validation đầu vào, thiếu xử lý lỗi, thiếu kiểm tra quyền truy cập, thiếu null check, thiếu rate limiting, thiếu escape output (XSS), thiếu parameterized query (SQL injection), thiếu CSRF token cho form thay đổi dữ liệu, thiếu sanitize input.
+Hành động: bổ sung ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
+Quan trọng = cần thiết để code chạy đúng và an toàn. KHÔNG phải "tính năng mới".
+
+*Quy tắc 3 — Tự gỡ vấn đề chặn:*
+Khi nào: import sai, dependency thiếu, type không khớp, config lỗi, file thiếu.
+Hành động: sửa ngay, KHÔNG cần hỏi user. Ghi vào CODE_REPORT mục "Sai lệch".
+
+*Quy tắc 4 — DỪNG lại hỏi user:*
+Khi nào: cần thêm bảng DB mới (không phải thêm cột), đổi kiến trúc, đổi thư viện/framework, thay đổi luồng xác thực, thay đổi API công khai có ảnh hưởng đến người dùng.
+Hành động: **DỪNG**, thông báo user: vấn đề gì, đề xuất giải pháp, tại sao cần, ảnh hưởng ra sao. Chờ user quyết định.
+
+*Thứ tự ưu tiên*: Quy tắc 4 (kiến trúc) → kiểm tra trước. Nếu không phải kiến trúc → Quy tắc 1-3 (sửa ngay). Không chắc → coi như Quy tắc 4 (hỏi cho chắc).
+
+**Ranh giới phạm vi:**
+- CHỈ sửa lỗi DO TASK HIỆN TẠI gây ra. Lỗi có sẵn từ trước (warning cũ, lint errors ở file khác, test fail không liên quan) → ghi vào CODE_REPORT mục "Vấn đề hoãn lại", KHÔNG sửa.
+- KHÔNG chạy lại build/lint mong nó tự hết lỗi.
+
+**Giới hạn lần sửa tự động:**
+Tối đa 3 lần sửa tự động (Quy tắc 1-3) cho 1 task. Sau 3 lần vẫn lỗi → DỪNG, ghi vấn đề vào CODE_REPORT mục "Vấn đề hoãn lại", chuyển sang task tiếp theo (nếu --auto) hoặc báo user.
+
+**Chống phân tích tê liệt:**
+Nếu đọc liên tiếp 5+ lần (Read/Grep/Glob) mà CHƯA viết dòng code nào (Edit/Write) → DỪNG. Tự hỏi: "Tại sao chưa viết?" Rồi hoặc (1) viết code ngay — đã đủ context, hoặc (2) báo "bị chặn vì thiếu [thông tin cụ thể]". KHÔNG tiếp tục đọc vòng vòng.
 
 **Quy tắc Khôi phục (PROGRESS.md):**
 - PHẢI tạo PROGRESS.md khi bắt đầu task mới — đây là điểm khôi phục khi gián đoạn
@@ -439,6 +555,6 @@ DỪNG sau mỗi task, thông báo:
 - Sau mỗi wave: orchestrator PHẢI verify không có file conflict trước khi commit
 - Sau wave có Backend + Frontend: PHẢI verify integration (types khớp response thực tế)
 - Nếu 2 agents sửa cùng file → DỪNG, báo user — KHÔNG tự merge
-- Mỗi agent commit riêng với prefix `[TASK-N]` riêng biệt
+- Orchestrator commit riêng cho mỗi task với prefix `[TASK-N]` riêng biệt (agent KHÔNG tự commit)
 - PHẢI hiển thị wave plan cho user xác nhận trước khi bắt đầu
 </rules>

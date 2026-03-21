@@ -17,8 +17,7 @@
       "Bash(git status:*)",
       "Bash(git log:*)",
       "Bash(git diff:*)",
-      "Bash(git tag:*)",
-      "Bash(semgrep:*)"
+      "Bash(git tag:*)"
     ],
     "deny": [
       "Read(.env)",
@@ -27,20 +26,6 @@
       "Read(**/*credential*)",
       "Read(**/*.pem)",
       "Read(**/*.key)"
-    ]
-  },
-  "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Edit|Write",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash /Volumes/SonSSD/NodeJS/skills/.claude/hooks/semgrep-scan.sh",
-            "timeout": 30000
-          }
-        ]
-      }
     ]
   }
 }

@@ -9,7 +9,6 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
-  - Agent
   - AskUserQuestion
   - mcp__fastcode__code_qa
   - mcp__context7__resolve-library-id

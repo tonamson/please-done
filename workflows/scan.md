@@ -194,11 +194,16 @@ Entities | Quan hệ | Migrations (ghi rõ Prisma/Mongoose)
 
 Dựa trên kết quả quét, cập nhật `.planning/CONTEXT.md` để phản ánh trạng thái hiện tại:
 
-1. **Re-detect tech stack**:
-   Dùng kết quả detect từ Bước 2a. Nếu kết quả từ Bước 2a không có (edge case) → re-detect tương tự Bước 2a.
+1. **Re-detect tech stack** (PHẢI dùng cùng pattern với init.md):
+   - NestJS: `nest-cli.json` → fallback `app.module.ts` → fallback `main.ts` + grep `NestFactory`
+   - NextJS: `next.config.*`
+   - WordPress: `wp-config.php` hoặc `wp-content/plugins/*/` hoặc `wp-content/themes/*/style.css`
+   - Solidity: `hardhat.config.*` hoặc `foundry.toml` hoặc `contracts/**/*.sol`
+   - Flutter: `pubspec.yaml` với `flutter` dependency
+   Dùng kết quả detect từ Bước 2a nếu đã detect đúng pattern trên. Nếu không → re-detect theo pattern init.
 
 2. **Cập nhật CONTEXT.md** (giữ format gốc từ init, DƯỚI 50 dòng):
-   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files). Nếu project mới (Bước 2 skip Bước 3,4,6) → flag KHÔNG được update bởi scan. Flag sẽ được update khi `/pd:write-code` hoàn tất task đầu tiên hoặc khi scan chạy lại sau khi có code.
+   - `Dự án mới` → `Không` (nếu Bước 2 tìm thấy source files). Nếu project mới (Bước 2 skip Bước 3,4,6) → giữ nguyên flag `Dự án mới: Có` (không cập nhật vì bước này đã bị skip).
    - Cập nhật dòng `> Cập nhật: [DD_MM_YYYY HH:MM]` (dòng này đã có sẵn từ init template, chỉ cần update value)
    - Tech Stack: cập nhật theo kết quả scan mới
    - Thư viện chính: cập nhật từ package.json hiện tại (tối đa 20 dòng, bỏ devDeps)

@@ -17,6 +17,7 @@ const {
   parseFrontmatter,
   buildFrontmatter,
   extractXmlSection,
+  extractReadingRefs,
   inlineWorkflow,
   listSkillFiles,
   fileHash,
@@ -113,6 +114,36 @@ Thực thi quy trình.
     const body = '<process>\nGiữ nguyên\n</process>';
     const result = inlineWorkflow(body, skillsDir);
     assert.match(result, /Giữ nguyên/);
+  });
+
+  it('giữ các refs bổ sung từ command execution_context', () => {
+    const body = `<execution_context>
+@workflows/write-code.md
+@references/ui-brand.md
+</execution_context>
+
+<process>
+Thực thi quy trình.
+</process>`;
+
+    const result = inlineWorkflow(body, skillsDir);
+    assert.match(result, /\[SKILLS_DIR\]\/references\/ui-brand\.md/);
+  });
+});
+
+describe('extractReadingRefs', () => {
+  it('trích xuất refs duy nhất theo thứ tự xuất hiện', () => {
+    const input = `
+@templates/project.md
+@references/ui-brand.md
+@templates/project.md
+@references/conventions.md
+`;
+    assert.deepEqual(extractReadingRefs(input), [
+      'templates/project.md',
+      'references/ui-brand.md',
+      'references/conventions.md',
+    ]);
   });
 });
 

@@ -11,6 +11,9 @@ allowed-tools:
   - WebFetch
 ---
 
+<execution_context>
+</execution_context>
+
 <objective>
 Tải tài liệu từ URL, lưu markdown local kèm version thư viện và mục lục phân section. Mục đích: cache tài liệu đúng version, các skill sau chỉ đọc mục lục rồi đọc đúng section cần thiết thay vì toàn bộ file.
 </objective>

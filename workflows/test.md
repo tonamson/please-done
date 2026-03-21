@@ -90,7 +90,13 @@ Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPres
     Xem @references/conventions.md → 'Biểu tượng trạng thái Task'
 - Nếu không → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` để lấy tất cả endpoints/features cần test
 - Chỉ test tasks có trạng thái ✅
-- **Nếu KHÔNG có task ✅ nào** → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/pd:write-code` trước."
+- **Nếu KHÔNG có task ✅ nào trong phase hiện tại** → kiểm tra auto-advance:
+  - Quét TẤT CẢ phase directories trong `milestones/[version]/phase-*/`:
+    - Tìm phases có TẤT CẢ tasks ✅ nhưng KHÔNG có TEST_REPORT.md
+  - Nếu tìm thấy phase(s) chưa test → tự động chuyển sang test phase đó (phase có số lớn nhất = vừa hoàn tất):
+    > "Phase hiện tại [y.y] chưa có task hoàn tất. Phát hiện phase [x.x] đã hoàn tất nhưng chưa test → chuyển sang test phase [x.x]."
+    - Cập nhật biến `phase` nội bộ sang phase chưa test → tiếp tục flow bình thường
+  - Nếu KHÔNG tìm thấy → **DỪNG**, thông báo: "Chưa có task hoàn tất. Chạy `/pd:write-code` trước."
 - `.planning/rules/nestjs.md` chứa coding conventions cho .spec.ts (CHỈ đọc nếu file tồn tại)
 
 ---
@@ -126,9 +132,30 @@ Kiểm tra trên đĩa xem có dấu vết phiên trước bị gián đoạn kh
 
 ---
 
-## Bước 2: Kiểm tra test infrastructure (CHỈ NestJS flow)
+## Bước 2: Kiểm tra test infrastructure (theo stack)
+
+**NestJS:**
 Kiểm tra Jest config + dependencies (`@nestjs/testing`, `supertest`, `jest`).
 Nếu chưa có → thông báo user cài: `npm install --save-dev @nestjs/testing supertest @types/supertest`
+
+**WordPress:**
+Kiểm tra PHPUnit + WP test suite: `composer show phpunit/phpunit 2>/dev/null` và `composer show wp-phpunit/wp-phpunit 2>/dev/null`.
+Nếu chưa có → thông báo cài: `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit`.
+Kiểm tra `phpunit.xml` hoặc `phpunit.xml.dist` tồn tại → nếu chưa có → tạo config cơ bản.
+Sau khi cài xong → tiếp tục Bước 3.
+
+**Solidity:**
+Detect framework: Glob `**/hardhat.config.*` → Hardhat | Glob `**/foundry.toml` → Foundry.
+- Hardhat: kiểm tra `@nomicfoundation/hardhat-toolbox` hoặc `chai` + `ethers` trong devDependencies.
+  Nếu thiếu → thông báo: `npm install --save-dev @nomicfoundation/hardhat-toolbox`
+- Foundry: kiểm tra `lib/forge-std/` tồn tại. Nếu thiếu → thông báo: `forge install foundry-rs/forge-std`
+Sau khi setup xong → tiếp tục Bước 3.
+
+**Flutter:**
+Kiểm tra `dev_dependencies` trong `pubspec.yaml`: `flutter_test` (thường có sẵn) + `mocktail`.
+Nếu thiếu `mocktail` → thông báo: `flutter pub add --dev mocktail`.
+Kiểm tra `test/` directory tồn tại → nếu chưa → `mkdir -p test/unit test/widget`.
+Sau khi setup xong → tiếp tục Bước 3.
 
 ---
 
@@ -277,8 +304,13 @@ Xem @references/conventions.md → 'Patch version' cho quy tắc xác định pa
 
 ## Mô tả lỗi
 Test case: [tên test] | Đầu vào: [...] | Kỳ vọng: [...] | Thực tế: [...]
+
+## Tham chiếu
+> TEST_REPORT: .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
+> Test framework: [Jest|PHPUnit|Hardhat|Foundry|FlutterTest]
 ```
 Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone filter được.
+Mục "Tham chiếu" giúp `/pd:fix-bug` đọc TEST_REPORT trực tiếp thay vì điều tra lại từ đầu.
 
 ---
 

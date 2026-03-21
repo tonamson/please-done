@@ -9,7 +9,13 @@ Dành cho dự án đã tồn tại — có thể đã có milestones trước.
 - @templates/project.md → mẫu PROJECT.md + quy tắc cập nhật
 - @templates/requirements.md → mẫu REQUIREMENTS.md + tiêu chí yêu cầu tốt + mã yêu cầu
 - @templates/roadmap.md → mẫu ROADMAP.md + quy tắc phase/phiên bản/độ phủ
+- @templates/state.md → mẫu STATE.md + quy tắc cập nhật trạng thái làm việc
+- @templates/current-milestone.md → mẫu CURRENT_MILESTONE.md + quy tắc cập nhật con trỏ milestone
 - @references/questioning.md → cách hỏi user hiệu quả (ngôn ngữ options, nhóm câu hỏi, điều hướng)
+- @references/conventions.md → ngôn ngữ, format ngày tháng, version, biểu tượng trạng thái
+- @references/ui-brand.md → định hướng sản phẩm, UX states, continuity
+- @references/prioritization.md → thứ tự ưu tiên yêu cầu và phases
+- @references/state-machine.md → luồng trạng thái giữa các skill
 </required_reading>
 
 <process>
