@@ -10,70 +10,14 @@ Viết test files cho project (Jest + Supertest cho NestJS, PHPUnit cho WordPres
 <process>
 
 ## Bước 1: Xác định scope + đọc context
-- Đọc `.planning/CONTEXT.md` → Tech Stack → kiểm tra project có Backend không
-- Xác định backend framework từ CONTEXT.md.
-- **Nếu NestJS** → tiếp tục flow Jest + Supertest bên dưới (giữ nguyên)
-- **Nếu WordPress** → chuyển sang flow PHPUnit + WP_UnitTestCase:
-  1. Kiểm tra PHPUnit + WordPress test suite đã cài (`composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit`)
-  2. Đọc `.planning/docs/wordpress/testing.md` (nếu có) để lấy patterns WP_UnitTestCase
-  3. Viết test files `tests/test-*.php` (class extends `WP_UnitTestCase`)
-  4. Dùng factory methods: `$this->factory()->post->create()`, `$this->factory()->user->create()`
-  5. Chạy: `./vendor/bin/phpunit --verbose` hoặc `composer test`
-  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận database + API (tương tự Bước 6)
-  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
-- **Nếu Solidity** → chuyển sang flow Hardhat/Foundry test:
-  1. Detect framework: Glob `**/hardhat.config.*` → Hardhat | Glob `**/foundry.toml` → Foundry
-  2. Đọc `.planning/docs/solidity/audit-checklist.md` (nếu có) để lấy security checklist
-  3. **Hardhat flow**: Viết test files `test/*.ts` hoặc `test/*.js` (dùng ethers.js + chai)
-     - Import: `import { ethers } from "hardhat"`, `import { expect } from "chai"`
-     - Pattern: `describe("ContractName", () => { ... })` — deploy contract trong `beforeEach`
-     - Test: deploy, function calls, revert cases, event emission, access control
-     - Chạy: `npx hardhat test --verbose`
-  4. **Foundry flow**: Viết test files `test/*.t.sol` (contract extends `Test` từ forge-std)
-     - Import: `import "forge-std/Test.sol"`
-     - Pattern: `contract MyContractTest is Test { ... }` — deploy trong `setUp()`
-     - Test functions prefix `test` (pass) hoặc `testFail` (expect revert)
-     - Chạy: `forge test -vvv`
-  5. **Test bắt buộc cho mọi Solidity contract**:
-     - Deploy + constructor args
-     - Core function happy path
-     - Access control (onlyOwner revert khi non-owner gọi)
-     - Input validation (require revert messages)
-     - Reentrancy guard (nếu có nonReentrant)
-     - Pause/unpause behavior
-     - clearUnknownToken function
-     - rescueETH function (nếu contract có receive() hoặc nhận ETH)
-     - Event emission (verify đúng event + đúng params sau mỗi state change)
-     - Signature verification (nếu có): valid signature, expired deadline, wrong signer, hash replay, wrong msg.sender
-  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận on-chain state (tương tự Bước 6)
-  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
-- **Nếu Flutter** → chuyển sang flow flutter_test + mocktail:
-  1. Kiểm tra `flutter_test` + `mocktail` đã có trong `dev_dependencies` (`pubspec.yaml`)
-  2. Đọc `.planning/docs/flutter/testing.md` (nếu có) để lấy test patterns (unit, widget, integration)
-  3. Viết test files:
-     - Unit tests: `test/unit/[feature]/[feature]_logic_test.dart` — test Logic/Repository
-     - Widget tests: `test/widget/[feature]/[feature]_view_test.dart` — test View rendering
-  4. Chạy: `flutter test --verbose`
-  5. **Test bắt buộc**:
-     - Logic: fetch data success + error handling
-     - Logic: reactive state updates (.obs values change correctly)
-     - Logic: onClose() disposes resources
-     - Widget: hiển thị loading state
-     - Widget: hiển thị data list
-     - Widget: tap actions gọi đúng logic method
-     - Form: validation rules
-  6. Hiển thị kết quả (bảng tương tự Bước 5 NestJS) → yêu cầu user xác nhận
-  7. Phần còn lại (report, bug, commit) — nhảy thẳng Bước 7 (TEST_REPORT) bên dưới
-- **Nếu framework khác** (Express, Fastify, v.v.) → thông báo: "Hiện `/pd:test` chỉ hỗ trợ tự động hóa test cho NestJS, WordPress, Solidity, và Flutter. Project của bạn dùng [X]. Bạn có thể:
-  1. Viết test thủ công (tạo file test theo pattern chuẩn của framework)
-  2. Bỏ qua automated test cho phase này"
-- **Frontend-only projects** → chuyển sang flow kiểm thử thủ công:
-  1. Đọc PLAN.md → liệt kê tất cả pages, components, user flows cần kiểm tra
-  2. Tạo danh sách kiểm thử thủ công — mỗi mục gồm: chức năng, hành động kiểm tra, kết quả kỳ vọng
-  3. Hiển thị danh sách cho user, yêu cầu xác nhận từng mục (đạt/không đạt)
-  4. Tạo TEST_REPORT.md (xem Bước 7 bên dưới) với loại `Kiểm thử thủ công` thay vì tên framework
-  5. Nếu có mục không đạt → tạo bug report (Bước 8) + cập nhật TASKS.md (Bước 9)
-  6. Commit (Bước 10)
+- Đọc `.planning/CONTEXT.md` → Tech Stack → xác định test framework:
+  - **NestJS** → Jest + Supertest (flow bên dưới Bước 2-5)
+  - **WordPress** → PHPUnit + WP_UnitTestCase (đọc `.planning/docs/wordpress/testing.md` cho patterns). Viết `tests/test-*.php`, chạy `composer test`
+  - **Solidity** → Hardhat (`npx hardhat test`) hoặc Foundry (`forge test -vvv`). Đọc `.planning/docs/solidity/audit-checklist.md` cho test bắt buộc (deploy, access control, reentrancy, events, signatures)
+  - **Flutter** → flutter_test + mocktail (đọc `.planning/docs/flutter/testing.md` cho patterns). Unit: `test/unit/`, Widget: `test/widget/`, chạy `flutter test`
+  - **Framework khác** → thông báo hỗ trợ NestJS/WP/Solidity/Flutter. User có thể viết test thủ công hoặc bỏ qua
+  - **Frontend-only** → kiểm thử thủ công: liệt kê chức năng + kết quả kỳ vọng, user xác nhận từng mục
+- Tất cả stacks: hiển thị kết quả → yêu cầu user xác nhận → tạo TEST_REPORT (Bước 7) → bug report nếu fail (Bước 8) → commit (Bước 10)
 - Kiểm tra git: `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT` (dùng ở Bước 10)
 - Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
 - Nếu status = `Hoàn tất toàn bộ` → **DỪNG**, thông báo: "Tất cả milestones đã hoàn tất. Không còn gì để test."
