@@ -141,190 +141,31 @@ Sau khi phân tích, Claude xác định các vấn đề cần quyết định 
 - Xử lý lỗi
 - Chỉ liệt kê vấn đề THỰC SỰ có nhiều lựa chọn hợp lệ — KHÔNG liệt kê những thứ đã rõ ràng từ ROADMAP/CONTEXT
 
-**Hiển thị bằng `AskUserQuestion`:**
-
-**Trường hợp đúng 1 vấn đề** → dùng single select (vì multiSelect cần tối thiểu 2 options):
-```
-AskUserQuestion({
-  questions: [{
-    question: "Tôi xác định 1 vấn đề cần quyết định: [Tên vấn đề]. Bạn muốn thảo luận không?",
-    header: "Thảo luận",
-    multiSelect: false,
-    options: [
-      { label: "Thảo luận", description: "[mô tả ngắn vấn đề]" },
-      { label: "Bỏ qua", description: "Claude tự quyết định vấn đề này" }
-    ]
-  }]
-})
-```
-
-**Trường hợp 2-4 vấn đề** → dùng 1 câu hỏi `multiSelect: true`:
-```
-AskUserQuestion({
-  questions: [{
-    question: "Tôi xác định [N] vấn đề cần quyết định. Chọn vấn đề bạn muốn thảo luận (có thể chọn nhiều):",
-    header: "Thảo luận",
-    multiSelect: true,
-    options: [
-      { label: "[Tên vấn đề 1]", description: "[mô tả ngắn, dễ hiểu]" },
-      { label: "[Tên vấn đề 2]", description: "[mô tả ngắn, dễ hiểu]" },
-      ...
-    ]
-  }]
-})
-```
-- User dùng phím mũi tên + space để chọn nhiều vấn đề, Enter để xác nhận
-- Chọn tất cả = thảo luận tất cả, không chọn gì rồi submit = bỏ qua (Claude tự quyết định)
-
-**Trường hợp 5+ vấn đề** → hỏi phạm vi trước, rồi chia nhóm:
-1. `AskUserQuestion` đầu tiên (single select):
-   - "Thảo luận tất cả [N] vấn đề (Đề xuất)"
-   - "Chọn vấn đề cụ thể"
-   - "Bỏ qua — Claude tự quyết định"
-2. Nếu user chọn "Chọn vấn đề cụ thể" → tiếp tục với `AskUserQuestion` `multiSelect: true`, chia thành các nhóm ≤4 vấn đề theo chủ đề
+**Hiển thị bằng AskUserQuestion** (hoặc văn bản thường nếu không khả dụng):
+- **1 vấn đề** → single select: "Thảo luận" / "Bỏ qua"
+- **2-4 vấn đề** → multiSelect: liệt kê vấn đề, user chọn nhiều. Không chọn gì = bỏ qua (Claude tự quyết định)
+- **5+ vấn đề** → hỏi phạm vi trước (tất cả / chọn cụ thể / bỏ qua), rồi chia nhóm ≤4 vấn đề theo chủ đề
 
 ### 3.5.2: Thảo luận từng vấn đề đã chọn
 Với MỖI vấn đề user chọn:
-1. In tiêu đề + giải thích ngắn bối cảnh vấn đề bằng text thường
-2. Dùng `AskUserQuestion` để user chọn phương án bằng phím mũi tên
-
-**Format:**
-```
-Trước tiên, in text:
-"### Vấn đề [N]: [Tên vấn đề]
-[Giải thích ngắn gọn bối cảnh — viết cho người KHÔNG phải dev cũng hiểu]"
-
-Sau đó gọi AskUserQuestion:
-AskUserQuestion({
-  questions: [{
-    question: "[Tên vấn đề] — chọn cách bạn muốn:",
-    header: "Vấn đề [N]",
-    multiSelect: false,
-    options: [
-      { label: "[Tên phương án] (Đề xuất)", description: "[Giải thích đơn giản: làm gì, ưu/nhược chính]" },
-      { label: "[Tên phương án khác]", description: "[Giải thích đơn giản]" },
-      { label: "[Tên phương án khác]", description: "[Giải thích đơn giản]" }
-    ]
-  }]
-})
-```
-
-**Quy tắc options:**
-- **Option đầu tiên** luôn là recommend — thêm "(Đề xuất)" ở cuối label
-- **Options còn lại** (tối đa 3 options nữa): các phương án thay thế, sắp xếp từ đơn giản → phức tạp
-- **"Other"** (tự động có sẵn từ AskUserQuestion) = "Bạn có cách riêng" — user luôn có thể tự mô tả
-- Nếu user chọn "Other" → chờ user mô tả → xác nhận hiểu đúng trước khi tiếp
-- Tổng tối đa 4 options (không tính Other)
-
-**Quy tắc ngôn ngữ trong options (QUAN TRỌNG):**
-- Viết description cho **người không phải dev** cũng hiểu được
-- KHÔNG dùng thuật ngữ kỹ thuật trần (VD: "httpOnly cookies", "XSS", "CSRF") mà không giải thích
-- Thay vào đó, giải thích bằng **kết quả/hệ quả** người dùng cảm nhận được
-- VD tốt: "Lưu thông tin đăng nhập trong cookie bảo mật — hacker không thể đánh cắp qua lỗi website. Cần thêm việc ở phần server."
-- VD xấu: "httpOnly cookies — An toàn nhất (không thể đọc từ JS). Nhưng cần sửa backend (set-cookie thay vì trả token trong body), cần Next.js middleware xử lý cookie, và phải handle CSRF."
-- Thuật ngữ kỹ thuật chỉ dùng khi KHÔNG có cách diễn đạt đơn giản hơn, và phải kèm giải thích trong ngoặc
-- Ưu/nhược viết dạng: "Ưu: ..., Nhược: ..." — ngắn gọn, rõ ràng
-
-**Điều hướng bổ sung** — in text nhỏ sau mỗi AskUserQuestion:
-- "💡 Chọn 'Other' và gõ 'back' để quay lại vấn đề trước, hoặc 'cancel' để hủy thảo luận."
-
-**Xử lý keyword từ "Other":**
-- Nếu user chọn "Other" và gõ `back` → quay lại vấn đề trước (hiển thị lại AskUserQuestion của vấn đề trước). Nếu đang ở **vấn đề đầu tiên** → quay lại bước 3.5.1 (chọn lại vấn đề muốn thảo luận)
-- Nếu user chọn "Other" và gõ `cancel` → GIỮ các quyết định đã chốt trước đó, các vấn đề chưa thảo luận Claude tự quyết định (recommend) → chuyển sang 3.5.3 hiển thị bảng tóm tắt đầy đủ để user xác nhận trước khi tiếp tục
-- Nếu user chọn "Other" và gõ nội dung khác → coi đó là mô tả phương án riêng của user → xác nhận hiểu đúng trước khi tiếp
+1. In tiêu đề + giải thích ngắn bối cảnh (viết cho người KHÔNG phải dev cũng hiểu)
+2. Dùng AskUserQuestion (single select) hiển thị phương án:
+   - Option đầu = recommend, thêm "(Đề xuất)". Tối đa 4 options + Other
+   - Description viết bằng kết quả/hệ quả, KHÔNG dùng thuật ngữ kỹ thuật trần
+   - User chọn "Other" → chờ mô tả → xác nhận hiểu đúng
+**Điều hướng Other:** `back` = quay vấn đề trước (hoặc 3.5.1 nếu đang vấn đề đầu), `cancel` = giữ quyết định đã chốt + Claude quyết phần còn lại → hiện 3.5.3, text khác = phương án riêng user.
 
 ### 3.5.3: Tổng hợp quyết định
-Sau khi thảo luận xong TẤT CẢ vấn đề user chọn:
-- Hiển thị bảng tóm tắt các quyết định đã chốt (bằng text)
-- Các vấn đề user KHÔNG chọn thảo luận → Claude tự quyết định (dùng phương án recommend)
-- Dùng `AskUserQuestion` để user chọn bước tiếp theo
+Hiển thị bảng tóm tắt (Vấn đề | Quyết định | Nguồn: User/Claude). Hỏi user 3 lựa chọn:
+- **Tiếp tục thiết kế** → Bước 4
+- **Thảo luận thêm** → 3.5.4
+- **Thay đổi quyết định** → chọn vấn đề muốn đổi (multiSelect nếu 2+) → quay 3.5.2 → quay 3.5.3
 
-**Format:**
-```
-Trước tiên, in text bảng tóm tắt:
-"### Tóm tắt quyết định
-
-| # | Vấn đề | Quyết định | Nguồn |
-|---|--------|-----------|-------|
-| 1 | [Tên] | [Phương án đã chọn] | User chọn |
-| 2 | [Tên] | [Phương án recommend] | Claude quyết định |
-| ... | ... | ... | ... |"
-
-Sau đó gọi AskUserQuestion:
-AskUserQuestion({
-  questions: [{
-    question: "Bạn muốn làm gì tiếp theo?",
-    header: "Tiếp theo",
-    multiSelect: false,
-    options: [
-      { label: "Tiếp tục thiết kế", description: "Các quyết định đã ổn — bắt đầu thiết kế kỹ thuật chi tiết" },
-      { label: "Thảo luận thêm vấn đề khác", description: "Tôi sẽ đưa ra thêm các vấn đề chưa được bàn, hoặc bạn tự đề xuất" },
-      { label: "Thay đổi quyết định", description: "Chọn lại phương án cho bất kỳ vấn đề nào trong bảng" }
-    ]
-  }]
-})
-```
-
-**Xử lý lựa chọn:**
-- "Tiếp tục thiết kế" → chuyển sang Bước 4
-- "Thảo luận thêm vấn đề khác" → chuyển sang Bước 3.5.4
-- "Thay đổi quyết định" → nếu chỉ có 1 vấn đề → thảo luận lại trực tiếp (quay lại 3.5.2, không cần hỏi chọn); nếu 2+ vấn đề → dùng `AskUserQuestion` `multiSelect: true` liệt kê các vấn đề đã chốt để user chọn vấn đề muốn thay đổi → thảo luận lại (quay lại 3.5.2) → quay lại 3.5.3. Nếu tổng vấn đề đã chốt > 4 → chia nhóm giống cách xử lý 5+ ở 3.5.1
-
-### 3.5.4: Thảo luận mở rộng (khi user chọn "Thảo luận thêm vấn đề khác")
-Claude phân tích lại deliverable và đưa ra **danh sách vấn đề bổ sung** chưa từng được đề cập (không trùng 3.5.1 VÀ không trùng các vòng 3.5.4 trước đó). Các vấn đề mới có thể bao gồm:
-- Vấn đề phát sinh từ các quyết định đã chốt (VD: chọn cookie bảo mật → cần quyết định cách chống giả mạo request)
-- Vấn đề ở tầng sâu hơn mà ban đầu chưa liệt kê (VD: ghi log, thử lại khi lỗi, giới hạn tần suất gọi)
-- Vấn đề user muốn tự đề xuất
-
-**Hiển thị bằng `AskUserQuestion`:**
-
-**Nếu Claude tìm thêm vấn đề mới (≤4):**
-```
-In text: "Dựa trên các quyết định đã chốt, tôi xác định thêm [N] vấn đề có thể thảo luận:"
-
-AskUserQuestion({
-  questions: [{
-    question: "Chọn vấn đề bạn muốn thảo luận thêm (có thể chọn nhiều):",
-    header: "Bổ sung",
-    multiSelect: true,
-    options: [
-      { label: "[Vấn đề mới 1]", description: "[mô tả ngắn, dễ hiểu]" },
-      { label: "[Vấn đề mới 2]", description: "[mô tả ngắn, dễ hiểu]" },
-      ...
-    ]
-  }]
-})
-```
-- User chọn "Other" → nếu gõ `cancel` → coi như không chọn gì, chuyển thẳng **Bước 4**; nếu gõ `back` → quay lại 3.5.3; nếu gõ nội dung khác → coi đó là vấn đề user đề xuất → Claude phân tích → đưa options bằng AskUserQuestion giống 3.5.2 → sau khi chốt, quay lại 3.5.3 hiển thị bảng tóm tắt đầy đủ
-- Nếu user không chọn gì → không còn vấn đề muốn thảo luận → chuyển thẳng sang **Bước 4**
-
-**Nếu Claude KHÔNG tìm thêm vấn đề nào:**
-```
-AskUserQuestion({
-  questions: [{
-    question: "Tôi không tìm thêm vấn đề nào cần thảo luận. Bạn có vấn đề riêng muốn đưa ra không?",
-    header: "Vấn đề riêng",
-    multiSelect: false,
-    options: [
-      { label: "Không, tiếp tục thiết kế", description: "Đã thảo luận đủ — chuyển sang thiết kế kỹ thuật" },
-      { label: "Có, tôi muốn hỏi thêm", description: "Mô tả vấn đề bạn muốn thảo luận" }
-    ]
-  }]
-})
-```
-- Nếu "Có" → chờ user mô tả (text input) → Claude phân tích vấn đề user đề xuất → đưa options bằng AskUserQuestion giống 3.5.2 → sau khi chốt, quay lại 3.5.3 hiển thị bảng tóm tắt đầy đủ
-- Nếu "Không" → chuyển thẳng sang **Bước 4** (KHÔNG quay lại 3.5.3 vì user đã xác nhận "tiếp tục thiết kế")
-
-**Nếu 5+ vấn đề mới** → áp dụng cùng cách xử lý như 3.5.1 (hỏi phạm vi trước, rồi chia nhóm)
-
-**Sau khi thảo luận xong vấn đề bổ sung** (user đã chọn và thảo luận ít nhất 1 vấn đề mới):
-- Mỗi vấn đề mới thảo luận theo đúng format 3.5.2 (AskUserQuestion chọn phương án)
-- Quay lại bước 3.5.3 — hiển thị lại bảng tóm tắt ĐẦY ĐỦ (cả vấn đề cũ + mới) + AskUserQuestion 3 lựa chọn
-- **Vòng lặp 3.5.3 ↔ 3.5.4** tiếp tục cho đến khi user chọn "Tiếp tục thiết kế" ở 3.5.3, hoặc không chọn/chọn "Không" ở 3.5.4
-
-**Lưu ý phân biệt 2 lối thoát khỏi 3.5.4:**
-- User không chọn vấn đề nào (multiSelect empty), hoặc chọn "Không, tiếp tục thiết kế" → đi thẳng Bước 4
-- User thảo luận xong ít nhất 1 vấn đề mới → quay 3.5.3 để xác nhận tổng thể (vì bảng tóm tắt đã thay đổi)
+### 3.5.4: Thảo luận mở rộng
+Claude đưa vấn đề bổ sung MỚI (không trùng 3.5.1 và các vòng trước): vấn đề phát sinh từ quyết định đã chốt, tầng sâu hơn, hoặc user tự đề xuất.
+- Có vấn đề mới → multiSelect cho user chọn → thảo luận theo 3.5.2 → quay 3.5.3
+- Không có vấn đề mới → hỏi user có muốn tự đề xuất. Nếu không → Bước 4
+- **Vòng lặp 3.5.3 ↔ 3.5.4** tiếp tục đến khi user chọn "Tiếp tục thiết kế" hoặc không còn vấn đề
 
 ---
 

@@ -121,22 +121,7 @@ Nếu `$ARGUMENTS` chứa `--parallel`:
    - Frontend agent đọc PLAN.md → mục "API Endpoints" → dùng response format đã thiết kế để tạo types, API functions, components
    - Sau khi cả hai agent xong → verify integration (API response thực tế khớp với types frontend đã tạo)
 
-Hiển thị plan cho user trước khi chạy:
-```
-╔══════════════════════════════════════════════════╗
-║              KẾ HOẠCH THỰC THI SONG SONG          ║
-╠══════════════════════════════════════════════════╣
-║ Wave 1 (song song):                              ║
-║   🔀 Agent A: Task 1 (Backend) — tạo API users   ║
-║   🔀 Agent B: Task 2 (Frontend) — trang users    ║
-║ Wave 2 (tuần tự — dùng code từ Wave 1):         ║
-║   → Task 3: Kết nối API users + validation       ║
-║ Wave 3 (song song):                              ║
-║   🔀 Agent C: Task 4 (Backend) — API orders      ║
-║   🔀 Agent D: Task 5 (Frontend) — trang orders   ║
-╚══════════════════════════════════════════════════╝
-Xác nhận chạy? (y/n)
-```
+Hiển thị bảng wave plan cho user (Wave N → tasks + agents, song song/tuần tự), hỏi xác nhận trước khi chạy.
 
 **Nếu user xác nhận** → nhảy sang **Bước 10** (chế độ parallel).
 **Nếu KHÔNG có `--parallel`** → bỏ qua bước này, chạy tuần tự như bình thường.
@@ -234,41 +219,15 @@ Viết `.planning/milestones/[version]/phase-[phase]/reports/CODE_REPORT_TASK_[N
 
 ## Files đã tạo/sửa
 | Hành động | File | Mô tả ngắn |
-
-## API Endpoints (nếu có — Backend/WordPress REST)
-| Phương thức | Đường dẫn | Mô tả |
-
-## Database (nếu có — Backend/WordPress)
-[Migration + schema thay đổi]
-
-## Contract Functions (nếu có — Solidity)
-| Function | Visibility | Modifiers | Mô tả |
-
-## Screens & Navigation (nếu có — Flutter)
-| Route | View | Logic | Mô tả |
-
-## Hooks & Filters (nếu có — WordPress)
-| Loại | Hook name | Callback | Mô tả |
+(CHỈ tạo thêm sections có dữ liệu: API Endpoints, Database, Contract Functions, Screens & Navigation, Hooks & Filters — bỏ section rỗng)
 
 ## Review bảo mật
-> Ngữ cảnh: [PUBLIC|ADMIN|INTERNAL] | Dữ liệu: [CAO|TRUNG BÌNH|THẤP] | Auth: [JWT|SESSION|API_KEY|SIGNATURE|NONE]
-
-### Rủi ro đã xử lý
-| # | Rủi ro | Cách xử lý | Files |
-|---|--------|-----------|-------|
-
-### Giả định + giới hạn còn lại
-- [giả định bảo mật / rủi ro chấp nhận được, nếu có]
+> Ngữ cảnh: [PUBLIC|ADMIN|INTERNAL] | Dữ liệu: [CAO|TB|THẤP] | Auth: [loại]
+Rủi ro đã xử lý + Giả định/giới hạn (xem format @references/security-checklist.md Phần E3)
 
 ## Sai lệch so với kế hoạch (nếu có)
-| # | Loại | Mô tả | Files |
-(Ghi lại mọi thay đổi ngoài kế hoạch: bug tự sửa, thiếu sót bổ sung, vấn đề chặn đã gỡ)
-
 ## Vấn đề hoãn lại (nếu có)
-(Lỗi có sẵn từ trước, không thuộc phạm vi task này — ghi lại để xử lý sau)
-
 ## Ghi chú
-[Quyết định kỹ thuật đáng lưu ý, nếu có]
 ```
 
 ---
@@ -408,20 +367,7 @@ Thực thi theo waves đã phân tích ở Bước 1.5:
 
 6. **Chuyển wave tiếp theo** → lặp lại từ bước 1 của quy trình wave (spawn agents)
 
-7. **Khi hết waves** → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo:
-```
-╔══════════════════════════════════════════════════╗
-║           HOÀN TẤT SONG SONG                     ║
-╠══════════════════════════════════════════════════╣
-║ Phase [x.x]: [N] tasks hoàn tất                 ║
-║ Waves: [X] | Song song: [Y] tasks | Tuần tự: [Z]║
-╠══════════════════════════════════════════════════╣
-║ Gợi ý:                                          ║
-║   /pd:test              → Kiểm thử (NestJS/WP/Sol/Flutter)║
-║   /pd:plan [phase tiếp] → Phase tiếp theo       ║
-║   /pd:complete-milestone → Đóng milestone        ║
-╚══════════════════════════════════════════════════╝
-```
+7. **Khi hết waves** → thực hiện Bước 9 (cập nhật ROADMAP) rồi thông báo tổng kết: phase, số tasks, waves, gợi ý `/pd:test`, `/pd:plan [phase tiếp]`, `/pd:complete-milestone`.
 
 ### Chế độ `--auto` (tuần tự)
 **Lưu phase ban đầu**: Khi bắt đầu `--auto`, ghi nhớ `INITIAL_PHASE = [phase hiện tại từ CURRENT_MILESTONE.md]`. Dùng giá trị này (KHÔNG đọc lại CURRENT_MILESTONE.md) để xác định scope auto loop.
@@ -465,20 +411,5 @@ DỪNG sau mỗi task, thông báo:
 - **Ranh giới**: CHỈ sửa lỗi do task hiện tại gây ra. Lỗi có sẵn → ghi "Vấn đề hoãn lại", KHÔNG sửa.
 - **Chống tê liệt**: đọc 5+ lần liên tiếp mà chưa viết code → DỪNG, viết ngay hoặc báo bị chặn.
 
-**Quy tắc Khôi phục (PROGRESS.md):**
-- PHẢI tạo PROGRESS.md khi bắt đầu task mới — đây là điểm khôi phục khi gián đoạn
-- PHẢI cập nhật PROGRESS.md sau mỗi file viết xong + sau mỗi giai đoạn hoàn tất
-- Khi task 🔄 có PROGRESS.md → kiểm tra thực tế trên đĩa + git trước khi viết lại — GIỮ NGUYÊN code đã viết tốt, CHỈ viết phần còn thiếu
-- Xóa PROGRESS.md sau commit thành công — task hoàn tất, không cần khôi phục nữa
-- Nếu task 🔄 KHÔNG có PROGRESS.md (bản cũ trước khi có tính năng này) → bắt đầu từ Bước 2, tạo PROGRESS.md mới
-
-**Quy tắc Parallel (--parallel):**
-- CHỈ chạy song song tasks KHÔNG chia sẻ files VÀ KHÔNG có dependency trực tiếp
-- Tasks phụ thuộc nhau (task B cần dùng function/module task A tạo ra) → PHẢI chạy tuần tự
-- Backend + Frontend song song: Frontend agent PHẢI dùng response shape từ PLAN.md, KHÔNG đoán
-- Sau mỗi wave: orchestrator PHẢI verify không có file conflict trước khi commit
-- Sau wave có Backend + Frontend: PHẢI verify integration (types khớp response thực tế)
-- Nếu 2 agents sửa cùng file → DỪNG, báo user — KHÔNG tự merge
-- Orchestrator commit riêng cho mỗi task với prefix `[TASK-N]` riêng biệt (agent KHÔNG tự commit)
-- PHẢI hiển thị wave plan cho user xác nhận trước khi bắt đầu
+**Khôi phục (PROGRESS.md):** PHẢI tạo khi bắt đầu task, cập nhật sau mỗi file, xóa sau commit. Task 🔄 có PROGRESS → kiểm tra đĩa+git, giữ code tốt, chỉ viết phần thiếu. Không có PROGRESS → bắt đầu từ Bước 2.
 </rules>
