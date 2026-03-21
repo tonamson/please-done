@@ -330,11 +330,11 @@ Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài        
 
 | MCP          | Vai trò                                              | Bắt buộc             |
 | ------------ | ---------------------------------------------------- | -------------------- |
-| **FastCode** | Lập chỉ mục + phân tích code dự án (dùng Gemini API) | Có                   |
+| **FastCode** | Lập chỉ mục + phân tích code dự án (dùng Gemini API) | Có (init dừng nếu lỗi; skill khác fallback Grep/Read) |
 | **Context7** | Tra cứu tài liệu API thư viện đúng phiên bản         | Không (nhưng nên có) |
 
 
-Please Done tự động gọi FastCode để nghiên cứu code hiện có và Context7 để tra cứu tài liệu thư viện. Nếu FastCode MCP lỗi, các skill chính sẽ dừng và yêu cầu chạy `init` kiểm tra lại.
+Please Done tự động gọi FastCode để nghiên cứu code hiện có và Context7 để tra cứu tài liệu thư viện. Nếu FastCode MCP lỗi: `init` sẽ dừng (bắt buộc kết nối thành công); các skill khác (`scan`, `plan`, `write-code`, `test`, `fix-bug`) tự động fallback sang Grep/Read kèm cảnh báo — vẫn hoạt động nhưng kém chính xác hơn.
 
 ## Bảo mật
 
