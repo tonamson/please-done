@@ -32,13 +32,13 @@ Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát tri
 ## Nền tảng hỗ trợ
 
 
-| Nền tảng           | Cú pháp gọi skill         | Thư mục cấu hình              |
-| ------------------ | ------------------------- | ----------------------------- |
-| **Claude Code**    | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/`      |
-| **Codex CLI**      | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/`       |
-| **Gemini CLI**     | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/`      |
-| **OpenCode**       | `/pd-init`, `/pd-plan`... | `~/.config/opencode/command/` |
-| **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/`     |
+| Nền tảng           | Cú pháp gọi skill         | Vị trí cài skills (global)    | Vị trí cài skills (local)     |
+| ------------------ | ------------------------- | ----------------------------- | ----------------------------- |
+| **Claude Code**    | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/`      | `.claude/commands/pd/`        |
+| **Codex CLI**      | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/`       | —                             |
+| **Gemini CLI**     | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/`      | —                             |
+| **OpenCode**       | `/pd-init`, `/pd-plan`... | `~/.config/opencode/command/` | —                             |
+| **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/`     | `.github/skills/pd-*/`        |
 
 
 Kiến trúc: Viết 1 lần (Claude Code) → Chuyển đổi khi cài → Chạy native trên từng nền tảng.
@@ -82,24 +82,35 @@ node bin/install.js --claude --local
 
 ### Trình cài đặt tự động thực hiện
 
+**Claude Code** — full setup (6 bước):
 
 | Bước | Mô tả                                                          |
 | ---- | -------------------------------------------------------------- |
-| 1    | Kiểm tra điều kiện tiên quyết (python, uv, git)                |
+| 1    | Kiểm tra điều kiện tiên quyết (python 3.12+, uv, git)          |
 | 2    | Khởi tạo FastCode submodule                                    |
 | 3    | Tạo Python venv + cài thư viện phụ thuộc                       |
 | 4    | Cấu hình Gemini API Key (bắt buộc cho FastCode MCP)            |
-| 5    | Chuyển đổi + sao chép skills vào thư mục cấu hình của nền tảng |
-| 6    | Đăng ký máy chủ MCP (FastCode + Context7)                      |
+| 5    | Symlink skills vào `~/.claude/commands/pd/`                    |
+| 6    | Đăng ký máy chủ MCP (FastCode + Context7) qua `claude mcp add` |
 
+**Codex / Gemini / OpenCode / Copilot** — chỉ chuyển đổi + cài skills (3-4 bước):
 
-### Lấy Gemini API Key (bắt buộc)
+| Bước | Mô tả                                                          |
+| ---- | -------------------------------------------------------------- |
+| 1    | Chuyển đổi skills sang định dạng nền tảng (tên công cụ, cú pháp lệnh, đường dẫn) |
+| 2    | Sao chép skills + rules vào thư mục cấu hình                   |
+| 3    | Lưu `.pdconfig` (trỏ về thư mục source gốc)                    |
+| 4    | Ghi cấu hình MCP vào file config nền tảng (Codex: `config.toml`, Gemini: `settings.json`, Copilot: `copilot-instructions.md`) |
+
+> **Lưu ý:** Các nền tảng non-Claude **không** tự setup Python/venv/Gemini API Key. Cấu hình MCP của chúng trỏ vào `FastCode/.venv/bin/python` — cần cài Claude trước (hoặc setup FastCode thủ công) để MCP hoạt động.
+
+### Lấy Gemini API Key (bắt buộc cho FastCode MCP)
 
 FastCode MCP dùng Gemini API để lập chỉ mục và phân tích code:
 
 1. Truy cập [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
 2. Tạo API key mới
-3. Dán key khi trình cài đặt hỏi
+3. Dán key khi trình cài đặt Claude hỏi, hoặc tự ghi vào `FastCode/.env` nếu cài nền tảng khác trước
 
 ### Context7 MCP (tự động cài)
 
@@ -119,7 +130,7 @@ node bin/install.js --uninstall --copilot
 node bin/install.js --uninstall --all
 ```
 
-Gỡ cài đặt chỉ xóa files có tiền tố `pd-` — không đụng cấu hình/files khác của người dùng.
+Gỡ cài đặt chỉ xóa artefact do Please Done tạo/quản lý (skill files, symlinks, rules, `.pdconfig`, MCP config entries) — không đụng cấu hình/files khác của người dùng.
 
 ## Cập nhật Please Done
 
