@@ -65,8 +65,8 @@ Plans:
 Plans:
 - [x] 03-01-PLAN.md — Install js-tiktoken, create token counting script, capture baseline
 - [ ] 03-02-PLAN.md — Compress 4 largest workflows (new-milestone, write-code, plan, fix-bug)
-- [ ] 03-03-PLAN.md — Compress remaining 6 workflows (test, complete-milestone, scan, init, what-next, conventions)
-- [ ] 03-04-PLAN.md — Compress 12 command/skill files
+- [x] 03-03-PLAN.md — Compress remaining 6 workflows (test, complete-milestone, scan, init, what-next, conventions)
+- [x] 03-04-PLAN.md — Compress 12 command/skill files
 - [ ] 03-05-PLAN.md — Compress 7 non-guard reference files
 - [ ] 03-06-PLAN.md — Compress 10 template files, final measurement, and human verification
 
