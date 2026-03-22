@@ -652,3 +652,53 @@ describe('Repo integrity -- library fallback and version detection', () => {
       'pipeline thieu latest fallback khi khong co version');
   });
 });
+
+// --- Wave-based parallel execution verification --------
+// These tests verify wave-based parallel execution instructions
+// are present in write-code.md (Buoc 1.5) and plan.md.
+// TDD RED until Plan 01 Task 2 expands write-code.md Buoc 1.5.
+
+describe('Repo integrity -- wave-based parallel execution', () => {
+  it('write-code.md co bang hotspot patterns (PARA-03/D-02)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /hotspot/, 'write-code.md: thieu hotspot patterns');
+    assert.match(content, /index\.ts/, 'write-code.md: thieu index.ts trong hotspot');
+    assert.match(content, /app\.module\.ts/, 'write-code.md: thieu app.module.ts trong hotspot');
+    assert.match(content, /layout\.tsx/, 'write-code.md: thieu layout.tsx trong hotspot');
+    assert.match(content, /pubspec\.yaml/, 'write-code.md: thieu pubspec.yaml trong hotspot');
+    assert.match(content, /functions\.php/, 'write-code.md: thieu functions.php trong hotspot');
+  });
+
+  it('write-code.md co auto-serialize conflict handling (PARA-02/D-05)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /auto-serialize|d[oờ]i.*wave/i, 'write-code.md: thieu auto-serialize logic');
+    assert.match(content, /conflict/, 'write-code.md: thieu conflict handling');
+  });
+
+  it('write-code.md co topological sort voi wave grouping (PARA-01)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /in-degree|topological/, 'write-code.md: thieu topological sort instructions');
+    assert.match(content, /Wave 1/, 'write-code.md: thieu wave grouping');
+  });
+
+  it('write-code.md co post-wave build check (D-07)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /build fail.*D[UƯ]NG|D[UƯ]NG.*build fail/is, 'write-code.md: thieu post-wave build check');
+  });
+
+  it('write-code.md co agent context minimization (D-11)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /KH[OÔ]NG dump to[aà]n b[oộ] PLAN/i, 'write-code.md: thieu agent context minimization');
+  });
+
+  it('write-code.md co > Files: cross-reference (PARA-03/D-04)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /> Files:.*cross-reference|giao nhau/i, 'write-code.md: thieu > Files: cross-reference');
+  });
+
+  it('plan.md co > Files: enforcement cho plans >= 3 tasks (D-14)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'plan.md'), 'utf8');
+    assert.match(content, /> Files:/, 'plan.md: thieu > Files: enforcement');
+    assert.match(content, /3 tasks|>= 3|≥ 3/, 'plan.md: thieu >= 3 tasks condition');
+  });
+});
