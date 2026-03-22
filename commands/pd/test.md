@@ -46,7 +46,7 @@ User input: $ARGUMENTS
 
 <execution_context>
 @workflows/test.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 </execution_context>
 
 <process>

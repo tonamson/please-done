@@ -28,7 +28,7 @@ KHÔNG cần rules hay FastCode MCP -- chỉ đọc planning files.
 
 <execution_context>
 @workflows/what-next.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 @references/state-machine.md (optional)
 </execution_context>
 

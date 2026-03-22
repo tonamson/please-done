@@ -36,7 +36,7 @@ User input: $ARGUMENTS (khong dung -- version tu dong tu CURRENT_MILESTONE.md)
 
 <execution_context>
 @workflows/complete-milestone.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 @references/state-machine.md (optional)
 @references/ui-brand.md (optional)
 @references/verification-patterns.md (optional)

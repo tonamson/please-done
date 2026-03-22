@@ -49,7 +49,7 @@ User input: $ARGUMENTS
 @templates/tasks.md (required)
 @templates/research.md (required)
 @references/questioning.md (optional)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 @references/prioritization.md (optional)
 @references/ui-brand.md (optional)
 </execution_context>

@@ -43,7 +43,7 @@ User input: $ARGUMENTS
 
 <execution_context>
 @workflows/fix-bug.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 @references/prioritization.md (optional)
 </execution_context>
 

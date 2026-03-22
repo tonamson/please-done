@@ -49,7 +49,7 @@ User input: $ARGUMENTS
 
 <execution_context>
 @workflows/write-code.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 @references/prioritization.md (optional)
 @references/ui-brand.md (optional)
 @references/security-checklist.md (optional)

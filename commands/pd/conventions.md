@@ -29,7 +29,7 @@ User input: $ARGUMENTS
 
 <execution_context>
 @workflows/conventions.md (required)
-@references/conventions.md (optional)
+@references/conventions.md (required)
 </execution_context>
 
 <process>
