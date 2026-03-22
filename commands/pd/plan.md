@@ -10,7 +10,6 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
-  - Agent
   - AskUserQuestion
   - mcp__fastcode__code_qa
   - mcp__context7__resolve-library-id
@@ -18,8 +17,8 @@ allowed-tools:
 ---
 
 <objective>
-Nghiên cứu dự án, thiết kế giải pháp kỹ thuật và chia task cụ thể.
-`--auto` (mặc định): Claude tự quyết | `--discuss`: thảo luận tương tác, user chọn
+Nghiên cứu dự án, thiết kế giải pháp kỹ thuật và phân chia công việc cụ thể.
+`--auto` (mặc định): AI tự quyết định toàn bộ | `--discuss`: thảo luận tương tác, người dùng chọn phương án.
 </objective>
 
 <guards>
@@ -33,14 +32,14 @@ Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sa
 </guards>
 
 <context>
-User input: $ARGUMENTS
-- `--discuss` -> DISCUSS | mặc định/`--auto` -> AUTO | cả hai -> ưu tiên `--discuss`
-- Phần còn lại = thông tin phase/deliverable
+Dữ liệu nhập: $ARGUMENTS
+- `--discuss` -> Chế độ thảo luận | mặc định/`--auto` -> Chế độ tự động | cả hai -> ưu tiên thảo luận.
+- Phần còn lại = thông tin giai đoạn (phase)/kết quả bàn giao (deliverable).
 
 Đọc thêm:
-- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
-- `.planning/rules/general.md` -> quy tắc chung
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo stack (CHỈ nếu tồn tại)
+- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc dự án.
+- `.planning/rules/general.md` -> quy tắc chung.
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo công nghệ (CHỈ nếu tồn tại).
 </context>
 
 <execution_context>
@@ -55,7 +54,7 @@ User input: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi @workflows/plan.md từ đầu đến cuối.
+Thực hiện quy trình @workflows/plan.md từ đầu đến cuối.
 </process>
 
 <output>
@@ -67,19 +66,19 @@ Thực thi @workflows/plan.md từ đầu đến cuối.
 **Bước tiếp theo:** `/pd:write-code`
 
 **Thành công khi:**
-- Kế hoạch bao phủ tất cả requirement của phase
-- Các task đủ cụ thể để thực hiện từng phần
-- Phần nghiên cứu đủ ngữ cảnh cho triển khai
+- Kế hoạch bao phủ tất cả yêu cầu của giai đoạn.
+- Các công việc (tasks) đủ cụ thể để thực hiện.
+- Phần nghiên cứu cung cấp đủ bối cảnh cho việc triển khai.
 
 **Lỗi thường gặp:**
-- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
-- Thiếu `ROADMAP.md` -> chạy `/pd:new-milestone` trước
-- Phase không tồn tại trong `ROADMAP` -> kiểm tra lại số phase
+- FastCode MCP không kết nối -> kiểm tra dịch vụ đang chạy.
+- Thiếu `ROADMAP.md` -> chạy `/pd:new-milestone` trước.
+- Giai đoạn không tồn tại trong `ROADMAP` -> kiểm tra lại số thứ tự phase.
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- Tôn trọng chế độ `--auto`/`--discuss`: `auto` không hỏi, `discuss` liệt kê lựa chọn
-- KHÔNG viết code trong bước plan, chỉ thiết kế và chia task
-- Phần nghiên cứu PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm dependency mới
+- Mọi kết quả đầu ra PHẢI bằng tiếng Việt có dấu.
+- Tuân thủ chế độ `--auto`/`--discuss`: `auto` không hỏi, `discuss` liệt kê lựa chọn cho người dùng.
+- KHÔNG viết mã nguồn trong bước lập kế hoạch, chỉ thiết kế và phân chia công việc.
+- Phần nghiên cứu PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm thành phần phụ thuộc (dependency) mới.
 </rules>

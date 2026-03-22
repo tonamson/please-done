@@ -10,7 +10,6 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
-  - Agent
   - AskUserQuestion
   - WebSearch
   - mcp__context7__resolve-library-id

@@ -11,11 +11,11 @@ Dành cho dự án đã tồn tại — có thể đã có milestones trước.
 </required_reading>
 
 <conditional_reading>
-Doc CHI KHI can (phan tich mo ta task truoc):
-- @references/questioning.md -> cach hoi user -- KHI can interactive questioning
-- @references/ui-brand.md -> product framing -- KHI du an co UI
-- @references/prioritization.md -> uu tien tasks -- KHI can sap xep nhieu tasks
-- @references/state-machine.md -> luong trang thai milestone -- KHI can hieu state transitions
+Tự động xác định tài liệu cần đọc dựa trên bối cảnh:
+- @references/questioning.md (KHI cần thảo luận chi tiết với người dùng)
+- @references/ui-brand.md (KHI dự án có giao diện người dùng/Frontend)
+- @references/prioritization.md (KHI cần sắp xếp thứ tự ưu tiên các yêu cầu)
+- @references/state-machine.md (KHI cần quản lý vòng đời trạng thái milestone)
 </conditional_reading>
 
 <process>
@@ -31,14 +31,13 @@ Doc CHI KHI can (phan tich mo ta task truoc):
 
 ---
 
-## 0.5: Phân tích dự án -- quyết định tài liệu tham khảo
-Xác định từ CONTEXT.md:
-- Dự án có UI/frontend? → đọc @references/ui-brand.md
-- Cần hỏi user nhiều? → đọc @references/questioning.md
-- Nhiều tasks/phases cần ưu tiên? → đọc @references/prioritization.md
-- Cần hiểu milestone state? → đọc @references/state-machine.md
+## 0.5: Xác định tài liệu tham khảo (Auto-discovery)
 
-Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
+Phân tích `CONTEXT.md` và bối cảnh để kích hoạt tài liệu bổ trợ:
+- Có giao diện người dùng? → đọc @references/ui-brand.md
+- Cần thảo luận sâu với user? → đọc @references/questioning.md
+- Nhiều yêu cầu cần sắp xếp? → đọc @references/prioritization.md
+- Cần quản lý trạng thái phức tạp? → đọc @references/state-machine.md
 
 ---
 
@@ -149,15 +148,14 @@ AskUserQuestion({
 mkdir -p .planning/research
 ```
 
-Thực thi **Parallel Tool Calls** (gọi nhiều tool cùng lúc trong 1 turn) thay vì spawn sub-agents để tiết kiệm token và thời gian:
-1. `mcp__fastcode__code_qa`: "Có component/module nào liên quan [tính năng] có thể tái sử dụng? Kiến trúc hiện tại có điểm nghẽn (bottleneck) nào khi tích hợp tính năng này không?"
-2. `mcp__context7__query-docs` (hoặc WebSearch): "Thư viện tốt nhất cho [tính năng] trên [Stack]? Các lỗ hổng bảo mật phổ biến cần tránh?"
-3. (Tự suy luận internal logic): Vẽ nhanh luồng dữ liệu (Data flow) và User Journey để tìm các edge cases (loading, error, rollback).
+Thực hiện **Gọi công cụ song song** (Parallel Tool Calls) thay vì tạo tác tử con (sub-agents) để tối ưu hóa hiệu suất:
+1. `mcp__fastcode__code_qa`: Tìm kiếm các thành phần (components/modules) có thể tái sử dụng và phát hiện điểm nghẽn kiến trúc tiềm tàng.
+2. `mcp__context7__query-docs` (hoặc WebSearch): Tra cứu thư viện tối ưu nhất cho stack hiện tại và các rủi ro bảo mật cần phòng tránh.
+3. **Logic nội bộ**: Phác thảo luồng dữ liệu (Data flow) và hành trình người dùng (User Journey) để xác định các trường hợp ngoại lệ (edge cases) như lỗi mạng, tải dữ liệu hoặc hoàn tác.
 
-Sau khi có kết quả từ các tools, tổng hợp và ghi trực tiếp vào file:
-`Write: .planning/research/SUMMARY.md` (bao gồm: Thư viện đề xuất, Điểm tái sử dụng, Cạm bẫy kiến trúc, Luồng dữ liệu cần chú ý).
+Sau khi có kết quả, tổng hợp và ghi trực tiếp vào `.planning/research/SUMMARY.md` (bao gồm: Thư viện đề xuất, Điểm tái sử dụng, Cạm bẫy kiến trúc, Luồng dữ liệu cần chú ý).
 
-Hiển thị tóm tắt: thư viện bổ sung, tính năng bắt buộc, cảnh báo top 3.
+Hiển thị tóm tắt cho người dùng: thư viện bổ sung, tính năng bắt buộc, cảnh báo quan trọng nhất.
 
 **Commit:**
 ```bash
