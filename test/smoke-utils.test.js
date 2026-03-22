@@ -18,6 +18,7 @@ const {
   buildFrontmatter,
   extractXmlSection,
   extractReadingRefs,
+  classifyRefs,
   inlineWorkflow,
   inlineGuardRefs,
   listSkillFiles,
@@ -191,6 +192,97 @@ describe('extractReadingRefs', () => {
       'references/ui-brand.md',
       'references/conventions.md',
     ]);
+  });
+});
+
+// ─── classifyRefs ─────────────────────────────────────────
+describe('classifyRefs', () => {
+  it('returns empty arrays for empty input', () => {
+    const result = classifyRefs('');
+    assert.deepEqual(result, { required: [], optional: [] });
+  });
+
+  it('separates required and optional refs, excludes workflows', () => {
+    const input = `@workflows/write-code.md (required)
+@references/conventions.md (required)
+@references/ui-brand.md (optional)`;
+    const result = classifyRefs(input);
+    assert.deepEqual(result, {
+      required: ['references/conventions.md'],
+      optional: ['references/ui-brand.md'],
+    });
+  });
+
+  it('handles templates with (optional) tag', () => {
+    const input = `@references/security-checklist.md (optional)
+@templates/current-milestone.md (optional)`;
+    const result = classifyRefs(input);
+    assert.deepEqual(result, {
+      required: [],
+      optional: ['references/security-checklist.md', 'templates/current-milestone.md'],
+    });
+  });
+});
+
+// ─── inlineWorkflow -- conditional_reading ─────────────────
+describe('inlineWorkflow -- conditional_reading', () => {
+  const skillsDir = path.resolve(__dirname, '..');
+
+  it('produces <conditional_reading> for skills with optional refs', () => {
+    const writeCodeMd = fs.readFileSync(
+      path.join(skillsDir, 'commands', 'pd', 'write-code.md'), 'utf8'
+    );
+    const { body } = parseFrontmatter(writeCodeMd);
+    const result = inlineWorkflow(body, skillsDir);
+    assert.match(result, /<conditional_reading>[\s\S]*<\/conditional_reading>/,
+      'write-code: missing <conditional_reading> section');
+  });
+
+  it('excludes optional refs from <required_reading>', () => {
+    const writeCodeMd = fs.readFileSync(
+      path.join(skillsDir, 'commands', 'pd', 'write-code.md'), 'utf8'
+    );
+    const { body } = parseFrontmatter(writeCodeMd);
+    const result = inlineWorkflow(body, skillsDir);
+    const requiredReading = extractXmlSection(result, 'required_reading') || '';
+    assert.ok(!requiredReading.includes('security-checklist'),
+      'optional ref security-checklist found in required_reading');
+    assert.ok(!requiredReading.includes('ui-brand'),
+      'optional ref ui-brand found in required_reading');
+    assert.ok(!requiredReading.includes('verification-patterns'),
+      'optional ref verification-patterns found in required_reading');
+    assert.ok(!requiredReading.includes('prioritization'),
+      'optional ref prioritization found in required_reading');
+  });
+
+  it('includes optional refs in <conditional_reading> with loading conditions', () => {
+    const writeCodeMd = fs.readFileSync(
+      path.join(skillsDir, 'commands', 'pd', 'write-code.md'), 'utf8'
+    );
+    const { body } = parseFrontmatter(writeCodeMd);
+    const result = inlineWorkflow(body, skillsDir);
+    const conditionalReading = extractXmlSection(result, 'conditional_reading') || '';
+    assert.ok(conditionalReading.includes('security-checklist'),
+      'security-checklist missing from conditional_reading');
+    assert.ok(conditionalReading.includes('ui-brand'),
+      'ui-brand missing from conditional_reading');
+    assert.ok(conditionalReading.includes('verification-patterns'),
+      'verification-patterns missing from conditional_reading');
+    assert.ok(conditionalReading.includes('prioritization'),
+      'prioritization missing from conditional_reading');
+    // Check loading conditions are present
+    assert.ok(conditionalReading.includes('KHI'),
+      'loading conditions missing from conditional_reading');
+  });
+
+  it('no <conditional_reading> for skills without optional refs', () => {
+    const testMd = fs.readFileSync(
+      path.join(skillsDir, 'commands', 'pd', 'test.md'), 'utf8'
+    );
+    const { body } = parseFrontmatter(testMd);
+    const result = inlineWorkflow(body, skillsDir);
+    assert.ok(!result.includes('<conditional_reading>'),
+      'test.md should not have <conditional_reading> (conventions.md is required)');
   });
 });
 
