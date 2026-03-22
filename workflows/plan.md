@@ -242,6 +242,7 @@ Nguyên tắc:
    - **Phụ thuộc design**: dùng response shape từ PLAN.md (không cần code thực) → ghi `Không` (parallel-safe)
    - **Phụ thuộc file**: sửa chung file → ghi `Task A (shared file)`
 11. **Effort level** (TOKN-04): mỗi task PHẢI có `Effort:` trong metadata. Mặc định: `standard`.
+12. **`> Files:` bắt buộc** (PARA-03): plan có >= 3 tasks → planner PHẢI ghi đầy đủ `> Files:` field cho mỗi task. Dựa trên Ghi chú kỹ thuật + mô tả task. Không cần chính xác 100% — heuristic đủ cho conflict detection. Thiếu `> Files:` → parallel mode không thể phân tích conflict → kém hiệu quả. Ghi CẢ files tạo mới VÀ files sửa
 
 ### Phân loại effort cho task
 
