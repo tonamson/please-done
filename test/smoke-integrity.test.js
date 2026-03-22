@@ -501,11 +501,10 @@ describe('Repo integrity -- context7 standardization', () => {
     assert.ok(!content.includes('BAT BUOC tra Context7 (nestjs)'), 'pipeline con sot nestjs-specific rule');
   });
 
-  it('pipeline co 3 lua chon xu ly loi (D-11)', () => {
+  it('pipeline KHONG con hard-stop 3 lua chon (thay the boi fallback)', () => {
     const content = fs.readFileSync(path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
-    assert.match(content, /Tiep tuc khong docs/, 'pipeline thieu option 1');
-    assert.match(content, /sua Context7/, 'pipeline thieu option 2');
-    assert.match(content, /\/pd:fetch-doc/, 'pipeline thieu option 3');
+    assert.ok(!content.includes('Tiep tuc khong docs'), 'pipeline con sot hard-stop option 1');
+    assert.ok(!content.includes('sua Context7 roi chay lai'), 'pipeline con sot hard-stop option 2');
   });
 
   it('5 skills co Context7 trong allowed-tools', () => {
@@ -561,5 +560,95 @@ describe('Repo integrity -- context7 standardization', () => {
         `workflows/${name}.md: con sot silent fallback "knowledge san"`
       );
     }
+  });
+});
+
+// --- Library fallback and version detection verification --------
+// These tests verify version detection (LIBR-03) and fallback chain (LIBR-02).
+// TDD RED until Plan 01 Task 2 expands context7-pipeline.md.
+
+describe('Repo integrity -- library fallback and version detection', () => {
+  it('context7-pipeline.md co Buoc 0 Version (LIBR-03a)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /Buoc 0.*Version/i,
+      'pipeline thieu Buoc 0 Version');
+  });
+
+  it('version detection tham chieu 3 manifest types (LIBR-03b)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /package\.json/,
+      'pipeline thieu package.json reference');
+    assert.match(content, /pubspec\.yaml/,
+      'pipeline thieu pubspec.yaml reference');
+    assert.match(content, /composer\.json/,
+      'pipeline thieu composer.json reference');
+  });
+
+  it('pipeline co fallback chain voi 3 nguon (LIBR-02a)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /[Ff]allback/,
+      'pipeline thieu fallback section');
+    assert.match(content, /[Pp]roject docs/i,
+      'pipeline thieu project docs fallback');
+    assert.match(content, /[Cc]odebase/,
+      'pipeline thieu codebase fallback');
+    assert.match(content, /[Tt]raining data/i,
+      'pipeline thieu training data fallback');
+  });
+
+  it('fallback thu tu dung: project docs < codebase < training data (LIBR-02a)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    const projectDocsPos = content.search(/[Pp]roject docs/i);
+    const codebasePos = content.search(/[Cc]odebase/);
+    const trainingPos = content.search(/[Tt]raining data/i);
+    assert.ok(projectDocsPos < codebasePos,
+      'project docs phai truoc codebase');
+    assert.ok(codebasePos < trainingPos,
+      'codebase phai truoc training data');
+  });
+
+  it('fallback tu dong, KHONG hoi user (LIBR-02b/D-03)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /[Tt]u dong|TU DONG/,
+      'fallback phai ghi ro tu dong');
+    assert.match(content, /KHONG hoi/,
+      'fallback phai ghi KHONG hoi user');
+  });
+
+  it('training data co warning (LIBR-02c/D-04)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /knowledge s[aă]n/,
+      'pipeline thieu warning training data');
+    assert.match(content, /khong chinh xac/,
+      'pipeline thieu canh bao khong chinh xac');
+  });
+
+  it('pipeline co transparency message format (LIBR-02e/D-11)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /nguon:/,
+      'pipeline thieu transparency message format');
+  });
+
+  it('version detection co monorepo heuristic (LIBR-03c/D-08)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /nest-cli\.json/,
+      'pipeline thieu NestJS monorepo heuristic');
+    assert.match(content, /next\.config/,
+      'pipeline thieu NextJS monorepo heuristic');
+  });
+
+  it('khong tim thay version thi dung latest (LIBR-03d/D-10)', () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /latest/,
+      'pipeline thieu latest fallback khi khong co version');
   });
 });

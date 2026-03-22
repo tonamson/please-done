@@ -122,11 +122,10 @@ Plans:
   1. When Context7 is unreachable or returns no results, the system falls back to project docs, then codebase examples, then training data -- in that order
   2. Library versions are automatically read from package.json, pubspec.yaml, or composer.json and passed to Context7 queries
   3. The fallback chain is transparent -- the user can see which source was used for library documentation
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 07-01: TBD
-- [ ] 07-02: TBD
+- [ ] 07-01-PLAN.md — Add version detection (Buoc 0) and auto-fallback chain to context7-pipeline.md, replace hard-stop error handling, add smoke tests
 
 ### Phase 8: Wave-Based Parallel Execution
 **Goal**: Independent tasks within a plan execute concurrently in waves, with file-conflict detection preventing two agents from modifying the same file
@@ -177,6 +176,6 @@ Note: Phase 6 can begin after Phase 1 (does not depend on Phases 2-5).
 | 4. Conditional Context Loading | 2/2 | Complete   | 2026-03-22 |
 | 5. Effort-Level Routing | 0/2 | Not started | - |
 | 6. Context7 Standardization | 0/2 | Not started | - |
-| 7. Library Fallback and Version Detection | 0/TBD | Not started | - |
+| 7. Library Fallback and Version Detection | 0/1 | Not started | - |
 | 8. Wave-Based Parallel Execution | 0/TBD | Not started | - |
 | 9. Converter Pipeline Optimization | 0/TBD | Not started | - |
