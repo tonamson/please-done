@@ -18,9 +18,12 @@ allowed-tools:
 Skill đầu tiên phải chạy trước mọi skill khác. Kiểm tra FastCode MCP (BẮT BUỘC kết nối thành công), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules phù hợp vào .planning/rules/.
 </objective>
 
-<execution_context>
-@workflows/init.md
-</execution_context>
+<guards>
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
+
+- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
+- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+</guards>
 
 <context>
 User input: $ARGUMENTS (path dự án, mặc định thư mục hiện tại)
@@ -34,7 +37,33 @@ Rules templates: đọc `.pdconfig` → lấy `SKILLS_DIR` → rules nằm tại
 - `flutter.md` — quy tắc Flutter/Dart (chỉ copy nếu có Flutter)
 </context>
 
+<execution_context>
+@workflows/init.md (required)
+</execution_context>
+
 <process>
 Thực thi quy trình từ @workflows/init.md từ đầu đến cuối.
 Giữ nguyên tất cả các bước kiểm tra, phát hiện tech stack, copy rules, và tạo CONTEXT.md.
 </process>
+
+<output>
+**Tao/Cap nhat:**
+- `.planning/CONTEXT.md` -- project context
+- `.planning/rules/*.md` -- framework rules (conditional)
+
+**Buoc tiep theo:** `/pd:scan` hoac `/pd:plan`
+
+**Thanh cong khi:**
+- CONTEXT.md co day du thong tin tech stack
+- FastCode MCP da xac nhan ket noi
+
+**Loi thuong gap:**
+- FastCode MCP khong ket noi -> kiem tra Docker dang chay
+- Khong phat hien tech stack -> user can them thong tin thu cong
+</output>
+
+<rules>
+- Moi output PHAI bang tieng Viet co dau
+- PHAI xac nhan FastCode MCP ket noi truoc khi thuc hien bat ky buoc nao
+- KHONG duoc thay doi file ngoai .planning/
+</rules>

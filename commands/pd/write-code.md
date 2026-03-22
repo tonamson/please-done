@@ -30,14 +30,15 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 **Sau khi xong:** `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`.
 </objective>
 
-<execution_context>
-@workflows/write-code.md
-@references/conventions.md
-@references/prioritization.md
-@references/ui-brand.md
-@references/security-checklist.md
-@references/verification-patterns.md
-</execution_context>
+<guards>
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
+
+- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+- [ ] Task number hop le hoac co flag --auto/--parallel -> "Cung cap so task hoac flag che do."
+- [ ] PLAN.md + TASKS.md ton tai cho phase hien tai -> "Chay `/pd:plan` truoc de tao plan."
+- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+</guards>
 
 <context>
 User input: $ARGUMENTS
@@ -46,9 +47,6 @@ User input: $ARGUMENTS
 - `--parallel` → chạy song song tasks độc lập
 - Kết hợp: `3 --auto`, `3 --parallel`
 - Không có gì → pick task tiếp theo ⬜, làm xong 1 task thì DỪNG hỏi user
-
-**Tự kiểm tra trước khi bắt đầu** (DỪNG nếu thiếu):
-1. `.planning/CONTEXT.md` → nếu không có → "Chạy `/pd:init` trước."
 
 Đọc thêm:
 - `.planning/PROJECT.md` (nếu có) → tầm nhìn dự án, ràng buộc
@@ -60,7 +58,44 @@ User input: $ARGUMENTS
 - `.planning/rules/flutter.md` → quy tắc Flutter/Dart (CHỈ nếu file tồn tại)
 </context>
 
+<execution_context>
+@workflows/write-code.md (required)
+@references/conventions.md (optional)
+@references/prioritization.md (optional)
+@references/ui-brand.md (optional)
+@references/security-checklist.md (optional)
+@references/verification-patterns.md (optional)
+</execution_context>
+
 <process>
 Thực thi quy trình từ @workflows/write-code.md từ đầu đến cuối.
 Tất cả logic (chọn task, viết code, lint/build, bảo mật, commit, cập nhật trạng thái) nằm trong workflow — command này chỉ cung cấp context + điểm vào.
 </process>
+
+<output>
+**Tao/Cap nhat:**
+- Source code files theo task
+- Test files (neu task yeu cau)
+- Cap nhat TASKS.md (trang thai task)
+- Cap nhat PROGRESS.md (tien trinh)
+
+**Buoc tiep theo:** `/pd:test`, `/pd:plan [phase tiep]`, hoac `/pd:complete-milestone`
+
+**Thanh cong khi:**
+- Code viet xong, lint + build pass
+- Task duoc danh dau hoan thanh trong TASKS.md
+- Commit duoc tao voi message ro rang
+
+**Loi thuong gap:**
+- Lint/build fail -> doc loi, sua code, chay lai
+- Task khong ro rang -> hoi user qua AskUserQuestion
+- MCP khong ket noi -> kiem tra Docker va cau hinh
+</output>
+
+<rules>
+- Moi output PHAI bang tieng Viet co dau
+- PHAI doc va tuan thu rules trong `.planning/rules/` truoc khi viet code
+- PHAI chay lint + build sau khi viet code
+- PHAI commit sau moi task hoan thanh
+- KHONG duoc thay doi code ngoai pham vi task
+</rules>
