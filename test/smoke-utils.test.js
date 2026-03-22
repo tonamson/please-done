@@ -19,6 +19,7 @@ const {
   extractXmlSection,
   extractReadingRefs,
   inlineWorkflow,
+  inlineGuardRefs,
   listSkillFiles,
   fileHash,
 } = require('../bin/lib/utils');
@@ -128,6 +129,52 @@ Thực thi quy trình.
 
     const result = inlineWorkflow(body, skillsDir);
     assert.match(result, /\[SKILLS_DIR\]\/references\/ui-brand\.md/);
+  });
+
+  it('expand guard refs ngay ca khi khong co @workflows/', () => {
+    // Skill without @workflows/ reference — inlineWorkflow should still expand guard refs
+    const body = '<guards>\n@references/guard-context.md\n</guards>\n<process>Simple</process>';
+    const result = inlineWorkflow(body, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'));
+  });
+});
+
+// ─── Guard reference inlining ────────────────────────────
+describe('inlineGuardRefs', () => {
+  const skillsDir = path.resolve(__dirname, '..');
+
+  it('thay the @references/guard-*.md bang noi dung file', () => {
+    const body = '<guards>\n@references/guard-context.md\n</guards>';
+    const result = inlineGuardRefs(body, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'));
+  });
+
+  it('thay the nhieu guard refs trong cung body', () => {
+    const body = '<guards>\n@references/guard-context.md\n@references/guard-fastcode.md\n</guards>';
+    const result = inlineGuardRefs(body, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.match(result, /FastCode MCP/);
+  });
+
+  it('giu nguyen @references/ khong phai guard', () => {
+    const body = '@references/conventions.md\n@references/guard-context.md';
+    const result = inlineGuardRefs(body, skillsDir);
+    assert.ok(result.includes('@references/conventions.md'));
+    assert.ok(!result.includes('@references/guard-context.md'));
+  });
+
+  it('khong thay doi khi khong co guard refs', () => {
+    const body = '<guards>\n- [ ] Custom guard\n</guards>';
+    const result = inlineGuardRefs(body, skillsDir);
+    assert.equal(result, body);
+  });
+
+  it('giu nguyen dong khi file guard khong ton tai', () => {
+    const body = '@references/guard-nonexistent.md';
+    const result = inlineGuardRefs(body, skillsDir);
+    assert.equal(result, '@references/guard-nonexistent.md');
   });
 });
 

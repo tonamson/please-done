@@ -228,6 +228,22 @@ function extractReadingRefs(content) {
 }
 
 /**
+ * Thay thế @references/guard-*.md bằng nội dung file tương ứng.
+ * Chỉ match các dòng standalone @references/guard-*.md (không match refs khác).
+ * Nếu file không tồn tại, giữ nguyên dòng gốc.
+ */
+function inlineGuardRefs(body, skillsDir) {
+  return body.replace(
+    /^@references\/(guard-[a-z0-9_-]+\.md)$/gm,
+    (match, filename) => {
+      const guardPath = path.join(skillsDir, 'references', filename);
+      if (!fs.existsSync(guardPath)) return match;
+      return fs.readFileSync(guardPath, 'utf8').trim();
+    }
+  );
+}
+
+/**
  * Inline nội dung workflow vào body của command.
  * Nếu command tham chiếu @workflows/X.md, đọc file workflow và:
  * - Thay <execution_context> bằng <required_reading> từ workflow
@@ -237,6 +253,9 @@ function extractReadingRefs(content) {
  * Dùng đường dẫn gốc Claude (~/.claude/) — converter sẽ replace paths sau.
  */
 function inlineWorkflow(body, skillsDir) {
+  // Expand guard references (independent of workflow presence)
+  body = inlineGuardRefs(body, skillsDir);
+
   // Tìm tham chiếu @workflows/X.md
   const workflowMatch = body.match(/@workflows\/([a-z0-9_-]+\.md)/);
   if (!workflowMatch) return body;
@@ -327,5 +346,6 @@ module.exports = {
   isWSL,
   extractXmlSection,
   extractReadingRefs,
+  inlineGuardRefs,
   inlineWorkflow,
 };

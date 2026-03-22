@@ -13,6 +13,7 @@
 
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
+const path = require('path');
 
 const codex = require('../bin/lib/converters/codex');
 const copilot = require('../bin/lib/converters/copilot');
@@ -51,6 +52,33 @@ Gọi mcp__context7__query-docs để tra cứu docs.
 
 <process>
 Thực thi quy trình kiểm thử.
+</process>
+`;
+
+const SAMPLE_SKILL_WITH_GUARDS = `---
+name: pd:guard-test
+description: Guard expansion test
+allowed-tools:
+  - Read
+---
+
+<guards>
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
+
+@references/guard-context.md
+- [ ] Custom unique guard
+</guards>
+
+<objective>
+Test objective.
+</objective>
+
+<execution_context>
+@workflows/write-code.md (required)
+</execution_context>
+
+<process>
+Test process.
 </process>
 `;
 
@@ -266,5 +294,34 @@ describe('Copilot instructions merge/strip', () => {
     const stripped = copilot.stripInstructions(merged);
     assert.ok(!stripped.includes('PD_SKILLS'), 'strip chưa xóa sạch');
     assert.match(stripped, /My instructions/);
+  });
+});
+
+// ─── Guard expansion in converters ──────────────────────
+describe('Guard expansion in converters', () => {
+  const skillsDir = path.resolve(__dirname, '..');
+
+  it('Codex converter expands guard refs', () => {
+    const result = codex.convertSkill(SAMPLE_SKILL_WITH_GUARDS, 'guard-test', skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'), 'raw guard ref not expanded');
+  });
+
+  it('Copilot converter expands guard refs', () => {
+    const result = copilot.convertSkill(SAMPLE_SKILL_WITH_GUARDS, true, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'), 'raw guard ref not expanded');
+  });
+
+  it('Gemini converter expands guard refs', () => {
+    const result = gemini.convertSkill(SAMPLE_SKILL_WITH_GUARDS, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'), 'raw guard ref not expanded');
+  });
+
+  it('OpenCode converter expands guard refs', () => {
+    const result = opencode.convertSkill(SAMPLE_SKILL_WITH_GUARDS, skillsDir);
+    assert.match(result, /ton tai/);
+    assert.ok(!result.includes('@references/guard-context.md'), 'raw guard ref not expanded');
   });
 });
