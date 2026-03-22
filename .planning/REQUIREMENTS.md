@@ -20,9 +20,9 @@
 
 ### Parallel Execution
 
-- [ ] **PARA-01**: Wave-based parallel execution — topological sort tasks, nhóm independent tasks thành waves chạy đồng thời
-- [ ] **PARA-02**: File-conflict detection — phân tích affected files, ngăn 2 agents sửa cùng 1 file trong cùng wave
-- [ ] **PARA-03**: Enhanced shared-file detection — phát hiện barrel exports, config files, shared modules, framework hotspots (app.module.ts, layout.tsx)
+- [x] **PARA-01**: Wave-based parallel execution — topological sort tasks, nhóm independent tasks thành waves chạy đồng thời
+- [x] **PARA-02**: File-conflict detection — phân tích affected files, ngăn 2 agents sửa cùng 1 file trong cùng wave
+- [x] **PARA-03**: Enhanced shared-file detection — phát hiện barrel exports, config files, shared modules, framework hotspots (app.module.ts, layout.tsx)
 
 ### Skill Readability
 
@@ -75,9 +75,9 @@
 | LIBR-01 | Phase 6: Context7 Standardization | Complete |
 | LIBR-02 | Phase 7: Library Fallback and Version Detection | Complete |
 | LIBR-03 | Phase 7: Library Fallback and Version Detection | Complete |
-| PARA-01 | Phase 8: Wave-Based Parallel Execution | Pending |
-| PARA-02 | Phase 8: Wave-Based Parallel Execution | Pending |
-| PARA-03 | Phase 8: Wave-Based Parallel Execution | Pending |
+| PARA-01 | Phase 8: Wave-Based Parallel Execution | Complete |
+| PARA-02 | Phase 8: Wave-Based Parallel Execution | Complete |
+| PARA-03 | Phase 8: Wave-Based Parallel Execution | Complete |
 | INST-01 | Phase 9: Converter Pipeline Optimization | Pending |
 | INST-02 | Phase 9: Converter Pipeline Optimization | Pending |
 

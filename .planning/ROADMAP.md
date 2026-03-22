@@ -140,7 +140,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 08-01-PLAN.md — Add TDD smoke tests and expand write-code.md Bước 1.5 with topological sort, hotspot patterns, and auto-serialize
+- [x] 08-01-PLAN.md — Add TDD smoke tests and expand write-code.md Bước 1.5 with topological sort, hotspot patterns, and auto-serialize
 - [ ] 08-02-PLAN.md — Improve write-code.md Bước 10 with agent context minimization, post-wave safety net, and add > Files: enforcement to plan.md
 
 ## Converter Pipeline
