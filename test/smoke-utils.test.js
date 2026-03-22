@@ -276,13 +276,18 @@ describe('inlineWorkflow -- conditional_reading', () => {
   });
 
   it('no <conditional_reading> for skills without optional refs', () => {
-    const testMd = fs.readFileSync(
-      path.join(skillsDir, 'commands', 'pd', 'test.md'), 'utf8'
-    );
-    const { body } = parseFrontmatter(testMd);
+    // Synthetic body with only required refs (no optional) -- simulates test.md after conventions.md promotion
+    const body = `<execution_context>
+@workflows/test.md (required)
+@references/conventions.md (required)
+</execution_context>
+
+<process>
+Thuc thi quy trinh.
+</process>`;
     const result = inlineWorkflow(body, skillsDir);
     assert.ok(!result.includes('<conditional_reading>'),
-      'test.md should not have <conditional_reading> (conventions.md is required)');
+      'skill with only required refs should not have <conditional_reading>');
   });
 });
 
