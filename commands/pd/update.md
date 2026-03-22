@@ -16,10 +16,10 @@ Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật 
 </objective>
 
 <guards>
-DỪNG và hướng dẫn user nếu bất kỳ điều kiện nào thất bại:
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.pdconfig` tồn tại -> "Chưa cài đặt skills. Chạy `node bin/install.js` trước."
-- [ ] Kết nối mạng khả dụng (git fetch thành công) -> "Không thể kết nối GitHub. Kiểm tra mạng và thử lại."
+- [ ] `.pdconfig` ton tai -> "Chua cai dat skills. Chay `node bin/install.js` truoc."
+- [ ] Ket noi mang kha dung (git fetch thanh cong) -> "Khong the ket noi GitHub. Kiem tra mang va thu lai."
 </guards>
 
 <context>

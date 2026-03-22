@@ -22,13 +22,13 @@ Khởi tạo milestone mới: kiểm tra -> cập nhật dự án -> hỏi -> ng
 </objective>
 
 <guards>
-DỪNG và hướng dẫn user nếu bất kỳ điều kiện nào thất bại:
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` tồn tại -> "Chạy `/pd:init` trước."
-- [ ] `.planning/rules/general.md` tồn tại -> "Rules bị thiếu. Chạy `/pd:init` để tạo lại."
-- [ ] Tên milestone được cung cấp hoặc sẽ hỏi user nếu không có
-- [ ] Context7 MCP kết nối thành công (mcp__context7__resolve-library-id)
-- [ ] WebSearch khả dụng cho nghiên cứu
+@references/guard-context.md
+- [ ] `.planning/rules/general.md` ton tai -> "Rules bi thieu. Chay `/pd:init` de tao lai."
+- [ ] Ten milestone duoc cung cap hoac se hoi user neu khong co
+@references/guard-context7.md
+- [ ] WebSearch kha dung cho nghien cuu
 </guards>
 
 <context>

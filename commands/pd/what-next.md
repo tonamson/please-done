@@ -16,9 +16,9 @@ Skill này CHỈ ĐỌC, KHÔNG sửa file, KHÔNG gọi FastCode MCP.
 </objective>
 
 <guards>
-DỪNG và hướng dẫn user nếu bất kỳ điều kiện nào thất bại:
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] Thư mục `.planning/` tồn tại -> "Chưa khởi tạo dự án. Chạy `/pd:init` trước."
+- [ ] Thu muc `.planning/` ton tai -> "Chua khoi tao du an. Chay `/pd:init` truoc."
 </guards>
 
 <context>

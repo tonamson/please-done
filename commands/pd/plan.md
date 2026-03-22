@@ -25,13 +25,13 @@ Hỗ trợ 2 chế độ:
 </objective>
 
 <guards>
-DỪNG và hướng dẫn user nếu bất kỳ điều kiện nào thất bại:
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` tồn tại -> "Chạy `/pd:init` trước."
-- [ ] `.planning/ROADMAP.md` tồn tại -> "Chạy `/pd:new-milestone` trước."
-- [ ] `.planning/CURRENT_MILESTONE.md` tồn tại -> "Thiếu CURRENT_MILESTONE.md. Chạy `/pd:new-milestone` để tạo."
-- [ ] FastCode MCP kết nối thành công (mcp__fastcode__code_qa)
-- [ ] Context7 MCP kết nối thành công (mcp__context7__resolve-library-id)
+@references/guard-context.md
+- [ ] `.planning/ROADMAP.md` ton tai -> "Chay `/pd:new-milestone` truoc."
+- [ ] `.planning/CURRENT_MILESTONE.md` ton tai -> "Thieu CURRENT_MILESTONE.md. Chay `/pd:new-milestone` de tao."
+@references/guard-fastcode.md
+@references/guard-context7.md
 </guards>
 
 <context>
