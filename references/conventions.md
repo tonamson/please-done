@@ -1,7 +1,7 @@
 # Quy ước chung dự án
 
 > Dùng bởi: tất cả commands và workflows
-> Mục đích: nguồn sự thật duy nhất cho các patterns/quy ước chia sẻ giữa nhiều commands
+> Nguồn sự thật duy nhất cho patterns/quy ước chia sẻ
 
 ## Biểu tượng trạng thái Task
 
@@ -13,42 +13,37 @@
 | ❌ | Bị chặn | Task bị chặn bởi dependency hoặc vấn đề khác |
 | 🐛 | Có lỗi | Task có test fail hoặc phát hiện bug |
 
-**Quy tắc cập nhật trạng thái:**
-- Cập nhật CẢ HAI nơi: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái:`)
-- Đánh ✅ TRƯỚC commit (để commit bao gồm trạng thái hoàn tất). Nếu commit fail → revert về 🔄, sửa lỗi rồi thử lại
-- Chỉ đánh 🐛 khi có test fail hoặc bug report mở
+**Quy tắc cập nhật:**
+- Cập nhật CẢ HAI: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái:`)
+- Đánh ✅ TRƯỚC commit. Commit fail → revert 🔄, sửa rồi thử lại
+- 🐛 chỉ khi có test fail hoặc bug report mở
 
 ## Quy tắc version
 
 ### Patch version
 Format: `[major].[minor].[patch]` — VD: `1.0.1`
 
-**Xác định patch version mới:**
+**Xác định patch mới:**
 1. Glob `.planning/bugs/BUG_*.md`
-2. Grep `Patch version:` → lọc entries dạng `[version-gốc].N` (3 số)
-3. Tìm patch cao nhất hiện có
-4. Nếu chưa có patch → `[version-gốc].1` (VD: `1.0.1`)
-5. Nếu đã có → tăng: `1.0.1` → `1.0.2`
+2. Grep `Patch version:` → lọc `[version-gốc].N` (3 số)
+3. Tìm patch cao nhất
+4. Chưa có → `[version-gốc].1`
+5. Đã có → tăng: `1.0.1` → `1.0.2`
 
-**Lỗi thuộc version hiện tại (milestone chưa hoàn tất):**
-- Patch = `[version].0` (VD: `1.1.0`)
-- Nếu đã có → tìm patch cao nhất, tăng 1
+**Lỗi thuộc version hiện tại:** Patch = `[version].0`. Đã có → tìm cao nhất, +1.
 
-### Version filtering (match bugs thuộc milestone)
+### Version filtering
 
 Bug thuộc milestone nếu `Patch version` khớp:
-- Bằng chính xác `[version]` (VD: `1.0`)
-- HOẶC bắt đầu bằng `[version].` theo sau bởi số (VD: `1.0.1`, `1.0.2`)
+- Chính xác `[version]` hoặc bắt đầu `[version].[digit]`
 - KHÔNG match: `1.1`, `1.10`, `10.0`, `2.0`
 
-**Pattern sử dụng:**
 ```
 Grep `Patch version: [version]` trong .planning/bugs/BUG_*.md
-→ lọc kết quả: chỉ lấy khớp CHÍNH XÁC `[version]` hoặc `[version].[digit]`
-→ PHẢI dùng word boundary hoặc so sánh chính xác — KHÔNG dùng substring match
-→ Cách an toàn: đọc giá trị `Patch version:`, tách bằng dấu chấm,
-  so sánh [major].[minor] bằng số (VD: "1.0.2" → major=1, minor=0 → khớp version "1.0")
-  KHÔNG match: "10.0" khi tìm "1.0", "1.10" khi tìm "1.1"
+→ lọc: chỉ khớp CHÍNH XÁC `[version]` hoặc `[version].[digit]`
+→ PHẢI dùng word boundary — KHÔNG substring match
+→ Cách an toàn: đọc giá trị, tách dấu chấm,
+  so sánh [major].[minor] bằng số (VD: "1.0.2" → major=1, minor=0 → khớp "1.0")
 ```
 
 ## Commit prefixes
@@ -63,7 +58,7 @@ Grep `Patch version: [version]` trong .planning/bugs/BUG_*.md
 
 ## Format ngày tháng
 
-- File names: `DD_MM_YYYY_HH_MM_SS` (VD: `21_03_2026_14_30_00`)
+- File names: `DD_MM_YYYY_HH_MM_SS`
 - Hiển thị: `DD_MM_YYYY` hoặc `DD_MM_YYYY HH:MM`
 - KHÔNG dùng format khác (ISO, US, v.v.)
 
@@ -76,9 +71,6 @@ Grep `Patch version: [version]` trong .planning/bugs/BUG_*.md
 
 ## Bảo mật — Files cấm đọc
 
-CẤM đọc/hiển thị nội dung:
-- `.env`, `.env.*` (trừ `.env.example`)
-- `credentials.*`, `*.pem`, `*.key`, `*secret*`
-- `wp-config.php`
+CẤM đọc/hiển thị nội dung: `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`
 
-Chỉ được ghi tên biến, KHÔNG bao giờ ghi giá trị.
+Chỉ ghi tên biến, KHÔNG bao giờ ghi giá trị.
