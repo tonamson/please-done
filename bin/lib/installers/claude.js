@@ -59,10 +59,12 @@ async function install(skillsDir, targetDir, options = {}) {
     log.warn('Đang cài uv...');
     try {
       exec('curl -LsSf https://astral.sh/uv/install.sh | sh', { timeout: 60000 });
-    } catch {
+    } catch (curlErr) {
+      log.warn(`uv install via curl failed: ${curlErr.message}, trying pip3...`);
       try {
         exec('pip3 install uv --break-system-packages');
-      } catch {
+      } catch (pip3Err) {
+        log.warn(`pip3 --break-system-packages failed: ${pip3Err.message}, trying without flag...`);
         exec('pip3 install uv');
       }
     }
@@ -96,7 +98,8 @@ async function install(skillsDir, targetDir, options = {}) {
   if (!fs.existsSync(venvDir)) {
     try {
       exec(`cd "${fastcodeDir}" && uv venv --python=${pyMajor}.${pyMinor}`, { timeout: 60000 });
-    } catch {
+    } catch (err) {
+      log.warn(`uv venv with specific python failed: ${err.message}, trying default...`);
       exec(`cd "${fastcodeDir}" && uv venv`, { timeout: 60000 });
     }
     log.success('Virtual environment đã tạo');

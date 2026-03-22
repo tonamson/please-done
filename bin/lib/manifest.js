@@ -28,8 +28,9 @@ function generateManifest(dir, baseDir) {
     let stat;
     try {
       stat = fs.statSync(fullPath);
-    } catch {
-      continue; // broken symlink
+    } catch (err) {
+      log.warn(`Broken symlink skipped: ${fullPath} (${err.code || err.message})`);
+      continue;
     }
 
     if (stat.isDirectory()) {
@@ -69,7 +70,9 @@ function writeManifest(configDir, version, installedDirs) {
   // Xóa manifest cũ từ bản sk nếu tồn tại
   const legacyManifest = path.join(configDir, 'sk-file-manifest.json');
   if (fs.existsSync(legacyManifest)) {
-    try { fs.unlinkSync(legacyManifest); } catch { /* ignore */ }
+    try { fs.unlinkSync(legacyManifest); } catch (err) {
+      log.warn(`Failed to remove legacy manifest: ${legacyManifest} (${err.message})`);
+    }
   }
 
   return manifest;
@@ -87,7 +90,8 @@ function readManifest(configDir) {
     if (fs.existsSync(mp)) {
       try {
         return JSON.parse(fs.readFileSync(mp, 'utf8'));
-      } catch {
+      } catch (err) {
+        log.warn(`Invalid manifest JSON: ${mp} (${err.message})`);
         continue;
       }
     }
@@ -177,7 +181,9 @@ function reportLocalPatches(configDir) {
       }
       log.info(`  Backup tại: ${patchesDir}`);
     }
-  } catch { /* ignore */ }
+  } catch (err) {
+    log.warn(`Failed to read backup metadata: ${metaFile} (${err.message})`);
+  }
 }
 
 /**

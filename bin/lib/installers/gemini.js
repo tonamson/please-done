@@ -145,7 +145,9 @@ async function uninstall(targetDir) {
       }
       fs.writeFileSync(settingsFile, JSON.stringify(settings, null, 2) + '\n', 'utf8');
       log.success('MCP config cleaned');
-    } catch { /* ignore */ }
+    } catch (err) {
+      log.warn(`Failed to clean settings.json: ${settingsFile} (${err.message})`);
+    }
   }
 }
 
