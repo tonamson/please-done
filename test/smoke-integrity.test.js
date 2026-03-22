@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
 const fs = require('fs');
 const path = require('path');
 
-const { parseFrontmatter, extractReadingRefs, inlineWorkflow, listSkillFiles } = require('../bin/lib/utils');
+const { parseFrontmatter, extractReadingRefs, inlineWorkflow, listSkillFiles, extractXmlSection } = require('../bin/lib/utils');
 const codex = require('../bin/lib/converters/codex');
 const gemini = require('../bin/lib/converters/gemini');
 const copilot = require('../bin/lib/converters/copilot');
@@ -170,6 +170,123 @@ describe('Repo integrity — full command conversion', () => {
       assert.ok(!result.includes('~/.claude/'), `${skill.name}: OpenCode còn sót ~/.claude/`);
       assert.ok(!body.includes('/pd:'), `${skill.name}: OpenCode còn sót /pd:`);
       assert.ok(!body.includes('AskUserQuestion'), `${skill.name}: OpenCode còn sót AskUserQuestion`);
+    }
+  });
+});
+
+// ─── Canonical skill structure enforcement ────────────────
+// These tests define the TARGET structure for Phase 1.
+// They are expected to FAIL on the current codebase.
+// Plans 02 and 03 will normalize skills to satisfy these tests.
+
+describe('Repo integrity — canonical skill structure', () => {
+  const REQUIRED_SECTIONS = ['objective', 'guards', 'context', 'execution_context', 'process', 'output', 'rules'];
+  const REQUIRED_FM_FIELDS = ['name', 'description', 'model', 'argument-hint', 'allowed-tools'];
+
+  it('moi skill co day du sections theo thu tu chuan', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+
+    for (const skill of skills) {
+      const { body } = parseFrontmatter(skill.content);
+
+      // Check all sections present
+      for (const section of REQUIRED_SECTIONS) {
+        const content = extractXmlSection(body, section);
+        assert.ok(content !== null, `${skill.name}: thieu <${section}>`);
+      }
+
+      // Check section ordering — each section tag must appear AFTER the previous one
+      const positions = REQUIRED_SECTIONS.map(s => ({
+        section: s,
+        position: body.indexOf(`<${s}>`),
+      }));
+
+      for (let i = 1; i < positions.length; i++) {
+        assert.ok(
+          positions[i].position > positions[i - 1].position,
+          `${skill.name}: <${positions[i].section}> (pos ${positions[i].position}) phai sau <${positions[i - 1].section}> (pos ${positions[i - 1].position})`
+        );
+      }
+    }
+  });
+
+  it('moi skill co day du frontmatter fields', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+
+    for (const skill of skills) {
+      const { frontmatter } = parseFrontmatter(skill.content);
+
+      for (const field of REQUIRED_FM_FIELDS) {
+        assert.ok(
+          frontmatter[field],
+          `${skill.name}: thieu frontmatter.${field} (got: ${JSON.stringify(frontmatter[field])})`
+        );
+      }
+    }
+  });
+
+  it('moi skill co guards section tach biet khoi context', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+
+    for (const skill of skills) {
+      const { body } = parseFrontmatter(skill.content);
+      const guards = extractXmlSection(body, 'guards');
+
+      assert.ok(guards !== null, `${skill.name}: thieu <guards> section`);
+      assert.ok(
+        guards.length > 10,
+        `${skill.name}: <guards> section qua ngan (${guards.length} chars) — phai co noi dung thuc`
+      );
+    }
+  });
+
+  it('moi skill co output section voi cac phan bat buoc', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+
+    for (const skill of skills) {
+      const { body } = parseFrontmatter(skill.content);
+      const output = extractXmlSection(body, 'output');
+
+      assert.ok(output !== null, `${skill.name}: thieu <output> section`);
+
+      // Must contain at least 2 of 3 subsection markers (Vietnamese with or without diacritics)
+      const markers = [
+        /Tao\/Cap nhat|T\u1ea1o\/C\u1eadp nh\u1eadt/.test(output),
+        /Buoc tiep theo|B\u01b0\u1edbc ti\u1ebfp theo/.test(output),
+        /Thanh cong khi|Th\u00e0nh c\u00f4ng khi/.test(output),
+      ];
+      const markerCount = markers.filter(Boolean).length;
+
+      assert.ok(
+        markerCount >= 2,
+        `${skill.name}: <output> section can it nhat 2/3 phan (Tao/Cap nhat, Buoc tiep theo, Thanh cong khi) — chi co ${markerCount}`
+      );
+    }
+  });
+
+  it('execution_context references duoc tag required/optional', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+
+    for (const skill of skills) {
+      const { body } = parseFrontmatter(skill.content);
+      const execCtx = extractXmlSection(body, 'execution_context');
+
+      // Skip if no execution_context or empty/placeholder
+      if (!execCtx || execCtx.trim().length === 0 || /Khong co/i.test(execCtx)) continue;
+
+      const lines = execCtx.split('\n');
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+
+        // Check lines referencing workflows/, references/, or templates/
+        if (/@workflows\//.test(trimmed) || /@references\//.test(trimmed) || /@templates\//.test(trimmed)) {
+          assert.ok(
+            /\(required\)\s*$/.test(trimmed) || /\(optional\)\s*$/.test(trimmed),
+            `${skill.name}: execution_context ref thieu tag required/optional: "${trimmed}"`
+          );
+        }
+      }
     }
   });
 });
