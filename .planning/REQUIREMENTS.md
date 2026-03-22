@@ -31,7 +31,7 @@
 
 ### Installer/Converter
 
-- [ ] **INST-01**: Extract ~80% shared converter logic thành base converter — platform-specific converters chỉ override differences
+- [x] **INST-01**: Extract ~80% shared converter logic thành base converter — platform-specific converters chỉ override differences
 - [ ] **INST-02**: Propagate errors rõ ràng — không silent catch, log failures, verify outputs
 
 ## v2 Requirements
@@ -78,7 +78,7 @@
 | PARA-01 | Phase 8: Wave-Based Parallel Execution | Complete |
 | PARA-02 | Phase 8: Wave-Based Parallel Execution | Complete |
 | PARA-03 | Phase 8: Wave-Based Parallel Execution | Complete |
-| INST-01 | Phase 9: Converter Pipeline Optimization | Pending |
+| INST-01 | Phase 9: Converter Pipeline Optimization | Complete |
 | INST-02 | Phase 9: Converter Pipeline Optimization | Pending |
 
 **Coverage:**

@@ -159,7 +159,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Snapshot safety net + base converter extraction and 4 platform converter refactoring
+- [x] 09-01-PLAN.md — Snapshot safety net + base converter extraction and 4 platform converter refactoring
 - [ ] 09-02-PLAN.md — Error propagation fixes across manifest.js and installer files
 
 ## Progress
