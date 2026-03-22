@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [ ] **Phase 5: Effort-Level Routing** - Route simple tasks to smaller models, reserve Opus for planning and complex work
 - [ ] **Phase 6: Context7 Standardization** - Standardize library-aware generation pipeline across all skills
 - [ ] **Phase 7: Library Fallback and Version Detection** - Add fallback chain when Context7 fails and auto-detect library versions
-- [ ] **Phase 8: Wave-Based Parallel Execution** - Enable concurrent task execution with file-conflict detection
+- [x] **Phase 8: Wave-Based Parallel Execution** - Enable concurrent task execution with file-conflict detection (completed 2026-03-22)
 
 ## Phase Details
 
@@ -141,7 +141,7 @@ Plans:
 
 Plans:
 - [x] 08-01-PLAN.md — Add TDD smoke tests and expand write-code.md Bước 1.5 with topological sort, hotspot patterns, and auto-serialize
-- [ ] 08-02-PLAN.md — Improve write-code.md Bước 10 with agent context minimization, post-wave safety net, and add > Files: enforcement to plan.md
+- [x] 08-02-PLAN.md — Improve write-code.md Bước 10 with agent context minimization, post-wave safety net, and add > Files: enforcement to plan.md
 
 ## Converter Pipeline
 
@@ -177,5 +177,5 @@ Note: Phase 6 can begin after Phase 1 (does not depend on Phases 2-5).
 | 5. Effort-Level Routing | 0/2 | Not started | - |
 | 6. Context7 Standardization | 0/2 | Not started | - |
 | 7. Library Fallback and Version Detection | 0/1 | Not started | - |
-| 8. Wave-Based Parallel Execution | 0/2 | Not started | - |
+| 8. Wave-Based Parallel Execution | 2/2 | Complete   | 2026-03-22 |
 | 9. Converter Pipeline Optimization | 0/TBD | Not started | - |
