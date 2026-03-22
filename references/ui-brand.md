@@ -1,7 +1,7 @@
 # UI & Brand — Hướng dẫn sản phẩm cho Planning & Design
 
 > Dùng bởi: `/pd:new-milestone`, `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone`
-> Mục đích: 3 lớp hướng dẫn — (1) product framing, (2) design continuity, (3) UX cho feature mới chưa có UI
+> 3 lớp: (1) product framing, (2) design continuity, (3) UX cho feature mới chưa có UI
 
 ---
 
@@ -11,13 +11,12 @@
 
 ### Nguyên tắc cốt lõi
 
-**Mọi output phải trả lời được: "User được gì?"**
-
-Luôn framing từ góc nhìn người dùng cuối. Nếu không mô tả được lợi ích cho user → hỏi: "Tại sao user cần điều này?"
+**Mọi output phải trả lời: "User được gì?"**
+Luôn framing từ góc nhìn user cuối. Không mô tả được lợi ích → hỏi: "Tại sao user cần?"
 
 ### Viết requirements
 
-Format: `[MÃ]-[SỐ]: Người dùng có thể [hành động cụ thể] để [mục đích/lợi ích]`
+Format: `[MÃ]-[SỐ]: Người dùng có thể [hành động] để [mục đích/lợi ích]`
 
 | Xấu (tech-focused) | Tốt (user-focused) |
 |-----|-----|
@@ -38,7 +37,7 @@ Format: `[Ai] có thể [hành động] → [kết quả quan sát được]`
 | "Database có đúng schema" | "Tạo tài khoản mới → thấy ngay trong danh sách quản trị" |
 | "Contract deploy thành công" | "Người dùng gửi token → số dư cập nhật đúng trong 15 giây" |
 
-### Phase = Kết quả sản phẩm, không phải công việc kỹ thuật
+### Phase = Kết quả sản phẩm
 
 | Xấu | Tốt |
 |-----|-----|
@@ -47,46 +46,45 @@ Format: `[Ai] có thể [hành động] → [kết quả quan sát được]`
 
 ### Tính nhất quán
 
-- Giữ nhất quán tên gọi xuyên suốt: REQUIREMENTS → ROADMAP → PLAN → TASKS → MILESTONE_COMPLETE
+- Giữ nhất quán tên gọi: REQUIREMENTS → ROADMAP → PLAN → TASKS → MILESTONE_COMPLETE
 - Nhóm tính năng theo **luồng người dùng**, KHÔNG theo kiến trúc kỹ thuật
-- CHANGELOG/báo cáo viết bằng ngôn ngữ user — "Sửa lỗi: đăng nhập bị chậm khi nhiều người dùng cùng lúc", không phải "Fix: connection pool exhaustion"
+- CHANGELOG viết ngôn ngữ user — "Sửa lỗi: đăng nhập bị chậm", không phải "Fix: connection pool exhaustion"
 
 ### Scope control
 
-- Phase 1 luôn là bản tối giản — chỉ chức năng cốt lõi nhất
-- Phase có > 6 deliverables → quá lớn, cần chia nhỏ
-- Deliverable chứa "và" → tách thành 2
-- Tính năng "tương lai sẽ cần" → hoãn lại, ghi vào "Yêu cầu tương lai"
+- Phase 1 = bản tối giản — chỉ chức năng cốt lõi
+- Phase >6 deliverables → quá lớn, chia nhỏ
+- Deliverable chứa "và" → tách 2
+- "Tương lai sẽ cần" → hoãn, ghi "Yêu cầu tương lai"
 
 ---
 
 ## Lớp 2: Design Continuity — Kế thừa thiết kế có sẵn
 
-> Áp dụng khi: dự án ĐÃ CÓ UI/UX hoạt động, cần mở rộng/nâng cấp
+> Áp dụng khi: dự án ĐÃ CÓ UI/UX, cần mở rộng/nâng cấp
 
 ### Nguyên tắc
 
 **Kế thừa trước, đề xuất mới sau.**
+Dự án đã có thiết kế → feature mới PHẢI ưu tiên tái sử dụng pattern hiện tại.
 
-Khi dự án đã có thiết kế đang chạy, mọi tính năng mới PHẢI ưu tiên tái sử dụng pattern hiện tại trước khi tạo pattern mới.
-
-### Trước khi thiết kế feature mới, kiểm tra
+### Trước khi thiết kế feature mới
 
 | # | Câu hỏi | Hành động |
 |---|---------|-----------|
-| 1 | Feature tương tự đã tồn tại trong app chưa? | Grep/FastCode tìm component/page/flow tương tự → tái sử dụng pattern |
-| 2 | Layout nào đang được dùng cho loại trang này? | Đọc code UI hiện tại → giữ nguyên grid/spacing/hierarchy |
-| 3 | Navigation pattern hiện tại là gì? | Sidebar? Tab? Breadcrumb? → feature mới dùng cùng pattern |
-| 4 | Form pattern hiện tại thế nào? | Label position, validation display, submit flow → giữ nhất quán |
-| 5 | Bảng/danh sách hiện tại dùng gì? | Pagination? Infinite scroll? Filter kiểu gì? → tái sử dụng |
-| 6 | Feedback pattern (toast, modal, inline)? | Tìm pattern success/error hiện có → dùng lại |
+| 1 | Feature tương tự đã tồn tại? | Grep/FastCode tìm component/page/flow tương tự → tái sử dụng |
+| 2 | Layout nào đang dùng cho loại trang này? | Đọc code UI → giữ nguyên grid/spacing/hierarchy |
+| 3 | Navigation pattern hiện tại? | Sidebar? Tab? Breadcrumb? → dùng cùng pattern |
+| 4 | Form pattern hiện tại? | Label position, validation display, submit flow → giữ nhất quán |
+| 5 | Bảng/danh sách dùng gì? | Pagination? Infinite scroll? Filter? → tái sử dụng |
+| 6 | Feedback pattern (toast, modal, inline)? | Tìm pattern success/error → dùng lại |
 
 ### Quy tắc
 
-- **KHÔNG tạo component layout mới** nếu đã có component tương tự trong codebase
-- **KHÔNG thay đổi navigation structure** trừ khi user yêu cầu rõ ràng
+- **KHÔNG tạo component layout mới** nếu đã có tương tự
+- **KHÔNG thay đổi navigation structure** trừ khi user yêu cầu
 - **KHÔNG đổi design system** (colors, spacing, typography) — dùng token/theme hiện có
-- Nếu feature mới BUỘC phải tạo pattern mới → ghi rõ trong PLAN.md "Quyết định thiết kế" VÀ giải thích tại sao pattern hiện có không phù hợp
+- Feature mới BUỘC tạo pattern mới → ghi PLAN.md "Quyết định thiết kế" + giải thích tại sao
 
 ### Ghi nhận design patterns vào PLAN.md
 
@@ -109,17 +107,15 @@ Khi plan phase có UI, section "Thiết kế kỹ thuật" PHẢI ghi:
 
 ## Lớp 3: UX Gaps — Feature mới chưa có UI/UX
 
-> Áp dụng khi: roadmap có feature chưa từng tồn tại, chưa có mockup/wireframe
+> Áp dụng khi: feature chưa từng tồn tại, chưa có mockup/wireframe
 
 ### Nguyên tắc
 
-**Khi không có designer, AI phải tự xét đủ trạng thái trước khi code.**
-
-Feature mới thường chỉ được mô tả ở happy path ("user đăng nhập thành công"). Nhưng một feature hoàn chỉnh cần xử lý nhiều trạng thái hơn.
+**Không có designer → AI phải tự xét đủ trạng thái trước khi code.**
 
 ### UX Checklist bắt buộc cho mỗi feature mới
 
-Khi `/pd:plan` thiết kế feature chưa có UI trước đó, PHẢI xét 7 khía cạnh:
+`/pd:plan` thiết kế feature chưa có UI → PHẢI xét 7 khía cạnh:
 
 | # | Khía cạnh | Câu hỏi cần trả lời | Ghi vào |
 |---|-----------|---------------------|---------|
@@ -133,56 +129,45 @@ Khi `/pd:plan` thiết kế feature chưa có UI trước đó, PHẢI xét 7 kh
 
 ### Điều chỉnh theo stack
 
-UX Checklist 7 khía cạnh ở trên áp dụng cho **web frontend** (NextJS). Các stack khác cần điều chỉnh:
+**Backend-only (NestJS API):** Bỏ Lớp 2+3. Lớp 1 vẫn áp dụng.
 
-**Backend-only (NestJS API, không có UI):**
-- Bỏ qua Lớp 2 + Lớp 3 hoàn toàn — không có giao diện
-- Lớp 1 (Product Framing) vẫn áp dụng: viết requirements/tiêu chí thành công hướng user
-
-**Solidity (smart contract):**
-- Thay 7 khía cạnh web bằng 5 khía cạnh on-chain:
+**Solidity:**
 
 | # | Khía cạnh | Câu hỏi | Ghi vào |
 |---|-----------|---------|---------|
 | 1 | **Wallet interaction** | User kết nối ví thế nào? MetaMask? WalletConnect? | PLAN.md |
-| 2 | **Transaction flow** | Các bước approve → send → confirm → receipt? Gas estimation? | PLAN.md |
-| 3 | **Pending state** | Khi transaction pending hiện gì? Tx hash? Loading? | TASKS.md — tiêu chí |
-| 4 | **Revert/Error state** | Khi tx revert hiện gì? Parse revert reason? | TASKS.md — tiêu chí |
-| 5 | **Permission/Role** | Ai được gọi function? onlyOwner? Role-based? Wallet rejected? | PLAN.md |
+| 2 | **Transaction flow** | Approve → send → confirm → receipt? Gas estimation? | PLAN.md |
+| 3 | **Pending state** | Transaction pending hiện gì? Tx hash? Loading? | TASKS.md |
+| 4 | **Revert/Error state** | Tx revert hiện gì? Parse revert reason? | TASKS.md |
+| 5 | **Permission/Role** | Ai gọi function? onlyOwner? Role-based? Wallet rejected? | PLAN.md |
 
-**Flutter (mobile):**
-- 7 khía cạnh web vẫn áp dụng nhưng điều chỉnh:
-  - **Responsive** → thay bằng **Platform-specific**: iOS vs Android khác gì? (navigation bar, back gesture, permissions dialog)
+**Flutter:**
+- 7 khía cạnh web áp dụng, điều chỉnh:
+  - **Responsive** → **Platform-specific**: iOS vs Android (navigation bar, back gesture, permissions)
   - **Entry point** → bao gồm: deep link, push notification, widget/shortcut
-  - Thêm: **Offline state** — khi mất mạng hiện gì? Cache? Retry?
+  - Thêm: **Offline state** — mất mạng hiện gì? Cache? Retry?
 
-**WordPress (admin/block editor):**
-- 7 khía cạnh vẫn áp dụng nhưng điều chỉnh:
-  - **Entry point** → bao gồm: admin menu position, plugin settings page, block inserter
-  - **Empty state** → thay bằng: activation state (plugin vừa activate, chưa có config)
-  - Thêm: **Block editor integration** — block có preview? Sidebar inspector? Placeholder text?
+**WordPress:**
+- 7 khía cạnh áp dụng, điều chỉnh:
+  - **Entry point** → admin menu position, plugin settings, block inserter
+  - **Empty state** → activation state (plugin vừa activate, chưa config)
+  - Thêm: **Block editor integration** — block preview? Sidebar inspector? Placeholder?
 
-### Câu hỏi nâng cao (xét khi feature phức tạp)
+### Câu hỏi nâng cao (feature phức tạp)
 
 | # | Khía cạnh | Câu hỏi |
 |---|-----------|---------|
-| 8 | **Cognitive load** | Feature mới có làm trang hiện tại quá tải thông tin không? Cần tách trang? |
-| 9 | **Vị trí trong flow** | Nằm ở đâu trong luồng user hiện tại? Trước hay sau bước nào? |
-| 10 | **Phá pattern** | Có phá cách hoạt động mà user đã quen không? Nếu có → cần migration path |
-| 11 | **Onboarding** | User mới có hiểu feature này không? Cần tooltip/guide? |
-| 12 | **Undo/Cancel** | Hành động có thể hoàn tác không? Nếu destructive → cần confirm dialog |
+| 8 | **Cognitive load** | Feature mới làm trang quá tải? Cần tách trang? |
+| 9 | **Vị trí trong flow** | Nằm đâu trong luồng user? Trước/sau bước nào? |
+| 10 | **Phá pattern** | Phá cách user đã quen? Cần migration path? |
+| 11 | **Onboarding** | User mới hiểu không? Cần tooltip/guide? |
+| 12 | **Undo/Cancel** | Hoàn tác được không? Destructive → confirm dialog |
 
 ### Cách tích hợp vào workflow
 
-**Trong `/pd:plan`** (Bước 4 — Thiết kế kỹ thuật):
-- Với MỖI feature chưa có UI → xét 7 khía cạnh bắt buộc
-- Ghi kết quả vào PLAN.md dưới section `### UX States`
-- Nếu không thể quyết định (VD: không biết mobile layout) → đánh dấu trong "Lưu ý kỹ thuật" và gợi ý user cung cấp mockup
+**`/pd:plan` (Bước 4):** Feature chưa có UI → xét 7 khía cạnh → ghi PLAN.md `### UX States`. Không quyết định được → "Lưu ý kỹ thuật", gợi ý user cung cấp mockup.
 
-**Trong `/pd:write-code`** (Bước 2 — Đọc context):
-- Đọc section `UX States` trong PLAN.md
-- Mỗi state (empty, loading, error) PHẢI có code tương ứng
-- Nếu PLAN.md thiếu UX states → cảnh báo và tự bổ sung dựa trên patterns hiện có
+**`/pd:write-code` (Bước 2):** Đọc `UX States` trong PLAN.md → mỗi state PHẢI có code. PLAN.md thiếu → cảnh báo + tự bổ sung.
 
 **Format trong PLAN.md:**
 
