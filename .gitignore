@@ -22,4 +22,4 @@ Thumbs.db
 # Eval benchmarks (local data)
 evals/benchmarks/
 
-./.planning/
+.planning/
