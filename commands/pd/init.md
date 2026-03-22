@@ -21,8 +21,8 @@ Skill đầu tiên phải chạy trước mọi skill khác. Kiểm tra FastCode
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+@references/guard-valid-path.md
+@references/guard-fastcode.md
 </guards>
 
 <context>

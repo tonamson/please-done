@@ -27,10 +27,10 @@ Chạy test, yêu cầu user xác nhận, commit test files.
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+@references/guard-context.md
 - [ ] Task number hop le hoac co flag --all -> "Cung cap so task hoac dung `--all`."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+@references/guard-fastcode.md
+@references/guard-context7.md
 - [ ] Co it nhat 1 task voi trang thai done -> "Chua co task nao hoan thanh. Chay `/pd:write-code` truoc."
 </guards>
 

@@ -27,10 +27,10 @@ Lặp đến khi user xác nhận thành công. Tạo patch version cho mileston
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+@references/guard-context.md
 - [ ] Mo ta loi duoc cung cap -> "Cung cap mo ta loi hoac ten phien dieu tra."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+@references/guard-fastcode.md
+@references/guard-context7.md
 </guards>
 
 <context>

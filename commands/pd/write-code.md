@@ -33,11 +33,11 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+@references/guard-context.md
 - [ ] Task number hop le hoac co flag --auto/--parallel -> "Cung cap so task hoac flag che do."
 - [ ] PLAN.md + TASKS.md ton tai cho phase hien tai -> "Chay `/pd:plan` truoc de tao plan."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+@references/guard-fastcode.md
+@references/guard-context7.md
 </guards>
 
 <context>

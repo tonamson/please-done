@@ -20,9 +20,9 @@ Quét toàn bộ dự án, phân tích cấu trúc code, dependencies, kiến tr
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
-- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+@references/guard-context.md
+@references/guard-valid-path.md
+@references/guard-fastcode.md
 </guards>
 
 <context>
