@@ -1,6 +1,7 @@
 ---
 name: pd:complete-milestone
 description: Hoàn tất milestone, commit, tạo git tag, báo cáo tổng kết
+model: sonnet
 allowed-tools:
   - Read
   - Write

@@ -46,11 +46,19 @@ PLAN.md là **thiết kế kỹ thuật chi tiết** cho 1 phase. Chứa:
 Không có quyết định thiết kế đặc biệt — tất cả đã xác định rõ từ ROADMAP/CONTEXT.
 
 ## Research
+> Chi tiết đầy đủ: xem [RESEARCH.md](./RESEARCH.md)
+
+### Tóm tắt research
+<!-- Rút gọn từ RESEARCH.md — chỉ giữ thông tin ảnh hưởng trực tiếp đến thiết kế -->
+
 ### Thư viện có sẵn
 | Tên | Phiên bản | Sử dụng cho |
 
 ### Code tái sử dụng
 | Function/Service | File | Mô tả |
+
+### Cảnh báo từ research
+<!-- Rút từ RESEARCH.md sections "Không nên tự code" + "Cạm bẫy" — chỉ liệt kê items ảnh hưởng đến thiết kế phase này -->
 
 ### Tài liệu đã fetch
 | Tên | Sections liên quan |
@@ -132,6 +140,37 @@ Entry point: [vào từ đâu]
 Main CTA: [nút/hành động chính]
 Responsive: [mobile khác desktop thế nào]
 
+## Tiêu chí thành công (Goal-backward)
+
+<!--
+  Suy luận NGƯỢC từ mục tiêu: "Điều gì phải TRUE khi phase này hoàn tất?"
+  → Không phải danh sách task, mà là KẾT QUẢ QUAN SÁT ĐƯỢC từ góc nhìn user/hệ thống.
+  Mỗi tiêu chí = 1 sự thật có thể kiểm chứng (verify bằng code, test, hoặc thao tác thực tế).
+-->
+
+### Sự thật phải đạt (Truths)
+<!-- Mỗi dòng = 1 điều PHẢI TRUE khi phase hoàn tất. Viết dạng khẳng định, kiểm chứng được. -->
+| # | Sự thật | Cách kiểm chứng |
+|---|---------|-----------------|
+| T1 | [VD: User có thể đăng nhập bằng email + password] | [VD: POST /auth/login trả về JWT hợp lệ] |
+| T2 | [VD: Token hết hạn sau 1 giờ] | [VD: JWT decode → exp = iat + 3600] |
+
+### Sản phẩm cần có (Artifacts)
+<!-- Files/modules PHẢI tồn tại để các Truths trên thành hiện thực. Mỗi artifact truy vết về ≥1 Truth. -->
+| Artifact | Đường dẫn dự kiến | Phục vụ Truth |
+|----------|-------------------|---------------|
+| [VD: Auth service] | [src/auth/auth.service.ts] | T1, T2 |
+
+### Liên kết then chốt (Key Links)
+<!-- Cách các artifacts KẾT NỐI với nhau. Nếu link nào đứt → Truth không đạt. -->
+| Từ | Đến | Mô tả |
+|----|-----|-------|
+| [VD: auth.controller] | [auth.service] | [Controller gọi service.login()] |
+
+### Phân tích gap
+<!-- Kết quả self-check: Truths nào CHƯA được phủ bởi thiết kế? Để trống nếu không có gap. -->
+Không có gap — tất cả Truths đã được phủ bởi thiết kế kỹ thuật và artifacts ở trên.
+
 ## Thứ tự thực hiện
 1. [Bước 1]
 2. [Bước 2]
@@ -144,4 +183,5 @@ Responsive: [mobile khác desktop thế nào]
 - **CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan đến stack
 - Bỏ "API Endpoints" nếu không có backend, bỏ "Database" nếu không có DB
 - Section "Quyết định thiết kế": **LUÔN** tạo ở cả hai chế độ
+- Section "Tiêu chí thành công (Goal-backward)": **LUÔN** tạo — là chi tiết hóa tiêu chí từ ROADMAP.md. Thiếu section này = plan chưa hoàn tất
 - Code PHẢI tuân thủ quyết định trong bảng — nếu không thể tuân thủ do constraint kỹ thuật → DỪNG, thông báo user

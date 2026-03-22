@@ -308,6 +308,26 @@ Khi tất cả tasks trong phase hiện tại ✅ VÀ auto-advance xảy ra (xem
 - Cập nhật STATE.md "Kế hoạch" → `Kế hoạch hoàn tất, sẵn sàng code` (phase mới đã có TASKS.md)
 
 Khi tất cả tasks trong phase hiện tại ✅:
+
+**Bước 9.5: Goal-backward verification (tự động khi phase hoàn tất)**
+Đọc PLAN.md section "Tiêu chí thành công". Nếu PLAN.md KHÔNG có section này (plan cũ) → bỏ qua bước 9.5, tiếp tục auto-advance bình thường.
+Nếu CÓ → kiểm tra từng Truth:
+1. Với mỗi Truth (T1, T2, ...) → đọc "Cách kiểm chứng" → verify trên code thực tế:
+   - File/module trong "Artifacts" tồn tại trên đĩa? (`Glob` kiểm tra)
+   - "Key Links" còn nguyên vẹn? (Grep kiểm tra import/export/gọi hàm giữa các artifacts)
+   - Nếu Truth có cách kiểm chứng bằng test → kiểm tra test tồn tại hoặc logic code đúng
+2. Kết quả:
+   - **Tất cả Truths đạt** → in: "✅ Phase [x.x] đạt [N]/[N] tiêu chí thành công." → tiếp tục auto-advance bình thường
+   - **Có Truth chưa đạt** → in cảnh báo:
+     ```
+     ⚠️ Phase [x.x]: [M]/[N] tiêu chí thành công chưa đạt:
+     | Truth | Mô tả | Vấn đề |
+     |-------|-------|--------|
+     | T2 | [mô tả] | [file thiếu / link đứt / logic chưa đúng] |
+     Gợi ý: kiểm tra lại code hoặc chạy `/pd:fix-bug` trước khi tiếp tục.
+     ```
+   - **KHÔNG block** auto-advance (cảnh báo, không chặn) — user quyết định có sửa hay không
+
 - Đọc ROADMAP.md → tìm phase tiếp theo trong CÙNG milestone (phase số kế tiếp, status ⬜ hoặc chưa triển khai)
 - **Verify trước khi advance**: phase tiếp PHẢI tồn tại trong ROADMAP VÀ thuộc cùng milestone version
 - Nếu phase tiếp tồn tại trong ROADMAP VÀ đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp

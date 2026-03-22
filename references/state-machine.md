@@ -27,9 +27,9 @@ Chưa khởi tạo
 
 ```
 ⬜ Chưa plan
-  → [/pd:plan] → Đã plan (có PLAN.md + TASKS.md) → commit kế hoạch
+  → [/pd:plan] → Đã plan (có RESEARCH.md + PLAN.md + TASKS.md + Tiêu chí thành công) → commit kế hoạch
     → [/pd:write-code] → Đang code (có task 🔄)
-      → [tất cả tasks ✅] → Phase hoàn tất
+      → [tất cả tasks ✅] → Goal-backward verify (Truths check) → Phase hoàn tất
         → auto-advance CURRENT_MILESTONE (nếu phase tiếp đã plan)
           → [/pd:test] → tự phát hiện phase cũ chưa test
 ```

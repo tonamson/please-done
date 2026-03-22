@@ -1,6 +1,7 @@
 ---
 name: pd:fetch-doc
 description: Tải tài liệu từ URL theo version thư viện hiện tại, lưu local để research nhanh
+model: haiku
 argument-hint: "<URL> [tên-tùy-chỉnh]"
 allowed-tools:
   - Read

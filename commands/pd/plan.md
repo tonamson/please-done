@@ -1,6 +1,7 @@
 ---
 name: pd:plan
 description: Lập kế hoạch kỹ thuật + chia danh sách công việc cho milestone hiện tại
+model: opus
 argument-hint: "[--auto | --discuss] [phase cụ thể, VD: '1.2']"
 allowed-tools:
   - Read
@@ -23,6 +24,7 @@ Hỗ trợ 2 chế độ:
 - `--discuss`: Thảo luận tương tác — Claude liệt kê các vấn đề cần quyết định, user chọn
 
 **Tạo:**
+- `.planning/milestones/[version]/phase-[phase]/RESEARCH.md` — kết quả nghiên cứu
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md` — thiết kế kỹ thuật
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md` — danh sách công việc
 
@@ -33,6 +35,7 @@ Hỗ trợ 2 chế độ:
 @workflows/plan.md
 @templates/plan.md
 @templates/tasks.md
+@templates/research.md
 @references/questioning.md
 @references/conventions.md
 @references/prioritization.md

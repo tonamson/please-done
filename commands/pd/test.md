@@ -1,6 +1,7 @@
 ---
 name: pd:test
 description: Viết test + kiểm thử (NestJS/WordPress/Solidity/Flutter/Frontend), xác nhận với user, báo cáo lỗi
+model: sonnet
 argument-hint: "[task number | --all]"
 allowed-tools:
   - Read

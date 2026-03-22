@@ -1,6 +1,7 @@
 ---
 name: pd:scan
 description: Quét toàn bộ dự án, phân tích cấu trúc, thư viện, bảo mật và tạo báo cáo
+model: haiku
 argument-hint: "[path dự án, mặc định thư mục hiện tại]"
 allowed-tools:
   - Read

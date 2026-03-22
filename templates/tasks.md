@@ -21,19 +21,20 @@ Xem @references/conventions.md → "Biểu tượng trạng thái Task"
 > Ngày tạo: [DD_MM_YYYY] | Tổng: [N]
 
 ## Tổng quan
-| # | Công việc | Trạng thái | Ưu tiên | Phụ thuộc | Loại |
-|---|----------|-----------|---------|-----------|------|
+| # | Công việc | Trạng thái | Ưu tiên | Phụ thuộc | Loại | Truths |
+|---|----------|-----------|---------|-----------|------|--------|
 
 ---
 ## Task 1: [Tên]
 > Trạng thái: ⬜ | Ưu tiên: Cao | Phụ thuộc: Không | Loại: Backend
 > Files: [danh sách files dự kiến tạo/sửa]
+> Truths: [T1, T2] ← truy vết về Tiêu chí thành công nào trong PLAN.md
 
 ### Mô tả
 [Mô tả công việc cần làm]
 
 ### Tiêu chí chấp nhận
-- [ ] [Tiêu chí 1]
+- [ ] [Tiêu chí 1 — phải liên quan trực tiếp đến Truths ở trên]
 - [ ] [Tiêu chí 2]
 
 ### Ghi chú kỹ thuật
@@ -43,6 +44,13 @@ Xem @references/conventions.md → "Biểu tượng trạng thái Task"
 ## Loại task
 
 Giá trị hợp lệ: `Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Stack khác]`
+
+## Truths (truy vết goal-backward)
+
+Cột `Truths` trong bảng + trường `> Truths:` trong task detail = danh sách mã Truth từ PLAN.md → "Tiêu chí thành công → Sự thật phải đạt".
+- Mỗi task PHẢI phục vụ ít nhất 1 Truth
+- Mỗi Truth PHẢI được phủ bởi ít nhất 1 task
+- Nếu có Truth không được task nào phủ → gap → cần thêm task hoặc sửa plan
 
 ## Phụ thuộc (dependency)
 

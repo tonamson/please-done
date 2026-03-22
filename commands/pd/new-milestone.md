@@ -1,6 +1,7 @@
 ---
 name: pd:new-milestone
 description: Lập kế hoạch chiến lược dự án, tạo lộ trình với milestones rõ ràng
+model: opus
 argument-hint: "[tên milestone, VD: 'v1.1 Thông báo'] [--reset-phase-numbers]"
 allowed-tools:
   - Read

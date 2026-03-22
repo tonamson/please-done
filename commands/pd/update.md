@@ -1,6 +1,7 @@
 ---
 name: pd:update
 description: Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog
+model: haiku
 argument-hint: "[--check | --apply]"
 allowed-tools:
   - Read

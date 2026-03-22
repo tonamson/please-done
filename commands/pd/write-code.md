@@ -1,6 +1,7 @@
 ---
 name: pd:write-code
 description: Viết code theo task đã plan trong TASKS.md, lint, build, commit và báo cáo (yêu cầu có PLAN.md + TASKS.md trước)
+model: sonnet
 argument-hint: "[task number] [--auto | --parallel]"
 allowed-tools:
   - Read

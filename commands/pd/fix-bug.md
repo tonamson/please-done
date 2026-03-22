@@ -1,6 +1,7 @@
 ---
 name: pd:fix-bug
 description: Tìm và sửa lỗi theo phương pháp khoa học, tìm hiểu, báo cáo, sửa code, commit [LỖI] và xác nhận cho đến khi thành công
+model: sonnet
 argument-hint: "[mô tả lỗi hoặc tên phiên điều tra]"
 allowed-tools:
   - Read

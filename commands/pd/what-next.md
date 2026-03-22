@@ -1,6 +1,7 @@
 ---
 name: pd:what-next
 description: Kiểm tra tiến trình dự án, gợi ý command tiếp theo khi quên hoặc bị gián đoạn
+model: haiku
 allowed-tools:
   - Read
   - Glob

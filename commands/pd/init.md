@@ -1,6 +1,7 @@
 ---
 name: pd:init
 description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo context gọn cho các skill sau
+model: haiku
 argument-hint: "[path dự án, mặc định thư mục hiện tại]"
 allowed-tools:
   - Read
