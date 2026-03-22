@@ -29,9 +29,9 @@ Chưa khởi tạo
 ⬜ Chưa plan
   → [/pd:plan] → Đã plan (có RESEARCH.md + PLAN.md + TASKS.md + Tiêu chí thành công) → commit kế hoạch
     → [/pd:write-code] → Đang code (có task 🔄)
-      → [tất cả tasks ✅] → Verification 4 cấp (Tồn tại → Thực chất → Kết nối → Truths)
-        → [verification đạt] → Phase hoàn tất → auto-advance
-        → [có gap] → Tự sửa code (tối đa 2 vòng) → Re-verify
+      → [tất cả tasks ✅] → Xác minh 4 cấp (Tồn tại → Thực chất → Kết nối → Truths)
+        → [xác minh đạt] → Phase hoàn tất → chuyển tiếp tự động
+        → [có gap] → Tự sửa code (tối đa 2 vòng) → Xác minh lại
           → [vẫn fail sau 2 vòng] → DỪNG, hỏi user (fix-bug / re-plan / bỏ qua)
         → auto-advance CURRENT_MILESTONE (nếu phase tiếp đã plan)
           → [/pd:test] → tự phát hiện phase cũ chưa test
