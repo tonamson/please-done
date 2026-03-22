@@ -100,7 +100,7 @@ Skip FastCode. RESEARCH.md: "Project mới — chưa có code."
 
 > LUÔN chạy nếu thư viện mới hoặc domain phức tạp. BỎ QUA nếu CRUD cơ bản → "Phase dùng stack có sẵn."
 
-**Context7** (ưu tiên — CAO): `resolve-library-id` → `query-docs`. TỰ ĐỘNG tra cứu. Không có → `.planning/docs/` hoặc knowledge.
+**Context7** (ưu tiên — CAO): Thực hiện theo @references/context7-pipeline.md
 
 **Phân tích hệ sinh thái:**
 1. **Thư viện đề xuất**: tên, version, mục đích, lý do, alternatives loại

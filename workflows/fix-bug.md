@@ -89,7 +89,7 @@ Dùng **version gốc** (KHÔNG dùng patch version):
 
 FastCode lỗi → Grep/Read. Cảnh báo: "FastCode không khả dụng."
 
-**Lỗi liên quan thư viện** → Context7: `resolve-library-id` → `query-docs` → xác nhận cú pháp. TỰ ĐỘNG tra cứu. Không có → `.planning/docs/` hoặc knowledge.
+**Lỗi liên quan thư viện** → Thực hiện theo @references/context7-pipeline.md
 
 ## Bước 5: Phân tích theo phương pháp khoa học
 

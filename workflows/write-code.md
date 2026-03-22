@@ -128,13 +128,7 @@ CONTEXT.md → `Dự án mới`:
 
 FastCode lỗi → Grep/Read fallback. Warning: "FastCode lỗi — dùng built-in. Chạy `/pd:init` kiểm tra."
 
-**Context7** (task dùng thư viện ngoài):
-1. `resolve-library-id` → lấy ID
-2. `query-docs` → docs đúng version
-- TỰ ĐỘNG tra cứu — KHÔNG cần user yêu cầu
-- Admin (antd): BẮT BUỘC tra Context7 mỗi component mới
-- Guard/JWT/Role: BẮT BUỘC tra Context7 (nestjs) + FastCode pattern
-- Context7 không có → `.planning/docs/` hoặc knowledge sẵn
+**Context7** (task dùng thư viện ngoài): Thực hiện theo @references/context7-pipeline.md
 
 ---
 
