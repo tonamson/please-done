@@ -18,10 +18,8 @@ allowed-tools:
 ---
 
 <objective>
-Research dự án, thiết kế giải pháp kỹ thuật, chia thành danh sách công việc cụ thể.
-Hỗ trợ 2 chế độ:
-- `--auto` (mặc định): Claude tự quyết định toàn bộ thiết kế, tính năng, giải pháp kỹ thuật
-- `--discuss`: Thảo luận tương tác — Claude liệt kê các vấn đề cần quyết định, user chọn
+Research dự án, thiết kế giải pháp kỹ thuật, chia tasks cụ thể.
+`--auto` (mặc định): Claude tự quyết | `--discuss`: thảo luận tương tác, user chọn
 </objective>
 
 <guards>
@@ -36,17 +34,13 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
 <context>
 User input: $ARGUMENTS
-
-Phân tích tham số:
-- `--discuss` -> chế độ DISCUSS
-- Mặc định hoặc `--auto` -> chế độ AUTO
-- Cả hai -> ưu tiên `--discuss`
+- `--discuss` -> DISCUSS | mặc định/`--auto` -> AUTO | cả hai -> ưu tiên `--discuss`
 - Phần còn lại = thông tin phase/deliverable
 
 Đọc thêm:
-- `.planning/PROJECT.md` (nếu có) -> tầm nhìn dự án, ràng buộc
+- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
 - `.planning/rules/general.md` -> quy tắc chung
-- `.planning/rules/nestjs.md` và/hoặc `.planning/rules/nextjs.md` và/hoặc `.planning/rules/wordpress.md` và/hoặc `.planning/rules/solidity.md` và/hoặc `.planning/rules/flutter.md` -> theo stack có trong project
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo stack (CHỈ nếu tồn tại)
 </context>
 
 <execution_context>
@@ -61,32 +55,31 @@ Phân tích tham số:
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/plan.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước, chế độ DISCUSS/AUTO, và cổng kiểm tra.
+Thực thi @workflows/plan.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `.planning/milestones/[version]/phase-[phase]/RESEARCH.md` -- kết quả nghiên cứu
-- `.planning/milestones/[version]/phase-[phase]/PLAN.md` -- thiết kế kỹ thuật
-- `.planning/milestones/[version]/phase-[phase]/TASKS.md` -- danh sách công việc
+**Tao/Cap nhat:**
+- `.planning/milestones/[version]/phase-[phase]/RESEARCH.md`
+- `.planning/milestones/[version]/phase-[phase]/PLAN.md`
+- `.planning/milestones/[version]/phase-[phase]/TASKS.md`
 
-**Bước tiếp theo:** `/pd:write-code` để bắt đầu viết code
+**Buoc tiep theo:** `/pd:write-code`
 
-**Thành công khi:**
-- Plan bao phủ tất cả requirements của phase
-- Tasks cụ thể, có thể thực hiện từng cái một
-- Research có đủ context cho implementation
+**Thanh cong khi:**
+- Plan bao phu tat ca requirements cua phase
+- Tasks cu the, co the thuc hien tung cai
+- Research du context cho implementation
 
-**Lỗi thường gặp:**
-- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
-- Thiếu ROADMAP.md -> chạy `/pd:new-milestone` trước
-- Phase không tồn tại trong ROADMAP -> kiểm tra lại số phase
+**Loi thuong gap:**
+- FastCode MCP khong ket noi -> kiem tra Docker dang chay
+- Thieu ROADMAP.md -> chay `/pd:new-milestone` truoc
+- Phase khong ton tai trong ROADMAP -> kiem tra lai so phase
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- Tôn trọng chế độ --auto/--discuss: auto không hỏi, discuss liệt kê options
-- KHÔNG viết code trong bước plan -- chỉ thiết kế và chia tasks
-- Research PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm dependency mới
+- Moi output PHAI bang tieng Viet co dau
+- Ton trong che do --auto/--discuss: auto khong hoi, discuss liet ke options
+- KHONG viet code trong buoc plan -- chi thiet ke va chia tasks
+- Research PHAI kiem tra thu vien hien co truoc khi de xuat them dependency moi
 </rules>

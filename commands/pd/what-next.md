@@ -11,8 +11,8 @@ allowed-tools:
 ---
 
 <objective>
-Quét trạng thái toàn bộ .planning/ để xác định công việc đang dở hoặc bước tiếp theo. Hiển thị tiến trình + gợi ý chính xác command cần chạy.
-Skill này CHỈ ĐỌC, KHÔNG sửa file, KHÔNG gọi FastCode MCP.
+Quét .planning/ -> xác định công việc dở/bước tiếp -> hiển thị tiến trình + gợi ý command.
+CHỈ ĐỌC, KHÔNG sửa file, KHÔNG gọi FastCode MCP.
 </objective>
 
 <guards>
@@ -22,10 +22,8 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 </guards>
 
 <context>
-User input: $ARGUMENTS (không cần)
-
-Skill này KHÔNG cần đọc rules -- chỉ đọc trạng thái planning files.
-Skill này KHÔNG gọi FastCode MCP -- chỉ dùng built-in tools (Read, Glob, Bash cho version check).
+User input: $ARGUMENTS (khong can)
+KHÔNG cần rules hay FastCode MCP -- chỉ đọc planning files.
 </context>
 
 <execution_context>
@@ -35,28 +33,27 @@ Skill này KHÔNG gọi FastCode MCP -- chỉ dùng built-in tools (Read, Glob, 
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/what-next.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước kiểm tra, thứ tự ưu tiên gợi ý, và format báo cáo.
+Thực thi @workflows/what-next.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- Không tạo/sửa file nào (skill chỉ đọc)
+**Tao/Cap nhat:**
+- Khong tao/sua file (chi doc)
 
-**Bước tiếp theo:** Command được gợi ý dựa trên trạng thái hiện tại
+**Buoc tiep theo:** Command goi y dua tren trang thai
 
-**Thành công khi:**
-- Hiển thị tiến trình rõ ràng (bao nhiêu tasks/phases đã xong)
-- Gợi ý đúng command tiếp theo dựa trên trạng thái
+**Thanh cong khi:**
+- Hien thi tien trinh ro rang
+- Goi y dung command dua tren trang thai
 
-**Lỗi thường gặp:**
-- Thư mục .planning/ không tồn tại -> chạy `/pd:init` trước
-- STATE.md bị hỏng hoặc thiếu -> chạy `/pd:new-milestone` để tạo lại
+**Loi thuong gap:**
+- .planning/ khong ton tai -> chay `/pd:init`
+- STATE.md thieu/hong -> chay `/pd:new-milestone` de tao lai
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- CHỈ ĐỌC -- KHÔNG sửa bất kỳ file nào
-- KHÔNG gọi FastCode MCP hoặc Context7 MCP
-- Gợi ý command PHẢI dựa trên trạng thái thực tế, không đoán
+- Moi output PHAI bang tieng Viet co dau
+- CHI DOC -- KHONG sua bat ky file nao
+- KHONG goi FastCode MCP hoac Context7 MCP
+- Goi y command PHAI dua tren trang thai thuc te, khong doan
 </rules>

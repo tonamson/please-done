@@ -12,23 +12,23 @@ allowed-tools:
 ---
 
 <objective>
-Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật bộ skills và gợi ý restart Claude Code.
+Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật skills, gợi ý restart.
 </objective>
 
 <guards>
 DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
 - [ ] `.pdconfig` ton tai -> "Chua cai dat skills. Chay `node bin/install.js` truoc."
-- [ ] Ket noi mang kha dung (git fetch thanh cong) -> "Khong the ket noi GitHub. Kiem tra mang va thu lai."
+- [ ] Ket noi mang kha dung (git fetch thanh cong) -> "Khong the ket noi GitHub. Kiem tra mang."
 </guards>
 
 <context>
 User input: $ARGUMENTS
-- Không có flag hoặc `--check` -> chỉ kiểm tra, KHÔNG cập nhật
+- Không có flag/`--check` -> chỉ kiểm tra, KHÔNG cập nhật
 - `--apply` -> kiểm tra + cập nhật luôn
 
-Đọc `.pdconfig` -> lấy `SKILLS_DIR`.
-(Claude Code: `cat ~/.claude/commands/pd/.pdconfig` -- nền tảng khác: trình cài đặt chuyển đổi đường dẫn tự động)
+`.pdconfig` -> `SKILLS_DIR`
+(Claude Code: `~/.claude/commands/pd/.pdconfig` -- nền tảng khác: tự chuyển đổi)
 </context>
 
 <execution_context>
@@ -37,154 +37,106 @@ Khong co -- skill nay xu ly truc tiep, khong dung workflow rieng.
 
 <process>
 
-## Bước 1: Đọc version hiện tại
-- Đọc `.pdconfig` -> lấy `SKILLS_DIR`
-- Đọc `[SKILLS_DIR]/VERSION` -> `LOCAL_VERSION`
-- Nếu file VERSION không tồn tại -> gán `LOCAL_VERSION = unknown`
+## Buoc 1: Doc version hien tai
+`.pdconfig` -> `SKILLS_DIR` -> `[SKILLS_DIR]/VERSION` -> `LOCAL_VERSION`
+VERSION không tồn tại -> `LOCAL_VERSION = unknown`
 
-## Bước 2: Kiểm tra remote
+## Buoc 2: Kiem tra remote
 ```bash
 cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null
 ```
+Thất bại -> DỪNG: "Không thể kết nối GitHub."
 
-Nếu `git fetch` thất bại (không có mạng, remote không tồn tại):
-- Thông báo: "Không thể kết nối GitHub. Kiểm tra mạng và thử lại."
-- **DỪNG**
-
-## Bước 3: So sánh version
+## Buoc 3: So sanh version
 ```bash
-# Lấy remote version
 cd [SKILLS_DIR] && git show origin/main:VERSION 2>/dev/null
 ```
 
-So sánh `LOCAL_VERSION` với `REMOTE_VERSION`:
-- **Cách so sánh semver:** Tách version thành mảng số [major, minor, patch], so sánh từng phần. Hoặc dùng bash: `printf '%s\n' "$LOCAL" "$REMOTE" | sort -V | tail -1` để lấy version lớn hơn.
-- **GIỐNG** -> thông báo: "Bộ skills đã là phiên bản mới nhất (v[x.x.x])." -> **DỪNG**
-- **REMOTE mới hơn** (semver so sánh: REMOTE > LOCAL, hoặc LOCAL = unknown) -> tiếp tục Bước 4
-- **LOCAL mới hơn REMOTE** (LOCAL > REMOTE) -> thông báo: "Bạn đang có phiên bản local (v[LOCAL]) mới hơn remote (v[REMOTE]). Không cần cập nhật." -> **DỪNG**
-- **REMOTE rỗng** (file VERSION không tồn tại trên remote) -> thông báo: "Remote không có file VERSION. Kiểm tra repository." -> **DỪNG**
+| So sanh | Hanh dong |
+|---------|-----------|
+| GIỐNG | "Đã là phiên bản mới nhất (v[x.x.x])." -> DỪNG |
+| REMOTE > LOCAL (hoặc LOCAL=unknown) | Tiếp Bước 4 |
+| LOCAL > REMOTE | "Local (v[LOCAL]) mới hơn remote (v[REMOTE])." -> DỪNG |
+| REMOTE rỗng | "Remote không có VERSION." -> DỪNG |
 
-## Bước 4: Hiển thị changelog
+Semver: tách [major,minor,patch] so sánh, hoặc `sort -V`.
+
+## Buoc 4: Hien thi changelog
 ```bash
-# Lấy changelog diff từ remote
 cd [SKILLS_DIR] && git show origin/main:CHANGELOG.md 2>/dev/null
 ```
-
-Chỉ hiện CHANGELOG entries MỚI HƠN LOCAL_VERSION: parse CHANGELOG, tìm section header chứa LOCAL_VERSION, hiện từ đầu file đến section đó (không bao gồm).
-
-Hiển thị changelog của version mới:
+Chỉ hiện entries MỚI HƠN LOCAL_VERSION.
 ```
 +--------------------------------------+
 |     CẬP NHẬT BỘ SKILLS              |
-+--------------------------------------+
-| Hiện tại: v[LOCAL_VERSION]          |
-| Mới nhất: v[REMOTE_VERSION]         |
-+--------------------------------------+
-| Thay đổi:                           |
-|   [Nội dung changelog version mới]  |
+| Hiện tại: v[LOCAL] | Mới: v[REMOTE] |
+| Thay đổi: [changelog entries]       |
 +--------------------------------------+
 ```
 
-## Bước 5: Phân nhánh theo flag
+## Buoc 5: Phan nhanh theo flag
+- `--apply` -> Bước 6
+- Không/`--check` -> hỏi "Cập nhật ngay? (y/n)" -> y: Bước 6 | n: DỪNG, gợi ý `/pd:update --apply`
 
-### Nếu `--apply`:
-Thực hiện cập nhật ngay -> nhảy sang Bước 6.
-
-### Nếu không có flag hoặc `--check`:
-Hỏi user: "Bạn muốn cập nhật ngay? (y/n)"
-- **y** -> nhảy sang Bước 6
-- **n** -> **DỪNG**, thông báo: "Bạn có thể chạy `/pd:update --apply` khi sẵn sàng."
-
-## Bước 6: Cập nhật
-Kiểm tra branch hiện tại: `git -C [SKILLS_DIR] branch --show-current`. Nếu KHÔNG phải `main` -> `git -C [SKILLS_DIR] checkout main` trước khi pull. Nếu checkout fail (có uncommitted changes) -> cảnh báo user và **DỪNG**.
-
-Lưu commit hiện tại: `OLD_COMMIT=$(git -C [SKILLS_DIR] rev-parse HEAD)`
-
+## Buoc 6: Cap nhat
+Kiểm tra branch: `git -C [SKILLS_DIR] branch --show-current` -> không phải `main` -> checkout main (fail vì uncommitted -> DỪNG cảnh báo)
 ```bash
+OLD_COMMIT=$(git -C [SKILLS_DIR] rev-parse HEAD)
 cd [SKILLS_DIR] && git pull origin main
 ```
+Pull thất bại -> thông báo lỗi + gợi ý `git stash && git pull && git stash pop` -> DỪNG
+Thành công -> đọc VERSION mới xác nhận
 
-Nếu `git pull` thất bại (conflict, dirty working tree):
-- Thông báo lỗi cụ thể
-- Gợi ý: "Có thể cần chạy thủ công: `cd [SKILLS_DIR] && git stash && git pull origin main && git stash pop`"
-- **DỪNG**
+## Buoc 7: Submodules
+`.gitmodules` tồn tại -> `git submodule update --init --recursive`
+FastCode có thay đổi -> "FastCode cũng đã được cập nhật."
 
-Nếu thành công:
-- Đọc `VERSION` mới -> xác nhận version đã cập nhật
+## Buoc 8: Cap nhat .pdconfig + xoa cache
+- `CURRENT_VERSION=[REMOTE_VERSION]` trong `.pdconfig` (thay thế nếu có, thêm nếu chưa)
+- `rm -f ~/.claude/cache/pd-update-check.json`
 
-## Bước 7: Kiểm tra submodules
-Kiểm tra `.gitmodules` tồn tại trong SKILLS_DIR trước khi chạy submodule update. Nếu không có -> bỏ qua bước này.
-
-```bash
-cd [SKILLS_DIR] && [ -f .gitmodules ] && git submodule update --init --recursive 2>/dev/null
-```
-Nếu `.gitmodules` tồn tại VÀ FastCode submodule có thay đổi -> thông báo: "FastCode cũng đã được cập nhật."
-
-## Bước 8: Cập nhật .pdconfig + xóa cache thông báo
-Ghi nhớ `OLD_VERSION` = `LOCAL_VERSION` (trước khi cập nhật) để dùng cho rollback guidance.
-
-Cập nhật `CURRENT_VERSION=[REMOTE_VERSION]` trong `.pdconfig`:
-- Nếu dòng `CURRENT_VERSION=` đã tồn tại -> **thay thế** giá trị (KHÔNG append thêm dòng mới)
-- Nếu chưa có -> thêm dòng mới
-- Giữ nguyên SKILLS_DIR/FASTCODE_DIR
-
-Xóa cache thông báo update trên status line:
-```bash
-rm -f ~/.claude/cache/pd-update-check.json   # đường dẫn nền tảng — converter tự chuyển đổi
-```
--> Status line sẽ ngừng hiện `-> Skills v[x.x.x]` ngay lập tức.
-
-## Bước 9: Thông báo
+## Buoc 9: Thong bao
 ```
 +--------------------------------------+
 |     CẬP NHẬT THÀNH CÔNG!            |
-+--------------------------------------+
 | v[OLD] -> v[NEW]                     |
-+--------------------------------------+
-| QUAN TRỌNG:                          |
-| Đóng và khởi động lại phiên làm     |
-| việc để load skills phiên bản mới.   |
-|                                      |
-| Nhấn Ctrl+C -> mở lại trợ lý AI     |
-|                                      |
-| Nếu gặp vấn đề sau update:          |
-| cd [SKILLS_DIR] && git checkout      |
-|   [OLD_COMMIT]                       |
-| (hoặc git reflog để tìm commit      |
-|  trước khi pull)                     |
+| Đóng + khởi động lại phiên làm việc |
+| Ctrl+C -> mở lại trợ lý AI          |
+| Rollback: cd [SKILLS_DIR] &&        |
+|   git checkout [OLD_COMMIT]          |
 +--------------------------------------+
 ```
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `[SKILLS_DIR]/` -- cập nhật toàn bộ bộ skills từ GitHub
-- `.pdconfig` -- cập nhật CURRENT_VERSION
-- Xóa `~/.claude/cache/pd-update-check.json`
+**Tao/Cap nhat:**
+- `[SKILLS_DIR]/` -- cap nhat skills tu GitHub
+- `.pdconfig` -- cap nhat CURRENT_VERSION
+- Xoa `~/.claude/cache/pd-update-check.json`
 
-**Bước tiếp theo:** Restart Claude Code để load skills phiên bản mới
+**Buoc tiep theo:** Restart Claude Code
 
-**Thành công khi:**
-- VERSION file được cập nhật đúng version mới
-- .pdconfig có CURRENT_VERSION mới
-- Cache thông báo update đã xóa
+**Thanh cong khi:**
+- VERSION cap nhat dung
+- .pdconfig co CURRENT_VERSION moi
+- Cache thong bao da xoa
 
-**Lỗi thường gặp:**
-- Không có mạng -> kiểm tra kết nối internet
-- Git conflict khi pull -> `git stash && git pull origin main && git stash pop`
-- .pdconfig không tồn tại -> chạy `node bin/install.js` trước
+**Loi thuong gap:**
+- Khong co mang -> kiem tra ket noi
+- Git conflict -> `git stash && git pull && git stash pop`
+- .pdconfig khong ton tai -> chay `node bin/install.js`
 </output>
 
 <rules>
-- KHÔNG sửa code dự án -- chỉ cập nhật bộ skills
-- KHÔNG push -- chỉ pull
-- KHÔNG tự restart Claude -- chỉ gợi ý user restart
-- Nếu git pull conflict -> DỪNG, hướng dẫn user giải quyết thủ công
-- Nếu không có mạng -> DỪNG, thông báo rõ ràng
-- `--check` (mặc định): chỉ kiểm tra, hỏi trước khi update
-- `--apply`: cập nhật ngay không hỏi
-- PHẢI hiển thị changelog trước khi cập nhật
-- PHẢI xóa `~/.claude/cache/pd-update-check.json` sau khi cập nhật thành công -- để status line ngừng hiện thông báo
-- PHẢI gợi ý restart sau khi cập nhật xong
-- Mọi output PHẢI bằng tiếng Việt có dấu -- bao gồm thông báo, changelog summary, hướng dẫn
+- KHONG sua code du an -- chi cap nhat skills
+- KHONG push -- chi pull
+- KHONG tu restart -- chi goi y user restart
+- Git pull conflict -> DUNG, huong dan user thu cong
+- Khong co mang -> DUNG, thong bao ro
+- `--check` (mac dinh): chi kiem tra, hoi truoc
+- `--apply`: cap nhat ngay khong hoi
+- PHAI hien changelog truoc khi cap nhat
+- PHAI xoa `~/.claude/cache/pd-update-check.json` sau cap nhat
+- PHAI goi y restart sau cap nhat
+- Moi output PHAI bang tieng Viet co dau
 </rules>

@@ -13,7 +13,7 @@ allowed-tools:
 ---
 
 <objective>
-Tải tài liệu từ URL, lưu markdown local kèm version thư viện và mục lục phân section. Mục đích: cache tài liệu đúng version, các skill sau chỉ đọc mục lục rồi đọc đúng section cần thiết thay vì toàn bộ file.
+Tải tài liệu từ URL -> markdown local kèm version + mục lục phân section. Cache đúng version, skill sau chỉ đọc mục lục rồi Read section cần thiết.
 </objective>
 
 <guards>
@@ -26,9 +26,7 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
 <context>
 User input: $ARGUMENTS
-Đầu vào: URL [tên-tùy-chỉnh]
-VD: /pd:fetch-doc https://docs.nestjs.com/guards
-VD: /pd:fetch-doc https://docs.nestjs.com/guards nestjs-guards
+VD: `/pd:fetch-doc https://docs.nestjs.com/guards [nestjs-guards]`
 </context>
 
 <execution_context>
@@ -37,61 +35,48 @@ Khong co -- skill nay xu ly truc tiep, khong dung workflow rieng.
 
 <process>
 
-## Bước 1: Validate input + xác định tên + version
-- Kiểm tra `.planning/CONTEXT.md` tồn tại:
-  - Nếu CÓ nhưng thiếu `.planning/docs/` -> tạo `mkdir -p .planning/docs`
-  - Nếu CHƯA CÓ CONTEXT.md -> DỪNG, thông báo chạy `/pd:init` trước
-- URL hợp lệ? Nếu không -> hỏi user
-- **Extract tên file từ URL:** lấy path segments cuối (bỏ query params, hash), prepend domain keyword nếu cần. VD:
-  - `docs.nestjs.com/guards` -> `nestjs-guards`
-  - `ant.design/components/table` -> `antd-table`
-  - `zod.dev/docs/getting-started` -> `zod-getting-started`
-  - Nếu user cung cấp tên tùy chỉnh -> dùng tên đó thay thế
-- **Xác định version thư viện:**
-  1. Extract tên thư viện từ URL (VD: `zod` từ `zod.dev/docs`, `dayjs` từ `day.js.org`, `nestjs` từ `docs.nestjs.com`)
-  2. Grep tên thư viện trong TẤT CẢ `package.json` files (Glob `**/package.json`, bỏ qua `node_modules`): tìm dependency chứa tên thư viện -> lấy version chính xác
-  3. Nếu tìm thấy nhiều kết quả -> ưu tiên exact match (VD: `zod` match `"zod"` trước `"zod-validation"`)
-  4. Nếu tìm thấy cùng thư viện với NHIỀU version khác nhau trong nhiều package.json -> hỏi user chọn version, hoặc dùng version từ package.json gần nhất với context (backend/frontend).
-  5. **Fallback nếu không tìm thấy trong package.json:** hỏi user version cụ thể, hoặc ghi `latest` và fetch docs phiên bản mới nhất
-  - Bổ sung: vẫn dùng heuristic thư mục khi cần:
-    - URL thuộc NestJS/backend -> đọc backend `package.json` (Glob `**/nest-cli.json` -> cùng thư mục)
-    - URL thuộc NextJS/antd/React -> đọc frontend `package.json` (Glob `**/next.config.*` -> cùng thư mục)
-    - Không xác định được -> đọc cả hai, tìm thư viện phù hợp
+## Buoc 1: Validate input + ten + version
+- `.planning/CONTEXT.md` -> CÓ nhưng thiếu `docs/` -> `mkdir -p .planning/docs` | CHƯA CÓ -> DỪNG: chạy `/pd:init`
+- URL không hợp lệ -> hỏi user
+- **Tên file từ URL:** path segments cuối (bỏ query/hash), prepend domain keyword
+  - `docs.nestjs.com/guards` -> `nestjs-guards` | `ant.design/components/table` -> `antd-table`
+  - User cung cấp tên tùy chỉnh -> dùng tên đó
+- **Version thư viện:**
+  1. Extract tên từ URL
+  2. Grep tên trong `**/package.json` (bỏ node_modules) -> lấy version
+  3. Nhiều kết quả -> ưu tiên exact match
+  4. Nhiều version khác nhau -> hỏi user chọn hoặc dùng package.json gần nhất
+  5. Không tìm thấy -> hỏi user hoặc ghi `latest`
+  - Heuristic: URL NestJS/backend -> backend `package.json` (Glob `**/nest-cli.json`) | URL NextJS/React -> frontend `package.json` (Glob `**/next.config.*`)
 
-## Bước 2: Kiểm tra doc đã tồn tại
-Kiểm tra `.planning/docs/[tên].md`:
-- CÓ + version GIỐNG -> kiểm tra thêm URL nguồn (dòng `> Nguồn:` trong file):
-  - URL GIỐNG -> hỏi user muốn fetch lại không
-  - URL KHÁC -> hỏi user: "File cùng tên đã tồn tại nhưng từ URL khác. Đặt tên khác hay ghi đè?"
-- CÓ + version KHÁC -> thông báo "Version đã thay đổi", fetch lại
+## Buoc 2: Kiem tra doc ton tai
+`.planning/docs/[tên].md`:
+- CÓ + version GIỐNG + URL GIỐNG -> hỏi fetch lại không
+- CÓ + version GIỐNG + URL KHÁC -> hỏi: đặt tên khác hay ghi đè?
+- CÓ + version KHÁC -> "Version thay đổi", fetch lại
 - CHƯA CÓ -> tiếp tục
 
-## Bước 3: Fetch trang chính
-WebFetch URL chính -> trích xuất:
-- Nội dung tài liệu + code examples
-- Danh sách internal links cùng domain (chỉ tài liệu kỹ thuật, bỏ blog/changelog/marketing)
+## Buoc 3: Fetch trang chinh
+WebFetch URL -> trích xuất nội dung + internal links cùng domain (chỉ kỹ thuật, bỏ blog/changelog)
 
-**Xử lý HTTP errors:**
-- **429 (Rate Limited):** đợi 5s và thử lại (tối đa 2 lần)
-- **301/302 (Redirect):** follow redirect tự động
-- **401/403 (Unauthorized/Forbidden):** **DỪNG**, thông báo: "Trang yêu cầu đăng nhập, không thể fetch tự động."
-- **Timeout (>30s):** thông báo: "Trang không phản hồi sau 30s."
-- **Các lỗi khác (404, 500, trang trống):** thử lại 1 lần
+**HTTP errors:**
+- 429 -> đợi 5s, thử lại (tối đa 2 lần)
+- 301/302 -> follow redirect
+- 401/403 -> DỪNG: "Trang yêu cầu đăng nhập"
+- Timeout >30s -> thông báo không phản hồi
+- 404/500/trống -> thử lại 1 lần
+- Vẫn lỗi -> DỪNG: "Không thể tải [URL]."
 
-Nếu vẫn lỗi sau retry -> **DỪNG**, thông báo: "Không thể tải [URL]. Kiểm tra URL hợp lệ và thử lại."
+**SPA detection:** nội dung < 500 ký tự -> cảnh báo: "Trang dùng JS rendering. Thử Context7 MCP."
 
-**SPA content detection:** Nếu nội dung fetch được < 500 ký tự (sau khi bỏ HTML tags) -> cảnh báo: "Trang có thể dùng JavaScript rendering, nội dung không đầy đủ. Thử dùng Context7 MCP thay thế."
+## Buoc 4: Fetch trang lien quan
+Từ links Bước 3:
+- Lọc trang kỹ thuật (API, config, examples, getting started)
+- Xếp hạng tối đa 10 trang -> fetch 5 đầu (nhiều WebFetch cùng 1 block)
+- Trang lỗi -> bỏ qua + warning, tiếp tục
 
-## Bước 4: Fetch trang liên quan (có chọn lọc)
-Từ danh sách links ở Bước 3:
-- Lọc chỉ trang kỹ thuật liên quan trực tiếp (API, config, examples, getting started)
-- **Lọc và xếp hạng tối đa 10 trang** liên quan nhất đến chủ đề chính
-- **Fetch 5 trang đầu** trong danh sách đã lọc (gọi nhiều WebFetch trong cùng 1 message block để tối ưu)
-- Trang lỗi (timeout, 404) -> bỏ qua, ghi warning, tiếp tục các trang còn lại
-
-## Bước 5: Lưu file có mục lục nhanh
+## Buoc 5: Luu file voi muc luc
 Tạo `.planning/docs/[tên].md`:
-
 ```markdown
 # Tài liệu [Tên thư viện]
 > Nguồn: [URL gốc]
@@ -102,51 +87,41 @@ Tạo `.planning/docs/[tên].md`:
 ## Mục lục nhanh
 | # | Section | Từ khóa | Dòng |
 |---|---------|---------|------|
-| 1 | Guards Overview | guard, canActivate, AuthGuard | 20 |
-| 2 | Role-based Auth | roles, SetMetadata, RolesGuard | 95 |
-| 3 | Custom Decorators | createParamDecorator, ExecutionContext | 160 |
+| 1 | Guards Overview | guard, canActivate | 20 |
 
 ---
 ## Section 1: [Tên]
 > Nguồn: [URL]
 [Nội dung giữ nguyên ngôn ngữ gốc]
-
-## Section 2: [Tên]
-> Nguồn: [URL]
-...
 ```
+> Số dòng tham khảo. Khi đọc, search heading text thay vì dựa line number.
 
-**Mục lục nhanh** chứa: tên section + từ khóa chính + số dòng bắt đầu.
-> Số dòng tham khảo tại thời điểm tạo. Khi đọc, luôn search heading text thay vì dựa vào line number.
-
--> Các skill sau (plan, write-code) chỉ cần đọc mục lục (~10 dòng), rồi Read section cụ thể bằng offset/limit.
-
-## Bước 6: Thông báo
-- Số trang fetch thành công, đường dẫn file, version
+## Buoc 6: Thong bao
+- Số trang thành công, đường dẫn, version
 - "Khi upgrade thư viện, chạy lại `/pd:fetch-doc` để cập nhật"
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `.planning/docs/[tên].md` -- tài liệu cached với version và mục lục
+**Tao/Cap nhat:**
+- `.planning/docs/[tên].md` -- tài liệu cached + version + mục lục
 
-**Bước tiếp theo:** `/pd:plan` hoặc `/pd:write-code` để sử dụng tài liệu đã cache
+**Buoc tiep theo:** `/pd:plan` hoac `/pd:write-code`
 
-**Thành công khi:**
-- File doc được tạo với đúng version từ package.json
-- Mục lục nhanh có từ khóa và số dòng cho mỗi section
-- Nội dung giữ nguyên ngôn ngữ gốc với code examples
+**Thanh cong khi:**
+- Doc tao voi dung version tu package.json
+- Muc luc co tu khoa + so dong moi section
+- Noi dung giu nguyen ngon ngu goc + code examples
 
-**Lỗi thường gặp:**
-- WebFetch không khả dụng -> kiểm tra cài đặt MCP
-- URL yêu cầu đăng nhập (401/403) -> không thể fetch tự động
-- Trang SPA không có nội dung -> thử dùng Context7 MCP thay thế
+**Loi thuong gap:**
+- WebFetch khong kha dung -> kiem tra MCP
+- URL 401/403 -> khong the fetch tu dong
+- Trang SPA -> thu Context7 MCP
 </output>
 
 <rules>
-- Heading, ghi chú: TIẾNG VIỆT CÓ DẤU | Nội dung tài liệu: giữ nguyên gốc
-- PHẢI ghi version từ package.json + kiểm tra doc tồn tại trước khi fetch
-- PHẢI có mục lục nhanh với từ khóa và số dòng bắt đầu mỗi section
-- Tối đa 10 trang, chỉ fetch trang kỹ thuật cùng domain
-- Giữ nguyên code examples
+- Heading, ghi chu: TIENG VIET CO DAU | Noi dung tai lieu: giu nguyen goc
+- PHAI ghi version tu package.json + kiem tra doc ton tai truoc khi fetch
+- PHAI co muc luc nhanh voi tu khoa va so dong
+- Toi da 10 trang, chi fetch trang ky thuat cung domain
+- Giu nguyen code examples
 </rules>
