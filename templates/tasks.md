@@ -1,17 +1,10 @@
 # Mẫu TASKS.md
 
-> Dùng bởi: `/pd:plan` (tạo)
-> Đọc bởi: `/pd:write-code`, `/pd:test`, `/pd:fix-bug`, `/pd:what-next`, `/pd:complete-milestone`
+> `/pd:plan` tạo | `/pd:write-code`, `/pd:test`, `/pd:fix-bug`, `/pd:what-next`, `/pd:complete-milestone` đọc
 
-## Mục đích
+Danh sách công việc 1 phase: bảng tổng quan + chi tiết từng task.
 
-TASKS.md là **danh sách công việc** cho 1 phase. Chứa:
-- Bảng tổng quan (overview nhanh — đọc bởi what-next, complete-milestone)
-- Chi tiết từng task (mô tả, files, tiêu chí, ghi chú — đọc bởi write-code)
-
-## Biểu tượng trạng thái
-
-Xem @references/conventions.md → "Biểu tượng trạng thái Task"
+Biểu tượng trạng thái: @references/conventions.md
 
 ## Mẫu
 
@@ -27,41 +20,41 @@ Xem @references/conventions.md → "Biểu tượng trạng thái Task"
 ---
 ## Task 1: [Tên]
 > Trạng thái: ⬜ | Ưu tiên: Cao | Phụ thuộc: Không | Loại: Backend
-> Files: [danh sách files dự kiến tạo/sửa]
-> Truths: [T1, T2] ← truy vết về Tiêu chí thành công nào trong PLAN.md
+> Files: [danh sách files dự kiến]
+> Truths: [T1, T2] ← truy vết Tiêu chí thành công PLAN.md
 
 ### Mô tả
-[Mô tả công việc cần làm]
+[Công việc cần làm]
 
 ### Tiêu chí chấp nhận
-- [ ] [Tiêu chí 1 — phải liên quan trực tiếp đến Truths ở trên]
+- [ ] [Tiêu chí 1 — liên quan Truths]
 - [ ] [Tiêu chí 2]
 
 ### Ghi chú kỹ thuật
-[Nếu có — chỉ ghi khi cần thiết]
+[Chỉ khi cần thiết]
 ```
 
 ## Loại task
 
-Giá trị hợp lệ: `Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Stack khác]`
+`Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Stack khác]`
 
 ## Truths (truy vết goal-backward)
 
-Cột `Truths` trong bảng + trường `> Truths:` trong task detail = danh sách mã Truth từ PLAN.md → "Tiêu chí thành công → Sự thật phải đạt".
-- Mỗi task PHẢI phục vụ ít nhất 1 Truth
-- Mỗi Truth PHẢI được phủ bởi ít nhất 1 task
-- Nếu có Truth không được task nào phủ → gap → cần thêm task hoặc sửa plan
+Cột `Truths` + trường `> Truths:` = mã Truth từ PLAN.md "Tiêu chí thành công → Sự thật phải đạt".
+- Mỗi task PHẢI phục vụ ≥1 Truth
+- Mỗi Truth PHẢI được ≥1 task phủ
+- Truth không task nào phủ → gap → thêm task hoặc sửa plan
 
-## Phụ thuộc (dependency)
+## Phụ thuộc
 
 | Loại | Cách ghi | Parallel-safe? |
 |------|---------|---------------|
-| **Phụ thuộc code** | `Task A` | Không — task B import/dùng function task A tạo |
-| **Phụ thuộc design** | `Không` | Có — task Frontend dùng response shape từ PLAN.md |
-| **Phụ thuộc file** | `Task A (shared file)` | Không — task B sửa cùng file task A |
+| Code | `Task A` | Không — B dùng function A tạo |
+| Design | `Không` | Có — dùng response shape từ PLAN.md |
+| File | `Task A (shared file)` | Không — sửa cùng file |
 
-## Quy tắc cập nhật trạng thái
+## Cập nhật trạng thái
 
-- Cập nhật CẢ HAI nơi: (1) bảng Tổng quan, (2) task detail block `> Trạng thái:`
-- Cập nhật `> Files:` nếu files thực tế khác files trong plan
-- Chỉ đánh ✅ SAU khi git commit thành công (xem @references/conventions.md)
+- Cập nhật CẢ HAI: bảng Tổng quan + task detail `> Trạng thái:`
+- Cập nhật `> Files:` nếu thực tế khác plan
+- Chỉ ✅ SAU git commit thành công (@references/conventions.md)
