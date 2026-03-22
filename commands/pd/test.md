@@ -24,19 +24,21 @@ Chạy test, yêu cầu user xác nhận, commit test files.
 **Sau khi xong:** `/pd:write-code` (tiếp tasks), `/pd:fix-bug` (nếu có lỗi), hoặc `/pd:complete-milestone`.
 </objective>
 
-<execution_context>
-@workflows/test.md
-@references/conventions.md
-</execution_context>
+<guards>
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
+
+- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+- [ ] Task number hop le hoac co flag --all -> "Cung cap so task hoac dung `--all`."
+- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+- [ ] Co it nhat 1 task voi trang thai done -> "Chua co task nao hoan thanh. Chay `/pd:write-code` truoc."
+</guards>
 
 <context>
 User input: $ARGUMENTS
-- Task number → test riêng task đó (phải ✅)
+- Task number → test riêng task đó (phải done)
 - `--all` → chạy test regression toàn bộ phases
-- Không có gì → test tất cả tasks ✅ trong phase hiện tại
-
-**Tự kiểm tra trước khi bắt đầu** (DỪNG nếu thiếu):
-1. `.planning/CONTEXT.md` → nếu không có → "Chạy `/pd:init` trước."
+- Không có gì → test tất cả tasks done trong phase hiện tại
 
 Đọc thêm:
 - `.planning/rules/general.md` → quy tắc chung
@@ -46,7 +48,38 @@ User input: $ARGUMENTS
 - `.planning/rules/flutter.md` → quy tắc Flutter + Build & Lint (CHỈ nếu file tồn tại)
 </context>
 
+<execution_context>
+@workflows/test.md (required)
+@references/conventions.md (optional)
+</execution_context>
+
 <process>
 Thực thi quy trình từ @workflows/test.md từ đầu đến cuối.
 Giữ nguyên tất cả các bước, stack-specific test flows, và cổng kiểm tra.
 </process>
+
+<output>
+**Tao/Cap nhat:**
+- Test files theo stack (Jest, PHPUnit, Hardhat, flutter_test)
+- Danh sach kiem thu thu cong (Frontend-only)
+- Cap nhat TASKS.md (trang thai test)
+
+**Buoc tiep theo:** `/pd:write-code` (tiep tasks), `/pd:fix-bug` (neu co loi), hoac `/pd:complete-milestone`
+
+**Thanh cong khi:**
+- Test files duoc tao va chay thanh cong
+- User xac nhan ket qua test
+- Test files duoc commit
+
+**Loi thuong gap:**
+- Test fail -> doc loi, sua test hoac code, chay lai
+- Khong tim thay test framework -> kiem tra package.json hoac cau hinh
+- MCP khong ket noi -> kiem tra Docker va cau hinh
+</output>
+
+<rules>
+- Moi output PHAI bang tieng Viet co dau
+- Test PHAI dung du lieu dau vao cu the, khong dung mock chung chung
+- PHAI chay test va xac nhan pass truoc khi commit
+- PHAI yeu cau user xac nhan truoc khi hoan tat
+</rules>

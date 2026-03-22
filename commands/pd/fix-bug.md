@@ -24,24 +24,57 @@ Lặp đến khi user xác nhận thành công. Tạo patch version cho mileston
 **Sau khi xong:** `/pd:what-next` để kiểm tra tiến trình.
 </objective>
 
-<execution_context>
-@workflows/fix-bug.md
-@references/conventions.md
-@references/prioritization.md
-</execution_context>
+<guards>
+DUNG va huong dan user neu bat ky dieu kien nao that bai:
+
+- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+- [ ] Mo ta loi duoc cung cap -> "Cung cap mo ta loi hoac ten phien dieu tra."
+- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
+</guards>
 
 <context>
 User input: $ARGUMENTS
-
-**Tự kiểm tra trước khi bắt đầu** (DỪNG nếu thiếu):
-1. `.planning/CONTEXT.md` → nếu không có → "Chạy `/pd:init` trước."
 
 Đọc thêm:
 - `.planning/rules/general.md` → quy tắc chung
 - `.planning/rules/nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → theo loại lỗi (CHỈ nếu file tồn tại)
 </context>
 
+<execution_context>
+@workflows/fix-bug.md (required)
+@references/conventions.md (optional)
+@references/prioritization.md (optional)
+</execution_context>
+
 <process>
 Thực thi quy trình từ @workflows/fix-bug.md từ đầu đến cuối.
 Giữ nguyên tất cả các bước, phiên điều tra, cổng kiểm tra, phân loại rủi ro, và vòng lặp xác nhận.
 </process>
+
+<output>
+**Tao/Cap nhat:**
+- Source code files da sua loi
+- `.planning/debug/` -- trang thai phien dieu tra
+- Cap nhat TASKS.md (neu lien quan den task)
+
+**Buoc tiep theo:** `/pd:what-next` de kiem tra tien trinh
+
+**Thanh cong khi:**
+- Loi da duoc xac nhan sua thanh cong boi user
+- Test lien quan pass (neu co)
+- Commit [LOI] duoc tao
+
+**Loi thuong gap:**
+- Khong tai hien duoc loi -> yeu cau user cung cap them thong tin
+- Loi o dependency -> cap nhat package, kiem tra version
+- MCP khong ket noi -> kiem tra Docker va cau hinh
+</output>
+
+<rules>
+- Moi output PHAI bang tieng Viet co dau
+- PHAI luu trang thai dieu tra vao `.planning/debug/` de phuc hoi
+- PHAI qua cong kiem tra (gate check) truoc khi sua code
+- PHAI lap lai vong lua den khi user xac nhan thanh cong
+- KHONG duoc sua code khong lien quan den loi
+</rules>
