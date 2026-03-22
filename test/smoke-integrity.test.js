@@ -350,3 +350,71 @@ describe('Repo integrity -- guard deduplication', () => {
     }
   });
 });
+
+// ─── Conditional context loading verification ────────────
+// These tests verify the conditional loading pipeline:
+// skill (optional) tags -> inlineWorkflow() -> <conditional_reading> output
+
+describe('Repo integrity -- conditional context loading', () => {
+  it('skills with optional refs produce conditional_reading after inline', () => {
+    const optionalSkills = ['write-code', 'plan', 'new-milestone', 'complete-milestone', 'fix-bug', 'what-next'];
+
+    for (const name of optionalSkills) {
+      const content = fs.readFileSync(path.join(COMMANDS_DIR, `${name}.md`), 'utf8');
+      const { body } = parseFrontmatter(content);
+      const inlined = inlineWorkflow(body, ROOT);
+
+      assert.match(
+        inlined,
+        /<conditional_reading>[\s\S]*<\/conditional_reading>/,
+        `${name}: missing <conditional_reading> section after inline`
+      );
+    }
+  });
+
+  it('optional refs NOT in required_reading after inline', () => {
+    const content = fs.readFileSync(path.join(COMMANDS_DIR, 'write-code.md'), 'utf8');
+    const { body } = parseFrontmatter(content);
+    const inlined = inlineWorkflow(body, ROOT);
+    const requiredReading = extractXmlSection(inlined, 'required_reading') || '';
+
+    assert.ok(!requiredReading.includes('security-checklist'), 'security-checklist in required_reading');
+    assert.ok(!requiredReading.includes('ui-brand'), 'ui-brand in required_reading');
+    assert.ok(!requiredReading.includes('verification-patterns'), 'verification-patterns in required_reading');
+
+    const conditionalReading = extractXmlSection(inlined, 'conditional_reading') || '';
+    assert.ok(conditionalReading.includes('security-checklist'), 'security-checklist missing from conditional_reading');
+  });
+
+  it('conventions.md is required in all skills that reference it', () => {
+    const skills = listSkillFiles(COMMANDS_DIR);
+    for (const skill of skills) {
+      const execCtx = extractXmlSection(skill.content, 'execution_context') || '';
+      if (!execCtx.includes('conventions.md')) continue;
+
+      assert.match(
+        execCtx,
+        /conventions\.md\s+\(required\)/,
+        `${skill.name}: conventions.md should be (required)`
+      );
+      assert.ok(
+        !execCtx.includes('conventions.md (optional)'),
+        `${skill.name}: conventions.md still (optional)`
+      );
+    }
+  });
+
+  it('skills without optional refs have no conditional_reading', () => {
+    const noOptionalSkills = ['test', 'conventions'];
+    for (const name of noOptionalSkills) {
+      const content = fs.readFileSync(path.join(COMMANDS_DIR, `${name}.md`), 'utf8');
+      const { body } = parseFrontmatter(content);
+      const inlined = inlineWorkflow(body, ROOT);
+
+      assert.ok(
+        !inlined.includes('<conditional_reading>'),
+        `${name}: should NOT have <conditional_reading> (no optional refs)`
+      );
+    }
+  });
+});
