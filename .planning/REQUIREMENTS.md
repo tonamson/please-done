@@ -14,7 +14,7 @@
 
 ### Library-Aware Generation
 
-- [ ] **LIBR-01**: Standardize Context7 usage — mọi task dùng external library phải resolve-library-id + query-docs
+- [x] **LIBR-01**: Standardize Context7 usage — mọi task dùng external library phải resolve-library-id + query-docs
 - [ ] **LIBR-02**: Fallback chain khi Context7 fail — project docs > codebase examples > training data
 - [ ] **LIBR-03**: Auto-detect library versions từ package.json/pubspec.yaml/composer.json để truyền vào Context7
 
@@ -72,7 +72,7 @@
 | TOKN-02 | Phase 3: Prompt Prose Compression | Complete |
 | TOKN-03 | Phase 4: Conditional Context Loading | Complete |
 | TOKN-04 | Phase 5: Effort-Level Routing | Complete |
-| LIBR-01 | Phase 6: Context7 Standardization | Pending |
+| LIBR-01 | Phase 6: Context7 Standardization | Complete |
 | LIBR-02 | Phase 7: Library Fallback and Version Detection | Pending |
 | LIBR-03 | Phase 7: Library Fallback and Version Detection | Pending |
 | PARA-01 | Phase 8: Wave-Based Parallel Execution | Pending |
