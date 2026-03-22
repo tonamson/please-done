@@ -69,6 +69,27 @@ Grep `Patch version: [version]` trong .planning/bugs/BUG_*.md
 - Commit messages: Tiếng Việt có dấu
 - Ngoại lệ: Solidity NatSpec dùng tiếng Anh
 
+## Effort level
+
+| Effort | Model | Ví dụ |
+|--------|-------|-------|
+| simple | haiku | đổi tên biến, thêm import, sửa typo, cập nhật config |
+| standard | sonnet | tạo component mới, API endpoint, bộ unit test |
+| complex | opus | refactor nhiều file, quyết định kiến trúc, tích hợp |
+
+Mặc định: `standard` (sonnet). Task thiếu trường Effort → xử lý như `standard`.
+
+Phân loại:
+| Tín hiệu | simple | standard | complex |
+|----------|--------|----------|---------|
+| Files sửa/tạo | 1-2 | 3-4 | 5+ |
+| Số Truths | 1 | 2-3 | 4+ |
+| Phụ thuộc | 0 | 1-2 | 3+ |
+| Đa domain | không | không | có |
+
+Planner CÓ THỂ override guidelines dựa trên hiểu biết context.
+User override: sửa trực tiếp `Effort:` trong TASKS.md trước khi chạy.
+
 ## Bảo mật — Files cấm đọc
 
 CẤM đọc/hiển thị nội dung: `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`

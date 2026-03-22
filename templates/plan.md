@@ -161,6 +161,10 @@ Responsive: [mobile khác desktop thế nào]
 Không có gap — tất cả Truths đã được phủ bởi thiết kế kỹ thuật và artifacts ở trên.
 
 ## Thứ tự thực hiện
+
+> Mỗi task trong TASKS.md PHẢI có trường `Effort:` trong metadata line.
+> Mặc định: `standard`. Xem @references/conventions.md.
+
 1. [Bước 1]
 2. [Bước 2]
 

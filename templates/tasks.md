@@ -19,7 +19,7 @@ Biểu tượng trạng thái: @references/conventions.md
 
 ---
 ## Task 1: [Tên]
-> Trạng thái: ⬜ | Ưu tiên: Cao | Phụ thuộc: Không | Loại: Backend
+> Trạng thái: ⬜ | Ưu tiên: Cao | Phụ thuộc: Không | Loại: Backend | Effort: standard
 > Files: [danh sách files dự kiến]
 > Truths: [T1, T2] ← truy vết Tiêu chí thành công PLAN.md
 
@@ -37,6 +37,12 @@ Biểu tượng trạng thái: @references/conventions.md
 ## Loại task
 
 `Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Stack khác]`
+
+## Effort level
+
+`simple` | `standard` | `complex`
+
+Mặc định: `standard`. Xem @references/conventions.md → 'Effort level'.
 
 ## Truths (truy vết goal-backward)
 
