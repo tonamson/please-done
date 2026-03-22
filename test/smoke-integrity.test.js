@@ -490,7 +490,7 @@ describe('Repo integrity -- context7 standardization', () => {
     assert.match(content, /resolve-library-id/, 'pipeline thieu resolve-library-id');
     assert.match(content, /query-docs/, 'pipeline thieu query-docs');
     assert.match(content, /TU DONG/, 'pipeline thieu TU DONG trigger rule');
-    assert.match(content, /DUNG/, 'pipeline thieu error handling DUNG');
+    assert.match(content, /[Ff]allback/, 'pipeline thieu fallback section');
     assert.match(content, /resolve TAT CA/, 'pipeline thieu multi-lib batch pattern');
   });
 

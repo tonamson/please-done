@@ -7,20 +7,44 @@
 
 BAT KY task nao su dung thu vien ngoai -> TU DONG tra cuu, KHONG can user yeu cau.
 
-## Quy trinh 2 buoc
+## Buoc 0: Version
 
-### Buoc 1: Resolve
+Truoc khi resolve, detect version thu vien tu manifest:
+
+| Manifest | Stack | Parse |
+|----------|-------|-------|
+| `package.json` | Node.js | dependencies + devDependencies -> ten:version |
+| `pubspec.yaml` | Flutter | dependencies -> ten:version |
+| `composer.json` | PHP | require + require-dev -> ten:version |
+
+Nhieu manifest (monorepo) -> uu tien file gan nhat voi code dang sua.
+Heuristic: `nest-cli.json` -> backend, `next.config.*` -> frontend.
+Khong tim thay -> dung "latest", ghi note.
+
+## Buoc 1: Resolve
+
 `resolve-library-id` cho TUNG thu vien -> lay ID.
 Nhieu thu vien -> resolve TAT CA truoc khi query.
 
-### Buoc 2: Query
-`query-docs` voi ID da resolve -> docs dung version.
+## Buoc 2: Query
 
-## Xu ly loi
+`query-docs` voi ID da resolve -> docs. Truyen version vao topic/query neu co.
 
-Context7 loi hoac khong co -> **DUNG** task, thong bao user:
-1. Tiep tuc khong docs — chap nhan rui ro API sai
-2. Dung, sua Context7 roi chay lai
-3. Dung /pd:fetch-doc tai docs thu cong
+## Fallback (Context7 loi hoac khong co ket qua)
 
-KHONG am tham tiep tuc khi Context7 khong kha dung.
+Tu dong thu theo thu tu, KHONG hoi user:
+
+| # | Nguon | Cach thu | Dieu kien thanh cong |
+|---|-------|----------|---------------------|
+| 1 | Project docs | Glob `.planning/docs/*.md` -> match ten thu vien | Tim thay file co noi dung lien quan |
+| 2 | Codebase | Grep import/usage patterns trong code hien co | Tim thay patterns su dung thu vien |
+| 3 | Training data | Knowledge san co cua model | Luon co (nguon cuoi) |
+
+Fallback 3 (training data) -> hien thi: "Dung knowledge san, co the khong chinh xac cho version hien tai."
+
+TAT CA nguon that bai -> dung training data voi warning.
+
+## Transparency
+
+Moi lan tra cuu, in 1 dong: `[thu vien] v[version] -- nguon: [ten nguon]`
+VD: `@nestjs/common v10.3.0 -- nguon: Context7`
