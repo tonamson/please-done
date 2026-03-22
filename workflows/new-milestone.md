@@ -7,8 +7,16 @@ Dành cho dự án đã tồn tại — có thể đã có milestones trước.
 <required_reading>
 Đọc tất cả files trong execution_context trước khi bắt đầu:
 - @templates/project.md, @templates/requirements.md, @templates/roadmap.md, @templates/state.md, @templates/current-milestone.md
-- @references/questioning.md, @references/conventions.md, @references/ui-brand.md, @references/prioritization.md, @references/state-machine.md
+- @references/conventions.md
 </required_reading>
+
+<conditional_reading>
+Doc CHI KHI can (phan tich mo ta task truoc):
+- @references/questioning.md -> cach hoi user -- KHI can interactive questioning
+- @references/ui-brand.md -> product framing -- KHI du an co UI
+- @references/prioritization.md -> uu tien tasks -- KHI can sap xep nhieu tasks
+- @references/state-machine.md -> luong trang thai milestone -- KHI can hieu state transitions
+</conditional_reading>
 
 <process>
 
@@ -20,6 +28,17 @@ Dành cho dự án đã tồn tại — có thể đã có milestones trước.
 | 2 | `.planning/rules/general.md` | "Rules bị thiếu. Chạy `/pd:init` để tạo lại." → **DỪNG** |
 
 Đọc cả hai. Ghi nhận ngôn ngữ, format ngày tháng, quy cách phiên bản, biểu tượng trạng thái.
+
+---
+
+## 0.5: Phân tích dự án -- quyết định tài liệu tham khảo
+Xác định từ CONTEXT.md:
+- Dự án có UI/frontend? → đọc @references/ui-brand.md
+- Cần hỏi user nhiều? → đọc @references/questioning.md
+- Nhiều tasks/phases cần ưu tiên? → đọc @references/prioritization.md
+- Cần hiểu milestone state? → đọc @references/state-machine.md
+
+Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
 
 ---
 

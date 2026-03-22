@@ -4,11 +4,16 @@ Kiểm tra bugs đã đóng, tạo báo cáo tổng kết, commit, tạo git tag
 
 <required_reading>
 - @references/conventions.md → version filtering, commit prefixes, biểu tượng trạng thái
-- @references/state-machine.md → luồng trạng thái, điều kiện chuyển milestone
-- @references/ui-brand.md → viết báo cáo hướng sản phẩm
-- @templates/current-milestone.md → format + quy tắc cập nhật CURRENT_MILESTONE.md
-- @templates/state.md → quy tắc cập nhật STATE.md
 </required_reading>
+
+<conditional_reading>
+Doc CHI KHI can (phan tich mo ta task truoc):
+- @references/state-machine.md -> luong trang thai, dieu kien chuyen milestone -- KHI can hieu state transitions
+- @references/ui-brand.md -> viet bao cao huong san pham -- KHI milestone co UI deliverables
+- @references/verification-patterns.md -> multi-level verification -- KHI can kiem tra phuc tap
+- @templates/current-milestone.md -> format CURRENT_MILESTONE.md -- KHI can cap nhat milestone state
+- @templates/state.md -> quy tac cap nhat STATE.md -- KHI can cap nhat state
+</conditional_reading>
 
 <process>
 
@@ -18,6 +23,14 @@ Kiểm tra bugs đã đóng, tạo báo cáo tổng kết, commit, tạo git tag
 - status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones đã hoàn tất."
 - `.planning/milestones/[version]/MILESTONE_COMPLETE.md` đã tồn tại → **DỪNG**: "Milestone v[x.x] đã hoàn tất trước đó."
 - `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT`
+
+## Bước 1.5: Phân tích milestone -- quyết định tài liệu tham khảo
+Xác định từ milestone context:
+- Cần hiểu luồng state? → đọc @references/state-machine.md
+- Milestone có UI deliverables? → đọc @references/ui-brand.md
+- Cần kiểm tra phức tạp? → đọc @references/verification-patterns.md
+
+Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
 
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ `.planning/milestones/[version]/phase-*/`:

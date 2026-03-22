@@ -6,10 +6,18 @@ Lưu trạng thái điều tra (.planning/debug/) để tiếp tục khi hội t
 <required_reading>
 Đọc trước khi bắt đầu:
 - @references/conventions.md → version matching, patch version, biểu tượng, commit prefixes
-- @references/prioritization.md → phân loại rủi ro bug (🟢🟡🟠🔴🔵)
 </required_reading>
 
+<conditional_reading>
+Doc CHI KHI can:
+- @references/prioritization.md -> phan loai rui ro bug -- KHI nhieu bugs can uu tien
+</conditional_reading>
+
 <process>
+
+## Bước 0.5: Phân tích bug -- quyết định tài liệu tham khảo
+- Nhiều bugs cần ưu tiên? → đọc @references/prioritization.md
+Nếu chỉ có 1 bug → BỎ QUA.
 
 ## Bước 1: Kiểm tra phiên điều tra + thu thập triệu chứng
 

@@ -9,11 +9,15 @@ Hỗ trợ 2 chế độ:
 <required_reading>
 Đọc trước khi bắt đầu:
 - @templates/plan.md, @templates/tasks.md
-- @references/questioning.md → cách hỏi user (DISCUSS)
 - @references/conventions.md → icons, version, commit
-- @references/prioritization.md → thứ tự ưu tiên tasks
-- @references/ui-brand.md → product framing, design continuity, UX gaps
 </required_reading>
+
+<conditional_reading>
+Doc CHI KHI can (phan tich mo ta task truoc):
+- @references/questioning.md -> cach hoi user (DISCUSS) -- KHI DISCUSS mode
+- @references/prioritization.md -> thu tu uu tien tasks -- KHI task ordering/ranking
+- @references/ui-brand.md -> product framing, design continuity -- KHI task tao/sua UI
+</conditional_reading>
 
 <process>
 
@@ -33,6 +37,16 @@ Chưa có roadmap → "Chạy `/pd:new-milestone` trước."
 CURRENT_MILESTONE.md không tồn tại → "Thiếu. Chạy `/pd:new-milestone`."
 Status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones hoàn tất. Chạy `/pd:new-milestone`."
 Phase không có deliverables → **DỪNG**: "Phase [x.x] chưa có deliverables. Cập nhật ROADMAP."
+
+---
+
+## Bước 1.4: Phân tích scope -- quyết định tài liệu tham khảo
+Xác định từ ROADMAP.md và user input:
+- Chế độ DISCUSS? → đọc @references/questioning.md
+- Phase liên quan đến UI? → đọc @references/ui-brand.md
+- Nhiều tasks cần sắp xếp ưu tiên? → đọc @references/prioritization.md
+
+Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
 
 ---
 
