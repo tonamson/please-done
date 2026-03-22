@@ -33,8 +33,8 @@
 - Tokens lưu `flutter_secure_storage` — CẤM `get_storage`/`SharedPreferences`
 - Obfuscate release: `--obfuscate --split-debug-info=build/debug-info`
 
-## Build & Lint
+## Build và lint
 - Lint: `flutter analyze`
 - Build: `flutter build apk` / `flutter build ios`
 - Test: `flutter test`
-- Detect: Glob `**/pubspec.yaml` + Grep `flutter`
+- Nhận diện: Glob `**/pubspec.yaml` + Grep `flutter`

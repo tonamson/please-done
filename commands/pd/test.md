@@ -18,23 +18,23 @@ allowed-tools:
 
 <objective>
 Viết test theo stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). Frontend-only: danh sách kiểm thử thủ công + xác nhận.
-Test với dữ liệu cụ thể, chạy, user xác nhận, commit.
+Test với dữ liệu cụ thể, chạy kiểm thử, để người dùng xác nhận rồi commit.
 
 **Sau khi xong:** `/pd:write-code`, `/pd:fix-bug`, hoặc `/pd:complete-milestone`
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
-- [ ] Task number hop le hoac co flag --all -> "Cung cap so task hoac dung `--all`."
+- [ ] Task number hợp lệ hoặc có cờ `--all` -> "Cung cấp số task hoặc dùng `--all`."
 @references/guard-fastcode.md
 @references/guard-context7.md
-- [ ] Co it nhat 1 task voi trang thai done -> "Chua co task nao hoan thanh. Chay `/pd:write-code` truoc."
+- [ ] Có ít nhất 1 task ở trạng thái `done` -> "Chưa có task nào hoàn thành. Chạy `/pd:write-code` trước."
 </guards>
 
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 - Task number -> test riêng task đó (phải done)
 - `--all` -> regression toàn bộ phases
 - Không có gì -> test tất cả tasks done trong phase hiện tại
@@ -54,27 +54,27 @@ Thực thi @workflows/test.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- Test files theo stack (Jest, PHPUnit, Hardhat, flutter_test)
-- Danh sach kiem thu thu cong (Frontend-only)
-- Cap nhat TASKS.md
+**Tạo/Cập nhật:**
+- File test theo từng stack (Jest, PHPUnit, Hardhat, `flutter_test`)
+- Danh sách kiểm thử thủ công cho frontend-only
+- Cập nhật `TASKS.md`
 
-**Buoc tiep theo:** `/pd:write-code`, `/pd:fix-bug`, hoac `/pd:complete-milestone`
+**Bước tiếp theo:** `/pd:write-code`, `/pd:fix-bug`, hoặc `/pd:complete-milestone`
 
-**Thanh cong khi:**
-- Test files tao va chay thanh cong
-- User xac nhan ket qua
-- Test files commit
+**Thành công khi:**
+- File test đã được tạo và chạy thành công
+- Người dùng xác nhận kết quả
+- Phần test đã được commit
 
-**Loi thuong gap:**
-- Test fail -> doc loi, sua test/code, chay lai
-- Khong tim thay test framework -> kiem tra package.json/cau hinh
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Lỗi thường gặp:**
+- Test fail -> đọc lỗi, sửa test hoặc code rồi chạy lại
+- Không tìm thấy test framework -> kiểm tra `package.json` và cấu hình
+- MCP không kết nối -> kiểm tra Docker và cấu hình
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Test PHAI dung du lieu dau vao cu the, khong dung mock chung chung
-- PHAI chay test va xac nhan pass truoc khi commit
-- PHAI yeu cau user xac nhan truoc khi hoan tat
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- Test PHẢI dùng dữ liệu đầu vào cụ thể, không dùng mock chung chung
+- PHẢI chạy test và xác nhận pass trước khi commit
+- PHẢI yêu cầu người dùng xác nhận trước khi hoàn tất
 </rules>

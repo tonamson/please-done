@@ -17,24 +17,24 @@ allowed-tools:
 ---
 
 <objective>
-Sửa lỗi khoa học: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
-Lưu trạng thái điều tra (.planning/debug/) để phục hồi khi mất phiên.
-Lặp đến khi user xác nhận. Tạo patch version cho milestone đã hoàn tất.
+Sửa lỗi theo quy trình rõ ràng: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
+Lưu trạng thái điều tra vào `.planning/debug/` để có thể phục hồi khi mất phiên.
+Lặp lại cho đến khi người dùng xác nhận. Tạo patch version cho milestone đã hoàn tất.
 
 **Sau khi xong:** `/pd:what-next`
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
-- [ ] Mo ta loi duoc cung cap -> "Cung cap mo ta loi hoac ten phien dieu tra."
+- [ ] Có mô tả lỗi được cung cấp -> "Hãy cung cấp mô tả lỗi hoặc tên phiên điều tra."
 @references/guard-fastcode.md
 @references/guard-context7.md
 </guards>
 
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 
 Đọc thêm:
 - `.planning/rules/general.md` -> quy tắc chung
@@ -52,28 +52,28 @@ Thực thi @workflows/fix-bug.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- Source code da sua loi
-- `.planning/debug/` -- trang thai phien dieu tra
-- Cap nhat TASKS.md (neu lien quan)
+**Tạo/Cập nhật:**
+- Source code đã sửa lỗi
+- `.planning/debug/` -- trạng thái phiên điều tra
+- Cập nhật `TASKS.md` nếu liên quan
 
-**Buoc tiep theo:** `/pd:what-next`
+**Bước tiếp theo:** `/pd:what-next`
 
-**Thanh cong khi:**
-- User xac nhan sua thanh cong
-- Test lien quan pass (neu co)
-- Commit [LOI] duoc tao
+**Thành công khi:**
+- Người dùng xác nhận đã sửa thành công
+- Các test liên quan chạy thành công nếu có
+- Commit `[LỖI]` đã được tạo
 
-**Loi thuong gap:**
-- Khong tai hien loi -> yeu cau user cung cap them thong tin
-- Loi o dependency -> cap nhat package, kiem tra version
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Lỗi thường gặp:**
+- Không tái hiện được lỗi -> yêu cầu người dùng cung cấp thêm thông tin
+- Lỗi nằm ở dependency -> cập nhật package, kiểm tra phiên bản
+- MCP không kết nối -> kiểm tra Docker và cấu hình
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI luu trang thai dieu tra vao `.planning/debug/` de phuc hoi
-- PHAI qua cong kiem tra (gate check) truoc khi sua code
-- PHAI lap lai vong lua den khi user xac nhan thanh cong
-- KHONG duoc sua code khong lien quan den loi
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI lưu trạng thái điều tra vào `.planning/debug/` để phục hồi
+- PHẢI qua cổng kiểm tra (gate check) trước khi sửa code
+- PHẢI lặp lại vòng lặp cho đến khi người dùng xác nhận thành công
+- KHÔNG được sửa code không liên quan đến lỗi
 </rules>

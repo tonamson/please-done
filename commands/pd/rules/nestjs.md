@@ -12,8 +12,8 @@
 - **Controller**: CHỈ delegate, KHÔNG chứa business logic
 - **Enum values**: STRING UPPER_SNAKE_CASE, file: `enums/tên-enum.enum.ts`
 
-## Phân trang & Response
-- Format: `{ docs, page, limit, totalDocs, totalPages }`
+## Phân trang và phản hồi
+- Định dạng: `{ docs, page, limit, totalDocs, totalPages }`
 - Query lỗi: return `{ docs: [], page, limit, totalPages: 1 }`
 - Mutate lỗi: throw NestJS exception
 
@@ -28,7 +28,7 @@
 - Input validation: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` global
 - Soft delete: `deletedAt` field (TypeORM: `@DeleteDateColumn()`, Mongoose: field + middleware filter, Prisma: field + middleware)
 
-## Build & Lint
+## Build và lint
 - Lint: `npx eslint src/ --fix`
 - Build: `npx nest build`
-- Detect thư mục: Glob `**/nest-cli.json` → thư mục chứa = backend root
+- Nhận diện thư mục: Glob `**/nest-cli.json` → thư mục chứa là thư mục gốc của backend

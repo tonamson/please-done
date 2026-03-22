@@ -72,10 +72,10 @@ Constants → State variables → Structs → Events → Modifiers → Construct
 - `mapping` thay `array` cho lookup
 - Custom errors thay `require("string")`
 
-## Build & Lint
+## Build và lint
 - Hardhat: `npx hardhat compile` + `npx hardhat test`
 - Foundry: `forge build` + `forge test`
-- Detect: Glob `**/hardhat.config.*` hoặc `**/foundry.toml`
+- Nhận diện: Glob `**/hardhat.config.*` hoặc `**/foundry.toml`
 
 ## Tham khảo chi tiết
 Khi cần contract boilerplate hoặc audit → đọc `.planning/docs/solidity/`:

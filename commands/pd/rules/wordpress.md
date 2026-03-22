@@ -35,8 +35,8 @@
 - KHÔNG `'posts_per_page' => -1` trên frontend
 - Performance: `get_transient()`/`set_transient()` cache expensive operations
 
-## Build & Lint
+## Build và lint
 - Blocks: `npx wp-scripts build`
 - PHP lint: `composer run lint`
-- Detect: Glob `**/wp-config.php`
+- Nhận diện: Glob `**/wp-config.php`
 - Test: PHPUnit + `WP_UnitTestCase`

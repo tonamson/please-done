@@ -22,13 +22,13 @@ Khởi tạo milestone mới: kiểm tra -> cập nhật dự án -> hỏi -> ng
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
-- [ ] `.planning/rules/general.md` ton tai -> "Rules bi thieu. Chay `/pd:init` de tao lai."
-- [ ] Ten milestone duoc cung cap hoac se hoi user neu khong co
+- [ ] `.planning/rules/general.md` tồn tại -> "Thiếu rules. Chạy `/pd:init` để tạo lại."
+- [ ] Có tên milestone được cung cấp, hoặc sẽ hỏi người dùng nếu chưa có
 @references/guard-context7.md
-- [ ] WebSearch kha dung cho nghien cuu
+- [ ] WebSearch khả dụng khi cần nghiên cứu
 </guards>
 
 <context>
@@ -60,30 +60,30 @@ Thực thi @workflows/new-milestone.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- `.planning/PROJECT.md` -- tam nhin + lich su milestones
-- `.planning/REQUIREMENTS.md` -- yeu cau co ma dinh danh + bang theo doi
-- `.planning/ROADMAP.md` -- lo trinh cac phase
-- `.planning/STATE.md` -- trang thai lam viec (dat lai)
-- `.planning/CURRENT_MILESTONE.md` -- theo doi milestone dang chay
-- `.planning/research/` -- nghien cuu (tuy chon, chi cho tinh nang moi)
+**Tạo/Cập nhật:**
+- `.planning/PROJECT.md` -- tầm nhìn và lịch sử milestone
+- `.planning/REQUIREMENTS.md` -- yêu cầu có mã định danh và bảng theo dõi
+- `.planning/ROADMAP.md` -- lộ trình các phase
+- `.planning/STATE.md` -- trạng thái làm việc, được đặt lại
+- `.planning/CURRENT_MILESTONE.md` -- theo dõi milestone đang chạy
+- `.planning/research/` -- tài liệu nghiên cứu nếu cần cho tính năng mới
 
-**Buoc tiep theo:** `/pd:plan`
+**Bước tiếp theo:** `/pd:plan`
 
-**Thanh cong khi:**
-- ROADMAP.md day du phases voi mo ta ro rang
-- REQUIREMENTS.md co ma dinh danh moi yeu cau
-- STATE.md khoi tao cho milestone moi
+**Thành công khi:**
+- `ROADMAP.md` có đầy đủ phase với mô tả rõ ràng
+- `REQUIREMENTS.md` có mã định danh cho từng yêu cầu
+- `STATE.md` được khởi tạo cho milestone mới
 
-**Loi thuong gap:**
-- Thieu CONTEXT.md -> chay `/pd:init` truoc
-- Rules thieu -> chay `/pd:init` de tao lai
-- Ten milestone trung -> doi ten hoac dung version khac
+**Lỗi thường gặp:**
+- Thiếu `CONTEXT.md` -> chạy `/pd:init` trước
+- Thiếu rules -> chạy `/pd:init` để tạo lại
+- Tên milestone bị trùng -> đổi tên hoặc dùng version khác
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI hoi user duyet requirements truoc khi tao roadmap
-- PHAI hoi user duyet roadmap truoc khi commit
-- Nghien cuu chi bat buoc cho tinh nang moi -- bo qua cho refactor/bugfix milestones
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI hỏi người dùng duyệt requirements trước khi tạo roadmap
+- PHẢI hỏi người dùng duyệt roadmap trước khi commit
+- Nghiên cứu chỉ bắt buộc cho tính năng mới, có thể bỏ qua với milestone refactor hoặc bugfix
 </rules>

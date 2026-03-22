@@ -14,11 +14,11 @@ allowed-tools:
 ---
 
 <objective>
-Quét dự án: phân tích cấu trúc code, dependencies, kiến trúc, bảo mật -> tạo báo cáo.
+Quét dự án: phân tích cấu trúc code, dependency, kiến trúc và bảo mật để tạo báo cáo.
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
 @references/guard-valid-path.md
@@ -26,7 +26,7 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 </guards>
 
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 Đọc `.planning/CONTEXT.md` (từ /pd:init). KHÔNG cần rules -- chỉ quét + báo cáo.
 </context>
 
@@ -39,24 +39,24 @@ Thực thi @workflows/scan.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- Bao cao phan tich du an (man hinh)
-- Cap nhat `.planning/CONTEXT.md`
+**Tạo/Cập nhật:**
+- Báo cáo phân tích dự án trên màn hình
+- Cập nhật `.planning/CONTEXT.md`
 
-**Buoc tiep theo:** `/pd:plan` hoac `/pd:new-milestone`
+**Bước tiếp theo:** `/pd:plan` hoặc `/pd:new-milestone`
 
-**Thanh cong khi:**
-- Phan tich day du cau truc, dependencies, kien truc
-- Bao cao bao mat (neu co van de)
-- CONTEXT.md cap nhat
+**Thành công khi:**
+- Phân tích đầy đủ cấu trúc, dependency và kiến trúc
+- Có báo cáo bảo mật nếu phát hiện vấn đề
+- `CONTEXT.md` đã được cập nhật
 
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Du an qua lon -> gioi han pham vi quet theo thu muc
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
+- Dự án quá lớn -> giới hạn phạm vi quét theo thư mục
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Chi doc va phan tich -- KHONG duoc thay doi source code cua du an
-- Bao cao phai bao gom: cau truc, dependencies, kien truc, bao mat
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- Chỉ đọc và phân tích, KHÔNG được thay đổi source code của dự án
+- Báo cáo phải bao gồm: cấu trúc, dependency, kiến trúc và bảo mật
 </rules>

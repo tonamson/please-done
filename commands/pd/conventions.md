@@ -2,7 +2,7 @@
 name: pd:conventions
 description: "Phân tích dự án và tạo CLAUDE.md chứa quy ước code riêng (phong cách code, đặt tên, patterns)"
 model: sonnet
-argument-hint: "(khong can tham so)"
+argument-hint: "(không cần tham số)"
 allowed-tools:
   - Read
   - Write
@@ -14,17 +14,17 @@ allowed-tools:
 ---
 
 <objective>
-Phân tích dự án, phát hiện coding conventions, hỏi user ưu tiên, tạo/cập nhật CLAUDE.md.
+Phân tích dự án, phát hiện quy ước code, hỏi ưu tiên của người dùng, rồi tạo hoặc cập nhật `CLAUDE.md`.
 </objective>
 
 <guards>
-Khong co dieu kien tien quyet nghiem ngat. Skill nay co the chay bat ky luc nao.
+Không có điều kiện tiên quyết nghiêm ngặt. Skill này có thể chạy bất kỳ lúc nào.
 
-- [ ] Thu muc du an co source code -> "Thu muc trong hoac khong co source code de phan tich."
+- [ ] Thư mục dự án có source code -> "Thư mục trống hoặc không có source code để phân tích."
 </guards>
 
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 </context>
 
 <execution_context>
@@ -37,22 +37,22 @@ Thực thi @workflows/conventions.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- `CLAUDE.md` -- quy uoc code cua du an
+**Tạo/Cập nhật:**
+- `CLAUDE.md` -- quy ước code của dự án
 
-**Buoc tiep theo:** `/pd:plan` hoac `/pd:write-code`
+**Bước tiếp theo:** `/pd:plan` hoặc `/pd:write-code`
 
-**Thanh cong khi:**
-- CLAUDE.md bao gom: naming conventions, code style, patterns
-- User xac nhan noi dung
+**Thành công khi:**
+- `CLAUDE.md` bao gồm quy ước đặt tên, phong cách code và pattern đang dùng
+- Người dùng xác nhận nội dung
 
-**Loi thuong gap:**
-- Du an khong co source code -> khong the phan tich
-- User khong dong y -> cho phep chinh sua thu cong
+**Lỗi thường gặp:**
+- Dự án không có source code -> không thể phân tích
+- Người dùng không đồng ý -> cho phép chỉnh sửa thủ công
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI hoi user ve uu tien ca nhan truoc khi tao CLAUDE.md
-- CLAUDE.md PHAI phan anh thuc te code hien tai, khong ap dat quy uoc moi
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI hỏi người dùng về ưu tiên cá nhân trước khi tạo `CLAUDE.md`
+- `CLAUDE.md` PHẢI phản ánh thực tế code hiện tại, không áp đặt quy ước mới
 </rules>

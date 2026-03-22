@@ -1,6 +1,6 @@
 ---
 name: pd:init
-description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo context gọn cho các skill sau
+description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo ngữ cảnh gọn cho các skill sau
 model: haiku
 argument-hint: "[path dự án, mặc định thư mục hiện tại]"
 allowed-tools:
@@ -15,22 +15,22 @@ allowed-tools:
 ---
 
 <objective>
-Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules phù hợp.
+Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo `CONTEXT.md` và sao chép các rule phù hợp.
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-valid-path.md
 @references/guard-fastcode.md
 </guards>
 
 <context>
-User input: $ARGUMENTS (path dự án, mặc định thư mục hiện tại)
+Người dùng nhập: $ARGUMENTS (đường dẫn dự án, mặc định là thư mục hiện tại)
 
-Rules templates: `.pdconfig` -> `SKILLS_DIR` -> rules tại `[SKILLS_DIR]/commands/pd/rules/`:
-- `general.md` -- luôn copy
-- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- copy nếu phát hiện stack tương ứng
+Mẫu quy tắc: `.pdconfig` -> `SKILLS_DIR` -> các file tại `[SKILLS_DIR]/commands/pd/rules/`:
+- `general.md` -- luôn sao chép
+- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- sao chép nếu phát hiện stack tương ứng
 </context>
 
 <execution_context>
@@ -42,23 +42,23 @@ Thực thi @workflows/init.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- `.planning/CONTEXT.md` -- project context
-- `.planning/rules/*.md` -- framework rules (conditional)
+**Tạo/Cập nhật:**
+- `.planning/CONTEXT.md` -- ngữ cảnh dự án
+- `.planning/rules/*.md` -- quy tắc theo framework tương ứng
 
-**Buoc tiep theo:** `/pd:scan` hoac `/pd:plan`
+**Bước tiếp theo:** `/pd:scan` hoặc `/pd:plan`
 
-**Thanh cong khi:**
-- CONTEXT.md day du thong tin tech stack
-- FastCode MCP xac nhan ket noi
+**Thành công khi:**
+- `CONTEXT.md` có đầy đủ thông tin về tech stack
+- FastCode MCP xác nhận đã kết nối
 
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Khong phat hien tech stack -> user them thong tin thu cong
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
+- Không phát hiện được tech stack -> người dùng bổ sung thủ công
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI xac nhan FastCode MCP ket noi truoc khi thuc hien bat ky buoc nao
-- KHONG duoc thay doi file ngoai .planning/
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI xác nhận FastCode MCP đã kết nối trước khi thực hiện bất kỳ bước nào
+- KHÔNG được thay đổi file ngoài `.planning/`
 </rules>

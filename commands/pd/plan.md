@@ -18,16 +18,16 @@ allowed-tools:
 ---
 
 <objective>
-Research dự án, thiết kế giải pháp kỹ thuật, chia tasks cụ thể.
+Nghiên cứu dự án, thiết kế giải pháp kỹ thuật và chia task cụ thể.
 `--auto` (mặc định): Claude tự quyết | `--discuss`: thảo luận tương tác, user chọn
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
-- [ ] `.planning/ROADMAP.md` ton tai -> "Chay `/pd:new-milestone` truoc."
-- [ ] `.planning/CURRENT_MILESTONE.md` ton tai -> "Thieu CURRENT_MILESTONE.md. Chay `/pd:new-milestone` de tao."
+- [ ] `.planning/ROADMAP.md` tồn tại -> "Chạy `/pd:new-milestone` trước."
+- [ ] `.planning/CURRENT_MILESTONE.md` tồn tại -> "Thiếu CURRENT_MILESTONE.md. Chạy `/pd:new-milestone` để tạo."
 @references/guard-fastcode.md
 @references/guard-context7.md
 </guards>
@@ -59,27 +59,27 @@ Thực thi @workflows/plan.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
+**Tạo/Cập nhật:**
 - `.planning/milestones/[version]/phase-[phase]/RESEARCH.md`
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md`
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md`
 
-**Buoc tiep theo:** `/pd:write-code`
+**Bước tiếp theo:** `/pd:write-code`
 
-**Thanh cong khi:**
-- Plan bao phu tat ca requirements cua phase
-- Tasks cu the, co the thuc hien tung cai
-- Research du context cho implementation
+**Thành công khi:**
+- Kế hoạch bao phủ tất cả requirement của phase
+- Các task đủ cụ thể để thực hiện từng phần
+- Phần nghiên cứu đủ ngữ cảnh cho triển khai
 
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Thieu ROADMAP.md -> chay `/pd:new-milestone` truoc
-- Phase khong ton tai trong ROADMAP -> kiem tra lai so phase
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
+- Thiếu `ROADMAP.md` -> chạy `/pd:new-milestone` trước
+- Phase không tồn tại trong `ROADMAP` -> kiểm tra lại số phase
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Ton trong che do --auto/--discuss: auto khong hoi, discuss liet ke options
-- KHONG viet code trong buoc plan -- chi thiet ke va chia tasks
-- Research PHAI kiem tra thu vien hien co truoc khi de xuat them dependency moi
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- Tôn trọng chế độ `--auto`/`--discuss`: `auto` không hỏi, `discuss` liệt kê lựa chọn
+- KHÔNG viết code trong bước plan, chỉ thiết kế và chia task
+- Phần nghiên cứu PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm dependency mới
 </rules>

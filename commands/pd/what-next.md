@@ -1,8 +1,8 @@
 ---
 name: pd:what-next
-description: Kiểm tra tiến trình dự án, gợi ý command tiếp theo khi quên hoặc bị gián đoạn
+description: Kiểm tra tiến trình dự án, gợi ý lệnh tiếp theo khi quên hoặc bị gián đoạn
 model: haiku
-argument-hint: "(khong can tham so)"
+argument-hint: "(không cần tham số)"
 allowed-tools:
   - Read
   - Glob
@@ -11,19 +11,19 @@ allowed-tools:
 ---
 
 <objective>
-Quét .planning/ -> xác định công việc dở/bước tiếp -> hiển thị tiến trình + gợi ý command.
+Quét `.planning/` để xác định công việc còn dở và bước tiếp theo, rồi hiển thị tiến trình cùng lệnh gợi ý.
 CHỈ ĐỌC, KHÔNG sửa file, KHÔNG gọi FastCode MCP.
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
-- [ ] Thu muc `.planning/` ton tai -> "Chua khoi tao du an. Chay `/pd:init` truoc."
+- [ ] Thư mục `.planning/` tồn tại -> "Chưa khởi tạo dự án. Chạy `/pd:init` trước."
 </guards>
 
 <context>
-User input: $ARGUMENTS (khong can)
-KHÔNG cần rules hay FastCode MCP -- chỉ đọc planning files.
+Người dùng nhập: $ARGUMENTS (không có tham số)
+KHÔNG cần rule hay FastCode MCP -- chỉ đọc các file planning.
 </context>
 
 <execution_context>
@@ -37,23 +37,23 @@ Thực thi @workflows/what-next.md từ đầu đến cuối.
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- Khong tao/sua file (chi doc)
+**Tạo/Cập nhật:**
+- Không tạo hoặc sửa file nào, chỉ đọc
 
-**Buoc tiep theo:** Command goi y dua tren trang thai
+**Bước tiếp theo:** Lệnh gợi ý dựa trên trạng thái thực tế
 
-**Thanh cong khi:**
-- Hien thi tien trinh ro rang
-- Goi y dung command dua tren trang thai
+**Thành công khi:**
+- Hiển thị tiến trình rõ ràng
+- Gợi ý đúng lệnh dựa trên trạng thái hiện tại
 
-**Loi thuong gap:**
-- .planning/ khong ton tai -> chay `/pd:init`
-- STATE.md thieu/hong -> chay `/pd:new-milestone` de tao lai
+**Lỗi thường gặp:**
+- `.planning/` không tồn tại -> chạy `/pd:init`
+- `STATE.md` thiếu hoặc hỏng -> chạy `/pd:new-milestone` để tạo lại
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- CHI DOC -- KHONG sua bat ky file nao
-- KHONG goi FastCode MCP hoac Context7 MCP
-- Goi y command PHAI dua tren trang thai thuc te, khong doan
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- CHỈ ĐỌC, KHÔNG sửa bất kỳ file nào
+- KHÔNG gọi FastCode MCP hoặc Context7 MCP
+- Lệnh gợi ý PHẢI dựa trên trạng thái thực tế, không đoán
 </rules>

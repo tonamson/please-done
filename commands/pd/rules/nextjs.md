@@ -39,7 +39,7 @@
 - Secrets: CẤM đặt vào `NEXT_PUBLIC_*`
 - External links `target="_blank"`: kèm `rel="noopener noreferrer"`
 
-## Build & Lint
+## Build và lint
 - Lint: `npx eslint --fix`
 - Build: `npx next build`
-- Detect thư mục: Glob `**/next.config.*` → thư mục chứa = frontend root
+- Nhận diện thư mục: Glob `**/next.config.*` → thư mục chứa là thư mục gốc của frontend

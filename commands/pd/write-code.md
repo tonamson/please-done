@@ -18,7 +18,7 @@ allowed-tools:
 ---
 
 <objective>
-Viết code theo task từ PLAN.md/TASKS.md, tuân thủ `.planning/rules/`, lint + build, commit.
+Viết code theo task trong `PLAN.md` và `TASKS.md`, tuân thủ `.planning/rules/`, chạy lint + build rồi commit.
 
 **Chế độ:** mặc định 1 task -> dừng hỏi | `--auto` tất cả tuần tự | `--parallel` nhóm wave song song
 **Khôi phục:** Tự phát hiện tiến trình qua PROGRESS.md + đĩa/git -> tiếp tục từ chỗ dừng
@@ -26,20 +26,20 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ `.planning/rules/`, lin
 </objective>
 
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 
 @references/guard-context.md
-- [ ] Task number hop le hoac co flag --auto/--parallel -> "Cung cap so task hoac flag che do."
-- [ ] PLAN.md + TASKS.md ton tai cho phase hien tai -> "Chay `/pd:plan` truoc de tao plan."
+- [ ] Task number hợp lệ hoặc có cờ `--auto`/`--parallel` -> "Cung cấp số task hoặc cờ chế độ."
+- [ ] `PLAN.md` và `TASKS.md` tồn tại cho phase hiện tại -> "Chạy `/pd:plan` trước để tạo plan."
 @references/guard-fastcode.md
 @references/guard-context7.md
 </guards>
 
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 - Task number (VD: `3`) -> task cụ thể
 - `--auto` -> tất cả tuần tự | `--parallel` -> song song | Kết hợp: `3 --auto`
-- Không có gì -> pick task tiếp theo ⬜, xong 1 task -> DỪNG hỏi user
+- Không có gì -> chọn task tiếp theo ⬜, xong 1 task thì DỪNG để hỏi người dùng
 
 Đọc thêm:
 - `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
@@ -61,27 +61,27 @@ Thực thi @workflows/write-code.md từ đầu đến cuối. Logic chọn task
 </process>
 
 <output>
-**Tao/Cap nhat:**
-- Source code + test files theo task
-- Cap nhat TASKS.md + PROGRESS.md
+**Tạo/Cập nhật:**
+- Source code và file test theo task
+- Cập nhật `TASKS.md` và `PROGRESS.md`
 
-**Buoc tiep theo:** `/pd:test`, `/pd:plan [phase tiep]`, hoac `/pd:complete-milestone`
+**Bước tiếp theo:** `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 
-**Thanh cong khi:**
-- Code viet xong, lint + build pass
-- Task danh dau hoan thanh trong TASKS.md
-- Commit voi message ro rang
+**Thành công khi:**
+- Code đã viết xong, lint và build đều pass
+- Task được đánh dấu hoàn thành trong `TASKS.md`
+- Commit có message rõ ràng
 
-**Loi thuong gap:**
-- Lint/build fail -> doc loi, sua, chay lai
-- Task khong ro -> hoi user qua AskUserQuestion
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Lỗi thường gặp:**
+- Lint hoặc build fail -> đọc lỗi, sửa rồi chạy lại
+- Task chưa rõ -> hỏi người dùng qua `AskUserQuestion`
+- MCP không kết nối -> kiểm tra Docker và cấu hình
 </output>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI doc va tuan thu rules trong `.planning/rules/` truoc khi viet code
-- PHAI chay lint + build sau khi viet code
-- PHAI commit sau moi task hoan thanh
-- KHONG duoc thay doi code ngoai pham vi task
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI đọc và tuân thủ rules trong `.planning/rules/` trước khi viết code
+- PHẢI chạy lint và build sau khi viết code
+- PHẢI commit sau mỗi task hoàn thành
+- KHÔNG được thay đổi code ngoài phạm vi task
 </rules>
