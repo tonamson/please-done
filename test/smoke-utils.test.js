@@ -402,3 +402,35 @@ describe('Manifest', () => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   });
 });
+
+// ─── Effort field parsing ─────────────────────────────────
+describe('effort field parsing from task metadata', () => {
+  /**
+   * Trich xuat effort tu metadata line task.
+   * Tra ve 'standard' neu thieu (backward compat D-10).
+   */
+  function parseEffort(metadataLine) {
+    const match = metadataLine.match(/Effort:\s*(simple|standard|complex)/i);
+    return match ? match[1].toLowerCase() : 'standard';
+  }
+
+  it('trich xuat effort: simple tu metadata', () => {
+    const line = '> Trang thai: ⬜ | Uu tien: Cao | Phu thuoc: Khong | Loai: Backend | Effort: simple';
+    assert.equal(parseEffort(line), 'simple');
+  });
+
+  it('trich xuat effort: standard tu metadata', () => {
+    const line = '> Trang thai: ⬜ | Uu tien: Cao | Phu thuoc: Khong | Loai: Backend | Effort: standard';
+    assert.equal(parseEffort(line), 'standard');
+  });
+
+  it('trich xuat effort: complex tu metadata', () => {
+    const line = '> Trang thai: ⬜ | Uu tien: Cao | Phu thuoc: Khong | Loai: Backend | Effort: complex';
+    assert.equal(parseEffort(line), 'complex');
+  });
+
+  it('thieu effort field → mac dinh standard (backward compat D-10)', () => {
+    const line = '> Trang thai: ⬜ | Uu tien: Cao | Phu thuoc: Khong | Loai: Backend';
+    assert.equal(parseEffort(line), 'standard');
+  });
+});
