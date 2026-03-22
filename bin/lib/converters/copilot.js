@@ -1,83 +1,56 @@
-// Converter: Claude Code → GitHub Copilot
+// Converter: Claude Code -> GitHub Copilot
 //
-// Copilot dùng skills trong thư mục: skills/pd-[name]/SKILL.md
-// Tool names được map khác (Read→read, Bash→execute).
-// MCP tool references: mcp__context7__* → io.github.upstash/context7/*
-// Instructions merge vào copilot-instructions.md.
+// Copilot dung skills trong thu muc: skills/pd-[name]/SKILL.md
+// Tool names duoc map khac (Read->read, Bash->execute).
+// MCP tool references: mcp__context7__* -> io.github.upstash/context7/*
+// Instructions merge vao copilot-instructions.md.
 
 'use strict';
 
-const { parseFrontmatter, buildFrontmatter, inlineWorkflow } = require('../utils');
+const { convertSkill: baseConvert } = require('./base');
+const { TOOL_MAP } = require('../platforms');
 
-// Tool name mapping Claude → Copilot
-const COPILOT_TOOL_MAP = {
-  Read: 'read',
-  Write: 'write',
-  Edit: 'edit',
-  Bash: 'execute',
-  Glob: 'glob',
-  Grep: 'search',
-  Agent: 'agent',
-  WebFetch: 'fetch',
-  WebSearch: 'search_web',
-};
+// Re-export for backward compatibility
+const COPILOT_TOOL_MAP = TOOL_MAP.copilot;
 
 /**
- * Convert nội dung skill từ Claude format sang Copilot format.
+ * Convert noi dung skill tu Claude format sang Copilot format.
  */
 function convertSkill(content, isGlobal, skillsDir) {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  // Frontmatter: giữ name + description
-  const newFm = {
-    name: frontmatter.name || '',
-    description: frontmatter.description || '',
-  };
-
-  // Body transformations
-  let newBody = body;
-
-  // Inline workflow content (TRƯỚC text replacements)
-  if (skillsDir) {
-    newBody = inlineWorkflow(newBody, skillsDir);
-  }
-
-  // Replace paths
   const configBase = isGlobal ? '~/.copilot/' : '.github/';
-  newBody = newBody.replace(/~\/\.claude\//g, configBase);
+  const escaped = configBase.replace(/[/.]/g, '\\$&');
 
-  // Fix .pdconfig path: remove commands/pd/ prefix since Copilot uses skills/ structure
-  newBody = newBody.replace(new RegExp(`${configBase.replace(/[/.]/g, '\\$&')}commands/pd/\\.pdconfig`, 'g'), `${configBase}.pdconfig`);
-
-  // Replace tool names in body
-  for (const [claude, copilot] of Object.entries(COPILOT_TOOL_MAP)) {
-    const regex = new RegExp(`\\b${claude}\\b(?!\\()`, 'g');
-    newBody = newBody.replace(regex, copilot);
-  }
-
-  // Convert MCP tool references
-  // mcp__fastcode__code_qa → fastcode/code_qa
-  // mcp__context7__query-docs → io.github.upstash/context7/query-docs
-  newBody = newBody.replace(/mcp__context7__([a-z_-]+)/g, 'io.github.upstash/context7/$1');
-  newBody = newBody.replace(/mcp__fastcode__([a-z_-]+)/g, 'fastcode/$1');
-
-  return `---\n${buildFrontmatter(newFm)}\n---\n${newBody}`;
+  return baseConvert(content, {
+    runtime: 'copilot',
+    skillsDir,
+    pathReplace: configBase,
+    toolMap: COPILOT_TOOL_MAP,
+    buildFrontmatter: (fm) => ({
+      name: fm.name || '',
+      description: fm.description || '',
+    }),
+    pdconfigFix: (body) =>
+      body.replace(new RegExp(`${escaped}commands/pd/\\.pdconfig`, 'g'), `${configBase}.pdconfig`),
+    mcpToolConvert: (body) =>
+      body.replace(/mcp__context7__([a-z_-]+)/g, 'io.github.upstash/context7/$1')
+        .replace(/mcp__fastcode__([a-z_-]+)/g, 'fastcode/$1'),
+  });
 }
 
 /**
- * Generate instructions block để merge vào copilot-instructions.md.
+ * Generate instructions block de merge vao copilot-instructions.md.
  */
 function generateInstructions(skillNames) {
   const lines = [
     '<!-- PD_SKILLS_START -->',
     '## Skills',
     '',
-    'Bộ skills `/pd:*` hỗ trợ workflow phát triển phần mềm:',
+    'B\u1ED9 skills `/pd:*` h\u1ED7 tr\u1EE3 workflow ph\u00E1t tri\u1EC3n ph\u1EA7n m\u1EC1m:',
     '',
   ];
 
   for (const name of skillNames) {
-    lines.push(`- \`/pd:${name}\` — Xem skills/pd-${name}/SKILL.md`);
+    lines.push(`- \`/pd:${name}\` \u2014 Xem skills/pd-${name}/SKILL.md`);
   }
 
   lines.push('');
@@ -87,8 +60,8 @@ function generateInstructions(skillNames) {
 }
 
 /**
- * Merge instructions vào file copilot-instructions.md.
- * Idempotent — thay thế giữa markers nếu đã có.
+ * Merge instructions vao file copilot-instructions.md.
+ * Idempotent — thay the giua markers neu da co.
  */
 function mergeInstructions(existingContent, instructionsBlock) {
   const startMarker = '<!-- PD_SKILLS_START -->';
@@ -114,10 +87,10 @@ function mergeInstructions(existingContent, instructionsBlock) {
 }
 
 /**
- * Strip skills instructions khỏi copilot-instructions.md (uninstall).
+ * Strip skills instructions khoi copilot-instructions.md (uninstall).
  */
 function stripInstructions(content) {
-  // Tìm marker mới hoặc cũ
+  // Tim marker moi hoac cu
   let startMarker = '<!-- PD_SKILLS_START -->';
   let endMarker = '<!-- PD_SKILLS_END -->';
   if (!content.includes(startMarker)) {

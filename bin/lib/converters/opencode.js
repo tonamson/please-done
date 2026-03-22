@@ -1,65 +1,41 @@
 /**
- * Converter: Claude Code → OpenCode
+ * Converter: Claude Code -> OpenCode
  *
- * OpenCode dùng flat command structure: command/pd-*.md (không nested).
- * Frontmatter: strip name (dùng filename), strip tools/color/skills,
+ * OpenCode dung flat command structure: command/pd-*.md (khong nested).
+ * Frontmatter: strip name (dung filename), strip tools/color/skills,
  * add model: inherit cho agents.
- * Slash commands: /pd:xxx → /pd-xxx (dấu gạch ngang thay dấu hai chấm).
+ * Slash commands: /pd:xxx -> /pd-xxx (dau gach ngang thay dau hai cham).
  */
 
 'use strict';
 
-const { parseFrontmatter, buildFrontmatter, inlineWorkflow } = require('../utils');
-const { convertCommandRef } = require('../platforms');
+const { convertSkill: baseConvert } = require('./base');
 
 /**
- * Convert nội dung skill từ Claude format sang OpenCode format.
+ * Convert noi dung skill tu Claude format sang OpenCode format.
  */
 function convertSkill(content, skillsDir) {
-  const { frontmatter, body } = parseFrontmatter(content);
-
-  // Frontmatter transformations
-  const newFm = {};
-
-  // Giữ description, strip name (OpenCode dùng filename)
-  if (frontmatter.description) newFm.description = frontmatter.description;
-
-  // Convert allowed-tools → tools (nếu có)
-  if (frontmatter['allowed-tools'] && Array.isArray(frontmatter['allowed-tools'])) {
-    newFm.tools = frontmatter['allowed-tools'];
-  }
-
-  // Strip unsupported fields: color, skills, memory, maxTurns, permissionMode
-  // (không copy từ source)
-
-  // Body transformations
-  let newBody = body;
-
-  // Inline workflow content (TRƯỚC text replacements)
-  if (skillsDir) {
-    newBody = inlineWorkflow(newBody, skillsDir);
-  }
-
-  // Replace command references: /pd:xxx → /pd-xxx
-  newBody = convertCommandRef('opencode', newBody);
-
-  // Replace paths: ~/.claude/ → ~/.config/opencode/
-  newBody = newBody.replace(/~\/\.claude\//g, '~/.config/opencode/');
-
-  // Fix .pdconfig path: ~/.config/opencode/commands/pd/.pdconfig → ~/.config/opencode/.pdconfig
-  newBody = newBody.replace(/~\/\.config\/opencode\/commands\/pd\/\.pdconfig/g, '~/.config/opencode/.pdconfig');
-
-  // AskUserQuestion → question
-  newBody = newBody.replace(/AskUserQuestion/g, 'question');
-
-  // SlashCommand → skill (nếu có reference)
-  newBody = newBody.replace(/SlashCommand/g, 'skill');
-
-  return `---\n${buildFrontmatter(newFm)}\n---\n${newBody}`;
+  return baseConvert(content, {
+    runtime: 'opencode',
+    skillsDir,
+    pathReplace: '~/.config/opencode/',
+    buildFrontmatter: (fm) => {
+      const newFm = {};
+      if (fm.description) newFm.description = fm.description;
+      if (fm['allowed-tools'] && Array.isArray(fm['allowed-tools'])) {
+        newFm.tools = fm['allowed-tools'];
+      }
+      return newFm;
+    },
+    pdconfigFix: (body) =>
+      body.replace(/~\/\.config\/opencode\/commands\/pd\/\.pdconfig/g, '~/.config/opencode/.pdconfig'),
+    postProcess: (body) =>
+      body.replace(/AskUserQuestion/g, 'question').replace(/SlashCommand/g, 'skill'),
+  });
 }
 
 /**
- * Flatten skill name: init → pd-init (dùng làm filename).
+ * Flatten skill name: init -> pd-init (dung lam filename).
  */
 function flattenName(skillName) {
   return `pd-${skillName}`;

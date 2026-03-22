@@ -158,6 +158,7 @@ function getAllRuntimes() {
 
 module.exports = {
   PLATFORMS,
+  TOOL_MAP,
   getGlobalDir,
   getLocalDir,
   convertCommandRef,
