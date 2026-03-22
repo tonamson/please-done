@@ -241,6 +241,23 @@ Nguyên tắc:
    - **Phụ thuộc code**: task B import/dùng function task A → ghi `Task A`
    - **Phụ thuộc design**: dùng response shape từ PLAN.md (không cần code thực) → ghi `Không` (parallel-safe)
    - **Phụ thuộc file**: sửa chung file → ghi `Task A (shared file)`
+11. **Effort level** (TOKN-04): mỗi task PHẢI có `Effort:` trong metadata. Mặc định: `standard`.
+
+### Phân loại effort cho task
+
+| Tín hiệu | simple | standard | complex |
+|----------|--------|----------|---------|
+| Files sửa/tạo | 1-2 | 3-4 | 5+ |
+| Số Truths | 1 | 2-3 | 4+ |
+| Phụ thuộc | 0 | 1-2 | 3+ |
+| Đa domain | không | không | có |
+
+Ví dụ:
+- simple: đổi tên biến, thêm import, sửa typo, cập nhật config
+- standard: tạo component mới, API endpoint, bộ unit test
+- complex: refactor nhiều file, quyết định kiến trúc, tích hợp
+
+Planner CÓ THỂ override guidelines dựa trên hiểu biết context.
 
 ---
 

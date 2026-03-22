@@ -36,6 +36,17 @@ Chọn task:
 | TẤT CẢ còn lại ❌/🐛/blocked | Thông báo danh sách + lý do. Đề xuất `/pd:fix-bug` cho 🐛 |
 | Scan hết mà ⬜ bị circular dependency | "Phát hiện circular/missing dependency. Kiểm tra TASKS.md." |
 
+**Đọc effort và chọn model:**
+Đọc `Effort:` từ metadata task trong TASKS.md:
+| Effort | Model |
+|--------|-------|
+| simple | haiku |
+| standard | sonnet |
+| complex | opus |
+| (thiếu/không rõ) | sonnet |
+
+Thông báo: "Spawning {model} agent cho {task_id} ({effort})..."
+
 **Persist 🔄 ngay** (trước khi tiếp):
 - TASKS.md: cập nhật CẢ HAI nơi (bảng Tổng quan + task detail) ⬜ → 🔄
 - Ghi đĩa TRƯỚC khi tạo PROGRESS.md
@@ -304,7 +315,11 @@ Tổng: [N] tasks ✅ | Truths: [X]/[Y] đạt | Vòng sửa: [VERIFY_ROUND]"
 Thực thi theo waves từ Bước 1.5:
 
 **Với mỗi wave:**
-1. **Spawn Agent tool** cho mỗi task song song — mỗi agent nhận: PLAN.md, task detail, rules, CONTEXT.md, docs. Chỉ dẫn: Bước 2→3→4→5 (KHÔNG report/TASKS/commit)
+1. **Spawn Agent tool** cho mỗi task song song — mỗi agent nhận: PLAN.md, task detail, rules, CONTEXT.md, docs.
+   - Đọc `Effort:` từ task metadata -> chọn model tương ứng (simple->haiku, standard->sonnet, complex->opus, mặc định->sonnet)
+   - Truyền model vào Agent tool: `model: {resolved_model}`
+   - Thông báo: "Spawning {model} agent cho {task_id} ({effort})..."
+   - Chỉ dẫn: Bước 2→3→4→5 (KHÔNG report/TASKS/commit)
 2. **Agent Frontend đặc biệt** (song song Backend): đọc PLAN.md "API Endpoints" → tạo types/interfaces từ response shape (KHÔNG cần API thật) → tạo API functions + components. Sau Backend xong → verify types khớp response thực tế
 3. **Chờ TẤT CẢ agents wave hoàn thành**
 4. **Sau wave** (orchestrator): thu thập kết quả, kiểm tra conflicts (2 agents sửa cùng file → **DỪNG** báo user). Build fail → **DỪNG** báo task cụ thể. OK → report (Bước 6) + TASKS.md + commit (Bước 7)

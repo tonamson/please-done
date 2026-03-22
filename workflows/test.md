@@ -35,6 +35,13 @@ Viết + chạy test files theo stack (Jest+Supertest/PHPUnit/Hardhat|Foundry/fl
     Xem @references/conventions.md → 'Biểu tượng trạng thái Task'
 - Không chỉ định → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → lấy endpoints/features cần test
 - Chỉ test tasks ✅
+
+**Effort routing cho test:**
+Test mirrors effort của task đang test:
+- Đọc `Effort:` từ task metadata trong TASKS.md
+- Thiếu trường Effort → mặc định `standard` (sonnet)
+- Thông báo: "Spawning {model} agent cho test ({effort})..."
+
 - **KHÔNG có task ✅ nào** → kiểm tra auto-advance:
   - Quét TẤT CẢ `milestones/[version]/phase-*/` → tìm phases có TẤT CẢ tasks ✅ nhưng KHÔNG có TEST_REPORT.md
   - Tìm thấy → chuyển sang test phase đó (số lớn nhất): "Phase [y.y] chưa có task hoàn tất. Phase [x.x] đã hoàn tất chưa test → chuyển sang test phase [x.x]."
