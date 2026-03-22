@@ -473,3 +473,93 @@ describe('Repo integrity -- effort-level routing', () => {
     }
   });
 });
+
+// ─── Context7 standardization verification ──────────────
+// These tests verify Context7 pipeline integration (LIBR-01).
+// Pipeline/guard tests pass immediately. Workflow reference tests
+// are TDD RED until Plan 02 updates workflows.
+
+describe('Repo integrity -- context7 standardization', () => {
+  const CONTEXT7_SKILLS = ['write-code', 'plan', 'new-milestone', 'fix-bug', 'test'];
+  const NON_CONTEXT7_SKILLS = ['scan', 'init', 'fetch-doc', 'update', 'complete-milestone', 'conventions', 'what-next'];
+
+  it('context7-pipeline.md ton tai voi noi dung bat buoc', () => {
+    const pipelinePath = path.join(ROOT, 'references', 'context7-pipeline.md');
+    assert.ok(fs.existsSync(pipelinePath), 'thieu references/context7-pipeline.md');
+    const content = fs.readFileSync(pipelinePath, 'utf8');
+    assert.match(content, /resolve-library-id/, 'pipeline thieu resolve-library-id');
+    assert.match(content, /query-docs/, 'pipeline thieu query-docs');
+    assert.match(content, /TU DONG/, 'pipeline thieu TU DONG trigger rule');
+    assert.match(content, /DUNG/, 'pipeline thieu error handling DUNG');
+    assert.match(content, /resolve TAT CA/, 'pipeline thieu multi-lib batch pattern');
+  });
+
+  it('pipeline KHONG co stack-specific rules (D-07)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.ok(!content.includes('antd'), 'pipeline con sot antd rule');
+    assert.ok(!content.includes('Guard/JWT'), 'pipeline con sot Guard/JWT rule');
+    assert.ok(!content.includes('BAT BUOC tra Context7 (nestjs)'), 'pipeline con sot nestjs-specific rule');
+  });
+
+  it('pipeline co 3 lua chon xu ly loi (D-11)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'references', 'context7-pipeline.md'), 'utf8');
+    assert.match(content, /Tiep tuc khong docs/, 'pipeline thieu option 1');
+    assert.match(content, /sua Context7/, 'pipeline thieu option 2');
+    assert.match(content, /\/pd:fetch-doc/, 'pipeline thieu option 3');
+  });
+
+  it('5 skills co Context7 trong allowed-tools', () => {
+    for (const name of CONTEXT7_SKILLS) {
+      const content = fs.readFileSync(path.join(COMMANDS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      const tools = frontmatter['allowed-tools'] || [];
+      assert.ok(tools.includes('mcp__context7__resolve-library-id'), `${name}: thieu resolve-library-id trong allowed-tools`);
+      assert.ok(tools.includes('mcp__context7__query-docs'), `${name}: thieu query-docs trong allowed-tools`);
+    }
+  });
+
+  it('7 skills KHONG co Context7 trong allowed-tools', () => {
+    for (const name of NON_CONTEXT7_SKILLS) {
+      const content = fs.readFileSync(path.join(COMMANDS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      const tools = frontmatter['allowed-tools'] || [];
+      assert.ok(!tools.includes('mcp__context7__resolve-library-id'), `${name}: KHONG nen co resolve-library-id`);
+      assert.ok(!tools.includes('mcp__context7__query-docs'), `${name}: KHONG nen co query-docs`);
+    }
+  });
+
+  it('guard-context7.md co kiem tra hoat dong (D-09)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'references', 'guard-context7.md'), 'utf8');
+    assert.match(content, /resolve-library-id/, 'guard thieu kiem tra resolve-library-id');
+    const checklistLines = content.split('\n').filter(l => l.trim().startsWith('- [ ]'));
+    assert.ok(checklistLines.length >= 2, `guard can it nhat 2 dieu kien kiem tra, co ${checklistLines.length}`);
+  });
+
+  // TDD RED until Plan 02 refactors workflows
+  it('workflows co tham chieu context7-pipeline', () => {
+    const workflowsWithContext7 = ['write-code', 'plan', 'fix-bug', 'test'];
+    for (const name of workflowsWithContext7) {
+      const content = fs.readFileSync(path.join(ROOT, 'workflows', `${name}.md`), 'utf8');
+      assert.match(content, /context7-pipeline/, `workflows/${name}.md: thieu tham chieu context7-pipeline`);
+    }
+  });
+
+  // TDD RED until Plan 02 refactors workflows
+  it('workflows KHONG con stack-specific Context7 rules (D-07)', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.ok(!content.includes('Admin (antd): BAT BUOC'), 'write-code.md con sot antd rule');
+    assert.ok(!content.includes('Guard/JWT/Role: BAT BUOC'), 'write-code.md con sot Guard/JWT rule');
+  });
+
+  // TDD RED until Plan 02 refactors workflows
+  it('workflows KHONG con silent fallback (D-10)', () => {
+    const workflowsToCheck = ['write-code', 'plan', 'fix-bug'];
+    for (const name of workflowsToCheck) {
+      const content = fs.readFileSync(path.join(ROOT, 'workflows', `${name}.md`), 'utf8');
+      assert.ok(
+        !content.includes('knowledge san') && !content.includes('knowledge s\u1EB5n'),
+        `workflows/${name}.md: con sot silent fallback "knowledge san"`
+      );
+    }
+  });
+});
