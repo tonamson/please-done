@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-22T12:14:11.400Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-03-22T12:19:18.845Z"
 progress:
   total_phases: 9
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 15
-  completed_plans: 14
+  completed_plans: 15
 ---
 
 # Project State
@@ -56,6 +56,7 @@ Plan: 2 of 2
 | Phase 04 P01 | 4min | 2 tasks | 10 files |
 | Phase 04 P02 | 4min | 2 tasks | 7 files |
 | Phase 05 P01 | 3min | 2 tasks | 7 files |
+| Phase 05 P02 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -99,6 +100,8 @@ Recent decisions affecting current work:
 - [Phase 05]: Effort field appended to existing metadata line for minimal template change
 - [Phase 05]: fix-bug derives effort from risk classification rather than TASKS.md
 - [Phase 05]: Classification signals table duplicated in conventions.md and plan.md for planner self-containment
+- [Phase 05]: Used flexible regex s.a/t.o for Vietnamese diacritical chars in plan.md classification table test
+- [Phase 05]: Inline parseEffort helper in test file rather than adding to utils.js (test-only pattern)
 
 ### Pending Todos
 
@@ -111,6 +114,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-22T12:14:11.390Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-22T12:19:18.842Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None

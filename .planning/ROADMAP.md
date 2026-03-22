@@ -98,7 +98,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — Add effort field to templates/conventions, effort classification to planner, effort->model routing to executor workflows
-- [ ] 05-02-PLAN.md — Add effort presence and backward compatibility tests to smoke-integrity and smoke-utils
+- [x] 05-02-PLAN.md — Add effort presence and backward compatibility tests to smoke-integrity and smoke-utils
 
 ### Phase 6: Context7 Standardization
 **Goal**: Every skill that generates code using external libraries follows a consistent Context7 pipeline, eliminating hallucinated API calls
