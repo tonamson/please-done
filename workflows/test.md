@@ -87,6 +87,8 @@ Dùng `mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
 - Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test
 - FastCode MCP lỗi → Fallback Grep/Read. Warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd:init` kiểm tra lại."
 
+**Context7** (test dùng thư viện ngoài): Thực hiện theo @references/context7-pipeline.md
+
 ---
 
 ## Bước 4: Viết test files (NestJS — .spec.ts)

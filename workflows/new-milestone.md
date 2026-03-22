@@ -387,6 +387,7 @@ Milestone v[X.Y]: [Tên]
 ```
 files_to_read: .planning/CONTEXT.md, .planning/scan/SCAN_REPORT.md (nếu có)
 tools_allowed: WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs, Read, Write
+context7_pipeline: @references/context7-pipeline.md
 ```
 
 ### Agent 1 — Thư viện/Stack
