@@ -126,16 +126,16 @@ AskUserQuestion({
 
 ---
 
-## 5. Nghiên cứu tùy chọn (Agents song song)
+## 5. Nghiên cứu chiến lược (Fast Parallel Research)
 
 ```
 AskUserQuestion({
   questions: [{
-    question: "Có muốn nghiên cứu lĩnh vực cho tính năng mới trước khi xác định phạm vi?",
+    question: "Có muốn nghiên cứu chiến lược (kiến trúc, thư viện, luồng dữ liệu) trước khi xác định phạm vi?",
     header: "Nghiên cứu",
     multiSelect: false,
     options: [
-      { label: "Nghiên cứu trước (Đề xuất)", description: "Tra cứu thư viện, mô hình, phương pháp tốt nhất" },
+      { label: "Nghiên cứu trước (Đề xuất)", description: "Dùng FastCode + Context7 để tra cứu nhanh, quét lỗi kiến trúc" },
       { label: "Bỏ qua, đi thẳng vào yêu cầu", description: "Dùng kiến thức hiện có" }
     ]
   }]
@@ -149,16 +149,22 @@ AskUserQuestion({
 mkdir -p .planning/research
 ```
 
-Tạo **4 Agent song song** theo hợp đồng `<agents>`. Sau khi hoàn tất → **1 Agent tổng hợp**.
+Thực thi **Parallel Tool Calls** (gọi nhiều tool cùng lúc trong 1 turn) thay vì spawn sub-agents để tiết kiệm token và thời gian:
+1. `mcp__fastcode__code_qa`: "Có component/module nào liên quan [tính năng] có thể tái sử dụng? Kiến trúc hiện tại có điểm nghẽn (bottleneck) nào khi tích hợp tính năng này không?"
+2. `mcp__context7__query-docs` (hoặc WebSearch): "Thư viện tốt nhất cho [tính năng] trên [Stack]? Các lỗ hổng bảo mật phổ biến cần tránh?"
+3. (Tự suy luận internal logic): Vẽ nhanh luồng dữ liệu (Data flow) và User Journey để tìm các edge cases (loading, error, rollback).
+
+Sau khi có kết quả từ các tools, tổng hợp và ghi trực tiếp vào file:
+`Write: .planning/research/SUMMARY.md` (bao gồm: Thư viện đề xuất, Điểm tái sử dụng, Cạm bẫy kiến trúc, Luồng dữ liệu cần chú ý).
 
 Hiển thị tóm tắt: thư viện bổ sung, tính năng bắt buộc, cảnh báo top 3.
 
 **Commit:**
 ```bash
-git add .planning/research/ && git commit -m "docs: nghiên cứu milestone — [tóm tắt ngắn]"
+git add .planning/research/ && git commit -m "docs: nghiên cứu chiến lược milestone — [tóm tắt ngắn]"
 ```
 
-**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Nghiên cứu lĩnh vực hoàn tất`
+**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Nghiên cứu chiến lược hoàn tất`
 
 ---
 
@@ -377,101 +383,6 @@ Milestone v[X.Y]: [Tên]
 
 </process>
 
-<agents>
-
-## Hợp đồng Agent nghiên cứu
-
-> Tất cả agents dùng `subagent_type: "general-purpose"`.
-
-### Đầu vào chung
-```
-files_to_read: .planning/CONTEXT.md, .planning/scan/SCAN_REPORT.md (nếu có)
-tools_allowed: WebSearch, mcp__context7__resolve-library-id, mcp__context7__query-docs, Read, Write
-context7_pipeline: @references/context7-pipeline.md
-```
-
-### Agent 1 — Thư viện/Stack
-```
-output_file: .planning/research/STACK.md
-done_when: File tồn tại VÀ có ≥1 thư viện được đánh giá
-
-prompt: |
-  Nghiên cứu thư viện/stack. Đọc CONTEXT.md, SCAN_REPORT.md (nếu có).
-  Câu hỏi: Thư viện nào cần thêm/thay đổi cho [tính năng từ Bước 4]?
-  Yêu cầu: Phiên bản cụ thể, tương thích stack hiện có, lý do chọn.
-  Dùng WebSearch + mcp__context7.
-  Output → .planning/research/STACK.md:
-  # Nghiên cứu thư viện
-  ## Thư viện hiện có (KHÔNG cần thêm)
-  ## Thư viện cần bổ sung
-  | Tên | Phiên bản | Mục đích | Lý do chọn | Tương thích |
-  ## Thư viện cần nâng cấp
-  ## Lưu ý tích hợp
-description: "Nghiên cứu thư viện"
-```
-
-### Agent 2 — Tính năng
-```
-output_file: .planning/research/FEATURES.md
-done_when: File tồn tại VÀ có phân loại bắt buộc/khác biệt/tránh
-
-prompt: |
-  Nghiên cứu mô hình tính năng. Đọc CONTEXT.md, SCAN_REPORT.md (nếu có).
-  Câu hỏi: Tính năng [từ Bước 4] hoạt động thế nào trong ứng dụng cùng loại?
-  Yêu cầu: Phân loại bắt buộc/tạo khác biệt/nên tránh.
-  Output → .planning/research/FEATURES.md:
-  # Nghiên cứu tính năng
-  ## [Nhóm] → Bắt buộc | Tạo khác biệt | Nên tránh
-description: "Nghiên cứu tính năng"
-```
-
-### Agent 3 — Kiến trúc
-```
-output_file: .planning/research/ARCHITECTURE.md
-done_when: File tồn tại VÀ có thành phần mới + điểm tích hợp
-
-prompt: |
-  Nghiên cứu kiến trúc tích hợp. Đọc CONTEXT.md, SCAN_REPORT.md (nếu có).
-  Câu hỏi: Tính năng mới tích hợp kiến trúc hiện có ra sao?
-  Yêu cầu: Thành phần mới vs sửa cũ, thứ tự xây dựng.
-  Output → .planning/research/ARCHITECTURE.md:
-  ## Thành phần hiện có (cần sửa) | Thành phần mới | Luồng dữ liệu | Điểm tích hợp | Thứ tự xây dựng
-description: "Nghiên cứu kiến trúc"
-```
-
-### Agent 4 — Cạm bẫy
-```
-output_file: .planning/research/PITFALLS.md
-done_when: File tồn tại VÀ có ≥3 cạm bẫy
-
-prompt: |
-  Nghiên cứu sai lầm thường gặp. Đọc CONTEXT.md, SCAN_REPORT.md (nếu có).
-  Câu hỏi: Sai lầm khi thêm [tính năng] vào [loại ứng dụng]? Cách phòng?
-  Output → .planning/research/PITFALLS.md:
-  | # | Sai lầm | Hệ quả | Cách phòng | Phase nên xử lý |
-description: "Nghiên cứu cạm bẫy"
-```
-
-### Agent tổng hợp (CHỈ SAU KHI 4 agent hoàn tất)
-```
-files_to_read: STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md trong .planning/research/
-output_file: .planning/research/SUMMARY.md
-done_when: File tồn tại VÀ có đủ 5 sections
-
-prompt: |
-  Tổng hợp 4 file nghiên cứu → .planning/research/SUMMARY.md:
-  ## Thư viện bổ sung | Phạm vi tính năng gợi ý | Kiến trúc | Cảnh báo (top 5) | Gợi ý thứ tự triển khai
-description: "Tổng hợp nghiên cứu"
-```
-
-### Quy tắc agents
-- 4 agent nghiên cứu PHẢI chạy **song song** (4 Agent tool calls trong 1 message)
-- Agent tổng hợp CHỈ chạy **SAU KHI** 4 agent hoàn tất
-- Agent lỗi → ghi warning, tiếp tục với agents thành công
-- Prompt agent PHẢI thay `[liệt kê tính năng]` bằng danh sách thực tế
-
-</agents>
-
 <rules>
 - Tuân thủ `.planning/rules/general.md`
 - Milestones thực tế, ưu tiên tính năng cốt lõi trước
@@ -489,8 +400,7 @@ description: "Tổng hợp nghiên cứu"
 - PHẢI commit sau mỗi cổng
 - PHẢI cập nhật STATE.md ở mỗi mốc (Bước 1, 5, 6e, 7f), KHÔNG chỉ cuối
 - STATE.md PHẢI giữ "Bối cảnh tích lũy" từ milestone trước — KHÔNG xóa sạch
-- 4 agents nghiên cứu PHẢI song song — KHÔNG tuần tự
-- Agent tổng hợp CHỈ SAU KHI 4 agents hoàn tất
-- Mỗi agent có hợp đồng rõ: files_to_read, output_file, done_when
+- FastCode và Context7 chạy song song trong Bước Nghiên cứu chiến lược
+- Tổng hợp nghiên cứu trực tiếp vào .planning/research/SUMMARY.md
 - AskUserQuestion không khả dụng → hỏi văn bản thường, chờ trả lời
 </rules>
