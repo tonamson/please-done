@@ -156,11 +156,11 @@ Plans:
   2. Converter errors propagate clearly with descriptive messages -- no silent catches that mask failures
   3. All 5 platform outputs (Codex, Gemini, OpenCode, Copilot, Claude) are verified correct after refactoring
   4. Adding support for a new skill format change requires updating only the base converter, not all 4 platform converters
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 09-01: TBD
-- [ ] 09-02: TBD
+- [ ] 09-01-PLAN.md — Snapshot safety net + base converter extraction and 4 platform converter refactoring
+- [ ] 09-02-PLAN.md — Error propagation fixes across manifest.js and installer files
 
 ## Progress
 
@@ -178,4 +178,4 @@ Note: Phase 6 can begin after Phase 1 (does not depend on Phases 2-5).
 | 6. Context7 Standardization | 0/2 | Not started | - |
 | 7. Library Fallback and Version Detection | 0/1 | Not started | - |
 | 8. Wave-Based Parallel Execution | 2/2 | Complete   | 2026-03-22 |
-| 9. Converter Pipeline Optimization | 0/TBD | Not started | - |
+| 9. Converter Pipeline Optimization | 0/2 | Not started | - |
