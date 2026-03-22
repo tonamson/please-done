@@ -18,16 +18,11 @@ allowed-tools:
 ---
 
 <objective>
-Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.planning/rules/`, chạy lint + build, commit và tạo báo cáo.
+Viết code theo task từ PLAN.md/TASKS.md, tuân thủ `.planning/rules/`, lint + build, commit.
 
-**Chế độ:**
-- Mặc định: làm 1 task, dừng hỏi user
-- `--auto`: làm tất cả tasks còn lại tuần tự, không hỏi giữa chừng
-- `--parallel`: phân tích dependency, nhóm wave, chạy song song tasks độc lập bằng multi-agent
-
-**Khôi phục:** Nếu bị gián đoạn (mất mạng, đóng phiên), tự phát hiện tiến trình đã làm qua PROGRESS.md + kiểm tra đĩa/git, tiếp tục từ chỗ dừng thay vì viết lại từ đầu.
-
-**Sau khi xong:** `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`.
+**Chế độ:** mặc định 1 task -> dừng hỏi | `--auto` tất cả tuần tự | `--parallel` nhóm wave song song
+**Khôi phục:** Tự phát hiện tiến trình qua PROGRESS.md + đĩa/git -> tiếp tục từ chỗ dừng
+**Sau khi xong:** `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`
 </objective>
 
 <guards>
@@ -42,20 +37,14 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
 <context>
 User input: $ARGUMENTS
-- Task number (VD: `3`) → làm task cụ thể
-- `--auto` → làm tất cả tasks còn lại tuần tự
-- `--parallel` → chạy song song tasks độc lập
-- Kết hợp: `3 --auto`, `3 --parallel`
-- Không có gì → pick task tiếp theo ⬜, làm xong 1 task thì DỪNG hỏi user
+- Task number (VD: `3`) -> task cụ thể
+- `--auto` -> tất cả tuần tự | `--parallel` -> song song | Kết hợp: `3 --auto`
+- Không có gì -> pick task tiếp theo ⬜, xong 1 task -> DỪNG hỏi user
 
 Đọc thêm:
-- `.planning/PROJECT.md` (nếu có) → tầm nhìn dự án, ràng buộc
-- `.planning/rules/general.md` → quy tắc chung (luôn đọc)
-- `.planning/rules/nestjs.md` → quy tắc NestJS (đọc khi task Backend/Fullstack, CHỈ nếu file tồn tại)
-- `.planning/rules/nextjs.md` → quy tắc NextJS (đọc khi task Frontend/Fullstack, CHỈ nếu file tồn tại)
-- `.planning/rules/wordpress.md` → quy tắc WordPress/PHP (CHỈ nếu file tồn tại)
-- `.planning/rules/solidity.md` → quy tắc Solidity (CHỈ nếu file tồn tại)
-- `.planning/rules/flutter.md` → quy tắc Flutter/Dart (CHỈ nếu file tồn tại)
+- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
+- `.planning/rules/general.md` -> quy tắc chung (luôn đọc)
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo stack (CHỈ nếu tồn tại)
 </context>
 
 <execution_context>
@@ -68,27 +57,24 @@ User input: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/write-code.md từ đầu đến cuối.
-Tất cả logic (chọn task, viết code, lint/build, bảo mật, commit, cập nhật trạng thái) nằm trong workflow — command này chỉ cung cấp context + điểm vào.
+Thực thi @workflows/write-code.md từ đầu đến cuối. Logic chọn task, viết code, lint/build, bảo mật, commit, cập nhật trạng thái nằm trong workflow.
 </process>
 
 <output>
 **Tao/Cap nhat:**
-- Source code files theo task
-- Test files (neu task yeu cau)
-- Cap nhat TASKS.md (trang thai task)
-- Cap nhat PROGRESS.md (tien trinh)
+- Source code + test files theo task
+- Cap nhat TASKS.md + PROGRESS.md
 
 **Buoc tiep theo:** `/pd:test`, `/pd:plan [phase tiep]`, hoac `/pd:complete-milestone`
 
 **Thanh cong khi:**
 - Code viet xong, lint + build pass
-- Task duoc danh dau hoan thanh trong TASKS.md
-- Commit duoc tao voi message ro rang
+- Task danh dau hoan thanh trong TASKS.md
+- Commit voi message ro rang
 
 **Loi thuong gap:**
-- Lint/build fail -> doc loi, sua code, chay lai
-- Task khong ro rang -> hoi user qua AskUserQuestion
+- Lint/build fail -> doc loi, sua, chay lai
+- Task khong ro -> hoi user qua AskUserQuestion
 - MCP khong ket noi -> kiem tra Docker va cau hinh
 </output>
 

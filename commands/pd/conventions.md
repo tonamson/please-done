@@ -14,7 +14,7 @@ allowed-tools:
 ---
 
 <objective>
-Phân tích dự án hiện tại, phát hiện coding conventions, hỏi user về ưu tiên cá nhân, và tạo/cập nhật file CLAUDE.md.
+Phân tích dự án, phát hiện coding conventions, hỏi user ưu tiên, tạo/cập nhật CLAUDE.md.
 </objective>
 
 <guards>
@@ -33,22 +33,22 @@ User input: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/conventions.md từ đầu đến cuối.
+Thực thi @workflows/conventions.md từ đầu đến cuối.
 </process>
 
 <output>
 **Tao/Cap nhat:**
 - `CLAUDE.md` -- quy uoc code cua du an
 
-**Buoc tiep theo:** Tiep tuc phat trien voi `/pd:plan` hoac `/pd:write-code`
+**Buoc tiep theo:** `/pd:plan` hoac `/pd:write-code`
 
 **Thanh cong khi:**
 - CLAUDE.md bao gom: naming conventions, code style, patterns
-- User da xac nhan noi dung
+- User xac nhan noi dung
 
 **Loi thuong gap:**
-- Du an khong co source code -> khong the phan tich conventions
-- User khong dong y voi conventions -> cho phep chinh sua thu cong
+- Du an khong co source code -> khong the phan tich
+- User khong dong y -> cho phep chinh sua thu cong
 </output>
 
 <rules>

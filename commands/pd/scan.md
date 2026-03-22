@@ -14,7 +14,7 @@ allowed-tools:
 ---
 
 <objective>
-Quét toàn bộ dự án, phân tích cấu trúc code, dependencies, kiến trúc, kiểm tra bảo mật và tạo báo cáo.
+Quét dự án: phân tích cấu trúc code, dependencies, kiến trúc, bảo mật -> tạo báo cáo.
 </objective>
 
 <guards>
@@ -27,9 +27,7 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 
 <context>
 User input: $ARGUMENTS
-
-Đọc `.planning/CONTEXT.md` (đã tạo bởi /pd:init).
-(Scan KHÔNG cần đọc rules files — chỉ quét và báo cáo, không viết code.)
+Đọc `.planning/CONTEXT.md` (từ /pd:init). KHÔNG cần rules -- chỉ quét + báo cáo.
 </context>
 
 <execution_context>
@@ -37,21 +35,20 @@ User input: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/scan.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước quét, phân tích, báo cáo, và cập nhật CONTEXT.md.
+Thực thi @workflows/scan.md từ đầu đến cuối.
 </process>
 
 <output>
 **Tao/Cap nhat:**
-- Bao cao phan tich du an (in ra man hinh)
-- Cap nhat `.planning/CONTEXT.md` voi thong tin moi
+- Bao cao phan tich du an (man hinh)
+- Cap nhat `.planning/CONTEXT.md`
 
 **Buoc tiep theo:** `/pd:plan` hoac `/pd:new-milestone`
 
 **Thanh cong khi:**
-- Phan tich day du cau truc code, dependencies, kien truc
-- Bao cao bao mat duoc tao (neu co van de)
-- CONTEXT.md duoc cap nhat
+- Phan tich day du cau truc, dependencies, kien truc
+- Bao cao bao mat (neu co van de)
+- CONTEXT.md cap nhat
 
 **Loi thuong gap:**
 - FastCode MCP khong ket noi -> kiem tra Docker dang chay

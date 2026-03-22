@@ -15,7 +15,7 @@ allowed-tools:
 ---
 
 <objective>
-Skill đầu tiên phải chạy trước mọi skill khác. Kiểm tra FastCode MCP (BẮT BUỘC kết nối thành công), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules phù hợp vào .planning/rules/.
+Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules phù hợp.
 </objective>
 
 <guards>
@@ -28,13 +28,9 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 <context>
 User input: $ARGUMENTS (path dự án, mặc định thư mục hiện tại)
 
-Rules templates: đọc `.pdconfig` → lấy `SKILLS_DIR` → rules nằm tại `[SKILLS_DIR]/commands/pd/rules/`:
-- `general.md` — quy tắc chung (luôn copy)
-- `nestjs.md` — quy tắc NestJS (chỉ copy nếu có NestJS)
-- `nextjs.md` — quy tắc NextJS (chỉ copy nếu có NextJS)
-- `wordpress.md` — quy tắc WordPress (chỉ copy nếu có WordPress)
-- `solidity.md` — quy tắc Solidity smart contract (chỉ copy nếu có Solidity)
-- `flutter.md` — quy tắc Flutter/Dart (chỉ copy nếu có Flutter)
+Rules templates: `.pdconfig` -> `SKILLS_DIR` -> rules tại `[SKILLS_DIR]/commands/pd/rules/`:
+- `general.md` -- luôn copy
+- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- copy nếu phát hiện stack tương ứng
 </context>
 
 <execution_context>
@@ -42,8 +38,7 @@ Rules templates: đọc `.pdconfig` → lấy `SKILLS_DIR` → rules nằm tại
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/init.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước kiểm tra, phát hiện tech stack, copy rules, và tạo CONTEXT.md.
+Thực thi @workflows/init.md từ đầu đến cuối.
 </process>
 
 <output>
@@ -54,12 +49,12 @@ Giữ nguyên tất cả các bước kiểm tra, phát hiện tech stack, copy 
 **Buoc tiep theo:** `/pd:scan` hoac `/pd:plan`
 
 **Thanh cong khi:**
-- CONTEXT.md co day du thong tin tech stack
-- FastCode MCP da xac nhan ket noi
+- CONTEXT.md day du thong tin tech stack
+- FastCode MCP xac nhan ket noi
 
 **Loi thuong gap:**
 - FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Khong phat hien tech stack -> user can them thong tin thu cong
+- Khong phat hien tech stack -> user them thong tin thu cong
 </output>
 
 <rules>

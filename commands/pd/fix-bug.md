@@ -17,11 +17,11 @@ allowed-tools:
 ---
 
 <objective>
-Tìm và sửa lỗi theo phương pháp khoa học: thu thập triệu chứng → phân loại rủi ro → hình thành giả thuyết → kiểm chứng → cổng kiểm tra trước khi sửa → sửa code → xác nhận.
-Lưu trạng thái điều tra (.planning/debug/) để tiếp tục khi cuộc hội thoại bị mất.
-Lặp đến khi user xác nhận thành công. Tạo patch version cho milestone đã hoàn tất.
+Sửa lỗi khoa học: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
+Lưu trạng thái điều tra (.planning/debug/) để phục hồi khi mất phiên.
+Lặp đến khi user xác nhận. Tạo patch version cho milestone đã hoàn tất.
 
-**Sau khi xong:** `/pd:what-next` để kiểm tra tiến trình.
+**Sau khi xong:** `/pd:what-next`
 </objective>
 
 <guards>
@@ -37,8 +37,8 @@ DUNG va huong dan user neu bat ky dieu kien nao that bai:
 User input: $ARGUMENTS
 
 Đọc thêm:
-- `.planning/rules/general.md` → quy tắc chung
-- `.planning/rules/nestjs.md` hoặc `nextjs.md` hoặc `wordpress.md` hoặc `solidity.md` hoặc `flutter.md` → theo loại lỗi (CHỈ nếu file tồn tại)
+- `.planning/rules/general.md` -> quy tắc chung
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo loại lỗi (CHỈ nếu tồn tại)
 </context>
 
 <execution_context>
@@ -48,25 +48,24 @@ User input: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi quy trình từ @workflows/fix-bug.md từ đầu đến cuối.
-Giữ nguyên tất cả các bước, phiên điều tra, cổng kiểm tra, phân loại rủi ro, và vòng lặp xác nhận.
+Thực thi @workflows/fix-bug.md từ đầu đến cuối.
 </process>
 
 <output>
 **Tao/Cap nhat:**
-- Source code files da sua loi
+- Source code da sua loi
 - `.planning/debug/` -- trang thai phien dieu tra
-- Cap nhat TASKS.md (neu lien quan den task)
+- Cap nhat TASKS.md (neu lien quan)
 
-**Buoc tiep theo:** `/pd:what-next` de kiem tra tien trinh
+**Buoc tiep theo:** `/pd:what-next`
 
 **Thanh cong khi:**
-- Loi da duoc xac nhan sua thanh cong boi user
+- User xac nhan sua thanh cong
 - Test lien quan pass (neu co)
 - Commit [LOI] duoc tao
 
 **Loi thuong gap:**
-- Khong tai hien duoc loi -> yeu cau user cung cap them thong tin
+- Khong tai hien loi -> yeu cau user cung cap them thong tin
 - Loi o dependency -> cap nhat package, kiem tra version
 - MCP khong ket noi -> kiem tra Docker va cau hinh
 </output>
