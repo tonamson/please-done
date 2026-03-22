@@ -418,3 +418,58 @@ describe('Repo integrity -- conditional context loading', () => {
     }
   });
 });
+
+// ─── Effort-level routing verification ──────────────────
+// These tests verify effort classification and routing instructions
+// are present in templates and workflows (TOKN-04).
+
+describe('Repo integrity -- effort-level routing', () => {
+  it('TASKS.md template co Effort field trong metadata line', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'templates', 'tasks.md'), 'utf8');
+    assert.match(content, /Effort:/, 'templates/tasks.md: thieu Effort: trong metadata line');
+    assert.match(content, /simple.*standard.*complex/s, 'templates/tasks.md: thieu effort level values');
+  });
+
+  it('conventions.md co effort level enum voi model mapping', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'references', 'conventions.md'), 'utf8');
+    assert.match(content, /## Effort level/, 'conventions.md: thieu section Effort level');
+    assert.match(content, /simple\s*\|\s*haiku/, 'conventions.md: thieu simple->haiku mapping');
+    assert.match(content, /standard\s*\|\s*sonnet/, 'conventions.md: thieu standard->sonnet mapping');
+    assert.match(content, /complex\s*\|\s*opus/, 'conventions.md: thieu complex->opus mapping');
+  });
+
+  it('plan workflow co effort classification guidelines trong Buoc 5', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'plan.md'), 'utf8');
+    assert.match(content, /Effort level/, 'plan.md: thieu Effort level trong Buoc 5');
+    assert.match(content, /Files\s+s.a\/t.o\s*\|\s*1-2\s*\|\s*3-4\s*\|\s*5\+/, 'plan.md: thieu classification signals table');
+  });
+
+  it('write-code workflow co effort->model routing', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'write-code.md'), 'utf8');
+    assert.match(content, /simple\s*\|\s*haiku/, 'write-code.md: thieu simple->haiku mapping');
+    assert.match(content, /standard\s*\|\s*sonnet/, 'write-code.md: thieu standard->sonnet mapping');
+    assert.match(content, /complex\s*\|\s*opus/, 'write-code.md: thieu complex->opus mapping');
+    assert.match(content, /model:\s*\{resolved_model\}/, 'write-code.md: thieu model param trong Buoc 10');
+  });
+
+  it('fix-bug workflow co effort routing tu bug classification', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
+    assert.match(content, /Effort routing cho fix-bug/, 'fix-bug.md: thieu effort routing section');
+    assert.match(content, /\u{1F7E2}.*simple.*haiku/su, 'fix-bug.md: thieu green->simple mapping');
+    assert.match(content, /\u{1F534}.*complex.*opus/su, 'fix-bug.md: thieu red->complex mapping');
+  });
+
+  it('test workflow co effort routing', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'test.md'), 'utf8');
+    assert.match(content, /Effort routing cho test/, 'test.md: thieu effort routing section');
+    assert.match(content, /standard/, 'test.md: thieu default standard');
+  });
+
+  it('executor workflows co backward compat default sonnet', () => {
+    const executorWorkflows = ['write-code.md', 'fix-bug.md', 'test.md'];
+    for (const wf of executorWorkflows) {
+      const content = fs.readFileSync(path.join(ROOT, 'workflows', wf), 'utf8');
+      assert.match(content, /sonnet/, `${wf}: thieu backward compat default sonnet`);
+    }
+  });
+});
