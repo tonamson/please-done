@@ -68,7 +68,7 @@ Plans:
 - [x] 03-03-PLAN.md — Compress remaining 6 workflows (test, complete-milestone, scan, init, what-next, conventions)
 - [x] 03-04-PLAN.md — Compress 12 command/skill files
 - [x] 03-05-PLAN.md — Compress 7 non-guard reference files
-- [ ] 03-06-PLAN.md — Compress 10 template files, final measurement, and human verification
+- [x] 03-06-PLAN.md — Compress 10 template files, final measurement, and human verification
 
 ### Phase 4: Conditional Context Loading
 **Goal**: Skills load references and rules only when the current task type requires them, eliminating the eager-loading anti-pattern
