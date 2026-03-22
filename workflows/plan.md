@@ -13,10 +13,10 @@ Hỗ trợ 2 chế độ:
 </required_reading>
 
 <conditional_reading>
-Doc CHI KHI can (phan tich mo ta task truoc):
-- @references/questioning.md -> cach hoi user (DISCUSS) -- KHI DISCUSS mode
-- @references/prioritization.md -> thu tu uu tien tasks -- KHI task ordering/ranking
-- @references/ui-brand.md -> product framing, design continuity -- KHI task tao/sua UI
+Đọc KHI cần (phân tích mô tả task trước):
+- @references/questioning.md -> cách hỏi người dùng (DISCUSS) — KHI chế độ DISCUSS
+- @references/prioritization.md -> thứ tự ưu tiên tasks — KHI cần sắp xếp ưu tiên
+- @references/ui-brand.md -> thiết kế giao diện, kế thừa patterns — KHI phase liên quan UI
 </conditional_reading>
 
 <process>

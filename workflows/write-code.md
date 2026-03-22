@@ -9,11 +9,11 @@ Hỗ trợ 3 chế độ: mặc định (1 task → dừng), --auto (tuần tự
 </required_reading>
 
 <conditional_reading>
-Doc CHI KHI can (phan tich mo ta task truoc):
-- @references/prioritization.md -> thu tu uu tien tasks -- KHI task ordering/ranking
-- @references/security-checklist.md -> bang kiem bao mat (Buoc 6.5b) -- KHI task lien quan den auth, encryption
-- @references/ui-brand.md -> product framing, design continuity -- KHI task tao/sua UI
-- @references/verification-patterns.md -> multi-level verification -- KHI task can verification phuc tap
+Đọc KHI cần (phân tích mô tả task trước):
+- @references/prioritization.md -> thứ tự ưu tiên tasks — KHI cần sắp xếp ưu tiên
+- @references/security-checklist.md -> bảng kiểm bảo mật (Bước 6.5b) — KHI task liên quan auth, mã hóa
+- @references/ui-brand.md -> thiết kế giao diện, kế thừa patterns — KHI task tạo/sửa UI
+- @references/verification-patterns.md -> xác minh đa tầng — KHI task cần verification phức tạp
 </conditional_reading>
 
 <process>

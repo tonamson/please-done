@@ -6,6 +6,12 @@ Viết + chạy test files theo stack (Jest+Supertest/PHPUnit/Hardhat|Foundry/fl
 - @references/conventions.md → biểu tượng trạng thái, commit prefixes, patch version
 </required_reading>
 
+<conditional_reading>
+Đọc KHI cần:
+- @references/context7-pipeline.md — KHI test dùng thư viện bên thứ ba
+- @references/security-checklist.md — KHI test liên quan xác thực, mã hóa
+</conditional_reading>
+
 <process>
 
 ## Bước 1: Xác định scope + đọc context
@@ -82,12 +88,12 @@ Test mirrors effort của task đang test:
 ---
 
 ## Bước 3: Đọc code để hiểu logic
-Dùng `mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
+`mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
 - "Endpoint [X] làm gì? Request/response format? Validations? Error cases?"
-- Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test
-- FastCode MCP lỗi → Fallback Grep/Read. Warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd:init` kiểm tra lại."
+- Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test.
+- FastCode lỗi → Grep/Read. Cảnh báo: "FastCode lỗi — chạy `/pd:init`."
 
-**Context7** (test dùng thư viện ngoài): Thực hiện theo @references/context7-pipeline.md
+**Context7** (thư viện bên thứ ba): @references/context7-pipeline.md
 
 ---
 
@@ -228,16 +234,16 @@ Kết quả: X/Y đạt"
 </process>
 
 <rules>
-- Tuân thủ `.planning/rules/` (ngôn ngữ, ngày tháng, bảo mật)
-- PHẢI viết test files commit vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart` — KHÔNG chỉ CURL
-- Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG
-- PHẢI yêu cầu user xác nhận giao diện + database
-- PHẢI đọc PLAN.md trước khi viết test
-- Token trong test report rút gọn (eyJhb...xxx)
-- FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd:init`
-- PHẢI kiểm tra TEST_REPORT + test files trên đĩa trước khi bắt đầu — phát hiện phiên gián đoạn
-- TEST_REPORT đã tồn tại → hỏi user giữ hay chạy lại
-- Test files chưa commit → hỏi user giữ hay viết lại
-- KHÔNG ghi đè test files/report mà không hỏi user
+- Tuân thủ `.planning/rules/` (chung + theo stack).
+- PHẢI viết test files vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart`. KHÔNG chỉ CURL.
+- Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG.
+- PHẢI yêu cầu người dùng xác nhận giao diện + database.
+- PHẢI đọc PLAN.md trước khi viết test.
+- Token trong test report rút gọn (eyJhb...xxx).
+- FastCode lỗi → Grep/Read, KHÔNG DỪNG.
+- PHẢI kiểm tra TEST_REPORT + test files trên đĩa trước khi bắt đầu — phát hiện phiên gián đoạn.
+- TEST_REPORT đã tồn tại → hỏi người dùng giữ hay chạy lại.
+- Test files chưa commit → hỏi người dùng giữ hay viết lại.
+- KHÔNG ghi đè test files/report mà không hỏi người dùng.
 </rules>
 </output>
