@@ -108,11 +108,11 @@ Plans:
   1. Every skill that writes code using external libraries includes resolve-library-id + query-docs steps in its execution flow
   2. Context7 integration is consistent across all 12 skills -- same invocation pattern, same error handling
   3. Generated code uses correct, current API signatures for external libraries instead of hallucinated or outdated ones
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
-- [ ] 06-02: TBD
+- [ ] 06-01-PLAN.md — Create context7-pipeline.md reference, enhance guard-context7.md, add standardization smoke tests
+- [ ] 06-02-PLAN.md — Refactor Context7 sections in all 5 workflow files to reference canonical pipeline
 
 ### Phase 7: Library Fallback and Version Detection
 **Goal**: Library-aware generation works reliably even when Context7 is unavailable, and library versions are automatically detected from project manifests
@@ -176,7 +176,7 @@ Note: Phase 6 can begin after Phase 1 (does not depend on Phases 2-5).
 | 3. Prompt Prose Compression | 6/6 | Complete    | 2026-03-22 |
 | 4. Conditional Context Loading | 2/2 | Complete   | 2026-03-22 |
 | 5. Effort-Level Routing | 0/2 | Not started | - |
-| 6. Context7 Standardization | 0/TBD | Not started | - |
+| 6. Context7 Standardization | 0/2 | Not started | - |
 | 7. Library Fallback and Version Detection | 0/TBD | Not started | - |
 | 8. Wave-Based Parallel Execution | 0/TBD | Not started | - |
 | 9. Converter Pipeline Optimization | 0/TBD | Not started | - |
