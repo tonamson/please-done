@@ -1,0 +1,1 @@
+- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."

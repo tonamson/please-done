@@ -1,0 +1,1 @@
+- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."

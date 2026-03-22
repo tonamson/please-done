@@ -290,3 +290,63 @@ describe('Repo integrity — canonical skill structure', () => {
     }
   });
 });
+
+// ─── Guard deduplication verification ────────────────────
+// These tests verify the guard micro-template infrastructure.
+// "guard files exist" should PASS immediately.
+// "guard references" and "no duplication" are TDD RED — they will PASS after Plan 02 updates skills.
+
+describe('Repo integrity -- guard deduplication', () => {
+  it('guard micro-templates ton tai trong references/', () => {
+    const guardFiles = ['guard-context.md', 'guard-fastcode.md', 'guard-context7.md', 'guard-valid-path.md'];
+
+    for (const guardFile of guardFiles) {
+      const guardPath = path.join(ROOT, 'references', guardFile);
+      assert.ok(fs.existsSync(guardPath), `thieu file: references/${guardFile}`);
+
+      const content = fs.readFileSync(guardPath, 'utf8').trim();
+      assert.match(content, /^- \[ \]/, `references/${guardFile}: khong bat dau bang "- [ ]"`);
+      // Verify non-diacritical Vietnamese
+      assert.match(content, /ton tai|ket noi|hop le/, `references/${guardFile}: khong chua non-diacritical Vietnamese`);
+    }
+  });
+
+  it('guard micro-templates duoc tham chieu dung trong skills', () => {
+    const guardFiles = fs.readdirSync(path.join(ROOT, 'references'))
+      .filter(f => f.startsWith('guard-'));
+
+    // Each guard file must be referenced by at least 2 skills
+    for (const guardFile of guardFiles) {
+      const ref = `@references/${guardFile}`;
+      let refCount = 0;
+
+      for (const skill of listSkillFiles(COMMANDS_DIR)) {
+        if (skill.content.includes(ref)) refCount++;
+      }
+
+      assert.ok(refCount >= 2, `${guardFile}: chi duoc tham chieu boi ${refCount} skill (can >= 2)`);
+    }
+  });
+
+  it('khong con guard text trung lap giua cac skills', () => {
+    // Read each guard template content
+    const guardContents = fs.readdirSync(path.join(ROOT, 'references'))
+      .filter(f => f.startsWith('guard-'))
+      .map(f => fs.readFileSync(path.join(ROOT, 'references', f), 'utf8').trim());
+
+    // No skill should contain the literal guard text if it references the file
+    for (const skill of listSkillFiles(COMMANDS_DIR)) {
+      const guards = extractXmlSection(skill.content, 'guards') || '';
+
+      for (const guardContent of guardContents) {
+        // If skill references ANY guard file, it should NOT also contain that guard's literal text
+        if (guards.includes('@references/guard-')) {
+          assert.ok(
+            !guards.includes(guardContent),
+            `${skill.name}: van con guard text trung lap du da dung @references/`
+          );
+        }
+      }
+    }
+  });
+});
