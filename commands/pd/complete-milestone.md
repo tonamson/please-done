@@ -24,6 +24,7 @@ Chỉ cho phép đóng khi tất cả tasks ✅ và bugs đã giải quyết.
 @references/conventions.md
 @references/state-machine.md
 @references/ui-brand.md
+@references/verification-patterns.md
 @templates/current-milestone.md
 @templates/state.md
 </execution_context>

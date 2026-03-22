@@ -157,9 +157,11 @@ Responsive: [mobile khác desktop thế nào]
 
 ### Sản phẩm cần có (Artifacts)
 <!-- Files/modules PHẢI tồn tại để các Truths trên thành hiện thực. Mỗi artifact truy vết về ≥1 Truth. -->
-| Artifact | Đường dẫn dự kiến | Phục vụ Truth |
-|----------|-------------------|---------------|
-| [VD: Auth service] | [src/auth/auth.service.ts] | T1, T2 |
+<!-- Cột "Kiểm tra tự động" dùng cho verification sau khi code xong — xem @references/verification-patterns.md -->
+| Artifact | Đường dẫn dự kiến | Phục vụ Truth | Kiểm tra tự động |
+|----------|-------------------|---------------|-----------------|
+| [VD: Auth service] | [src/auth/auth.service.ts] | T1, T2 | `exports: [login, register]`, `min_lines: 30` |
+| [VD: Auth controller] | [src/auth/auth.controller.ts] | T1 | `imports: [AuthService]`, `contains: "@Post('login')"` |
 
 ### Liên kết then chốt (Key Links)
 <!-- Cách các artifacts KẾT NỐI với nhau. Nếu link nào đứt → Truth không đạt. -->

@@ -309,25 +309,116 @@ Khi tất cả tasks trong phase hiện tại ✅ VÀ auto-advance xảy ra (xem
 
 Khi tất cả tasks trong phase hiện tại ✅:
 
-**Bước 9.5: Goal-backward verification (tự động khi phase hoàn tất)**
-Đọc PLAN.md section "Tiêu chí thành công". Nếu PLAN.md KHÔNG có section này (plan cũ) → bỏ qua bước 9.5, tiếp tục auto-advance bình thường.
-Nếu CÓ → kiểm tra từng Truth:
-1. Với mỗi Truth (T1, T2, ...) → đọc "Cách kiểm chứng" → verify trên code thực tế:
-   - File/module trong "Artifacts" tồn tại trên đĩa? (`Glob` kiểm tra)
-   - "Key Links" còn nguyên vẹn? (Grep kiểm tra import/export/gọi hàm giữa các artifacts)
-   - Nếu Truth có cách kiểm chứng bằng test → kiểm tra test tồn tại hoặc logic code đúng
-2. Kết quả:
-   - **Tất cả Truths đạt** → in: "✅ Phase [x.x] đạt [N]/[N] tiêu chí thành công." → tiếp tục auto-advance bình thường
-   - **Có Truth chưa đạt** → in cảnh báo:
-     ```
-     ⚠️ Phase [x.x]: [M]/[N] tiêu chí thành công chưa đạt:
-     | Truth | Mô tả | Vấn đề |
-     |-------|-------|--------|
-     | T2 | [mô tả] | [file thiếu / link đứt / logic chưa đúng] |
-     Gợi ý: kiểm tra lại code hoặc chạy `/pd:fix-bug` trước khi tiếp tục.
-     ```
-   - **KHÔNG block** auto-advance (cảnh báo, không chặn) — user quyết định có sửa hay không
+**Bước 9.5: Verification — xác minh tính năng hoạt động (tự động khi phase hoàn tất)**
 
+Đọc PLAN.md section "Tiêu chí thành công". Nếu PLAN.md KHÔNG có section này (plan cũ) → bỏ qua bước 9.5, tiếp tục auto-advance bình thường.
+
+Nếu CÓ → thực hiện verification 4 cấp (xem @references/verification-patterns.md):
+
+**Lưu biến**: `VERIFY_ROUND = 0`, `MAX_ROUNDS = 2`
+
+**<verification_loop>**
+
+`VERIFY_ROUND += 1`
+
+**9.5a — Cấp 1: Kiểm tra tồn tại (Artifacts)**
+Đọc bảng "Sản phẩm cần có (Artifacts)" trong PLAN.md:
+- Với mỗi Artifact → `Glob` kiểm tra đường dẫn dự kiến tồn tại trên đĩa
+- Nếu PLAN.md có cột "Kiểm tra tự động" → ghi nhận specs để dùng ở Cấp 2
+- Kết quả: danh sách `[artifact, path, exists: true/false]`
+
+**9.5b — Cấp 2: Kiểm tra thực chất (Stub detection)**
+Với mỗi Artifact tồn tại → kiểm tra nội dung THẬT, không phải stub:
+
+1. **Kiểm tra tự động từ PLAN.md** (nếu có cột "Kiểm tra tự động"):
+   - `exports: [X, Y]` → Grep kiểm tra file export symbols X, Y
+   - `contains: "text"` → Grep kiểm tra file chứa text pattern
+   - `min_lines: N` → đếm dòng thực chất (bỏ comment, blank lines) ≥ N
+   - `imports: [X]` → Grep kiểm tra import statements
+   - `calls: "pattern"` → Grep kiểm tra function calls matching pattern
+
+2. **Kiểm tra mặc định theo loại** (nếu PLAN.md không chỉ định):
+   - Xem bảng "Kiểm tra theo loại artifact" trong @references/verification-patterns.md
+   - Áp dụng kiểm tra phù hợp với loại file (component/controller/service/schema/contract/widget)
+
+3. **Scan anti-patterns** — Grep từng artifact file tìm stub patterns:
+   - `(TODO|FIXME|PLACEHOLDER|implement later|coming soon|chưa triển khai)`
+   - `(return\s+(null|undefined|\{\}|\[\])\s*[;\n])` (trừ khi logic hợp lệ — VD: optional return)
+   - `(throw new Error\(['"]Not implemented)` hoặc tương đương theo stack
+   - Phân loại: **🛑 Chặn** (empty return trong function cốt lõi, throw NotImplemented) vs **⚠️ Cảnh báo** (TODO comment trong helper)
+
+**9.5c — Cấp 3: Kiểm tra kết nối (Key Links)**
+Đọc bảng "Liên kết then chốt (Key Links)" trong PLAN.md:
+- Với mỗi Key Link (`Từ` → `Đến`):
+  - File `Từ` import/gọi file `Đến`? (Grep kiểm tra import/require/inject)
+  - File `Đến` export/expose thứ mà `Từ` cần? (Grep kiểm tra export/public method)
+  - Nếu PLAN.md có "Kiểm tra tự động" với `calls: "pattern"` → dùng pattern đó
+- Kết quả: danh sách `[from, to, description, wired: true/false]`
+
+**9.5d — Cấp 4: Kiểm tra logic Truths**
+Với mỗi Truth (T1, T2, ...):
+- Đọc "Cách kiểm chứng" → verify trên code thực tế:
+  - Nếu cách kiểm chứng = test → kiểm tra test file tồn tại hoặc logic code tương ứng đúng
+  - Nếu cách kiểm chứng = API response → kiểm tra controller + service chain hoàn chỉnh
+  - Nếu cách kiểm chứng = UI behavior → đánh dấu "⚠️ Cần kiểm tra thủ công"
+- Cross-check: Truths mà TẤT CẢ artifacts phục vụ nó đều pass Cấp 1-3 → khả năng cao Truth đạt
+
+**9.5e — Tổng hợp kết quả**
+
+Tạo `.planning/milestones/[version]/phase-[phase]/VERIFICATION_REPORT.md` (xem @templates/verification-report.md):
+
+```
+✅ Phase [x.x] — Verification kết quả:
+| Cấp | Kiểm tra | Kết quả |
+|-----|---------|---------|
+| 1. Tồn tại | [X]/[Y] artifacts | ✅ hoặc ❌ |
+| 2. Thực chất | [X]/[Y] pass stub check | ✅ hoặc ❌ |
+| 3. Kết nối | [X]/[Y] key links wired | ✅ hoặc ❌ |
+| 4. Truths | [X]/[Y] đạt | ✅ hoặc ❌ |
+Anti-patterns: [X] 🛑 chặn, [Y] ⚠️ cảnh báo
+```
+
+**9.5f — Xử lý kết quả**
+
+- **TẤT CẢ Truths đạt + không có 🛑 anti-pattern** → in: "✅ Phase [x.x] đạt [N]/[N] tiêu chí. Verification passed." → **thoát loop**, tiếp tục auto-advance
+
+- **Có gap (Truth chưa đạt hoặc 🛑 anti-pattern) VÀ `VERIFY_ROUND < MAX_ROUNDS`**:
+  ```
+  ⚠️ Phase [x.x]: [M]/[N] tiêu chí chưa đạt (vòng [VERIFY_ROUND]/[MAX_ROUNDS]):
+  | # | Vấn đề | Loại | Cách sửa |
+  |---|--------|------|---------|
+  | 1 | [T2: file thiếu] | Artifact missing | Tạo file [path] |
+  | 2 | [T3: stub detected] | Stub | Triển khai logic thật trong [path] |
+  | 3 | [Key Link đứt] | Wiring | Thêm import [X] vào [file] |
+  ```
+  → **Tự sửa code** cho từng gap:
+    - Artifact missing → tạo file, viết code thật theo PLAN.md
+    - Stub detected → mở file, thay thế stub bằng implementation thật
+    - Key Link đứt → sửa import/export
+    - Anti-pattern 🛑 → sửa code (thay TODO bằng logic, thay return null bằng logic thật)
+  → Sau khi sửa → chạy lint/build (như Bước 5)
+  → Nếu lint/build pass → commit fix: `[VERIFY] Sửa gaps verification vòng [VERIFY_ROUND] — Phase [x.x]`
+  → **Quay lại đầu <verification_loop>** để re-verify
+
+- **Có gap VÀ `VERIFY_ROUND >= MAX_ROUNDS`** (đã sửa 2 vòng vẫn fail):
+  ```
+  🛑 Phase [x.x]: Verification KHÔNG đạt sau [MAX_ROUNDS] vòng sửa.
+  Gaps còn lại:
+  | # | Truth | Vấn đề | Chi tiết |
+  |---|-------|--------|---------|
+  | 1 | T2 | [mô tả] | [chi tiết kỹ thuật] |
+
+  Đề xuất:
+  1. `/pd:fix-bug` — sửa từng vấn đề cụ thể
+  2. `/pd:plan --discuss [phase]` — xem lại thiết kế nếu vấn đề ở mức kiến trúc
+  3. Tiếp tục — bỏ qua gaps, ghi nhận nợ kỹ thuật
+  ```
+  → **DỪNG**, hỏi user chọn: (1) fix-bug, (2) re-plan, (3) bỏ qua + ghi nợ kỹ thuật
+  → Nếu user chọn "bỏ qua" → ghi gaps vào VERIFICATION_REPORT mục "Tổng kết" + tiếp tục auto-advance
+
+**</verification_loop>**
+
+**Auto-advance (sau verification pass hoặc user chọn bỏ qua):**
 - Đọc ROADMAP.md → tìm phase tiếp theo trong CÙNG milestone (phase số kế tiếp, status ⬜ hoặc chưa triển khai)
 - **Verify trước khi advance**: phase tiếp PHẢI tồn tại trong ROADMAP VÀ thuộc cùng milestone version
 - Nếu phase tiếp tồn tại trong ROADMAP VÀ đã có TASKS.md (đã plan) → tự động advance `phase` trong CURRENT_MILESTONE.md sang phase tiếp
@@ -337,15 +428,16 @@ Nếu CÓ → kiểm tra từng Truth:
 **Tracking commit** (CHỈ khi HAS_GIT = true VÀ tất cả tasks trong phase ✅):
 ```
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
+git add .planning/milestones/[version]/phase-[phase]/VERIFICATION_REPORT.md
 git add .planning/ROADMAP.md
 git add .planning/CURRENT_MILESTONE.md
 # Nếu có REQUIREMENTS.md hoặc STATE.md:
 git add .planning/REQUIREMENTS.md .planning/STATE.md 2>/dev/null || true
 # Nếu CONTEXT.md đã cập nhật ở Bước 8 ("Dự án mới" flag):
 git add .planning/CONTEXT.md
-git commit -m "[TRACKING] Phase [x.x] hoàn tất
+git commit -m "[TRACKING] Phase [x.x] hoàn tất — Verification [đạt|có gap]
 
-Tổng: [N] tasks ✅"
+Tổng: [N] tasks ✅ | Truths: [X]/[Y] đạt | Vòng sửa: [VERIFY_ROUND]"
 ```
 
 ---

@@ -36,6 +36,7 @@ Viết code theo task từ PLAN.md/TASKS.md, tuân thủ coding style trong `.pl
 @references/prioritization.md
 @references/ui-brand.md
 @references/security-checklist.md
+@references/verification-patterns.md
 </execution_context>
 
 <context>

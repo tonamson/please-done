@@ -258,6 +258,7 @@ Quy tắc viết Truths:
 Từ mỗi Truth, suy ngược: **"File/module nào PHẢI tồn tại để Truth này thành hiện thực?"**
 - Mỗi artifact truy vết về ≥1 Truth
 - Cross-check với "Files cần tạo/sửa" ở Bước 4 — nếu thiết kế có file nhưng không phục vụ Truth nào → file thừa hoặc thiếu Truth
+- **Cột "Kiểm tra tự động"** (xem @references/verification-patterns.md → "Cột Kiểm tra tự động"): chỉ định specs để verification tự động kiểm tra sau khi code xong. VD: `exports: [login]`, `min_lines: 30`, `contains: "@Post('login')"`, `imports: [PrismaService]`. Nếu không chỉ định → dùng kiểm tra mặc định theo loại artifact
 
 ### Tầng 3 — Liên kết then chốt (Key Links)
 Xác định: **"Các artifacts kết nối với nhau thế nào? Link nào đứt thì Truth nào fail?"**
