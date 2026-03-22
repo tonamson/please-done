@@ -350,20 +350,32 @@ Tổng: [N] tasks ✅ | Truths: [X]/[Y] đạt | Vòng sửa: [VERIFY_ROUND]"
 Thực thi theo waves từ Bước 1.5:
 
 **Với mỗi wave:**
-1. **Spawn Agent tool** cho mỗi task song song — KHÔNG dump toàn bộ PLAN.md, chỉ sections liên quan đến task:
-   - Task detail từ TASKS.md (mô tả + acceptance criteria + ghi chú kỹ thuật)
-   - PLAN.md sections liên quan (quyết định thiết kế, API endpoints cho task đó)
-   - Rules áp dụng (general + stack-specific) + CONTEXT.md path
-   - Đọc `Effort:` từ task metadata -> chọn model tương ứng (simple->haiku, standard->sonnet, complex->opus, mặc định->sonnet)
-   - Truyền model vào Agent tool: `model: {resolved_model}`
+1. **Spawn Agent tool** cho mỗi task — KHÔNG dump toàn bộ PLAN.md. Mỗi agent nhận:
+   - Task detail từ TASKS.md (mô tả + tiêu chí chấp nhận + ghi chú kỹ thuật)
+   - PLAN.md sections liên quan đến task (quyết định thiết kế, API endpoints cho task đó)
+   - Applicable `.planning/rules/` files
+   - CONTEXT.md path
+   - Effort→model: `Effort:` từ task metadata → model (simple→haiku, standard→sonnet, complex→opus, mặc định→sonnet)
+   - Truyền `model: {resolved_model}` vào Agent tool
    - Thông báo: "Spawning {model} agent cho {task_id} ({effort})..."
-   - Chỉ dẫn: Bước 2→3→4→5 (KHÔNG report/TASKS/commit)
+   - Chỉ dẫn agent: Bước 2→3→4→5 (research → code → lint/build → test). KHÔNG report, KHÔNG commit, KHÔNG cập nhật TASKS.md — orchestrator làm sau wave
 2. **Agent Frontend đặc biệt** (song song Backend): đọc PLAN.md "API Endpoints" → tạo types/interfaces từ response shape (KHÔNG cần API thật) → tạo API functions + components. Sau Backend xong → verify types khớp response thực tế
 3. **Chờ TẤT CẢ agents wave hoàn thành**
-4. **Sau wave** (orchestrator): thu thập kết quả, kiểm tra conflicts (2 agents sửa cùng file → **DỪNG** báo user). Build fail → **DỪNG** báo task cụ thể. OK → report (Bước 6) + TASKS.md + commit (Bước 7)
+4. **Post-wave safety net** (orchestrator):
+   a. `git diff --name-only` → danh sách files đã sửa
+   b. Kiểm tra: 2+ agents sửa cùng file? → **DỪNG**: "Conflict phát hiện: [file] bị sửa bởi Task X và Task Y. Cần resolve thủ công."
+   c. Build check: chạy lint + build → build fail → **DỪNG**: "Build fail sau wave N. Task [X] có thể là nguyên nhân. Output: [lỗi]". KHÔNG chạy wave tiếp khi build fail
+   d. OK → report (Bước 6) + TASKS.md (Bước 7a) + commit (Bước 7b) cho TỪNG task
 5. **Verify integration** (Backend + Frontend wave): so sánh TypeScript interfaces frontend với response DTO backend, kiểm tra endpoint paths. Mismatch → sửa frontend, commit `[TASK-N] Đồng bộ types với backend`
 6. **Wave tiếp** → lặp từ bước 1
-7. **Hết waves** → Bước 9 → thông báo tổng kết: phase, tasks, waves, gợi ý
+7. **Hết waves** → Bước 9 → thông báo tổng kết:
+```
+Tổng kết: [N] tasks, [M] waves hoàn thành
+Wave 1: Task 1 ✅, Task 3 ✅ (2 song song)
+Wave 2: Task 2 ✅ (1 tuần tự)
+Conflicts resolved: [K] tasks dời wave
+```
+Gợi ý: `/pd:test`, `/pd:plan`, `/pd:complete-milestone`
 
 ### `--auto` (tuần tự)
 **Lưu phase ban đầu**: `INITIAL_PHASE = [phase từ CURRENT_MILESTONE.md]`. Dùng giá trị này (KHÔNG đọc lại) để xác định scope.
