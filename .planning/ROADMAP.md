@@ -43,7 +43,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 
 - [x] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues (completed 2026-03-23)
 - [x] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end (completed 2026-03-23)
-- [x] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15 (completed 2026-03-23)
+- [ ] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15
 
 ## Phase Details
 
@@ -88,12 +88,13 @@ Plans:
   2. Tat ca converter snapshot sync issues (AUDIT-03) da duoc fix — chay lai snapshot verification cho ket qua 48/48 match
   3. Tat ca logic gaps tu workflow verification (WFLOW-01, WFLOW-02, WFLOW-03) da duoc fix — workflow logic da duoc sua trong source files
   4. Existing test suites (443+ tests) van pass sau khi fix — khong co regression
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 16-01: TBD
-- [ ] 16-02: TBD
-- [ ] 16-03: TBD
+- [ ] 16-01-PLAN.md — JS module fixes: dead exports (W6-W8), Unicode (I5), stale comment (I6), CLI wrapper (C1), plan.md update (D-09)
+- [ ] 16-02-PLAN.md — Workflow text fixes: stack fallback (C2/V1), effort routing (V2), AskUserQuestion (V3), parallel warning (V5), W11/W14/W15
+- [ ] 16-03-PLAN.md — Skill/reference wiring (W1-W5), intentional pattern docs (I1/I2/I4/I7), version fix (I3), conventions note (V6)
+- [ ] 16-04-PLAN.md — Snapshot regeneration + full test suite verification (BFIX-02)
 
 ## Progress
 
@@ -116,5 +117,5 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete    | 2026-03-23 |
-| 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
-| 16. Bug Fixes | v1.2 | 0/? | Not started | - |
+| 15. Workflow Verification | v1.2 | 3/3 | Complete    | 2026-03-23 |
+| 16. Bug Fixes | v1.2 | 0/4 | Not started | - |
