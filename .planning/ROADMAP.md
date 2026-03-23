@@ -30,7 +30,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 - [x] **Phase 10: Core Plan Checks** - Spec + module với 4 structural validators cho requirement coverage, task completeness, dependency correctness, Truth-Task coverage (completed 2026-03-23)
 - [x] **Phase 11: Workflow Integration** - Report format PASS/ISSUES FOUND với actionable fix hints + tự động chạy sau Step 8 trong plan.md (completed 2026-03-23)
-- [ ] **Phase 12: Advanced Checks** - Key Links verification, scope threshold warnings, effort classification validation
+- [x] **Phase 12: Advanced Checks** - Key Links verification, scope threshold warnings, effort classification validation (completed 2026-03-23)
 
 ## Phase Details
 
@@ -73,7 +73,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [x] 12-01-PLAN.md — 3 check functions (checkKeyLinks, checkScopeThresholds, checkEffortClassification) + rules spec update
-- [ ] 12-02-PLAN.md — Unit tests + historical validation (22 plans, zero false positives with 7 checks)
+- [x] 12-02-PLAN.md — Unit tests + historical validation (22 plans, zero false positives with 7 checks)
 
 ## Progress
 
@@ -93,4 +93,4 @@ Phases execute in numeric order: 10 → 11 → 12
 | 9. Converter Pipeline Optimization | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 10. Core Plan Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
 | 11. Workflow Integration | v1.1 | 1/1 | Complete    | 2026-03-23 |
-| 12. Advanced Checks | v1.1 | 1/2 | In Progress|  |
+| 12. Advanced Checks | v1.1 | 2/2 | Complete   | 2026-03-23 |
