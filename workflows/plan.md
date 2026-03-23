@@ -342,15 +342,17 @@ Khi `result.overall === 'block'` hoặc `result.overall === 'warn'` — hiển t
 
 **Kết quả: ISSUES FOUND**
 
-#### CHECK-01: Requirement Coverage — [STATUS]
+#### CHECK-01: Requirement Coverage — BLOCK
 - [issue.message cho từng issue]
 
-#### CHECK-02: Task Completeness — [STATUS]
+#### CHECK-02: Task Completeness — PASS
+
+#### ADV-02: Scope Thresholds — WARN
 - [issue.message cho từng issue]
 ```
 
 Quy tắc:
-- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### CHECK-0N: [Tên] — PASS` (D-02)
+- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### {checkId}: {Tên} — PASS` (D-02)
 - **Chỉ hiển thị `issue.message`** — KHÔNG hiển thị `issue.fixHint` (fixHint dùng nội bộ khi Claude auto-fix) (D-03)
 - **Tối đa 10 issues** hiển thị. Nếu tổng issues > 10, hiển thị 10 đầu tiên rồi ghi `+ [N] issues khác` ở cuối (D-04)
 
