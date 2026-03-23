@@ -324,6 +324,100 @@ PASS. git add STATE.md + CURRENT_MILESTONE.md + PROJECT.md (lines 352-354). Comm
 #### Buoc 10: Thong bao
 PASS. Bang ket qua hoan chinh (lines 360-380): 6 san pham (Du an, Nghien cuu, Yeu cau, Lo trinh, Trang thai, Theo doi) voi duong dan va trang thai. Tong so phases + yeu cau + do phu. Goi y tiep theo: `/pd:plan` voi ten phase dau tien (lines 378-380). Day du, user co cai nhin tong quan ngay.
 
+#### Implicit Truths (phat hien khi trace)
+
+| # | Truth | Step | Cach kiem chung | Ket qua |
+|---|-------|------|-----------------|---------|
+| IT-1 | Rules section co 19 rules enforcement ro rang, khong thieu rule critical | rules | Doc toan bo rules section (lines 384-404) | **PASS** -- 19 rules cover: general.md compliance, milestone prioritization, backend/frontend ordering, du an moi setup, bao mat, FastCode restriction, CONTEXT.md guard, PROJECT.md ordering, coverage enforcement, requirement quality, milestone directories, 2 approval gates, commit per gate, STATE.md updates, boi canh tich luy, parallel research, research output path, AskUserQuestion fallback. Day du. |
+| IT-2 | AskUserQuestion co fallback chung (line 403) ngoai fallback cu the o Step 3 (line 105) | 3, rules | Cross-verify 2 fallback mechanisms | **PASS** -- Line 403 (rules): "AskUserQuestion khong kha dung -> hoi van ban thuong, cho tra loi". Line 105 (Step 3): "Khong hoi duoc -> tu dong sao luu". 2 fallback khac nhau: rules fallback la GENERAL (hoi van ban), Step 3 fallback la SPECIFIC (tu dong sao luu). Tuy nhien, co CONFLICT tiem tang (xem V3). |
+| IT-3 | Workflow phan biet ro 3 paths: GHI DE, VIET TIEP, DU AN MOI | 3, 4, 7d | Trace 3 paths xuyen suot | **PASS** -- GHI DE path: Step 3 -> chon "Ghi de" -> Step 4 (hoi toan bo) -> Step 7d (viet moi). VIET TIEP path: Step 3 -> chon "Viet tiep" -> Step 4 (hoi moi) -> Step 7d (giu cu + them moi). DU AN MOI path: Step 3 skip (khong co ROADMAP.md) -> Step 4 (CONTEXT.md + PROJECT.md lam nen) -> Step 7d (viet moi). 3 paths nhat quan xuyen suot. |
+| IT-4 | Commit xay ra tai 3 diem: research (Step 5), requirements (Step 6e), roadmap+state (Step 9d) | 5, 6e, 9d | Grep "git commit" in workflow | **PASS** -- 3 commits: (1) Step 5 line 162: `git add .planning/research/ && git commit`. (2) Step 6e line 248: `git add .planning/REQUIREMENTS.md && git commit`. (3) Step 9d line 353: `git add STATE.md CURRENT_MILESTONE.md PROJECT.md && git commit`. Commit messages co format nhat quan. Them: Step 7f line 308: `git add ROADMAP.md REQUIREMENTS.md && git commit` -- tong cong 4 commits. |
+| IT-5 | Cross-workflow handoff (Step 10) dung format ma /pd:plan ky vong | 10 | Verify CURRENT_MILESTONE.md format alignment | **PASS** -- Step 10 goi y `/pd:plan` (line 378). Step 9a tao CURRENT_MILESTONE.md voi milestone, version, phase dau tien, status. state-machine.md (line 47) xac nhan `/pd:plan` can CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md -- tat ca duoc tao/cap nhat boi new-milestone workflow. Handoff hoan chinh. |
+
+### Key Links
+
+| Step tao | Artifact | Step dung | Verified |
+|----------|----------|-----------|----------|
+| Step 1 | PROJECT.md (tao/cap nhat) | Step 4 (doc lich su milestones, line 120-121), Step 9c (cap nhat ngay), Step 10 (hien thi) | **PASS** -- Tao/cap nhat tai Step 1 (line 46). Doc lai o Step 4 de lay context. Cap nhat ngay o Step 9c (line 349). Hien thi trang thai o Step 10 (line 369). Data flow lien tuc. |
+| Step 6d | REQUIREMENTS.md (tao) | Step 7b (kiem tra do phu, line 265), Step 7e (cap nhat bang theo doi, lines 276-281), Step 7f (commit cung ROADMAP.md, line 308) | **PASS** -- Tao tai Step 6d theo mau (line 214). Step 7b kiem tra MOI yeu cau v1 da gan phase. Step 7e cap nhat bang mapping yeu cau->phase->trang thai. Step 7f commit ca REQUIREMENTS.md lan ROADMAP.md cung nhau. Data flow lien tuc. |
+| Step 7d | ROADMAP.md (tao) | Step 9a (CURRENT_MILESTONE.md doc de xac dinh phase dau tien), Step 10 (hien thi so phases) | **PASS** -- Tao tai Step 7d (line 270). Step 9a tao CURRENT_MILESTONE.md dua tren ROADMAP.md phases. Step 10 hien thi "[N] phases" (line 376). Data flow lien tuc. |
+| Step 8 | STATE.md (tao/dat lai) | Duoc cap nhat tai Steps 1, 5, 6e, 7f (truoc Step 8), Step 8 dat lai/tao moi, Step 9d commit | **PASS** -- CT-2 da verify 5 checkpoints. Step 8 (lines 317-337) tao template day du. Step 9d commit (line 353). Rule enforcement (line 399): "PHAI cap nhat STATE.md o moi moc". Data flow lien tuc. |
+| Step 9a | CURRENT_MILESTONE.md (tao) | Cross-workflow: /pd:plan doc de xac dinh phase hien tai | **PASS** -- IT-5 da verify cross-workflow handoff. state-machine.md (line 47) xac nhan /pd:plan can CURRENT_MILESTONE.md. Step 9a tao voi milestone, version, phase dau tien, status "Chua bat dau". Format phu hop voi templates/current-milestone.md. |
+| Step 5 | research/SUMMARY.md (tao, optional) | Step 6a (doc nghien cuu, line 175) | **PASS** -- Tao tai Step 5 (line 156). Step 6a doc SUMMARY.md de "tinh nang theo nhom" (line 175). Dieu kien: chi ton tai khi user chon "Nghien cuu truoc". Step 6a co path rieng cho "Co nghien cuu" va "Khong co nghien cuu". Khong co gap. |
+
+### State Machine Compliance (D-05)
+
+| Kiem tra | Ket qua | Chi tiet |
+|----------|---------|----------|
+| STATE.md chi update SAU hanh dong hoan tat | **PASS** | Step 1: update SAU doc/tao PROJECT.md. Step 5: update SAU commit research. Step 6e: update SAU commit requirements. Step 7f: update SAU commit roadmap. Thu tu dung. |
+| Trang thai phase transitions hop le | **PASS** | Workflow khong quan ly phase execution -- chi tao structure. STATE.md cuoi cung (Step 8): "Trang thai: San sang len ke hoach". Phu hop voi state-machine.md: new-milestone -> "Co lo trinh" -> plan. |
+| Commit truoc khi ghi nhan hoan tat | **PASS** | Moi cong duyet: commit (lines 248, 308) truoc khi cap nhat STATE.md (lines 251, 313). Step 9d commit truoc Step 10 thong bao. Thu tu dung. |
+
+### Phase 14 Issues Deep-Dive
+
+#### W12: AskUserQuestion fallback thieu clarity (Warning)
+
+**Source:** 14-AUDIT-REPORT.md, AUDIT-02, W7 (W12 la ID noi bo Phase 15, W7 la ID goc Phase 14)
+**Lines:** 105 (workflows/new-milestone.md)
+**Phase 14 assessment:** "Clarify: If AskUserQuestion is not available as a tool OR user does not respond within reasonable time -> auto backup."
+
+**Deep-dive:**
+
+Line 105: `Khong hoi duoc -> tu dong sao luu: .planning/milestones/ -> .planning/milestones_backup_[DD_MM_YYYY]/`
+
+**Dieu kien trigger analysis:**
+
+| Dieu kien | Duoc cover | Evidence |
+|-----------|-----------|---------|
+| AskUserQuestion khong co trong allowed-tools | Khong ro | Line 105 noi "Khong hoi duoc" -- co the la khong co tool, nhung cung co the la tool fail |
+| User khong tra loi (timeout) | Khong | Khong co mention timeout. AskUserQuestion API khong co timeout mechanism |
+| User tu choi tra loi | Khong | "Khong hoi duoc" khong cover truong hop user chon "khong tra loi" |
+| AskUserQuestion tool loi ky thuat | Co (ngam) | "Khong hoi duoc" bao gom tool error |
+
+**Them context tu rules section (line 403):** "AskUserQuestion khong kha dung -> hoi van ban thuong, cho tra loi"
+
+**CONFLICT phat hien (V3 moi):** Rules section (line 403) noi "AskUserQuestion khong kha dung -> hoi van ban thuong, cho tra loi" (tuc la KHONG tu dong, ma phai hoi text). Nhung Step 3 (line 105) noi "Khong hoi duoc -> tu dong sao luu" (tuc la TU DONG, khong hoi). 2 instructions TRAI NHAU:
+
+- Rules noi: fallback = hoi van ban -> CHO tra loi
+- Step 3 noi: fallback = tu dong hanh dong (sao luu) -> KHONG cho
+
+Agent se theo dau? Rules co vi tri cao hon (general rule), nhung Step 3 co chi tiet cu the hon (specific override). Khong co priority mechanism ro rang.
+
+**Impact thuc te:** Agent co the:
+1. Theo rules -> hoi user bang text -> cho mai khong duoc tra loi (blocking)
+2. Theo Step 3 -> tu dong sao luu khong hoi -> user mat data khong mong doi (nhu xoa milestones cu)
+3. Lam ca 2 (hoi text, khong duoc tra loi, roi tu dong sao luu) -- nham nhung co the chap nhan duoc
+
+**Severity re-assessment:** Nang tu Warning len **Warning-High**. Khong phai Critical vi consequence chi la backup (khong mat data), nhung conflict giua rules va step logic can duoc resolve.
+
+**Suggested Fix:**
+- File: `workflows/new-milestone.md`
+- Line 105: Doi tu `- Không hỏi được → tự động sao lưu: .planning/milestones/ → .planning/milestones_backup_[DD_MM_YYYY]/`
+- Thanh: `- AskUserQuestion không khả dụng như tool → hỏi văn bản thường (theo rules). Người dùng không phản hồi HOẶC tool lỗi kỹ thuật → tự động sao lưu: .planning/milestones/ → .planning/milestones_backup_[DD_MM_YYYY]/. Ghi chú: "Đã tự động sao lưu do không nhận được phản hồi."`
+- Ly do: Resolve conflict voi rules line 403 bang cach: (1) hoi text truoc, (2) tu dong sao luu CHI KHI khong phan hoi, (3) log action de user biet
+
+### Detailed Findings
+
+| ID | Source | Lines | Severity | Description & Impact | Suggested Fix | Regression Risk | Phase 14 Ref |
+|----|--------|-------|----------|---------------------|---------------|-----------------|--------------|
+| V3 | WFLOW-01 | 105, 403 | Warning-High | Step 3 line 105 noi "Khong hoi duoc -> tu dong sao luu" nhung rules line 403 noi "AskUserQuestion khong kha dung -> hoi van ban thuong, cho tra loi". 2 instructions TRAI NHAU ve fallback behavior. Agent khong biet theo dau. Impact: agent co the tu dong hanh dong (sao luu/xoa) ma khong hoi user, hoac block cho user tra loi vinh vien. | Doi line 105 thanh: "AskUserQuestion khong kha dung nhu tool -> hoi van ban thuong (theo rules). Nguoi dung khong phan hoi HOAC tool loi ky thuat -> tu dong sao luu: .planning/milestones/ -> .planning/milestones_backup_[DD_MM_YYYY]/. Ghi chu: 'Da tu dong sao luu do khong nhan duoc phan hoi.'" | Low | W12/W7 (Phase 14) -- V3 la he luy cua W12, va phat hien THEM conflict voi rules section |
+| V4 | WFLOW-01 | 107-110 | Info | `--reset-phase-numbers` flag xu ly 3 truong hop nhung khong verify thu muc phase cu co TRUNG TEN voi phase moi sau khi reset khong. Vd: milestone cu co phase-3, reset -> milestone moi cung co phase-3 -> xung dot. Line 109 noi "luu tru truoc de tranh xung dot" nhung khong chi ro mechanism kiem tra xung dot. | Them instruction: "Truoc khi reset: Glob .planning/milestones/[version-moi]/phase-* -> co trung ten -> luu tru (doi ten _old) truoc khi tao moi. KHONG ghi de silent." | Low | Khong co |
+
+### Workflow Summary
+
+| Metric | Gia tri |
+|--------|---------|
+| Tong steps traced | 18 (0, 0.5, 1, 2, 3, 4, 5, 6, 6a, 6b, 6c, 6d, 6e, 7, 7a-7f, 8, 9/9a-9d, 10) |
+| Steps PASS | 17 |
+| Steps FAIL | 1 (Step 3 -- W12 confirmed + V3 conflict moi) |
+| Critical Truths | 4/4 PASS |
+| Implicit Truths | 5/5 PASS |
+| Issues phat hien | 2 moi (V3 Warning-High, V4 Info) + 1 confirmed (W12/W7) |
+| Phase 14 deep-dive | W12 confirmed va NANG LEVEL -- phat hien conflict voi rules section |
+| Key Links | 6/6 PASS |
+| State Machine compliance | PASS |
+| Data flow | PROJECT.md->REQUIREMENTS.md->ROADMAP.md->STATE.md->CURRENT_MILESTONE.md verified lien tuc |
+
 ## WFLOW-02: write-code {#wflow-02}
 
 > [Se verify trong Plan 15-03]
