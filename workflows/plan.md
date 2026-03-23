@@ -298,14 +298,17 @@ Theo @templates/tasks.md. Sắp xếp theo @references/prioritization.md + quy t
 ## Bước 8.1: Kiểm tra plan
 
 > Plan checker tự động — chạy sau tracking update (Bước 8), trước git commit (Bước 8.5).
-> Module: `bin/lib/plan-checker.js` (Phase 10). Step này KHÔNG tạo code mới — chỉ gọi API và xử lý kết quả.
+> CLI: `bin/plan-check.js` (Phase 16). Step này KHÔNG tạo code mới — chỉ chạy CLI và xử lý kết quả.
 
-### A. Chuẩn bị dữ liệu
+### A. Chạy plan checker
 
-1. Đọc `PLAN.md` từ `.planning/milestones/[version]/phase-[phase]/PLAN.md` (đã tạo Bước 6)
-2. Đọc `TASKS.md` từ `.planning/milestones/[version]/phase-[phase]/TASKS.md` (đã tạo Bước 7)
-3. Parse requirement IDs từ `ROADMAP.md`: tìm section phase hiện tại, trích `**Requirements**:` line → tách bằng dấu phẩy thành mảng. Nếu field không tồn tại → dùng mảng rỗng `[]`
-4. Gọi `runAllChecks({ planContent, tasksContent, requirementIds })` từ `bin/lib/plan-checker.js`
+Chạy plan checker từ terminal:
+```
+node bin/plan-check.js <plan-dir>
+```
+Trong đó `<plan-dir>` = `.planning/milestones/[version]/phase-[phase]/` (thư mục chứa PLAN.md + TASKS.md đã tạo Bước 6-7).
+
+Đọc JSON output. Nếu overall = "block" → sửa trước khi tiếp tục. Nếu "warn" → xem xét, có thể chấp nhận.
 
 ### B. Kết quả PASS (D-01)
 
@@ -386,7 +389,7 @@ AskUserQuestion({
 
 Khi user chọn "Fix":
 1. Claude đọc tất cả issues (bao gồm `fixHint` từ result) và tự sửa trực tiếp vào PLAN.md và/hoặc TASKS.md (D-05)
-2. Sau khi sửa, re-run `runAllChecks` với nội dung đã cập nhật (D-06)
+2. Sau khi sửa, re-run `node bin/plan-check.js <plan-dir>` với nội dung đã cập nhật (D-06)
 3. Nếu pass → hiển thị PASS report (mục B) → tiếp tục Bước 8.5
 4. Nếu vẫn có issues → hiển thị ISSUES FOUND report (mục C) → hỏi user lại (mục D)
 5. **Tối đa 3 lần re-run**. Sau lần fix thứ 3 vẫn fail → gợi ý Cancel (Claude discretion)
