@@ -12,6 +12,7 @@ Ghi chú: `~/.claude/` dùng cho Claude Code. Trình cài đặt chuyển đổi
 
 ## Bước 2: Kiểm tra project có code không
 Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — KHÔNG gồm .json/.css):
+(.json loai tru khoi phat hien code vi config files khong chi thi ma nguon dang hoat dong. .css loai tru vi styling khong chi thi logic code.)
 - **KHÔNG có source files** → nhảy **Bước 5** tạo scan report tối giản: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]". KHÔNG chạy Bước 3, 4, 6.
 - **CÓ** → tiếp tục
 
