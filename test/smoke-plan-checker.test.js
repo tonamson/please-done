@@ -739,3 +739,100 @@ describe('runAllChecks', () => {
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
   });
 });
+
+// ─── Historical v1.0 plan validation (D-17 acceptance gate) ─
+
+const fs = require('fs');
+const path = require('path');
+
+const ROOT = path.resolve(__dirname, '..');
+
+const HISTORICAL_PLANS = [
+  '.planning/phases/01-skill-structure-normalization/01-01-PLAN.md',
+  '.planning/phases/01-skill-structure-normalization/01-02-PLAN.md',
+  '.planning/phases/01-skill-structure-normalization/01-03-PLAN.md',
+  '.planning/phases/02-cross-skill-deduplication/02-01-PLAN.md',
+  '.planning/phases/02-cross-skill-deduplication/02-02-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-01-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-02-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-03-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-04-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-05-PLAN.md',
+  '.planning/phases/03-prompt-prose-compression/03-06-PLAN.md',
+  '.planning/phases/04-conditional-context-loading/04-01-PLAN.md',
+  '.planning/phases/04-conditional-context-loading/04-02-PLAN.md',
+  '.planning/phases/05-effort-level-routing/05-01-PLAN.md',
+  '.planning/phases/05-effort-level-routing/05-02-PLAN.md',
+  '.planning/phases/06-context7-standardization/06-01-PLAN.md',
+  '.planning/phases/06-context7-standardization/06-02-PLAN.md',
+  '.planning/phases/07-library-fallback-and-version-detection/07-01-PLAN.md',
+  '.planning/phases/08-wave-based-parallel-execution/08-01-PLAN.md',
+  '.planning/phases/08-wave-based-parallel-execution/08-02-PLAN.md',
+  '.planning/phases/09-converter-pipeline-optimization/09-01-PLAN.md',
+  '.planning/phases/09-converter-pipeline-optimization/09-02-PLAN.md',
+];
+
+describe('Historical v1.0 plan validation (D-17)', () => {
+  // Individual plan tests
+  for (const planPath of HISTORICAL_PLANS) {
+    const shortName = planPath.split('/').pop();
+    it(`${shortName} produces zero blocks`, () => {
+      const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
+      const result = pc.runAllChecks({
+        planContent: content,
+        tasksContent: null,
+        requirementIds: []
+      });
+      const blockChecks = result.checks.filter(c => c.status === 'block');
+      assert.equal(
+        blockChecks.length, 0,
+        `${planPath} triggered block in: ${blockChecks.map(c => `${c.checkId}: ${c.issues.map(i => i.message).join('; ')}`).join(' | ')}`
+      );
+    });
+  }
+
+  // Summary gate test
+  it('all 22 historical plans produce zero block results (D-17 gate)', () => {
+    let totalBlocks = 0;
+    const failures = [];
+    for (const planPath of HISTORICAL_PLANS) {
+      const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
+      const result = pc.runAllChecks({
+        planContent: content,
+        tasksContent: null,
+        requirementIds: []
+      });
+      const blockChecks = result.checks.filter(c => c.status === 'block');
+      if (blockChecks.length > 0) {
+        totalBlocks += blockChecks.length;
+        failures.push(`${planPath}: ${blockChecks.map(c => c.checkId).join(', ')}`);
+      }
+    }
+    assert.equal(totalBlocks, 0, `D-17 FAILED: ${totalBlocks} block(s) in: ${failures.join(' | ')}`);
+  });
+
+  // Format detection test
+  it('all 22 historical plans detected as v1.0 format', () => {
+    const wrongFormat = [];
+    for (const planPath of HISTORICAL_PLANS) {
+      const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
+      const format = pc.detectPlanFormat(content);
+      if (format !== 'v1.0') {
+        wrongFormat.push(`${planPath}: detected as ${format}`);
+      }
+    }
+    assert.equal(wrongFormat.length, 0, `Wrong format detection: ${wrongFormat.join(' | ')}`);
+  });
+
+  // Verify count
+  it('validates exactly 22 plan files', () => {
+    assert.equal(HISTORICAL_PLANS.length, 22);
+    // Verify all files exist
+    for (const planPath of HISTORICAL_PLANS) {
+      assert.ok(
+        fs.existsSync(path.join(ROOT, planPath)),
+        `Missing plan file: ${planPath}`
+      );
+    }
+  });
+});

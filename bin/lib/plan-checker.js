@@ -79,12 +79,21 @@ function parseMustHavesTruths(rawFrontmatterString) {
  */
 function parseTasksV10(planContent) {
   const tasks = [];
-  const taskRegex = /<task[^>]*>([\s\S]*?)<\/task>/g;
+  const taskRegex = /<task([^>]*)>([\s\S]*?)<\/task>/g;
   let match;
   let taskNum = 1;
 
   while ((match = taskRegex.exec(planContent)) !== null) {
-    const block = match[1];
+    const attrs = match[1];
+    const block = match[2];
+
+    // Fix: 03-06-PLAN.md checkpoint tasks (type="checkpoint:*") use different tags
+    // (what-built, how-to-verify) — skip them to avoid false positive BLOCK
+    if (/type\s*=\s*["']checkpoint:/i.test(attrs)) {
+      taskNum++;
+      continue;
+    }
+
     const nameMatch = block.match(/<name>([\s\S]*?)<\/name>/);
     const filesMatch = block.match(/<files>([\s\S]*?)<\/files>/);
     const hasDescription = /<action>[\s\S]*?<\/action>/.test(block) ||
