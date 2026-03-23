@@ -75,7 +75,7 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 15-01-PLAN.md — Trace fix-bug (WFLOW-03): tao report skeleton + verify workflow don gian nhat
+- [x] 15-01-PLAN.md — Trace fix-bug (WFLOW-03): tao report skeleton + verify workflow don gian nhat
 - [ ] 15-02-PLAN.md — Trace new-milestone (WFLOW-01): verify 14 references, 2 approval gates, data flow
 - [ ] 15-03-PLAN.md — Trace write-code (WFLOW-02): verify 3 modes + hoan tat report (Executive Summary, Issue Registry)
 
@@ -116,5 +116,5 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete    | 2026-03-23 |
-| 15. Workflow Verification | v1.2 | 0/3 | Not started | - |
+| 15. Workflow Verification | v1.2 | 1/3 | In Progress|  |
 | 16. Bug Fixes | v1.2 | 0/? | Not started | - |

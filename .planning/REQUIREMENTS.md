@@ -17,7 +17,7 @@ Requirements for audit and bug fix milestone. Each maps to roadmap phases.
 
 - [ ] **WFLOW-01**: Verify workflow new-milestone end-to-end — init context, questioning, research spawn, requirements definition, roadmap creation, state updates
 - [ ] **WFLOW-02**: Verify workflow write-code end-to-end — plan reading, task execution, effort routing, Context7 pipeline, commit flow, verification
-- [ ] **WFLOW-03**: Verify workflow fix-bug end-to-end — bug reproduction, diagnosis, fix application, test verification, commit flow
+- [x] **WFLOW-03**: Verify workflow fix-bug end-to-end — bug reproduction, diagnosis, fix application, test verification, commit flow
 
 ### Bug Fixes
 
@@ -53,7 +53,7 @@ Deferred to future release.
 | AUDIT-03 | Phase 14 | Complete |
 | WFLOW-01 | Phase 15 | Pending |
 | WFLOW-02 | Phase 15 | Pending |
-| WFLOW-03 | Phase 15 | Pending |
+| WFLOW-03 | Phase 15 | Complete |
 | BFIX-01 | Phase 16 | Pending |
 | BFIX-02 | Phase 16 | Pending |
 | BFIX-03 | Phase 16 | Pending |
