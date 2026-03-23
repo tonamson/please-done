@@ -155,6 +155,26 @@ function makeTasksV11(overrides = {}) {
   return content;
 }
 
+/**
+ * Build v1.1 PLAN.md content with Key Links table section.
+ * Extends makePlanV11 output.
+ */
+function makePlanV11WithKeyLinks(overrides = {}) {
+  let content = makePlanV11(overrides);
+  const links = overrides.keyLinks || [
+    { from: 'src/auth.controller.ts', to: 'src/auth.service.ts', desc: 'Controller goi service.login()' }
+  ];
+
+  content += '\n### Lien ket then chot (Key Links)\n';
+  content += '| Tu | Den | Mo ta |\n';
+  content += '|----|-----|-------|\n';
+  for (const link of links) {
+    content += `| ${link.from} | ${link.to} | ${link.desc} |\n`;
+  }
+
+  return content;
+}
+
 // ─── Helper tests ────────────────────────────────────────
 
 describe('helpers', () => {
@@ -754,6 +774,10 @@ describe('helpers (ADV)', () => {
     it('returns bare path unchanged', () => {
       assert.equal(pc.normalizeKeyLinkPath('bin/lib/plan-checker.js'), 'bin/lib/plan-checker.js');
     });
+
+    it('handles empty string', () => {
+      assert.equal(pc.normalizeKeyLinkPath(''), '');
+    });
   });
 
   describe('parseKeyLinksV11', () => {
@@ -764,6 +788,19 @@ describe('helpers (ADV)', () => {
     it('returns [] when no Key Links section exists', () => {
       const plan = makePlanV11();
       assert.deepEqual(pc.parseKeyLinksV11(plan), []);
+    });
+
+    it('returns [] for null input', () => {
+      assert.deepEqual(pc.parseKeyLinksV11(null), []);
+    });
+
+    it('parses multiple Key Links', () => {
+      const plan = makePlanV11WithKeyLinks({ keyLinks: [
+        { from: 'src/a.ts', to: 'src/b.ts', desc: 'A->B' },
+        { from: 'src/c.ts', to: 'src/d.ts', desc: 'C->D' }
+      ]});
+      const links = pc.parseKeyLinksV11(plan);
+      assert.equal(links.length, 2);
     });
 
     it('parses Key Links table with diacritics header', () => {
@@ -799,6 +836,10 @@ describe('helpers (ADV)', () => {
     it('returns 0 for empty string', () => {
       assert.equal(pc.countFilesInString(''), 0);
     });
+
+    it('handles single file', () => {
+      assert.equal(pc.countFilesInString('src/a.js'), 1);
+    });
   });
 
   describe('detectMultiDomain', () => {
@@ -812,6 +853,14 @@ describe('helpers (ADV)', () => {
 
     it('returns false for null', () => {
       assert.equal(pc.detectMultiDomain(null), false);
+    });
+
+    it('returns false for files without directories', () => {
+      assert.equal(pc.detectMultiDomain('file.js'), false);
+    });
+
+    it('detects 3 domains', () => {
+      assert.equal(pc.detectMultiDomain('bin/a.js, references/b.md, workflows/c.md'), true);
     });
   });
 
@@ -837,6 +886,35 @@ describe('helpers (ADV)', () => {
     it('returns complex for multi-domain files', () => {
       const task = { id: 1, files: 'bin/checker.js, references/spec.md', truths: ['T1'], effort: 'simple' };
       const tasksContent = '## Task 1: Test\n> Phu thuoc: Khong\n';
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'complex');
+    });
+
+    it('3 files, 2 truths -> standard (via makeTasksV11)', () => {
+      const task = { id: 1, files: 'src/a.js, src/b.js, src/c.js', truths: ['T1', 'T2'] };
+      const tasksContent = makeTasksV11({ tasks: [
+        { id: 1, name: 'T1', effort: 'standard', files: 'src/a.js, src/b.js, src/c.js', truths: '[T1, T2]',
+          dep: 'Khong', desc: 'X', criteria: '- ok' }
+      ]});
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'standard');
+    });
+
+    it('4+ truths -> complex', () => {
+      const task = { id: 1, files: 'src/a.js', truths: ['T1', 'T2', 'T3', 'T4'] };
+      const tasksContent = makeTasksV11({ tasks: [
+        { id: 1, name: 'T1', effort: 'complex', files: 'src/a.js', truths: '[T1, T2, T3, T4]',
+          dep: 'Khong', desc: 'X', criteria: '- ok' }
+      ]});
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'complex');
+    });
+
+    it('3+ deps -> complex', () => {
+      const task = { id: 4, files: 'src/a.js', truths: ['T1'] };
+      const tasksContent = makeTasksV11({ tasks: [
+        { id: 1, name: 'T1', effort: 'simple', files: 'x.js', truths: '[T1]', dep: 'Khong', desc: 'X', criteria: '- ok' },
+        { id: 2, name: 'T2', effort: 'simple', files: 'y.js', truths: '[T1]', dep: 'Khong', desc: 'X', criteria: '- ok' },
+        { id: 3, name: 'T3', effort: 'simple', files: 'z.js', truths: '[T1]', dep: 'Khong', desc: 'X', criteria: '- ok' },
+        { id: 4, name: 'T4', effort: 'complex', files: 'src/a.js', truths: '[T1]', dep: 'Task 1, Task 2, Task 3', desc: 'X', criteria: '- ok' }
+      ]});
       assert.equal(pc.computeActualEffort(task, tasksContent), 'complex');
     });
   });
