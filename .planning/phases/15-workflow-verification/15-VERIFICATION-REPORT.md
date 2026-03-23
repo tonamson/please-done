@@ -225,7 +225,104 @@ Stacks KHONG duoc cover (pho bien trong thuc te):
 
 ## WFLOW-01: new-milestone {#wflow-01}
 
-> [Se verify trong Plan 15-02]
+**File:** `workflows/new-milestone.md` (404 dong)
+**Steps:** 0, 0.5, 1, 2, 3, 4, 5, 6, 6a-6e, 7, 7a-7f, 8, 9, 9a-9d, 10
+**References:** 11 execution_context (6 required + 5 optional) + 2 guards = 13 tong cong
+**Phase 14 issues:** W12 (Warning -- AskUserQuestion fallback clarity)
+
+### Truth Inventory
+
+#### Critical Truths (pre-defined)
+
+| # | Truth | Cach kiem chung | Ket qua |
+|---|-------|-----------------|---------|
+| CT-1 | Tat ca references trong skill file `commands/pd/new-milestone.md` ton tai tren disk | Glob verify tung path | **PASS** -- 13/13 references ton tai. Chi tiet: 6 required (workflows/new-milestone.md, templates/project.md, templates/requirements.md, templates/roadmap.md, templates/state.md, templates/current-milestone.md), 5 optional (references/questioning.md, references/conventions.md, references/ui-brand.md, references/prioritization.md, references/state-machine.md), 2 guards (references/guard-context.md, references/guard-context7.md). **Luu y:** Plan 15-02 pre-defined list 14 paths gom `templates/context.md` va `templates/retrospective.md` -- ca 2 KHONG ton tai tren disk va cung KHONG co trong skill file. Day la loi trong plan pre-definition, KHONG phai loi cua workflow. Thuc te workflow va skill file reference 13 files, tat ca ton tai. |
+| CT-2 | STATE.md duoc cap nhat tai it nhat 4 checkpoints (Steps 1, 5, 6e, 7f) | Grep "STATE.md" in workflow, count update points | **PASS** -- 5 checkpoints verified: (1) Step 1 line 59: "Bat dau khoi tao milestone moi", (2) Step 5 line 165: "Nghien cuu chien luoc hoan tat", (3) Step 6e line 251: "Yeu cau milestone v[X.Y] da duyet", (4) Step 7f line 313: "Lo trinh milestone v[X.Y] da duyet", (5) Step 8 lines 317-337: full STATE.md reset/create. Them rule enforcement line 399: "PHAI cap nhat STATE.md o moi moc (Buoc 1, 5, 6e, 7f), KHONG chi cuoi". |
+| CT-3 | 2 approval gates (requirements Step 6e + roadmap Step 7f) bat buoc voi AskUserQuestion + loop | Trace approval logic at both gates | **PASS** -- Gate #1 (Step 6e, lines 219-248): AskUserQuestion voi 2 options "Duyet" va "Dieu chinh". "Duyet" -> commit + tiep Buoc 7. "Dieu chinh" -> sua -> hoi duyet lai (lap den khi duyet). Exit condition ro rang. Gate #2 (Step 7f, lines 283-311): AskUserQuestion voi 3 options "Duyet", "Dieu chinh phases", "Xem file day du". "Duyet" -> commit + tiep Buoc 8. "Dieu chinh" -> sua -> hoi lai. "Xem file" -> hien thi -> hoi lai. Exit condition ro rang. Ca 2 gates co commit ngay sau khi duyet (lines 247-249, 307-309). Rules enforcement line 397: "PHAI co 2 cong duyet: yeu cau + lo trinh -- lap den khi duyet". |
+| CT-4 | CONTEXT.md + rules/general.md thieu -> STOP (Step 0 guard) | Verify guard logic completeness | **PASS** -- Step 0 (lines 23-30): Bang 2 rows. Row 1: `.planning/CONTEXT.md` khong co -> "Chay `/pd:init` truoc." -> **DUNG**. Row 2: `.planning/rules/general.md` khong co -> "Rules bi thieu. Chay `/pd:init` de tao lai." -> **DUNG**. Ca 2 co error message cu the va STOP action. Them: skill file guards section (lines 23-30 cua commands/pd/new-milestone.md) cung check `@references/guard-context.md` va `rules/general.md` -- 2 lop guard (skill + workflow). |
+
+### Logic Trace
+
+#### Buoc 0: Tu kiem tra
+PASS. Bang 2 dieu kien: CONTEXT.md + rules/general.md. Missing -> DUNG voi error message cu the. Doc ca 2 files, ghi nhan ngon ngu, format ngay thang, quy cach phien ban, bieu tuong trang thai (line 30). Day du.
+
+#### Buoc 0.5: Xac dinh tai lieu tham khao (Auto-discovery)
+PASS. Phan tich CONTEXT.md de kich hoat 4 tai lieu bo tro (lines 36-40): co giao dien -> ui-brand.md, can thao luan sau -> questioning.md, nhieu yeu cau -> prioritization.md, trang thai phuc tap -> state-machine.md. Logic don gian, dieu kien ro rang, khong co gap.
+
+#### Buoc 1: Tao/Cap nhat PROJECT.md
+PASS. 2 paths ro rang (lines 48-57): (1) Chua ton tai -> doc CONTEXT.md, hoi user (questioning.md), tao theo mau. (2) Da ton tai -> doc lich su milestones, hoi user tam nhin thay doi, cap nhat. Cap nhat STATE.md (line 59). Mau: @templates/project.md (line 46). Day du.
+
+#### Buoc 2: Kiem tra bao cao quet
+PASS. 3 paths (lines 63-68): (1) Khong co SCAN_REPORT + du an moi -> cho phep tiep tuc. (2) Khong co SCAN_REPORT + du an cu -> "Chay /pd:scan truoc" -> DUNG. (3) Co -> doc: trang thai, thu vien, van de. Logic phan biet du an moi/cu dua tren CONTEXT.md. Day du.
+
+#### Buoc 3: Kiem tra lo trinh hien co
+PASS voi 1 issue (W12 confirmed). Logic (lines 72-110): Neu ROADMAP.md ton tai -> AskUserQuestion voi 2 options (Ghi de/Viet tiep). Ghi de -> canh bao thu muc cu -> AskUserQuestion voi 3 options (Sao luu/Xoa tat ca/Chi xoa chua co code). Fallback line 105: "Khong hoi duoc -> tu dong sao luu". Flag `--reset-phase-numbers` xu ly (lines 107-110). Logic day du nhung fallback condition can lam ro (xem W12 deep-dive).
+
+#### Buoc 4: Thu thap yeu cau milestone
+PASS. Ap dung @references/questioning.md (line 117). $ARGUMENTS co noi dung -> dung lam boi canh ban dau (line 118). 3 paths (lines 120-124): (1) GHI DE -> trinh bay milestones da hoan tat, hoi toan bo. (2) VIET TIEP -> trinh bay milestones co, hoi moi. (3) Du an moi -> CONTEXT.md + PROJECT.md lam nen, hoi chuc nang chinh. Day du, phu hop voi cac paths tu Step 3.
+
+#### Buoc 5: Nghien cuu chien luoc (Fast Parallel Research)
+PASS. AskUserQuestion voi 2 options (lines 131-141): "Nghien cuu truoc" (de xuat) hoac "Bo qua". Bo qua -> nhay Buoc 6 (line 144). Nghien cuu -> tao thu muc (line 148), 3 parallel tool calls (lines 151-154): FastCode (tim component tai su dung), Context7/WebSearch (thu vien toi uu), Logic noi bo (data flow + edge cases). Tong hop -> .planning/research/SUMMARY.md (line 156). Commit (lines 161-163). Cap nhat STATE.md (line 165). Day du, logic ro rang.
+
+#### Buoc 6: Dinh nghia yeu cau
+PASS (header section, sub-steps chi tiet ben duoi).
+
+#### Buoc 6a: Phan tich hien trang
+PASS. 3 paths (lines 173-177): Co bao cao quet -> tinh nang theo nhom. Co nghien cuu -> doc SUMMARY.md. Du an moi -> dua vao yeu cau user tu Buoc 4. Rule: "KHONG goi FastCode cho thong tin da co trong bao cao quet" (line 177). Day du.
+
+#### Buoc 6b: Xac dinh pham vi theo nhom
+PASS. AskUserQuestion multiSelect cho moi nhom (lines 180-193). Options: chon tinh nang hoac "Khong dua nhom nay vao". Phan loai: Duoc chon -> v1, Bat buoc khong chon -> Tuong lai, Tao khac biet khong chon -> Ngoai pham vi (line 195). Day du, cho phep linh hoat.
+
+#### Buoc 6c: Kiem tra thieu sot
+PASS. AskUserQuestion (lines 198-211): "Co tinh nang chua liet ke?" -> "Khong, da du" hoac "Co, toi muon them". "Co" -> thu thap them -> xac dinh pham vi lai (line 211). Loop logic ngam: them tinh nang -> quay lai 6b de pham vi lai. Day du.
+
+#### Buoc 6d: Tao REQUIREMENTS.md
+PASS. Theo mau @templates/requirements.md (line 214). Ma dinh danh: [NHOM]-[SO] (line 215). Co REQUIREMENTS.md cu -> tiep tuc danh so (line 216). Ap dung tieu chi yeu cau tot (line 217). Day du.
+
+#### Buoc 6e: Cong duyet -- Yeu cau
+PASS. Trinh bay TOAN BO yeu cau (lines 221-227). AskUserQuestion (lines 230-241): "Duyet" hoac "Dieu chinh". "Duyet" -> commit + tiep Buoc 7. "Dieu chinh" -> sua -> hoi lai (lap den khi duyet). Commit (lines 247-249). Cap nhat STATE.md (line 251). Day du, approval gate #1 hoan chinh.
+
+#### Buoc 7: Thiet ke lo trinh
+PASS (header section, sub-steps chi tiet ben duoi).
+
+#### Buoc 7a: Chia milestones va phases
+PASS. Chia Milestones -> Phases (line 260). Moi phase PHAI co 5 thanh phan (line 261, tham chieu @templates/roadmap.md). Xac dinh phu thuoc, uu tien, danh so phien ban, kiem tra trung khi VIET TIEP (line 262). Day du.
+
+#### Buoc 7b: Kiem tra do phu (BAT BUOC)
+PASS. MOI yeu cau v1 PHAI gan vao dung 1 phase. Chua gan -> DUNG, sua truoc (line 265). Logic gate dung, enforcement ro rang.
+
+#### Buoc 7c: Quyet dinh chien luoc
+PASS. Claude PHAI ghi nhan: tai sao milestone X truoc Y, tai sao uu tien Z, tai sao chia N milestones, phu thuoc (line 268). Day du, dam bao reasoning duoc luu lai.
+
+#### Buoc 7d: Tao ROADMAP.md
+PASS. 2 paths (lines 271-273): GHI DE -> viet moi theo mau. VIET TIEP -> giu milestones cu, them moi SAU cuoi, cap nhat ngay. Them quyet dinh chien luoc vao bang hien co (line 273). Day du.
+
+#### Buoc 7e: Cap nhat bang theo doi REQUIREMENTS.md
+PASS. Bang mapping yeu cau -> phase -> trang thai (lines 276-280). Kiem tra: tat ca v1 da gan -> Du. Co yeu cau chua gan -> DUNG, sua truoc (line 281). Day du, enforcement nhat quan voi 7b.
+
+#### Buoc 7f: Cong duyet -- Lo trinh
+PASS. Trinh bay: so phases, so yeu cau da gan, do phu (line 285). AskUserQuestion voi 3 options (lines 288-300): "Duyet", "Dieu chinh phases", "Xem file day du". "Duyet" -> commit + tiep Buoc 8. "Dieu chinh" -> sua -> hoi lai (lap den khi duyet). "Xem file" -> hien thi -> hoi lai. Commit (lines 307-309). In bang quyet dinh + canh bao review truoc /pd:plan (line 311). Cap nhat STATE.md (line 313). Day du, approval gate #2 hoan chinh.
+
+#### Buoc 8: Tao/Dat lai STATE.md
+PASS. Template day du (lines 319-335): Vi tri hien tai (Milestone, Phase, Ke hoach, Trang thai, Hoat dong cuoi), Boi canh tich luy, Van de chan. Co STATE.md cu -> doc "Boi canh tich luy" -> giu lai -> dat lai phan con lai (line 337). Rule enforcement line 400: "STATE.md PHAI giu 'Boi canh tich luy' tu milestone truoc -- KHONG xoa sach". Day du.
+
+#### Buoc 9: Tao theo doi + Commit
+PASS (header section, sub-steps chi tiet ben duoi).
+
+#### Buoc 9a: Tao/cap nhat CURRENT_MILESTONE.md
+PASS. 2 paths (lines 343-345): GHI DE hoac chua ton tai -> tao moi (milestone, version, phase dau tien, status: Chua bat dau). VIET TIEP va da ton tai -> giu nguyen. Day du.
+
+#### Buoc 9b: Tao thu muc milestones
+PASS. Tao `.planning/milestones/[version]/` cho TAT CA milestones moi (line 347). Day du.
+
+#### Buoc 9c: Cap nhat PROJECT.md
+PASS. Cap nhat `> Cap nhat: [DD_MM_YYYY]` (line 349). Day du, dam bao PROJECT.md co ngay cap nhat moi nhat.
+
+#### Buoc 9d: Commit
+PASS. git add STATE.md + CURRENT_MILESTONE.md + PROJECT.md (lines 352-354). Commit message ro rang. Day du.
+
+#### Buoc 10: Thong bao
+PASS. Bang ket qua hoan chinh (lines 360-380): 6 san pham (Du an, Nghien cuu, Yeu cau, Lo trinh, Trang thai, Theo doi) voi duong dan va trang thai. Tong so phases + yeu cau + do phu. Goi y tiep theo: `/pd:plan` voi ten phase dau tien (lines 378-380). Day du, user co cai nhin tong quan ngay.
 
 ## WFLOW-02: write-code {#wflow-02}
 
