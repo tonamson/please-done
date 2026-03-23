@@ -294,6 +294,112 @@ function parseTaskDepsV11(tasksContent) {
   return { nodes, edges };
 }
 
+// ─── ADV helpers ────────────────────────────────────────
+
+/**
+ * Strip parenthetical suffixes tu Key Link paths.
+ * VD: "workflows/plan.md (Step 8.1)" -> "workflows/plan.md"
+ */
+function normalizeKeyLinkPath(rawPath) {
+  return rawPath.replace(/\s*\(.*?\)\s*$/, '').trim();
+}
+
+/**
+ * Parse Key Links table tu v1.1 PLAN.md body.
+ * Tim section heading "Lien ket then chot" (co/khong co diacritics).
+ * Tra ve array of { from, to, description }.
+ */
+function parseKeyLinksV11(planContent) {
+  if (!planContent) return [];
+
+  // Tim Key Links section (handle diacritics)
+  const sectionMatch = planContent.match(
+    /###\s*Li[eê]n\s*k[eế]t\s*then\s*ch[oố]t[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i
+  );
+  if (!sectionMatch) return [];
+
+  const tableBody = sectionMatch[1];
+  const links = [];
+  const rowRegex = /\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
+  let match;
+  while ((match = rowRegex.exec(tableBody)) !== null) {
+    const from = match[1].trim();
+    const to = match[2].trim();
+    const desc = match[3].trim();
+    // Skip separator row (---)
+    if (from.startsWith('-')) continue;
+    links.push({ from, to, description: desc });
+  }
+  return links;
+}
+
+/**
+ * Count files tu comma/newline-separated string.
+ */
+function countFilesInString(filesStr) {
+  if (!filesStr) return 0;
+  return filesStr.split(/[,\n]/)
+    .map(f => f.trim())
+    .filter(f => f.length > 0)
+    .length;
+}
+
+/**
+ * Detect multi-domain: files span 2+ top-level directories (D-09).
+ */
+function detectMultiDomain(filesStr) {
+  if (!filesStr) return false;
+  const files = filesStr.split(',').map(f => f.trim()).filter(Boolean);
+  const topDirs = new Set();
+  for (const file of files) {
+    const firstSlash = file.indexOf('/');
+    if (firstSlash > 0) {
+      topDirs.add(file.substring(0, firstSlash));
+    }
+  }
+  return topDirs.size >= 2;
+}
+
+/**
+ * Compute actual effort tu 4 signals (D-08).
+ * Lay signal cao nhat (conservative).
+ */
+function computeActualEffort(task, tasksContent) {
+  const fileCount = countFilesInString(task.files);
+  const truthCount = task.truths ? task.truths.length : 0;
+
+  // Count dependencies tu tasksContent
+  let depCount = 0;
+  if (tasksContent) {
+    const taskSection = tasksContent.match(
+      new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`)
+    );
+    if (taskSection) {
+      const depLine = taskSection[0].match(/Ph[uụ]\s*thu[oộ]c:?\s*([^\n|]*)/i);
+      if (depLine) {
+        const depStr = depLine[1].trim();
+        if (!/^(Kh[oô]ng|Khong|$)/i.test(depStr)) {
+          const depRefs = [...depStr.matchAll(/Task\s*(\d+)/gi)];
+          depCount = depRefs.length;
+        }
+      }
+    }
+  }
+
+  const isMultiDomain = detectMultiDomain(task.files);
+
+  // Map each signal to effort level
+  const fileEffort = fileCount <= 2 ? 'simple' : fileCount <= 4 ? 'standard' : 'complex';
+  const truthEffort = truthCount <= 1 ? 'simple' : truthCount <= 3 ? 'standard' : 'complex';
+  const depEffort = depCount === 0 ? 'simple' : depCount <= 2 ? 'standard' : 'complex';
+  const domainEffort = isMultiDomain ? 'complex' : 'simple';
+
+  // Highest signal wins (D-08 conservative)
+  const levels = { simple: 0, standard: 1, complex: 2 };
+  const max = Math.max(levels[fileEffort], levels[truthEffort], levels[depEffort], levels[domainEffort]);
+  return max === 2 ? 'complex' : max === 1 ? 'standard' : 'simple';
+}
+
 // ─── Main check functions ───────────────────────────────
 
 /**
@@ -597,7 +703,233 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
 }
 
 /**
- * Chay tat ca 4 checks va aggregate ket qua.
+ * ADV-01: Key Links Verification
+ * Key Links trong PLAN.md phai duoc phan anh trong task Files.
+ * Ca 2 dau (from + to) phai co task touch, va it nhat 1 task phai touch ca 2 dau cung luc.
+ * Per D-01, D-02, D-03, D-04, D-12.
+ */
+function checkKeyLinks(planContent, tasksContent) {
+  const result = { checkId: 'ADV-01', status: 'pass', issues: [] };
+  const format = detectPlanFormat(planContent);
+
+  // v1.0/unknown: graceful PASS (D-12)
+  if (format === 'v1.0' || format === 'unknown') {
+    return result;
+  }
+
+  // Parse Key Links
+  const links = parseKeyLinksV11(planContent);
+  if (links.length === 0) return result; // No Key Links section -> PASS
+
+  // Parse tasks for Files checking
+  let tasks;
+  if (tasksContent) {
+    tasks = parseTaskDetailBlocksV11(tasksContent);
+  } else {
+    // Fallback: parse v1.0-style tasks from planContent for file extraction
+    const v10Tasks = parseTasksV10(planContent);
+    // Extract files from <files> tags
+    const taskRegex = /<task([^>]*)>([\s\S]*?)<\/task>/g;
+    tasks = [];
+    let match;
+    let idx = 0;
+    while ((match = taskRegex.exec(planContent)) !== null) {
+      const block = match[2];
+      const filesMatch = block.match(/<files>([\s\S]*?)<\/files>/);
+      tasks.push({
+        id: idx + 1,
+        files: filesMatch ? filesMatch[1].trim() : null,
+        truths: []
+      });
+      idx++;
+    }
+    if (tasks.length === 0) return result;
+  }
+
+  for (const link of links) {
+    const fromNorm = normalizeKeyLinkPath(link.from);
+    const toNorm = normalizeKeyLinkPath(link.to);
+
+    let tasksWithFrom = [];
+    let tasksWithTo = [];
+    let taskWithBoth = false;
+
+    for (const task of tasks) {
+      if (!task.files) continue;
+      const touchesFrom = task.files.includes(fromNorm);
+      const touchesTo = task.files.includes(toNorm);
+
+      if (touchesFrom) tasksWithFrom.push(task.id);
+      if (touchesTo) tasksWithTo.push(task.id);
+      if (touchesFrom && touchesTo) taskWithBoth = true;
+    }
+
+    if (tasksWithFrom.length === 0) {
+      result.issues.push({
+        message: `Key Link "from" path "${link.from}" khong co task nao trong Files`,
+        location: 'PLAN.md Key Links',
+        fixHint: `Them "${fromNorm}" vao Files cua mot task`
+      });
+    }
+    if (tasksWithTo.length === 0) {
+      result.issues.push({
+        message: `Key Link "to" path "${link.to}" khong co task nao trong Files`,
+        location: 'PLAN.md Key Links',
+        fixHint: `Them "${toNorm}" vao Files cua mot task`
+      });
+    }
+    if (tasksWithFrom.length > 0 && tasksWithTo.length > 0 && !taskWithBoth) {
+      result.issues.push({
+        message: `Key Link "${link.from}" -> "${link.to}": khong co task nao touch ca 2 dau cung luc`,
+        location: 'PLAN.md Key Links',
+        fixHint: `Dam bao it nhat 1 task co ca "${fromNorm}" va "${toNorm}" trong Files`
+      });
+    }
+  }
+
+  result.status = result.issues.length > 0 ? 'block' : 'pass';
+  return result;
+}
+
+/**
+ * ADV-02: Scope Threshold Warnings
+ * Canh bao khi plan vuot scope thresholds hop ly tren 4 dimensions.
+ * Per D-05, D-06, D-13.
+ */
+function checkScopeThresholds(planContent, tasksContent) {
+  const result = { checkId: 'ADV-02', status: 'pass', issues: [] };
+  const format = detectPlanFormat(planContent);
+
+  // Unknown format: graceful PASS
+  if (format === 'unknown') return result;
+
+  let taskCount = 0;
+  let taskFiles = []; // array of { id, files string }
+  let truthCount = 0;
+
+  if (format === 'v1.1' && tasksContent) {
+    // v1.1: parse from TASKS.md
+    const tasks = parseTaskDetailBlocksV11(tasksContent);
+    taskCount = tasks.length;
+    taskFiles = tasks.map(t => ({ id: t.id, files: t.files }));
+    truthCount = parseTruthsV11(planContent).length;
+  } else if (format === 'v1.0') {
+    // v1.0: parse from PLAN.md XML (D-13)
+    const tasks = parseTasksV10(planContent);
+    taskCount = tasks.length;
+
+    // Extract files from <files> tags
+    const taskRegex = /<task([^>]*)>([\s\S]*?)<\/task>/g;
+    let match;
+    let idx = 0;
+    while ((match = taskRegex.exec(planContent)) !== null) {
+      const attrs = match[1];
+      if (/type\s*=\s*["']checkpoint:/i.test(attrs)) { idx++; continue; }
+      const block = match[2];
+      const filesMatch = block.match(/<files>([\s\S]*?)<\/files>/);
+      taskFiles.push({ id: idx + 1, files: filesMatch ? filesMatch[1].trim() : null });
+      idx++;
+    }
+
+    // Parse truths from frontmatter
+    const fmMatch = planContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    if (fmMatch) {
+      truthCount = parseMustHavesTruths(fmMatch[1]).length;
+    }
+  } else {
+    // v1.1 without tasksContent — use what we can from planContent
+    truthCount = parseTruthsV11(planContent).length;
+    return result; // Can't check task/file counts without tasks
+  }
+
+  // Check 4 dimensions (D-05)
+  if (taskCount > 6) {
+    result.issues.push({
+      message: `Plan co ${taskCount} tasks (threshold: 6)`,
+      location: 'PLAN.md/TASKS.md',
+      fixHint: 'Chia plan thanh nhieu plans nho hon'
+    });
+  }
+
+  // Files per task > 7
+  for (const tf of taskFiles) {
+    const fc = countFilesInString(tf.files);
+    if (fc > 7) {
+      result.issues.push({
+        message: `Task ${tf.id} co ${fc} files (threshold: 7)`,
+        location: `TASKS.md Task ${tf.id}`,
+        fixHint: 'Chia task thanh nhieu tasks nho hon'
+      });
+    }
+  }
+
+  // Total unique files per plan > 25
+  const allFiles = new Set();
+  for (const tf of taskFiles) {
+    if (!tf.files) continue;
+    const items = tf.files.split(/[,\n]/).map(f => f.trim()).filter(Boolean);
+    for (const item of items) allFiles.add(item);
+  }
+  if (allFiles.size > 25) {
+    result.issues.push({
+      message: `Plan co ${allFiles.size} unique files (threshold: 25)`,
+      location: 'PLAN.md/TASKS.md',
+      fixHint: 'Chia plan thanh nhieu plans nho hon'
+    });
+  }
+
+  // Truths per plan > 6
+  if (truthCount > 6) {
+    result.issues.push({
+      message: `Plan co ${truthCount} Truths (threshold: 6)`,
+      location: 'PLAN.md',
+      fixHint: 'Giam so Truths hoac chia plan'
+    });
+  }
+
+  result.status = result.issues.length > 0 ? 'warn' : 'pass';
+  return result;
+}
+
+/**
+ * ADV-03: Effort Classification Validation
+ * Effort classification phai khop voi scope thuc te cua task.
+ * Canh bao mismatch ca 2 chieu (underestimate va overestimate).
+ * Per D-07, D-08, D-09, D-10, D-11, D-12.
+ */
+function checkEffortClassification(planContent, tasksContent) {
+  const result = { checkId: 'ADV-03', status: 'pass', issues: [] };
+  const format = detectPlanFormat(planContent);
+
+  // v1.0/unknown: graceful PASS (D-12 — no Effort field in v1.0)
+  if (format === 'v1.0' || format === 'unknown') return result;
+  if (!tasksContent) return result;
+
+  const tasks = parseTaskDetailBlocksV11(tasksContent);
+  const levels = { simple: 0, standard: 1, complex: 2 };
+
+  for (const task of tasks) {
+    if (!task.effort) continue; // Missing effort handled by CHECK-02
+
+    const actualEffort = computeActualEffort(task, tasksContent);
+    const labeled = task.effort.toLowerCase();
+
+    if (labeled !== actualEffort) {
+      const direction = levels[labeled] < levels[actualEffort] ? 'underestimate' : 'overestimate';
+      result.issues.push({
+        message: `Task ${task.id} effort "${labeled}" co the la ${direction} (signals cho thay "${actualEffort}")`,
+        location: `TASKS.md Task ${task.id}`,
+        fixHint: `Xem xet doi Effort thanh "${actualEffort}" hoac giu nguyen neu co ly do`
+      });
+    }
+  }
+
+  result.status = result.issues.length > 0 ? 'warn' : 'pass';
+  return result;
+}
+
+/**
+ * Chay tat ca 7 checks va aggregate ket qua.
  * overall = 'block' neu bat ky check nao block,
  * 'warn' neu co warn nhung khong block,
  * 'pass' neu tat ca pass.
@@ -608,6 +940,9 @@ function runAllChecks({ planContent, tasksContent, requirementIds }) {
     checkTaskCompleteness(planContent, tasksContent),
     checkDependencyCorrectness(planContent, tasksContent),
     checkTruthTaskCoverage(planContent, tasksContent),
+    checkKeyLinks(planContent, tasksContent),
+    checkScopeThresholds(planContent, tasksContent),
+    checkEffortClassification(planContent, tasksContent),
   ];
 
   const hasBlock = checks.some(c => c.status === 'block');
@@ -627,6 +962,10 @@ module.exports = {
   checkDependencyCorrectness,
   checkTruthTaskCoverage,
   runAllChecks,
+  // New ADV-* check functions
+  checkKeyLinks,
+  checkScopeThresholds,
+  checkEffortClassification,
   // Helpers (exported for unit testing)
   escapeRegex,
   parseRequirements,
@@ -640,4 +979,10 @@ module.exports = {
   findInvalidRefs,
   parseTruthRefs,
   parseTaskDepsV11,
+  // New helpers (exported for unit testing)
+  parseKeyLinksV11,
+  normalizeKeyLinkPath,
+  countFilesInString,
+  detectMultiDomain,
+  computeActualEffort,
 };

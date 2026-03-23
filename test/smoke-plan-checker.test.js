@@ -651,7 +651,7 @@ describe('runAllChecks', () => {
       requirementIds: ['REQ-01']
     });
     assert.equal(result.overall, 'pass');
-    assert.equal(result.checks.length, 4);
+    assert.equal(result.checks.length, 7);
     assert.ok(result.checks.every(c => c.status === 'pass'));
   });
 
