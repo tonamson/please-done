@@ -161,7 +161,9 @@ Cho mỗi deliverable, thiết kế theo loại:
 ### Tầng 1 — Truths
 Đọc mục tiêu (ROADMAP deliverables) + thiết kế (Bước 4). Hỏi: **"Khi phase hoàn tất, điều gì phải TRUE?"**
 - Viết khẳng định kiểm chứng được ("User có thể X" — KHÔNG "Triển khai X")
-- Mỗi Truth có cách kiểm chứng cụ thể
+- Mỗi Truth có **5 cột**: `| # | Sự thật | Giá trị nghiệp vụ | Trường hợp biên | Cách kiểm chứng |`
+  - **Giá trị nghiệp vụ**: tại sao logic tồn tại từ góc nhìn business (VD: "Đảm bảo bảo mật tài khoản")
+  - **Trường hợp biên**: danh sách ngắn edge cases, cách nhau bằng dấu phẩy (VD: "Password sai 5 lần, email trống")
 - Bao phủ happy path + edge cases. Tối thiểu 2, tối đa 7
 ### Tầng 2 — Artifacts
 Từ mỗi Truth suy ngược: **"File/module nào PHẢI tồn tại?"**
@@ -416,7 +418,7 @@ In tóm tắt plan + tasks.
 - DISCUSS: Ngôn ngữ options đơn giản — viết cho người không phải dev
 **Goal-backward (Bước 4.3):**
 - LUÔN thực hiện — KHÔNG bỏ qua
-- Truths dạng khẳng định ("User có thể X" — KHÔNG "Triển khai X"). 2-7 Truths/phase
+- Truths 5 cột (Sự thật + Giá trị nghiệp vụ + Trường hợp biên + Cách kiểm chứng). 2-7 Truths/phase
 - Mỗi Truth có cách kiểm chứng. Mỗi task ≥1 Truth, mỗi Truth ≥1 task
 - "Tiêu chí thành công" BẮT BUỘC trong PLAN.md — nhất quán với ROADMAP
 **Khôi phục:**
