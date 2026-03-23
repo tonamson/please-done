@@ -410,12 +410,9 @@ function inlineWorkflow(body, skillsDir) {
 }
 
 module.exports = {
-  COLORS,
-  colorize,
   log,
   parseFrontmatter,
   buildFrontmatter,
-  assembleMd,
   fileHash,
   listSkillFiles,
   commandExists,
@@ -424,7 +421,6 @@ module.exports = {
   extractXmlSection,
   extractReadingRefs,
   classifyRefs,
-  CONDITIONAL_LOADING_MAP,
   inlineGuardRefs,
   inlineWorkflow,
 };

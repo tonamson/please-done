@@ -1,8 +1,9 @@
 /**
- * Plan Checker Module — 4 structural validators cho PLAN.md + TASKS.md
+ * Plan Checker Module — 7 checks (4 core + 3 advanced) cho PLAN.md + TASKS.md
  *
- * Kiem tra: requirement coverage, task completeness,
- * dependency correctness, Truth-Task coverage.
+ * Kiem tra: requirement coverage (CHECK-01), task completeness (CHECK-02),
+ * dependency correctness (CHECK-03), Truth-Task coverage (CHECK-04),
+ * must_haves derivation (ADV-01), scope sanity (ADV-02), key links planned (ADV-03).
  *
  * Tat ca functions la pure — nhan content, tra ket qua, khong doc file.
  * Rules spec: references/plan-checker.md
