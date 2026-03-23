@@ -138,10 +138,10 @@ Responsive: [mobile khác desktop thế nào]
 
 ### Sự thật phải đạt (Truths)
 <!-- Mỗi dòng = 1 điều PHẢI TRUE khi phase hoàn tất. Khẳng định, kiểm chứng được. -->
-| # | Sự thật | Cách kiểm chứng |
-|---|---------|-----------------|
-| T1 | [VD: User có thể đăng nhập bằng email + password] | [VD: POST /auth/login trả về JWT hợp lệ] |
-| T2 | [VD: Token hết hạn sau 1 giờ] | [VD: JWT decode → exp = iat + 3600] |
+| # | Sự thật | Giá trị nghiệp vụ | Trường hợp biên | Cách kiểm chứng |
+|---|---------|-------------------|-----------------|-----------------|
+| T1 | [VD: User có thể đăng nhập bằng email + password] | [VD: Đảm bảo bảo mật tài khoản] | [VD: Password sai 5 lần, email trống, token hết hạn] | [VD: POST /auth/login trả về JWT hợp lệ] |
+| T2 | [VD: Token hết hạn sau 1 giờ] | [VD: Bảo vệ phiên đăng nhập] | [VD: Token bị tamper, refresh token hết hạn] | [VD: JWT decode → exp = iat + 3600] |
 
 ### Sản phẩm cần có (Artifacts)
 <!-- Files/modules PHẢI tồn tại. Mỗi artifact truy vết về ≥1 Truth. Cột "Kiểm tra tự động" → @references/verification-patterns.md -->

@@ -117,12 +117,16 @@ function parseTasksV10(planContent) {
 }
 
 /**
- * Parse Truths table tu v1.1 PLAN.md.
- * Format: | T1 | [mo ta] | [kiem chung] |
+ * Parse Truths table tu v1.1/v1.3 PLAN.md.
+ * v1.1 format: | T1 | [mo ta] | [kiem chung] |           (3 columns)
+ * v1.3 format: | T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] | (5 columns)
+ * Returns: [{ id, description }] — only id and description needed downstream.
  */
 function parseTruthsV11(planContent) {
   const truths = [];
-  const tableRegex = /\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
+  // Match: | T\d+ | description | ...remaining columns... |
+  // Works for both 3-col and 5-col (and any future column count)
+  const tableRegex = /\|\s*(T\d+)\s*\|\s*([^|\n]+)\s*\|(?:\s*[^|\n]+\s*\|)+/g;
   let match;
   while ((match = tableRegex.exec(planContent)) !== null) {
     truths.push({
@@ -679,26 +683,20 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
     }
   }
 
-  // Direction 2: Task without any Truth -> WARN
-  const warnIssues = [];
-  const truthIds = new Set(truths.map(t => t.id));
+  // Direction 2: Task without any Truth -> BLOCK (was WARN)
+  // Per D-05, D-06: "Khong co Truth = Khong co Code"
   for (const task of tasks) {
     if (task.truths.length === 0) {
-      warnIssues.push({
-        message: `Task ${task.id} khong co Truth nao map (co the la infrastructure task)`,
+      blockIssues.push({
+        message: `Task ${task.id} khong co Truth nao map`,
         location: `TASKS.md Task ${task.id}`,
         fixHint: `Them > Truths: [TX] vao metadata cua Task ${task.id}`
       });
     }
   }
 
-  result.issues.push(...blockIssues, ...warnIssues);
-
-  if (blockIssues.length > 0) {
-    result.status = 'block';
-  } else if (warnIssues.length > 0) {
-    result.status = 'warn';
-  }
+  result.issues.push(...blockIssues);
+  result.status = blockIssues.length > 0 ? 'block' : 'pass';
 
   return result;
 }

@@ -15,7 +15,7 @@ Plan checker ho tro 2 format chinh:
 - Dependencies nam trong frontmatter `depends_on:` field
 
 ### v1.1 Format
-- Truths table dang markdown: `| T1 | [mo ta] | [kiem chung] |`
+- Truths table dang markdown: `| T1 | [mo ta] | [kiem chung] |` (v1.1) hoac `| T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] |` (v1.3)
 - Tasks tach ra file TASKS.md rieng voi summary table va detail blocks
 - Metadata task dung format `> Trang thai: ... | Effort: ...`
 - Truth mapping qua `> Truths: [T1, T2]` trong task detail
@@ -129,17 +129,17 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 - Follows D-10 graceful-skip principle, tranh false positives per D-17
 
 ### v1.1 Format
-- Parse Truths tu PLAN.md Truths table (`| T1 | [mo ta] | [kiem chung] |`)
+- Parse Truths tu PLAN.md Truths table (`| T1 | [mo ta] | [kiem chung] |` v1.1 hoac `| T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] |` v1.3)
 - Parse task Truth refs tu `> Truths: [T1, T2]` metadata trong TASKS.md
 - Check ca hai chieu:
   - Truth khong co task nao map -> BLOCK (success criterion se khong dat duoc)
-  - Task khong co Truth nao map -> WARN (co the la infrastructure/setup task hop le)
+  - Task khong co Truth nao map -> BLOCK (v1.3: "Khong co Truth = Khong co Code")
 
 **Severity:**
 | Dieu kien | Severity |
 |-----------|----------|
-| Truth khong co task nao map (v1.1) | BLOCK |
-| Task khong co Truth nao map (v1.1) | WARN |
+| Truth khong co task nao map (v1.1+) | BLOCK |
+| Task khong co Truth nao map (v1.1+) | BLOCK |
 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
 
 ## 6. ADV-01: Key Links Verification
@@ -279,8 +279,8 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | CHECK-03 | Circular dependency | BLOCK |
 | CHECK-03 | Invalid task/plan reference | BLOCK |
 | CHECK-03 | v1.0 plan-level deps (single-plan context) | PASS (skip) |
-| CHECK-04 | Truth khong co task nao map (v1.1) | BLOCK |
-| CHECK-04 | Task khong co Truth nao map (v1.1) | WARN |
+| CHECK-04 | Truth khong co task nao map (v1.1+) | BLOCK |
+| CHECK-04 | Task khong co Truth nao map (v1.1+) | BLOCK |
 | CHECK-04 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
 | ADV-01 | Key Link path khong co trong bat ky task Files nao | BLOCK |
 | ADV-01 | Khong co task nao touch ca 2 dau cung luc | BLOCK |
