@@ -9,7 +9,7 @@ Requirements for audit and bug fix milestone. Each maps to roadmap phases.
 
 ### Skill Audit
 
-- [ ] **AUDIT-01**: Scan 12 skills tìm logic gaps, dead code, outdated references, stale version mentions
+- [x] **AUDIT-01**: Scan 12 skills tìm logic gaps, dead code, outdated references, stale version mentions
 - [x] **AUDIT-02**: Scan 10 workflows tìm logic gaps, missing error handling, stale instructions, broken step references
 - [ ] **AUDIT-03**: Verify converter snapshots sync với source files — tất cả 48 snapshots phải match source hiện tại
 
@@ -48,7 +48,7 @@ Deferred to future release.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUDIT-01 | Phase 14 | Pending |
+| AUDIT-01 | Phase 14 | Complete |
 | AUDIT-02 | Phase 14 | Complete |
 | AUDIT-03 | Phase 14 | Pending |
 | WFLOW-01 | Phase 15 | Pending |

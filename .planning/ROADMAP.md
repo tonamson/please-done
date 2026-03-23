@@ -59,7 +59,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 **Plans**: TBD
 
 Plans:
-- [ ] 14-01: TBD
+- [x] 14-01: TBD
 - [x] 14-02: TBD
 - [ ] 14-03: TBD
 
@@ -115,6 +115,6 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 11. Workflow Integration | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
-| 14. Skill & Workflow Audit | v1.2 | 1/3 | In Progress|  |
+| 14. Skill & Workflow Audit | v1.2 | 2/3 | In Progress|  |
 | 15. Workflow Verification | v1.2 | 0/? | Not started | - |
 | 16. Bug Fixes | v1.2 | 0/? | Not started | - |
