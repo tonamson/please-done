@@ -4,6 +4,7 @@
 
 - ✅ **v1.0 Workflow Optimization** — Phases 1-9 (shipped 2026-03-22)
 - ✅ **v1.1 Plan Checker** — Phases 10-13 (shipped 2026-03-23)
+- 🚧 **v1.2 Skill Audit & Bug Fixes** — Phases 14-16 (in progress)
 
 ## Phases
 
@@ -36,7 +37,68 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 
 </details>
 
+### 🚧 v1.2 Skill Audit & Bug Fixes (In Progress)
+
+**Milestone Goal:** Audit toan dien bo skill/workflow hien tai, tim va fix loi tiem an, verify logic gaps trong cac workflow chinh
+
+- [ ] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues
+- [ ] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end
+- [ ] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15
+
+## Phase Details
+
+### Phase 14: Skill & Workflow Audit
+**Goal**: Moi skill, workflow, va converter snapshot duoc scan ky luong — tat ca logic gaps, dead code, outdated references, va sync issues duoc ghi nhan day du
+**Depends on**: Phase 13 (v1.1 complete)
+**Requirements**: AUDIT-01, AUDIT-02, AUDIT-03
+**Success Criteria** (what must be TRUE):
+  1. Tat ca 12 skill files da duoc scan va moi logic gap, dead code, outdated reference duoc ghi nhan trong audit report
+  2. Tat ca 10 workflow files da duoc scan va moi logic gap, missing error handling, stale instruction, broken step reference duoc ghi nhan
+  3. Tat ca 48 converter snapshots da duoc verify match voi source files hien tai — moi mismatch duoc ghi nhan cu the (file, line, diff)
+  4. Audit report ton tai voi danh sach day du cac issues phat hien, phan loai theo severity (critical/warning/info)
+**Plans**: TBD
+
+Plans:
+- [ ] 14-01: TBD
+- [x] 14-02: TBD
+- [ ] 14-03: TBD
+
+### Phase 15: Workflow Verification
+**Goal**: 3 workflow chinh (new-milestone, write-code, fix-bug) duoc verify end-to-end — moi buoc logic duoc kiem tra, moi gap duoc ghi nhan
+**Depends on**: Phase 14
+**Requirements**: WFLOW-01, WFLOW-02, WFLOW-03
+**Success Criteria** (what must be TRUE):
+  1. Workflow new-milestone da duoc trace end-to-end: init context -> questioning -> research spawn -> requirements definition -> roadmap creation -> state updates — moi buoc logic verified hoac gap ghi nhan
+  2. Workflow write-code da duoc trace end-to-end: plan reading -> task execution -> effort routing -> Context7 pipeline -> commit flow -> verification — moi buoc logic verified hoac gap ghi nhan
+  3. Workflow fix-bug da duoc trace end-to-end: bug reproduction -> diagnosis -> fix application -> test verification -> commit flow — moi buoc logic verified hoac gap ghi nhan
+  4. Verification report ton tai voi ket qua cua tung workflow, list ro cac logic gaps can fix
+**Plans**: TBD
+
+Plans:
+- [ ] 15-01: TBD
+- [ ] 15-02: TBD
+- [ ] 15-03: TBD
+
+### Phase 16: Bug Fixes
+**Goal**: Tat ca bugs phat hien tu audit (Phase 14) va verification (Phase 15) duoc fix — khong con known issues nao bi bo qua
+**Depends on**: Phase 14, Phase 15
+**Requirements**: BFIX-01, BFIX-02, BFIX-03
+**Success Criteria** (what must be TRUE):
+  1. Tat ca logic gaps tu skill audit (AUDIT-01, AUDIT-02) da duoc fix — code thuc te da thay doi, khong chi la report
+  2. Tat ca converter snapshot sync issues (AUDIT-03) da duoc fix — chay lai snapshot verification cho ket qua 48/48 match
+  3. Tat ca logic gaps tu workflow verification (WFLOW-01, WFLOW-02, WFLOW-03) da duoc fix — workflow logic da duoc sua trong source files
+  4. Existing test suites (443+ tests) van pass sau khi fix — khong co regression
+**Plans**: TBD
+
+Plans:
+- [ ] 16-01: TBD
+- [ ] 16-02: TBD
+- [ ] 16-03: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 14 -> 15 -> 16
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -53,3 +115,6 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 | 11. Workflow Integration | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
+| 14. Skill & Workflow Audit | v1.2 | 1/3 | In Progress|  |
+| 15. Workflow Verification | v1.2 | 0/? | Not started | - |
+| 16. Bug Fixes | v1.2 | 0/? | Not started | - |

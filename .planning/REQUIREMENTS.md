@@ -1,29 +1,29 @@
-# Requirements: Please-Done Plan Checker
+# Requirements: Please-Done Skill Audit & Bug Fixes
 
-**Defined:** 2026-03-22
+**Defined:** 2026-03-23
 **Core Value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
-## v1.1 Requirements
+## v1.2 Requirements
 
-Requirements for plan checker milestone. Each maps to roadmap phases.
+Requirements for audit and bug fix milestone. Each maps to roadmap phases.
 
-### Core Checks
+### Skill Audit
 
-- [x] **CHECK-01**: Plan checker kiểm tra mỗi requirement trong ROADMAP có ít nhất 1 task cover
-- [x] **CHECK-02**: Plan checker kiểm tra mỗi task có đủ required fields (description, criteria, Truths, Files, Effort)
-- [x] **CHECK-03**: Plan checker phát hiện circular dependencies và references không hợp lệ trong TASKS.md
-- [x] **CHECK-04**: Plan checker kiểm tra bidirectional Truth-Task coverage (mỗi Truth có task, mỗi task có Truth)
+- [ ] **AUDIT-01**: Scan 12 skills tìm logic gaps, dead code, outdated references, stale version mentions
+- [x] **AUDIT-02**: Scan 10 workflows tìm logic gaps, missing error handling, stale instructions, broken step references
+- [ ] **AUDIT-03**: Verify converter snapshots sync với source files — tất cả 48 snapshots phải match source hiện tại
 
-### Integration
+### Workflow Verification
 
-- [x] **INTG-01**: Plan checker trả kết quả PASS/ISSUES FOUND với danh sách blockers/warnings có actionable fix hints
-- [x] **INTG-02**: Plan checker tự động chạy sau khi tạo PLAN.md + TASKS.md trong workflow plan.md
+- [ ] **WFLOW-01**: Verify workflow new-milestone end-to-end — init context, questioning, research spawn, requirements definition, roadmap creation, state updates
+- [ ] **WFLOW-02**: Verify workflow write-code end-to-end — plan reading, task execution, effort routing, Context7 pipeline, commit flow, verification
+- [ ] **WFLOW-03**: Verify workflow fix-bug end-to-end — bug reproduction, diagnosis, fix application, test verification, commit flow
 
-### Advanced Checks
+### Bug Fixes
 
-- [x] **ADV-01**: Plan checker kiểm tra Key Links trong PLAN.md được phản ánh trong task descriptions
-- [x] **ADV-02**: Plan checker cảnh báo khi plan vượt scope thresholds (tasks/phase, files/task)
-- [x] **ADV-03**: Plan checker kiểm tra effort classification khớp với scope thực tế của task
+- [ ] **BFIX-01**: Fix tất cả logic gaps phát hiện từ skill audit (AUDIT-01, AUDIT-02)
+- [ ] **BFIX-02**: Fix tất cả sync issues phát hiện từ snapshot audit (AUDIT-03)
+- [ ] **BFIX-03**: Fix tất cả logic gaps phát hiện từ workflow verification (WFLOW-01, WFLOW-02, WFLOW-03)
 
 ## v2 Requirements
 
@@ -31,40 +31,38 @@ Deferred to future release.
 
 ### Verification Quality
 
-- **VQUAL-01**: Plan checker kiểm tra Truths dạng user-observable ("User can X"), không implementation-focused
-- **VQUAL-02**: Plan checker kiểm tra mỗi Artifact có "Kiểm tra tự động" criteria
+- **VQUAL-01**: Plan checker kiểm tra Truths dạng user-observable, không implementation-focused
+- **VQUAL-02**: Plan checker kiểm tra mỗi Artifact có kiểm tra tự động criteria
 - **VQUAL-03**: Plan checker kiểm tra design decisions được phản ánh trong task descriptions
 
 ## Out of Scope
 
 | Feature | Reason |
 |---------|--------|
-| Code-level verification | Plan checker chỉ kiểm tra plan documents, không kiểm tra code (đó là việc của write-code) |
-| LLM-as-judge review | Plan đã trong context LLM, gọi LLM khác review là circular và tốn token |
-| Interactive planner-checker loop | Please-done chạy single session, re-plan đã có Step 1.5 |
-| Cross-plan data contracts | Please-done dùng single plan per phase, không có cross-plan |
-| Nyquist compliance | Tests là workflow riêng (/pd:test), không embedded trong plan |
-| Standalone /pd:check-plan command | Embed trong plan workflow, extract sau nếu cần |
+| New skill creation | Milestone này audit existing, không tạo mới |
+| New platform targets | Focus on quality, không mở rộng |
+| Performance optimization | Audit focus, performance nếu cần sẽ là milestone riêng |
+| Plan checker improvements | v1.1 just shipped, stabilize trước khi mở rộng |
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CHECK-01 | Phase 10 | Complete |
-| CHECK-02 | Phase 10 | Complete |
-| CHECK-03 | Phase 10 | Complete |
-| CHECK-04 | Phase 10 | Complete |
-| INTG-01 | Phase 11 | Complete |
-| INTG-02 | Phase 11 | Complete |
-| ADV-01 | Phase 12 | Complete |
-| ADV-02 | Phase 12 | Complete |
-| ADV-03 | Phase 12 | Complete |
+| AUDIT-01 | Phase 14 | Pending |
+| AUDIT-02 | Phase 14 | Complete |
+| AUDIT-03 | Phase 14 | Pending |
+| WFLOW-01 | Phase 15 | Pending |
+| WFLOW-02 | Phase 15 | Pending |
+| WFLOW-03 | Phase 15 | Pending |
+| BFIX-01 | Phase 16 | Pending |
+| BFIX-02 | Phase 16 | Pending |
+| BFIX-03 | Phase 16 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 9 total
-- Mapped to phases: 9
+- v1.2 requirements: 9 total
+- Mapped to phases: 9/9
 - Unmapped: 0
 
 ---
-*Requirements defined: 2026-03-22*
-*Last updated: 2026-03-22 after roadmap creation*
+*Requirements defined: 2026-03-23*
+*Last updated: 2026-03-23 after roadmap creation*
