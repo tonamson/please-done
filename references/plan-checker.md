@@ -293,5 +293,3 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | ADV-03 | v1.0/unknown format | PASS (graceful) |
 
 ---
-*Plan Checker Rules v1.1*
-*Updated: 23_03_2026*

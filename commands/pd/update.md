@@ -33,6 +33,7 @@ Người dùng nhập: $ARGUMENTS
 
 <execution_context>
 Không có -- skill này xử lý trực tiếp, không dùng workflow riêng.
+<!-- Audit 2026-03-23: Intentional -- self-contained skill without workflow (lightweight/utility pattern). See Phase 14 Audit I2. -->
 </execution_context>
 
 <process>

@@ -16,6 +16,7 @@
 **Quy tắc cập nhật:**
 - Cập nhật CẢ HAI: (1) bảng Tổng quan (cột Trạng thái), (2) task detail block (`> Trạng thái:`)
 - Đánh ✅ TRƯỚC commit. Commit fail → revert 🔄, sửa rồi thử lại
+(Ap dung cho /pd:write-code. Cac workflow khac (fix-bug) co logic rieng -- vd fix-bug update TASKS.md sau user confirm.)
 - 🐛 chỉ khi có test fail hoặc bug report mở
 
 ## Quy tắc version

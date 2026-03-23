@@ -1,3 +1,4 @@
+<!-- Audit 2026-03-23: Intentional -- simple conventions workflow without numbered steps (data-driven, not procedural). See Phase 14 Audit I7. -->
 Phân tích dự án, phát hiện quy ước lập trình từ code, hỏi user ưu tiên riêng, tạo/cập nhật CLAUDE.md.
 
 <context>

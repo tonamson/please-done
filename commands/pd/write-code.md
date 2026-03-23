@@ -11,6 +11,7 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
+<!-- Audit 2026-03-23: Intentional -- Agent tool required for --parallel mode multi-agent execution. See Phase 14 Audit I4. -->
   - AskUserQuestion
   - mcp__fastcode__code_qa
   - mcp__context7__resolve-library-id
