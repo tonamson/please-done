@@ -967,11 +967,83 @@ describe('ADV-01: checkKeyLinks', () => {
     const result = pc.checkKeyLinks(plan, tasks);
     assert.equal(result.status, 'pass');
   });
+
+  it('unknown format -> PASS', () => {
+    const result = pc.checkKeyLinks('just text', null);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('v1.1 all Key Links valid (both paths in same task) -> PASS (via helper)', () => {
+    const plan = makePlanV11WithKeyLinks({ keyLinks: [
+      { from: 'src/auth.controller.ts', to: 'src/auth.service.ts', desc: 'Controller calls service' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Auth task', effort: 'standard',
+        files: 'src/auth.controller.ts, src/auth.service.ts',
+        truths: '[T1]', desc: 'Build auth', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('Key Link to path not in any task Files -> BLOCK (D-01)', () => {
+    const plan = makePlanV11WithKeyLinks({ keyLinks: [
+      { from: 'src/auth.controller.ts', to: 'src/missing.ts', desc: 'Missing to' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Auth task', effort: 'standard',
+        files: 'src/auth.controller.ts',
+        truths: '[T1]', desc: 'Build auth', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'block');
+    assert.ok(result.issues.some(i => i.message.includes('missing.ts')));
+  });
+
+  it('no task touches both ends simultaneously -> BLOCK via helper (D-02)', () => {
+    const plan = makePlanV11WithKeyLinks({ keyLinks: [
+      { from: 'src/controller.ts', to: 'src/service.ts', desc: 'Controller calls service' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Controller task', effort: 'standard',
+        files: 'src/controller.ts',
+        truths: '[T1]', desc: 'Build controller', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend' },
+      { id: 2, name: 'Service task', effort: 'standard',
+        files: 'src/service.ts',
+        truths: '[T2]', desc: 'Build service', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'block');
+    assert.ok(result.issues.some(i => i.message.includes('ca 2 dau') || i.message.includes('both')));
+  });
+
+  it('path normalization strips parenthetical suffix', () => {
+    const plan = makePlanV11WithKeyLinks({ keyLinks: [
+      { from: 'workflows/plan.md (Step 8.1)', to: 'bin/lib/plan-checker.js', desc: 'Step calls checker' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Integration', effort: 'standard',
+        files: 'workflows/plan.md, bin/lib/plan-checker.js',
+        truths: '[T1]', desc: 'Wire up', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'pass', `Expected pass but got ${result.status}: ${JSON.stringify(result.issues)}`);
+  });
 });
 
 // ─── ADV-02: checkScopeThresholds ──────────────────────
 
 describe('ADV-02: checkScopeThresholds', () => {
+  it('unknown format -> PASS', () => {
+    const result = pc.checkScopeThresholds('just text', null);
+    assert.equal(result.status, 'pass');
+  });
+
   it('returns PASS when all dimensions within thresholds', () => {
     const plan = makePlanV11();
     const tasks = makeTasksV11();
@@ -1057,6 +1129,11 @@ describe('ADV-02: checkScopeThresholds', () => {
 // ─── ADV-03: checkEffortClassification ──────────────────
 
 describe('ADV-03: checkEffortClassification', () => {
+  it('unknown format -> PASS', () => {
+    const result = pc.checkEffortClassification('just text', null);
+    assert.equal(result.status, 'pass');
+  });
+
   it('returns PASS for v1.0 format (D-12)', () => {
     const plan = makePlanV10();
     const result = pc.checkEffortClassification(plan, null);
@@ -1106,6 +1183,32 @@ describe('ADV-03: checkEffortClassification', () => {
     ]});
     const plan = makePlanV11();
     const result = pc.checkEffortClassification(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('multi-domain files makes actual complex even with few files (D-09)', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', effort: 'simple',
+        files: 'bin/a.js, references/b.md', truths: '[T1]', dep: 'Khong',
+        desc: 'Cross domain', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', type: 'Backend' }
+    ]});
+    const result = pc.checkEffortClassification(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('underestimate')));
+  });
+
+  it('task without effort field -> skip (handled by CHECK-02)', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot',
+        files: 'a.js, b.js, c.js, d.js, e.js', truths: '[T1]', dep: 'Khong',
+        desc: 'No effort', criteria: '- ok',
+        status: '\u2B1C', priority: 'Cao', type: 'Backend' }
+    ]});
+    const result = pc.checkEffortClassification(plan, tasks);
+    // No effort field -> skip this task, no mismatch issue
     assert.equal(result.status, 'pass');
   });
 });
@@ -1181,7 +1284,21 @@ describe('Historical v1.0 plan validation (D-17)', () => {
     });
   }
 
-  // Summary gate test
+  // Verify all 22 plans return 7 checks each (expanded suite)
+  it('all 22 historical plans return 7 checks each (expanded suite)', () => {
+    for (const planPath of HISTORICAL_PLANS) {
+      const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
+      const result = pc.runAllChecks({
+        planContent: content,
+        tasksContent: null,
+        requirementIds: []
+      });
+      assert.equal(result.checks.length, 7,
+        `${planPath} returned ${result.checks.length} checks instead of 7`);
+    }
+  });
+
+  // Summary gate test — 7 checks per plan, zero blocks
   it('all 22 historical plans produce zero block results (D-17 gate)', () => {
     let totalBlocks = 0;
     const failures = [];
