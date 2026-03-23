@@ -42,7 +42,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 **Milestone Goal:** Audit toan dien bo skill/workflow hien tai, tim va fix loi tiem an, verify logic gaps trong cac workflow chinh
 
 - [x] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues (completed 2026-03-23)
-- [ ] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end
+- [x] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end (completed 2026-03-23)
 - [x] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15 (completed 2026-03-23)
 
 ## Phase Details
@@ -77,7 +77,7 @@ Plans:
 Plans:
 - [x] 15-01-PLAN.md — Trace fix-bug (WFLOW-03): tao report skeleton + verify workflow don gian nhat
 - [x] 15-02-PLAN.md — Trace new-milestone (WFLOW-01): verify 14 references, 2 approval gates, data flow
-- [ ] 15-03-PLAN.md — Trace write-code (WFLOW-02): verify 3 modes + hoan tat report (Executive Summary, Issue Registry)
+- [x] 15-03-PLAN.md — Trace write-code (WFLOW-02): verify 3 modes + hoan tat report (Executive Summary, Issue Registry)
 
 ### Phase 16: Bug Fixes
 **Goal**: Tat ca bugs phat hien tu audit (Phase 14) va verification (Phase 15) duoc fix — khong con known issues nao bi bo qua
@@ -116,5 +116,5 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete    | 2026-03-23 |
-| 15. Workflow Verification | v1.2 | 2/3 | In Progress|  |
+| 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
 | 16. Bug Fixes | v1.2 | 0/? | Not started | - |
