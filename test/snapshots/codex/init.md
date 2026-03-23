@@ -1,6 +1,6 @@
 ---
 name: pd-init
-description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo context gọn cho các skill sau
+description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo ngữ cảnh gọn cho các skill sau
 ---
 <codex_skill_adapter>
 ## Cách gọi skill này
@@ -22,18 +22,18 @@ Khi user gọi `$pd-init {{args}}`, thực hiện toàn bộ instructions bên d
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules phù hợp.
+Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo `CONTEXT.md` và sao chép các rule phù hợp.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 </guards>
 <context>
-User input: {{GSD_ARGS}} (path dự án, mặc định thư mục hiện tại)
-Rules templates: `.pdconfig` -> `SKILLS_DIR` -> rules tại `[SKILLS_DIR]/commands/pd/rules/`:
-- `general.md` -- luôn copy
-- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- copy nếu phát hiện stack tương ứng
+Người dùng nhập: {{GSD_ARGS}} (đường dẫn dự án, mặc định là thư mục hiện tại)
+Mẫu quy tắc: `.pdconfig` -> `SKILLS_DIR` -> các file tại `[SKILLS_DIR]/commands/pd/rules/`:
+- `general.md` -- luôn sao chép
+- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- sao chép nếu phát hiện stack tương ứng
 </context>
 <process>
 ## Bước 1: Xác định đường dẫn dự án
@@ -128,21 +128,21 @@ Copy từ `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:
 ```
 </process>
 <output>
-**Tao/Cap nhat:**
-- `.planning/CONTEXT.md` -- project context
-- `.planning/rules/*.md` -- framework rules (conditional)
-**Buoc tiep theo:** `$pd-scan` hoac `$pd-plan`
-**Thanh cong khi:**
-- CONTEXT.md day du thong tin tech stack
-- FastCode MCP xac nhan ket noi
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Khong phat hien tech stack -> user them thong tin thu cong
+**Tạo/Cập nhật:**
+- `.planning/CONTEXT.md` -- ngữ cảnh dự án
+- `.planning/rules/*.md` -- quy tắc theo framework tương ứng
+**Bước tiếp theo:** `$pd-scan` hoặc `$pd-plan`
+**Thành công khi:**
+- `CONTEXT.md` có đầy đủ thông tin về tech stack
+- FastCode MCP xác nhận đã kết nối
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
+- Không phát hiện được tech stack -> người dùng bổ sung thủ công
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI xac nhan FastCode MCP ket noi truoc khi thuc hien bat ky buoc nao
-- KHONG duoc thay doi file ngoai .planning/
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI xác nhận FastCode MCP đã kết nối trước khi thực hiện bất kỳ bước nào
+- KHÔNG được thay đổi file ngoài `.planning/`
 - CONTEXT.md DƯỚI 50 dòng — chỉ info dự án
 - Coding rules riêng `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/pd/rules/` (path từ `.pdconfig`)
 - Chỉ copy rules phù hợp tech stack (hasNestJS/hasNextJS/hasWordPress/hasSolidity/hasFlutter)

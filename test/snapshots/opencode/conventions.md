@@ -10,14 +10,14 @@ tools:
   - AskUserQuestion
 ---
 <objective>
-Phân tích dự án, phát hiện coding conventions, hỏi user ưu tiên, tạo/cập nhật CLAUDE.md.
+Phân tích dự án, phát hiện quy ước code, hỏi ưu tiên của người dùng, rồi tạo hoặc cập nhật `CLAUDE.md`.
 </objective>
 <guards>
-Khong co dieu kien tien quyet nghiem ngat. Skill nay co the chay bat ky luc nao.
-- [ ] Thu muc du an co source code -> "Thu muc trong hoac khong co source code de phan tich."
+Không có điều kiện tiên quyết nghiêm ngặt. Skill này có thể chạy bất kỳ lúc nào.
+- [ ] Thư mục dự án có source code -> "Thư mục trống hoặc không có source code để phân tích."
 </guards>
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 </context>
 <process>
 ## Bước 1: Kiểm tra CLAUDE.md hiện có
@@ -74,20 +74,20 @@ Quy tắc: CHỈ viết thứ AI không tự suy ra. KHÔNG lặp kiến thức 
 ```
 </process>
 <output>
-**Tao/Cap nhat:**
-- `CLAUDE.md` -- quy uoc code cua du an
-**Buoc tiep theo:** `/pd-plan` hoac `/pd-write-code`
-**Thanh cong khi:**
-- CLAUDE.md bao gom: naming conventions, code style, patterns
-- User xac nhan noi dung
-**Loi thuong gap:**
-- Du an khong co source code -> khong the phan tich
-- User khong dong y -> cho phep chinh sua thu cong
+**Tạo/Cập nhật:**
+- `CLAUDE.md` -- quy ước code của dự án
+**Bước tiếp theo:** `/pd-plan` hoặc `/pd-write-code`
+**Thành công khi:**
+- `CLAUDE.md` bao gồm quy ước đặt tên, phong cách code và pattern đang dùng
+- Người dùng xác nhận nội dung
+**Lỗi thường gặp:**
+- Dự án không có source code -> không thể phân tích
+- Người dùng không đồng ý -> cho phép chỉnh sửa thủ công
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI hoi user ve uu tien ca nhan truoc khi tao CLAUDE.md
-- CLAUDE.md PHAI phan anh thuc te code hien tai, khong ap dat quy uoc moi
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI hỏi người dùng về ưu tiên cá nhân trước khi tạo `CLAUDE.md`
+- `CLAUDE.md` PHẢI phản ánh thực tế code hiện tại, không áp đặt quy ước mới
 - CLAUDE.md DƯỚI 50 dòng — ngắn gọn, chỉ conventions riêng
 - KHÔNG viết tutorial/giải thích framework
 - KHÔNG lặp nội dung `.planning/rules/`

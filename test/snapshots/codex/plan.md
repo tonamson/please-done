@@ -22,26 +22,26 @@ Khi user gọi `$pd-plan {{args}}`, thực hiện toàn bộ instructions bên d
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Research dự án, thiết kế giải pháp kỹ thuật, chia tasks cụ thể.
-`--auto` (mặc định): Claude tự quyết | `--discuss`: thảo luận tương tác, user chọn
+Nghiên cứu dự án, thiết kế giải pháp kỹ thuật và phân chia công việc cụ thể.
+`--auto` (mặc định): AI tự quyết định toàn bộ | `--discuss`: thảo luận tương tác, người dùng chọn phương án.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
-- [ ] `.planning/ROADMAP.md` ton tai -> "Chay `$pd-new-milestone` truoc."
-- [ ] `.planning/CURRENT_MILESTONE.md` ton tai -> "Thieu CURRENT_MILESTONE.md. Chay `$pd-new-milestone` de tao."
+- [ ] `.planning/ROADMAP.md` tồn tại -> "Chạy `$pd-new-milestone` trước."
+- [ ] `.planning/CURRENT_MILESTONE.md` tồn tại -> "Thiếu CURRENT_MILESTONE.md. Chạy `$pd-new-milestone` để tạo."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
 </guards>
 <context>
-User input: {{GSD_ARGS}}
-- `--discuss` -> DISCUSS | mặc định/`--auto` -> AUTO | cả hai -> ưu tiên `--discuss`
-- Phần còn lại = thông tin phase/deliverable
+Dữ liệu nhập: {{GSD_ARGS}}
+- `--discuss` -> Chế độ thảo luận | mặc định/`--auto` -> Chế độ tự động | cả hai -> ưu tiên thảo luận.
+- Phần còn lại = thông tin giai đoạn (phase)/kết quả bàn giao (deliverable).
 Đọc thêm:
-- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
-- `.planning/rules/general.md` -> quy tắc chung
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo stack (CHỈ nếu tồn tại)
+- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc dự án.
+- `.planning/rules/general.md` -> quy tắc chung.
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo công nghệ (CHỈ nếu tồn tại).
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -262,6 +262,105 @@ Theo [SKILLS_DIR]/templates/tasks.md. Sắp xếp theo [SKILLS_DIR]/references/p
 - CHỈ cập nhật Phase + Kế hoạch nếu CURRENT_MILESTONE phase cũng đổi (tránh desync)
 **ROADMAP.md:** milestone `⬜` → `🔄`
 ---
+## Bước 8.1: Kiểm tra plan
+> Plan checker tự động — chạy sau tracking update (Bước 8), trước git commit (Bước 8.5).
+> Module: `bin/lib/plan-checker.js` (Phase 10). Step này KHÔNG tạo code mới — chỉ gọi API và xử lý kết quả.
+### A. Chuẩn bị dữ liệu
+1. Đọc `PLAN.md` từ `.planning/milestones/[version]/phase-[phase]/PLAN.md` (đã tạo Bước 6)
+2. Đọc `TASKS.md` từ `.planning/milestones/[version]/phase-[phase]/TASKS.md` (đã tạo Bước 7)
+3. Parse requirement IDs từ `ROADMAP.md`: tìm section phase hiện tại, trích `**Requirements**:` line → tách bằng dấu phẩy thành mảng. Nếu field không tồn tại → dùng mảng rỗng `[]`
+4. Gọi `runAllChecks({ planContent, tasksContent, requirementIds })` từ `bin/lib/plan-checker.js`
+### B. Kết quả PASS (D-01)
+Khi `result.overall === 'pass'` — hiển thị summary table rồi tiếp tục Bước 8.5:
+```markdown
+### Kiểm tra plan
+| Check | Kết quả |
+|-------|---------|
+| CHECK-01: Requirement Coverage | PASS |
+| CHECK-02: Task Completeness | PASS |
+| CHECK-03: Dependency Correctness | PASS |
+| CHECK-04: Truth-Task Coverage | PASS |
+**Kết quả: PASS** — Plan đạt chất lượng, tiếp tục commit.
+```
+### C. Kết quả ISSUES FOUND (D-02, D-03, D-04)
+Khi `result.overall === 'block'` hoặc `result.overall === 'warn'` — hiển thị report:
+```markdown
+### Kiểm tra plan
+**Kết quả: ISSUES FOUND**
+#### CHECK-01: Requirement Coverage — [STATUS]
+- [issue.message cho từng issue]
+#### CHECK-02: Task Completeness — [STATUS]
+- [issue.message cho từng issue]
+```
+Quy tắc:
+- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### CHECK-0N: [Tên] — PASS` (D-02)
+- **Chỉ hiển thị `issue.message`** — KHÔNG hiển thị `issue.fixHint` (fixHint dùng nội bộ khi Claude auto-fix) (D-03)
+- **Tối đa 10 issues** hiển thị. Nếu tổng issues > 10, hiển thị 10 đầu tiên rồi ghi `+ [N] issues khác` ở cuối (D-04)
+### D. Lựa chọn của user (D-07, D-08)
+**Trước khi hiển thị lựa chọn**, kiểm tra cảnh báo tích lũy (D-13):
+- Đọc STATE.md section "Bối cảnh tích lũy", đếm entries khớp pattern `[Phase * Plan Check]: Plan * proceed with * warnings` trong milestone hiện tại
+- Nếu >= 3 entries:
+  ```markdown
+  > Lưu ý: [N] plans gần đây đều có warnings được proceed. Review lại chất lượng plan nếu cần.
+  ```
+  Đây là thông tin — KHÔNG block hoặc thay đổi options.
+Sau khi hiển thị ISSUES FOUND report, **LUÔN hỏi user** — kể cả khi chỉ có WARN (D-07):
+```
+request_user_input({
+  questions: [{
+    question: "Plan có issues. Bạn muốn xử lý thế nào?",
+    header: "Kiểm tra plan",
+    multiSelect: false,
+    options: [
+      { label: "Fix (Đề xuất)", description: "Claude tự động sửa issues và kiểm tra lại" },
+      { label: "Proceed with warnings", description: "Bỏ qua issues, tiếp tục commit" },
+      { label: "Cancel", description: "Giữ plan trên disk, ghi note vào STATE.md" }
+    ]
+  }]
+})
+```
+### E. Fix path (D-05, D-06)
+Khi user chọn "Fix":
+1. Claude đọc tất cả issues (bao gồm `fixHint` từ result) và tự sửa trực tiếp vào PLAN.md và/hoặc TASKS.md (D-05)
+2. Sau khi sửa, re-run `runAllChecks` với nội dung đã cập nhật (D-06)
+3. Nếu pass → hiển thị PASS report (mục B) → tiếp tục Bước 8.5
+4. Nếu vẫn có issues → hiển thị ISSUES FOUND report (mục C) → hỏi user lại (mục D)
+5. **Tối đa 3 lần re-run**. Sau lần fix thứ 3 vẫn fail → gợi ý Cancel (Claude discretion)
+### F. Proceed path — chỉ WARN (D-12)
+Khi user chọn "Proceed with warnings" và `result.overall === 'warn'` (không có BLOCK):
+1. Ghi acknowledged warnings vào STATE.md section "Bối cảnh tích lũy" > Quyết định:
+   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] warnings acknowledged: [danh sách check + tóm tắt issue]`
+2. Tiếp tục Bước 8.5
+### G. Proceed path — có BLOCK (D-09, D-10)
+Khi user chọn "Proceed with warnings" và result chứa BLOCK issues:
+1. Hiển thị xác nhận riêng (D-09):
+```
+request_user_input({
+  questions: [{
+    question: "Plan có BLOCK issues. Xác nhận force proceed?",
+    header: "Cảnh báo: BLOCK issues",
+    multiSelect: false,
+    options: [
+      { label: "Force proceed", description: "Bỏ qua BLOCK issues — sẽ ghi audit vào STATE.md" },
+      { label: "Quay lại (Đề xuất)", description: "Chọn lại: Fix hoặc Cancel" }
+    ]
+  }]
+})
+```
+2. "Quay lại" → quay về lựa chọn mục D
+3. "Force proceed" → ghi BLOCK audit vào STATE.md "Bối cảnh tích lũy" > Quyết định (D-10):
+   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] BLOCK overrides: [danh sách check + tóm tắt issue]`
+4. Nếu có cả WARN → ghi thêm WARN acknowledgments (D-12)
+5. Tiếp tục Bước 8.5
+### H. Cancel path (D-11)
+Khi user chọn "Cancel":
+1. Giữ PLAN.md + TASKS.md trên disk — KHÔNG xóa (D-11)
+2. Ghi cancel note vào STATE.md "Bối cảnh tích lũy" > Quyết định:
+   `- [Phase [N] Plan Check]: Plan [phase]-[plan] cancelled — [count] BLOCK issues, [count] WARN issues found`
+3. **DỪNG workflow** — KHÔNG tiếp tục Bước 8.5 hoặc Bước 9
+### I. Re-plan (Claude discretion)
+Bước 8.1 chạy giống nhau bất kể plan được tạo mới hay load từ disk qua Bước 1.5 "Giữ nguyên". Checker là idempotent. Nếu plan giữ nguyên và đã kiểm tra trước đó, kết quả sẽ giống. Không cần xử lý đặc biệt.
+---
 ## Bước 8.5: Git commit (CHỈ nếu có git)
 ```bash
 git add .planning/milestones/[version]/phase-[phase]/RESEARCH.md 2>/dev/null
@@ -287,25 +386,25 @@ In tóm tắt plan + tasks.
   ```
 </process>
 <output>
-**Tao/Cap nhat:**
+**Tạo/Cập nhật:**
 - `.planning/milestones/[version]/phase-[phase]/RESEARCH.md`
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md`
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md`
-**Buoc tiep theo:** `$pd-write-code`
-**Thanh cong khi:**
-- Plan bao phu tat ca requirements cua phase
-- Tasks cu the, co the thuc hien tung cai
-- Research du context cho implementation
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Thieu ROADMAP.md -> chay `$pd-new-milestone` truoc
-- Phase khong ton tai trong ROADMAP -> kiem tra lai so phase
+**Bước tiếp theo:** `$pd-write-code`
+**Thành công khi:**
+- Kế hoạch bao phủ tất cả yêu cầu của giai đoạn.
+- Các công việc (tasks) đủ cụ thể để thực hiện.
+- Phần nghiên cứu cung cấp đủ bối cảnh cho việc triển khai.
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra dịch vụ đang chạy.
+- Thiếu `ROADMAP.md` -> chạy `$pd-new-milestone` trước.
+- Giai đoạn không tồn tại trong `ROADMAP` -> kiểm tra lại số thứ tự phase.
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Ton trong che do --auto/--discuss: auto khong hoi, discuss liet ke options
-- KHONG viet code trong buoc plan -- chi thiet ke va chia tasks
-- Research PHAI kiem tra thu vien hien co truoc khi de xuat them dependency moi
+- Mọi kết quả đầu ra PHẢI bằng tiếng Việt có dấu.
+- Tuân thủ chế độ `--auto`/`--discuss`: `auto` không hỏi, `discuss` liệt kê lựa chọn cho người dùng.
+- KHÔNG viết mã nguồn trong bước lập kế hoạch, chỉ thiết kế và phân chia công việc.
+- Phần nghiên cứu PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm thành phần phụ thuộc (dependency) mới.
 - Tuân thủ `.planning/rules/` (ngôn ngữ, ngày tháng, version, icon, bảo mật)
 - Tái sử dụng code/thư viện có sẵn
 - Task backend + frontend TÁCH RIÊNG, ghi Loại + dependency. Frontend-only → độc lập

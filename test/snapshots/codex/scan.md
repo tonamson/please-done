@@ -22,16 +22,16 @@ Khi user gọi `$pd-scan {{args}}`, thực hiện toàn bộ instructions bên d
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Quét dự án: phân tích cấu trúc code, dependencies, kiến trúc, bảo mật -> tạo báo cáo.
+Quét dự án: phân tích cấu trúc code, dependency, kiến trúc và bảo mật để tạo báo cáo.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
 - [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+Người dùng nhập: {{GSD_ARGS}}
 Đọc `.planning/CONTEXT.md` (từ $pd-init). KHÔNG cần rules -- chỉ quét + báo cáo.
 </context>
 <process>
@@ -98,22 +98,22 @@ Viết `.planning/scan/SCAN_REPORT.md`:
 Tóm tắt kết quả. Nếu CONTEXT.md/rules cập nhật → thông báo rõ.
 </process>
 <output>
-**Tao/Cap nhat:**
-- Bao cao phan tich du an (man hinh)
-- Cap nhat `.planning/CONTEXT.md`
-**Buoc tiep theo:** `$pd-plan` hoac `$pd-new-milestone`
-**Thanh cong khi:**
-- Phan tich day du cau truc, dependencies, kien truc
-- Bao cao bao mat (neu co van de)
-- CONTEXT.md cap nhat
-**Loi thuong gap:**
-- FastCode MCP khong ket noi -> kiem tra Docker dang chay
-- Du an qua lon -> gioi han pham vi quet theo thu muc
+**Tạo/Cập nhật:**
+- Báo cáo phân tích dự án trên màn hình
+- Cập nhật `.planning/CONTEXT.md`
+**Bước tiếp theo:** `$pd-plan` hoặc `$pd-new-milestone`
+**Thành công khi:**
+- Phân tích đầy đủ cấu trúc, dependency và kiến trúc
+- Có báo cáo bảo mật nếu phát hiện vấn đề
+- `CONTEXT.md` đã được cập nhật
+**Lỗi thường gặp:**
+- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
+- Dự án quá lớn -> giới hạn phạm vi quét theo thư mục
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Chi doc va phan tich -- KHONG duoc thay doi source code cua du an
-- Bao cao phai bao gom: cau truc, dependencies, kien truc, bao mat
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- Chỉ đọc và phân tích, KHÔNG được thay đổi source code của dự án
+- Báo cáo phải bao gồm: cấu trúc, dependency, kiến trúc và bảo mật
 - Tuân thủ `.planning/rules/general.md` (ngôn ngữ, ngày tháng, bảo mật)
 - Không sửa code, chỉ quét và báo cáo
 - Project mới → scan report tối giản, KHÔNG gọi FastCode, KHÔNG npm audit

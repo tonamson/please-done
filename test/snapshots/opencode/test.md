@@ -14,20 +14,20 @@ tools:
 ---
 <objective>
 Viết test theo stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). Frontend-only: danh sách kiểm thử thủ công + xác nhận.
-Test với dữ liệu cụ thể, chạy, user xác nhận, commit.
+Test với dữ liệu cụ thể, chạy kiểm thử, để người dùng xác nhận rồi commit.
 **Sau khi xong:** `/pd-write-code`, `/pd-fix-bug`, hoặc `/pd-complete-milestone`
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
-- [ ] Task number hop le hoac co flag --all -> "Cung cap so task hoac dung `--all`."
+- [ ] Task number hợp lệ hoặc có cờ `--all` -> "Cung cấp số task hoặc dùng `--all`."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
-- [ ] Co it nhat 1 task voi trang thai done -> "Chua co task nao hoan thanh. Chay `/pd-write-code` truoc."
+- [ ] Có ít nhất 1 task ở trạng thái `done` -> "Chưa có task nào hoàn thành. Chạy `/pd-write-code` trước."
 </guards>
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 - Task number -> test riêng task đó (phải done)
 - `--all` -> regression toàn bộ phases
 - Không có gì -> test tất cả tasks done trong phase hiện tại
@@ -100,11 +100,11 @@ Test mirrors effort của task đang test:
 | Flutter | `flutter_test` + `mocktail` trong `dev_dependencies` | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget` |
 ---
 ## Bước 3: Đọc code để hiểu logic
-Dùng `mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
+`mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
 - "Endpoint [X] làm gì? Request/response format? Validations? Error cases?"
-- Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test
-- FastCode MCP lỗi → Fallback Grep/Read. Warning: "FastCode MCP lỗi — dùng built-in tools. Chạy `/pd-init` kiểm tra lại."
-**Context7** (test dùng thư viện ngoài): Thực hiện theo [SKILLS_DIR]/references/context7-pipeline.md
+- Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test.
+- FastCode lỗi → Grep/Read. Cảnh báo: "FastCode lỗi — chạy `/pd-init`."
+**Context7** (thư viện bên thứ ba): [SKILLS_DIR]/references/context7-pipeline.md
 ---
 ## Bước 4: Viết test files (NestJS — .spec.ts)
 Đặt cạnh source: `src/modules/users/users.controller.spec.ts`
@@ -215,34 +215,34 @@ Kết quả: X/Y đạt"
 ```
 </process>
 <output>
-**Tao/Cap nhat:**
-- Test files theo stack (Jest, PHPUnit, Hardhat, flutter_test)
-- Danh sach kiem thu thu cong (Frontend-only)
-- Cap nhat TASKS.md
-**Buoc tiep theo:** `/pd-write-code`, `/pd-fix-bug`, hoac `/pd-complete-milestone`
-**Thanh cong khi:**
-- Test files tao va chay thanh cong
-- User xac nhan ket qua
-- Test files commit
-**Loi thuong gap:**
-- Test fail -> doc loi, sua test/code, chay lai
-- Khong tim thay test framework -> kiem tra package.json/cau hinh
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Tạo/Cập nhật:**
+- File test theo từng stack (Jest, PHPUnit, Hardhat, `flutter_test`)
+- Danh sách kiểm thử thủ công cho frontend-only
+- Cập nhật `TASKS.md`
+**Bước tiếp theo:** `/pd-write-code`, `/pd-fix-bug`, hoặc `/pd-complete-milestone`
+**Thành công khi:**
+- File test đã được tạo và chạy thành công
+- Người dùng xác nhận kết quả
+- Phần test đã được commit
+**Lỗi thường gặp:**
+- Test fail -> đọc lỗi, sửa test hoặc code rồi chạy lại
+- Không tìm thấy test framework -> kiểm tra `package.json` và cấu hình
+- MCP không kết nối -> kiểm tra Docker và cấu hình
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- Test PHAI dung du lieu dau vao cu the, khong dung mock chung chung
-- PHAI chay test va xac nhan pass truoc khi commit
-- PHAI yeu cau user xac nhan truoc khi hoan tat
-- Tuân thủ `.planning/rules/` (ngôn ngữ, ngày tháng, bảo mật)
-- PHẢI viết test files commit vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart` — KHÔNG chỉ CURL
-- Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG
-- PHẢI yêu cầu user xác nhận giao diện + database
-- PHẢI đọc PLAN.md trước khi viết test
-- Token trong test report rút gọn (eyJhb...xxx)
-- FastCode MCP lỗi → fallback Grep/Read, ghi warning gợi ý `/pd-init`
-- PHẢI kiểm tra TEST_REPORT + test files trên đĩa trước khi bắt đầu — phát hiện phiên gián đoạn
-- TEST_REPORT đã tồn tại → hỏi user giữ hay chạy lại
-- Test files chưa commit → hỏi user giữ hay viết lại
-- KHÔNG ghi đè test files/report mà không hỏi user
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- Test PHẢI dùng dữ liệu đầu vào cụ thể, không dùng mock chung chung
+- PHẢI chạy test và xác nhận pass trước khi commit
+- PHẢI yêu cầu người dùng xác nhận trước khi hoàn tất
+- Tuân thủ `.planning/rules/` (chung + theo stack).
+- PHẢI viết test files vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart`. KHÔNG chỉ CURL.
+- Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG.
+- PHẢI yêu cầu người dùng xác nhận giao diện + database.
+- PHẢI đọc PLAN.md trước khi viết test.
+- Token trong test report rút gọn (eyJhb...xxx).
+- FastCode lỗi → Grep/Read, KHÔNG DỪNG.
+- PHẢI kiểm tra TEST_REPORT + test files trên đĩa trước khi bắt đầu — phát hiện phiên gián đoạn.
+- TEST_REPORT đã tồn tại → hỏi người dùng giữ hay chạy lại.
+- Test files chưa commit → hỏi người dùng giữ hay viết lại.
+- KHÔNG ghi đè test files/report mà không hỏi người dùng.
 </rules>

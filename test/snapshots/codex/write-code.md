@@ -22,29 +22,29 @@ Khi user gọi `$pd-write-code {{args}}`, thực hiện toàn bộ instructions 
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Viết code theo task từ PLAN.md/TASKS.md, tuân thủ `.planning/rules/`, lint + build, commit.
-**Chế độ:** mặc định 1 task -> dừng hỏi | `--auto` tất cả tuần tự | `--parallel` nhóm wave song song
-**Khôi phục:** Tự phát hiện tiến trình qua PROGRESS.md + đĩa/git -> tiếp tục từ chỗ dừng
-**Sau khi xong:** `$pd-test`, `$pd-plan [phase tiếp]`, hoặc `$pd-complete-milestone`
+Viết mã nguồn (code) theo các công việc (tasks) trong `PLAN.md` và `TASKS.md`, tuân thủ `.planning/rules/`, chạy kiểm tra lỗi cú pháp (lint) + biên dịch (build) rồi commit.
+**Chế độ:** Mặc định thực hiện 1 task -> dừng hỏi | `--auto`: thực hiện tất cả tuần tự | `--parallel`: thực hiện song song theo đợt (waves) bằng đa tác tử.
+**Khôi phục:** Tự động phát hiện tiến trình qua `PROGRESS.md` + trạng thái tệp tin/git -> tiếp tục từ điểm bị dừng.
+**Sau khi xong:** Chạy `$pd-test`, `$pd-plan [phase tiếp]`, hoặc `$pd-complete-milestone`.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
-- [ ] Task number hop le hoac co flag --auto/--parallel -> "Cung cap so task hoac flag che do."
-- [ ] PLAN.md + TASKS.md ton tai cho phase hien tai -> "Chay `$pd-plan` truoc de tao plan."
+- [ ] Số thứ tự task hợp lệ hoặc có cờ `--auto`/`--parallel` -> "Cung cấp số task hoặc cờ chế độ."
+- [ ] `PLAN.md` và `TASKS.md` tồn tại cho giai đoạn (phase) hiện tại -> "Chạy `$pd-plan` trước để tạo kế hoạch."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
 </guards>
 <context>
-User input: {{GSD_ARGS}}
-- Task number (VD: `3`) -> task cụ thể
-- `--auto` -> tất cả tuần tự | `--parallel` -> song song | Kết hợp: `3 --auto`
-- Không có gì -> pick task tiếp theo ⬜, xong 1 task -> DỪNG hỏi user
+Dữ liệu nhập: {{GSD_ARGS}}
+- Số thứ tự task (VD: `3`) -> thực hiện task cụ thể.
+- `--auto` -> thực hiện tuần tự | `--parallel` -> thực hiện song song | Kết hợp: `3 --auto`.
+- Không có gì -> chọn task tiếp theo ⬜, xong 1 task thì DỪNG để hỏi ý kiến người dùng.
 Đọc thêm:
-- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc
-- `.planning/rules/general.md` -> quy tắc chung (luôn đọc)
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo stack (CHỈ nếu tồn tại)
+- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc dự án.
+- `.planning/rules/general.md` -> quy tắc chung (luôn đọc).
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo công nghệ (CHỈ nếu tồn tại).
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -350,25 +350,25 @@ DỪNG sau mỗi task:
   - `$pd-complete-milestone` (nếu phase cuối)
 </process>
 <output>
-**Tao/Cap nhat:**
-- Source code + test files theo task
-- Cap nhat TASKS.md + PROGRESS.md
-**Buoc tiep theo:** `$pd-test`, `$pd-plan [phase tiep]`, hoac `$pd-complete-milestone`
-**Thanh cong khi:**
-- Code viet xong, lint + build pass
-- Task danh dau hoan thanh trong TASKS.md
-- Commit voi message ro rang
-**Loi thuong gap:**
-- Lint/build fail -> doc loi, sua, chay lai
-- Task khong ro -> hoi user qua request_user_input
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Tạo/Cập nhật:**
+- Mã nguồn và các tệp kiểm thử theo task.
+- Cập nhật `TASKS.md` và `PROGRESS.md`.
+**Bước tiếp theo:** `$pd-test`, `$pd-plan [phase tiếp]`, hoặc `$pd-complete-milestone`.
+**Thành công khi:**
+- Mã nguồn đã viết xong, lint và build đều vượt qua (pass).
+- Công việc được đánh dấu hoàn thành trong `TASKS.md`.
+- Commit có thông điệp (message) rõ ràng.
+**Lỗi thường gặp:**
+- Lỗi lint hoặc build -> đọc thông báo lỗi, sửa mã rồi chạy lại.
+- Công việc chưa rõ ràng -> hỏi người dùng qua `request_user_input`.
+- MCP không kết nối -> kiểm tra dịch vụ và cấu hình.
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI doc va tuan thu rules trong `.planning/rules/` truoc khi viet code
-- PHAI chay lint + build sau khi viet code
-- PHAI commit sau moi task hoan thanh
-- KHONG duoc thay doi code ngoai pham vi task
+- Mọi kết quả đầu ra PHẢI bằng tiếng Việt có dấu.
+- PHẢI đọc và tuân thủ quy tắc trong `.planning/rules/` trước khi viết mã.
+- PHẢI chạy lint và build sau khi viết mã.
+- PHẢI commit sau khi hoàn thành mỗi task.
+- KHÔNG được thay đổi mã nguồn ngoài phạm vi của task đang thực hiện.
 - Tuân thủ `.planning/rules/` (general + stack-specific theo Loại task)
 - CẤM đọc/hiển thị file nhạy cảm (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - CẤM hardcode secrets — PHẢI dùng biến môi trường + `.env.example`

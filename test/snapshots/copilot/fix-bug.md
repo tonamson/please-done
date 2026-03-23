@@ -3,21 +3,21 @@ name: pd:fix-bug
 description: Tìm và sửa lỗi theo phương pháp khoa học, tìm hiểu, báo cáo, sửa code, commit [LỖI] và xác nhận cho đến khi thành công
 ---
 <objective>
-Sửa lỗi khoa học: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
-Lưu trạng thái điều tra (.planning/debug/) để phục hồi khi mất phiên.
-Lặp đến khi user xác nhận. Tạo patch version cho milestone đã hoàn tất.
+Sửa lỗi theo quy trình rõ ràng: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
+Lưu trạng thái điều tra vào `.planning/debug/` để có thể phục hồi khi mất phiên.
+Lặp lại cho đến khi người dùng xác nhận. Tạo patch version cho milestone đã hoàn tất.
 **Sau khi xong:** `/pd:what-next`
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
-- [ ] Mo ta loi duoc cung cap -> "Cung cap mo ta loi hoac ten phien dieu tra."
+- [ ] Có mô tả lỗi được cung cấp -> "Hãy cung cấp mô tả lỗi hoặc tên phiên điều tra."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
 </guards>
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 Đọc thêm:
 - `.planning/rules/general.md` -> quy tắc chung
 - `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo loại lỗi (CHỈ nếu tồn tại)
@@ -243,26 +243,26 @@ git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt]'
 - **TIẾP TỤC cho đến khi user xác nhận**
 </process>
 <output>
-**Tao/Cap nhat:**
-- Source code da sua loi
-- `.planning/debug/` -- trang thai phien dieu tra
-- Cap nhat TASKS.md (neu lien quan)
-**Buoc tiep theo:** `/pd:what-next`
-**Thanh cong khi:**
-- User xac nhan sua thanh cong
-- Test lien quan pass (neu co)
-- Commit [LOI] duoc tao
-**Loi thuong gap:**
-- Khong tai hien loi -> yeu cau user cung cap them thong tin
-- Loi o dependency -> cap nhat package, kiem tra version
-- MCP khong ket noi -> kiem tra Docker va cau hinh
+**Tạo/Cập nhật:**
+- Source code đã sửa lỗi
+- `.planning/debug/` -- trạng thái phiên điều tra
+- Cập nhật `TASKS.md` nếu liên quan
+**Bước tiếp theo:** `/pd:what-next`
+**Thành công khi:**
+- Người dùng xác nhận đã sửa thành công
+- Các test liên quan chạy thành công nếu có
+- Commit `[LỖI]` đã được tạo
+**Lỗi thường gặp:**
+- Không tái hiện được lỗi -> yêu cầu người dùng cung cấp thêm thông tin
+- Lỗi nằm ở dependency -> cập nhật package, kiểm tra phiên bản
+- MCP không kết nối -> kiểm tra Docker và cấu hình
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI luu trang thai dieu tra vao `.planning/debug/` de phuc hoi
-- PHAI qua cong kiem tra (gate check) truoc khi sua code
-- PHAI lap lai vong lua den khi user xac nhan thanh cong
-- KHONG duoc sua code khong lien quan den loi
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI lưu trạng thái điều tra vào `.planning/debug/` để phục hồi
+- PHẢI qua cổng kiểm tra (gate check) trước khi sửa code
+- PHẢI lặp lại vòng lặp cho đến khi người dùng xác nhận thành công
+- KHÔNG được sửa code không liên quan đến lỗi
 - Tuân thủ `.planning/rules/` (general + stack-specific)
 - CẤM đọc/hiển thị file nhạy cảm (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHẢI đọc PLAN.md + CODE_REPORT trước khi sửa (CHỈ phase liên quan)

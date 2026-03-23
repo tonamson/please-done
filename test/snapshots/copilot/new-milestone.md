@@ -6,13 +6,13 @@ description: Lập kế hoạch chiến lược dự án, tạo lộ trình vớ
 Khởi tạo milestone mới: kiểm tra -> cập nhật dự án -> hỏi -> nghiên cứu (tùy chọn) -> yêu cầu -> lộ trình -> duyệt.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
-- [ ] `.planning/rules/general.md` ton tai -> "Rules bi thieu. Chay `/pd:init` de tao lai."
-- [ ] Ten milestone duoc cung cap hoac se hoi user neu khong co
+- [ ] `.planning/rules/general.md` tồn tại -> "Thiếu rules. Chạy `/pd:init` để tạo lại."
+- [ ] Có tên milestone được cung cấp, hoặc sẽ hỏi người dùng nếu chưa có
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
-- [ ] search_web kha dung cho nghien cuu
+- [ ] search_web khả dụng khi cần nghiên cứu
 </guards>
 <context>
 Tên milestone: $ARGUMENTS (tùy chọn -- hỏi nếu không có)
@@ -44,13 +44,12 @@ Tên milestone: $ARGUMENTS (tùy chọn -- hỏi nếu không có)
 | 2 | `.planning/rules/general.md` | "Rules bị thiếu. Chạy `/pd:init` để tạo lại." → **DỪNG** |
 Đọc cả hai. Ghi nhận ngôn ngữ, format ngày tháng, quy cách phiên bản, biểu tượng trạng thái.
 ---
-## 0.5: Phân tích dự án -- quyết định tài liệu tham khảo
-Xác định từ CONTEXT.md:
-- Dự án có UI/frontend? → đọc [SKILLS_DIR]/references/ui-brand.md
-- Cần hỏi user nhiều? → đọc [SKILLS_DIR]/references/questioning.md
-- Nhiều tasks/phases cần ưu tiên? → đọc [SKILLS_DIR]/references/prioritization.md
-- Cần hiểu milestone state? → đọc [SKILLS_DIR]/references/state-machine.md
-Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
+## 0.5: Xác định tài liệu tham khảo (Auto-discovery)
+Phân tích `CONTEXT.md` và bối cảnh để kích hoạt tài liệu bổ trợ:
+- Có giao diện người dùng? → đọc [SKILLS_DIR]/references/ui-brand.md
+- Cần thảo luận sâu với user? → đọc [SKILLS_DIR]/references/questioning.md
+- Nhiều yêu cầu cần sắp xếp? → đọc [SKILLS_DIR]/references/prioritization.md
+- Cần quản lý trạng thái phức tạp? → đọc [SKILLS_DIR]/references/state-machine.md
 ---
 ## 1. Tạo/Cập nhật PROJECT.md
 > Mẫu: [SKILLS_DIR]/templates/project.md
@@ -114,15 +113,15 @@ AskUserQuestion({
 **VIẾT TIẾP:** trình bày milestones đã có → hỏi milestones/tính năng MỚI → hỏi sâu (phạm vi, quan hệ với tính năng cũ)
 **Dự án mới:** CONTEXT.md + PROJECT.md làm nền → hỏi chức năng chính → hỏi ưu tiên, đối tượng, ràng buộc
 ---
-## 5. Nghiên cứu tùy chọn (Agents song song)
+## 5. Nghiên cứu chiến lược (Fast Parallel Research)
 ```
 AskUserQuestion({
   questions: [{
-    question: "Có muốn nghiên cứu lĩnh vực cho tính năng mới trước khi xác định phạm vi?",
+    question: "Có muốn nghiên cứu chiến lược (kiến trúc, thư viện, luồng dữ liệu) trước khi xác định phạm vi?",
     header: "Nghiên cứu",
     multiSelect: false,
     options: [
-      { label: "Nghiên cứu trước (Đề xuất)", description: "Tra cứu thư viện, mô hình, phương pháp tốt nhất" },
+      { label: "Nghiên cứu trước (Đề xuất)", description: "Dùng FastCode + Context7 để tra cứu nhanh, quét lỗi kiến trúc" },
       { label: "Bỏ qua, đi thẳng vào yêu cầu", description: "Dùng kiến thức hiện có" }
     ]
   }]
@@ -133,13 +132,17 @@ AskUserQuestion({
 ```bash
 mkdir -p .planning/research
 ```
-Tạo **4 agent song song** theo hợp đồng `<agents>`. Sau khi hoàn tất → **1 agent tổng hợp**.
-Hiển thị tóm tắt: thư viện bổ sung, tính năng bắt buộc, cảnh báo top 3.
+Thực hiện **Gọi công cụ song song** (Parallel Tool Calls) thay vì tạo tác tử con (sub-agents) để tối ưu hóa hiệu suất:
+1. `fastcode/code_qa`: Tìm kiếm các thành phần (components/modules) có thể tái sử dụng và phát hiện điểm nghẽn kiến trúc tiềm tàng.
+2. `io.github.upstash/context7/query-docs` (hoặc search_web): Tra cứu thư viện tối ưu nhất cho stack hiện tại và các rủi ro bảo mật cần phòng tránh.
+3. **Logic nội bộ**: Phác thảo luồng dữ liệu (Data flow) và hành trình người dùng (User Journey) để xác định các trường hợp ngoại lệ (edge cases) như lỗi mạng, tải dữ liệu hoặc hoàn tác.
+Sau khi có kết quả, tổng hợp và ghi trực tiếp vào `.planning/research/SUMMARY.md` (bao gồm: Thư viện đề xuất, Điểm tái sử dụng, Cạm bẫy kiến trúc, Luồng dữ liệu cần chú ý).
+Hiển thị tóm tắt cho người dùng: thư viện bổ sung, tính năng bắt buộc, cảnh báo quan trọng nhất.
 **Commit:**
 ```bash
-git add .planning/research/ && git commit -m "docs: nghiên cứu milestone — [tóm tắt ngắn]"
+git add .planning/research/ && git commit -m "docs: nghiên cứu chiến lược milestone — [tóm tắt ngắn]"
 ```
-**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Nghiên cứu lĩnh vực hoàn tất`
+**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Nghiên cứu chiến lược hoàn tất`
 ---
 ## 6. Định nghĩa yêu cầu
 > Mẫu + tiêu chí: [SKILLS_DIR]/templates/requirements.md
@@ -306,28 +309,28 @@ Milestone v[X.Y]: [Tên]
 ```
 </process>
 <output>
-**Tao/Cap nhat:**
-- `.planning/PROJECT.md` -- tam nhin + lich su milestones
-- `.planning/REQUIREMENTS.md` -- yeu cau co ma dinh danh + bang theo doi
-- `.planning/ROADMAP.md` -- lo trinh cac phase
-- `.planning/STATE.md` -- trang thai lam viec (dat lai)
-- `.planning/CURRENT_MILESTONE.md` -- theo doi milestone dang chay
-- `.planning/research/` -- nghien cuu (tuy chon, chi cho tinh nang moi)
-**Buoc tiep theo:** `/pd:plan`
-**Thanh cong khi:**
-- ROADMAP.md day du phases voi mo ta ro rang
-- REQUIREMENTS.md co ma dinh danh moi yeu cau
-- STATE.md khoi tao cho milestone moi
-**Loi thuong gap:**
-- Thieu CONTEXT.md -> chay `/pd:init` truoc
-- Rules thieu -> chay `/pd:init` de tao lai
-- Ten milestone trung -> doi ten hoac dung version khac
+**Tạo/Cập nhật:**
+- `.planning/PROJECT.md` -- tầm nhìn và lịch sử milestone
+- `.planning/REQUIREMENTS.md` -- yêu cầu có mã định danh và bảng theo dõi
+- `.planning/ROADMAP.md` -- lộ trình các phase
+- `.planning/STATE.md` -- trạng thái làm việc, được đặt lại
+- `.planning/CURRENT_MILESTONE.md` -- theo dõi milestone đang chạy
+- `.planning/research/` -- tài liệu nghiên cứu nếu cần cho tính năng mới
+**Bước tiếp theo:** `/pd:plan`
+**Thành công khi:**
+- `ROADMAP.md` có đầy đủ phase với mô tả rõ ràng
+- `REQUIREMENTS.md` có mã định danh cho từng yêu cầu
+- `STATE.md` được khởi tạo cho milestone mới
+**Lỗi thường gặp:**
+- Thiếu `CONTEXT.md` -> chạy `/pd:init` trước
+- Thiếu rules -> chạy `/pd:init` để tạo lại
+- Tên milestone bị trùng -> đổi tên hoặc dùng version khác
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- PHAI hoi user duyet requirements truoc khi tao roadmap
-- PHAI hoi user duyet roadmap truoc khi commit
-- Nghien cuu chi bat buoc cho tinh nang moi -- bo qua cho refactor/bugfix milestones
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- PHẢI hỏi người dùng duyệt requirements trước khi tạo roadmap
+- PHẢI hỏi người dùng duyệt roadmap trước khi commit
+- Nghiên cứu chỉ bắt buộc cho tính năng mới, có thể bỏ qua với milestone refactor hoặc bugfix
 - Tuân thủ `.planning/rules/general.md`
 - Milestones thực tế, ưu tiên tính năng cốt lõi trước
 - Backend + Frontend → Backend API trước. Frontend-only (UI, SEO) → độc lập
@@ -344,8 +347,7 @@ Milestone v[X.Y]: [Tên]
 - PHẢI commit sau mỗi cổng
 - PHẢI cập nhật STATE.md ở mỗi mốc (Bước 1, 5, 6e, 7f), KHÔNG chỉ cuối
 - STATE.md PHẢI giữ "Bối cảnh tích lũy" từ milestone trước — KHÔNG xóa sạch
-- 4 agents nghiên cứu PHẢI song song — KHÔNG tuần tự
-- agent tổng hợp CHỈ SAU KHI 4 agents hoàn tất
-- Mỗi agent có hợp đồng rõ: files_to_read, output_file, done_when
+- FastCode và Context7 chạy song song trong Bước Nghiên cứu chiến lược
+- Tổng hợp nghiên cứu trực tiếp vào .planning/research/SUMMARY.md
 - AskUserQuestion không khả dụng → hỏi văn bản thường, chờ trả lời
 </rules>

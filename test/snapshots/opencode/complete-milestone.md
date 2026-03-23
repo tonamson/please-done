@@ -10,20 +10,20 @@ tools:
   - AskUserQuestion
 ---
 <objective>
-Kiểm tra bugs đã đóng, tạo báo cáo tổng kết, commit, git tag, cập nhật tracking, chuyển milestone tiếp.
-Chỉ cho phép đóng khi tất cả tasks hoàn thành + bugs đã giải quyết.
+Kiểm tra các lỗi đã đóng, tạo báo cáo tổng kết, commit, tạo git tag, cập nhật theo dõi và chuyển sang milestone tiếp theo.
+Chỉ cho phép hoàn tất khi tất cả công việc đã hoàn thành và mọi lỗi đã được xử lý.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
-- [ ] Tat ca tasks trong milestone co status hoan thanh -> "Con tasks chua xong. Hoan thanh truoc khi dong milestone."
-- [ ] Khong co bugs mo chua giai quyet -> "Con bugs mo. Chay `/pd-fix-bug` de sua truoc."
+- [ ] Tất cả task trong milestone có trạng thái hoàn thành -> "Còn task chưa xong. Hãy hoàn thành trước khi đóng milestone."
+- [ ] Không còn lỗi mở chưa được xử lý -> "Còn lỗi chưa xử lý. Chạy `/pd-fix-bug` để sửa trước."
 </guards>
 <context>
-User input: $ARGUMENTS (khong dung -- version tu dong tu CURRENT_MILESTONE.md)
+Người dùng nhập: $ARGUMENTS (không dùng, vì version tự động lấy từ CURRENT_MILESTONE.md)
 Đọc thêm:
 - `.planning/PROJECT.md` -> cập nhật lịch sử milestones
-- `.planning/rules/general.md` -> ngôn ngữ, ngày tháng, version/commit format
+- `.planning/rules/general.md` -> ngôn ngữ, ngày tháng, định dạng version/commit
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -189,28 +189,28 @@ Lỗi đã sửa: [...]"
 - Next milestone (nếu có)
 </process>
 <output>
-**Tao/Cap nhat:**
-- Bao cao tong ket milestone
-- Git tag cho version
-- `.planning/PROJECT.md` -- cap nhat lich su milestones
-- `.planning/STATE.md` -- dat lai cho milestone tiep
-- `.planning/CURRENT_MILESTONE.md` -- danh dau hoan thanh
-**Buoc tiep theo:** `/pd-scan` hoac `/pd-new-milestone`
-**Thanh cong khi:**
-- Tat ca tasks hoan thanh, khong con bugs mo
-- Git tag dung version
-- PROJECT.md cap nhat ket qua milestone
-**Loi thuong gap:**
-- Con tasks chua xong -> hoan thanh truoc
-- Git conflict -> giai quyet thu cong
-- Bugs mo -> chay `/pd-fix-bug` truoc
+**Tạo/Cập nhật:**
+- Báo cáo tổng kết milestone
+- Git tag cho phiên bản
+- `.planning/PROJECT.md` -- cập nhật lịch sử milestone
+- `.planning/STATE.md` -- đặt lại cho milestone tiếp theo
+- `.planning/CURRENT_MILESTONE.md` -- đánh dấu hoàn thành
+**Bước tiếp theo:** `/pd-scan` hoặc `/pd-new-milestone`
+**Thành công khi:**
+- Tất cả task đã hoàn thành, không còn lỗi mở
+- Git tag đúng phiên bản
+- PROJECT.md đã cập nhật kết quả milestone
+**Lỗi thường gặp:**
+- Còn task chưa xong -> hoàn thành trước
+- Git conflict -> giải quyết thủ công
+- Còn lỗi mở -> chạy `/pd-fix-bug` trước
 </output>
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- KHONG dong milestone neu con tasks chua hoan thanh
-- KHONG dong milestone neu con bugs mo
-- PHAI tao git tag sau khi commit thanh cong
-- PHAI hoi user xac nhan truoc khi dong milestone
+- Mọi output PHẢI bằng tiếng Việt có dấu
+- KHÔNG đóng milestone nếu còn task chưa hoàn thành
+- KHÔNG đóng milestone nếu còn lỗi mở
+- PHẢI tạo git tag sau khi commit thành công
+- PHẢI hỏi người dùng xác nhận trước khi đóng milestone
 - Tuân thủ `.planning/rules/general.md` (ngôn ngữ, ngày tháng, version, bảo mật)
 - KHÔNG cho user nhập version — tự lấy từ CURRENT_MILESTONE.md
 - PHẢI kiểm tra bugs còn mở → CHẶN nếu có

@@ -1,5 +1,5 @@
 ---
-description: Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog
+description: Kiểm tra và cập nhật bộ kỹ năng từ GitHub, hiển thị changelog
 tools:
   - Read
   - Write
@@ -8,48 +8,48 @@ tools:
   - AskUserQuestion
 ---
 <objective>
-Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật skills, gợi ý restart.
+Kiểm tra phiên bản mới từ GitHub, hiển thị changelog, cập nhật bộ kỹ năng và gợi ý khởi động lại.
 </objective>
 <guards>
-DUNG va huong dan user neu bat ky dieu kien nao that bai:
-- [ ] `.pdconfig` ton tai -> "Chua cai dat skills. Chay `node bin/install.js` truoc."
-- [ ] Ket noi mang kha dung (git fetch thanh cong) -> "Khong the ket noi GitHub. Kiem tra mang."
+Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+- [ ] `.pdconfig` tồn tại -> "Chưa cài đặt bộ kỹ năng. Chạy `node bin/install.js` trước."
+- [ ] Kết nối mạng khả dụng (`git fetch` thành công) -> "Không thể kết nối GitHub. Kiểm tra mạng."
 </guards>
 <context>
-User input: $ARGUMENTS
+Người dùng nhập: $ARGUMENTS
 - Không có flag/`--check` -> chỉ kiểm tra, KHÔNG cập nhật
 - `--apply` -> kiểm tra + cập nhật luôn
 `.pdconfig` -> `SKILLS_DIR`
 (Claude Code: `~/.config/opencode/.pdconfig` -- nền tảng khác: tự chuyển đổi)
 </context>
 <execution_context>
-Khong co -- skill nay xu ly truc tiep, khong dung workflow rieng.
+Không có -- skill này xử lý trực tiếp, không dùng workflow riêng.
 </execution_context>
 <process>
-## Buoc 1: Doc version hien tai
+## Bước 1: Đọc phiên bản hiện tại
 `.pdconfig` -> `SKILLS_DIR` -> `[SKILLS_DIR]/VERSION` -> `LOCAL_VERSION`
 VERSION không tồn tại -> `LOCAL_VERSION = unknown`
-## Buoc 2: Kiem tra remote
+## Bước 2: Kiểm tra remote
 ```bash
 cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null
 ```
 Thất bại -> DỪNG: "Không thể kết nối GitHub."
-## Buoc 3: So sanh version
+## Bước 3: So sánh phiên bản
 ```bash
 cd [SKILLS_DIR] && git show origin/main:VERSION 2>/dev/null
 ```
-| So sanh | Hanh dong |
+| So sánh | Hành động |
 |---------|-----------|
 | GIỐNG | "Đã là phiên bản mới nhất (v[x.x.x])." -> DỪNG |
 | REMOTE > LOCAL (hoặc LOCAL=unknown) | Tiếp Bước 4 |
 | LOCAL > REMOTE | "Local (v[LOCAL]) mới hơn remote (v[REMOTE])." -> DỪNG |
 | REMOTE rỗng | "Remote không có VERSION." -> DỪNG |
-Semver: tách [major,minor,patch] so sánh, hoặc `sort -V`.
-## Buoc 4: Hien thi changelog
+Semver: tách `[major, minor, patch]` để so sánh, hoặc dùng `sort -V`.
+## Bước 4: Hiển thị changelog
 ```bash
 cd [SKILLS_DIR] && git show origin/main:CHANGELOG.md 2>/dev/null
 ```
-Chỉ hiện entries MỚI HƠN LOCAL_VERSION.
+Chỉ hiển thị các mục MỚI HƠN `LOCAL_VERSION`.
 ```
 +--------------------------------------+
 |     CẬP NHẬT BỘ SKILLS              |
@@ -57,10 +57,10 @@ Chỉ hiện entries MỚI HƠN LOCAL_VERSION.
 | Thay đổi: [changelog entries]       |
 +--------------------------------------+
 ```
-## Buoc 5: Phan nhanh theo flag
+## Bước 5: Phân nhánh theo cờ
 - `--apply` -> Bước 6
 - Không/`--check` -> hỏi "Cập nhật ngay? (y/n)" -> y: Bước 6 | n: DỪNG, gợi ý `/pd-update --apply`
-## Buoc 6: Cap nhat
+## Bước 6: Cập nhật
 Kiểm tra branch: `git -C [SKILLS_DIR] branch --show-current` -> không phải `main` -> checkout main (fail vì uncommitted -> DỪNG cảnh báo)
 ```bash
 OLD_COMMIT=$(git -C [SKILLS_DIR] rev-parse HEAD)
@@ -68,13 +68,13 @@ cd [SKILLS_DIR] && git pull origin main
 ```
 Pull thất bại -> thông báo lỗi + gợi ý `git stash && git pull && git stash pop` -> DỪNG
 Thành công -> đọc VERSION mới xác nhận
-## Buoc 7: Submodules
+## Bước 7: Submodule
 `.gitmodules` tồn tại -> `git submodule update --init --recursive`
 FastCode có thay đổi -> "FastCode cũng đã được cập nhật."
-## Buoc 8: Cap nhat .pdconfig + xoa cache
+## Bước 8: Cập nhật `.pdconfig` và xóa cache
 - `CURRENT_VERSION=[REMOTE_VERSION]` trong `.pdconfig` (thay thế nếu có, thêm nếu chưa)
 - `rm -f ~/.config/opencode/cache/pd-update-check.json`
-## Buoc 9: Thong bao
+## Bước 9: Thông báo
 ```
 +--------------------------------------+
 |     CẬP NHẬT THÀNH CÔNG!            |
@@ -87,30 +87,30 @@ FastCode có thay đổi -> "FastCode cũng đã được cập nhật."
 ```
 </process>
 <output>
-**Tao/Cap nhat:**
-- `[SKILLS_DIR]/` -- cap nhat skills tu GitHub
-- `.pdconfig` -- cap nhat CURRENT_VERSION
-- Xoa `~/.config/opencode/cache/pd-update-check.json`
-**Buoc tiep theo:** Restart Claude Code
-**Thanh cong khi:**
-- VERSION cap nhat dung
-- .pdconfig co CURRENT_VERSION moi
-- Cache thong bao da xoa
-**Loi thuong gap:**
-- Khong co mang -> kiem tra ket noi
+**Tạo/Cập nhật:**
+- `[SKILLS_DIR]/` -- cập nhật bộ kỹ năng từ GitHub
+- `.pdconfig` -- cập nhật `CURRENT_VERSION`
+- Xóa `~/.config/opencode/cache/pd-update-check.json`
+**Bước tiếp theo:** Khởi động lại Claude Code
+**Thành công khi:**
+- `VERSION` được cập nhật đúng
+- `.pdconfig` có `CURRENT_VERSION` mới
+- Cache thông báo đã được xóa
+**Lỗi thường gặp:**
+- Không có mạng -> kiểm tra kết nối
 - Git conflict -> `git stash && git pull && git stash pop`
-- .pdconfig khong ton tai -> chay `node bin/install.js`
+- `.pdconfig` không tồn tại -> chạy `node bin/install.js`
 </output>
 <rules>
-- KHONG sua code du an -- chi cap nhat skills
-- KHONG push -- chi pull
-- KHONG tu restart -- chi goi y user restart
-- Git pull conflict -> DUNG, huong dan user thu cong
-- Khong co mang -> DUNG, thong bao ro
-- `--check` (mac dinh): chi kiem tra, hoi truoc
-- `--apply`: cap nhat ngay khong hoi
-- PHAI hien changelog truoc khi cap nhat
-- PHAI xoa `~/.config/opencode/cache/pd-update-check.json` sau cap nhat
-- PHAI goi y restart sau cap nhat
-- Moi output PHAI bang tieng Viet co dau
+- KHÔNG sửa code dự án, chỉ cập nhật bộ kỹ năng
+- KHÔNG push, chỉ pull
+- KHÔNG tự khởi động lại, chỉ gợi ý người dùng khởi động lại
+- Nếu `git pull` conflict -> DỪNG và hướng dẫn người dùng xử lý thủ công
+- Không có mạng -> DỪNG và thông báo rõ
+- `--check` (mặc định): chỉ kiểm tra, hỏi trước khi cập nhật
+- `--apply`: cập nhật ngay, không hỏi
+- PHẢI hiển thị changelog trước khi cập nhật
+- PHẢI xóa `~/.config/opencode/cache/pd-update-check.json` sau khi cập nhật
+- PHẢI gợi ý khởi động lại sau khi cập nhật
+- Mọi output PHẢI bằng tiếng Việt có dấu
 </rules>
