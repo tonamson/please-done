@@ -1,6 +1,9 @@
 // Converter: Claude Code -> Gemini CLI
 //
-// Gemini dung cung format slash commands nhung tool names khac.
+// Gemini CLI requires .toml format for custom commands:
+//   description = "one-line description"
+//   prompt = "full prompt body"
+//
 // MCP servers auto-discovered tu settings.json — khong can map trong body.
 // Can escape ${VAR} thanh $VAR de tranh template engine cua Gemini.
 
@@ -8,6 +11,7 @@
 
 const { convertSkill: baseConvert } = require('./base');
 const { TOOL_MAP } = require('../platforms');
+const { parseFrontmatter } = require('../utils');
 
 // Re-export for backward compatibility
 const GEMINI_TOOL_MAP = TOOL_MAP.gemini;
@@ -23,10 +27,30 @@ function convertGeminiTool(toolName) {
 }
 
 /**
- * Convert noi dung skill tu Claude format sang Gemini format.
+ * Escape string cho TOML basic string (double-quoted).
+ * Escapes: \ -> \\, " -> \", newline -> \n, tab -> \t, CR -> \r
+ */
+function escapeTomlString(str) {
+  return str
+    .replace(/\\/g, '\\\\')
+    .replace(/"/g, '\\"')
+    .replace(/\t/g, '\\t')
+    .replace(/\r/g, '\\r')
+    .replace(/\n/g, '\\n');
+}
+
+/**
+ * Convert noi dung skill tu Claude format sang Gemini TOML format.
+ *
+ * Pipeline:
+ * 1. Use base converter to get processed markdown (inlined workflows, tool maps, etc.)
+ * 2. Extract description from frontmatter
+ * 3. Take body as prompt content
+ * 4. Output TOML format: description + prompt
  */
 function convertSkill(content, skillsDir) {
-  return baseConvert(content, {
+  // Step 1: Run base converter to get processed markdown
+  const processedMd = baseConvert(content, {
     runtime: 'gemini',
     skillsDir,
     pathReplace: '~/.gemini/',
@@ -52,6 +76,18 @@ function convertSkill(content, skillsDir) {
       return result;
     },
   });
+
+  // Step 2: Parse processed markdown to extract frontmatter + body
+  const { frontmatter, body } = parseFrontmatter(processedMd);
+
+  // Step 3: Extract description (use frontmatter.description or name as fallback)
+  const description = frontmatter.description || frontmatter.name || 'Please Done skill';
+
+  // Step 4: Build TOML output
+  const promptBody = body.trim();
+  const toml = `description = "${escapeTomlString(description)}"\nprompt = "${escapeTomlString(promptBody)}"`;
+
+  return toml;
 }
 
 /**
@@ -73,6 +109,7 @@ function generateMcpConfig(fastcodeDir) {
 module.exports = {
   convertSkill,
   convertGeminiTool,
+  escapeTomlString,
   generateMcpConfig,
   GEMINI_TOOL_MAP,
 };

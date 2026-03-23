@@ -208,8 +208,8 @@ describe('Cross-platform — TẤT CẢ skills phải có trên MỌI platform',
       }
       case 'gemini': {
         return listDir(tmpDir, 'commands', 'pd')
-          .filter(f => f.endsWith('.md') && f !== '.pdconfig')
-          .map(f => f.replace('.md', ''))
+          .filter(f => f.endsWith('.toml'))
+          .map(f => f.replace('.toml', ''))
           .sort();
       }
       case 'opencode': {
@@ -330,15 +330,16 @@ describe('Cross-platform — Skill content không rỗng + có frontmatter', () 
     }
   });
 
-  it('Gemini: mỗi skill file có nội dung + frontmatter', async () => {
+  it('Gemini: mỗi skill file có nội dung TOML hợp lệ', async () => {
     const tmpDir = makeTmpDir('content-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       for (const skill of canonical) {
-        const content = readFile(tmpDir, 'commands', 'pd', `${skill.name}.md`);
+        const content = readFile(tmpDir, 'commands', 'pd', `${skill.name}.toml`);
         assert.ok(content.length > 100, `${skill.name} quá ngắn`);
-        assert.match(content, /^---/m, `${skill.name} thiếu frontmatter`);
+        assert.match(content, /^description = "/, `${skill.name} thiếu description`);
+        assert.match(content, /\nprompt = "/, `${skill.name} thiếu prompt`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });

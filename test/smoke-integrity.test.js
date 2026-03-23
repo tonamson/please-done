@@ -138,14 +138,15 @@ describe('Repo integrity — full command conversion', () => {
     }
   });
 
-  it('Gemini converter loại MCP tools khỏi frontmatter cho toàn bộ skills', () => {
+  it('Gemini converter xuất TOML hợp lệ và không leak ~/.claude/ cho toàn bộ skills', () => {
     for (const skill of skills) {
       const result = gemini.convertSkill(skill.content, ROOT);
-      const fmEnd = result.indexOf('---', 4);
-      const frontmatter = result.slice(0, fmEnd);
-
+      // TOML format: description = "..." + prompt = "..."
+      assert.match(result, /^description = "/, `${skill.name}: Gemini thiếu description TOML key`);
+      assert.match(result, /\nprompt = "/, `${skill.name}: Gemini thiếu prompt TOML key`);
       assert.ok(!result.includes('~/.claude/'), `${skill.name}: Gemini còn sót ~/.claude/`);
-      assert.ok(!frontmatter.includes('mcp__'), `${skill.name}: Gemini còn sót MCP tool trong frontmatter`);
+      // TOML format không có frontmatter allowed-tools — MCP tools tự động loại bỏ
+      assert.ok(!result.includes('allowed-tools'), `${skill.name}: Gemini không nên có allowed-tools`);
     }
   });
 

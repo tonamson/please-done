@@ -146,15 +146,21 @@ describe('Gemini installer', () => {
 
   after(() => fs.rmSync(tmpDir, { recursive: true, force: true }));
 
-  it('tạo commands/pd/*.md', () => {
-    const files = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.md'));
+  it('tạo commands/pd/*.toml', () => {
+    const files = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.toml'));
     assert.ok(files.length > 0, 'không tạo skill files');
-    assert.ok(files.includes('init.md'), 'thiếu init.md');
-    assert.ok(files.includes('plan.md'), 'thiếu plan.md');
+    assert.ok(files.includes('init.toml'), 'thiếu init.toml');
+    assert.ok(files.includes('plan.toml'), 'thiếu plan.toml');
+  });
+
+  it('skill files là TOML format với description và prompt', () => {
+    const content = readFile(tmpDir, 'commands', 'pd', 'init.toml');
+    assert.match(content, /^description = "/, 'thiếu description key');
+    assert.match(content, /\nprompt = "/, 'thiếu prompt key');
   });
 
   it('skill files không chứa ~/.claude/', () => {
-    const content = readFile(tmpDir, 'commands', 'pd', 'init.md');
+    const content = readFile(tmpDir, 'commands', 'pd', 'init.toml');
     assert.ok(!content.includes('~/.claude/'), 'còn sót ~/.claude/');
     assert.match(content, /~\/\.gemini\//);
   });
@@ -255,9 +261,9 @@ describe('Idempotency (cài 2 lần)', () => {
     const installer = require('../bin/lib/installers/gemini');
     try {
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
-      const count1 = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.md')).length;
+      const count1 = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.toml')).length;
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
-      const count2 = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.md')).length;
+      const count2 = listDir(tmpDir, 'commands', 'pd').filter(f => f.endsWith('.toml')).length;
       assert.equal(count1, count2, 'cài lần 2 tạo thêm files');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });

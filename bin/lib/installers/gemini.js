@@ -1,5 +1,5 @@
 // Gemini CLI installer.
-// Skills → ~/.gemini/commands/pd/[name].md
+// Skills → ~/.gemini/commands/pd/[name].toml (TOML format required by Gemini CLI)
 // MCP config → ~/.gemini/settings.json (mcpServers)
 
 'use strict';
@@ -28,9 +28,9 @@ async function install(skillsDir, targetDir, options = {}) {
     log.success('Đã xóa thư mục skills cũ (commands/sk)');
   }
 
-  // Clean old files + rules subdirectory
+  // Clean old files (.md from previous versions + .toml from current) + rules subdirectory
   if (fs.existsSync(commandsDir)) {
-    const old = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md'));
+    const old = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md') || f.endsWith('.toml'));
     for (const f of old) fs.unlinkSync(path.join(commandsDir, f));
     const oldRulesDir = path.join(commandsDir, 'rules');
     if (fs.existsSync(oldRulesDir)) {
@@ -41,7 +41,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const skills = listSkillFiles(skillsSrc);
   for (const skill of skills) {
     const converted = convertSkill(skill.content, skillsDir);
-    fs.writeFileSync(path.join(commandsDir, `${skill.name}.md`), converted, 'utf8');
+    fs.writeFileSync(path.join(commandsDir, `${skill.name}.toml`), converted, 'utf8');
     log.success(`/pd:${skill.name}`);
   }
 

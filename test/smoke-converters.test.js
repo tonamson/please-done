@@ -192,12 +192,27 @@ describe('Gemini converter', () => {
     assert.match(result, /search_file_content/); // Grep → search_file_content
   });
 
-  it('lọc bỏ MCP tools khỏi allowed-tools (frontmatter)', () => {
-    // MCP tools bị lọc khỏi allowed-tools (auto-discovered) — chỉ kiểm tra frontmatter
-    const fmEnd = result.indexOf('---', 4); // tìm --- đóng frontmatter
-    const frontmatterSection = result.slice(0, fmEnd);
-    assert.ok(!frontmatterSection.includes('mcp__'), 'frontmatter còn sót MCP tools');
-    // Body vẫn có thể chứa MCP refs làm tài liệu — đó là đúng
+  it('xuất format TOML với description và prompt', () => {
+    assert.match(result, /^description = "/);
+    assert.match(result, /\nprompt = "/);
+  });
+
+  it('description lấy từ frontmatter', () => {
+    // "Skill kiểm thử" phải được escape thành TOML string
+    assert.match(result, /description = "/);
+  });
+
+  it('TOML output chỉ có 2 dòng', () => {
+    const lines = result.split('\n');
+    assert.equal(lines.length, 2, 'TOML output phải có đúng 2 dòng (description + prompt)');
+  });
+
+  it('lọc MCP tools khỏi allowed-tools (TOML không có allowed-tools)', () => {
+    // Trong TOML format, allowed-tools từ frontmatter không xuất hiện
+    // MCP tools chỉ xuất hiện trong body text như tài liệu tham khảo — đó là đúng
+    // Kiểm tra rằng frontmatter allowed-tools (với mcp__) không còn trong output
+    // vì TOML format chỉ có description + prompt
+    assert.ok(!result.includes('allowed-tools'), 'TOML không nên có allowed-tools key');
   });
 
   it('escape ${VAR} → $VAR', () => {
@@ -205,6 +220,13 @@ describe('Gemini converter', () => {
     const out = gemini.convertSkill(input);
     assert.ok(!out.includes('${HOME}'), '${} chưa được escape');
     assert.match(out, /\$HOME/);
+  });
+
+  it('escape dấu ngoặc kép trong TOML string', () => {
+    const input = '---\nname: test\ndescription: Test "skill"\n---\nBody with "quotes"';
+    const out = gemini.convertSkill(input);
+    assert.match(out, /description = "Test \\"skill\\""/);
+    assert.match(out, /\\"quotes\\"/);
   });
 });
 

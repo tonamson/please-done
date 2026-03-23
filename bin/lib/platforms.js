@@ -66,8 +66,8 @@ const PLATFORMS = {
     commandPrefix: '/pd:',
     commandSeparator: ':',
     envVar: 'GEMINI_CONFIG_DIR',
-    skillFormat: 'nested',       // commands/pd/*.md
-    frontmatterFormat: 'yaml',
+    skillFormat: 'nested',       // commands/pd/*.toml
+    frontmatterFormat: 'toml',   // Gemini CLI requires .toml format
     toolMap: TOOL_MAP.gemini,
   },
   opencode: {
