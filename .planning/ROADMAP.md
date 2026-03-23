@@ -41,7 +41,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 
 **Milestone Goal:** Audit toan dien bo skill/workflow hien tai, tim va fix loi tiem an, verify logic gaps trong cac workflow chinh
 
-- [ ] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues
+- [x] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues (completed 2026-03-23)
 - [ ] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end
 - [ ] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15
 
@@ -61,7 +61,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 Plans:
 - [x] 14-01: TBD
 - [x] 14-02: TBD
-- [ ] 14-03: TBD
+- [x] 14-03: TBD
 
 ### Phase 15: Workflow Verification
 **Goal**: 3 workflow chinh (new-milestone, write-code, fix-bug) duoc verify end-to-end — moi buoc logic duoc kiem tra, moi gap duoc ghi nhan
@@ -115,6 +115,6 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 11. Workflow Integration | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
-| 14. Skill & Workflow Audit | v1.2 | 2/3 | In Progress|  |
+| 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete   | 2026-03-23 |
 | 15. Workflow Verification | v1.2 | 0/? | Not started | - |
 | 16. Bug Fixes | v1.2 | 0/? | Not started | - |
