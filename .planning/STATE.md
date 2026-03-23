@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Skill Audit & Bug Fixes
-status: Phase complete
-stopped_at: Completed 15-03-PLAN.md — Phase 15 hoan tat
-last_updated: "2026-03-23T08:38:30Z"
+status: Ready to execute
+stopped_at: Completed 16-02-PLAN.md
+last_updated: "2026-03-23T10:08:21.090Z"
 progress:
   total_phases: 3
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-23)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 15 — workflow-verification
+**Current focus:** Phase 16 — bug-fixes
 
 ## Current Position
 
-Phase: 15 (workflow-verification) — COMPLETE
-Plan: 3 of 3 (all complete)
+Phase: 16 (bug-fixes) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -61,6 +61,9 @@ Recent decisions affecting current work:
 - [Phase 15]: write-code effort routing KHOP HOAN TOAN voi conventions.md (CT-4 PASS) -- khac voi fix-bug (aspirational)
 - [Phase 15]: W9 parallel mode: giu Warning severity -- Layer 1 + post-wave safety net bao ve, nhung custom files co risk data loss
 - [Phase 15]: Report 15-VERIFICATION-REPORT.md 100% hoan chinh: 60 steps, 29 Truths, 6 issues (V1-V6), san sang Phase 16
+- [Phase 16]: Effort routing table removed from fix-bug.md -- fix-bug always runs with sonnet
+- [Phase 16]: AskUserQuestion conflict resolved: text first, auto-backup on no response, log action
+- [Phase 16]: FastCode hard STOP replaced with bypass option (Grep/Read fallback)
 
 ### Pending Todos
 
@@ -72,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T08:38:30Z
-Stopped at: Completed 15-03-PLAN.md — Phase 15 hoan tat
+Last session: 2026-03-23T10:08:21.086Z
+Stopped at: Completed 16-02-PLAN.md
 Resume file: None

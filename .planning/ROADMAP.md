@@ -92,7 +92,7 @@ Plans:
 
 Plans:
 - [ ] 16-01-PLAN.md — JS module fixes: dead exports (W6-W8), Unicode (I5), stale comment (I6), CLI wrapper (C1), plan.md update (D-09)
-- [ ] 16-02-PLAN.md — Workflow text fixes: stack fallback (C2/V1), effort routing (V2), AskUserQuestion (V3), parallel warning (V5), W11/W14/W15
+- [x] 16-02-PLAN.md — Workflow text fixes: stack fallback (C2/V1), effort routing (V2), AskUserQuestion (V3), parallel warning (V5), W11/W14/W15
 - [ ] 16-03-PLAN.md — Skill/reference wiring (W1-W5), intentional pattern docs (I1/I2/I4/I7), version fix (I3), conventions note (V6)
 - [ ] 16-04-PLAN.md — Snapshot regeneration + full test suite verification (BFIX-02)
 
@@ -118,4 +118,4 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete    | 2026-03-23 |
 | 15. Workflow Verification | v1.2 | 3/3 | Complete    | 2026-03-23 |
-| 16. Bug Fixes | v1.2 | 0/4 | Not started | - |
+| 16. Bug Fixes | v1.2 | 1/4 | In Progress|  |
