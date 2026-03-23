@@ -11,12 +11,12 @@ allowed-tools:
   - Glob
   - Grep
   - Agent
-<!-- Audit 2026-03-23: Intentional -- Agent tool required for --parallel mode multi-agent execution. See Phase 14 Audit I4. -->
   - AskUserQuestion
   - mcp__fastcode__code_qa
   - mcp__context7__resolve-library-id
   - mcp__context7__query-docs
 ---
+<!-- Audit 2026-03-23: Intentional -- Agent tool required for --parallel mode multi-agent execution. See Phase 14 Audit I4. -->
 
 <objective>
 Viết mã nguồn (code) theo các công việc (tasks) trong `PLAN.md` và `TASKS.md`, tuân thủ `.planning/rules/`, chạy kiểm tra lỗi cú pháp (lint) + biên dịch (build) rồi commit.

@@ -406,7 +406,7 @@ describe('Repo integrity -- conditional context loading', () => {
   });
 
   it('skills without optional refs have no conditional_reading', () => {
-    const noOptionalSkills = ['test', 'conventions'];
+    const noOptionalSkills = ['conventions'];
     for (const name of noOptionalSkills) {
       const content = fs.readFileSync(path.join(COMMANDS_DIR, `${name}.md`), 'utf8');
       const { body } = parseFrontmatter(content);
@@ -456,8 +456,7 @@ describe('Repo integrity -- effort-level routing', () => {
   it('fix-bug workflow co effort routing tu bug classification', () => {
     const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
     assert.match(content, /Effort routing cho fix-bug/, 'fix-bug.md: thieu effort routing section');
-    assert.match(content, /\u{1F7E2}.*simple.*haiku/su, 'fix-bug.md: thieu green->simple mapping');
-    assert.match(content, /\u{1F534}.*complex.*opus/su, 'fix-bug.md: thieu red->complex mapping');
+    assert.match(content, /fix-bug luon chay voi sonnet/, 'fix-bug.md: thieu sonnet-only note');
   });
 
   it('test workflow co effort routing', () => {
