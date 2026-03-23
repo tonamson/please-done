@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Skill Audit & Bug Fixes
-status: Ready to execute
-stopped_at: Completed 16-01-PLAN.md
-last_updated: "2026-03-23T10:08:59.865Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 16-04-PLAN.md
+last_updated: "2026-03-23T10:24:32.777Z"
 progress:
   total_phases: 3
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-23)
 ## Current Position
 
 Phase: 16 (bug-fixes) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -66,6 +66,9 @@ Recent decisions affecting current work:
 - [Phase 16]: FastCode hard STOP replaced with bypass option (Grep/Read fallback)
 - [Phase 16]: Replace Unicode escapes only in generateSkillAdapter scope, not box-drawing chars elsewhere in codex.js
 - [Phase 16]: CLI wrapper pattern: bin/plan-check.js reads files and calls library, resolves ROADMAP.md 3 levels up from plan-dir
+- [Phase 16]: Audit comments use HTML comment format for markdown files
+- [Phase 16]: All new execution_context references added as (optional) to avoid breaking existing flows
+- [Phase 16]: 28/48 snapshots changed after Phase 16 -- consistent with scope, BFIX-02 satisfied
 
 ### Pending Todos
 
@@ -77,6 +80,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-23T10:08:59.861Z
-Stopped at: Completed 16-01-PLAN.md
+Last session: 2026-03-23T10:24:32.772Z
+Stopped at: Completed 16-04-PLAN.md
 Resume file: None

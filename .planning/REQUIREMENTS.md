@@ -22,7 +22,7 @@ Requirements for audit and bug fix milestone. Each maps to roadmap phases.
 ### Bug Fixes
 
 - [x] **BFIX-01**: Fix tất cả logic gaps phát hiện từ skill audit (AUDIT-01, AUDIT-02)
-- [ ] **BFIX-02**: Fix tất cả sync issues phát hiện từ snapshot audit (AUDIT-03)
+- [x] **BFIX-02**: Fix tất cả sync issues phát hiện từ snapshot audit (AUDIT-03)
 - [x] **BFIX-03**: Fix tất cả logic gaps phát hiện từ workflow verification (WFLOW-01, WFLOW-02, WFLOW-03)
 
 ## v2 Requirements
@@ -55,7 +55,7 @@ Deferred to future release.
 | WFLOW-02 | Phase 15 | Complete |
 | WFLOW-03 | Phase 15 | Complete |
 | BFIX-01 | Phase 16 | Complete |
-| BFIX-02 | Phase 16 | Pending |
+| BFIX-02 | Phase 16 | Complete |
 | BFIX-03 | Phase 16 | Complete |
 
 **Coverage:**
