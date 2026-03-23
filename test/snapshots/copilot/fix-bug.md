@@ -31,6 +31,7 @@ Người dùng nhập: $ARGUMENTS
 <conditional_reading>
 Đọc CHỈ KHI cần (phân tích mô tả task trước):
 - [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
+- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <process>
 ## Bước 0.5: Phân tích bug -- quyết định tài liệu tham khảo

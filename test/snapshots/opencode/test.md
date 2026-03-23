@@ -40,6 +40,10 @@ Người dùng nhập: $ARGUMENTS
 (Claude Code: cat ~/.config/opencode/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
 - [SKILLS_DIR]/references/conventions.md → biểu tượng trạng thái, commit prefixes, patch version
 </required_reading>
+<conditional_reading>
+Đọc CHỈ KHI cần (phân tích mô tả task trước):
+- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
+</conditional_reading>
 <process>
 ## Bước 1: Xác định scope + đọc context
 - Đọc `.planning/CONTEXT.md` → Tech Stack → xác định test framework:

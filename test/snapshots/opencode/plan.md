@@ -47,6 +47,8 @@ Dữ liệu nhập: $ARGUMENTS
 - [SKILLS_DIR]/references/questioning.md -- KHI DISCUSS mode -- can interactive user questioning
 - [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
 - [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
+- [SKILLS_DIR]/references/plan-checker.md -- KHI task can
+- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <process>
 ## Bước 1: Đọc context

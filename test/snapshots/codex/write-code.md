@@ -21,6 +21,7 @@ Khi user gọi `$pd-write-code {{args}}`, thực hiện toàn bộ instructions 
 - Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
+<!-- Audit 2026-03-23: Intentional -- Agent tool required for --parallel mode multi-agent execution. See Phase 14 Audit I4. -->
 <objective>
 Viết mã nguồn (code) theo các công việc (tasks) trong `PLAN.md` và `TASKS.md`, tuân thủ `.planning/rules/`, chạy kiểm tra lỗi cú pháp (lint) + biên dịch (build) rồi commit.
 **Chế độ:** Mặc định thực hiện 1 task -> dừng hỏi | `--auto`: thực hiện tất cả tuần tự | `--parallel`: thực hiện song song theo đợt (waves) bằng đa tác tử.
@@ -58,6 +59,8 @@ Dữ liệu nhập: {{GSD_ARGS}}
 - [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
 - [SKILLS_DIR]/references/security-checklist.md -- KHI task lien quan den auth, encryption, input validation, data exposure
 - [SKILLS_DIR]/references/verification-patterns.md -- KHI task can multi-level verification (khong phai simple pass/fail)
+- [SKILLS_DIR]/templates/progress.md -- KHI task can
+- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <process>
 ## Bước 1: Xác định task

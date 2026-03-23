@@ -49,6 +49,7 @@ Người dùng nhập: {{GSD_ARGS}} (không dùng, vì version tự động lấ
 - [SKILLS_DIR]/references/verification-patterns.md -- KHI task can multi-level verification (khong phai simple pass/fail)
 - [SKILLS_DIR]/templates/current-milestone.md -- KHI task lien quan den milestone state management
 - [SKILLS_DIR]/templates/state.md -- KHI task lien quan den milestone state management
+- [SKILLS_DIR]/templates/verification-report.md -- KHI task can
 </conditional_reading>
 <process>
 ## Bước 1: Lấy version + kiểm tra git
