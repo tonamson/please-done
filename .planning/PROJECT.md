@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, and automated plan quality checking before execution.
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking, and verified end-to-end workflow logic.
 
 ## Core Value
 
@@ -34,19 +34,13 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Plan checker workflow integration — PASS/ISSUES FOUND reporting, Fix/Proceed/Cancel — v1.1 (Phase 11)
 - ✓ Advanced checks — Key Links, Scope Thresholds, Effort Classification — v1.1 (Phase 12)
 - ✓ Dynamic PASS table — all checks displayed, future-proof — v1.1 (Phase 13)
+- ✓ Comprehensive audit of 12 skills, 10 workflows, 15 JS modules — 27 issues classified — v1.2 (Phase 14)
+- ✓ End-to-end verification of 3 critical workflows (new-milestone, write-code, fix-bug) — v1.2 (Phase 15)
+- ✓ 22/27 audit issues fixed, 448 tests pass, 48/48 snapshots in sync — v1.2 (Phase 16)
 
 ### Active
 
-None — v1.2 milestone complete.
-
-### Recently Validated (v1.2)
-
-- [x] Audit toàn bộ 12 skills và 10 workflows tìm logic gaps, lỗi tiềm ẩn — Validated in Phase 14
-- [x] Verify workflow new-milestone end-to-end logic — Validated in Phase 15
-- [x] Verify workflow write-code end-to-end logic — Validated in Phase 15
-- [x] Verify workflow fix-bug end-to-end logic — Validated in Phase 15
-- [x] Đảm bảo snapshots/converters sync với source files hiện tại — Validated in Phase 16 (48/48 match)
-- [x] Fix tất cả bugs phát hiện được — Validated in Phase 16 (448 tests pass, 0 failures)
+None — planning next milestone.
 
 ### Out of Scope
 
@@ -57,27 +51,25 @@ None — v1.2 milestone complete.
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v1.2 Skill Audit & Bug Fixes
+## Current State
 
-**Goal:** Audit toàn diện bộ skill/workflow hiện tại, tìm và fix lỗi tiềm ẩn, verify logic gaps trong các workflow chính (new-milestone, write-code, fix-bug)
-
-**Target features:**
-- Scan 12 skills + 10 workflows tìm logic gaps, dead code, sai logic
-- Verify 3 workflow chính (new-milestone, write-code, fix-bug) end-to-end
-- Đảm bảo converter snapshots sync với source
-- Fix tất cả bugs phát hiện được
+**Shipped:** v1.2 Skill Audit & Bug Fixes (2026-03-23)
+**Next milestone:** Not yet planned — run `/gsd:new-milestone` to start
 
 ## Context
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
+Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows.
 
-Post-v1.1 state:
-- Plan checker with 7 structural checks runs automatically in plan workflow
-- 140 tests with zero false positives on 22 historical plans
+Post-v1.2 state:
+- 12 skills and 10 workflows fully audited and verified
+- 3 critical workflows (new-milestone, write-code, fix-bug) traced end-to-end with 60 steps and 29 Truths
+- Plan checker with 7 structural checks, 140 tests, zero false positives
 - 48 converter snapshot tests ensuring cross-platform consistency
-- Total test count: 443+ across all test suites
+- Total test count: 448 across all test suites
+- 6 tech debt items tracked (5 documented with decisions, 1 info-level)
 
 ## Constraints
 
@@ -99,6 +91,9 @@ Post-v1.1 state:
 | Pure functions for plan checker | No file I/O in check functions — content passed as args | ✓ Good — testable, composable, no side effects |
 | Historical validation gate (D-17) | Zero false positives on all 22 v1.0 plans required | ✓ Good — caught regressions early, built confidence |
 | Dynamic PASS table over hardcoded | Future checks auto-included via name mapping | ✓ Good — Phase 13 was needed to fix Phase 11's hardcoded table |
+| Audit + fix in same milestone (v1.2) | Scan first (Phase 14-15), fix after (Phase 16) | ✓ Good — found 27 issues, fixed 22, deferred 5 with docs |
+| CLI wrapper for plan-check | Separate file I/O from library logic | ✓ Good — bin/plan-check.js reads files, calls library |
+| Defer re-export cleanup to v2.0 | COPILOT/GEMINI_TOOL_MAP re-exports are harmless | ✓ Good — low risk, tracked as tech debt |
 
 ## Evolution
 
@@ -118,4 +113,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after v1.2 milestone started*
+*Last updated: 2026-03-23 after v1.2 milestone completed*
