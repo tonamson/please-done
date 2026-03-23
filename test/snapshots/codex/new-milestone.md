@@ -31,7 +31,7 @@ Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sa
 - [ ] Có tên milestone được cung cấp, hoặc sẽ hỏi người dùng nếu chưa có
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
-- [ ] WebSearch khả dụng khi cần nghiên cứu
+- [ ] WebSearch khả dụng khi cần nghiên cứu -> "WebSearch khong kha dung. Kiem tra ket noi mang."
 </guards>
 <context>
 Tên milestone: {{GSD_ARGS}} (tùy chọn -- hỏi nếu không có)
@@ -119,7 +119,7 @@ request_user_input({
   }]
 })
 ```
-- Không hỏi được → tự động sao lưu: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`
+- request_user_input khong kha dung nhu tool → hoi van ban thuong (theo rules). Nguoi dung khong phan hoi HOAC tool loi ky thuat → tu dong sao luu: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`. Ghi chu: "Da tu dong sao luu do khong nhan duoc phan hoi."
 **`--reset-phase-numbers`:**
 - Có cờ → đánh số phase từ 1
 - Có thư mục phase cũ → lưu trữ trước để tránh xung đột

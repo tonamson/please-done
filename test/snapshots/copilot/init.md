@@ -23,7 +23,9 @@ Mẫu quy tắc: `.pdconfig` -> `SKILLS_DIR` -> các file tại `[SKILLS_DIR]/co
 ## Bước 2: Kiểm tra FastCode MCP (BẮT BUỘC)
 `fastcode/list_indexed_repos`:
 - **THÀNH CÔNG** → "FastCode MCP: Hoạt động", tiếp tục
-- **THẤT BẠI** → **DỪNG**: "FastCode MCP không hoạt động. Kiểm tra: (1) Đã chạy `node bin/install.js`? (2) API key Gemini trong `FastCode/.env`? (3) Đã restart sau cài? Chạy lại `/pd:init`."
+- **THẤT BẠI** → Canh bao: "FastCode MCP khong hoat dong. Code search se dung search/read (cham hon)."
+  Tiep tuc khong co FastCode -- chuc nang co ban van hoat dong (search/read fallback).
+  Hien thi: "Tiep tuc khong co FastCode? (Khuyen nghi: Co)"
 ## Bước 2.5: Kiểm tra CONTEXT.md hiện có
 `.planning/CONTEXT.md` đã tồn tại → hỏi: "1. Giữ nguyên 2. Khởi tạo lại"
 - Giữ → kiểm tra `.planning/rules/general.md`:

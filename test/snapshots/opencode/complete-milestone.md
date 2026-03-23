@@ -85,6 +85,7 @@ Với MỖI `phase-*/`:
    - Cấp 3 — Kết nối: Grep import/export/gọi hàm
    - Cấp 4 — Truths: kiểm tra logic/test
 5. 100% Truths + không 🛑 → ✅ | Có gap → ⚠️
+Cong cu xac minh that bai (tool error, timeout) → ghi nhan that bai vao bao cao, tiep tuc voi co xac minh thu cong: "[Level N] -- xac minh thu cong do cong cu that bai."
 ### 3.5b — Liên kết cross-phase
 1. Thu thập "Key Links" tất cả phases
 2. Link cross-phase: kiểm tra export ↔ import match
