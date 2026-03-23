@@ -31,6 +31,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 10: Core Plan Checks** - Spec + module với 4 structural validators cho requirement coverage, task completeness, dependency correctness, Truth-Task coverage (completed 2026-03-23)
 - [x] **Phase 11: Workflow Integration** - Report format PASS/ISSUES FOUND với actionable fix hints + tự động chạy sau Step 8 trong plan.md (completed 2026-03-23)
 - [x] **Phase 12: Advanced Checks** - Key Links verification, scope threshold warnings, effort classification validation (completed 2026-03-23)
+- [ ] **Phase 13: Display Fix** - PASS report table hiển thị đầy đủ 7 checks thay vì hardcode 4 (gap closure từ audit)
 
 ## Phase Details
 
@@ -75,10 +76,22 @@ Plans:
 - [x] 12-01-PLAN.md — 3 check functions (checkKeyLinks, checkScopeThresholds, checkEffortClassification) + rules spec update
 - [x] 12-02-PLAN.md — Unit tests + historical validation (22 plans, zero false positives with 7 checks)
 
+### Phase 13: Display Fix
+**Goal**: PASS report table trong workflows/plan.md hiển thị đầy đủ tất cả checks từ runAllChecks thay vì hardcode 4 check names
+**Depends on**: Phase 12
+**Requirements**: INTG-01 (refinement)
+**Gap Closure**: Closes INTG-DISPLAY-01 from v1.1 audit
+**Success Criteria** (what must be TRUE):
+  1. Khi plan pass, PASS table hiển thị tất cả 7 checks (CHECK-01..04, ADV-01..03) — không hardcode số lượng
+  2. Khi thêm check mới trong tương lai, PASS table tự động bao gồm check mới mà không cần sửa template
+**Plans**: 1 plan
+Plans:
+- [ ] 13-01-PLAN.md — Dynamic PASS table + ADV check examples in ISSUES FOUND
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 10 → 11 → 12
+Phases execute in numeric order: 10 → 11 → 12 → 13
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -93,4 +106,5 @@ Phases execute in numeric order: 10 → 11 → 12
 | 9. Converter Pipeline Optimization | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 10. Core Plan Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
 | 11. Workflow Integration | v1.1 | 1/1 | Complete    | 2026-03-23 |
-| 12. Advanced Checks | v1.1 | 2/2 | Complete   | 2026-03-23 |
+| 12. Advanced Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
+| 13. Display Fix | v1.1 | 0/1 | Not started | - |
