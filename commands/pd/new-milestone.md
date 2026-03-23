@@ -27,7 +27,7 @@ Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sa
 - [ ] `.planning/rules/general.md` tồn tại -> "Thiếu rules. Chạy `/pd:init` để tạo lại."
 - [ ] Có tên milestone được cung cấp, hoặc sẽ hỏi người dùng nếu chưa có
 @references/guard-context7.md
-- [ ] WebSearch khả dụng khi cần nghiên cứu
+- [ ] WebSearch khả dụng khi cần nghiên cứu -> "WebSearch khong kha dung. Kiem tra ket noi mang."
 </guards>
 
 <context>

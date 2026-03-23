@@ -102,7 +102,7 @@ AskUserQuestion({
   }]
 })
 ```
-- Không hỏi được → tự động sao lưu: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`
+- AskUserQuestion khong kha dung nhu tool → hoi van ban thuong (theo rules). Nguoi dung khong phan hoi HOAC tool loi ky thuat → tu dong sao luu: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`. Ghi chu: "Da tu dong sao luu do khong nhan duoc phan hoi."
 
 **`--reset-phase-numbers`:**
 - Có cờ → đánh số phase từ 1
