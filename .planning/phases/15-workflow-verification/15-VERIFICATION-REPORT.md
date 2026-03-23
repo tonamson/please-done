@@ -8,7 +8,17 @@
 
 ## Executive Summary
 
-> [Se cap nhat sau khi verify ca 3 workflows]
+| Workflow | Steps | Truths Verified | PASS | FAIL | Issues Found |
+|----------|-------|-----------------|------|------|--------------|
+| WFLOW-03: fix-bug | 20 | 4 CT + 5 IT = 9 | 18 | 2 | 2 moi (V1, V2) + 1 confirmed (C2) |
+| WFLOW-01: new-milestone | 18 | 4 CT + 5 IT = 9 | 17 | 1 | 2 moi (V3, V4) + 1 confirmed (W12) |
+| WFLOW-02: write-code | 22 | 5 CT + 6 IT = 11 | 21 | 1 | 2 moi (V5, V6) + 1 confirmed (W9) |
+| **Total** | **60** | **29** | **56** | **4** | **6 moi + 3 confirmed = 9** |
+
+**Tong quan:** 3 workflows chinh duoc trace end-to-end voi 4-level verification. 56/60 steps PASS (93%). 29 Truths (13 Critical + 16 Implicit) tat ca PASS. 4 steps FAIL o cac diem cu the: stack fallback (fix-bug), effort routing aspirational (fix-bug), AskUserQuestion conflict (new-milestone), parallel silent degradation (write-code). Khong co showstopper -- tat ca workflows hoat dong duoc nhung co 6 issues can fix de tang chat luong.
+
+**Phase 14 confirmed:** 3 issues (C2 -> V1, W12 -> V3, W9 -> V5) -- tat ca deu co impact lon hon Phase 14 danh gia ban dau.
+**Issues moi:** 3 issues (V2 effort routing aspirational, V4 reset-phase-numbers, V6 conventions.md subtle difference) -- Phase 14 audit khong phat hien.
 
 ## Methodology
 
@@ -420,16 +430,351 @@ Agent se theo dau? Rules co vi tri cao hon (general rule), nhung Step 3 co chi t
 
 ## WFLOW-02: write-code {#wflow-02}
 
-> [Se verify trong Plan 15-03]
+**File:** `workflows/write-code.md` (422 dong)
+**Steps:** 1, 1.1, 1.5, 1.6, 2, 3, 4, 5, 6, 6.5, 6.5a, 6.5b, 7, 7a, 7b, 8, 9, 9.5, 9.5a-9.5f, 10
+**Modes:** 3 (mac dinh, --auto, --parallel)
+**References:** 1 required (conventions.md) + 4 conditional (prioritization, security-checklist, ui-brand, verification-patterns) + 3 guards (guard-context, guard-fastcode, guard-context7) + 1 template (verification-report.md) = 9 tong cong
+**Phase 14 issues:** W9 (Warning -- parallel mode silent degradation), W4 (Warning -- context7-pipeline khong trong skill execution_context)
+
+### Truth Inventory
+
+#### Critical Truths (pre-defined)
+
+| # | Truth | Cach kiem chung | Ket qua |
+|---|-------|-----------------|---------|
+| CT-1 | Tat ca 9 references trong skill file `commands/pd/write-code.md` ton tai tren disk | Glob verify tung path | **PASS** -- 9/9 ton tai. Chi tiet: 1 workflow (workflows/write-code.md), 1 required (references/conventions.md), 4 conditional (references/prioritization.md, references/security-checklist.md, references/ui-brand.md, references/verification-patterns.md), 3 guards (references/guard-context.md, references/guard-fastcode.md, references/guard-context7.md). Them: workflow reference 1 template (templates/verification-report.md, line 320) -- ton tai. **Luu y:** Plan 15-03 pre-defined list gom `references/context7-pipeline.md`, `references/state-machine.md`, `references/plan-checker.md` -- 3 files nay TON TAI tren disk nhung KHONG co trong skill file `commands/pd/write-code.md`. Workflow `write-code.md` reference `@references/context7-pipeline.md` (line 172) va `@references/conventions.md` (line 8), nhung skill file execution_context chi list 6 files (1 workflow + 1 required + 4 optional). context7-pipeline la lazy-loaded dependency (W4 Phase 14 da ghi nhan). |
+| CT-2 | TASKS.md status update xay ra TRUOC commit (Step 7a truoc 7b) | Trace step ordering trong workflow | **PASS** -- Step 7 (line 255): "7a -- Cap nhat TASKS.md (luon, TRUOC commit):" ro rang. Line 257-259: cap nhat 🔄 -> ✅ CA HAI noi (bang Tong quan + task detail), cap nhat `> Files:`. Line 261: "7b -- Git commit (CHI HAS_GIT = true):" SAU 7a. Thu tu dung. Them: conventions.md (line 18) noi "Danh ✅ TRUOC commit" -- NHAT QUAN voi workflow. |
+| CT-3 | PROGRESS.md recovery mechanism cover 6 resume points | Verify Step 1.1 case table completeness | **PASS** -- Step 1.1 (lines 55-83) co 3 truong hop chinh va 6 resume points. **Truong hop 0** (line 58): Task ✅ + PROGRESS.md ton tai (gian doan giua 7a va 7b) -- 2 paths: (a) Da commit -> xoa PROGRESS.md -> xong, (b) Chua commit -> revert TASKS.md ve 🔄 -> nhay Buoc 7. **Truong hop 1** (line 63): Task 🔄 + PROGRESS.md ton tai -- 6 resume points tai bang line 71-78: (1) Da commit -> xoa PROGRESS.md -> xong, (2) Co CODE_REPORT + chua commit -> Buoc 7, (3) Co files + lint/build da pass -> Buoc 6, (4) Co files + chua lint/build -> Buoc 5, (5) Co files nhung chua du -> Buoc 4 (CHI viet thieu, GIU da viet), (6) Chua co files -> Buoc 2. **Truong hop 2** (line 82): Task moi hoac 🔄 khong co PROGRESS.md -> tao PROGRESS.md. TAT CA 6 resume points co handling cu the, khong co gap. |
+| CT-4 | Effort routing table (simple->haiku, standard->sonnet, complex->opus) match conventions.md | Cross-verify tables | **PASS** -- Write-code.md (lines 41-46): simple->haiku, standard->sonnet, complex->opus, (thieu/khong ro)->sonnet. Conventions.md (lines 74-80): simple->haiku, standard->sonnet, complex->opus, Mac dinh: standard (sonnet). **KHOP HOAN TOAN.** Ca 2 files co cung mapping va cung default behavior. Khong co conflict. **Them cross-check:** Step 10 parallel mode (line 358) cung reference effort->model mapping -- nhat quan. |
+| CT-5 | Verification loop (Step 9.5) co MAX_ROUNDS=2 va 3 user options khi fail | Trace verification loop logic | **PASS** -- Step 9.5 (lines 295-327). Line 301: `VERIFY_ROUND = 0`, `MAX_ROUNDS = 2`. Line 303: `VERIFY_ROUND += 1`. 4 cap verification (9.5a-9.5d): Ton tai, Thuc chat, Ket noi, Logic Truths. Line 323: TAT CA Truths dat + khong 🛑 -> "Xac minh thanh cong" -> thoat loop. Line 324: Co gap + VERIFY_ROUND < MAX_ROUNDS -> tu sua -> lint/build -> commit -> quay dau loop. Line 325: Co gap + VERIFY_ROUND >= MAX_ROUNDS -> **DUNG**, hoi user 3 options: (1) `/pd:fix-bug`, (2) re-plan, (3) bo qua + ghi no ky thuat. Logic hoan chinh, khong co infinite loop risk (MAX_ROUNDS enforce). |
+
+#### Implicit Truths (phat hien khi trace)
+
+| # | Truth | Step | Cach kiem chung | Ket qua |
+|---|-------|------|-----------------|---------|
+| IT-1 | Conventions.md va workflow effort routing table KHOP HOAN TOAN -- khong co mismatch | 1, 10 | Cross-verify chi tiet | **PASS** -- 4 rows mapping giong het. Default behavior giong (standard/sonnet). Khac biet duy nhat: workflow co them row "(thieu/khong ro) -> sonnet" explicit, conventions.md noi "Mac dinh: standard (sonnet)" -- nghia tuong duong, cach dien dat khac. |
+| IT-2 | FastCode co fallback sang Grep/Read trong write-code | 3, rules | Verify fallback logic | **PASS** -- Line 170: "FastCode loi -> Grep/Read fallback. Warning: 'FastCode loi -- dung built-in.'" Line 412: rules "FastCode loi -> Grep/Read fallback, ghi warning". 2 noi nhat quan. Khong block workflow. |
+| IT-3 | PROGRESS.md lifecycle hoan chinh: tao -> cap nhat -> xoa | 1.1, 4, 7b, rules | Trace lifecycle | **PASS** -- Tao: Step 1.1 truong hop 2 (line 83). Cap nhat: Step 4 (line 199) "Cap nhat PROGRESS.md sau moi file". Xoa: Step 7b (line 278) "rm -f PROGRESS.md" sau commit. Rules (line 421): "tao khi bat dau, cap nhat moi file, xoa sau commit". Lifecycle hoan chinh, khong co orphan risk (xoa SAU commit dam bao). |
+| IT-4 | Circular dependency detection co logic DUNG ro rang | 1.5 | Verify Kahn's algorithm logic | **PASS** -- Step 1.5 (lines 87-98): Kahn's algorithm / topological sort. Line 91-97: xay adjacency list, tinh in-degree, Wave 1 = in-degree 0 + ⬜, moi wave tiep xoa tasks wave truoc + tinh lai. Line 98: "Khong task nao in-degree 0 + con tasks chua xu ly -> DUNG: 'Circular dependency phat hien.'" State-machine.md (lines 101-104) cung xac nhan: circular dependency -> thong bao user, KHONG tu pick, DUNG flow. 2 files nhat quan. |
+| IT-5 | Security checklist duoc integrate vao 3 buoc khac nhau (2, 4, 6.5b) | 2, 4, 6.5b | Trace security flow | **PASS** -- Step 2 (lines 159-161): Phan tich bao mat -> xac dinh loai endpoint, muc nhay cam, loai xac thuc. Step 4 (lines 180-189): Ap dung bao mat theo nghe canh (PUBLIC/ADMIN/INTERNAL). Step 6.5b (lines 245-251): Kiem tra bao mat — bang kiem ky thuat (Phan D), review tong the (Phan E), ghi CODE_REPORT. 3 buoc tao defense-in-depth. |
+| IT-6 | --auto mode co scope boundary ro rang (INITIAL_PHASE) | 10 | Verify auto mode logic | **PASS** -- Line 381: "Luu phase ban dau: INITIAL_PHASE = [phase tu CURRENT_MILESTONE.md]. Dung gia tri nay (KHONG doc lai) de xac dinh scope." Line 384: "Het task -> Buoc 9 -> DUNG auto loop (KHONG nhay phase tiep du CURRENT_MILESTONE da advance)." Co 4 dieu kien dung: het task, tat ca blocked, lint/build fail bat buoc, lint/build skip (tiep binh thuong). Scope boundary ro rang, khong co runaway risk. |
+
+### Logic Trace
+
+#### DEFAULT MODE
+
+##### Buoc 1: Xac dinh task
+PASS. Doc CURRENT_MILESTONE.md -> version + phase + status (line 22). 3 DUNG conditions (lines 23-25): status hoan tat, TASKS.md khong co, PLAN.md khong co. Doc PLAN.md + TASKS.md (line 26). Kiem tra git (line 27). Bang chon task (lines 31-37): 6 dieu kien ro rang voi hanh dong cu the. Effort routing (lines 40-46): match conventions.md (CT-4 PASS). Persist 🔄 ngay (lines 50-53): cap nhat TASKS.md CA HAI noi, ghi dia TRUOC tao PROGRESS.md. STATE.md chi cap nhat task dau tien 🔄 trong phase. Day du.
+
+##### Buoc 1.1: Diem khoi phuc
+PASS. 3 truong hop + 6 resume points (CT-3 PASS). Truong hop 0: gian doan giua 7a-7b (line 58-61). Truong hop 1: phuc hoi sau gian doan (lines 63-80). Truong hop 2: task moi (lines 82-83). Thong bao user (line 80). Day du.
+
+##### Buoc 1.5: Phan tich dependency (CHI --parallel)
+PASS (skip trong default mode, line 136: "Khong --parallel -> bo qua Buoc 1.5"). Buoc nay duoc trace chi tiet trong PARALLEL MODE section.
+
+##### Buoc 1.6: Phan tich task -- quyet dinh tai lieu tham khao
+PASS. 4 conditional readings (lines 141-145): security-checklist.md, ui-brand.md, verification-patterns.md, prioritization.md. Logic: doc mo ta task -> xac dinh -> doc khi can. Line 147: "Khong ro -> BO QUA. Phat hien can giua chung -> doc khi can." Flexible va khong block.
+
+##### Buoc 2: Doc context cho task
+PASS. Doc task detail + PLAN.md (lines 152-153). 4 yeu cau tu PLAN.md (lines 153-156): Quyet dinh thiet ke, UX States, UI Ke thua patterns, thieu thong tin -> DUNG. Doc .planning/rules/ (line 157). Phan tich bao mat (lines 159-161). Day du.
+
+##### Buoc 3: Research code hien co + tra cuu thu vien
+PASS. 2 paths: du an moi (skip FastCode, chi Context7) va co code (FastCode code_qa, line 168). Fallback FastCode (line 170). Context7 pipeline (line 172) tham chieu @references/context7-pipeline.md. Day du.
+
+##### Buoc 4: Viet code
+PASS. Quy tac sai lech (line 178 -> Rules). Bao mat theo ngu canh (lines 180-189): bang 4 loai endpoint. Quy tac code rules/ (lines 192-197): JSDoc/Logger/Comments tieng Viet, ten bien tieng Anh, gioi han 300 dong / bat buoc tach >500. Per-stack (line 197). Cap nhat PROGRESS.md sau moi file (line 199). Day du.
+
+##### Buoc 5: Lint + Build
+PASS. CONTEXT.md -> Tech Stack (line 204). Doc rules file -> Build & Lint (line 206). Fallback package.json (line 207). Chay trong dung thu muc (line 208). Fail -> sua + chay lai. Toi da 3 lan -> DUNG (line 209). Chua co config -> skip (line 210). Day du.
+
+##### Buoc 6: Tao bao cao
+PASS. Path: `reports/CODE_REPORT_TASK_[N].md` (line 215). Template day du (lines 217-232): header, files, review bao mat, sai lech, van de hoan lai, ghi chu. Day du.
+
+##### Buoc 6.5: Tu kiem tra bao cao + bao mat
+PASS. 2 sub-steps: 6.5a kiem tra bao cao (lines 239-243): file ton tai, endpoints, migration, sai lech. 6.5b kiem tra bao mat (lines 246-248): bang kiem ky thuat (Phan D), review tong the (Phan E), ghi ket qua. Line 250-251: phat hien lo hong -> sua ngay, chay lai lint/build. Day du.
+
+##### Buoc 7: Cap nhat TASKS.md + Git commit
+PASS. 7a (lines 257-259): TASKS.md 🔄 -> ✅ CA HAI noi, cap nhat `> Files:`. TRUOC commit (CT-2 PASS). 7b (lines 261-279): git add + commit voi format message. Commit FAIL -> revert 🔄, sua, thu lai (line 275). Sau commit: xoa PROGRESS.md (line 278). Day du.
+
+##### Buoc 8: Cap nhat CONTEXT.md
+PASS. Logic don gian (line 284): CONTEXT.md `Du an moi: Co` VA task dau tien hoan tat -> `Du an moi: Khong`. Day du.
+
+##### Buoc 9: Cap nhat ROADMAP + REQUIREMENTS + STATE
+PASS. Dieu kien: TAT CA tasks ✅ (line 289). 4 cap nhat (lines 290-293): ROADMAP deliverables, REQUIREMENTS trang thai, STATE hoat dong cuoi, auto-advance. Day du.
+
+##### Buoc 9.5: Xac minh tinh nang
+PASS. Dieu kien trigger: PLAN.md co "Tieu chi thanh cong" (line 297). 4 cap verification (9.5a-9.5d, lines 305-318). Verification loop voi MAX_ROUNDS=2 (CT-5 PASS). Tu suc loop (line 324). 3 options khi fail (line 325). Auto-advance (lines 329-333). Tracking commit (lines 335-343). Day du.
+
+##### Buoc 10: Tiep tuc hoac dung (MAC DINH)
+PASS. Lines 389-396: DUNG sau moi task. Task hoan thanh -> thong tin files + build status. Con ⬜ -> hoi "Tiep tuc?" (line 392). Het ⬜ -> de xuat /pd:test (CHI khi co backend/specific stacks), /pd:plan, /pd:complete-milestone. Day du.
+
+#### --AUTO MODE
+
+##### Buoc 10 --auto: Tuan tu tat ca
+PASS. Lines 380-387. Luu INITIAL_PHASE (line 381). Loop: con 🔄/⬜ trong INITIAL_PHASE -> Buoc 1 pick tiep, KHONG hoi user, uu tien 🔄 truoc ⬜. 4 dieu kien dung (lines 383-387): (1) het task -> Buoc 9 -> DUNG auto loop, (2) tat ca blocked -> DUNG + thong bao, (3) lint/build fail BAT BUOC -> dung, (4) lint/build skip -> tiep. **Diem quan trong:** Line 384 "KHONG nhay phase tiep du CURRENT_MILESTONE da advance" -> scope boundary ro rang (IT-6 PASS). Day du, khong co runaway risk.
+
+#### --PARALLEL MODE
+
+##### Buoc 1.5: Phan tich dependency + nhom wave
+PASS voi 1 issue (W9 confirmed + V5 new).
+
+**Logic Trace:**
+Lines 87-136. 6 sub-steps:
+
+1. **Doc TASKS.md** (line 89): tasks ⬜ + cot Phu thuoc. Khong co ⬜ -> DUNG parallel.
+
+2. **Dependency graph** (lines 90-98): Kahn's algorithm / topological sort. Adjacency list tu cot Phu thuoc (lines 91-94): 3 loai edge (code dependency, design dependency = khong edge, shared file). In-degree tinh cho moi task. Wave 1 = in-degree 0 + ⬜. Moi wave tiep: xoa wave truoc -> tinh lai in-degree -> in-degree 0 moi. Circular detection (line 98): khong co in-degree 0 + con tasks -> DUNG. **Nhat quan voi state-machine.md (lines 101-104).**
+
+3. **Phat hien shared files** (lines 100-118): 2 layers:
+   - Layer 1 Static (lines 102-112): Bang hotspot patterns cho 6 stacks (Chung, NestJS, Next.js, Flutter, WordPress, Solidity).
+   - Layer 2 Dynamic (lines 114-118): Thu thap `> Files:` tu tat ca tasks cung wave. So sanh tung cap: giao nhau > 0 -> conflict. Hotspot match + 2+ tasks -> conflict.
+   - **Line 118: "Task thieu `> Files:` -> canh bao nhung van cho chay song song (degraded detection)"** -> day la van de W9 (xem deep-dive).
+
+4. **Xu ly conflict** (lines 120-123): Auto-serialize, KHONG hard-stop. Giu task so nho, doi task so lon sang wave tiep. Deadlock fallback: tat ca conflict -> chuyen sequential. Logic hop ly.
+
+5. **Backend + Frontend song song** (line 125): PLAN.md co thiet ke API -> Frontend dung response shape. Day du.
+
+6. **Hien thi wave plan** (lines 127-134): Bang compact, xac nhan 1 lan roi chay. Day du.
+
+##### Buoc 10 --parallel: Multi-agent song song
+FAIL (1 issue -- W9 confirmed + V5 new)
+
+**Logic Trace:**
+Lines 349-377. 7 sub-steps:
+
+1. **Spawn Agent tool** (lines 353-361): Moi task nhan: task detail, PLAN.md sections lien quan, rules, CONTEXT.md path, effort->model mapping. Agent chi chay Buoc 2->3->4->5. KHONG report, KHONG commit, KHONG cap nhat TASKS.md. Day du.
+
+2. **Agent Frontend dac biet** (line 362): Song song Backend, tao types tu response shape, verify types sau khi Backend xong. Day du.
+
+3. **Cho tat ca agents** (line 363). Day du.
+
+4. **Post-wave safety net** (lines 364-368):
+   a. `git diff --name-only` -> files da sua.
+   b. **2+ agents sua cung file -> DUNG**: "Conflict phat hien." Day la SECONDARY conflict detection -- xay ra SAU agents chay, doi nghi voi Layer 2 TRUOC KHI chay.
+   c. Build check: lint + build. Fail -> DUNG. KHONG chay wave tiep.
+   d. OK -> report + TASKS.md + commit cho TUNG task.
+
+5. **Verify integration** (line 369): So sanh TS interfaces vs response DTO. Mismatch -> sua frontend. Day du.
+
+6. **Wave tiep** (line 370). Day du.
+
+7. **Het waves** (lines 371-378): Buoc 9 -> thong bao tong ket. Day du.
+
+**Issues:**
+- W9 (Phase 14 confirmed) + V5 (moi): `> Files:` metadata missing trong TASKS.md -> conflict detection bi degraded. Xem W9 deep-dive chi tiet.
+
+### Key Links
+
+| Step tao | Artifact | Step dung | Verified |
+|----------|----------|-----------|----------|
+| [plan input] | PLAN.md | Step 1 (doc plan, line 26), Step 2 (doc context, lines 152-156), Step 10 parallel (PLAN.md sections cho agents, line 355) | **PASS** -- PLAN.md duoc doc tai 3 buoc khac nhau voi muc dich khac nhau: Step 1 (overview), Step 2 (chi tiet task), Step 10 (parallel agent context). Data flow lien tuc. |
+| Step 1 | TASKS.md (parsed) | Step 1.1 (recovery check, line 58-61), Step 3 (task detail reference), Step 7a (cap nhat status, line 257), Step 8 (context update check) | **PASS** -- TASKS.md duoc doc tai Step 1, cap nhat tai Step 1 (🔄 persist, line 50), Step 7a (✅), va kiem tra tai nhieu buoc. Data flow lien tuc. |
+| Step 4 | Source code files | Step 5 (lint/build, line 203), Step 6 (bao cao, line 215), Step 6.5a (kiem tra ton tai, line 239), Step 7b (git add, line 264) | **PASS** -- Files tao tai Step 4, verified tai Step 5 (lint), bao cao tai Step 6, kiem tra ton tai tai Step 6.5a, commit tai Step 7b. Pipeline lien tuc. |
+| Step 7b | Git commit | Step 9 (verify khi phase hoan tat), Step 9.5 (verification loop dua tren committed code) | **PASS** -- Commit tai Step 7b. Step 9 chi chay khi TAT CA tasks ✅ (da commit). Step 9.5 verify tren code da commit. Data flow lien tuc. |
+| Step 1.1 | PROGRESS.md (recovery) | Step 4 (cap nhat sau moi file, line 199), Step 7b (xoa sau commit, line 278) | **PASS** -- Tao tai Step 1.1 (truong hop 2, line 83). Cap nhat tai Step 4 (line 199). Xoa tai Step 7b (line 278). Lifecycle hoan chinh (IT-3 PASS). |
+| Step 6 | CODE_REPORT_TASK_[N].md | Step 6.5a (kiem tra, line 239), Step 7b (commit cung source, line 268) | **PASS** -- Tao tai Step 6 (line 215). Kiem tra tai Step 6.5a. Commit cung source code tai Step 7b. Data flow lien tuc. |
+| Step 9.5e | VERIFICATION_REPORT.md | Step 9.5f (xu ly ket qua, line 322), tracking commit (line 337) | **PASS** -- Tao tai Step 9.5e theo @templates/verification-report.md (line 320). Xu ly ket qua tai Step 9.5f. Commit tai tracking commit (line 337). Data flow lien tuc. |
+
+### State Machine Compliance (D-05)
+
+| Kiem tra | Ket qua | Chi tiet |
+|----------|---------|----------|
+| Task status chi danh dau ✅ SAU code + build + commit | **PASS** | Step 4 (code) -> Step 5 (lint/build) -> Step 7a (TASKS.md ✅) -> Step 7b (commit). Thu tu dung. Conventions.md (line 18): "Danh ✅ TRUOC commit" -- workflow nhat quan: 7a (✅) truoc 7b (commit). |
+| Build fail -> giu trang thai 🔄 | **PASS** | Step 5 (line 209): fail -> sua + chay lai, toi da 3 lan -> DUNG. Khong advance qua Step 5 neu fail. Task giu 🔄. Conventions.md (line 18): "Commit fail -> revert 🔄, sua roi thu lai." |
+| PROGRESS.md recovery khong tao duplicate states | **PASS** | Step 1.1 truong hop 0 (line 58): Task ✅ + PROGRESS.md = gian doan giua 7a-7b. Kiem tra git log. Da commit -> xoa PROGRESS.md -> xong (khong re-run). Chua commit -> revert 🔄 -> nhay Buoc 7. Khong co duplicate state risk. |
+| Auto-advance chi khi phase hoan tat | **PASS** | Step 9 (line 289): "TAT CA tasks ✅" truoc khi cap nhat ROADMAP/REQUIREMENTS/STATE. Step 9.5 (line 295): verification chi chay khi phase hoan tat. state-machine.md (lines 58-61): auto-advance logic nhat quan. |
+
+### FastCode Fallback Verification (D-06)
+
+| Kiem tra | Ket qua | Chi tiet |
+|----------|---------|----------|
+| FastCode loi co fallback | **PASS** | Line 170: "FastCode loi -> Grep/Read fallback. Warning." |
+| Fallback khong block workflow | **PASS** | Line 412 (rules): "FastCode loi -> Grep/Read fallback, ghi warning". Explicit rule, khong block. |
+| Du an moi skip FastCode | **PASS** | Line 167: "Moi, chua co source: skip FastCode, chi Context7 tra docs." Logic hop ly -- du an moi chua co code de query. |
+
+### Phase 14 Issues Deep-Dive
+
+#### W9: Parallel mode silent degradation (Warning)
+
+**Source:** 14-AUDIT-REPORT.md, AUDIT-02, W4 (W9 la ID Phase 15, W4 la ID goc Phase 14 AUDIT-02)
+**Lines:** 114-118, 353-377 (workflows/write-code.md)
+**Phase 14 assessment:** "Add explicit warning to user when `> Files:` is missing."
+
+**Deep-dive:**
+
+**Van de chinh:** Step 1.5 Layer 2 conflict detection (line 114-118) dua vao `> Files:` metadata trong TASKS.md. Line 118: "Task thieu `> Files:` -> canh bao nhung van cho chay song song (degraded detection)."
+
+**Khi `> Files:` missing, conflict detection lam gi?**
+
+1. **Layer 1** (static hotspot patterns, lines 102-112): Van hoat dong -- kiem tra dua tren stack patterns (barrel exports, config files, module registrations). KHONG can `> Files:` metadata.
+2. **Layer 2** (dynamic cross-reference, lines 114-118): BI DEGRADED -- khong co `> Files:` thi khong the so sanh tung cap tasks. Line 118 chi noi "canh bao" nhung khong chi ro FORMAT canh bao, TIMING (truoc hay sau wave), hay CONSEQUENCE (user co biet de review khong).
+3. **Post-wave safety net** (Step 10, lines 364-368): git diff --name-only SAU khi agents chay -> phat hien conflict SAU KHI da xay ra. Luc nay code da bi ghi de -- damage da done.
+
+**Impact thuc te:**
+
+| Scenario | `> Files:` | Layer 1 | Layer 2 | Post-wave | Ket qua |
+|----------|-----------|---------|---------|-----------|---------|
+| 2 tasks cung sua app.module.ts | Co | CATCH (hotspot) | CATCH | N/A | **An toan** |
+| 2 tasks cung sua app.module.ts | Thieu | CATCH (hotspot) | MISS | CATCH (nhung da late) | **An toan** (Layer 1 bao ve) |
+| 2 tasks cung sua custom-service.ts | Co | MISS | CATCH | N/A | **An toan** |
+| 2 tasks cung sua custom-service.ts | Thieu | MISS | MISS | CATCH (damage done) | **NGUY HIEM** -- agents ghi de nhau |
+
+**Severity assessment:** **Warning** (khong phai Critical). Ly do:
+1. Layer 1 bao ve cho cac file hotspot pho bien (config, module, barrel exports)
+2. Post-wave safety net van catch conflict -- chi la SAU KHI damage xay ra
+3. Planner thuong generate `> Files:` (la phan cua plan output) -- truong hop thieu la edge case
+4. Nhung khi xay ra voi custom files, data loss la THUC SU (agent A ghi de code cua agent B)
+
+**Suggested Fix CU THE:**
+
+- **File:** `workflows/write-code.md`
+- **Line 118:** Doi tu:
+  `- Task thiếu > Files: → cảnh báo nhưng vẫn cho chạy song song (degraded detection)`
+- **Thanh:**
+  ```
+  - Task thiếu `> Files:` → **CẢNH BÁO RÕ RÀNG** trước khi spawn agents:
+    "⚠️ Task [N] thiếu `> Files:` metadata. Conflict detection bị giảm cấp — chỉ phát hiện hotspot patterns.
+    Khuyến nghị: thêm `> Files:` vào TASKS.md trước khi chạy --parallel, hoặc chấp nhận rủi ro conflict."
+  - Hiển thị CẢ danh sách tasks thiếu `> Files:` trong wave plan (Bước 1.5 sub-step 6)
+  ```
+- **Them tai line 366 (post-wave safety net):**
+  ```
+  b2. Tasks thiếu `> Files:` trong wave vừa chạy → hiển thị:
+    "⚠️ [N] tasks thiếu `> Files:` metadata. Review kỹ các files sau đây (có thể bị conflict không phát hiện): [list files from git diff]"
+  ```
+
+#### W4: context7-pipeline.md khong trong skill execution_context (Warning)
+
+**Source:** 14-AUDIT-REPORT.md, AUDIT-01, W4
+**Lines:** workflows/write-code.md line 172, commands/pd/write-code.md execution_context
+**Phase 14 assessment:** "Add @references/context7-pipeline.md (optional) to relevant skills."
+
+**Deep-dive:**
+Workflow `write-code.md` line 172 reference `@references/context7-pipeline.md`. Nhung skill file `commands/pd/write-code.md` execution_context (lines 50-57) khong list file nay. Context7-pipeline la lazy-loaded dependency -- duoc doc KHI task dung thu vien ngoai (line 172: "Context7 (task dung thu vien ngoai)").
+
+**Impact thuc te:** Thap. Agent se doc file nay khi gap @references/context7-pipeline.md trong workflow text. Viec khong list trong skill file chi anh huong transparency -- khong anh huong hoat dong.
+
+**Ket luan:** Giu muc Warning. Fix la them dong `@references/context7-pipeline.md (optional)` vao skill file execution_context.
+
+### Kahn's Algorithm Verification
+
+| Kiem tra | Ket qua | Chi tiet |
+|----------|---------|----------|
+| Adjacency list tu cot Phu thuoc | **PASS** | Lines 91-94: 3 loai edge. Code dependency -> edge. Design dependency -> khong edge. Shared file -> edge. Day du. |
+| In-degree tinh dung | **PASS** | Line 95: "Tinh in-degree cho moi task." Logic Kahn's standard. |
+| Wave computation | **PASS** | Lines 96-97: Wave 1 = in-degree 0 + ⬜. Moi wave tiep: xoa -> tinh lai -> in-degree 0 moi. Standard topological sort. |
+| Circular detection | **PASS** | Line 98: "Khong task nao in-degree 0 + con tasks chua xu ly -> DUNG." Dieu kien chinh xac cho Kahn's -- neu khong tien trien duoc thi co cycle. state-machine.md (lines 101-104) nhat quan. |
+| Deadlock fallback | **PASS** | Line 123: "TAT CA tasks con lai conflict lan nhau -> chuyen sequential." Fallback hop ly. |
+
+### Detailed Findings
+
+| ID | Source | Lines | Severity | Description & Impact | Suggested Fix | Regression Risk | Phase 14 Ref |
+|----|--------|-------|----------|---------------------|---------------|-----------------|--------------|
+| V5 | WFLOW-02 | 114-118, 364-368 | Warning | Layer 2 conflict detection (dynamic `> Files:` cross-reference) bi degraded khi tasks thieu `> Files:` metadata. Line 118 noi "canh bao" nhung khong chi ro format, timing, hay consequence. Post-wave safety net (line 366) catch conflict SAU KHI agents da chay -- damage da done (code bi ghi de). Impact: 2 parallel tasks sua cung custom file ma khong co hotspot pattern -> agent A ghi de code cua agent B ma khong ai biet cho den post-wave check. | (1) Line 118: doi thanh canh bao RO RANG truoc khi spawn agents, list tasks thieu `> Files:`, de xuat them metadata hoac chap nhan rui ro. (2) Line 366: them sub-step b2 -- tasks thieu `> Files:` trong wave vua chay -> hien thi danh sach files can review thu cong. Chi tiet: xem W9 deep-dive. | Low | W9/W4 (Phase 14) -- V5 la he luy cua W9 (silent degradation), lien quan W4 (context7-pipeline transparency) |
+| V6 | WFLOW-02 | 18 (conventions.md) | Info | Conventions.md line 18 noi "Danh ✅ TRUOC commit. Commit fail -> revert 🔄, sua roi thu lai." Workflow write-code.md Step 7 cung logic nay (7a ✅ truoc 7b commit, line 275 "Commit FAIL -> revert TASKS.md ve 🔄"). HAI files NHAT QUAN nhung co 1 subtle difference: conventions.md noi "Danh ✅ TRUOC commit" nhu GENERAL rule, nhung dieu nay chi dung cho write-code workflow. Fix-bug workflow (Step 10) update TASKS.md SAU user confirm, khong phai truoc commit. Impact: Thap -- conventions.md la general guideline, moi workflow co specific logic. Nhung co the gay confusion neu doc conventions.md doc lap. | Them note vao conventions.md line 18: "Ap dung cho /pd:write-code. Cac workflow khac (fix-bug) co logic rieng." | Low | Khong co |
+
+### Workflow Summary
+
+| Metric | Gia tri |
+|--------|---------|
+| Tong steps traced | 22 (1, 1.1, 1.5, 1.6, 2, 3, 4, 5, 6, 6.5, 6.5a, 6.5b, 7, 7a, 7b, 8, 9, 9.5, 9.5a-f, 10-default, 10-auto, 10-parallel) |
+| Steps PASS | 21 |
+| Steps FAIL | 1 (Step 10 parallel -- W9 confirmed) |
+| Critical Truths | 5/5 PASS |
+| Implicit Truths | 6/6 PASS |
+| Issues phat hien | 2 (V5 Warning, V6 Info) + 1 confirmed (W9 Warning) |
+| Phase 14 deep-dive | W9 confirmed -- silent degradation khi `> Files:` missing, W4 confirmed -- transparency issue |
+| Key Links | 7/7 PASS |
+| State Machine compliance | PASS |
+| FastCode fallback | PASS |
+| Kahn's algorithm | PASS |
+| Effort routing cross-verify | PASS (KHOP HOAN TOAN voi conventions.md) |
 
 ## Cross-Workflow Issues
 
-> [Se tong hop trong Plan 15-03]
+### Phan tich cross-workflow
+
+| Pattern | WFLOW-03 (fix-bug) | WFLOW-01 (new-milestone) | WFLOW-02 (write-code) | Nhat quan? |
+|---------|--------------------|--------------------------|-----------------------|------------|
+| State machine compliance | PASS -- ✅ SAU user confirm | PASS -- commit truoc khi ghi nhan | PASS -- ✅ truoc commit (7a truoc 7b) | **Co** -- moi workflow co logic rieng nhung deu tuong thich state-machine.md |
+| AskUserQuestion fallback | Khong dung AskUserQuestion | **CONFLICT** -- Step 3 (tu dong sao luu) vs rules (hoi van ban) | Khong dung AskUserQuestion truc tiep trong default mode | **V3 chi anh huong WFLOW-01** |
+| FastCode fallback | PASS -- Grep/Read fallback | Khong dung FastCode | PASS -- Grep/Read fallback + du an moi skip | **Nhat quan** giua 2 workflows dung FastCode |
+| Commit flow ordering | Step 9 (commit) SAU Step 8 (code) | Step 6e, 7f, 9d (3 commits) | Step 7a (TASKS.md) truoc 7b (commit) | **Nhat quan** -- moi workflow co specific commit logic phu hop |
+| Effort routing | Step 6a.1 -- **ASPIRATIONAL** (V2) | Khong co effort routing | Steps 1, 10 -- **KHOP conventions.md** (CT-4 PASS) | **KHONG nhat quan** -- fix-bug co table aspirational, write-code table khop |
+
+### Ket luan
+
+Khong phat hien cross-workflow issues MOI ngoai nhung gi da documented. Moi workflow co issues DOC LAP:
+- WFLOW-03: C2 (stack fallback), V1 (CONTEXT.md stack assumption), V2 (aspirational effort routing)
+- WFLOW-01: V3 (AskUserQuestion fallback conflict), V4 (reset-phase-numbers)
+- WFLOW-02: V5 (parallel silent degradation), V6 (conventions.md subtle difference)
+
+**Diem tich cuc:** FastCode fallback va state machine compliance NHAT QUAN across workflows. Commit flow ordering tuy khac nhau nhung deu hop ly cho tung use case.
+
+**Effort routing KHONG nhat quan:** fix-bug co aspirational table (V2), write-code co table KHOP conventions.md. Can resolve: hoac fix-bug xoa table (Phuong an A tu V2), hoac ca 2 dong bo.
 
 ## Issue Registry
 
-> [Se tong hop trong Plan 15-03]
+| ID | Source | Workflow | Lines | Severity | Description | Phase 14 Ref |
+|----|--------|----------|-------|----------|-------------|--------------|
+| V1 | WFLOW-03 | fix-bug | 133 | Warning | CONTEXT.md -> stack gia dinh luon co stack. Neu thieu hoac stack ngoai 5 listed -> agent khong co fallback xac dinh luong truy vet. | C2 (Phase 14) |
+| V2 | WFLOW-03 | fix-bug | 162-174 | Warning | Effort routing table aspirational -- skill file hardcode sonnet, workflow table khong co enforcement. Tat ca bugs chay sonnet bat ke do phuc tap. | Khong co |
+| V3 | WFLOW-01 | new-milestone | 105, 403 | Warning-High | Step 3 "tu dong sao luu" vs rules "hoi van ban" -- 2 instructions TRAI NHAU ve fallback behavior. Agent khong biet theo dau. | W12/W7 (Phase 14) |
+| V4 | WFLOW-01 | new-milestone | 107-110 | Info | --reset-phase-numbers khong verify thu muc phase moi co TRUNG TEN voi phase cu khong. | Khong co |
+| V5 | WFLOW-02 | write-code | 114-118, 364-368 | Warning | Parallel mode `> Files:` missing -> Layer 2 conflict detection degraded. Canh bao khong ro rang. Post-wave catch SAU damage. | W9/W4 (Phase 14) |
+| V6 | WFLOW-02 | write-code | 18 (conv.) | Info | Conventions.md "Danh ✅ TRUOC commit" la general rule nhung chi dung cho write-code. Fix-bug co logic rieng. Co the gay confusion. | Khong co |
+
+**Tong:** 6 issues (0 Critical, 1 Warning-High, 3 Warning, 2 Info)
+**Phase 14 confirmed:** 3 (C2 -> V1, W12 -> V3, W9 -> V5)
+**Issues moi:** 3 (V2, V4, V6)
 
 ## Recommendations cho Phase 16
 
-> [Se tong hop trong Plan 15-03]
+### Critical Fixes (phai fix)
+
+**Khong co issues muc Critical.** C2 (Phase 14) da duoc confirm nhung V1 la Warning vi co workaround (agent dung generic debugging flow tu training data). Tuy nhien, V1 + C2 nen duoc fix som vi impact 60-70% projects.
+
+**Khuyen nghi fix V1 + C2 cung nhau:**
+- **File:** `workflows/fix-bug.md`
+- **Lines:** 133-141
+- **Fix:** Them row "Generic/Khac" vao bang stack trace: "entry point -> handler -> business logic -> data layer -> response". Them fallback: "Khong xac dinh duoc stack tu CONTEXT.md -> dung luong truy vet generic." *(Confirmed by Phase 15 verification -- C2 impact 60-70% projects)*
+- **Issue IDs:** V1, C2
+
+### Warning Fixes (nen fix)
+
+**1. V3 -- AskUserQuestion fallback conflict (Warning-High)**
+- **File:** `workflows/new-milestone.md`
+- **Line:** 105
+- **Fix:** Doi thanh: "AskUserQuestion khong kha dung nhu tool -> hoi van ban thuong (theo rules). Nguoi dung khong phan hoi HOAC tool loi ky thuat -> tu dong sao luu. Ghi chu: 'Da tu dong sao luu do khong nhan duoc phan hoi.'" *(Confirmed by Phase 15 verification -- phat hien THEM conflict voi rules line 403)*
+- **Issue IDs:** V3
+
+**2. V2 -- Effort routing aspirational trong fix-bug (Warning)**
+- **File:** `workflows/fix-bug.md`
+- **Lines:** 162-174
+- **Fix:** Phuong an A (khuyen nghi): Xoa effort routing table, them note: "fix-bug luon chay voi sonnet (theo skill file). Effort routing khong ap dung cho fix-bug do thiet ke hien tai." *(Phase 15 xac nhan: write-code effort routing KHOP conventions.md, nhung fix-bug la aspirational)*
+- **Issue IDs:** V2
+
+**3. V5 -- Parallel mode silent degradation (Warning)**
+- **File:** `workflows/write-code.md`
+- **Lines:** 118, 366
+- **Fix:** (1) Line 118: canh bao RO RANG truoc spawn agents, list tasks thieu `> Files:`. (2) Line 366: them sub-step b2 -- tasks thieu `> Files:` -> hien thi files can review. *(Confirmed by Phase 15 verification -- W9 Phase 14)*
+- **Issue IDs:** V5
+
+### Info/Cleanup (neu co time)
+
+**1. V4 -- reset-phase-numbers khong verify trung ten (Info)**
+- **File:** `workflows/new-milestone.md`
+- **Lines:** 107-110
+- **Fix:** Them instruction: "Truoc khi reset: Glob phase-* -> co trung ten -> luu tru truoc."
+- **Issue IDs:** V4
+
+**2. V6 -- Conventions.md subtle difference (Info)**
+- **File:** `references/conventions.md`
+- **Line:** 18
+- **Fix:** Them note: "Ap dung cho /pd:write-code. Cac workflow khac co logic rieng."
+- **Issue IDs:** V6
+
+**3. W4 -- context7-pipeline.md transparency (Warning, Phase 14)**
+- **File:** `commands/pd/write-code.md` (va cac skill khac)
+- **Fix:** Them `@references/context7-pipeline.md (optional)` vao execution_context cua skills dung context7. *(Confirmed by Phase 15 verification)*
+- **Issue IDs:** W4 (Phase 14)
