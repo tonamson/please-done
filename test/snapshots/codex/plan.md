@@ -276,24 +276,32 @@ Khi `result.overall === 'pass'` — hiển thị summary table rồi tiếp tụ
 ### Kiểm tra plan
 | Check | Kết quả |
 |-------|---------|
-| CHECK-01: Requirement Coverage | PASS |
-| CHECK-02: Task Completeness | PASS |
-| CHECK-03: Dependency Correctness | PASS |
-| CHECK-04: Truth-Task Coverage | PASS |
+<!-- Iterate qua result.checks array, mỗi check 1 dòng: -->
+| {check.checkId}: {tên mô tả} | PASS |
 **Kết quả: PASS** — Plan đạt chất lượng, tiếp tục commit.
 ```
+Check name mapping (dùng cho PASS table và ISSUES FOUND headers):
+- CHECK-01 = Requirement Coverage
+- CHECK-02 = Task Completeness
+- CHECK-03 = Dependency Correctness
+- CHECK-04 = Truth-Task Coverage
+- ADV-01 = Key Links
+- ADV-02 = Scope Thresholds
+- ADV-03 = Effort Classification
+**Quan trọng:** Iterate qua `result.checks` array — KHÔNG hardcode tên check. Khi có check mới, chỉ cần thêm vào mapping trên.
 ### C. Kết quả ISSUES FOUND (D-02, D-03, D-04)
 Khi `result.overall === 'block'` hoặc `result.overall === 'warn'` — hiển thị report:
 ```markdown
 ### Kiểm tra plan
 **Kết quả: ISSUES FOUND**
-#### CHECK-01: Requirement Coverage — [STATUS]
+#### CHECK-01: Requirement Coverage — BLOCK
 - [issue.message cho từng issue]
-#### CHECK-02: Task Completeness — [STATUS]
+#### CHECK-02: Task Completeness — PASS
+#### ADV-02: Scope Thresholds — WARN
 - [issue.message cho từng issue]
 ```
 Quy tắc:
-- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### CHECK-0N: [Tên] — PASS` (D-02)
+- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### {checkId}: {Tên} — PASS` (D-02)
 - **Chỉ hiển thị `issue.message`** — KHÔNG hiển thị `issue.fixHint` (fixHint dùng nội bộ khi Claude auto-fix) (D-03)
 - **Tối đa 10 issues** hiển thị. Nếu tổng issues > 10, hiển thị 10 đầu tiên rồi ghi `+ [N] issues khác` ở cuối (D-04)
 ### D. Lựa chọn của user (D-07, D-08)
