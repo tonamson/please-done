@@ -31,7 +31,7 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 - [x] **Phase 10: Core Plan Checks** - Spec + module với 4 structural validators cho requirement coverage, task completeness, dependency correctness, Truth-Task coverage (completed 2026-03-23)
 - [x] **Phase 11: Workflow Integration** - Report format PASS/ISSUES FOUND với actionable fix hints + tự động chạy sau Step 8 trong plan.md (completed 2026-03-23)
 - [x] **Phase 12: Advanced Checks** - Key Links verification, scope threshold warnings, effort classification validation (completed 2026-03-23)
-- [ ] **Phase 13: Display Fix** - PASS report table hiển thị đầy đủ 7 checks thay vì hardcode 4 (gap closure từ audit)
+- [x] **Phase 13: Display Fix** - PASS report table hiển thị đầy đủ 7 checks thay vì hardcode 4 (gap closure từ audit) (completed 2026-03-23)
 
 ## Phase Details
 
@@ -86,7 +86,7 @@ Plans:
   2. Khi thêm check mới trong tương lai, PASS table tự động bao gồm check mới mà không cần sửa template
 **Plans**: 1 plan
 Plans:
-- [ ] 13-01-PLAN.md — Dynamic PASS table + ADV check examples in ISSUES FOUND
+- [x] 13-01-PLAN.md — Dynamic PASS table + ADV check examples in ISSUES FOUND
 
 ## Progress
 
@@ -107,4 +107,4 @@ Phases execute in numeric order: 10 → 11 → 12 → 13
 | 10. Core Plan Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
 | 11. Workflow Integration | v1.1 | 1/1 | Complete    | 2026-03-23 |
 | 12. Advanced Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
-| 13. Display Fix | v1.1 | 0/1 | Not started | - |
+| 13. Display Fix | v1.1 | 1/1 | Complete   | 2026-03-23 |
