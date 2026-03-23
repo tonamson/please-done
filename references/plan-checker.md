@@ -142,7 +142,92 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Task khong co Truth nao map (v1.1) | WARN |
 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
 
-## 6. Result Format
+## 6. ADV-01: Key Links Verification
+
+> Per D-01, D-02, D-03, D-04, D-12 tu Phase 12
+
+**Input:** PLAN.md content + TASKS.md content
+
+**Rule:** Key Links trong PLAN.md phai duoc phan anh trong task Files. Ca 2 dau (from + to) phai co task touch, va it nhat 1 task phai touch ca 2 dau cung luc.
+
+**Logic:**
+1. Detect format — v1.0/unknown: graceful PASS (D-12)
+2. Parse Key Links tu v1.1 PLAN.md body table (section "Lien ket then chot")
+3. Neu khong co Key Links section: PASS (plan co the khong co Key Links)
+4. Normalize paths: strip parenthetical suffixes VD "plan.md (Step 8.1)" -> "plan.md"
+5. Voi moi Key Link:
+   a. Check `from` path xuat hien trong Files cua it nhat 1 task (substring containment)
+   b. Check `to` path xuat hien trong Files cua it nhat 1 task (substring containment)
+   c. Check it nhat 1 task co CA HAI `from` va `to` trong Files (D-02 — dam bao integration thuc su)
+6. Bat ky violation nao -> BLOCK (D-04)
+
+**Severity:**
+| Dieu kien | Severity |
+|-----------|----------|
+| Key Link path khong co trong bat ky task Files nao | BLOCK |
+| Khong co task nao touch ca 2 dau cung luc | BLOCK |
+| Khong co Key Links section | PASS (skip) |
+| v1.0/unknown format | PASS (graceful) |
+
+## 7. ADV-02: Scope Threshold Warnings
+
+> Per D-05, D-06, D-13 tu Phase 12
+
+**Input:** PLAN.md content + TASKS.md content
+
+**Rule:** Canh bao khi plan vuot scope thresholds hop ly tren 4 dimensions.
+
+**Logic:**
+1. Parse tasks tu v1.0 (parseTasksV10) hoac v1.1 (parseTaskDetailBlocksV11)
+2. Unknown format: graceful PASS
+3. v1.0 va v1.1 deu duoc check (D-13)
+4. Check 4 dimensions:
+   a. Tasks per plan > 6: WARN
+   b. Files per task > 7 (cho tung task): WARN
+   c. Total unique files per plan > 25: WARN
+   d. Truths per plan > 6: WARN (v1.0 dung parseMustHavesTruths, v1.1 dung parseTruthsV11)
+
+**Severity:**
+| Dieu kien | Severity |
+|-----------|----------|
+| Bat ky dimension nao vuot threshold | WARN |
+| Tat ca dimensions trong threshold | PASS |
+| Unknown format | PASS (graceful) |
+
+## 8. ADV-03: Effort Classification Validation
+
+> Per D-07, D-08, D-09, D-10, D-11, D-12 tu Phase 12
+
+**Input:** PLAN.md content + TASKS.md content
+
+**Rule:** Effort classification (simple/standard/complex) phai khop voi scope thuc te cua task. Canh bao mismatch ca 2 chieu (underestimate va overestimate).
+
+**Logic:**
+1. Detect format — v1.0/unknown: graceful PASS (D-12 — v1.0 khong co Effort field)
+2. Parse tasks tu TASKS.md (parseTaskDetailBlocksV11)
+3. Voi moi task co Effort field:
+   a. Tinh actual effort tu 4 signals (D-08):
+      - Files: 1-2 = simple, 3-4 = standard, 5+ = complex
+      - Truths: 1 = simple, 2-3 = standard, 4+ = complex
+      - Dependencies: 0 = simple, 1-2 = standard, 3+ = complex
+      - Multi-domain: files span 2+ top-level directories = complex (D-09)
+   b. Lay signal cao nhat (conservative — D-08)
+   c. So sanh labeled effort voi actual effort
+   d. Mismatch -> WARN voi direction (underestimate/overestimate)
+4. fixHint: de nghi doi Effort hoac giu nguyen neu planner co ly do (D-10)
+
+**Multi-domain detection (D-09):**
+- Tach files theo dau phay, lay top-level directory cua moi file (phan truoc dau `/` dau tien)
+- 2+ top-level directories khac nhau = multi-domain
+
+**Severity:**
+| Dieu kien | Severity |
+|-----------|----------|
+| Effort mismatch (ca 2 chieu) | WARN |
+| v1.0/unknown format | PASS (graceful) |
+| Task khong co Effort field | skip (da xu ly boi CHECK-02) |
+
+## 9. Result Format
 
 ### Per-check result (D-13)
 ```json
@@ -165,9 +250,12 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
   "overall": "pass|block|warn",
   "checks": [
     { "checkId": "CHECK-01", "status": "pass", "issues": [] },
-    { "checkId": "CHECK-02", "status": "block", "issues": [{ "message": "...", "location": "...", "fixHint": "..." }] },
+    { "checkId": "CHECK-02", "status": "pass", "issues": [] },
     { "checkId": "CHECK-03", "status": "pass", "issues": [] },
-    { "checkId": "CHECK-04", "status": "warn", "issues": [{ "message": "...", "location": "...", "fixHint": "..." }] }
+    { "checkId": "CHECK-04", "status": "pass", "issues": [] },
+    { "checkId": "ADV-01", "status": "pass", "issues": [] },
+    { "checkId": "ADV-02", "status": "pass", "issues": [] },
+    { "checkId": "ADV-03", "status": "pass", "issues": [] }
   ]
 }
 ```
@@ -177,7 +265,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 - `overall = 'warn'` neu co warn nhung KHONG co block
 - `overall = 'pass'` neu TAT CA checks la `'pass'`
 
-## 7. Severity Summary Table
+## 10. Severity Summary Table
 
 | Check | Dieu kien | Severity |
 |-------|-----------|----------|
@@ -194,7 +282,16 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | CHECK-04 | Truth khong co task nao map (v1.1) | BLOCK |
 | CHECK-04 | Task khong co Truth nao map (v1.1) | WARN |
 | CHECK-04 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
+| ADV-01 | Key Link path khong co trong bat ky task Files nao | BLOCK |
+| ADV-01 | Khong co task nao touch ca 2 dau cung luc | BLOCK |
+| ADV-01 | Khong co Key Links section | PASS (skip) |
+| ADV-01 | v1.0/unknown format | PASS (graceful) |
+| ADV-02 | Bat ky dimension nao vuot threshold | WARN |
+| ADV-02 | Tat ca dimensions trong threshold | PASS |
+| ADV-02 | Unknown format | PASS (graceful) |
+| ADV-03 | Effort mismatch (ca 2 chieu) | WARN |
+| ADV-03 | v1.0/unknown format | PASS (graceful) |
 
 ---
-*Plan Checker Rules v1.0*
-*Created: 23_03_2026*
+*Plan Checker Rules v1.1*
+*Updated: 23_03_2026*
