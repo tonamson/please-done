@@ -51,6 +51,8 @@ Dữ liệu nhập: $ARGUMENTS
 @references/conventions.md (required)
 @references/prioritization.md (optional)
 @references/ui-brand.md (optional)
+@references/plan-checker.md (optional)
+@references/context7-pipeline.md (optional)
 </execution_context>
 
 <process>

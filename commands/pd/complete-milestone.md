@@ -42,6 +42,7 @@ Người dùng nhập: $ARGUMENTS (không dùng, vì version tự động lấy 
 @references/verification-patterns.md (optional)
 @templates/current-milestone.md (optional)
 @templates/state.md (optional)
+@templates/verification-report.md (optional)
 </execution_context>
 
 <process>

@@ -45,6 +45,7 @@ Người dùng nhập: $ARGUMENTS
 @workflows/fix-bug.md (required)
 @references/conventions.md (required)
 @references/prioritization.md (optional)
+@references/context7-pipeline.md (optional)
 </execution_context>
 
 <process>

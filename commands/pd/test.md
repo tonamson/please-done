@@ -47,6 +47,7 @@ Người dùng nhập: $ARGUMENTS
 <execution_context>
 @workflows/test.md (required)
 @references/conventions.md (required)
+@references/context7-pipeline.md (optional)
 </execution_context>
 
 <process>
