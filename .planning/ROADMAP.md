@@ -43,7 +43,7 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
 
 - [x] **Phase 14: Skill & Workflow Audit** — Scan 12 skills, 10 workflows, va 48 converter snapshots tim logic gaps va sync issues (completed 2026-03-23)
 - [ ] **Phase 15: Workflow Verification** — Deep verify 3 workflow chinh (new-milestone, write-code, fix-bug) end-to-end
-- [ ] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15
+- [x] **Phase 16: Bug Fixes** — Fix tat ca bugs phat hien tu Phase 14 va Phase 15 (completed 2026-03-23)
 
 ## Phase Details
 
@@ -56,12 +56,12 @@ Full details: `.planning/milestones/v1.1-ROADMAP.md`
   2. Tat ca 10 workflow files da duoc scan va moi logic gap, missing error handling, stale instruction, broken step reference duoc ghi nhan
   3. Tat ca 48 converter snapshots da duoc verify match voi source files hien tai — moi mismatch duoc ghi nhan cu the (file, line, diff)
   4. Audit report ton tai voi danh sach day du cac issues phat hien, phan loai theo severity (critical/warning/info)
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [x] 14-01: TBD
-- [x] 14-02: TBD
-- [x] 14-03: TBD
+- [x] 14-01: Scan 12 skills, 13 references, 10 templates — tim logic gaps va dead code
+- [x] 14-02: Scan 10 workflows va 15 JS modules — tim logic gaps va sync issues
+- [x] 14-03: Verify 48 converter snapshots va consolidate audit report
 
 ### Phase 15: Workflow Verification
 **Goal**: 3 workflow chinh (new-milestone, write-code, fix-bug) duoc verify end-to-end — moi buoc logic duoc kiem tra, moi gap duoc ghi nhan
@@ -72,12 +72,12 @@ Plans:
   2. Workflow write-code da duoc trace end-to-end: plan reading -> task execution -> effort routing -> Context7 pipeline -> commit flow -> verification — moi buoc logic verified hoac gap ghi nhan
   3. Workflow fix-bug da duoc trace end-to-end: bug reproduction -> diagnosis -> fix application -> test verification -> commit flow — moi buoc logic verified hoac gap ghi nhan
   4. Verification report ton tai voi ket qua cua tung workflow, list ro cac logic gaps can fix
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 15-01: TBD
-- [ ] 15-02: TBD
-- [ ] 15-03: TBD
+- [ ] 15-01-PLAN.md — Trace fix-bug (WFLOW-03): tao report skeleton + verify workflow don gian nhat
+- [ ] 15-02-PLAN.md — Trace new-milestone (WFLOW-01): verify 14 references, 2 approval gates, data flow
+- [ ] 15-03-PLAN.md — Trace write-code (WFLOW-02): verify 3 modes + hoan tat report (Executive Summary, Issue Registry)
 
 ### Phase 16: Bug Fixes
 **Goal**: Tat ca bugs phat hien tu audit (Phase 14) va verification (Phase 15) duoc fix — khong con known issues nao bi bo qua
@@ -115,6 +115,6 @@ Phases execute in numeric order: 14 -> 15 -> 16
 | 11. Workflow Integration | v1.1 | 1/1 | Complete | 2026-03-23 |
 | 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
 | 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
-| 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete   | 2026-03-23 |
-| 15. Workflow Verification | v1.2 | 0/? | Not started | - |
+| 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete    | 2026-03-23 |
+| 15. Workflow Verification | v1.2 | 0/3 | Not started | - |
 | 16. Bug Fixes | v1.2 | 0/? | Not started | - |
