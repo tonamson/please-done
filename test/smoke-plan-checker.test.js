@@ -86,13 +86,23 @@ function makePlanV11(overrides = {}) {
     { id: 'T2', description: 'Second truth', verify: 'Verify 2' }
   ];
   const reqText = overrides.reqText || '';
+  const v13 = overrides.v13 || false;
 
   let content = `# Ke hoach trien khai\n\n## Muc tieu\nTest plan ${reqText}\n\n`;
   content += '## Tieu chi thanh cong\n\n### Su that phai dat (Truths)\n';
-  content += '| # | Su that | Cach kiem chung |\n';
-  content += '|---|---------|------------------|\n';
-  for (const t of truths) {
-    content += `| ${t.id} | ${t.description} | ${t.verify} |\n`;
+
+  if (v13) {
+    content += '| # | Su that | Gia tri nghiep vu | Truong hop bien | Cach kiem chung |\n';
+    content += '|---|---------|-------------------|-----------------|------------------|\n';
+    for (const t of truths) {
+      content += `| ${t.id} | ${t.description} | ${t.businessValue || 'Business reason'} | ${t.edgeCases || 'Edge case'} | ${t.verify} |\n`;
+    }
+  } else {
+    content += '| # | Su that | Cach kiem chung |\n';
+    content += '|---|---------|------------------|\n';
+    for (const t of truths) {
+      content += `| ${t.id} | ${t.description} | ${t.verify} |\n`;
+    }
   }
 
   return content;
@@ -603,6 +613,52 @@ describe('CHECK-03: dependencyCorrectness', () => {
   });
 });
 
+// ─── parseTruthsV11 — v1.3 5-column format ──────────────
+
+describe('parseTruthsV11 — v1.3 5-column format', () => {
+  it('5-col parse: returns correct id and description', () => {
+    const plan = makePlanV11({ v13: true });
+    const truths = pc.parseTruthsV11(plan);
+    assert.equal(truths.length, 2);
+    assert.equal(truths[0].id, 'T1');
+    assert.equal(truths[0].description, 'First truth');
+    assert.equal(truths[1].id, 'T2');
+    assert.equal(truths[1].description, 'Second truth');
+  });
+
+  it('5-col multi-row: 3 truths all returned', () => {
+    const plan = makePlanV11({ v13: true, truths: [
+      { id: 'T1', description: 'First', verify: 'V1' },
+      { id: 'T2', description: 'Second', verify: 'V2' },
+      { id: 'T3', description: 'Third', verify: 'V3' }
+    ]});
+    const truths = pc.parseTruthsV11(plan);
+    assert.equal(truths.length, 3);
+    assert.equal(truths[2].id, 'T3');
+    assert.equal(truths[2].description, 'Third');
+  });
+
+  it('3-col backward compat still works', () => {
+    const plan = makePlanV11(); // default 3-col
+    const truths = pc.parseTruthsV11(plan);
+    assert.equal(truths.length, 2);
+    assert.equal(truths[0].id, 'T1');
+    assert.equal(truths[0].description, 'First truth');
+  });
+
+  it('header/separator exclusion with 5-col: returns 0 for header text', () => {
+    const headerOnly = '| # | Su that | Gia tri nghiep vu | Truong hop bien | Cach kiem chung |\n|---|---------|-------------------|-----------------|------------------|\n';
+    const truths = pc.parseTruthsV11(headerOnly);
+    assert.equal(truths.length, 0);
+  });
+
+  it('makePlanV11({ v13: true }) produces 5-column table format', () => {
+    const plan = makePlanV11({ v13: true });
+    assert.ok(plan.includes('| # | Su that | Gia tri nghiep vu | Truong hop bien | Cach kiem chung |'));
+    assert.ok(plan.includes('Business reason'));
+  });
+});
+
 // ─── CHECK-04: truthTaskCoverage ─────────────────────────
 
 describe('CHECK-04: truthTaskCoverage', () => {
@@ -638,7 +694,7 @@ describe('CHECK-04: truthTaskCoverage', () => {
     assert.ok(result.issues.some(i => i.message.includes('T3')));
   });
 
-  it('v1.1 Task has no Truth mapping -> warn', () => {
+  it('v1.1 Task has no Truth mapping -> block (not warn)', () => {
     const plan = makePlanV11({ truths: [
       { id: 'T1', description: 'First', verify: 'V1' }
     ]});
@@ -647,11 +703,37 @@ describe('CHECK-04: truthTaskCoverage', () => {
         effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
       { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
         effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
-      // Task 2 has no truths -> warn
+      // Task 2 has no truths -> block (D-05, D-06)
     ]});
     const result = pc.checkTruthTaskCoverage(plan, tasks);
-    assert.equal(result.status, 'warn');
+    assert.equal(result.status, 'block');
     assert.ok(result.issues.some(i => i.message.includes('Task 2')));
+  });
+
+  it('v1.1 Direction 2 message does NOT contain "(co the la infrastructure task)"', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkTruthTaskCoverage(plan, tasks);
+    for (const issue of result.issues) {
+      assert.ok(!issue.message.includes('(co the la infrastructure task)'));
+    }
+  });
+
+  it('5-col plan + valid tasks -> CHECK-04 status pass', () => {
+    const plan = makePlanV11({ v13: true });
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1, T2]', desc: 'Build', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkTruthTaskCoverage(plan, tasks);
+    assert.equal(result.status, 'pass');
   });
 
   it('unknown format -> pass', () => {
