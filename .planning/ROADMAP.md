@@ -72,7 +72,7 @@ Plans:
   3. Plan checker so sánh effort classification (simple/standard/complex) với scope thực tế của task (số files, số Truths, dependencies) và cảnh báo mismatch
 **Plans**: 2 plans
 Plans:
-- [ ] 12-01-PLAN.md — 3 check functions (checkKeyLinks, checkScopeThresholds, checkEffortClassification) + rules spec update
+- [x] 12-01-PLAN.md — 3 check functions (checkKeyLinks, checkScopeThresholds, checkEffortClassification) + rules spec update
 - [ ] 12-02-PLAN.md — Unit tests + historical validation (22 plans, zero false positives with 7 checks)
 
 ## Progress
@@ -93,4 +93,4 @@ Phases execute in numeric order: 10 → 11 → 12
 | 9. Converter Pipeline Optimization | v1.0 | 2/2 | Complete | 2026-03-22 |
 | 10. Core Plan Checks | v1.1 | 2/2 | Complete    | 2026-03-23 |
 | 11. Workflow Integration | v1.1 | 1/1 | Complete    | 2026-03-23 |
-| 12. Advanced Checks | v1.1 | 0/2 | Not started | - |
+| 12. Advanced Checks | v1.1 | 1/2 | In Progress|  |
