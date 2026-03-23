@@ -732,11 +732,323 @@ describe('runAllChecks', () => {
       tasksContent: null,
       requirementIds: []
     });
-    assert.equal(result.checks.length, 4);
+    assert.equal(result.checks.length, 7);
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
+  });
+});
+
+// ─── New helper tests: parseKeyLinksV11, normalizeKeyLinkPath, etc. ──
+
+describe('helpers (ADV)', () => {
+  describe('normalizeKeyLinkPath', () => {
+    it('strips parenthetical suffix', () => {
+      assert.equal(pc.normalizeKeyLinkPath('workflows/plan.md (Step 8.1)'), 'workflows/plan.md');
+    });
+
+    it('returns bare path unchanged', () => {
+      assert.equal(pc.normalizeKeyLinkPath('bin/lib/plan-checker.js'), 'bin/lib/plan-checker.js');
+    });
+  });
+
+  describe('parseKeyLinksV11', () => {
+    it('returns [] for empty string', () => {
+      assert.deepEqual(pc.parseKeyLinksV11(''), []);
+    });
+
+    it('returns [] when no Key Links section exists', () => {
+      const plan = makePlanV11();
+      assert.deepEqual(pc.parseKeyLinksV11(plan), []);
+    });
+
+    it('parses Key Links table with diacritics header', () => {
+      const plan = makePlanV11() + '\n### Li\u00ean k\u1EBFt then ch\u1ED1t (Key Links)\n| T\u1EEB | \u0110\u1EBFn | M\u00F4 t\u1EA3 |\n|----|-----|-------|\n| auth.controller | auth.service | Controller goi service.login() |\n';
+      const links = pc.parseKeyLinksV11(plan);
+      assert.equal(links.length, 1);
+      assert.equal(links[0].from, 'auth.controller');
+      assert.equal(links[0].to, 'auth.service');
+    });
+
+    it('parses Key Links table with ASCII header', () => {
+      const plan = makePlanV11() + '\n### Lien ket then chot (Key Links)\n| Tu | Den | Mo ta |\n|----|-----|-------|\n| src/a.js | src/b.js | A calls B |\n| src/c.js | src/d.js | C imports D |\n';
+      const links = pc.parseKeyLinksV11(plan);
+      assert.equal(links.length, 2);
+      assert.equal(links[0].from, 'src/a.js');
+      assert.equal(links[1].to, 'src/d.js');
+    });
+  });
+
+  describe('countFilesInString', () => {
+    it('counts comma-separated files', () => {
+      assert.equal(pc.countFilesInString('src/a.js, src/b.js'), 2);
+    });
+
+    it('counts newline-separated files', () => {
+      assert.equal(pc.countFilesInString('src/a.js\nsrc/b.js'), 2);
+    });
+
+    it('returns 0 for null', () => {
+      assert.equal(pc.countFilesInString(null), 0);
+    });
+
+    it('returns 0 for empty string', () => {
+      assert.equal(pc.countFilesInString(''), 0);
+    });
+  });
+
+  describe('detectMultiDomain', () => {
+    it('returns true for files in different top-level dirs', () => {
+      assert.equal(pc.detectMultiDomain('bin/lib/checker.js, references/spec.md'), true);
+    });
+
+    it('returns false for files in same top-level dir', () => {
+      assert.equal(pc.detectMultiDomain('bin/lib/checker.js, bin/lib/utils.js'), false);
+    });
+
+    it('returns false for null', () => {
+      assert.equal(pc.detectMultiDomain(null), false);
+    });
+  });
+
+  describe('computeActualEffort', () => {
+    it('returns simple for 1 file, 1 truth, 0 deps, single domain', () => {
+      const task = { id: 1, files: 'src/a.js', truths: ['T1'], effort: 'simple' };
+      const tasksContent = '## Task 1: Test\n> Phu thuoc: Khong\n';
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'simple');
+    });
+
+    it('returns complex when 5+ files (highest signal wins per D-08)', () => {
+      const task = { id: 1, files: 'src/a.js, src/b.js, src/c.js, src/d.js, src/e.js', truths: ['T1'], effort: 'simple' };
+      const tasksContent = '## Task 1: Test\n> Phu thuoc: Khong\n';
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'complex');
+    });
+
+    it('returns standard for 3 files', () => {
+      const task = { id: 1, files: 'src/a.js, src/b.js, src/c.js', truths: ['T1'], effort: 'simple' };
+      const tasksContent = '## Task 1: Test\n> Phu thuoc: Khong\n';
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'standard');
+    });
+
+    it('returns complex for multi-domain files', () => {
+      const task = { id: 1, files: 'bin/checker.js, references/spec.md', truths: ['T1'], effort: 'simple' };
+      const tasksContent = '## Task 1: Test\n> Phu thuoc: Khong\n';
+      assert.equal(pc.computeActualEffort(task, tasksContent), 'complex');
+    });
+  });
+});
+
+// ─── ADV-01: checkKeyLinks ──────────────────────────────
+
+describe('ADV-01: checkKeyLinks', () => {
+  it('returns PASS for v1.0 format (D-12)', () => {
+    const plan = makePlanV10();
+    const result = pc.checkKeyLinks(plan, null);
+    assert.equal(result.checkId, 'ADV-01');
+    assert.equal(result.status, 'pass');
+    assert.equal(result.issues.length, 0);
+  });
+
+  it('returns PASS when no Key Links section exists', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11();
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('returns BLOCK when from path not in any task Files (D-01, D-04)', () => {
+    const plan = makePlanV11() + '\n### Lien ket then chot (Key Links)\n| Tu | Den | Mo ta |\n|----|-----|-------|\n| nonexistent.js | src/mod.js | Link |\n';
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', effort: 'standard', files: 'src/mod.js', truths: '[T1]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'block');
+    assert.ok(result.issues.some(i => i.message.includes('nonexistent.js')));
+  });
+
+  it('returns BLOCK when no task touches both ends (D-02)', () => {
+    const plan = makePlanV11() + '\n### Lien ket then chot (Key Links)\n| Tu | Den | Mo ta |\n|----|-----|-------|\n| src/a.js | src/b.js | A calls B |\n';
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Do A', criteria: '- ok' },
+      { id: 2, name: 'Task 2', effort: 'standard', files: 'src/b.js', truths: '[T2]', desc: 'Do B', criteria: '- ok' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'block');
+    assert.ok(result.issues.some(i => i.message.includes('ca 2 dau')));
+  });
+
+  it('returns PASS when task touches both ends', () => {
+    const plan = makePlanV11() + '\n### Lien ket then chot (Key Links)\n| Tu | Den | Mo ta |\n|----|-----|-------|\n| src/a.js | src/b.js | A calls B |\n';
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'standard', files: 'src/a.js, src/b.js', truths: '[T1, T2]', desc: 'Do both', criteria: '- ok' }
+    ]});
+    const result = pc.checkKeyLinks(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+});
+
+// ─── ADV-02: checkScopeThresholds ──────────────────────
+
+describe('ADV-02: checkScopeThresholds', () => {
+  it('returns PASS when all dimensions within thresholds', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11();
+    const result = pc.checkScopeThresholds(plan, tasks);
+    assert.equal(result.checkId, 'ADV-02');
+    assert.equal(result.status, 'pass');
+  });
+
+  it('returns WARN when >6 tasks (D-05)', () => {
+    const taskList = [];
+    for (let i = 1; i <= 7; i++) {
+      taskList.push({
+        id: i, name: `Task ${i}`, effort: 'simple', files: `src/${i}.js`,
+        truths: '[T1]', desc: 'Impl', criteria: '- ok'
+      });
+    }
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: taskList });
+    const result = pc.checkScopeThresholds(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('7 tasks')));
+  });
+
+  it('returns WARN when >7 files per task (D-05)', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'complex', files: 'a.js, b.js, c.js, d.js, e.js, f.js, g.js, h.js', truths: '[T1]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const result = pc.checkScopeThresholds(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('Task 1') && i.message.includes('8 files')));
+  });
+
+  it('returns WARN when >25 total files (D-05)', () => {
+    const taskList = [];
+    for (let i = 1; i <= 5; i++) {
+      const files = [];
+      for (let j = 0; j < 6; j++) files.push(`src/t${i}_${j}.js`);
+      taskList.push({
+        id: i, name: `Task ${i}`, effort: 'complex', files: files.join(', '),
+        truths: '[T1]', desc: 'Impl', criteria: '- ok'
+      });
+    }
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: taskList });
+    const result = pc.checkScopeThresholds(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('unique files')));
+  });
+
+  it('returns WARN when >6 truths (D-05)', () => {
+    const truths = [];
+    for (let i = 1; i <= 7; i++) {
+      truths.push({ id: `T${i}`, description: `Truth ${i}`, verify: `Verify ${i}` });
+    }
+    const plan = makePlanV11({ truths });
+    const tasks = makeTasksV11();
+    const result = pc.checkScopeThresholds(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('7 Truths')));
+  });
+
+  it('works with v1.0 format (D-13)', () => {
+    const plan = makePlanV10({ tasks: [
+      { name: 'T1', files: 'a.js', action: 'Do', verify: 'Test', done: 'Done' }
+    ]});
+    const result = pc.checkScopeThresholds(plan, null);
+    assert.equal(result.checkId, 'ADV-02');
+    assert.equal(result.status, 'pass');
+  });
+
+  it('v1.0 WARN when >6 tasks (D-13)', () => {
+    const taskList = [];
+    for (let i = 1; i <= 7; i++) {
+      taskList.push({ name: `Task ${i}`, files: `src/${i}.js`, action: 'Do', verify: 'Test', done: 'Done' });
+    }
+    const plan = makePlanV10({ tasks: taskList });
+    const result = pc.checkScopeThresholds(plan, null);
+    assert.equal(result.status, 'warn');
+  });
+});
+
+// ─── ADV-03: checkEffortClassification ──────────────────
+
+describe('ADV-03: checkEffortClassification', () => {
+  it('returns PASS for v1.0 format (D-12)', () => {
+    const plan = makePlanV10();
+    const result = pc.checkEffortClassification(plan, null);
+    assert.equal(result.checkId, 'ADV-03');
+    assert.equal(result.status, 'pass');
+  });
+
+  it('returns PASS when no tasksContent', () => {
+    const plan = makePlanV11();
+    const result = pc.checkEffortClassification(plan, null);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('detects underestimate: labeled simple, actual complex (D-07)', () => {
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'simple', files: 'a.js, b.js, c.js, d.js, e.js', truths: '[T1]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const plan = makePlanV11();
+    const result = pc.checkEffortClassification(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('underestimate')));
+  });
+
+  it('detects overestimate: labeled complex, actual simple (D-07)', () => {
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'complex', files: 'src/a.js', truths: '[T1]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const plan = makePlanV11();
+    const result = pc.checkEffortClassification(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('overestimate')));
+  });
+
+  it('returns WARN severity, not BLOCK (D-11)', () => {
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'simple', files: 'a.js, b.js, c.js, d.js, e.js', truths: '[T1]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const plan = makePlanV11();
+    const result = pc.checkEffortClassification(plan, tasks);
+    assert.notEqual(result.status, 'block');
+    assert.equal(result.status, 'warn');
+  });
+
+  it('returns PASS when effort matches', () => {
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task 1', effort: 'standard', files: 'src/a.js, src/b.js, src/c.js', truths: '[T1, T2]', desc: 'Impl', criteria: '- ok' }
+    ]});
+    const plan = makePlanV11();
+    const result = pc.checkEffortClassification(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+});
+
+// ─── runAllChecks with 7 checks ─────────────────────────
+
+describe('runAllChecks with ADV checks', () => {
+  it('returns 7 checks total', () => {
+    const result = pc.runAllChecks({
+      planContent: 'test',
+      tasksContent: null,
+      requirementIds: []
+    });
+    assert.equal(result.checks.length, 7);
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
+    assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
   });
 });
 
