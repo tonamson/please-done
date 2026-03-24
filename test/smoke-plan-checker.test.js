@@ -694,38 +694,6 @@ describe('CHECK-04: truthTaskCoverage', () => {
     assert.ok(result.issues.some(i => i.message.includes('T3')));
   });
 
-  it('v1.1 Task has no Truth mapping -> block (not warn)', () => {
-    const plan = makePlanV11({ truths: [
-      { id: 'T1', description: 'First', verify: 'V1' }
-    ]});
-    const tasks = makeTasksV11({ tasks: [
-      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
-        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
-      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
-        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
-      // Task 2 has no truths -> block (D-05, D-06)
-    ]});
-    const result = pc.checkTruthTaskCoverage(plan, tasks);
-    assert.equal(result.status, 'block');
-    assert.ok(result.issues.some(i => i.message.includes('Task 2')));
-  });
-
-  it('v1.1 Direction 2 message does NOT contain "(co the la infrastructure task)"', () => {
-    const plan = makePlanV11({ truths: [
-      { id: 'T1', description: 'First', verify: 'V1' }
-    ]});
-    const tasks = makeTasksV11({ tasks: [
-      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
-        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
-      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
-        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
-    ]});
-    const result = pc.checkTruthTaskCoverage(plan, tasks);
-    for (const issue of result.issues) {
-      assert.ok(!issue.message.includes('(co the la infrastructure task)'));
-    }
-  });
-
   it('5-col plan + valid tasks -> CHECK-04 status pass', () => {
     const plan = makePlanV11({ v13: true });
     const tasks = makeTasksV11({ tasks: [
@@ -742,6 +710,110 @@ describe('CHECK-04: truthTaskCoverage', () => {
   });
 });
 
+// ─── CHECK-05: logicCoverage ─────────────────────────────
+
+describe('CHECK-05: logicCoverage', () => {
+  it('v1.1 Task has no Truth mapping -> warn (default severity per D-04)', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+      // Task 2 has no truths -> warn (D-04)
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks);
+    assert.equal(result.status, 'warn');
+    assert.ok(result.issues.some(i => i.message.includes('Task 2')));
+  });
+
+  it('v1.1 Direction 2 message does NOT contain "(co the la infrastructure task)" (CHECK-05)', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks);
+    for (const issue of result.issues) {
+      assert.ok(!issue.message.includes('(co the la infrastructure task)'));
+    }
+  });
+
+  it('v1.0 -> auto pass', () => {
+    const result = pc.checkLogicCoverage(makePlanV10(), null);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('unknown format -> pass', () => {
+    const result = pc.checkLogicCoverage('just text', null);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('severity override to block', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks, { severity: 'block' });
+    assert.equal(result.status, 'block');
+  });
+
+  it('default severity is warn', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks);
+    assert.equal(result.status, 'warn');
+  });
+
+  it('issue message contains task ID and technical debt', () => {
+    const plan = makePlanV11({ truths: [
+      { id: 'T1', description: 'First', verify: 'V1' }
+    ]});
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1]', desc: 'Build', criteria: '- [ ] Done' },
+      { id: 2, name: 'Task hai', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/b.js', desc: 'Infra', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks);
+    assert.ok(result.issues[0].message.includes('Task 2'));
+    assert.ok(result.issues[0].message.includes('technical debt'));
+  });
+
+  it('all tasks have truths -> pass', () => {
+    const plan = makePlanV11();
+    const tasks = makeTasksV11({ tasks: [
+      { id: 1, name: 'Task mot', status: '\u2B1C', priority: 'Cao', dep: 'Khong', type: 'Backend',
+        effort: 'standard', files: 'src/a.js', truths: '[T1, T2]', desc: 'Build', criteria: '- [ ] Done' }
+    ]});
+    const result = pc.checkLogicCoverage(plan, tasks);
+    assert.equal(result.status, 'pass');
+  });
+
+  it('checkId is CHECK-05', () => {
+    const result = pc.checkLogicCoverage(makePlanV10(), null);
+    assert.equal(result.checkId, 'CHECK-05');
+  });
+});
+
 // ─── runAllChecks ────────────────────────────────────────
 
 describe('runAllChecks', () => {
@@ -753,7 +825,7 @@ describe('runAllChecks', () => {
       requirementIds: ['REQ-01']
     });
     assert.equal(result.overall, 'pass');
-    assert.equal(result.checks.length, 7);
+    assert.equal(result.checks.length, 8);
     assert.ok(result.checks.every(c => c.status === 'pass'));
   });
 
@@ -834,11 +906,12 @@ describe('runAllChecks', () => {
       tasksContent: null,
       requirementIds: []
     });
-    assert.equal(result.checks.length, 7);
+    assert.equal(result.checks.length, 8);
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-05'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
@@ -1295,20 +1368,21 @@ describe('ADV-03: checkEffortClassification', () => {
   });
 });
 
-// ─── runAllChecks with 7 checks ─────────────────────────
+// ─── runAllChecks with 8 checks ─────────────────────────
 
 describe('runAllChecks with ADV checks', () => {
-  it('returns 7 checks total', () => {
+  it('returns 8 checks total', () => {
     const result = pc.runAllChecks({
       planContent: 'test',
       tasksContent: null,
       requirementIds: []
     });
-    assert.equal(result.checks.length, 7);
+    assert.equal(result.checks.length, 8);
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-05'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
@@ -1366,8 +1440,8 @@ describe('Historical v1.0 plan validation (D-17)', () => {
     });
   }
 
-  // Verify all 22 plans return 7 checks each (expanded suite)
-  it('all 22 historical plans return 7 checks each (expanded suite)', () => {
+  // Verify all 22 plans return 8 checks each (expanded suite)
+  it('all 22 historical plans return 8 checks each (expanded suite)', () => {
     for (const planPath of HISTORICAL_PLANS) {
       const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
       const result = pc.runAllChecks({
@@ -1375,12 +1449,12 @@ describe('Historical v1.0 plan validation (D-17)', () => {
         tasksContent: null,
         requirementIds: []
       });
-      assert.equal(result.checks.length, 7,
-        `${planPath} returned ${result.checks.length} checks instead of 7`);
+      assert.equal(result.checks.length, 8,
+        `${planPath} returned ${result.checks.length} checks instead of 8`);
     }
   });
 
-  // Summary gate test — 7 checks per plan, zero blocks
+  // Summary gate test — 8 checks per plan, zero blocks
   it('all 22 historical plans produce zero block results (D-17 gate)', () => {
     let totalBlocks = 0;
     const failures = [];
