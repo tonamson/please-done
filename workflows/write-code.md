@@ -151,6 +151,26 @@ Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọ
 
 ---
 
+## Bước 1.7: Re-validate Logic -- xác nhận Business Logic trước khi code
+
+Đọc PLAN.md "Tiêu chí thành công -> Sự thật phải đạt" VÀ task detail `> Truths:`.
+In ra **targeted paraphrase** của Business Logic liên quan tới task này:
+
+    **Logic cần đảm bảo (Task [N]):**
+    - T[x]: [diễn giải ngắn gọn sự thật + giá trị nghiệp vụ, KHÔNG sao chép nguyên văn]
+    - T[y]: [tương tự]
+
+    Logic đúng chưa? (Y/n)
+
+Quy tắc:
+- Chỉ Truths mà task này map tới (từ `> Truths:` trong TASKS.md)
+- Tối đa ~100 tokens -- diễn giải, KHÔNG copy-paste bảng
+- Mục đích: kiểm tra AI HIỂU logic trước khi viết code, không chỉ đọc qua
+- Không có Truths (plan format cũ) -> bỏ qua Bước 1.7
+- User trả lời "n" hoặc chỉ ra sai -> đọc lại PLAN.md phần Truths, sửa diễn giải, hỏi lại
+
+---
+
 ## Bước 2: Đọc context cho task
 - Task detail (mô tả, checklist, ghi chú kỹ thuật) + PLAN.md sections liên quan
 - PLAN.md `Quyết định thiết kế` → code PHẢI tuân thủ
@@ -317,8 +337,10 @@ Với mỗi artifact tồn tại:
 **9.5c — Cấp 3: Kiểm tra kết nối (Key Links)**
 Với mỗi Key Link (`Từ` → `Đến`): file `Từ` import/gọi `Đến`? File `Đến` export thứ `Từ` cần?
 
-**9.5d — Cấp 4: Kiểm tra logic Truths**
-Với mỗi Truth: verify "Cách kiểm chứng" trên code thực tế. Cross-check: Truths mà TẤT CẢ artifacts đạt Cấp 1-3 → khả năng cao đạt.
+**9.5d — Cấp 4: Truths Verified (kiểm tra logic)**
+Với mỗi Truth: verify "Cách kiểm chứng" trên code thực tế.
+- Ghi nhận **loại bằng chứng** cho mỗi Truth: Test | Log | Screenshot | File | Manual
+- Cross-check: Truths mà TẤT CẢ artifacts đạt Cấp 1-3 → khả năng cao đạt.
 
 **9.5e — Tổng hợp** → VERIFICATION_REPORT.md (@templates/verification-report.md)
 
@@ -361,7 +383,7 @@ Thực thi theo waves từ Bước 1.5:
    - Effort→model: `Effort:` từ task metadata → model (simple→haiku, standard→sonnet, complex→opus, mặc định→sonnet)
    - Truyền `model: {resolved_model}` vào Agent tool
    - Thông báo: "Spawning {model} agent cho {task_id} ({effort})..."
-   - Chỉ dẫn agent: Bước 2→3→4→5 (research → code → lint/build → test). KHÔNG report, KHÔNG commit, KHÔNG cập nhật TASKS.md — orchestrator làm sau wave
+   - Chỉ dẫn agent: Bước 1.7→2→3→4→5 (validate logic → research → code → lint/build → test). KHÔNG report, KHÔNG commit, KHÔNG cập nhật TASKS.md — orchestrator làm sau wave
 2. **Agent Frontend đặc biệt** (song song Backend): đọc PLAN.md "API Endpoints" → tạo types/interfaces từ response shape (KHÔNG cần API thật) → tạo API functions + components. Sau Backend xong → verify types khớp response thực tế
 3. **Chờ TẤT CẢ agents wave hoàn thành**
 4. **Post-wave safety net** (orchestrator):

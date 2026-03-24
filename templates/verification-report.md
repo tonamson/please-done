@@ -14,15 +14,16 @@ Báo cáo xác minh tính năng sau khi phase hoàn tất code. Xác nhận PLAN
 # Xác minh tính năng — Phase [x.x]
 > Ngày: [DD_MM_YYYY HH:MM]
 > Trạng thái: [Đạt | Có gap | Cần kiểm tra thủ công]
-> Kết quả: [N]/[M] tiêu chí đạt
+> Kết quả: [N]/[M] Truths verified
 > Vòng sửa: [0 | 1 | 2]
 
-## Truths — Sự thật phải đạt
-| # | Sự thật | Trạng thái | Bằng chứng |
-|---|---------|-----------|-----------|
-| T1 | [mô tả] | ✅ ĐẠT | [file tồn tại, logic đúng, test đạt] |
-| T2 | [mô tả] | ❌ CHƯA ĐẠT | [file thiếu / logic sai / stub] |
-| T3 | [mô tả] | ⚠️ CẦN KIỂM TRA THỦ CÔNG | [cần chạy app / kiểm tra giao diện] |
+## Truths Verified — Sự thật đã xác minh
+| # | Sự thật | Trạng thái | Loại | Bằng chứng |
+|---|---------|-----------|------|-----------|
+| T1 | [mô tả] | ✅ ĐẠT | Test | [test name pass N/N] |
+| T2 | [mô tả] | ✅ ĐẠT | Log | [console/API output] |
+| T3 | [mô tả] | ❌ CHƯA ĐẠT | Screenshot | [mô tả screenshot] |
+| T4 | [mô tả] | ⚠️ CẦN KIỂM TRA THỦ CÔNG | Manual | [cần chạy app / kiểm tra giao diện] |
 
 ## Artifacts — Sản phẩm cần có
 | Artifact | Đường dẫn | Tồn tại | Thực chất | Kết nối | Vấn đề |
@@ -50,7 +51,7 @@ Báo cáo xác minh tính năng sau khi phase hoàn tất code. Xác nhận PLAN
 | T2 chưa đạt | [chi tiết] | [files đã sửa] | ✅ Đạt sau sửa |
 
 ## Tổng kết
-- Đạt: [N] Truths
+- Verified: [N] Truths
 - Chưa đạt: [M] Truths
 - Cần kiểm tra thủ công: [K] Truths
 - Anti-pattern: [X] chặn, [Y] cảnh báo

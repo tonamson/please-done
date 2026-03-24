@@ -51,6 +51,8 @@ Workflow updated with 5-column Truths instruction, snapshots regenerated.
 Decisions are logged in PROJECT.md Key Decisions table.
 
 - [Phase 17 Plan 02]: Surgical edits to workflows/plan.md — only Tang 1 and rules line changed
+- [Phase 18-logic-first-execution]: Buoc 1.7 Re-validate Logic with bullet paraphrase format and ~100 token budget before code writing
+- [Phase 18-logic-first-execution]: Evidence types formalized as Loai column in verification-report Truths table (Test|Log|Screenshot|File|Manual)
 
 ### Pending Todos
 
@@ -63,5 +65,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-24
-Stopped at: Completed 17-02-PLAN.md
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None

@@ -92,6 +92,6 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 | 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
 | 16. Bug Fixes | v1.2 | 5/5 | Complete | 2026-03-23 |
 | 17. Truth Protocol | v1.3 | 2/2 | Complete | 2026-03-23 |
-| 18. Logic-First Execution | v1.3 | 0/0 | Not Started | — |
+| 18. Logic-First Execution | v1.3 | 1/1 | Complete | 2026-03-24 |
 | 19. Knowledge Correction | v1.3 | 0/0 | Not Started | — |
 | 20. Logic Audit | v1.3 | 0/0 | Not Started | — |
