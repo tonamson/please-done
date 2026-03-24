@@ -10,7 +10,7 @@ Requirements cho milestone Nang cap Skill Fix-Bug. Moi requirement map vao roadm
 ### Dieu tra & Tai hien
 
 - [x] **REPRO-01**: AI tu dong tao skeleton test case tai hien loi theo stack (NestJS/Flutter/Generic) trong `.planning/debug/repro/`
-- [ ] **REGR-01**: AI phan tich module phu thuoc qua FastCode call chain (fallback BFS) va bao cao toi da 5-10 files bi anh huong
+- [x] **REGR-01**: AI phan tich module phu thuoc qua FastCode call chain (fallback BFS) va bao cao toi da 5-10 files bi anh huong
 
 ### Don dep & An toan
 
@@ -52,7 +52,7 @@ Deferred sang milestone sau. Tracked nhung khong trong roadmap hien tai.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | REPRO-01 | Phase 25 | Complete |
-| REGR-01 | Phase 25 | Pending |
+| REGR-01 | Phase 25 | Complete |
 | CLEAN-01 | Phase 26 | Pending |
 | SEC-01 | Phase 26 | Pending |
 | LOGIC-01 | Phase 27 | Pending |

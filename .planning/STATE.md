@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.5
 milestone_name: Nang cap Skill Fix-Bug
 status: Ready to execute
-stopped_at: Completed 25-02-PLAN.md
-last_updated: "2026-03-24T11:35:18.570Z"
+stopped_at: Completed 25-03-PLAN.md
+last_updated: "2026-03-24T11:36:05.205Z"
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 4
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 25 (dieu-tra-tai-hien-loi) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -46,6 +46,8 @@ Plan: 2 of 4
 
 *Updated after each plan completion*
 | Phase 25 P02 | 2min | 1 tasks | 2 files |
+| Phase 25 P03 | 2min | 1 tasks | 2 files |
+| Phase 25 P01 | 2min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -57,6 +59,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [v1.5 roadmap]: REPRO-01 + REGR-01 gom chung Phase 25 vi deu can module JS moi voi pure function pattern
 - [v1.5 roadmap]: LOGIC-01 + RPT-01 + PM-01 gom Phase 27 vi RPT-01 trigger boi LOGIC-01, PM-01 cuoi workflow
 - [Phase 25]: Single generic template cho tat ca repro tests (per D-02)
+- [Phase 25]: totalFound đếm callers sau filter depth để phản ánh chính xác số files ảnh hưởng thực tế
+- [Phase 25]: Giu regex giong het ban goc — KHONG thay doi logic, chi di chuyen sang shared helper
+- [Phase 25]: Pure function pattern cho truths-parser.js: KHONG doc file, tat ca content truyen qua tham so
 
 ### Pending Todos
 
@@ -70,6 +75,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T11:35:18.566Z
-Stopped at: Completed 25-02-PLAN.md
+Last session: 2026-03-24T11:35:53.763Z
+Stopped at: Completed 25-03-PLAN.md
 Resume file: None
