@@ -129,6 +129,14 @@ FastCode lỗi → Grep/Read. Cảnh báo: "FastCode không khả dụng."
 **Khi cần:** bước tái hiện không rõ, lúc có lúc không, hoặc 5+ bước.
 Tìm đường ngắn nhất → loại yếu tố nhiễu → ghi SESSION → dùng làm cơ sở giả thuyết.
 Lỗi rõ ràng (thông báo chỉ thẳng file/dòng) → bỏ qua.
+### 5b.1: Tạo Reproduction Test (SAU giả thuyết, TRƯỚC fix)
+**CHỈ KHI** có đủ triệu chứng (Bước 1b) VÀ file lỗi đã xác định (Bước 4).
+1. `mkdir -p .planning/debug/repro`
+2. Gọi `generateReproTest()` từ `bin/lib/repro-test-generator.js`:
+   - Input: `{ symptoms }` (từ Bước 1b), `bugTitle` (từ SESSION tên-tắt), `filePath` (từ Bước 4), `functionName` (nếu có)
+   - **Lỗi → DỪNG.** Báo: "Không tạo được reproduction test: [lỗi]"
+3. Ghi file `.planning/debug/repro/[testFileName]`
+4. Ghi SESSION: `Reproduction test: .planning/debug/repro/[testFileName]`
 ### 5c. Hình thành + kiểm chứng giả thuyết
 CONTEXT.md → stack → đọc `.planning/rules/[stack].md` → truy vết luồng:
 Khong xac dinh duoc stack tu CONTEXT.md → dung luong truy vet generic: entry point → handler → business logic → data layer → response. Ghi note: "Stack khong xac dinh, dung luong generic."
@@ -237,6 +245,16 @@ Bug này do Truth sai — cần cập nhật PLAN.md:
 ```
 Cập nhật liên kết trong SESSION file.
 ## Bước 8: Sửa code
+### 8a: Phân tích Regression (TRƯỚC khi sửa)
+**CHỈ KHI** đã xác định file lỗi (Bước 4).
+1. Thử FastCode `code_qa` hỏi: "Liệt kê các files import hoặc gọi [function] trong [targetFile]"
+   - Thành công → gọi `analyzeFromCallChain()` từ `bin/lib/regression-analyzer.js`:
+     Input: `{ callChainText, targetFile, targetFunction }`
+   - FastCode lỗi → đọc source files quanh targetFile → gọi `analyzeFromSourceFiles()`:
+     Input: `{ sourceFiles: [{path, content}], targetFile, targetFunction }`
+   - **Lỗi → DỪNG.** Báo: "Không phân tích được regression: [lỗi]"
+2. Kết quả `affectedFiles` (tối đa 5) → ghi vào BUG report section "Ảnh hưởng"
+3. Ghi SESSION: `Regression: [số] files bị ảnh hưởng`
 - Áp dụng bản sửa, tuân thủ `.planning/rules/`
 - Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
 - Lint + build đúng thư mục (xem rules/[stack].md → **Build & Lint**)
