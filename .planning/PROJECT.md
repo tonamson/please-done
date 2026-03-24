@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, and automated Mermaid diagram generation with PDF report export.
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, and an enhanced fix-bug workflow with automated investigation (reproduction tests, regression analysis, debug cleanup, security warnings, logic change detection, report synchronization, and post-mortem rule suggestions).
 
 ## Core Value
 
@@ -48,21 +48,27 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ generate-pdf-report.js CLI (Puppeteer PDF + .md fallback) — v1.4 (Phase 23)
 - ✓ fillManagementReport() pure function + Buoc 3.6 non-blocking workflow integration — v1.4 (Phase 24)
 - ✓ repro-test-generator.js + regression-analyzer.js pure functions + truths-parser shared helper + workflow sub-steps 5b.1/8a — v1.5 (Phase 25)
+- ✓ debug-cleanup.js pure functions (scanDebugMarkers + matchSecurityWarnings) + workflow sub-step 9a — v1.5 (Phase 26)
+- ✓ logic-sync.js (detectLogicChanges + updateReportDiagram + suggestClaudeRules + runLogicSync) + workflow Buoc 10a — v1.5 (Phase 27)
 
 ### Active
 
-## Current Milestone: v1.5 Nâng cấp Skill Fix-Bug
+<!-- Current scope: v2.1 Detective Orchestrator -->
 
-**Goal:** Tối ưu hóa độ an toàn và tự động hóa điều tra trong skill fix-bug — thêm tái hiện lỗi, phân tích hồi quy, dọn dẹp log, đồng bộ business logic, và xuất báo cáo PDF.
+- [ ] Dynamic Resource Orchestration — Tier/Model mapping, resource safety rules
+- [ ] Detective Protocols — Resume UI, Evidence Format, Continuation Agent
+- [ ] Project Memory & Regression Detection — Bug history recall, regression alerts
+- [ ] Workflow Execution Loop — 5-step orchestrator integrating all agents
+
+## Current Milestone: v2.1 Detective Orchestrator
+
+**Goal:** Biến `pd:fix-bug` thành hệ thống điều phối đa Agent (Task Force), tích hợp tinh hoa gsd:debug và sức mạnh MCP của please-done.
 
 **Target features:**
-- Tự động tạo Reproduction Test Case cho NestJS/Flutter
-- Bước "Regression Analysis" tìm module phụ thuộc qua FastCode Call Chain
-- Cơ chế "Auto Cleanup" dọn log tạm thời trước commit
-- Đồng bộ Business Logic — phát hiện nếu bản sửa thay đổi logic/kiến trúc
-- Tự động cập nhật báo cáo quản lý + xuất PDF khi logic thay đổi
-- Liên kết pd:scan cảnh báo bảo mật cho file bị lỗi
-- Bước "Post-mortem" đề xuất cập nhật CLAUDE.md
+- Dynamic Resource Orchestration (Tier → Model mapping, 2 sub-agents max, Heavy Lock, hạ cấp thông minh)
+- Detective Protocols (Resume UI, Evidence Format, Checkpoint/Continuation Agent)
+- Project Memory & Regression Detection (Bug history, regression alerts, double-check)
+- Workflow Execution Loop (Janitor → Detective+DocSpec → Repro → Architect → Fix+Commit)
 
 ### Out of Scope
 
@@ -75,18 +81,19 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Shipped:** v1.4 Mermaid Diagrams (2026-03-24)
-**Current:** v1.5 Nâng cấp Skill Fix-Bug — Phase 25 complete (repro test + regression analysis)
+**Shipped:** v1.5 Nang cap Skill Fix-Bug (2026-03-24)
+**In progress:** v2.1 Detective Orchestrator
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
 Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
 Shipped v1.3 with 154 plan-checker tests (8 checks including CHECK-05), 29 files modified, +1,033 net LOC.
 Shipped v1.4 with 526 total tests, 27 files modified, +4,839 net LOC.
+Shipped v1.5 with 601 total tests, 47 files modified, +4,366 net LOC.
 
-v1.4 added: Mermaid diagram generation (business logic + architecture), PDF export with Puppeteer fallback, management report template fill, non-blocking workflow integration in complete-milestone Buoc 3.6.
+v1.5 added: 7 new features in fix-bug workflow — reproduction test generation (5b.1), regression analysis (8a), debug log cleanup (9a), security warnings (9a), logic change detection (10a), Mermaid report update (10a), CLAUDE.md rule suggestion (10a). 5 new pure function modules, 75 new tests.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows, 7 JS library modules.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows, 12 JS library modules.
 
 ## Constraints
 
@@ -117,6 +124,9 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills
 | Pure function pattern for all v1.4 modules | No file I/O in library code — content passed as args | ✓ Good — testable, composable, consistent with plan-checker |
 | Section-specific Mermaid replacement | Avoid cross-section pollution in template fill | ✓ Good — Section 3 (TD) and Section 4 (LR) never mix |
 | Non-blocking pipeline for report generation | Milestone completion must never fail due to report errors | ✓ Good — try/catch per sub-step, warnings only |
+| External module for v1.5 features (D-02) | fix-bug.md at 419/420 line limit — cannot inline | ✓ Good — logic-sync.js orchestrates 3 features in 1 call |
+| Diff-based heuristics over AST (D-08) | Regex on diff sufficient for v1.5, AST deferred to v2 | ✓ Good — 4 signal types cover common cases |
+| Non-blocking for cleanup + security + logic sync | User workflow must never be blocked by optional features | ✓ Good — consistent non-blocking pattern across 9a and 10a |
 
 ## Evolution
 
@@ -136,4 +146,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after v1.5 milestone start*
+*Last updated: 2026-03-24 after v2.1 milestone started*

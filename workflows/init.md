@@ -57,6 +57,19 @@ Dùng Glob/Grep/Read quét nhanh:
 ### isNewProject = true:
 Hỏi: "Dự án mới chưa có code. Bạn muốn xây dựng gì?" → ghi nhận. Tất cả flags = false.
 
+## Bước 4.5: Thảo luận Chính sách Ngôn ngữ & Báo lỗi [MỚI]
+Agent sử dụng `AskUserQuestion` để chốt chiến lược ngôn ngữ cho 3 tầng:
+1. **Giao diện (UI):** Thông báo lỗi/thành công cho người dùng cuối.
+2. **Nhật ký (Logs):** Ghi chú cho lập trình viên debug.
+3. **Nội bộ (Exceptions):** Mã lỗi và tin nhắn trong code.
+
+**Gợi ý các lựa chọn phổ biến:**
+- **Standard (Khuyên dùng):** UI (Tiếng Việt), Logs/Exceptions (Tiếng Anh).
+- **International:** Toàn bộ bằng Tiếng Anh.
+- **Local:** Toàn bộ bằng Tiếng Việt.
+
+Kết quả thảo luận sẽ được ghi vào `PROJECT.md` ngay sau khi file này được tạo ở các bước sau.
+
 ## Bước 5: Tạo .planning/ structure
 ```bash
 mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules .planning/docs/solidity

@@ -25,6 +25,12 @@ Nguồn sự thật duy nhất cấp dự án: tầm nhìn, đối tượng, rà
 ## Ràng buộc
 [Kỹ thuật, kinh doanh, thời gian, pháp lý — hoặc "Chưa xác định ràng buộc đặc biệt."]
 
+## Chính sách Ngôn ngữ & Báo lỗi
+- **Giao diện (UI):** [VD: Tiếng Việt]
+- **Nhật ký (Logs):** [VD: Tiếng Anh]
+- **Exceptions:** [VD: Tiếng Anh]
+- **Ghi chú:** [VD: Thông báo UI phải thân thiện, tránh từ ngữ kỹ thuật phức tạp]
+
 ## Lịch sử Milestones
 | Phiên bản | Tên | Ngày hoàn tất | Tóm tắt |
 |-----------|-----|---------------|---------|

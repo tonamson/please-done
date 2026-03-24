@@ -1,67 +1,114 @@
-# Requirements: Please-Done v1.5
+# Requirements: Please-Done v2.1 Detective Orchestrator
 
 **Defined:** 2026-03-24
 **Core Value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
-## v1.5 Requirements
+## v2.1 Requirements
 
-Requirements cho milestone Nang cap Skill Fix-Bug. Moi requirement map vao roadmap phases.
+Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 
-### Dieu tra & Tai hien
+### Dieu phoi Tai nguyen (ORCH)
 
-- [x] **REPRO-01**: AI tu dong tao skeleton test case tai hien loi theo stack (NestJS/Flutter/Generic) trong `.planning/debug/repro/`
-- [x] **REGR-01**: AI phan tich module phu thuoc qua FastCode call chain (fallback BFS) va bao cao toi da 5-10 files bi anh huong
+- [ ] **ORCH-01**: Orchestrator anh xa Tier (Scout/Builder/Architect) sang model cu the (haiku/sonnet/opus) qua YAML frontmatter trong 5 agent files
+- [ ] **ORCH-02**: Orchestrator gioi han toi da 2 sub-agents chay song song tai moi thoi diem
+- [ ] **ORCH-03**: Orchestrator ap dung Heavy Lock — chi 1 tac vu nang (FastCode indexing hoac test suite) chay tai moi thoi diem
+- [ ] **ORCH-04**: Orchestrator tu dong ha cap sang tuan tu khi spawn song song that bai (timeout/error), ghi warning vao SESSION
 
-### Don dep & An toan
+### Giao thuc Tham tu (PROT)
 
-- [x] **CLEAN-01**: AI don dep debug log co marker `[PD-DEBUG]` truoc commit, hoi user truoc khi xoa
-- [x] **LOGIC-01**: AI danh gia ban sua co thay doi business logic/kien truc khong bang heuristics
-- [x] **SEC-01**: AI lien ket canh bao bao mat tu pd:scan cho file bi loi (max 3 canh bao, freshness 7 ngay)
+- [ ] **PROT-01**: User thay danh sach phien debug danh so ID khi khoi dong, co the nhap so de tiep tuc hoac mo ta moi de tao session moi
+- [ ] **PROT-02**: Moi agent tra ket qua theo 1 trong 3 outcomes chuan: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
+- [ ] **PROT-03**: Khi ROOT CAUSE duoc tim thay, user duoc chon 1 trong 3: Sua ngay, Len ke hoach, hoac Tu sua
+- [ ] **PROT-04**: Khi agent ghi CHECKPOINT REACHED, orchestrator hien cau hoi cho user va truyen cau tra loi cho agent tiep theo
+- [ ] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
+- [ ] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
+- [ ] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
+- [ ] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
 
-### Bao cao & Kien thuc
+### Tri nho Du an (MEM)
 
-- [x] **RPT-01**: Khi logic thay doi (LOGIC-01 = CO), tu dong cap nhat Mermaid diagram trong report + tuy chon PDF re-render
-- [x] **PM-01**: AI de xuat 1-2 rule moi cho CLAUDE.md sau khi fix, hoi user truoc khi append
+- [ ] **MEM-01**: Janitor luc lai .planning/bugs/ tim bug tuong tu bang keyword matching khi bat dau dieu tra
+- [ ] **MEM-02**: Orchestrator canh bao regression khi loi hien tai khop >= 2/3 tieu chi voi bug cu (file, function, error message)
+- [ ] **MEM-03**: Architect kiem tra fix moi khong pha vo cac fix cu lien quan truoc khi ra phan quyet
+- [ ] **MEM-04**: He thong tu dong tao va cap nhat .planning/bugs/INDEX.md liet ke tat ca bug theo file/function/keyword
 
-## v2 Requirements
+### Vong lap Thuc thi (FLOW)
 
-Deferred sang milestone sau. Tracked nhung khong trong roadmap hien tai.
+- [ ] **FLOW-01**: Buoc 1 — Orchestrator spawn Janitor agent (scout/haiku) thu thap trieu chung va kiem tra session cu
+- [ ] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) song song sau khi Janitor hoan tat
+- [ ] **FLOW-03**: Buoc 3 — Orchestrator spawn Repro Engineer (builder/sonnet) tao Red Test tu evidence cua Buoc 2
+- [ ] **FLOW-04**: Buoc 4 — Orchestrator spawn Fix Architect (architect/opus) tong hop tat ca evidence va ra phan quyet
+- [ ] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
+- [ ] **FLOW-06**: Khi INCONCLUSIVE o Buoc 4, orchestrator quay lai Buoc 2 voi Elimination Log va thong tin moi tu user (max 3 vong)
+- [ ] **FLOW-07**: User co the chay single-agent mode (v1.5 cu) khi khong co agent configs hoac truyen --single flag
+- [ ] **FLOW-08**: Orchestrator an chi tiet agent spawning, chi hien ket qua cuoi cung cho user (progressive disclosure)
 
-### Mo rong Stack
+## v2.2 Requirements
 
-- **REPRO-02**: Reproduction test cho WordPress (PHPUnit) va Solidity (Hardhat test)
-- **REGR-02**: Auto-fix cascade khi regression analysis da chung minh gia tri
+Deferred to future release. Tracked but not in current roadmap.
 
-### Nang cao
+### Dieu phoi Tai nguyen
 
-- **LOGIC-02**: AST-based change detection thay heuristics khi can do chinh xac cao hon
-- **RPT-02**: Tu dong chay reproduction test khi co test infrastructure chuan
+- **ORCH-05**: Tu dong do RAM/CPU truoc khi quyet dinh parallel vs sequential
+- **ORCH-06**: Hien thi uoc tinh token cost truoc khi spawn agent team
+
+### Tri nho Du an
+
+- **MEM-05**: Agent nho pattern tu cac session debug truoc qua persistent memory cross-session
 
 ## Out of Scope
 
+Explicitly excluded. Documented to prevent scope creep.
+
 | Feature | Reason |
 |---------|--------|
-| Tu dong chay reproduction test | Test runner khac nhau moi stack, false negative nguy hiem |
-| Auto-fix regression modules | Scope creep, co the gay them bug |
-| AST-based change detection | Maintenance burden cho 5 stacks, heuristics du cho v1.5 |
-| Bug tracking dashboard web | Ngoai scope CLI tool |
-| ML-based bug prediction | Qua som cho please-done |
+| Agent Teams (TeammateTool) | Experimental, chua stable, token cost cao — dung subagent pattern |
+| Nested subagent spawning | Claude Code cam tuyet doi — subagents khong the spawn subagents |
+| Unlimited parallel agents (>2) | Context window bung no, diminishing returns sau 2 agent |
+| Real-time agent communication | Chi Agent Teams ho tro, khong stable — dung file-based handoff |
+| Auto-retry agent vo han | Tieu hao token vo ich, cung input → cung ket qua fail |
+| Agent voting/consensus | Over-engineering — debug can bang chung, khong can dan chu |
+| Database bug tracking (SQLite) | Them dependency, pha vo pattern "no build step" — dung Markdown+Grep |
+| AI-powered bug similarity scoring | Can embedding API, chi phi cao, khong dam bao tot hon keyword match |
+| Auto-fix tu lich su bug | Cuc ky nguy hiem — cung trieu chung khong chac cung nguyen nhan |
+| Toan bo workflow trong JS module | Pha vo pattern cot loi: workflow = markdown, module = pure JS |
+| Real-time progress bar | Claude Code khong co API cho custom UI rendering |
+| Auto-select investigation depth | AI chua du tot de tu danh gia do kho truoc khi dieu tra |
 
 ## Traceability
 
+Which phases cover which requirements. Updated during roadmap creation.
+
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| REPRO-01 | Phase 25 | Complete |
-| REGR-01 | Phase 25 | Complete |
-| CLEAN-01 | Phase 26 | Complete |
-| SEC-01 | Phase 26 | Complete |
-| LOGIC-01 | Phase 27 | Complete |
-| RPT-01 | Phase 27 | Complete |
-| PM-01 | Phase 27 | Complete |
+| ORCH-01 | Phase 28 | Pending |
+| ORCH-02 | Phase 28 | Pending |
+| ORCH-03 | Phase 28 | Pending |
+| ORCH-04 | Phase 28 | Pending |
+| PROT-01 | Phase 29 | Pending |
+| PROT-02 | Phase 29 | Pending |
+| PROT-05 | Phase 29 | Pending |
+| PROT-07 | Phase 29 | Pending |
+| PROT-03 | Phase 30 | Pending |
+| PROT-04 | Phase 30 | Pending |
+| PROT-06 | Phase 30 | Pending |
+| PROT-08 | Phase 30 | Pending |
+| MEM-01 | Phase 31 | Pending |
+| MEM-02 | Phase 31 | Pending |
+| MEM-03 | Phase 31 | Pending |
+| MEM-04 | Phase 31 | Pending |
+| FLOW-01 | Phase 32 | Pending |
+| FLOW-02 | Phase 32 | Pending |
+| FLOW-03 | Phase 32 | Pending |
+| FLOW-04 | Phase 32 | Pending |
+| FLOW-05 | Phase 32 | Pending |
+| FLOW-08 | Phase 32 | Pending |
+| FLOW-06 | Phase 33 | Pending |
+| FLOW-07 | Phase 33 | Pending |
 
 **Coverage:**
-- v1.5 requirements: 7 total
-- Mapped to phases: 7
+- v2.1 requirements: 24 total
+- Mapped to phases: 24
 - Unmapped: 0
 
 ---

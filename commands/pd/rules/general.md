@@ -11,6 +11,7 @@
 - TIẾNG VIỆT CÓ DẤU: báo cáo, JSDoc, logger, commit message, test descriptions
 - Tiếng Anh: tên biến, function, class, file
 - Ngày tháng: DD_MM_YYYY
+- **Chính sách báo lỗi:** BẮT BUỘC đọc `.planning/PROJECT.md` để xác định ngôn ngữ cho UI, Logs và Exceptions. KHÔNG được tự ý dùng ngôn ngữ khác với chính sách đã chốt trong Project.
 
 ## Biểu tượng trạng thái
 ⬜ Chưa bắt đầu | 🔄 Đang thực hiện | ✅ Hoàn tất | ❌ Bị chặn | 🐛 Có lỗi

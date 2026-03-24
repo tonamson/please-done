@@ -8,13 +8,13 @@ Bản nâng cấp toàn diện: Kết hợp giữa tối ưu hiệu suất (Toke
 - **Vị trí**: `commands/pd/agents/`.
 - **Cấu trúc**: Mỗi Agent định nghĩa nhiệm vụ đơn nhất (Scout, Architect, Specialist).
 - **Phân công nhiệm vụ (Agent Registry)**:
-  - `gsd-codebase-mapper.md` -> Quét cấu trúc (`init`, `scan`, `new-milestone`).
-  - `gsd-security-researcher.md` -> Tìm CVE/Lỗ hổng (`research`, `plan`).
-  - `gsd-feature-analyst.md` -> Phân tích logic nghiệp vụ (`research`, `plan`).
-  - `gsd-research-synthesizer.md` -> Tổng hợp báo cáo (`research`).
-  - `gsd-planner.md` -> Lập kế hoạch chi tiết (`plan`).
-  - `gsd-repro-generator.md` -> Tạo mã tái hiện lỗi (`fix-bug`).
-  - `gsd-regression-analyzer.md` -> Phân tích vùng ảnh hưởng (`fix-bug`).
+  - `pd-codebase-mapper.md` -> Quét cấu trúc (`init`, `scan`, `new-milestone`).
+  - `pd-security-researcher.md` -> Tìm CVE/Lỗ hổng (`research`, `plan`).
+  - `pd-feature-analyst.md` -> Phân tích logic nghiệp vụ (`research`, `plan`).
+  - `pd-research-synthesizer.md` -> Tổng hợp báo cáo (`research`).
+  - `pd-planner.md` -> Lập kế hoạch chi tiết (`plan`).
+  - `pd-repro-generator.md` -> Tạo mã tái hiện lỗi (`fix-bug`).
+  - `pd-regression-analyzer.md` -> Phân tích vùng ảnh hưởng (`fix-bug`).
 
 ### 2. Model Tiering Strategy (Phân tầng Thợ & Sếp)
 Thay vì dùng tên model cứng, PD sử dụng 3 cấp bậc (Tiers) để tương thích với mọi nền tảng (CLI/IDE):
@@ -53,12 +53,12 @@ Nếu một nền tảng không hỗ trợ model Architect (ví dụ: Antigravit
 ## Milestone 5: Skill-Agent Integration (Tích hợp Workflow)
 
 ### 1. Cập nhật `/pd:init` & `/pd:new-milestone`
-- **Tự động Mapping**: Khi khởi tạo dự án hoặc bắt đầu Milestone mới, Skill sẽ tự động triệu hồi `gsd-codebase-mapper` (Tier-Scout) để cập nhật hồ sơ `.planning/codebase/`.
+- **Tự động Mapping**: Khi khởi tạo dự án hoặc bắt đầu Milestone mới, Skill sẽ tự động triệu hồi `pd-codebase-mapper` (Tier-Scout) để cập nhật hồ sơ `.planning/codebase/`.
 - **Squad Activation**: Thay thế các bước nghiên cứu thủ công trong `new-milestone` bằng việc kích hoạt đồng thời `Research Squad` (Mapper, Security, Feature, Synthesizer).
 
 ### 2. Cập nhật `/pd:plan` (Strategy Guard)
 - **Cơ chế Blocking**: Chốt chặn `pd:plan` không cho thực thi nếu chưa có `TECHNICAL_STRATEGY.md`. 
-- **Auto-Injection**: Tự động nạp bản nén Strategy vào bối cảnh của `gsd-planner`, giúp AI thiết kế task sát với thực tế kỹ thuật nhất.
+- **Auto-Injection**: Tự động nạp bản nén Strategy vào bối cảnh của `pd-planner`, giúp AI thiết kế task sát với thực tế kỹ thuật nhất.
 
 ---
 ### Bảng phối hợp Model (Tier Mapping Table):

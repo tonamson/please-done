@@ -9,12 +9,12 @@ Cài vào thư mục tạm → đo thời gian + files sinh ra → gỡ → xác
 
 | Nền tảng | Cài (ms) | Gỡ (ms) | Files | Dòng | Rò rỉ path |
 |----------|---------|---------|-------|------|-----------|
-| Codex CLI | 202 | 49 | 22 | 4,835 | ✅ 0 |
-| GitHub Copilot | 36 | 19 | 22 | 4,564 | ✅ 0 |
-| Gemini CLI | 52 | 7 | 22 | 1,248 | ✅ 0 |
-| OpenCode | 26 | 5 | 21 | 4,637 | ✅ 0 |
+| Codex CLI | 103 | 100 | 22 | 4,913 | ✅ 0 |
+| GitHub Copilot | 66 | 17 | 22 | 4,642 | ✅ 0 |
+| Gemini CLI | 40 | 41 | 22 | 1,248 | ✅ 0 |
+| OpenCode | 58 | 5 | 21 | 4,715 | ✅ 0 |
 
-**Tổng**: 87 files, 15,284 dòng được sinh ra cho 4 nền tảng từ 1 bộ source duy nhất.
+**Tổng**: 87 files, 15,518 dòng được sinh ra cho 4 nền tảng từ 1 bộ source duy nhất.
 
 ## 2. Idempotency (cài lại an toàn)
 
@@ -35,13 +35,13 @@ Cài 2 lần liên tiếp (v1 → v2): **4/4 nền tảng** không tạo file th
 | Skills (lệnh người dùng gọi) | 12 |
 | Workflows (quy trình chi tiết) | 10 |
 | Tổng bước workflow | 96 |
-| Cổng kiểm tra (DỪNG/CHẶN) | 51 |
-| Điểm khôi phục (gián đoạn) | 30 |
+| Cổng kiểm tra (DỪNG/CHẶN) | 53 |
+| Điểm khôi phục (gián đoạn) | 33 |
 | Điểm tương tác người dùng | 30 |
 | Templates (mẫu file) | 11 |
 | References (quy ước chung) | 14 |
 | Rules (quy tắc code theo stack) | 8 |
-| Tổng dòng workflow | 2,653 |
+| Tổng dòng workflow | 2,725 |
 
 ## 5. Khả năng đa nền tảng
 
@@ -78,4 +78,4 @@ Viết 1 lần bằng format Claude Code → trình cài đặt tự chuyển đ
 Mỗi bước có cổng kiểm tra — AI không thể bỏ qua hoặc tự ý thay đổi thiết kế đã duyệt.
 
 ---
-*Benchmark chạy tự động bởi `node test/benchmark.js` — 2026-03-24T10:11:18.772Z*
+*Benchmark chạy tự động bởi `node test/benchmark.js` — 2026-03-24T14:35:17.421Z*

@@ -1,5 +1,22 @@
 # Milestones
 
+## v1.5 Nang cap Skill Fix-Bug (Shipped: 2026-03-24)
+
+**Phases completed:** 3 phases, 8 plans, 14 tasks
+
+**Key accomplishments:**
+
+- Tach parseTruthsFromContent() thanh shared module truths-parser.js, refactor generate-diagrams.js import tu helper moi, 6 unit tests + 13 regression tests pass
+- generateReproTest() pure function tao skeleton test tai hien loi voi TODO markers, AAA pattern, va node:test imports
+- regression-analyzer.js với 2 mode phân tích (FastCode call chain + BFS fallback), max 5 files output, depth 1-2, 14 tests pass
+- Tich hop repro-test-generator va regression-analyzer vao workflow fix-bug qua 2 sub-steps blocking (5b.1, 8a), 385 dong, 561 tests pass
+- 2 pure functions scanDebugMarkers + matchSecurityWarnings voi 18 smoke tests, TDD red-green
+- Chen sub-step 9a vao fix-bug.md — debug cleanup + security warnings truoc commit, 4 platform snapshots cap nhat, 120 tests pass
+- Module logic-sync.js voi 4 pure functions: phat hien thay doi logic qua diff heuristics, cap nhat Mermaid report, de xuat CLAUDE.md rules, orchestrator non-blocking
+- Chen Buoc 10a vao workflow fix-bug — 3 sub-features non-blocking (logic detection, report update, rule suggestion) + 4 platform snapshots cap nhat
+
+---
+
 ## v1.4 Mermaid Diagrams (Shipped: 2026-03-24)
 
 **Phases completed:** 13 phases, 29 plans, 56 tasks
