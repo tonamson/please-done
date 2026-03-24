@@ -79,7 +79,7 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 
 **Milestone Goal:** Toi uu hoa do an toan va tu dong hoa dieu tra trong skill fix-bug — them tai hien loi, phan tich hoi quy, don dep log, dong bo business logic, va xuat bao cao PDF.
 
-- [ ] **Phase 25: Dieu tra & Tai hien Loi** — Tao 2 module pure function moi (repro-test-generator, regression-analyzer) va tich hop vao workflow fix-bug
+- [x] **Phase 25: Dieu tra & Tai hien Loi** — Tao 2 module pure function moi (repro-test-generator, regression-analyzer) va tich hop vao workflow fix-bug (completed 2026-03-24)
 - [ ] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi
 - [ ] **Phase 27: Dong bo Logic & Bao cao** — Phat hien thay doi business logic, cap nhat Mermaid/PDF, va de xuat post-mortem
 
@@ -95,13 +95,13 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
   3. repro-test-generator.js la pure function (nhan content string, tra string, KHONG doc file) voi test file tuong ung pass
   4. regression-analyzer.js la pure function (nhan dependency data, tra danh sach files, KHONG goi MCP) voi test file tuong ung pass
   5. 526 tests hien tai van pass va snapshots da duoc regenerate neu workflow thay doi
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans complete
 
 Plans:
-- [ ] 25-01-PLAN.md — Shared helper truths-parser.js + refactor generate-diagrams.js
+- [x] 25-01-PLAN.md — Shared helper truths-parser.js + refactor generate-diagrams.js
 - [x] 25-02-PLAN.md — Module repro-test-generator.js (REPRO-01)
 - [x] 25-03-PLAN.md — Module regression-analyzer.js (REGR-01)
-- [ ] 25-04-PLAN.md — Workflow integration + snapshot regeneration
+- [x] 25-04-PLAN.md — Workflow integration + snapshot regeneration
 
 ### Phase 26: Don dep & An toan
 **Goal**: AI tu dong don dep debug log tam thoi va hien thi canh bao bao mat lien quan truoc khi user commit ban sua
@@ -157,6 +157,6 @@ Phases execute in numeric order: 25 → 26 → 27
 | 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
-| 25. Dieu tra & Tai hien Loi | v1.5 | 2/4 | In Progress|  |
+| 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete   | 2026-03-24 |
 | 26. Don dep & An toan | v1.5 | 0/0 | Not started | - |
 | 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |
