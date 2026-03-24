@@ -44,7 +44,12 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-None — v1.3 milestone complete.
+- ✓ Sơ đồ Luồng Nghiệp vụ (Business Logic Flowchart) bằng Mermaid.js — v1.4 (Phase 22)
+- ✓ Sơ đồ Kiến trúc Hệ thống (Architecture Diagram) minh họa Module/Service/DB/APIs — v1.4 (Phase 22)
+- ✓ Template Báo cáo Quản lý (MANAGEMENT_REPORT.md) chuyên nghiệp cho Manager — v1.4 (Phase 21)
+- [ ] Script generate-pdf-report.js tự động xuất Mermaid+Markdown sang PDF
+- [ ] Cập nhật workflow complete-milestone tích hợp bước vẽ sơ đồ
+- ✓ Cập nhật Rules với quy tắc thẩm mỹ cho sơ đồ Mermaid — v1.4 (Phase 21)
 
 ### Out of Scope
 
@@ -55,10 +60,22 @@ None — v1.3 milestone complete.
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
+## Current Milestone: v1.4 Visual Business Logic Reports
+
+**Goal:** Nâng cấp khả năng AI tự động phân tích code và kế hoạch để vẽ sơ đồ Mermaid minh họa Business Logic, kèm xuất PDF chuyên nghiệp cho Manager.
+
+**Target features:**
+- Sơ đồ Luồng Nghiệp vụ (Business Logic Flowchart) bằng Mermaid.js
+- Sơ đồ Kiến trúc Hệ thống (Architecture Diagram)
+- Template Báo cáo Quản lý (MANAGEMENT_REPORT.md)
+- Script generate-pdf-report.js xuất PDF
+- Cập nhật workflow complete-milestone tích hợp sơ đồ
+- Cập nhật Rules quy tắc thẩm mỹ sơ đồ
+
 ## Current State
 
 **Shipped:** v1.3 Truth-Driven Development (2026-03-24)
-**Next milestone:** Not yet planned — run `/gsd:new-milestone` to start
+**Current:** v1.4 Visual Business Logic Reports — Phase 22 complete, Phase 23 next
 
 ## Context
 
@@ -124,4 +141,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after v1.3 milestone complete*
+*Last updated: 2026-03-24 after Phase 22 (diagram-generation) complete*
