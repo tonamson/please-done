@@ -110,8 +110,44 @@ Cong cu xac minh that bai (tool error, timeout) → ghi nhan that bai vao bao ca
 ### Cross-phase integration:
 | Từ phase | Đến phase | Liên kết | Trạng thái |
 ```
-- TẤT CẢ đạt → Bước 4
+- TẤT CẢ đạt → Bước 3.6
 - Có vấn đề → **CẢNH BÁO** (không chặn): "(1) Sửa trước (`$pd-fix-bug`/`$pd-write-code`) (2) Bỏ qua (nợ kỹ thuật)" → ghi MILESTONE_COMPLETE.md
+---
+## Bước 3.6: Tạo báo cáo quản lý (non-blocking)
+> QUAN TRỌNG: Toàn bộ bước này là non-blocking.
+> Bất kỳ lỗi nào chỉ log warning và ghi chú — KHÔNG BAO GIỜ chặn milestone completion.
+Biến lưu kết quả:
+- `reportPath` = null
+- `reportWarnings` = []
+### 3.6a — Thu thập dữ liệu và tạo sơ đồ
+Trong try/catch:
+1. Đọc tất cả `.planning/phases/*/XX-*-PLAN.md` của milestone hiện tại
+2. Gọi `generateBusinessLogicDiagram(planContents)` từ `bin/lib/generate-diagrams.js` -> lưu kết quả
+3. Đọc `.planning/codebase/ARCHITECTURE.md`
+4. Thu thập `filesModified` từ SUMMARY.md các plans
+5. Gọi `generateArchitectureDiagram(codebaseMaps, planMeta)` từ `bin/lib/generate-diagrams.js` -> lưu kết quả
+6. NẾU lỗi -> ghi reportWarnings, diagram sẽ dùng placeholder gốc từ template
+### 3.6b — Fill template báo cáo
+Trong try/catch:
+1. Đọc `templates/management-report.md`
+2. Đọc `.planning/STATE.md`
+3. Đọc tất cả `*-SUMMARY.md` files của milestone
+4. Gọi `fillManagementReport()` từ `bin/lib/report-filler.js` với toàn bộ data
+5. Ghi filled markdown ra `.planning/reports/management-report-v{version}.md`
+6. NẾU lỗi -> ghi reportWarnings, bỏ qua
+### 3.6c — Xuất PDF
+Trong try/catch:
+1. Chạy: `node bin/generate-pdf-report.js .planning/reports/management-report-v{version}.md`
+2. Kiểm tra `.planning/reports/management-report-v{version}.pdf` tồn tại
+3. `reportPath` = pdf path (hoặc md fallback path)
+4. NẾU lỗi -> `reportPath` = md path (fallback), ghi reportWarnings
+### 3.6d — Ghi kết quả vào MILESTONE_COMPLETE.md
+Thêm vào MILESTONE_COMPLETE.md (Bước 4):
+```
+## Báo cáo quản lý
+- {reportPath ? "Đường dẫn: " + reportPath : "Không tạo được báo cáo (xem cảnh báo)"}
+- {reportWarnings.length > 0 ? "Cảnh báo: " + reportWarnings.join(", ") : "Không có cảnh báo"}
+```
 ---
 ## Bước 4: Báo cáo tổng kết
 Đọc TẤT CẢ `phase-*/reports/CODE_REPORT_TASK_*.md` → compile features.
