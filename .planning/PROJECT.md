@@ -37,10 +37,11 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Comprehensive audit of 12 skills, 10 workflows, 15 JS modules — 27 issues classified — v1.2 (Phase 14)
 - ✓ End-to-end verification of 3 critical workflows (new-milestone, write-code, fix-bug) — v1.2 (Phase 15)
 - ✓ 22/27 audit issues fixed, 448 tests pass, 48/48 snapshots in sync — v1.2 (Phase 16)
+- ✓ Truth Protocol — 5-col Truths table, backward-compat parser, CHECK-04 BLOCK severity — v1.3 (Phase 17)
 
 ### Active
 
-None — planning next milestone.
+None — v1.3 milestone complete.
 
 ### Out of Scope
 
@@ -53,7 +54,7 @@ None — planning next milestone.
 
 ## Current State
 
-**Shipped:** v1.2 Skill Audit & Bug Fixes (2026-03-23)
+**Shipped:** v1.3 Truth-Driven Development (2026-03-23)
 **Next milestone:** Not yet planned — run `/gsd:new-milestone` to start
 
 ## Context
@@ -61,14 +62,15 @@ None — planning next milestone.
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
 Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
+Shipped v1.3 with 455 total tests, Truth Protocol enforced across templates and plan checker.
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows.
 
-Post-v1.2 state:
-- 12 skills and 10 workflows fully audited and verified
-- 3 critical workflows (new-milestone, write-code, fix-bug) traced end-to-end with 60 steps and 29 Truths
-- Plan checker with 7 structural checks, 140 tests, zero false positives
-- 48 converter snapshot tests ensuring cross-platform consistency
-- Total test count: 448 across all test suites
+Post-v1.3 state:
+- Truths table expanded to 5 columns (ID, Description, Business Value, Edge Cases, Verification)
+- parseTruthsV11() backward-compatible with both 3-col (v1.1) and 5-col (v1.3) formats
+- CHECK-04 Direction 2 severity upgraded from WARN to BLOCK — every task must trace to a Truth
+- Workflow plan.md Buoc 4.3 instructs AI to produce 5-column format
+- 4 converter snapshots regenerated, 455 tests pass (7 new for Truth Protocol)
 - 6 tech debt items tracked (5 documented with decisions, 1 info-level)
 
 ## Constraints
@@ -113,4 +115,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after v1.2 milestone completed*
+*Last updated: 2026-03-23 after v1.3 Phase 17 completed*

@@ -52,14 +52,18 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 ### v1.3 Truth-Driven Development (Phases 17-20)
 
 - [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-23
-- [ ] Phase 18: Logic-First Execution
+- [x] Phase 18: Logic-First Execution (1/1 plans) — completed 2026-03-24
 - [ ] Phase 19: Knowledge Correction
 - [ ] Phase 20: Logic Audit
 
 ### Phase 18: Logic-First Execution
 **Goal:** Đảm bảo AI luôn validate lại business logic trước khi viết code, và báo cáo verification theo cấu trúc Truths
 **Requirements:** EXEC-01, EXEC-02
+**Plans:** 1/1 plans complete
 **Gap Closure:** Closes orphaned requirements from v1.3 audit
+
+Plans:
+- [x] 18-01-PLAN.md — Add Buoc 1.7 Re-validate Logic to write-code workflow + restructure verification-report with typed evidence
 
 ### Phase 19: Knowledge Correction
 **Goal:** Khi bug do logic sai, AI phải sửa PLAN.md (Truth) trước khi sửa code, và ghi lại logic changes trong progress report
@@ -92,6 +96,6 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 | 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
 | 16. Bug Fixes | v1.2 | 5/5 | Complete | 2026-03-23 |
 | 17. Truth Protocol | v1.3 | 2/2 | Complete | 2026-03-23 |
-| 18. Logic-First Execution | v1.3 | 1/1 | Complete | 2026-03-24 |
+| 18. Logic-First Execution | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 19. Knowledge Correction | v1.3 | 0/0 | Not Started | — |
 | 20. Logic Audit | v1.3 | 0/0 | Not Started | — |
