@@ -55,7 +55,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 <!-- Current scope: v2.1 Detective Orchestrator -->
 
-- [ ] Dynamic Resource Orchestration — Tier/Model mapping, resource safety rules
+- [x] Dynamic Resource Orchestration — Tier/Model mapping, resource safety rules — v2.1 (Phase 28)
 - [ ] Detective Protocols — Resume UI, Evidence Format, Continuation Agent
 - [ ] Project Memory & Regression Detection — Bug history recall, regression alerts
 - [ ] Workflow Execution Loop — 5-step orchestrator integrating all agents
@@ -146,4 +146,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after v2.1 milestone started*
+*Last updated: 2026-03-24 after Phase 28 complete*
