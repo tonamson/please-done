@@ -10,6 +10,7 @@
 
 const { mermaidValidator } = require('./mermaid-validator');
 const { parseFrontmatter } = require('./utils');
+const { parseTruthsFromContent } = require('./truths-parser');
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -23,26 +24,6 @@ const MAX_NODES_PER_SUBGRAPH = 15;
  * @returns {string}
  */
 const pad = n => String(n).padStart(2, '0');
-
-/**
- * Parse Truths from plan body content.
- * Inline regex from plan-checker.js parseTruthsV11 — do NOT require plan-checker to avoid circular deps.
- * Works for both 3-col (v1.1) and 5-col (v1.3) Truths tables.
- * @param {string} content - Plan body content (after frontmatter)
- * @returns {Array<{id: string, description: string}>}
- */
-function parseTruthsFromContent(content) {
-  const truths = [];
-  const tableRegex = /\|\s*(T\d+)\s*\|\s*([^|\n]+)\s*\|(?:\s*[^|\n]+\s*\|)+/g;
-  let match;
-  while ((match = tableRegex.exec(content)) !== null) {
-    truths.push({
-      id: match[1].trim(),
-      description: match[2].trim(),
-    });
-  }
-  return truths;
-}
 
 /**
  * Parse depends_on from frontmatter object.
