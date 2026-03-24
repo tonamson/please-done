@@ -1,213 +1,322 @@
-# Feature Research
+# Feature Research: v2.1 Detective Orchestrator
 
-**Domain:** Nang cap skill fix-bug voi tu dong hoa dieu tra va an toan
+**Domain:** Dieu phoi da Agent cho debug workflow trong CLI AI coding framework
 **Researched:** 2026-03-24
-**Confidence:** HIGH
+**Confidence:** HIGH (dua tren tai lieu chinh thuc Claude Code + existing codebase)
 
-## Boi canh
+## Feature Landscape
 
-v1.5 nang cap skill `fix-bug` hien co (10 buoc: trieu chung -> gia thuyet -> cong kiem tra -> sua -> xac nhan). Khong viet lai workflow, chi BO SUNG cac buoc moi vao vi tri phu hop trong workflow hien co.
+### Danh muc A: Dynamic Resource Orchestration
 
-He thong da co san:
-- **Fix-bug workflow** 10 buoc voi SESSION tracking, phan loai rui ro, Logic Update (Buoc 6.5)
-- **FastCode MCP** cho code_qa, call chain analysis
-- **Context7 MCP** cho library docs
-- **Plan-checker** voi Truths parser, CHECK-01 den CHECK-05
-- **generate-diagrams.js** (Business Logic + Architecture Mermaid)
-- **report-filler.js** (fillManagementReport pure function)
-- **pdf-renderer.js** + **generate-pdf-report.js** (MD -> PDF via Puppeteer)
-- **scan workflow** voi npm audit, cau truc bao mat trong SCAN_REPORT.md
-- **Buoc 6.5 Logic Update** da phat hien va cap nhat Truth khi bug do logic sai
+#### Table Stakes (Nguoi dung ky vong co)
 
-7 target features tu PROJECT.md:
-1. Tu dong tao Reproduction Test Case (NestJS/Flutter)
-2. Regression Analysis qua FastCode Call Chain
-3. Auto Cleanup log tam truoc commit
-4. Dong bo Business Logic — phat hien thay doi logic/kien truc
-5. Tu dong cap nhat bao cao quan ly + xuat PDF khi logic thay doi
-6. Lien ket pd:scan canh bao bao mat cho file bi loi
-7. Post-mortem de xuat cap nhat CLAUDE.md
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **A-TS1: Tier-to-Model mapping table** | Cac agent khac nhau can model khac nhau de toi uu chi phi/chat luong | LOW | Config YAML frontmatter tren 5 agent files da co. Claude Code ho tro truong `model:` native (sonnet/opus/haiku/inherit). Chi can cap nhat frontmatter cua 5 file tai `commands/pd/agents/`. Scout=haiku, Builder=sonnet, Architect=opus. **Phu thuoc:** Khong. Doc lap config. |
+| **A-TS2: Max 2 sub-agents song song** | Tranh qua tai tai nguyen may nguoi dung; Claude Code subagent tieu ton context window rieng | LOW | Convention trong workflow prompt. Claude Code da co co che chay `background: true` va foreground. Gioi han nay la logic trong orchestrator workflow, khong can code. Tai lieu Claude Code khuyen: "3-5 teammates" nhung cho debug workflow sequential, 2 la du. **Phu thuoc:** Khong. Orchestrator logic. |
+| **A-TS3: Heavy Lock (1 tac vu nang moi luc)** | FastCode indexing + test suite chay dong thoi gay lag/crash tren may yeu | MEDIUM | Tracking state trong SESSION file: `> Heavy Task: [agent-name]`. Orchestrator kiem tra truoc khi spawn agent dung FastCode hoac chay test. Giai phong khi agent do xong. **Phu thuoc:** SESSION file format (da co). |
+| **A-TS4: Ha cap thong minh (Sequential fallback)** | Khi spawn song song that bai (timeout/error), tu dong chuyen sang tuan tu thay vi crash | MEDIUM | Pattern: try spawn 2 background agents -> neu 1 fail (timeout > 120s hoac error) -> kill ca 2 -> chay tuan tu (Detective truoc, DocSpec sau). Ghi warning vao SESSION: "Ha cap sang tuan tu do [ly do]". **Phu thuoc:** A-TS2 (parallel spawning phai co truoc moi can fallback). |
 
----
-
-## Table Stakes
-
-Cac feature CAN THIET de v1.5 co gia tri. Thieu bat ky feature nao = workflow khong hoan chinh.
-
-| Feature | Tai sao can | Do phuc tap | Ghi chu |
-|---------|-------------|-------------|---------|
-| **TS-1: Reproduction Test Case** | Buoc 5b hien tai chi "tim duong ngan nhat" de tai hien — KHONG tao file test co the chay lai. Khong co test tai hien = khong chung minh duoc loi da xay ra truoc khi sua, va khong co regression net cho tuong lai. Day la best practice duoc moi AI coding tool (Claude Code, Copilot, Cursor) ap dung: SWE-bench do luong kha nang "identify, reproduce, fix". | MEDIUM | Bo sung vao Buoc 5b. Tao file test trong `.planning/debug/repro/` (KHONG trong src/test/). NestJS: file `.spec.ts` mock service + assert loi. Flutter: file `_test.dart` mock controller + assert. Stack khac: file test generic hoac script bash. AI sinh test, KHONG can chay duoc — muc dich la GHI LAI cach tai hien de doc lai. Neu muon chay: user tu copy vao test suite. **Phu thuoc:** Khong. Doc lap. |
-| **TS-2: Regression Analysis** | Buoc 8 hien tai chi sua code roi lint+build. KHONG kiem tra cac module phu thuoc bi anh huong. Nghien cuu cho thay 1 code change co the "ripple across the system" gay cascading failures. FastCode call chain da co san — chi can goi truoc khi bao cao hoan tat. | MEDIUM | Bo sung vao Buoc 8 (sau khi sua, truoc khi commit). Goi `mcp__fastcode__code_qa`: "Liet ke cac ham/module goi truc tiep [ham da sua]. Co ham nao bi anh huong boi thay doi nay?" Ket qua ghi vao SESSION + BUG report section "Anh huong". Neu FastCode loi → Grep import/require fallback. KHONG tu dong sua cac module phu thuoc — chi CANH BAO. **Phu thuoc:** FastCode MCP (da co). |
-| **TS-3: Auto Cleanup** | 68% production issues stem from debug artifacts (console.log, print, debugger). Trong fix-bug, AI thuong them log tam (Buoc 5c "them log tam") nhung khong co co che dam bao xoa truoc commit. Loi tam trong commit = no ky thuat + rui ro bao mat (log sensitive data). | LOW | Bo sung vao Buoc 9 (truoc git commit). Pattern matching: tim `console.log`, `print()`, `debugger`, `// TODO: remove`, `// TEMP`, `// DEBUG` trong cac files staged. Liet ke cho user: "Tim thay [N] log tam. Xoa truoc commit? (Y/n)". User dong y → AI xoa. User tu choi → ghi warning trong BUG report. KHONG xoa tu dong khong hoi — mot so log la co y dinh. **Phu thuoc:** Khong. Doc lap. |
-| **TS-4: Dong bo Business Logic** | Buoc 6.5 da phat hien logic bug va cap nhat Truth. Nhung SAU KHI SUA (Buoc 8), ban sua co the thay doi them logic/kien truc ma khong duoc ghi nhan. Vi du: sua loi tinh toan → thay doi formula → logic thay doi nhung khong ai cap nhat soi do/bao cao. Day la gap giua "phat hien" (Buoc 6.5) va "ghi nhan toan bo thay doi" (sau Buoc 8). | LOW | Bo sung vao Buoc 10 (truoc xac nhan user). AI tu danh gia: "Ban sua nay co lam thay doi luong nghiep vu/kien truc?" Tieu chi: (1) Thay doi signature ham public, (2) Them/xoa endpoint API, (3) Thay doi database schema, (4) Sua dieu kien nghiep vu (if/switch logic), (5) Thay doi thu tu xu ly. Ket qua: CO/KHONG. Neu CO → trigger TS-5. Ghi ket qua vao BUG report section "Logic Changes". **Phu thuoc:** Buoc 6.5 da co (chi mo rong scope kiem tra). |
-| **TS-5: Tu dong cap nhat bao cao + PDF** | Neu logic thay doi (TS-4 = CO), bao cao quan ly cu tro nen loi thoi. Manager doc PDF cu se hieu sai kien truc hien tai. Can tu dong cap nhat diagrams + xuat PDF moi. Modules `report-filler.js`, `generate-diagrams.js`, `generate-pdf-report.js` da co san tu v1.4. | MEDIUM | Bo sung vao Buoc 10, SAU TS-4 (chi khi CO thay doi logic). Pipeline: (1) Doc tat ca PLAN.md (co Truth da cap nhat tu Buoc 6.5d), (2) Goi generateBusinessLogicDiagram(), (3) Goi generateArchitectureDiagram(), (4) Goi fillManagementReport(), (5) Ghi management-report-v{version-goc}.md, (6) Goi `node bin/generate-pdf-report.js [path]`, (7) Thong bao user PDF moi. Non-blocking: loi chi log warning. **Phu thuoc:** TS-4 (trigger). report-filler.js, generate-diagrams.js, pdf-renderer.js (da co). |
-
-## Differentiators
-
-Features KHONG bat buoc nhung tang gia tri dang ke. Please-done la framework DUY NHAT co cac tinh nang nay.
+#### Differentiators (Loi the canh tranh)
 
 | Feature | Gia tri | Do phuc tap | Ghi chu |
 |---------|---------|-------------|---------|
-| **D-1: Lien ket pd:scan bao mat** | Khi sua file, co the file do da co canh bao bao mat tu SCAN_REPORT.md (npm audit, dep vulnerabilities). Hien tai AI khong biet — co the vo tinh de ngo lo hole khi sua. Lien ket nay cho AI boi canh bao mat TRUOC KHI sua. Nghien cuu 2025 cho thay 30+ CVE trong AI coding tools do thieu context bao mat. | LOW | Bo sung vao Buoc 4 (tim hieu files lien quan). Doc `.planning/scan/SCAN_REPORT.md` → Grep cac file bi loi trong section "Canh bao bao mat". Khop → hien thi cho AI + ghi SESSION: "File [X] co canh bao bao mat: [mo ta]". KHONG chan — chi thong tin bo sung. Neu SCAN_REPORT khong ton tai → bo qua. **Phu thuoc:** pd:scan workflow (da co). SCAN_REPORT.md format (da dinh nghia). |
-| **D-2: Post-mortem de xuat CLAUDE.md** | 78% developers mat 7.5h/tuan giai thich lai context cho AI vi AI khong nho bai hoc cu. CLAUDE.md la "bo nho dai han" cua Claude Code. Sau moi bug fix, co the rut ra pattern/rule can ghi nho. Hien tai developer tu viet — AI co the de xuat. Day la "compounding engineering" — moi bug lam AI thong minh hon. | LOW | Bo sung vao Buoc 10 (sau user xac nhan DA SUA). AI phan tich: (1) Nguyen nhan goc, (2) File/module anh huong, (3) Pattern loi → de xuat 1-3 dong cho CLAUDE.md. Format: `"# Bai hoc tu [loi]: [quy tac]"`. Trinh bay cho user: "De xuat them vao CLAUDE.md: [noi dung]. Dong y? (Y/n)". User dong y → Append vao CLAUDE.md, commit rieng. KHONG tu dong — LUON hoi user. **Phu thuoc:** Khong. Doc lap. |
+| **A-D1: Auto-detect resource constraint** | Tu dong do RAM/CPU truoc khi quyet dinh parallel vs sequential, thay vi doi crash roi fallback | HIGH | Can Bash command (`sysctl hw.memsize` macOS / `free -m` Linux) + threshold logic. Phuc tap vi cross-platform. Loi ich thap so voi chi phi — hau het may dev hien dai du RAM cho 2 subagent. Doi v2.2+. |
+| **A-D2: Cost estimation per investigation** | Hien thi uoc tinh token cost truoc khi spawn agent team | MEDIUM | Can dem token estimate cho moi agent prompt + estimated tool calls. Phuc tap vi model pricing thay doi va output khong du doan duoc. Chua thiet yeu cho v2.1. |
 
-## Anti-Features
+#### Anti-Features (Khong nen lam)
 
-Features TUONG nhu tot nhung gay van de trong boi canh nay.
+| Feature | Ly do muon co | Ly do co van de | Thay the |
+|---------|---------------|-----------------|----------|
+| **A-AF1: Agent Teams (TeammateTool)** | Cac agent co the giao tiep truc tiep voi nhau, khong qua orchestrator | Experimental, chua stable. Claude Code docs ghi ro: "known limitations around session resumption, task coordination, and shutdown behavior". Token cost cao gap boi vi moi teammate la Claude instance rieng. Enable can `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS` env var. | Dung Subagent pattern: orchestrator spawn -> agent tra ket qua qua evidence file -> orchestrator tong hop. On dinh, cost thap, kiem soat duoc. |
+| **A-AF2: Nested subagent spawning** | Agent spawn agent con (vd: Detective spawn DocSpecialist truc tiep) | Claude Code cam tuyet doi: "Subagents cannot spawn other subagents". Khong co cach vuot qua gioi han nay. | Orchestrator la diem DUY NHAT spawn. Moi agent bao cao ve orchestrator qua evidence file, orchestrator quyet dinh spawn ai tiep theo. |
+| **A-AF3: Unlimited parallel agents** | Chay 3-5 agent cung luc de nhanh hon | Context window bung no khi nhieu agent tra ket qua ve. Claude Code docs: "Running many subagents that each return detailed results can consume significant context". Token cost tang tuyen tinh. Diminishing returns sau 2 agent cho debug workflow vi cac buoc phu thuoc nhau. | Gioi han 2 song song (Detective + DocSpec). Con lai chay tuan tu. |
 
-| Feature | Tai sao muon | Tai sao co van de | Thay the |
-|---------|-------------|---------------------|----------|
-| **AF-1: Tu dong CHAY reproduction test** | "Xac nhan loi bang test that" | Moi stack co test runner khac (jest, flutter test, hardhat test). Cau hinh test env phuc tap (database, env vars, mocks). AI khong dam bao test chay dung 100%. False negative → AI ket luan sai. Chi them complexity ma loi co the khong o code. | Tao FILE test de doc — user tu chay neu muon. Muc dich chinh: ghi lai cach tai hien, khong phai chay tu dong. |
-| **AF-2: Tu dong sua module phu thuoc** | "Regression analysis tim loi → AI tu sua luon" | Scope creep nghiem trong. Sua 1 bug → trigger cascading fixes → co the gay them bug. Moi fix can dieu tra rieng (gia thuyet, kiem chung). Vi pham principle "CHI sua code lien quan den loi". | Chi CANH BAO modules anh huong. User quyet dinh co can fix-bug rieng cho tung module khong. |
-| **AF-3: Full AST-based change detection** | "Phan tich AST de phat hien moi thay doi logic" | Can parser per-language (TypeScript AST, Dart AST, PHP AST, Solidity AST). Phuc tap vuot qua gia tri. Please-done la prompt-based framework, khong co runtime code analysis. Maintenance burden cho 5 stacks. | AI danh gia bang heuristics (signature change, endpoint change, schema change). Du chinh xac cho muc dich business logic detection. |
-| **AF-4: Dashboard web theo doi tat ca bugs** | "Xem tong quan bugs qua trinh milestone" | Please-done la CLI tool, khong co web server. Them dashboard = them dependency (Express/Next.js), them maintenance. BUG_*.md files + git log da la "dashboard" dang text. | Dung Grep `.planning/bugs/BUG_*.md` de thong ke. Hoac tich hop vao management report (TS-5). |
-| **AF-5: ML-based bug prediction** | "Du doan file nao se co bug tiep" | Can training data (lich su bugs), ML infrastructure. Vuot xa scope cua prompt-based framework. Cac tool lon (GitHub Copilot) moi bat dau lam dieu nay — qua som cho please-done. | FastCode call chain + manual code review. Bug patterns ghi vao CLAUDE.md (D-2) de AI hoc. |
-| **AF-6: Tu dong tao CVE reference** | "Lien ket bug voi CVE database" | Hau het bugs la logic bugs, khong phai security vulnerabilities co CVE. Goi CVE API them dependency + phuc tap. npm audit da bao loi bao mat dependencies. | D-1 da lien ket SCAN_REPORT (co npm audit). Neu bug la security → ghi manual reference trong BUG report. |
-| **AF-7: Auto-rollback khi fix fail** | "Tu dong revert git khi sua loi khong thanh cong" | Git destructive operations (reset, revert) nguy hiem trong AI context. User co the mat code. Hien tai workflow da co vong lap "user xac nhan" — an toan hon auto-rollback. | Giu vong lap hien tai: user bao chua sua → AI quay lai Buoc 5c. Git history giu moi commit [LOI]. |
+---
+
+### Danh muc B: Detective Protocols
+
+#### Table Stakes (Nguoi dung ky vong co)
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **B-TS1: Resume UI (danh sach phien danh so)** | Workflow v1.5 da co resume qua Glob SESSION_*.md nhung UX kho dung — phai doc ten file, nho trang thai. Can danh so ID de chon nhanh | MEDIUM | Sua Buoc 1a trong workflow: scan `.planning/debug/SESSION_*.md` + `.planning/debug/evidence_*.md` -> hien bang danh so voi trang thai + tom tat. User nhap so (tiep tuc) hoac mo ta moi (session moi). **Phu thuoc:** workflow fix-bug.md (sua Buoc 1a), SESSION file format hien tai (tuong thich nguoc). |
+| **B-TS2: Evidence Format chuan (3 outcomes)** | Moi agent PHAI tra ket qua theo format nhat quan de orchestrator xu ly tu dong. Khong co format chuan -> orchestrator phai "doan" ket qua | LOW | Dinh nghia 3 section header bat buoc: `## ROOT CAUSE FOUND` (kem bang chung file:dong), `## CHECKPOINT REACHED` (kem cau hoi cho user), `## INVESTIGATION INCONCLUSIVE` (kem Elimination Log). Da co 1 phan trong pd-code-detective.md va pd-fix-architect.md. Can chuan hoa cho TAT CA 5 agents. **Phu thuoc:** 5 agent config files da co tai `commands/pd/agents/`. |
+| **B-TS3: ROOT CAUSE -> 3 lua chon** | Khi tim ra nguyen nhan, user can chon huong xu ly thay vi bi ep vao 1 duong | LOW | Sau khi Architect xac nhan root cause, hien 3 option: **(1) Sua ngay** (orchestrator chay Buoc 5: Fix+Commit), **(2) Len ke hoach** (tao PLAN.md cho fix phuc tap), **(3) Tu sua** (user tu lam, chi ghi BUG report). **Phu thuoc:** B-TS2 (Evidence Format de biet ROOT CAUSE FOUND), pd-fix-architect.md output. |
+| **B-TS4: CHECKPOINT -> hoi user roi tiep** | Dung dieu tra khi agent can xac nhan tu user (vd: "Loi nay chi xay ra tren production?") | LOW | Da co pattern tuong tu trong v1.5 Buoc 5c "Diem dung". Formalize thanh protocol: moi agent co quyen ghi `## CHECKPOINT REACHED` + cau hoi. Orchestrator doc checkpoint -> hien cau hoi -> user tra loi -> orchestrator gui thong tin moi cho agent (hoac spawn agent moi voi context). **Phu thuoc:** B-TS2 (Evidence Format), SESSION file (ghi checkpoint history). |
+| **B-TS5: INCONCLUSIVE -> Elimination Log** | Khi be tac, PHAI ghi ro nhung gi DA kiem tra va BINH THUONG, de vong dieu tra tiep khong lap lai | MEDIUM | Them section bat buoc trong evidence file khi outcome = INCONCLUSIVE: `### Elimination Log` liet ke files/functions da kiem tra + ket qua binh thuong + ly do loai bo. Orchestrator doc log nay truoc khi spawn vong dieu tra tiep de truyen cho agent moi. **Phu thuoc:** B-TS2 (Evidence Format), SESSION file format. |
+
+#### Differentiators (Loi the canh tranh)
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **B-D1: Continuation Agent** | Khi user tra loi CHECKPOINT, spawn agent moi tiep nhan context tu diem dung thay vi bat dau tu dau | HIGH | Claude Code ho tro resume subagent qua `SendMessage` tool voi agent ID. NHUNG sau khi session mat (conversation reset), agent ID khong con valid. Giai phap: luu TOAN BO context can thiet vao evidence file → agent moi doc evidence file de tiep tuc. Khong phu thuoc agent ID. Gia tri cot loi: tranh lap lai cong viec da lam. **Phu thuoc:** B-TS2, B-TS4, B-TS5 (evidence files la "bo nho" cua investigation). |
+| **B-D2: Structured handoff giua agents** | Evidence file tu agent A la input chinh thuc cua agent B. Agent B khong can doc lai toan bo codebase | MEDIUM | Pipeline: Janitor -> evidence_janitor.md -> Detective reads it -> evidence_code.md -> Architect reads ALL evidence_*.md. Tiet kiem token vi moi agent chi doc evidence files (nho), khong doc source code toan bo (lon). **Phu thuoc:** B-TS2 (Evidence Format chuan). |
+| **B-D3: Parallel Detective + DocSpecialist** | Code Detective va Doc Specialist chay song song vi KHONG phu thuoc nhau — ca 2 chi can evidence_janitor.md lam input | LOW | Spawn 2 background subagents. Detective (builder/sonnet) dung FastCode. DocSpec (scout/haiku) dung Context7. Ket qua tra ve orchestrator qua 2 file rieng biet. **Phu thuoc:** A-TS3 Heavy Lock (FastCode la heavy task, kiem tra lock truoc). |
+
+#### Anti-Features (Khong nen lam)
+
+| Feature | Ly do muon co | Ly do co van de | Thay the |
+|---------|---------------|-----------------|----------|
+| **B-AF1: Real-time agent communication** | Agents trao doi truc tiep trong khi dang chay de ho tro nhau | Subagent pattern KHONG ho tro — chi Agent Teams (experimental, khong stable) moi co mailbox/messaging. Phuc tap hoa khong can thiet vi debug workflow la pipeline tuan tu co 1 buoc parallel. | File-based handoff: moi agent ghi evidence file, orchestrator doc va quyet dinh buoc tiep. |
+| **B-AF2: Auto-retry agent vo han** | Khi agent fail, tu dong retry khong gioi han cho den khi thanh cong | Tieu hao token vo ich. Agent fail thuong do THIEU THONG TIN tu user, khong phai random failure. Retry cung input -> cung ket qua fail. | Retry TOI DA 1 lan voi thong tin bo sung. Van fail -> INCONCLUSIVE + hoi user quyet dinh tiep. |
+| **B-AF3: Agent voting/consensus** | Nhieu agent bo phieu de quyet dinh root cause | Over-engineering cho debug. Debug can BANG CHUNG, khong can DAN CHU. 3 agent vote "loi o file A" nhung khong co bang chung thi van sai. | 1 Architect doc TAT CA evidence files va ra phan quyet duy nhat dua tren bang chung cu the (file:dong). |
+
+---
+
+### Danh muc C: Project Memory & Regression Detection
+
+#### Table Stakes (Nguoi dung ky vong co)
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **C-TS1: Knowledge Recall (luc lai bug cu)** | pd-bug-janitor.md da co buoc 2 "Tim kiem tu khoa trong .planning/bugs/" nhung chi la mo ta chung, chua co logic cu the | MEDIUM | Can chi tiet hoa: (1) Grep error message/keyword tu trieu chung moi trong `.planning/bugs/BUG_*.md`, (2) Trich xuat section "Phan tich nguyen nhan" + "Mo ta loi" tu bug cu khop, (3) Ghi vao `evidence_janitor.md` muc `## RELATED HISTORICAL BUGS` voi link + tom tat. **Phu thuoc:** pd-bug-janitor.md (cap nhat buoc 2), `.planning/bugs/` directory (da co tu v1.5 workflow). Module can: Grep tool (da co trong allowed-tools cua Janitor). |
+| **C-TS2: Regression Alert** | Canh bao khi loi hien tai GIONG voi bug cu da sua — dau hieu regression | MEDIUM | So sanh 3 tieu chi: (1) file loi trung voi file tu BUG cu, (2) function name trung, (3) error message tuong tu (substring match). Neu >= 2 tieu chi khop -> hien canh bao: "Loi nay co the la regression cua BUG_[timestamp].md — nguyen nhan cu: [tom tat]". **Phu thuoc:** C-TS1 Knowledge Recall (phai tim duoc bug cu truoc). regression-analyzer.js (co the mo rong hoac tao utility moi). |
+| **C-TS3: Double-Check (khong pha ban sua cu)** | Dam bao ban sua moi khong pha vo cac ban sua cu co lien quan — 1 trong nhung rui ro lon nhat khi fix bug | MEDIUM | Sau khi co fix plan (Architect output): doc `.planning/bugs/` co lien quan (tu C-TS1) -> xac dinh files da sua truoc do -> kiem tra files do co bi anh huong boi fix moi khong. **Phu thuoc:** C-TS1 (phai co data bug cu), pd-fix-architect.md (them buoc double-check vao process), regression-analyzer.js `analyzeFromSourceFiles()` (da co, co the tai su dung). |
+
+#### Differentiators (Loi the canh tranh)
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **C-D1: Bug pattern INDEX file** | Tao `.planning/bugs/INDEX.md` tu dong liet ke tat ca bug theo file/function/keyword de tim kiem nhanh thay vi Grep toan bo thu muc | MEDIUM | Sinh tu dong moi khi BUG file duoc tao/cap nhat. Format: bang markdown voi cot [Bug ID, File, Function, Keyword, Trang thai]. Giup Janitor tim bug cu nhanh hon khi du an co 10+ bugs. Doi den v2.2+. |
+| **C-D2: Persistent agent memory (cross-session)** | Agent nho duoc pattern tu cac session debug truoc, vd: "file auth.js thuong gay loi timeout" | HIGH | Claude Code native ho tro `memory: project` trong subagent frontmatter -> luu tai `.claude/agent-memory/<name>/MEMORY.md`. Nhung can thiet ke memory schema can than de khong phinh to vo han. Risk: memory cu tro thanh misleading khi codebase thay doi. Doi v2.2+. |
+
+#### Anti-Features (Khong nen lam)
+
+| Feature | Ly do muon co | Ly do co van de | Thay the |
+|---------|---------------|-----------------|----------|
+| **C-AF1: Database bug tracking** | Luu bug vao SQLite/JSON DB de query nhanh | Them dependency moi (sqlite3), pha vo pattern "No Build Step, pure Node.js" cua project. Markdown files la du cho quy mo 1 du an (100+ bugs). | Dung INDEX.md flat file + Grep. Performance du cho scale nay. |
+| **C-AF2: AI-powered bug similarity scoring** | Dung embedding de so sanh do tuong tu giua bugs chinh xac hon keyword match | Can model rieng (embedding API), phuc tap, chi phi cao, accuracy khong dam bao tot hon keyword match cho structured BUG reports. | Keyword matching + file path matching la du. Bug reports da co cau truc chuan -> substring match hieu qua. |
+| **C-AF3: Auto-fix tu lich su bug** | Tu dong ap dung cach sua cu khi gap bug tuong tu | Cuc ky nguy hiem — cung TRIEU CHUNG khong chac la cung NGUYEN NHAN. Risk tao bug moi hoac override fix dung. Vi pham principle "PHAI hinh thanh gia thuyet truoc khi sua". | Chi CANH BAO va GOI Y cach sua cu. KHONG tu dong sua. User va Architect quyet dinh. |
+
+---
+
+### Danh muc D: Workflow Execution Loop (5-step Orchestrator)
+
+#### Table Stakes (Nguoi dung ky vong co)
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **D-TS1: Buoc 1 — Khoi dong (Janitor agent)** | Thu thap trieu chung + luc lai bug cu. Tuong ung Buoc 1 hien tai nhung uy quyen cho Janitor agent thay vi orchestrator tu lam | MEDIUM | Spawn pd-bug-janitor (scout tier, haiku model). Input: $ARGUMENTS hoac user input. Output: `.planning/debug/evidence_janitor.md`. Janitor PHAI kiem tra session cu (Resume UI) truoc khi thu thap moi. **Phu thuoc:** B-TS1 Resume UI, C-TS1 Knowledge Recall, pd-bug-janitor.md config. |
+| **D-TS2: Buoc 2 — Phan viec (Detective + DocSpec song song)** | Spawn Code Detective va Doc Specialist dong thoi vi ca 2 chi can evidence_janitor.md lam input | MEDIUM | 2 background subagents. Detective (builder/sonnet) dung FastCode tim file/dong loi. DocSpec (scout/haiku) dung Context7 tra Breaking Changes/Known Issues. Ca 2 doc evidence_janitor.md. Output: `evidence_code.md` + `evidence_docs.md`. **Phu thuoc:** D-TS1 hoan tat, A-TS3 Heavy Lock (FastCode indexing), B-TS2 Evidence Format, B-D3 parallel spawning. |
+| **D-TS3: Buoc 3 — Tai hien (Repro Engineer agent)** | Tao Red Test tu bang chung de chung minh loi ton tai TRUOC khi sua | MEDIUM | Spawn pd-repro-engineer (builder/sonnet). Input: evidence_janitor.md + evidence_code.md. Output: `evidence_repro.md` + test file tai `.planning/debug/repro/`. Tai su dung repro-test-generator.js da co tu v1.5. **Phu thuoc:** D-TS2 hoan tat (can biet file loi), repro-test-generator.js (da co). |
+| **D-TS4: Buoc 4 — Phan quyet (Fix Architect agent)** | Tong hop TAT CA evidence -> xac dinh root cause -> thiet ke fix plan | MEDIUM | Spawn pd-fix-architect (architect/opus). Input: TAT CA evidence_*.md files. Output: `evidence_architect.md` voi 1 trong 3 outcomes (B-TS2). Them buoc Double-Check (C-TS3) truoc khi ra phan quyet. **Phu thuoc:** D-TS2+D-TS3 hoan tat, B-TS2 Evidence Format, C-TS3 Double-Check, B-TS3 (3 lua chon sau ROOT CAUSE). |
+| **D-TS5: Buoc 5 — Ve dich (Fix + Verify + Commit)** | Sua code, chay test, commit [LOI] — orchestrator thuc hien truc tiep, KHONG spawn agent | LOW (tai su dung logic da co) | Tai su dung Buoc 8-10 cua workflow hien tai: sua code (8) + regression analysis (8a) + debug cleanup (9a) + security check (9a) + git commit (9b) + user confirm (10) + logic sync (10a). **Phu thuoc:** debug-cleanup.js, logic-sync.js, regression-analyzer.js — TAT CA da co tu v1.5. |
+
+#### Differentiators (Loi the canh tranh)
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **D-D1: Loop-back thong minh** | Khi INCONCLUSIVE o Buoc 4, tu dong quay lai Buoc 2 voi thong tin moi tu user THAY VI bat dau lai tu Buoc 1 (Janitor da lam xong) | MEDIUM | Tracking "investigation round" trong SESSION. Moi round: agent nhan them Elimination Log tu round truoc + thong tin moi tu user. Prevent infinite loop: max 3 rounds. Sau round 3 -> bat buoc hoi user: "3 vong dieu tra chua tim ra. Tiep tuc/Dung/Bo sung thong tin?". **Phu thuoc:** B-TS5 Elimination Log (de agent moi biet gi da kiem tra). |
+| **D-D2: Backward-compatible single-agent mode** | User co the chon chay single-agent (nhu v1.5 cu) hoac multi-agent tuy preference | LOW | Logic don gian: kiem tra `commands/pd/agents/` co ton tai khong. Neu khong co hoac user truyen flag `--single` -> chay workflow v1.5 nhu cu (khong spawn agent). Dam bao v1.5 users khong bi break khi update. |
+| **D-D3: Progressive disclosure** | An chi tiet agent spawning/evidence phia sau. Chi hien ket qua cuoi cung: "Da tim nguyen nhan: [tom tat]. Sua ngay? Len ke hoach? Tu sua?" | LOW | Subagent chay background mac dinh. Orchestrator chi in summary tu evidence_architect.md. Chi tiet nam trong `.planning/debug/evidence_*.md` cho ai muon doc. Giam cognitive load cho user. |
+
+#### Anti-Features (Khong nen lam)
+
+| Feature | Ly do muon co | Ly do co van de | Thay the |
+|---------|---------------|-----------------|----------|
+| **D-AF1: Toan bo workflow trong JS module** | Viet orchestrator bang Node.js thay vi workflow markdown | Pha vo pattern cot loi cua project: workflow = markdown doc, module = pure JS function. Workflow markdown la "executable specification" ma AI doc va thuc hien truc tiep. Chuyen sang JS mat tinh linh hoat cua natural language instructions. | Giu orchestration logic trong fix-bug.md. JS modules chi cho pure functions (repro-test, regression-analyzer, debug-cleanup, logic-sync). |
+| **D-AF2: Real-time progress bar** | Hien thi tien trinh cua tung agent khi dang chay | Claude Code khong co API cho custom UI rendering trong terminal. Subagent output chi co the doc khi HOAN TAT. Background subagent khong co cach report progress. | In message khi spawn: "[Dang chay: Code Detective...]". In khi xong: "[Hoan tat: Code Detective -> ROOT CAUSE FOUND]". Don gian, hieu qua. |
+| **D-AF3: Auto-select investigation depth** | AI tu quyet dinh loi don gian (1 agent) hay phuc tap (5 agent) dua tren do kho | Risk over-engineering cho loi don gian (stack trace chi thang file:dong) hoac under-engineering cho loi phuc tap. AI chua du tot de tu danh gia do kho truoc khi dieu tra. | Mac dinh multi-agent. Loi hien nhien (error message chi thang file) co the skip Buoc 2-3 khi Janitor ghi nhan "Root cause hien nhien". Orchestrator quyet dinh, khong phai AI tu dong. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-TS-1: Reproduction Test Case (Buoc 5b)
-   [doc lap — khong phu thuoc gi]
-
-TS-2: Regression Analysis (Buoc 8)
-   └──requires──> FastCode MCP (da co)
-
-TS-3: Auto Cleanup (Buoc 9)
-   [doc lap — khong phu thuoc gi]
-
-TS-4: Dong bo Business Logic (Buoc 10)
-   └──requires──> Buoc 6.5 Logic Update (da co)
-
-TS-5: Tu dong cap nhat bao cao + PDF (Buoc 10)
-   └──requires──> TS-4 (trigger kiem tra)
-   └──requires──> report-filler.js (da co)
-   └──requires──> generate-diagrams.js (da co)
-   └──requires──> generate-pdf-report.js (da co)
-
-D-1: Lien ket pd:scan bao mat (Buoc 4)
-   └──requires──> SCAN_REPORT.md (da co)
-
-D-2: Post-mortem CLAUDE.md (Buoc 10)
-   [doc lap — khong phu thuoc gi]
+[B-TS1: Resume UI]
+    |
+    v
+[D-TS1: Janitor + C-TS1: Knowledge Recall]
+    |
+    v
+[B-TS2: Evidence Format chuan]
+    |
+    +-------song song-------+
+    |                        |
+    v                        v
+[D-TS2a: Code Detective]  [D-TS2b: Doc Specialist]
+    |                        |
+    +---A-TS3: Heavy Lock----+  (guard FastCode)
+    |                        |
+    +--------merge-----------+
+    |
+    v
+[D-TS3: Repro Engineer]
+    |
+    v
+[C-TS2: Regression Alert] --canh bao--> [D-TS4: Fix Architect]
+    |
+    v
+[C-TS3: Double-Check] --xac nhan--> [D-TS4: Fix Architect]
+    |
+    v
+[D-TS4: Fix Architect] --> evidence_architect.md
+    |
+    +--- ROOT CAUSE FOUND ---> [B-TS3: 3 lua chon]
+    |       |
+    |       +--- "Sua ngay" --> [D-TS5: Fix+Commit]
+    |       |                       |
+    |       |                       v
+    |       |                  [debug-cleanup.js] (v1.5)
+    |       |                  [logic-sync.js] (v1.5)
+    |       |                  [regression-analyzer.js] (v1.5)
+    |       |
+    |       +--- "Len ke hoach" --> Tao PLAN.md (exit orchestrator)
+    |       +--- "Tu sua" --> Ghi BUG report (exit orchestrator)
+    |
+    +--- CHECKPOINT ---------> [B-TS4: Hoi user]
+    |                              |
+    |                              v
+    |                          [B-D1: Continuation Agent]
+    |
+    +--- INCONCLUSIVE -------> [B-TS5: Elimination Log]
+                                   |
+                                   v
+                               [D-D1: Loop-back Buoc 2] (max 3 rounds)
 ```
 
-### Ghi chu phu thuoc
+```
+[A-TS1: Tier-to-Model] --configures--> [moi agent spawning]
 
-- **TS-1, TS-3, D-1, D-2 doc lap hoan toan.** Co the xay song song hoac bat ky thu tu nao.
-- **TS-2 phu thuoc FastCode** da co san — chi la goi MCP tool moi trong workflow step moi.
-- **TS-4 mo rong Buoc 6.5** da co — them kiem tra SAU khi sua (khong chi TRUOC khi sua).
-- **TS-5 phu thuoc TS-4** lam trigger — CHI chay khi TS-4 phat hien CO thay doi logic.
-- **TS-5 tai su dung toan bo v1.4 modules** — KHONG can viet code moi, chi goi functions da co.
-- **D-1 va D-2 la differentiators** — co the defer sang v1.5.x neu can.
+[A-TS4: Ha cap thong minh] --fallback--> [D-TS2 parallel fail -> sequential]
+
+[D-D2: Backward-compat mode] --conflicts-- [toan bo multi-agent features]
+    (chi 1 trong 2 active tai 1 thoi diem)
+```
+
+### Ghi chu Dependency
+
+- **B-TS2 Evidence Format PHAI co truoc D-TS1-5 Workflow Loop:** Neu khong chuan hoa output, orchestrator khong the tu dong phan loai ket qua agent (ROOT CAUSE vs CHECKPOINT vs INCONCLUSIVE)
+- **C-TS1 Knowledge Recall PHAI co truoc C-TS2 Regression Alert:** Alert can data tu recall de so sanh
+- **A-TS3 Heavy Lock PHAI co truoc D-TS2 parallel spawning:** Tranh 2 FastCode indexing cung luc crash system
+- **B-TS1 Resume UI can cap nhat truoc khi thay doi Buoc 1:** Vi Buoc 1 cua loop moi la diem vao cua toan bo workflow
+- **A-TS1 Tier-to-Model KHONG phu thuoc gi:** Chi la config update, lam bat ky luc nao (nen lam dau tien)
+- **D-D2 Backward-compat mode CONFLICTS voi multi-agent:** Khi single-agent active, skip TOAN BO orchestration, chay v1.5 workflow cu
+- **D-TS5 Fix+Commit TAI SU DUNG v1.5 modules:** debug-cleanup.js, logic-sync.js, regression-analyzer.js — KHONG can viet moi
 
 ---
 
 ## MVP Definition
 
-### Launch With (v1.5)
+### Launch v2.1 (Minimum Viable Orchestrator)
 
-Tat ca 5 Table Stakes + 2 Differentiators. Thu tu build theo vi tri trong workflow:
+Features THIET YEU de orchestrator hoat dong — thieu bat ky feature nao = orchestrator khong the chay:
 
-- [x] **D-1: Lien ket pd:scan bao mat** (Buoc 4) — som nhat trong workflow, bo sung context
-- [x] **TS-1: Reproduction Test Case** (Buoc 5b) — tu dong tao test tai hien
-- [x] **TS-2: Regression Analysis** (Buoc 8) — kiem tra anh huong sau khi sua
-- [x] **TS-3: Auto Cleanup** (Buoc 9) — don dep truoc commit
-- [x] **TS-4: Dong bo Business Logic** (Buoc 10) — phat hien thay doi logic
-- [x] **TS-5: Cap nhat bao cao + PDF** (Buoc 10) — tu dong xuat PDF moi
-- [x] **D-2: Post-mortem CLAUDE.md** (Buoc 10) — de xuat bai hoc
+- [ ] **A-TS1: Tier-to-Model mapping** — config co san, chi update frontmatter, lam dau tien
+- [ ] **B-TS2: Evidence Format chuan 3 outcomes** — nen tang cua moi orchestration logic
+- [ ] **B-TS1: Resume UI danh so** — UX thiet yeu cho Buoc 1 cua workflow
+- [ ] **B-TS3: ROOT CAUSE -> 3 lua chon** — output chinh cua orchestrator
+- [ ] **B-TS4: CHECKPOINT -> hoi user** — bat buoc cho workflow co tuong tac
+- [ ] **C-TS1: Knowledge Recall trong Janitor** — gia tri lon, chi tiet hoa buoc da co
+- [ ] **A-TS3: Heavy Lock cho FastCode** — an toan cho parallel spawning
+- [ ] **D-TS1-5: Workflow Execution Loop 5 buoc** — core cua milestone
+- [ ] **D-D2: Backward-compatible single-agent mode** — bao ve v1.5 user hien tai
 
-### Defer (v1.5.x hoac v2+)
+### Them sau khi core on dinh (v2.1.x)
 
-- [ ] **Tu dong chay test tai hien** — cho khi co test infrastructure chuan
-- [ ] **Auto-fix regression modules** — cho khi regression analysis da chung minh gia tri
-- [ ] **AST-based change detection** — cho khi heuristics khong du chinh xac
-- [ ] **Bug tracking dashboard** — cho khi co nhu cau web UI
+Features nang cao, them khi da co feedback thuc te:
+
+- [ ] **B-D1: Continuation Agent** — khi user report mat context thuong xuyen
+- [ ] **B-TS5: Elimination Log** — di kem voi loop-back
+- [ ] **D-D1: Loop-back thong minh** — khi INCONCLUSIVE xay ra thuong xuyen
+- [ ] **C-TS2: Regression Alert** — khi du an tich luy 5+ bug reports
+- [ ] **C-TS3: Double-Check** — khi co case regression thuc te xay ra
+- [ ] **A-TS4: Ha cap thong minh** — khi user bao loi tai nguyen
+- [ ] **B-D2: Structured handoff** — toi uu token khi evidence files da chuan
+- [ ] **D-D3: Progressive disclosure** — polish UX
+
+### Doi den v2.2+ (Future)
+
+- [ ] **C-D1: Bug pattern INDEX.md** — khi so luong bug > 10
+- [ ] **C-D2: Persistent agent memory cross-session** — can kinh nghiem thuc te + memory schema design
+- [ ] **A-D1: Auto-detect resource constraint** — phuc tap, loi ich thap
+- [ ] **A-D2: Cost estimation** — nice-to-have, khong urgent
 
 ---
 
 ## Feature Prioritization Matrix
 
-| Feature | Gia tri user | Chi phi trien khai | Rui ro | Uu tien |
-|---------|-------------|-------------------|--------|---------|
-| TS-1: Reproduction Test Case | HIGH | MEDIUM | LOW | P1 |
-| TS-2: Regression Analysis | HIGH | MEDIUM | LOW | P1 |
-| TS-3: Auto Cleanup | MEDIUM | LOW | LOW | P1 |
-| TS-4: Dong bo Business Logic | HIGH | LOW | LOW | P1 |
-| TS-5: Cap nhat bao cao + PDF | MEDIUM | MEDIUM | MEDIUM | P1 |
-| D-1: Lien ket scan bao mat | MEDIUM | LOW | LOW | P1 |
-| D-2: Post-mortem CLAUDE.md | HIGH | LOW | LOW | P1 |
+| Feature | Gia tri User | Chi phi Implement | Uu tien |
+|---------|-------------|-------------------|---------|
+| A-TS1: Tier-to-Model mapping | HIGH | LOW | **P1** |
+| B-TS2: Evidence Format 3 outcomes | HIGH | LOW | **P1** |
+| B-TS1: Resume UI danh so | HIGH | MEDIUM | **P1** |
+| B-TS3: ROOT CAUSE 3 lua chon | HIGH | LOW | **P1** |
+| B-TS4: CHECKPOINT hoi user | MEDIUM | LOW | **P1** |
+| C-TS1: Knowledge Recall (Janitor) | HIGH | MEDIUM | **P1** |
+| A-TS3: Heavy Lock | MEDIUM | MEDIUM | **P1** |
+| D-TS1-5: Workflow Loop 5 buoc | HIGH | HIGH | **P1** |
+| D-D2: Backward-compatible mode | HIGH | LOW | **P1** |
+| B-D1: Continuation Agent | MEDIUM | HIGH | **P2** |
+| B-TS5: Elimination Log | MEDIUM | MEDIUM | **P2** |
+| D-D1: Loop-back thong minh | MEDIUM | MEDIUM | **P2** |
+| C-TS2: Regression Alert | MEDIUM | MEDIUM | **P2** |
+| C-TS3: Double-Check | MEDIUM | MEDIUM | **P2** |
+| A-TS4: Ha cap thong minh | LOW | MEDIUM | **P2** |
+| B-D2: Structured handoff | MEDIUM | MEDIUM | **P2** |
+| D-D3: Progressive disclosure | LOW | LOW | **P2** |
+| C-D1: Bug INDEX.md | LOW | MEDIUM | **P3** |
+| C-D2: Persistent agent memory | LOW | HIGH | **P3** |
+| A-D1: Auto-detect resource | LOW | HIGH | **P3** |
+| A-D2: Cost estimation | LOW | MEDIUM | **P3** |
 
-**Danh gia rui ro:**
-- **TS-1 LOW risk:** AI chi TAO file test, khong chay. Output la markdown/code snippet trong `.planning/debug/repro/`. Khong anh huong source code.
-- **TS-2 LOW risk:** FastCode MCP da duoc chung minh qua v1.0-v1.4. Fallback Grep da co. Chi them 1 buoc query.
-- **TS-3 LOW risk:** Pattern matching don gian. LUON hoi user truoc khi xoa. Worst case: user tu choi, khong mat gi.
-- **TS-4 LOW risk:** Heuristics-based, khong can parser phuc tap. Sai → chi miss 1 update bao cao, khong lam hong code.
-- **TS-5 MEDIUM risk:** Goi 3 modules v1.4 lien tiep. Pipeline co the fail o bat ky buoc nao. Giai phap: non-blocking nhu Buoc 3.6 cua complete-milestone — try/catch moi sub-step, chi log warning.
-- **D-1 LOW risk:** Read-only. Doc SCAN_REPORT, khong sua gi. Khong co SCAN_REPORT → bo qua.
-- **D-2 LOW risk:** LUON hoi user truoc khi append CLAUDE.md. User tu choi → khong lam gi.
-
----
-
-## Diem tich hop vao Workflow hien co
-
-Mapping chinh xac vi tri bo sung trong `workflows/fix-bug.md`:
-
-| Buoc hien tai | Hanh vi hien tai | v1.5 Bo sung |
-|---------------|------------------|--------------|
-| Buoc 4: Tim hieu files | FastCode + Context7 tim files lien quan | **THEM D-1:** Doc SCAN_REPORT.md → Grep file bi loi trong "Canh bao bao mat". Khop → ghi SESSION. |
-| Buoc 5b: Tai hien toi gian | Tim duong ngan nhat tai hien, ghi SESSION | **THEM TS-1:** Sau khi tai hien, tao file test trong `.planning/debug/repro/repro_[ten-tat].[ext]`. NestJS → .spec.ts. Flutter → _test.dart. Khac → .test.js hoac script.sh. |
-| Buoc 8: Sua code | Ap dung ban sua, lint+build, test theo phan loai | **THEM TS-2:** Sau lint+build, goi FastCode: "Cac ham/module nao goi [ham da sua]? Anh huong?" Ghi ket qua vao SESSION + BUG report. |
-| Buoc 9: Git commit | git add + commit [LOI] | **THEM TS-3:** TRUOC git add, scan staged files tim debug artifacts. Liet ke → hoi user → xoa hoac giu. |
-| Buoc 10: Xac nhan | User xac nhan da sua / chua sua | **THEM TS-4:** TRUOC hoi user, AI danh gia thay doi logic. **THEM TS-5:** Neu CO thay doi → goi pipeline bao cao. **THEM D-2:** SAU user xac nhan DA SUA → de xuat CLAUDE.md. |
-
-### Du lieu da co san cho tung feature
-
-| Feature | Du lieu can | Nguon | Do kho truy cap |
-|---------|------------|-------|-----------------|
-| TS-1 | Stack type, trieu chung, buoc tai hien | CONTEXT.md (stack), SESSION (trieu chung) | LOW — da doc o Buoc 1+5 |
-| TS-2 | Ten ham/file da sua | Buoc 8 code changes | LOW — AI vua sua xong, biet files |
-| TS-3 | Files staged cho commit | `git diff --cached --name-only` | LOW — git command don gian |
-| TS-4 | Diff truoc/sau sua | Git diff hoac AI nho changes | LOW — AI vua sua xong |
-| TS-5 | PLAN.md files, templates | `.planning/milestones/[ver]/phase-*/PLAN.md` | LOW — da doc o Buoc 3 |
-| D-1 | SCAN_REPORT.md | `.planning/scan/SCAN_REPORT.md` | LOW — doc 1 file |
-| D-2 | Nguyen nhan goc, pattern loi | SESSION + BUG report | LOW — da co tu Buoc 5-6 |
+**Priority key:**
+- P1: Bat buoc cho v2.1 launch — thieu thi orchestrator khong hoat dong duoc
+- P2: Nen co, them khi core on dinh — tang chat luong va UX
+- P3: Tuong lai, doi du lieu thuc te — optimization va polish
 
 ---
 
-## Phan tich canh tranh
+## Mapping toi Module/File hien co
 
-| Feature | Claude Code (vanilla) | GitHub Copilot Agent | Cursor BugBot | Please-Done v1.5 |
-|---------|----------------------|---------------------|---------------|-------------------|
-| Tai hien co he thong | Khong — fix truc tiep | Khong — fix truc tiep | Review PR, khong tai hien | **Tao file test tai hien + luu SESSION** |
-| Regression analysis | Khong — chi sua file duoc chi dinh | Copilot chay test nhung khong phan tich impact | Khong | **FastCode call chain + canh bao module phu thuoc** |
-| Don dep debug code | Khong — developer tu don | Khong | Khong | **Auto detect + hoi user truoc commit** |
-| Dong bo logic/kien truc | Khong — khong co Truth tracking | Khong — khong co structured logic | Khong | **Heuristics danh gia + tu dong cap nhat diagram/PDF** |
-| Bao cao tu dong | Khong | PR description tu dong | PR review comments | **Management report + PDF export khi logic thay doi** |
-| Lien ket bao mat | Khong | Dependabot rieng biet | Khong | **Lien ket SCAN_REPORT vao bug investigation** |
-| Hoc tu bug (memory) | CLAUDE.md manual | Khong — reset moi session | Khong | **De xuat CLAUDE.md tu dong sau xac nhan** |
+| Feature moi | Module/File da co | Thay doi can thiet |
+|-------------|-------------------|--------------------|
+| A-TS1: Tier-to-Model | 5 file tai `commands/pd/agents/*.md` | Cap nhat `model:` field trong YAML frontmatter |
+| B-TS2: Evidence Format | pd-code-detective.md, pd-fix-architect.md (co 1 phan) | Chuan hoa `<process>` section cho TAT CA 5 agents |
+| B-TS1: Resume UI | `workflows/fix-bug.md` Buoc 1a | Viet lai hien thi tu text -> bang danh so |
+| C-TS1: Knowledge Recall | pd-bug-janitor.md buoc 2 (da co) | Chi tiet hoa Grep pattern + output section format |
+| A-TS3: Heavy Lock | Chua co | Them tracking logic trong workflow orchestration |
+| C-TS2: Regression Alert | `bin/lib/regression-analyzer.js` | Mo rong hoac tao wrapper so sanh voi bug history |
+| C-TS3: Double-Check | `bin/lib/regression-analyzer.js` (analyzeFromSourceFiles) | Tai su dung, truyen files tu bug cu |
+| D-TS1-5: Workflow Loop | `workflows/fix-bug.md` | Them section orchestration moi (giua Buoc 1 va Buoc 6) |
+| D-D2: Backward compat | `commands/pd/fix-bug.md` | Them check: co agents dir -> multi; khong -> single |
+| B-D1: Continuation Agent | Chua co | Logic moi trong workflow + evidence file recovery |
+| B-TS5: Elimination Log | SESSION file template | Them `### Elimination Log` section vao template |
+| D-TS5: Fix+Commit | `bin/lib/debug-cleanup.js`, `bin/lib/logic-sync.js`, `bin/lib/regression-analyzer.js` | KHONG thay doi — tai su dung nguyen trang |
 
-**Insight chinh:** Khong AI coding tool nao hien co ket hop tat ca 7 features trong 1 workflow lien tuc. Claude Code manh ve fix code nhung khong co structured investigation. Copilot manh ve PR nhung khong co regression analysis. Please-done v1.5 la workflow DUY NHAT co: tai hien → sua → kiem tra anh huong → don dep → dong bo logic → bao cao → hoc bai.
+---
+
+## Phan tich Competitor / Reference
+
+| Feature | gsd:debug | Claude Code vanilla | Cursor Debug | Please-Done v2.1 |
+|---------|-----------|--------------------|--------------|--------------------|
+| Multi-agent orchestration | Khong (single) | Subagent co san nhung user tu setup | Khong (single + tab) | 5 specialized agents + orchestrator workflow |
+| Resume session | Khong (mat context) | Khong native | Khong | Resume UI danh so + evidence file pipeline |
+| Structured evidence | Informal (in-context) | Khong | Khong | 4 evidence files + 3 outcome protocol |
+| Regression detection | Khong | Khong | Khong | Knowledge Recall + Regression Alert + Double-Check |
+| Resource management | Khong | Khong | Internal | Tier mapping + Heavy Lock + Sequential fallback |
+| Bug history/memory | Khong | Khong | Khong | .planning/bugs/ + Knowledge Recall |
+| Checkpoint/Continue | Khong | Khong | Khong | CHECKPOINT protocol + Continuation Agent |
+| File-based handoff | Khong (context window) | Subagent result only | Khong | evidence_*.md pipeline giua 5 agents |
+
+**Insight chinh:** Khong co AI debugging tool nao hien co ket hop: multi-agent chuyên biet + evidence pipeline + checkpoint/continue + bug history recall trong 1 workflow thong nhat. Claude Code cung cap co so ha tang (subagent, background, model selection) nhung KHONG co pre-built debug orchestration. v2.1 la lop "workflow intelligence" tren nen tang Claude Code.
 
 ---
 
 ## Sources
 
-- [Qodo AI Code Review Tools](https://www.qodo.ai/) — business logic detection trong code review, MEDIUM confidence
-- [Quash: Regression Testing 2025](https://quashbugs.com/blog/regression-testing-2025-ai) — AI-driven change impact analysis, MEDIUM confidence
-- [Katalon: AI Regression Testing 2026](https://katalon.com/resources-center/blog/ai-in-regression-testing) — dependency analysis patterns, MEDIUM confidence
-- [AlterSquare: AI Coding Tool No Memory](https://altersquare.io/ai-coding-tool-no-memory-bug-broke-prod-last-quarter/) — post-mortem memory gap, MEDIUM confidence
-- [Pete Hodgson: AI Coding Assistant Keeps Doing It Wrong](https://blog.thepete.net/blog/2025/05/22/why-ai-coding-assistant-keeps-doing-it-wrong-and-how-to-fix-it/) — CLAUDE.md as institutional memory, MEDIUM confidence
-- [Aikido: Remove Debug Code Before Commits](https://www.aikido.dev/code-quality/rules/remove-debugging-and-temporary-code-before-commits-a-security-and-performance-guide) — 68% production issues from debug artifacts, MEDIUM confidence
-- [JetBrains: Cleanup Code Before Commit](https://www.jetbrains.com/guide/go/tips/vcs-cleanup-code-before-commit/) — pre-commit cleanup patterns, HIGH confidence
-- [Dev Genius: Copilot vs Cursor vs Claude Code Bug Fix Comparison](https://blog.devgenius.io/github-copilot-vs-cursor-vs-claude-code-which-ai-actually-fixes-production-bugs-9485b33131c6) — competitive landscape, MEDIUM confidence
-- [WorkOS: Cursor BugBot + Claude Code PRs](https://workos.com/blog/cursor-bugbot-autoreview-claude-code-prs) — BugBot autofix patterns, MEDIUM confidence
-- [NestJS Testing Docs](https://docs.nestjs.com/fundamentals/testing) — NestJS test patterns, HIGH confidence
-- Please-Done codebase: `workflows/fix-bug.md`, `commands/pd/fix-bug.md`, `workflows/scan.md`, `bin/lib/report-filler.js`, `bin/lib/generate-diagrams.js`, `bin/lib/pdf-renderer.js` — PRIMARY, HIGH confidence
+- [Claude Code Subagent Documentation](https://code.claude.com/docs/en/sub-agents) — HIGH confidence, tai lieu chinh thuc Anthropic
+- [Claude Code Agent Teams Documentation](https://code.claude.com/docs/en/agent-teams) — HIGH confidence, experimental feature docs
+- [Multi-Agent Orchestration Patterns 2026](https://www.ai-agentsplus.com/blog/multi-agent-orchestration-patterns-2026) — MEDIUM confidence
+- [The Multi-Agent Pattern That Actually Works in Production](https://www.chanl.ai/blog/multi-agent-orchestration-patterns-production-2026) — MEDIUM confidence
+- [AI Agent State Checkpointing Guide](https://fast.io/resources/ai-agent-state-checkpointing/) — MEDIUM confidence
+- [AgentRx Systematic Debugging Framework (Microsoft Research)](https://www.microsoft.com/en-us/research/blog/systematic-debugging-for-ai-agents-introducing-the-agentrx-framework/) — MEDIUM confidence
+- [Beads: Git-Friendly Issue Tracker for AI Agents](https://betterstack.com/community/guides/ai/beads-issue-tracker-ai-agents/) — MEDIUM confidence
+- [Azure AI Agent Design Patterns](https://learn.microsoft.com/en-us/azure/architecture/ai-ml/guide/ai-agent-design-patterns) — HIGH confidence
+- [Claude Code Swarm Orchestration Skill (community)](https://gist.github.com/kieranklaassen/4f2aba89594a4aea4ad64d753984b2ea) — LOW confidence
+- Existing codebase: `commands/pd/agents/`, `workflows/fix-bug.md`, `bin/lib/*.js`, `2.1_UPGRADE_DEBUG.md` — HIGH confidence (primary source)
 
 ---
-*Feature research cho: Nang cap skill fix-bug (please-done v1.5)*
+*Feature research cho: v2.1 Detective Orchestrator (please-done)*
 *Researched: 2026-03-24*

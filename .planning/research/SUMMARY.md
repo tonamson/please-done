@@ -1,227 +1,197 @@
 # Project Research Summary
 
-**Project:** please-done v1.5 — Nang cap Skill Fix-Bug
-**Domain:** Tu dong hoa dieu tra loi, phan tich hoi quy, dong bo business logic, bao cao PDF
+**Project:** please-done — v2.1 Detective Orchestrator
+**Domain:** Điều phối đa Agent cho debug workflow trong CLI AI coding framework
 **Researched:** 2026-03-24
 **Confidence:** HIGH
 
----
-
 ## Executive Summary
 
-v1.5 nang cap workflow `fix-bug` hien co (10 buoc) bang cach them 7 tinh nang tu dong hoa: tao reproduction test case, phan tich regression qua FastCode call chain, don dep debug log truoc commit, dong bo business logic, cap nhat bao cao quan ly + PDF, lien ket canh bao bao mat, va de xuat post-mortem CLAUDE.md. Nghien cuu xac nhan tat ca 7 tinh nang co the xay dung hoan toan ma **khong them bat ky dependency moi** nao — chi can 2 module JS moi (repro-test-generator, regression-analyzer), mo rong workflow markdown, va tai su dung cac module v1.4 da co (report-filler, generate-diagrams, generate-pdf-report).
+v2.1 nâng cấp workflow fix-bug từ mô hình đơn-agent tuần tự (419 dòng, 1 model sonnet) sang hệ thống điều phối 5 agent chuyên biệt theo pattern "hub-and-spoke": orchestrator (main conversation) dispatch các agent theo thứ tự phụ thuộc, mỗi agent chạy độc lập và giao tiếp qua evidence files markdown thay vì IPC trực tiếp. Toàn bộ xây dựng bằng native Claude Code subagent infrastructure — không thêm runtime dependency nào, bảo toàn constraint "No Build Step, pure Node.js" của dự án. Codebase hiện tại có 601 tests và 48 converter snapshots phải tiếp tục pass sau khi triển khai.
 
-Kien truc chinh la **Workflow-First, Module-Lean**: phan lon logic nam trong workflow markdown (AI agent xu ly), module JS moi CHI duoc tao khi co logic phuc tap can test don vi doc lap. Nguyen tac pure function tuyet doi (khong doc file, khong goi MCP trong lib/) phai duoc duy tri — day la constraint kien truc cot loi tu v1.1 dam bao 526 tests hien tai van chay. Tat ca 7 tinh nang moi deu la "conditional sub-steps" nam trong cac buoc hien co (khong tao buoc moi so), giu workflow duoi nguong 420 dong.
+Hướng tiếp cận được khuyến nghị: dùng Claude Code native `.claude/agents/pd-*.md` với YAML frontmatter để định nghĩa tier mapping (haiku/sonnet/opus), evidence files `.planning/debug/evidence_*.md` làm communication channel, và tái sử dụng hoàn toàn 5 pure function modules từ v1.5 (repro-test-generator, regression-analyzer, debug-cleanup, logic-sync, truths-parser). Orchestrator là main conversation — không phải một agent nào trong số 5 agent. Agent Teams experimental bị loại bỏ hoàn toàn vì status không ổn định và chi phí token cao hơn không cần thiết.
 
-Rui ro lon nhat la Workflow Step Explosion — them tinh nang sai cach co the lam fix-bug.md vuot 400 dong va agent mat context. Phuong an phong tranh ro rang: nho tinh nang vao buoc hien tai (khong tao buoc moi so), dung conditional pattern, giu moi sub-step non-blocking. Cac rui ro khac (false positive tu auto cleanup, regression analysis noise, PDF dependency vong tron) deu co phuong an cu the da duoc nghien cuu.
-
----
+Rủi ro chính gồm 3 nhóm: (1) context window bùng nổ khi 5 agent trả kết quả về parent — giảm thiểu bằng maxTurns nghiêm ngặt và summary protocol ngắn dưới 200 token; (2) backward compatibility — 601 tests và 48 converter snapshots phải pass, và 4 platform còn lại cần converter pipeline mở rộng để xử lý agent files mới; (3) giới hạn kỹ thuật không thể thay đổi của Claude Code (subagent không thể spawn subagent) phải được quyết định kiến trúc ngay từ Phase 1 trước khi viết bất kỳ code nào.
 
 ## Key Findings
 
 ### Recommended Stack
 
-Khong co dependency moi nao can them. Toan bo v1.5 xay dung tren Node.js 18+ built-in APIs (regex, string, array, node:test). 5 module JS moi uoc tinh tong ~400-600 LOC — tat ca la pure functions, moi module co 1 test file tuong ung.
+v2.1 không thêm bất kỳ runtime dependency nào. Toàn bộ infrastructure tận dụng Claude Code native subagent system. 5 agent definition files (`.claude/agents/pd-*.md`) với YAML frontmatter là điểm cộng thêm duy nhất ở tầng cấu hình. 3 JS module mới (`bug-memory.js`, `evidence-parser.js`, `resource-config.js`) và 2 module mở rộng (`repro-test-generator.js`, `regression-analyzer.js`) theo đúng pattern pure function đã validated từ v1.0–v1.5.
 
-**Core technologies (lien quan v1.5):**
-- **Node.js built-ins (regex, string, array, node:test, node:assert):** Xu ly text cho 5 module moi — thay the hoan toan ts-morph, jscodeshift, graphlib, diff library
-- **Template literals JS:** Tao reproduction test skeleton theo stack (NestJS, Flutter, Generic) — ~100-150 LOC, khong can AST parser
-- **Regex line filter:** Auto cleanup debug logs multi-stack (JS, TS, Dart, PHP) — chi match pattern co marker ro rang `[PD-DEBUG]`
-- **Array-based BFS:** Regression dependency traversal 1-2 levels — thay the graphlib
-- **FastCode MCP (da co):** Call chain analysis chinh xac cho regression — module regression-analyzer la FALLBACK
-- **report-filler.js + generate-diagrams.js + generate-pdf-report.js (v1.4, da co):** Tai su dung truc tiep cho PDF pipeline, khong sua
+**Core technologies:**
+- **Claude Code Subagents (v2.1.33+):** agent spawning, model routing, context isolation — CORE của toàn bộ orchestration, không cần viết logic spawning bằng Node.js
+- **YAML frontmatter trong agent files:** tier mapping (haiku/sonnet/opus), maxTurns, memory, background mode — cấu hình khai báo, dễ test
+- **Markdown evidence files:** communication channel giữa agents — AI native, git-trackable, regex-parseable, không cần parser riêng
+- **JSONL bug history (`.planning/bugs/history.jsonl`):** append-only, O(1) write, grep-able — thay thế cho SQLite (binary dependency) và JSON array (O(n) append)
+- **Node.js built-in `node:test`, `fs`, `path`:** test runner và file I/O — không dependency ngoài
 
-**Van de shared parser can giai quyet o Phase 1:** `parseTruthsFromContent` hien ton tai inline o 2 noi (generate-diagrams.js va plan-checker.js noi bo). Can quyet dinh: tao shared helper `bin/lib/truths-parser.js` rieng hay de logic-change-detector.js inline (nhu generate-diagrams.js da lam). Trade-off: DRY vs circular dep risk.
+**Tier routing (confirmed từ tài liệu chính thức Claude Code):**
 
-**Chi tiet:** Xem `.planning/research/STACK.md`
+| Tier | Model | Agent | Rationale |
+|------|-------|-------|-----------|
+| Scout | haiku | Janitor, DocSpec | Lọc text + tra cứu docs — không cần suy luận phức tạp, tiết kiệm token |
+| Builder | sonnet | Detective, Repro | Phân tích code + viết test — cần khả năng lập trình |
+| Architect | opus | Fix Architect | Tổng hợp evidence, thiết kế fix plan — cần suy luận sâu |
 
 ### Expected Features
 
-7 tinh nang chia lam 5 Table Stakes + 2 Differentiators, tat ca phai ship trong v1.5.
+**Must have (table stakes — MVP v2.1):**
+- **A-TS1: Tier-to-Model mapping** — update frontmatter 5 agent files, chi phí thấp nhất, làm đầu tiên, không phụ thuộc gì
+- **B-TS2: Evidence Format chuẩn 3 outcomes** — nền tảng của mọi orchestration logic (`ROOT CAUSE FOUND` / `CHECKPOINT REACHED` / `INVESTIGATION INCONCLUSIVE`), thiếu thì orchestrator không parse được kết quả agent
+- **B-TS1: Resume UI đánh số** — UX thiết yếu cho Bước 1, scan SESSION files hiện danh sách đánh số để user chọn
+- **B-TS3: ROOT CAUSE → 3 lựa chọn** — output chính của orchestrator (Sửa ngay / Lên kế hoạch / Tự sửa)
+- **B-TS4: CHECKPOINT → hỏi user** — workflow tương tác, agent ghi `## CHECKPOINT REACHED` + câu hỏi cụ thể
+- **C-TS1: Knowledge Recall trong Janitor** — grep bug cũ từ `.planning/bugs/`, ghi vào `evidence_janitor.md` mục `## RELATED HISTORICAL BUGS`
+- **A-TS3: Heavy Lock cho FastCode** — tránh 2 FastCode indexing cùng lúc, tracking trong SESSION file
+- **D-TS1–5: Workflow Execution Loop 5 bước** — core của milestone
+- **D-D2: Backward-compatible single-agent mode** — fallback về v1.5 workflow khi agent không khả dụng hoặc user chọn `--single`
 
-**Must have — Table Stakes:**
-- **TS-1: Reproduction Test Case** (Buoc 5b) — tao skeleton test file trong `.planning/debug/repro/`, AI dien TODO markers, khong chay tu dong
-- **TS-2: Regression Analysis** (Buoc 8) — goi FastCode call chain truoc khi sua, bao cao modules anh huong (toi da 5-10 files), chi canh bao, khong tu dong sua
-- **TS-3: Auto Cleanup** (Buoc 9) — scan marker `[PD-DEBUG]` ma AI tu them, hoi user truoc khi xoa (list-only mode mac dinh), KHONG tu dong
-- **TS-4: Dong bo Business Logic** (Buoc 10) — AI danh gia thay doi logic bang heuristics (condition/arithmetic/endpoint signals), khong thay the AI judgment bang rule-based
-- **TS-5: Cap nhat bao cao + PDF** (Buoc 10, chi khi TS-4 = CO) — chi cap nhat Mermaid diagram trong report co san (khong tao report moi), PDF re-render la tuy chon
+**Should have (differentiators, thêm sau khi core ổn định v2.1.x):**
+- **B-TS5: Elimination Log + D-D1: Loop-back thông minh** — khi INCONCLUSIVE, quay Bước 2 với thông tin mới (tối đa 3 vòng)
+- **C-TS2: Regression Alert + C-TS3: Double-Check** — cảnh báo khi file lỗi trùng với bug cũ
+- **B-D1: Continuation Agent** — khi user báo mất context thường xuyên
+- **A-TS4: Hạ cấp thông minh** — fallback sequential khi parallel spawn timeout/lỗi
 
-**Should have — Differentiators:**
-- **D-1: Lien ket pd:scan bao mat** (Buoc 4) — loc canh bao lien quan theo file/function, max 3 canh bao, freshness check 7 ngay, non-blocking
-- **D-2: Post-mortem CLAUDE.md** (Buoc 10) — de xuat 1-2 rule, hoi user truoc khi append, KHONG tu dong ghi, KHONG truoc khi user xac nhan
-
-**Anti-features — khong lam:**
-- Tu dong chay reproduction test (test runner khac nhau moi stack, false negative nguy hiem)
-- Auto-fix regression modules (scope creep, co the gay them bug)
-- AST-based change detection (maintenance burden cho 5 stacks)
-- Bug tracking dashboard web (ngoai scope CLI tool)
-- ML-based bug prediction (qua som cho please-done)
-
-**Defer sang v2+:**
-- Tu dong chay test tai hien khi co test infrastructure chuan
-- Auto-fix cascade khi regression analysis da chung minh gia tri
-- AST analysis khi heuristics khong du chinh xac
-
-**Chi tiet:** Xem `.planning/research/FEATURES.md`
+**Defer (v2.2+):**
+- **C-D1: Bug pattern INDEX.md** — khi số lượng bugs > 10
+- **C-D2: Persistent agent memory cross-session** — cần kinh nghiệm thực tế + memory schema design cẩn thận
+- **A-D1: Auto-detect resource constraint** — phức tạp, lợi ích thấp
+- **A-D2: Cost estimation per investigation** — nice-to-have, không urgent
 
 ### Architecture Approach
 
-Kien truc v1.5 dua tren nguyen tac **Workflow-First, Module-Lean**: phan lon 7 tinh nang moi nam trong workflow markdown duoi dang conditional sub-steps, chi 2 module JS moi can tao (repro-test-generator va regression-analyzer) vi chung co logic phuc tap can unit test doc lap. 5 tinh nang con lai (auto cleanup, business logic signals, PDF update, security linking, post-mortem) duoc xu ly truc tiep boi AI agent trong workflow — khong can module rieng. Nguyen tac pure function tuyet doi: tat ca module trong `bin/lib/` nhan content string, tra ket qua, khong doc file, khong goi MCP.
+Kiến trúc hub-and-spoke với main conversation là orchestrator duy nhất có quyền spawn subagents — đây là giới hạn kỹ thuật không thể thay đổi của Claude Code (subagent không thể spawn subagent khác). Luồng chính là sequential chaining qua 5 phase, với 1 điểm parallel duy nhất ở Phase 2 (Detective + DocSpec chạy đồng thời vì cả hai chỉ đọc `evidence_janitor.md`, không ghi cùng file). Phase 5 (sửa code, commit, xác nhận) do orchestrator thực hiện trực tiếp, không spawn agent.
 
 **Major components:**
-1. `workflows/fix-bug.md` (sua doi) — them 6 conditional sub-steps: 4a, 5b mo rong, 8a, 9.5, 9.7, 10.5
-2. `bin/lib/repro-test-generator.js` (moi) — pure function, tao skeleton test theo stack (NestJS/Flutter/Generic), ~100-150 LOC
-3. `bin/lib/regression-analyzer.js` (moi, fallback) — pure function, BFS 2 levels khi FastCode khong kha dung, ~80-120 LOC
-4. `test/snapshots/` (tai tao) — 4 platform snapshots (codex, copilot, gemini, opencode) can regenerate sau khi sua fix-bug.md
-5. Modules v1.4 khong sua — report-filler.js, generate-diagrams.js, generate-pdf-report.js
+1. **`commands/pd/fix-bug.md` (sửa đổi)** — entry point, cập nhật model: opus, thêm Agent tool, trỏ vào orchestrator workflow mới
+2. **`workflows/fix-bug-orchestrator.md` (mới)** — 5-phase orchestration logic, spawn instructions cho từng agent
+3. **`.claude/agents/pd-*.md` (di chuyển + cập nhật)** — 5 agent files từ `commands/pd/agents/` sang `.claude/agents/` với YAML frontmatter chuẩn
+4. **`.planning/debug/evidence_*.md` (5 files mới)** — communication channel, strict ownership: 1 agent = 1 file riêng, SESSION chỉ do main workflow ghi
+5. **`bin/lib/` (modules mới + mở rộng)** — bug-memory.js, evidence-parser.js, resource-config.js (mới); repro-test-generator.js, regression-analyzer.js (mở rộng)
+6. **`workflows/fix-bug.md` (v1.5, giữ nguyên)** — fallback khi subagents không khả dụng
 
-**Luong du lieu:**
-- D-1: SCAN_REPORT.md -> Grep file bi loi -> SESSION (canh bao)
-- TS-1: Trieu chung + Stack + File/function -> repro-test-generator.js -> test file trong .planning/debug/repro/
-- TS-2: File bi loi -> regression-analyzer.js HOAC FastCode call chain -> SESSION + BUG report
-- TS-3: `git diff --cached` -> Grep markers -> Edit xoa -> git add lai
-- TS-4/TS-5: BUG_*.md Logic Changes -> CO/KHONG -> fillManagementReport pipeline -> report + optional PDF
-- D-2: BUG_*.md + SESSION -> de xuat text -> user confirm -> append CLAUDE.md
-
-**Chi tiet:** Xem `.planning/research/ARCHITECTURE.md`
+**Key patterns:**
+- **Evidence-as-Communication:** agents không nói chuyện trực tiếp với nhau, giao tiếp qua file — tránh inter-agent messaging overhead
+- **Graceful Degradation:** mọi bước có fallback — agent lỗi thì orchestrator tự làm theo v1.5 logic
+- **Pure Function Libraries:** logic phức tạp ở `bin/lib/*.js`, agents gọi qua Bash tool (pattern đã chứng minh từ v1.5)
+- **Orchestrator-as-Executor:** Phase 5 (sửa code + commit) do orchestrator thực hiện trực tiếp, không spawn thêm agent
 
 ### Critical Pitfalls
 
-1. **Workflow Step Explosion** — Them tinh nang nhu buoc moi so co the day workflow len 17+ buoc, agent mat context, bo qua buoc. **Phong tranh:** nho tinh nang vao buoc hien tai (5b, 8, 9, 10), dung conditional pattern, giu file duoi 420 dong, moi sub-step phai co skip condition.
+1. **Context window bùng nổ — Evidence Flood** — 5 agent trả kết quả về parent có thể chiếm 50K+ tokens. Ngăn bằng: maxTurns nghiêm ngặt (Janitor:5, DocSpec:5, Detective:10, Repro:8, Architect:12), mỗi agent chỉ trả summary < 200 token, chi tiết ghi vào evidence file, Architect đọc evidence files trực tiếp không phụ thuộc summary.
 
-2. **Auto Cleanup Xoa Code Production** — Regex match `console.log` toan bo file co the xoa audit log, production logging, Flutter print() can thiet. **Phong tranh:** CHI xoa dong co marker `[PD-DEBUG]` ma AI tu them; luon hoi user truoc (list-only mode mac dinh); khong chay tren file AI khong sua.
+2. **Subagent không thể spawn subagent — No Nesting** — giới hạn kỹ thuật tuyệt đối của Claude Code. Fix Architect KHÔNG được là orchestrator. Main conversation = orchestrator duy nhất. Kiểm tra sớm: không agent nào có `tools: Agent(...)` trong frontmatter.
 
-3. **Regression Analysis False Positive Cascade** — FastCode tra ve 50+ files phu thuoc cho 1 utility function, gay token waste va user hoang loan. **Phong tranh:** Gioi han 1-2 level depth, filter theo function bi loi (khong theo file), cap toi da 5-10 files trong bao cao.
+3. **Race condition ghi file evidence** — khi Detective + DocSpec chạy song song cùng ghi vào `.planning/debug/`. Ngăn bằng: strict file ownership (1 agent = 1 file riêng), spawn Janitor trước → đợi HOÀN THÀNH → mới spawn Detective + DocSpec, SESSION file chỉ do main workflow ghi.
 
-4. **Vi Pham Pure Function Pattern** — Module moi co `require('fs')` hoac goi MCP truc tiep pha vo toan bo testing strategy (526 tests can mock phuc tap, kho maintain). **Phong tranh:** Bat buoc `// KHONG doc file` trong JSDoc header; test litmus: neu test can mock filesystem -> vi pham.
+4. **v1.5 pure functions bị bypass** — agents tự viết lại logic thay vì gọi module có sẵn. Ngăn bằng: agent prompts phải explicitly reference `generateReproTest()`, `analyzeFromCallChain()`, `scanDebugMarkers()`, `runLogicSync()`. Thêm integration test kiểm tra các module được gọi.
 
-5. **528 Tests + 48 Snapshots Bi Pha** — Sua fix-bug.md lan truyen den 4 platform snapshots (codex, copilot, gemini, opencode). **Phong tranh:** Chay `smoke-snapshot.test.js` sau moi thay doi workflow; regenerate snapshots trong commit rieng tach biet.
-
-6. **PDF Circular Dependency voi Complete-Milestone** — Fix-bug khong co STATE.md va toan bo PLAN.md context ma fillManagementReport() can. **Phong tranh:** CHI cap nhat Mermaid diagram trong report co san (ham rieng updateReportDiagram()), KHONG goi fillManagementReport() truc tiep.
-
-7. **Post-mortem Ghi De CLAUDE.md** — Auto ghi CLAUDE.md la xam pham user autonomy, rule co the xung dot voi config hien tai. **Phong tranh:** CHI de xuat (output la Markdown block trong BUG report), LUON hoi user, toi da 2 suggestions per bug.
-
-**Chi tiet:** Xem `.planning/research/PITFALLS.md`
-
----
+5. **Platform transpilation thiếu agent files** — converter `base.js` chỉ scan `commands/pd/*.md`, không scan subdirectory `agents/`. Ngăn bằng: mở rộng converter pipeline, thêm 20 snapshot tests mới (5 agents × 4 platforms), tổng snapshot từ 48 → 68.
 
 ## Implications for Roadmap
 
-Dua tren nghien cuu, de xuat cau truc 3 phase theo thu tu phu thuoc va rui ro:
+Dựa trên nghiên cứu, đề xuất cấu trúc 4 phase theo thứ tự phụ thuộc kỹ thuật:
 
-### Phase 1: Nen Tang Module va Workflow Shell
+### Phase 1: Agent Infrastructure & Resource Orchestration
 
-**Rationale:** Phai giai quyet quyet dinh kien truc truoc khi code bat ky tinh nang nao. Tao 2 module pure function moi voi test files tuong ung. Them conditional sub-steps vao fix-bug.md theo dung vi tri. Giai quyet van de shared Truths parser (inline hay rieng). Day la phase mat nhieu quyet dinh kien truc nhat va sai o day se lan truyen den moi feature.
+**Rationale:** Tất cả phases sau phụ thuộc vào agent configs và tier routing. Đây là điều kiện tiên quyết kỹ thuật — không thể test dispatch agent nếu chưa có agent files ở đúng vị trí (`.claude/agents/`). Pitfall 2 (No Nesting) và Pitfall 5 (Tier Routing Sai) phải được quyết định kiến trúc ở đây trước khi viết bất kỳ code nào khác. Nếu sai ở đây sẽ lan truyền đến mọi phase.
 
-**Delivers:**
-- `bin/lib/repro-test-generator.js` + test file
-- `bin/lib/regression-analyzer.js` + test file
-- Quyet dinh Truths parser (inline trong logic-change-detector hay tao truths-parser.js rieng)
-- fix-bug.md voi 6 sub-steps moi duoi dang skeleton/placeholder
-- Tat ca 526 tests van xanh sau khi them module moi
-- Snapshots da duoc regenerate neu workflow thay doi
+**Delivers:** 5 agent files trong `.claude/agents/` với YAML frontmatter đầy đủ, `bin/lib/resource-config.js` với tier mapping và downgrade rules, skill file `commands/pd/fix-bug.md` cập nhật model/tools/workflow reference
 
-**Addresses:** TS-1 (skeleton module), TS-2 (skeleton module)
+**Addresses:** A-TS1 (Tier Mapping), A-TS3 (Heavy Lock), D-D2 (Backward compat check logic)
 
-**Avoids:** Pitfall 6 (pure function), Pitfall 7 (snapshot), Pitfall 1 (workflow structure — quyet dinh vi tri sub-steps)
+**Avoids:** Pitfall 2 (Nesting constraint — kiến trúc hub-and-spoke), Pitfall 5 (Model routing sai — explicit `model:` trong frontmatter)
 
----
+### Phase 2: Detective Protocols & Evidence System
 
-### Phase 2: Tich hop Core Features (Buoc 5b, 8, 9 + D-1)
+**Rationale:** Evidence format là nền tảng của mọi orchestration logic — nếu agent ghi sai format, Architect không parse được và cả workflow sụp đổ. Phase này phải hoàn thành trước khi viết workflow orchestrator vì workflow phụ thuộc vào evidence protocol để phân loại kết quả agent (ROOT CAUSE / CHECKPOINT / INCONCLUSIVE). Pitfall 3 (Race condition) và Pitfall 6 (Evidence format không nhất quán) được giải quyết ở đây.
 
-**Rationale:** Sau khi co module va workflow shell, tich hop 3 tinh nang co gia tri cao nhat theo thu tu trong workflow: reproduction test (Buoc 5b), regression analysis (Buoc 8), auto cleanup (Buoc 9), va security linking (Buoc 4a). Ba tinh nang nay doc lap nhau va doc lap voi PDF/post-mortem.
+**Delivers:** Evidence format chuẩn 3 outcomes với validation function (`validateEvidence()` pure function), `bin/lib/evidence-protocol.js`, `bin/lib/session-manager.js`, `bin/lib/bug-history.js`, Resume UI đánh số trong Bước 1 của workflow
 
-**Delivers:**
-- TS-1 day du: repro-test-generator tich hop vao Buoc 5b, tao file test trong `.planning/debug/repro/`
-- TS-2 day du: FastCode call chain tich hop vao Buoc 8a, regression-analyzer lam fallback, bao cao anh huong (max 5-10 files)
-- TS-3 day du: marker system `[PD-DEBUG]`, list-only mode, hoi user truoc khi xoa
-- D-1 day du: security warning linking voi freshness check (7 ngay), loc theo function, max 3 canh bao
+**Addresses:** B-TS1 (Resume UI), B-TS2 (Evidence Format), B-TS4 (CHECKPOINT), B-TS5 (Elimination Log), C-TS1 (Knowledge Recall)
 
-**Uses:** repro-test-generator.js, regression-analyzer.js, FastCode MCP (da co), Grep (da co)
+**Uses:** JSONL format cho bug history, markdown evidence files, strict file ownership rules
 
-**Avoids:** Pitfall 2 (test that tests nothing), Pitfall 3 (false dependency cascade), Pitfall 4 (cleanup xoa production code), Pitfall 9 (wolf cry security warnings)
+**Implements:** Evidence-as-Communication pattern, 1 file per agent, SESSION chỉ do main workflow ghi
 
----
+### Phase 3: Project Memory & Regression Detection
 
-### Phase 3: Business Logic Sync, PDF Update, Post-mortem (Buoc 9.7, 10.5 + D-2)
+**Rationale:** Memory và regression detection phụ thuộc vào Phase 2 (cần evidence format chuẩn và bug history schema). Có thể overlap một phần với Phase 2 vì `bug-memory.js` độc lập với `evidence-protocol.js`, nhưng C-TS2 (Regression Alert) cần C-TS1 (Knowledge Recall) từ Phase 2. Phase này không blocking Phase 4 nhưng nên hoàn thành trước để integration test đầy đủ trước khi wire workflow.
 
-**Rationale:** Ba tinh nang nay phu thuoc vao nhau theo chieu: TS-4 trigger TS-5, D-2 chay sau khi user xac nhan DA SUA. Deu nam o Buoc 9.7 va 10.5 cua workflow. Can giai quyet Pitfall 8 (PDF circular dependency) truoc khi trien khai TS-5 — tao ham `updateReportDiagram()` rieng thay vi goi `fillManagementReport()`.
+**Delivers:** `bin/lib/bug-memory.js` với 3 pure functions (formatBugEntry, searchBugHistory, detectRegression), regression alert trong evidence_janitor.md, double-check logic trong Fix Architect prompt
 
-**Delivers:**
-- TS-4 day du: heuristics phat hien logic signals (condition/arithmetic/endpoint changes), AI quyet dinh CO/KHONG
-- TS-5 day du: chi cap nhat Mermaid diagram trong report co san (ham updateReportDiagram() moi), PDF re-render la tuy chon do user chay
-- D-2 day du: de xuat 1-2 rule CLAUDE.md, hoi user, output la Markdown block trong BUG report
-- fix-bug.md hoan chinh, tat ca 526 tests xanh, snapshots cap nhat
+**Addresses:** C-TS1 (Knowledge Recall hoàn chỉnh), C-TS2 (Regression Alert), C-TS3 (Double-Check)
 
-**Avoids:** Pitfall 5 (false positive logic detection), Pitfall 8 (PDF circular dependency), Pitfall 10 (CLAUDE.md overwrite)
+**Avoids:** Pitfall 4 (v1.5 modules bị bypass — regression-analyzer.js được tái sử dụng trực tiếp, không viết lại)
 
----
+### Phase 4: Orchestrator Workflow & Platform Integration
+
+**Rationale:** Phase tích hợp cuối cùng — kết nối tất cả thành phần. Phải làm sau cùng vì workflow cần agent files (Phase 1), evidence protocol (Phase 2), và memory modules (Phase 3). Đây cũng là phase cập nhật converter pipeline — snapshot tests từ 48 → 68 — và verify toàn bộ 601 tests vẫn pass.
+
+**Delivers:** `workflows/fix-bug-orchestrator.md` (5-phase với spawn instructions), fallback logic về v1.5, converter pipeline mở rộng xử lý agent files, 20 snapshot tests mới (5 agents × 4 platforms)
+
+**Addresses:** D-TS1–5 (Workflow Loop đầy đủ), D-D2 (Backward compat), B-TS3 (3 lựa chọn sau ROOT CAUSE)
+
+**Avoids:** Pitfall 1 (Context flood — maxTurns enforcement, summary protocol), Pitfall 4 (v1.5 module calls verification), Pitfall 7 (Platform transpilation)
 
 ### Phase Ordering Rationale
 
-- **Phase 1 truoc:** Kien truc + module shell phai on truoc khi tich hop. Vi pham pure function pattern o Phase 1 se lan truyen den moi feature. Snapshot tests phai pass ngay tu dau.
-- **Phase 2 truoc Phase 3:** TS-1/TS-2/TS-3 doc lap, it rui ro, gia tri cao — hoan thien truoc khi tackle TS-4/TS-5 co phu thuoc phuc tap hon (TS-4 trigger TS-5).
-- **D-1 o Phase 2, D-2 o Phase 3:** D-1 (security linking) nam o Buoc 4a — som trong workflow, doc lap hoan toan. D-2 (post-mortem) nam o Buoc 10.5 — cuoi workflow, can context tu TS-4 (logic change) de suggestion co y nghia.
-- **TS-5 o Phase 3:** PDF update co rui ro Pitfall 8 (circular dependency voi complete-milestone) — can ham rieng `updateReportDiagram()` duoc thiet ke sau khi hieu ro impedance mismatch voi fillManagementReport().
+- **Phase 1 trước** vì agent files phải tồn tại và test được trước khi có thể verify dispatch — không có điểm khởi đầu nào khác
+- **Phase 2 trước Phase 4** vì orchestrator workflow phụ thuộc vào evidence protocol để phân loại kết quả — nếu đảo ngược phải viết lại workflow
+- **Phase 3 có thể overlap Phase 2** vì bug-memory.js độc lập với evidence-protocol.js, nhưng nên bắt đầu sau C-TS1 có data
+- **Phase 4 luôn cuối** vì là integration phase cần tất cả thành phần từ Phase 1–3 đã ổn định
+- **Thứ tự này tránh rework:** làm workflow (Phase 4) trước evidence protocol (Phase 2) sẽ phải viết lại workflow khi format thay đổi
 
 ### Research Flags
 
-**Phases can deeper research trong planning:**
-- **Phase 2 (Regression Analysis):** FastCode output format chua duoc document chinh thuc — can prototype regression-analyzer voi real FastCode output truoc khi merge. Fallback Grep logic cung can xac nhan.
-- **Phase 2 (Auto Cleanup + Marker System):** Marker `[PD-DEBUG]` phai duoc them vao huong dan Buoc 5c (khi AI them debug log) dong thoi voi Buoc 9.5 (xoa). Neu hai buoc build tach biet, marker se khong nhat quan.
-- **Phase 3 (PDF Update):** `updateReportDiagram()` function chua ton tai — can xac dinh API contract truoc khi Phase 3 bat dau, tranh impedance mismatch voi `fillManagementReport()`.
+Phases cần deeper research trong planning:
+- **Phase 4 (Platform Integration):** Mỗi platform (Codex, Gemini, OpenCode, Copilot) có cách xử lý agent concept khác nhau — cần research converter mapping strategy trước khi implement 20 snapshot tests mới
+- **Phase 1 (Version Guard):** `memory: project` và `effort:` fields yêu cầu Claude Code v2.1.33+ — cần xác minh version constraint và guard logic khi chạy trên version cũ hơn
 
-**Phases co standard patterns (co the skip research-phase):**
-- **Phase 1 (Module Creation):** Pure function pattern da duoc chung minh trong 7 modules v1.4. Template la ro rang.
-- **Phase 2 (Reproduction Test):** Template literal approach da duoc validate trong STACK.md — khong can library, ~100-150 LOC.
-- **Phase 3 (Post-mortem):** Rule-based suggestion pattern don gian, LUON hoi user. Khong co ambiguity.
-
----
+Phases với standard patterns (có thể skip research-phase):
+- **Phase 2 (Evidence Protocol):** Markdown parsing + file ownership là well-documented patterns trong codebase hiện tại, không có ambiguity
+- **Phase 3 (Bug Memory):** Pure function design với JSONL là established pattern — tương tự các modules v1.5 đã tested và validated
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Phan tich truc tiep tren codebase — 7 existing modules, package.json, 526 tests. KHONG them dependency la quyet dinh first-principles, khong chi la tuy chon. |
-| Features | HIGH | 7 features duoc xac dinh ro tu PROJECT.md. MVP scope ro rang. Anti-features xac dinh va co ly do cu the. Dependency map day du. |
-| Architecture | HIGH | Phan tich toan bo 10 workflows, 12 commands, 7 library modules, 5 converters. Workflow-First pattern da validated qua v1.4. Nguyen tac pure function co 526 tests bao chung. |
-| Pitfalls | HIGH | 10 pitfalls cu the voi warning signs va phase to address. Pitfall 1 (workflow explosion) va Pitfall 6 (pure function) la cot loi — phai tuan thu tuyet doi. |
+| Stack | HIGH | Toàn bộ từ tài liệu chính thức Claude Code v2.1.33+ + phân tích codebase thực tế. Zero speculation về dependencies. |
+| Features | HIGH | Từ tài liệu chính thức Claude Code + existing v1.5 workflow + dependency diagram đầy đủ. MVP scope rõ ràng với 9 features thiết yếu. |
+| Architecture | HIGH | Phân tích toàn bộ codebase v1.5 + tài liệu Claude Code sub-agents. Giới hạn "no nesting" được confirm từ tài liệu chính thức, không phải inferred. Hub-and-spoke là pattern đúng duy nhất. |
+| Pitfalls | HIGH | 7 critical pitfalls với warning signs, recovery cost, và phase mapping cụ thể. Dựa trên tài liệu chính thức + nghiên cứu học thuật (42% specification failures, 37% coordination failures) + bug thực tế đã documented. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **FastCode output format cho regression-analyzer:** Module can biet format chinh xac cua `mcp__fastcode__code_qa` response. STACK.md ghi "parse structured text" nhung chua co example output thuc te. Can prototype voi real call truoc khi viet parser chinh thuc.
-- **Marker system design nhat quan:** Auto cleanup marker `[PD-DEBUG]` phai duoc them vao huong dan Buoc 5c (khi AI them debug log) dong thoi voi viec tao Buoc 9.5 (xoa). Neu hai buoc nay duoc build tach biet, marker co the khong nhat quan giua them va xoa.
-- **`updateReportDiagram()` API contract:** TS-5 can function moi nay nhung STACK.md chi mo ta muc tieu, chua dinh nghia API. Can quyet dinh: (a) them vao report-filler.js hien tai hay (b) tao function trong workflow truc tiep. Phai quyet dinh o Phase 3 planning.
-- **Truths parser shared helper:** Quyet dinh cuoi cung (inline trong logic-change-detector.js hay tao `bin/lib/truths-parser.js` rieng) can duoc thong nhat o Phase 1 de tranh refactor sau.
-
----
+- **Cross-platform agent model mapping:** Codex, Gemini, OpenCode chưa được verify cụ thể về subagent format. Cần research trước Phase 4 để xác định converter strategy cho 20 snapshot tests mới.
+- **Token cost thực tế:** Ước tính $0.50–3.00/session vs $0.05–0.10 hiện tại chưa được test thực tế. Cần monitor sau khi deploy và có thể điều chỉnh maxTurns nếu chi phí quá cao.
+- **Background agent permission model:** DocSpec chạy background với `background: true` cần Write permission pre-approved — cần verify behavior cụ thể trên Claude Code v2.1.33 với permission mode.
+- **Claude Code version guard:** `memory: project` yêu cầu v2.1.33+ — cần implement graceful fallback khi version constraint không được đáp ứng thay vì crash.
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- Codebase: `bin/lib/*.js` (7 existing modules), `workflows/fix-bug.md`, `commands/pd/fix-bug.md` — phan tich truc tiep
-- `package.json` — zero runtime dependencies confirmed
-- `test/*.test.js` (13 files, 526 tests) — node:test runner confirmed
-- `references/security-checklist.md` — structured sections for keyword matching
-- `bin/lib/generate-diagrams.js:34` — parseTruthsFromContent inline regex confirmed
-- `bin/lib/report-filler.js` — fillManagementReport() pure function API confirmed
-- `bin/generate-pdf-report.js` — Puppeteer optional, fallback .md confirmed
-- Node.js 18+ built-in APIs documentation
+- [Claude Code Sub-Agents Documentation](https://code.claude.com/docs/en/sub-agents) — frontmatter fields, model routing, tool restriction, memory, hooks, nesting limits
+- [Claude Code Model Configuration](https://code.claude.com/docs/en/model-config) — model aliases (haiku/sonnet/opus), effort levels, env vars
+- [Claude Code Agent Teams](https://code.claude.com/docs/en/agent-teams) — experimental status, limitations (căn cứ quyết định KHÔNG dùng)
+- [Claude Code Memory Documentation](https://code.claude.com/docs/en/memory) — agent memory scopes (user/project/local), MEMORY.md auto-curation
+- Codebase analysis: `commands/pd/agents/*.md`, `workflows/fix-bug.md`, `bin/lib/*.js`, `bin/lib/converters/base.js`, `commands/pd/fix-bug.md`
+- `.planning/PROJECT.md`, `.planning/codebase/ARCHITECTURE.md`, `.planning/codebase/STACK.md`, `.planning/codebase/CONVENTIONS.md`
 
 ### Secondary (MEDIUM confidence)
-- [Qodo AI Code Review Tools](https://www.qodo.ai/) — business logic detection patterns
-- [Quash: Regression Testing 2025](https://quashbugs.com/blog/regression-testing-2025-ai) — AI-driven change impact analysis
-- [Katalon: AI Regression Testing 2026](https://katalon.com/resources-center/blog/ai-in-regression-testing) — dependency analysis patterns
-- [Aikido: Remove Debug Code Before Commits](https://www.aikido.dev/code-quality/rules/remove-debugging-and-temporary-code-before-commits-a-security-and-performance-guide) — 68% production issues from debug artifacts
-- [JetBrains: Cleanup Code Before Commit](https://www.jetbrains.com/guide/go/tips/vcs-cleanup-code-before-commit/) — pre-commit cleanup patterns
-- [Dev Genius: AI Bug Fix Comparison](https://blog.devgenius.io/github-copilot-vs-cursor-vs-claude-code-which-ai-actually-fixes-production-bugs-9485b33131c6) — competitive landscape
-- [AlterSquare: AI Coding Tool No Memory](https://altersquare.io/ai-coding-tool-no-memory-bug-broke-prod-last-quarter/) — CLAUDE.md institutional memory gap
-- [NestJS Testing Docs](https://docs.nestjs.com/fundamentals/testing) — NestJS test patterns (HIGH confidence)
-- IEEE/ACM 2024 "Automatic Generation of Test Cases based on Bug Reports" — 27-48% false positive rate LLM-generated tests
-- NIST: false positive rate automated static analysis tools 3-48%
-- [WorkOS: Cursor BugBot + Claude Code PRs](https://workos.com/blog/cursor-bugbot-autoreview-claude-code-prs) — BugBot autofix patterns
+- [GitHub Blog: Multi-agent workflows often fail](https://github.blog/ai-and-ml/generative-ai/multi-agent-workflows-often-fail-heres-how-to-engineer-ones-that-dont/) — engineering patterns chống failure
+- [arxiv: Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/pdf/2503.13657) — 42% specification failures, 37% coordination failures
+- [DoltHub: Multi-Agent Persistence](https://www.dolthub.com/blog/2026-03-13-multi-agent-persistence/) — file-based persistence race conditions
+- [DEV.to: Multi-Model Routing Pattern](https://dev.to/askpatrick/the-multi-model-routing-pattern-how-to-cut-ai-agent-costs-by-78-1631) — tier routing chi phí thực tế
+- [Claude Code Sub-Agent patterns](https://claudefa.st/blog/guide/agents/sub-agent-best-practices) — best practices
+
+### Tertiary (tham khảo)
+- [OpenClaw issue #21382](https://github.com/openclaw/openclaw/issues/21382) — race condition bug thực tế: session memory markdown not flushed
+- [Galileo: Why Multi-Agent AI Systems Fail](https://galileo.ai/blog/multi-agent-ai-failures-prevention) — failure taxonomy
+- [RocketEdge: AI Agent Cost Control](https://rocketedge.com/2026/03/15/your-ai-agent-bill-is-30x-higher-than-it-needs-to-be-the-6-tier-fix/) — chi phí thực tế
 
 ---
 *Research completed: 2026-03-24*

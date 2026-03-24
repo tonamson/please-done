@@ -1,495 +1,408 @@
 # Pitfalls Research
 
-**Domain:** Nang cap fix-bug workflow — them automated test generation, regression analysis, auto cleanup, business logic detection, PDF report auto-update, security linking, post-mortem suggestions
+**Domain:** Chuyen doi don-agent fix-bug workflow (419 dong) sang da-agent Detective Orchestrator, tich hop 5 agent chuyen biet vao he thong co san voi 601 tests, 48 converter snapshots, va 5 platform targets
 **Researched:** 2026-03-24
-**Confidence:** HIGH
+**Confidence:** HIGH (dua tren tai lieu chinh thuc Claude Code subagents, nghien cuu multi-agent failures, va phan tich sau ma nguon hien tai)
 
 ## Critical Pitfalls
 
-### Pitfall 1: Workflow Step Explosion — Fix-Bug Da Co 10 Buoc, Them 7 Tinh Nang Moi Tao Ra "Distributed System of Interns"
+### Pitfall 1: Context Window Bung No Khi Subagent Tra Ket Qua Ve Parent — "Evidence Flood"
 
 **What goes wrong:**
-Fix-bug hien tai co 10 buoc chinh (0.5 -> 10) voi nhieu sub-step (1a, 1b, 5a, 5b, 5c, 6a, 6b, 6c, 6.5a-d). Them 7 tinh nang moi (reproduction test, regression analysis, auto cleanup, business logic detection, PDF update, security linking, post-mortem) co the nang tong so buoc len 17+ buoc. Nghien cuu cua Anthropic cho thay agent tieu thu 4x nhieu token hon chat don gian; voi multi-step workflows dai hon 5 buoc, failure rate tang theo ham mu. Khi fix-bug dat 15+ buoc, agent se:
-- Mat context giua cac buoc (token window exhaustion)
-- Bo qua buoc vi prompt qua dai
-- Thuc hien sai thu tu vi khong nho het flow
-- Tieu hao token khong can thiet cho nhung buoc khong lien quan den bug cu the
+Thiet ke hien tai co 5 agent (Janitor, Detective, DocSpec, Repro, Architect) deu ghi file `evidence_*.md` roi Architect doc tat ca. Nhung trong thuc te, khi subagent hoan thanh, ket qua tra ve main conversation. Theo tai lieu chinh thuc Claude Code: "Running many subagents that each return detailed results can consume significant context." Voi 5 agent, moi agent tra ve 500-2000 token ket qua, main conversation (dang chay Sonnet voi context window nho hon Opus) se bi:
+- Token window day 50-70% chi tu evidence cua cac agent — con lai khong du cho buoc Fix + Commit
+- Thong tin tu agent dau tien bi "quen" khi doc ket qua agent thu 5 (context rot)
+- Orchestrator phai re-read evidence files vi context da bi compact — ton them token
+
+Nghien cuu tu GitHub Blog xac nhan: "agents close issues others just opened or ship changes that fail downstream checks" khi state khong duoc quan ly chat.
 
 **Why it happens:**
-Moi tinh nang moi tu nhien tro thanh 1 buoc moi trong workflow. Dev nghi "them 1 buoc nua thi co gi dau" nhung hieu ung tich luy lam workflow khong the maintain. Fix-bug skill chay tren Sonnet (line 4 cua fix-bug.md: `model: sonnet`) — mot model gia re hon Opus, co context window nho hon va de bi "lost" trong prompt dai.
+Subagents trong Claude Code tra ket qua ve parent session — day la behavior mac dinh, KHONG the tat. Khi spawn 5 subagent tuan tu, moi lan tra ve them ~1000 token vao main context. Fix-bug hien tai da chiem ~419 dong workflow + context7 refs + rules + SESSION file + BUG report = co the da o 40-50% context truoc khi bat ky agent nao chay.
 
 **How to avoid:**
-1. **KHONG them buoc moi vao main flow.** Thay vao do, dung pattern "conditional sub-step" da co san (vi du Buoc 0.5 chi chay khi co nhieu bug, Buoc 6.5 chi chay khi la logic bug). Moi tinh nang moi PHAI la conditional — chi khi relevant.
-2. **Nho buoc vao buoc hien tai thay vi tao buoc moi:**
-   - Reproduction test → mo rong Buoc 5b (Tai hien toi gian) — thay vi chi mo ta, tao test case
-   - Regression analysis → mo rong Buoc 4 (Tim hieu files lien quan) — them call chain check
-   - Auto cleanup → mo rong Buoc 9 (Git commit) — them pre-commit cleanup
-   - Business logic detection → mo rong Buoc 6.5 (Logic Update) da co san
-   - PDF update → mo rong Buoc 9 sau commit
-   - Security linking → mo rong Buoc 3 (Doc tai lieu ky thuat)
-   - Post-mortem → mo rong Buoc 10 (Yeu cau xac nhan) sau khi user confirm
-3. **Budget token cho moi sub-step.** Tham khao Buoc 1.7 cua write-code (`~100 token budget`). Moi sub-step moi cung can budget.
-4. **Giu workflow file duoi 400 dong.** Hien tai fix-bug.md co 347 dong. Muc tieu: khong qua 420 dong.
+1. **Gioi han so luong subagent dong thoi: TOI DA 2.** Tai lieu thiet ke da ghi "Toi da 2 Sub-agents chay song song" — day la gia tri CUNG, khong duoc vuot.
+2. **Moi subagent CHI tra ve summary ngan (< 200 token), ghi chi tiet vao file.** Dung pattern "Isolate high-volume operations" tu tai lieu Claude Code chinh thuc: verbose output o trong subagent context, chi summary ngan tra ve parent.
+3. **Architect agent doc evidence files truc tiep, KHONG phu thuoc vao summary tra ve main.** Architect la foreground agent cuoi cung, doc tu `.planning/debug/evidence_*.md` — giong nhu da thiet ke.
+4. **Dung `background: true` cho Janitor va DocSpec** de giam ap luc len main conversation. Theo tai lieu: background subagents chay dong thoi trong khi main tiep tuc.
+5. **Dat `maxTurns` cho moi agent** de ngan agent chay qua lau va tieu hao qua nhieu token:
+   - Janitor (scout): maxTurns 5
+   - DocSpec (scout): maxTurns 5
+   - Detective (builder): maxTurns 10
+   - Repro (builder): maxTurns 8
+   - Architect (architect): maxTurns 12
 
 **Warning signs:**
-- Workflow file vuot 400 dong
-- Them hon 3 buoc so moi (vi du "Buoc 11", "Buoc 12", "Buoc 13")
-- Agent bat dau bo qua buoc trong qua trinh thuc hien
-- Token usage tren moi fix-bug session tang >30%
-- Buoc moi khong co dieu kien skip ("luon luon chay" thay vi "chi khi can")
+- Main conversation bi auto-compact giua cac buoc workflow
+- Agent cuoi cung (Architect) khong nho ket qua cua Agent dau tien (Janitor)
+- Token usage tren 1 fix-bug session vuot 50K tokens (vs. ~15-20K hien tai)
+- Subagent tra ve wall-of-text thay vi summary ngan
 
 **Phase to address:**
-Phase dau tien (Thiet ke workflow) — quyet dinh cau truc truoc khi code bat ky module nao.
+Phase 1 (Dynamic Resource Orchestration) — dinh nghia maxTurns, background mode, va summary protocol TRUOC khi implement bat ky agent nao.
 
 ---
 
-### Pitfall 2: Reproduction Test Generation Tao Test Khong Co Gia Tri — "Test That Tests Nothing"
+### Pitfall 2: Subagent Khong The Spawn Subagent — "No Nesting" Constraint Pha Vo Thiet Ke Orchestrator
 
 **What goes wrong:**
-AI tao reproduction test case tu mo ta bug, nhung test:
-- Qua generic (chi assert `toBeDefined()` hoac `not.toThrow()`)
-- Khong tai hien duoc bug thuc te vi thieu context runtime (database state, session, environment)
-- Test pass ca khi bug chua duoc sua (false negative) vi assert sai logic
-- Test fail vi ly do khong lien quan den bug (flaky test do environment)
-- Framework-specific test (NestJS, Flutter) yeu cau setup phuc tap ma AI generate khong dung
+Tai lieu Claude Code chinh thuc ghi RO: "Subagents cannot spawn other subagents." Thiet ke hien tai co Fix Architect la subagent (tier: architect) dieu phoi cac agent khac. Nhung neu Architect la subagent cua pd:fix-bug, no KHONG THE spawn Detective, Repro, DocSpec — vi day la nesting 2 cap.
 
-Theo nghien cuu IEEE/ACM 2024 ve "Automatic Generation of Test Cases based on Bug Reports", LLM-generated test co ty le 27-48% false positive (test pass khi khong nen) va can human review bat buoc.
+Neu khong xu ly, se gap 1 trong 2 loi:
+- Architect goi Agent tool → bi tu choi vi la subagent
+- Workflow phai fallback ve single-agent → mat hoan toan loi the da-agent
 
 **Why it happens:**
-AI co du bug description va code, nhung thieu runtime context. Mot unit test cho NestJS controller can mock Service, Repository, Guard, Pipe — nhung AI thuong mock sai hoac thieu mock. Flutter widget test can pumpWidget voi dung Provider tree — AI thuong bo qua. Ket qua: test compile duoc nhung khong test dung bug.
+Claude Code thiet ke subagents nhu worker, KHONG phai nhu orchestrator. Pattern "hub-and-spoke" chi hoat dong khi HUB la main conversation (hoac agent chay voi `--agent` flag), KHONG phai subagent.
 
 **How to avoid:**
-1. **Pure function module tao test TEMPLATE, khong tao test hoan chinh.** Module `generateReproductionTest()` nhan input la: stack (NestJS/Flutter/...), bug description, affected files, root cause hypothesis → output la test template co TODO markers cho developer dien them. KHONG co tham vong tao test chay duoc ngay.
-2. **Template theo stack.** Moi stack can template rieng:
-   - NestJS: `Test.createTestingModule()` voi placeholder providers
-   - Flutter: `testWidgets()` voi placeholder widget tree
-   - Generic: simple function test voi placeholder input/output
-3. **Output la Markdown block trong SESSION file, KHONG phai file .test.ts/.test.dart.** De user review va chinh sua truoc khi commit. Tranh tao file test roi vao test suite chay tu dong.
-4. **Validate: test PHAI fail khi bug chua sua.** Them instruction cho AI: "Test nay PHAI fail khi chay tren code hien tai (truoc khi sua). Neu pass ngay → test sai."
+1. **pd:fix-bug MAIN CONVERSATION la orchestrator, KHONG phai Architect agent.** Workflow `fix-bug.md` dieu khien luong spawning — no quyet dinh khi nao spawn Janitor, khi nao spawn Detective+DocSpec song song, khi nao spawn Architect. Architect chi la agent cuoi cung tong hop evidence va de xuat fix, KHONG phai dieu phoi vien.
+2. **Dung `--agent` flag NEU muon agent lam orchestrator.** Tai lieu Claude Code ho tro: `claude --agent coordinator` de main thread chay nhu agent co system prompt rieng. Nhung cach nay thay doi hoan toan UX cua pd:fix-bug — can can nhac ky.
+3. **Thay the nesting bang "chain subagents from main conversation."** Tai lieu chinh thuc khuyen: dung main conversation de chain, khong dung subagent de chain.
+4. **Alternative: Giu workflow fix-bug.md lam orchestrator script, moi buoc spawn 1 subagent.** Day la pattern tu nhien nhat, khop voi cau truc hien tai:
+   - Buoc 1: Spawn Janitor → nhan summary
+   - Buoc 2: Spawn Detective + DocSpec song song → doi ket qua
+   - Buoc 3: Spawn Repro → nhan test result
+   - Buoc 4: Spawn Architect → nhan fix plan
+   - Buoc 5: Main thuc hien fix theo plan
 
 **Warning signs:**
-- Test generated chi co `expect(result).toBeDefined()` hoac tuong tu
-- Test pass ngay ca khi bug chua duoc fix
-- Test require import tu module khong ton tai
-- Khong co TODO/placeholder nao trong test output — gia dinh AI biet het
-- Test duoc tu dong tao file trong `test/` thay vi hien thi trong SESSION
+- Architect agent co `tools: Agent(...)` trong frontmatter — day la dau hieu sai thiet ke vi subagent khong the spawn subagent
+- Bat ky agent nao co nhu cau spawn agent khac → sai kien truc
+- Test case cho Architect gia dinh no co the goi Agent tool
 
 **Phase to address:**
-Phase rieng cho reproduction test (som) — xay dung va test module truoc khi tich hop vao workflow.
+Phase 1 (Dynamic Resource Orchestration) — quyet dinh kien truc orchestration TRUOC KHI viet bat ky code nao. Day la quyet dinh kien truc quan trong nhat cua v2.1.
 
 ---
 
-### Pitfall 3: Regression Analysis Qua MCP FastCode Tao Noise — False Dependency Cascade
+### Pitfall 3: Race Condition Ghi File Evidence — Nhieu Agent Ghi Cung Luc Vao `.planning/debug/`
 
 **What goes wrong:**
-Regression analysis goi `mcp__fastcode__code_qa` de tim "module phu thuoc qua call chain". FastCode tra ve dependency tree rong — vi du, sua 1 utility function thi FastCode bao 50+ files depend on no. Ket qua:
-- AI mat thoi gian phan tich 50 files khong lien quan
-- AI bao "anh huong rong" lam user hoang — quyet dinh khong sua hoac sua qua than trong
-- Token exhaustion vi doc qua nhieu file
-- False positive: file A import utility B nhung KHONG dung function bi loi trong B
+Thiet ke spawn Detective + DocSpec song song. Ca hai deu ghi file vao `.planning/debug/`:
+- Detective ghi `evidence_code.md`
+- DocSpec ghi `evidence_docs.md`
 
-Theo nghien cuu ve regression testing, "change impact analysis" thieu chinh xac khi chi dua vao static dependency — can ket hop voi actual usage pattern (dynamic analysis).
+Tuy la file khac nhau, nhung con co cac truong hop nguy hiem:
+- Ca hai doc SESSION file cung luc, 1 agent ghi truoc lam content cua agent kia bi stale
+- Janitor chua ghi xong `evidence_janitor.md` khi Detective da bat dau doc — nhan file trong hoac chua day du
+- Background agent hoan thanh SAU khi main da chuyen sang buoc tiep theo — file evidence chua co khi can
+
+Nghien cuu DoltHub cho thay: "Without proper concurrency management, many agents would overwrite each other's changes causing unrecoverable chaos." Va bug tu OpenClaw: "Session memory markdown not flushed before commands execute."
 
 **Why it happens:**
-FastCode tra ve tat ca references, khong phan biet:
-- Direct usage cua function bi loi vs. import cua module chua function bi loi
-- Active code path vs. dead code
-- Test files vs. production files
+File-based persistence (markdown files) KHONG co locking mechanism. Node.js `fs.writeFileSync` ghi atomically tren 1 process, nhung 2 subagent la 2 process rieng biet. Them nua, Claude Code subagent chay trong "own context window" — khong co shared memory hay event bus giua chung.
 
 **How to avoid:**
-1. **Gioi han depth.** Regression analysis chi check 1-2 level dependency, KHONG full transitive closure. Vi du: file A goi function B bi loi → check A. File C import A nhung KHONG goi B → KHONG check C.
-2. **Filter by affected function, khong phai affected file.** Neu bug o function `calculateTax()` trong `utils.js`, chi tim files goi `calculateTax()`, KHONG phai tat ca files import `utils.js`.
-3. **Gioi han so luong file bao cao.** Maximum 5-10 files trong regression report. Nhieu hon → "Co the anh huong them [N] files. Dung FastCode de kiem tra chi tiet."
-4. **Pure function: `analyzeRegressionImpact()` nhan list of affected functions + FastCode results → tra ve filtered list.** KHONG goi FastCode trong module — de workflow goi FastCode truoc, truyen ket qua vao module.
-5. **Tach test files va production files.** Regression report chi bao production files. Test files khong can check regression — chung se duoc chay lai anyway.
+1. **MOI AGENT GHI FILE RIENG, KHONG BAO GIO 2 AGENT GHI CUNG 1 FILE.** Naming convention:
+   - `evidence_janitor.md` — chi Janitor ghi
+   - `evidence_code.md` — chi Detective ghi
+   - `evidence_docs.md` — chi DocSpec ghi
+   - `evidence_repro.md` — chi Repro ghi
+   - `evidence_architect.md` — chi Architect ghi
+   - `SESSION_*.md` — chi main workflow ghi/cap nhat, agent KHONG ghi
+2. **Dam bao thu tu phu thuoc qua sequential spawning:**
+   - TRUOC TIEN: Spawn Janitor → doi HOAN THANH → kiem tra `evidence_janitor.md` ton tai
+   - SAU DO: Spawn Detective + DocSpec song song (ca hai doc `evidence_janitor.md` — file nay da dong, khong bi ghi nua)
+   - SAU DO: Spawn Repro (doc `evidence_code.md` va `evidence_janitor.md`)
+   - CUOI: Spawn Architect (doc tat ca evidence files)
+3. **Them kiem tra file ton tai truoc khi doc.** Moi agent dau tien kiem tra file input co ton tai va khong rong:
+   ```
+   Glob .planning/debug/evidence_janitor.md → khong ton tai → ABORT voi message ro rang
+   Read → content rong → ABORT voi message ro rang
+   ```
+4. **Main workflow DOI xac nhan tu foreground subagent TRUOC KHI spawn subagent tiep theo.** Khong spawn Repro khi Detective chua tra ve.
 
 **Warning signs:**
-- Regression report liet ke >10 files
-- Regression report bao gom test files
-- Module tu goi MCP tool (vi pham pure function pattern)
-- AI bat dau doc tung file trong regression list (token waste)
-- User thay bao "anh huong 30 modules" cho bug nho
+- Agent bao "khong tim thay evidence file" du agent truoc da chay
+- Evidence file co noi dung khong day du (ngat giua chung)
+- Architect tong hop thieu 1-2 nguon evidence
+- 2 agent ghi output vao cung 1 file (vi du ca 2 sua SESSION_*.md)
 
 **Phase to address:**
-Phase rieng cho regression analysis — can prototype va test voi real FastCode output truoc khi tich hop.
+Phase 2 (Detective Protocols) — dinh nghia Evidence Format va file ownership rules. Phase 1 dinh nghia spawning order.
 
 ---
 
-### Pitfall 4: Auto Cleanup Xoa Code Khong Phai Debug — "The Regex That Ate Production Code"
+### Pitfall 4: Backward Compatibility Pha Vo — v1.5 Pure Functions Bi Thay The Thay Vi Wrap
 
 **What goes wrong:**
-Auto cleanup co nhiem vu xoa `console.log`, `debugger`, `print()`, comment tam (`// TODO: debug`, `// TEMP`) truoc khi commit. Nhung:
-- Regex match `console.log` trong production code (vi du logging framework, error handler)
-- Xoa `console.error` hoac `console.warn` ma developer muon giu
-- Xoa comment chua thong tin quan trong (vi du `// HACK: workaround for library bug #123`)
-- Flutter: xoa `print()` statement trong production code (Dart dung `print()` cho ca debug lan production logging)
-- NestJS: xoa `Logger.debug()` statement ma dev muon giu
+v1.5 da ship 5 pure function modules (repro-test-generator, regression-analyzer, debug-cleanup, logic-sync, truths-parser) voi 75 tests. v2.1 thiet ke lai workflow de spawn agents thay vi goi truc tiep cac module nay. Rui ro:
+- Agent `pd-repro-engineer` tao test bang cach khac voi `generateReproTest()` — hai output format khac nhau
+- Agent `pd-code-detective` dung FastCode khac cach voi `analyzeFromCallChain()` — regression analysis bi mat
+- Logic sync (detectLogicChanges, updateReportDiagram, suggestClaudeRules) bi bo qua vi khong agent nao chiu trach nhiem
+- 601 tests van pass nhung workflow thuc te KHONG dung cac module da test → code chet
 
-Theo kinh nghiem git hooks community, auto-cleanup gom 2 truong hop: (1) xoa code AI tu them khi dieu tra, (2) xoa code developer tu them. Truong hop (2) rat nguy hiem vi AI khong biet intention.
+Dac biet: Buoc 5b.1 (repro test), Buoc 8a (regression analysis), Buoc 9a (debug cleanup + security), Buoc 10a (logic sync) — 4 buoc nay la BLOCKING/NON-BLOCKING integrations da duoc verify. Neu v2.1 bypass chung, cac tinh nang nay mat tac dung.
 
 **Why it happens:**
-Pattern matching khong the hieu context. `console.log('User logged in:', userId)` co the la debug log hoac audit log — regex khong phan biet duoc. Auto cleanup chay truoc commit nen neu sai thi da muon — code bi xoa khong co undo (tru khi git stash).
+Khi chuyen sang multi-agent, dev co xu huong viet lai logic trong agent prompts thay vi wrap modules co san. Agent prompt noi "tim root cause" — nhung khong goi `analyzeFromCallChain()`. Agent prompt noi "tao repro test" — nhung khong goi `generateReproTest()`. Ket qua: logic bi duplicate, khong nhat quan, va module cu bi bo roi.
 
 **How to avoid:**
-1. **CHI xoa code ma AI tu them trong buoc 5 (Phan tich).** Module can tracking: AI them `console.log` o dong nao, file nao → CHI xoa nhung dong do. KHONG xoa bat ky dong nao khac.
-2. **Dung marker pattern.** Khi AI them debug log, PHAI dung marker: `// [DEBUG-SESSION]` hoac `console.log('[PD-DEBUG]', ...)`. Auto cleanup chi xoa dong co marker nay.
-3. **Pure function: `identifyCleanupTargets(fileContent, markers)` → tra ve list of line numbers.** KHONG tu dong xoa — tra ve danh sach de workflow hien thi cho user xac nhan.
-4. **Default: list-only mode.** Hien thi "Cac dong debug can xoa:" va de user confirm truoc khi xoa. CHI auto-xoa khi user opt-in (vi du flag `--auto-cleanup`).
-5. **KHONG BAO GIO xoa code trong file ma AI KHONG them vao.** Auto cleanup chi ap dung cho files ma AI da sua trong buoc 8.
+1. **Agents PHAI goi v1.5 pure functions, KHONG duoc viet lai logic.** Cu the:
+   - `pd-repro-engineer` PHAI goi `generateReproTest()` tu `bin/lib/repro-test-generator.js`
+   - `pd-code-detective` PHAI goi `analyzeFromCallChain()` hoac `analyzeFromSourceFiles()` tu `bin/lib/regression-analyzer.js`
+   - Main workflow (sau fix) PHAI goi `scanDebugMarkers()` + `matchSecurityWarnings()` tu `bin/lib/debug-cleanup.js`
+   - Main workflow (sau confirm) PHAI goi `runLogicSync()` tu `bin/lib/logic-sync.js`
+2. **Agent goi module qua Bash tool:**
+   ```
+   Bash: node -e "const m = require('./bin/lib/repro-test-generator.js'); console.log(JSON.stringify(m.generateReproTest({...})))"
+   ```
+   Hoac tao CLI wrapper nhu da lam voi `bin/plan-check.js`.
+3. **Them integration test: "Khi chay qua orchestrator, module X PHAI duoc goi."** Kiem tra output file co chua dau hieu module da chay (vi du: `evidence_repro.md` phai co `testFileName` tu `generateReproTest()`).
+4. **Giong nhu D-02 cua v1.5:** fix-bug.md da o gioi han 419/420 dong — van phai goi external module thay vi inline. v2.1 tiep tuc pattern nay.
 
 **Warning signs:**
-- Module dung regex xoa `console.log` toan bo file thay vi chi dong co marker
-- Khong co buoc xac nhan user truoc khi xoa
-- Cleanup chay tren files ma AI khong sua
-- Khong co list-only/dry-run mode
-- Flutter files mat `print()` statements ma developer can
+- Agent prompt co logic tuong tu module nhung KHONG import/goi module
+- Output format cua agent khac voi output format cua module (vi du: repro test thieu `testFileName`)
+- Module function trong `bin/lib/` khong duoc reference tu bat ky agent hoac workflow nao
+- 601 tests van pass nhung fix-bug workflow thuc te khong goi bat ky module nao
 
 **Phase to address:**
-Phase cung voi workflow integration — cleanup phai duoc thiet ke cung luc voi marker system.
+Phase 4 (Workflow Execution Loop) — khi wiring agents vao workflow, PHAI kiem tra tung module v1.5 van duoc goi.
 
 ---
 
-### Pitfall 5: Business Logic Detection False Positives — Moi Thay Doi Deu Bi Flag La "Logic Change"
+### Pitfall 5: Tier/Model Routing Sai — Scout Dung Opus, Architect Dung Haiku
 
 **What goes wrong:**
-Buoc 6.5 hien tai hoat dong tot vi DEVELOPER (AI agent) tu phan loai: "bug nay do logic sai hay loi cu phap?". Khi tu dong hoa business logic detection, he thong se phai TU DONG phan biet:
-- Sua condition `if (x > 10)` thanh `if (x >= 10)` → logic change ✅
-- Sua typo `calcuate` thanh `calculate` → KHONG phai logic change ❌
-- Them null check `if (!user) return` → defensive coding, khong phai logic change ❌
-- Sua import path → KHONG phai logic change ❌
+Thiet ke v2.1 co 3 tier: Scout (Haiku), Builder (Sonnet), Architect (Opus). Nhung:
+- Neu agent file thieu field `model:` → mac dinh la `inherit` → kế thừa model cua main. Neu main la Sonnet, Architect cung la Sonnet thay vi Opus
+- Neu user chay tren Gemini CLI, tier mapping khac hoan toan (Flash/Pro/Pro) — nhung agent files chi co 1 bo
+- Neu Scout agent doc qua nhieu file (vi du Janitor scan `.planning/bugs/` lon) → Haiku het context truoc khi xong
+- Chi phi tang 4-7x so voi single-agent (theo nghien cuu). Voi Opus cho Architect, moi session co the dat 3-5 USD thay vi 0.3-0.5 USD
 
-Theo NIST, false positive rate cua automated static analysis tools la 3-48%. Voi business logic detection (khong phai don gian nhu syntax check), false positive se o dau cao.
-
-Qua nhieu false positive → user ignore tat ca warnings → true positive bi bo lo.
+Nghien cuu cho thay: "96% enterprises report AI costs exceeding initial estimates" va "A common mistake in routing design is mapping broad complexity tiers to models."
 
 **Why it happens:**
-Phan biet "logic change" va "bug fix" yeu cau hieu intent — dieu ma static analysis khong lam duoc. Hien tai Buoc 6.5 dung AI agent judgment (Sonnet) de phan loai, va pattern nay HOAT DONG TOT. Tu dong hoa buoc nay = thay the AI judgment bang rule-based system, thuong kem hon.
+Tier → Model mapping la y tuong tot tren giay, nhung thuc te:
+- Claude Code agent file chi cho phep 1 gia tri `model:` — khong co logic "neu platform X thi model Y"
+- Moi platform (Claude, Gemini, Codex) co model naming khac nhau — `model: haiku` chi hoat dong tren Claude
+- User co the override model bang CLI flags — pha vo tier design
 
 **How to avoid:**
-1. **GIU Buoc 6.5 nhu hien tai — AI agent judgment.** KHONG thay the bang rule-based detection. Thay vao do, them tool HO TRO de AI phan loai nhanh hon.
-2. **Module `detectBusinessLogicSignals()` chi tra ve SIGNALS, khong tra ve DECISIONS.** Vi du: "File nay co thay doi condition expressions: dong 45 `if (x > 10)` → `if (x >= 10)`". AI agent quyet dinh co phai logic change hay khong.
-3. **Whitelist non-logic changes:** import changes, whitespace, comment-only changes, rename/refactor → tu dong loai tru, KHONG hien thi signal.
-4. **Pure function: nhan old content + new content → tra ve list of change signals voi category (condition, arithmetic, string, import, comment, etc.).**
-5. **Threshold: chi hien thi signal khi co condition/arithmetic/comparison changes.** String literal changes, import changes, etc. → im lang.
+1. **Dat `model:` RO RANG trong moi agent file.** KHONG dung `inherit`:
+   - `pd-bug-janitor.md`: `model: haiku`
+   - `pd-doc-specialist.md`: `model: haiku`
+   - `pd-code-detective.md`: `model: sonnet`
+   - `pd-repro-engineer.md`: `model: sonnet`
+   - `pd-fix-architect.md`: `model: opus`
+2. **Them `maxTurns` theo tier de gioi han chi phi:**
+   - Scout: maxTurns 5 (toi da ~2K token output)
+   - Builder: maxTurns 10
+   - Architect: maxTurns 12
+3. **Cross-platform: Tao agent files KHAC NHAU cho moi platform.** Converter transpile agent files tuong tu skill files — moi platform co model name rieng:
+   - Claude: haiku/sonnet/opus
+   - Gemini: flash/pro (KHONG co opus equivalent)
+   - Codex: routing khac hoan toan
+4. **Thiet ke "degradation path":** Neu Opus khong kha dung (Gemini khong co tuong duong), Architect chay tren model tot nhat co san. Workflow khong duoc FAIL vi thieu model.
+5. **Budget alert: Tinh chi phi TRUOC khi deploy.** Voi 5 agent moi session: ~50K tokens input + ~10K output ≈ $0.50-3.00/session tuy model mix. So sanh voi hien tai ~$0.05-0.10/session.
 
 **Warning signs:**
-- Module tra ve "logic change detected" cho moi diff
-- User bat dau ignore logic change warnings
-- Module co try/except quyet dinh "co phai logic change" thay vi de AI quyet
-- Khong co category classification cho signals
-- Module tu dong cap nhat PLAN.md ma khong hoi user
+- Tat ca agents chay cung 1 model (inherit tu main)
+- Architect chay tren Haiku — khong du kha nang tong hop evidence phuc tap
+- Chi phi moi session tang >10x so voi v1.5
+- Agent file co `model: opus` nhung platform khong ho tro Opus
 
 **Phase to address:**
-Phase rieng cho business logic detection — test voi nhieu loai diff (typo fix, logic fix, refactor, feature add) de do false positive rate truoc khi tich hop.
+Phase 1 (Dynamic Resource Orchestration) — dinh nghia tier mapping, model defaults, va degradation path. Kiem tra cross-platform compatibility.
 
 ---
 
-### Pitfall 6: Pha Vo Pure Function Pattern — Module Moi Goi MCP/Doc File Truc Tiep
+### Pitfall 6: Evidence Format Khong Nhat Quan — Agent Tra Ve Tu Do Thay Vi Theo Protocol
 
 **What goes wrong:**
-Du an da thiet lap pattern ro rang tu v1.1: "Tat ca functions la pure — nhan content, tra ket qua, khong doc file" (plan-checker.js dong 9, generate-diagrams.js dong 4, report-filler.js dong 4). 528 tests hien tai deu test pure functions — truyen content string, kiem tra output.
+Thiet ke yeu cau 3 ket luan chuan: `## ROOT CAUSE FOUND`, `## CHECKPOINT REACHED`, `## INVESTIGATION INCONCLUSIVE`. Nhung LLM-based agents la non-deterministic — moi lan chay co the:
+- Viet "## Ket luan: Da tim nguyen nhan" thay vi "## ROOT CAUSE FOUND"
+- Bo qua Elimination Log khi INCONCLUSIVE (danh sach file da kiem tra va loai tru)
+- Khong ghi evidence kem ROOT CAUSE — chi noi "loi o dong 42" ma khong ghi bang chung
+- Mix tieng Viet va tieng Anh trong heading — Architect parse sai
 
-Khi them module moi, dev de bi cam do:
-- `analyzeRegressionImpact()` goi truc tiep `mcp__fastcode__code_qa` de lay call chain
-- `generateReproductionTest()` doc file source code de hieu context
-- `detectBusinessLogicSignals()` goi `git diff` de lay changes
-- `linkSecurityWarnings()` doc `.planning/scan/` de tim canh bao
-
-Moi file I/O hoac MCP call trong module = khong the test bang unit test don gian. Se can mock MCP, mock filesystem → test phuc tap, de hong, kho maintain.
+Theo nghien cuu GitHub Blog: "Natural language is messy — agents exchange messy language or inconsistent JSON. Field names drift, data types mismatch."
 
 **Why it happens:**
-"Tien qua" — de function tu lay du lieu thay vi yeu cau caller truyen vao. Developer nghi "chi 1 dong `require('fs')` thoi" nhung 1 dong do pha vo toan bo testing strategy.
+Agent prompt la huong dan, khong phai enforcement. LLM co xu huong "paraphrase" thay vi copy chinh xac format. Dac biet khi context dai, agent de quen format da duoc chi dinh o dau prompt.
 
 **How to avoid:**
-1. **Rule bat buoc: TAT CA module trong `bin/lib/` PHAI la pure function.** Khong `require('fs')`, khong `require('child_process')`, khong MCP call.
-2. **Workflow file (`.md`) chiu trach nhiem goi MCP/doc file va truyen ket qua cho module.** Day la pattern da thiet lap — Buoc 3.6 cua complete-milestone goi FastCode roi truyen ket qua cho `fillManagementReport()`.
-3. **Test litmus: neu test can mock filesystem hoac MCP → module vi pham pure function pattern.** Tat ca test chi can `const result = myFunction(inputString)` → check result.
-4. **Code review checkpoint: moi module moi PHAI co `// KHÔNG đọc file` trong JSDoc header.** Tham khao `report-filler.js` dong 5.
+1. **Dung hooks `PostToolUse` de validate evidence format.** Tao script kiem tra file evidence sau khi agent ghi:
+   ```bash
+   # validate-evidence.sh
+   # Kiem tra file co chua 1 trong 3 heading chuan
+   grep -qE "^## (ROOT CAUSE FOUND|CHECKPOINT REACHED|INVESTIGATION INCONCLUSIVE)" "$1" || exit 2
+   ```
+2. **Them format example NGAY TRONG agent prompt, khong chi mo ta.** Hien tai agent prompts mo ta format nhung thieu vi du cu the. Them:
+   ```markdown
+   OUTPUT FORMAT (BAT BUOC):
+   ## ROOT CAUSE FOUND
+   **File:** [path:line]
+   **Evidence:** [code snippet hoac log]
+   **Explanation:** [tai sao day la nguyen nhan]
+   ```
+3. **Architect agent PHAI validate evidence truoc khi tong hop.** Neu evidence file thieu heading chuan → ghi warning va yeu cau spawn lai agent do.
+4. **Tao pure function `validateEvidence(content)` trong JS module** — kiem tra heading, required fields, va tra ve {valid, errors}. Goi tu PostToolUse hook hoac tu main workflow.
 
 **Warning signs:**
-- `require('fs')` xuat hien trong file `bin/lib/*.js` moi
-- `require('child_process')` trong module moi
-- Test file can `jest.mock()` hoac `sinon.stub()` cho filesystem
-- Module nhan `filePath` thay vi `fileContent` lam parameter
-- JSDoc khong co "KHONG doc file" declaration
+- Evidence file khong co bat ky heading chuan nao
+- Architect bao "khong hieu ket qua cua Detective" vi format la
+- Evidence file chi co mo ta tu do, khong co file:line cu the
+- INCONCLUSIVE thieu Elimination Log — agent lap lai gia thuyet da sai
 
 **Phase to address:**
-MOI phase — day la architectural constraint, khong phai 1-phase concern. Review moi module truoc khi merge.
+Phase 2 (Detective Protocols) — dinh nghia Evidence Format, tao validation function, va wiring hooks.
 
 ---
 
-### Pitfall 7: 528 Tests Va 48 Snapshots Bi Pha Khi Sua Fix-Bug Workflow
+### Pitfall 7: Platform Transpilation — Agent Files Khong Duoc Converter Xu Ly
 
 **What goes wrong:**
-Sua `workflows/fix-bug.md` (them sub-steps) → 5 converter pipelines inline workflow content → 4 platform outputs thay doi → 4 snapshots (codex/fix-bug.md, copilot/fix-bug.md, gemini/fix-bug.md, opencode/fix-bug.md) out-of-sync → `smoke-snapshot.test.js` fail 4 tests. Con `smoke-integrity.test.js` validate file structure consistency va co the fail neu cau truc workflow thay doi.
+He thong hien tai co 4 converter (codex, gemini, opencode, copilot) transpile skill files tu `commands/pd/*.md`. Agent files moi o `commands/pd/agents/*.md`. Nhung:
+- Converter `base.js` chi scan `commands/pd/*.md` — KHONG scan `commands/pd/agents/`
+- Glob pattern trong generate-snapshots.js co the khong bao gom subdirectory `agents/`
+- Agent frontmatter (`tier`, `model: haiku/sonnet/opus`) khong co mapping cross-platform
+- Codex, Gemini, OpenCode co the KHONG HO TRO subagent frontmatter format
+- 48 converter snapshot tests khong bao gom agent files → khong phat hien regression
 
-Nghiem trong hon: moi thay doi trong `workflows/fix-bug.md` cung thay doi output cua `commands/pd/fix-bug.md` tren tat ca 5 platforms. Neu dev chi test tren Claude ma khong chay snapshot tests → 4 platforms khac bi hu ma khong biet.
-
-**Why it happens:**
-Converter pipeline inline workflow content — moi tu them/xoa trong workflow propagate den tat ca platform outputs. Day la BY DESIGN (dam bao consistency) nhung cung la trap khi developer quen chay snapshot test. Hien tai co 48 snapshots (4 platforms x 12 skills) — fix-bug la 1 trong 12.
-
-**How to avoid:**
-1. **Chay `node --test test/smoke-snapshot.test.js` SAU MOI THAY DOI workflow.** Khong doi den cuoi phase.
-2. **Regenerate snapshots trong commit rieng:** `node test/generate-snapshots.js` → commit "chore: update fix-bug snapshots" TACH BIET khoi commit logic change.
-3. **Diff snapshots truoc khi commit.** Dung `git diff test/snapshots/` de xac nhan CHI fix-bug snapshots thay doi. Neu snapshot khac (vi du write-code) cung thay doi → co loi.
-4. **KHONG sua workflow va module cung 1 commit.** Workflow changes va library module changes PHAI la commits rieng de de revert.
-5. **Test all 528 tests truoc moi PR/phase transition.** Nay la safety net chinh cua du an.
-
-**Warning signs:**
-- `smoke-snapshot.test.js` fail nhung dev chi update snapshots ma khong xem diff
-- Snapshot diff cho thay thay doi o skills khac ngoai fix-bug
-- Commit message "update snapshots" khong co commit truoc do giai thich tai sao snapshot thay doi
-- Dev skip snapshot test vi "chi sua module, khong sua workflow"
-
-**Phase to address:**
-MOI phase co thay doi workflow — dac biet phases tich hop tinh nang vao fix-bug.md.
-
----
-
-### Pitfall 8: PDF Report Auto-Update Trong Fix-Bug Tao Dependency Vong Tron Voi Complete-Milestone
-
-**What goes wrong:**
-v1.4 da thiet lap: complete-milestone Buoc 3.6 tao PDF report (non-blocking). v1.5 muon: fix-bug cung tu dong cap nhat PDF report khi logic thay doi. Day tao ra van de:
-- Fix-bug goi `fillManagementReport()` + `generateBusinessLogicDiagram()` de cap nhat report
-- Nhung report do thuoc ve milestone, va milestone co the chua duoc complete
-- Fix-bug patch version (vi du v1.3.1) cap nhat report cua milestone v1.3 — nhung v1.3 da "shipped"
-- Report template expect data tu STATE.md (performance metrics) — fix-bug khong co data nay
-- Fix-bug chay tren Sonnet (gia re) — goi Puppeteer cho PDF render la overkill cho bug fix
+Ket qua: 5 agent files chi hoat dong tren Claude Code, 4 platform con lai khong co agents → fix-bug workflow tren Gemini/Codex bi loi.
 
 **Why it happens:**
-Report generation duoc thiet ke cho milestone completion context (co STATE.md, co tat ca PLAN.md, co SUMMARY.md). Fix-bug context hoan toan khac (co 1 bug, co 1-2 files). Dung cung module cho 2 context khac nhau → impedance mismatch.
+Agent concept la moi (v2.1). Converter pipeline (base.js) duoc thiet ke cho skill files (command files) — khong biet den agent files. Moi platform co cach xu ly agents khac nhau:
+- Claude Code: `.claude/agents/*.md` voi YAML frontmatter
+- Codex: khong co tuong duong chinh thuc
+- Gemini CLI: format khac
+- Agent Skills spec (agentskills.io) la cross-platform nhung chua bao gom subagent concept
 
 **How to avoid:**
-1. **Fix-bug CHI cap nhat Mermaid diagram, KHONG cap nhat toan bo report.** Khi bug thay doi business logic (Buoc 6.5), chi call `generateBusinessLogicDiagram()` de cap nhat diagram trong report file co san. KHONG call `fillManagementReport()` vi no can toan bo milestone data.
-2. **Tao function rieng `updateReportDiagram(reportPath, newDiagram, sectionPrefix)` thay vi dung `fillManagementReport()`.** Function nay chi thay the mermaid block trong 1 section, khong fill toan bo template.
-3. **Chi cap nhat report neu report da ton tai.** Neu `.planning/reports/management-report-v*.md` chua co → skip. Fix-bug khong tao report moi.
-4. **PDF re-render la TUY CHON, khong bat buoc.** Hien thi: "Diagram da cap nhat trong report. Chay `node bin/generate-pdf-report.js [path]` de xuat PDF moi." KHONG tu dong chay Puppeteer.
-5. **Non-blocking pattern nhu Buoc 3.6.** Moi loi khi cap nhat report chi la warning, khong bao gio chan fix-bug flow.
+1. **Mo rong converter pipeline de xu ly agent files.** Them config option `agentsDir` ben canh `skillsDir` trong `base.js`.
+2. **Tao agent file mapper cho moi platform:**
+   - Claude: giu nguyen `.claude/agents/*.md`
+   - Codex: chuyen thanh custom instructions hoac tool definitions
+   - Gemini: chuyen thanh agent configuration format cua Gemini
+   - Copilot: embed agent logic vao skill file (khong co agent concept)
+   - OpenCode: tuong tu Copilot
+3. **Them snapshot tests cho agent files.** 5 agent files x 4 platforms = 20 snapshot tests moi. Tong snapshot tang tu 48 len 68.
+4. **Xem xet: NEU platform khong ho tro agents → fix-bug fallback ve single-agent mode.** Workflow kiem tra platform → co agents support → da-agent, khong → v1.5 single-agent. Day la backward-compatible nhat.
+5. **Tier mapping phai la phan cua converter config:**
+   ```javascript
+   // codex.js config
+   tierMap: { scout: 'gpt-4o-mini', builder: 'o3', architect: 'o3' }
+   // gemini.js config
+   tierMap: { scout: 'gemini-3-flash', builder: 'gemini-3.1-pro', architect: 'gemini-3.1-pro' }
+   ```
 
 **Warning signs:**
-- Fix-bug goi `fillManagementReport()` truc tiep
-- Fix-bug can doc STATE.md, tat ca PLAN.md, tat ca SUMMARY.md
-- Fix-bug fail khi report file chua ton tai
-- Puppeteer duoc goi tu fix-bug workflow
-- Fix-bug session mat >30 giay cho report generation
+- `npm test` chay 48 snapshots thay vi 68 (agent snapshots thieu)
+- Agent files khong xuat hien trong output cua bat ky converter nao
+- fix-bug tren Gemini/Codex fail vi khong tim thay agent files
+- Converter chi copy agent files ma khong transpile (giu nguyen `model: haiku` tren platform khong co Haiku)
 
 **Phase to address:**
-Phase cho PDF/report integration — PHAI thiet ke rieng, khong dung lai truc tiep module cua complete-milestone.
-
----
-
-### Pitfall 9: Security Reference Linking Tao Canh Bao Gia — "Wolf Cry" Pattern
-
-**What goes wrong:**
-Tinh nang lien ket `pd:scan` canh bao bao mat cho file bi loi. Van de:
-- Scan report co the cu (chay tuan truoc), file da thay doi tu do
-- Canh bao bao mat trong scan report la cho toan bo file, khong phai function bi loi
-- AI hien thi canh bao "SQL injection risk in user.service.ts" cho bug "login button khong hoat dong" — khong lien quan
-- Qua nhieu canh bao khong lien quan → user bo qua tat ca → bao loi canh bao that
-
-**Why it happens:**
-Scan report lien ket theo FILE, khong phai theo FUNCTION. Neu file A co 10 canh bao bao mat, va bug o file A, he thong se hien thi ca 10 canh bao — du bug chi anh huong 1 function khong lien quan den bao mat.
-
-**How to avoid:**
-1. **Filter theo function/line range.** Chi hien thi canh bao bao mat overlap voi vung code bi loi (line range cua bug).
-2. **Check freshness.** Neu scan report cu hon 7 ngay → warning: "Scan report co the loi thoi. Chay `pd:scan` de cap nhat."
-3. **Relevance scoring.** Module `filterSecurityWarnings(warnings, bugContext)` nhan canh bao + bug context → tra ve CHI canh bao lien quan (cung function, cung module, cung data flow).
-4. **Maximum 3 canh bao.** Hien thi toi da 3 canh bao lien quan nhat. Nhieu hon → "Va [N] canh bao khac. Xem chi tiet tai [file]."
-5. **CHI hien thi, KHONG chan.** Canh bao bao mat la thong tin bo sung, KHONG phai gate check. Fix-bug khong dung vi file co canh bao bao mat.
-
-**Warning signs:**
-- Moi fix-bug session hien thi 5+ canh bao bao mat
-- Canh bao khong lien quan den bug hien tai
-- User bat dau ignore security section
-- Module doc toan bo scan report thay vi filter
-- Scan report khong co timestamp → khong biet do moi hay cu
-
-**Phase to address:**
-Phase cho security linking — can test voi real scan data de do relevance accuracy.
-
----
-
-### Pitfall 10: Post-Mortem CLAUDE.md Suggestion Ghi De User Configuration
-
-**What goes wrong:**
-Post-mortem de xuat cap nhat CLAUDE.md (vi du them rule "luon check null truoc khi access property"). Van de:
-- AI append rule vao CLAUDE.md ma user khong biet
-- Rule bi trung voi rule da co
-- Rule qua cu the (chi ap dung cho 1 bug) nhung duoc viet nhu rule chung
-- Rule xung dot voi rule hien tai cua user
-- CLAUDE.md la config file ca nhan — tu dong sua la xam pham user autonomy
-
-Bai hoc tu Zed editor auto-update post-mortem: auto-update config file khong co consent tao trust erosion lon.
-
-**Why it happens:**
-AI agent co kha nang Write file, va CLAUDE.md la file text binh thuong. Khong co gi ngan AI ghi truc tiep. Nhung CLAUDE.md la "constitution" cua codebase — moi dong trong do anh huong den MOI conversation tiep theo. Tu dong sua no giong nhu tu dong sua .bashrc — nguy hiem.
-
-**How to avoid:**
-1. **CHI DE XUAT, KHONG TU DONG SUA.** Module `generatePostMortemSuggestions()` tra ve list of suggestions dang Markdown. Hien thi cho user. User tu quyet dinh co them vao CLAUDE.md khong.
-2. **Output la Markdown block trong BUG report, khong phai diff/patch cho CLAUDE.md.** User copy-paste neu muon.
-3. **De-duplicate: check CLAUDE.md hien tai de tranh de xuat rule da ton tai.** Module `filterExistingSuggestions(currentClaudeMd, suggestions)` loai bo trung lap.
-4. **Scope qualifier.** Moi suggestion phai co scope: "[Du an nay]" vs "[Tat ca du an]". Vi du: "Nen them vao project CLAUDE.md: Luon validate input truoc khi xu ly" vs. "Nen them vao global CLAUDE.md".
-5. **Maximum 2 suggestions per bug.** Nhieu hon → noise. AI nen chon 2 bai hoc quan trong nhat.
-
-**Warning signs:**
-- Module goi `Write` tool de sua CLAUDE.md truc tiep
-- Suggestion khong co scope qualifier
-- Suggestion trung voi rule da co trong CLAUDE.md
-- Moi bug deu co suggestion (qua nhieu → user ignore)
-- Suggestion qua cu the: "Khong dung `user.name` ma khong check null" thay vi "Validate object properties truoc khi access"
-
-**Phase to address:**
-Phase cuoi cung — post-mortem la tinh nang it quan trong nhat va co risk ghi de config cao nhat.
+Phase 4 (Workflow Execution Loop) — khi tich hop agents vao workflow, PHAI dong thoi cap nhat converter pipeline. Hoac: Phase rieng cho Platform Transpilation.
 
 ---
 
 ## Technical Debt Patterns
 
-| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
-|----------|-------------------|----------------|-----------------|
-| Goi MCP truc tiep trong module lib/ | Khong can workflow truyen data | Pha vo pure function pattern, test phuc tap 10x, mock hell | Khong bao gio — workflow goi MCP, truyen ket qua cho module |
-| Tao file test tu dong trong `test/` | User co reproduction test ngay | File test khong dung chay trong CI, false pass, test suite bloat | Khong bao gio — output la Markdown template, khong phai file |
-| Them tat ca tinh nang nhu buoc moi trong workflow | Workflow doc ro rang tung buoc | 17+ buoc, agent lost context, token waste | Khong bao gio — dung conditional sub-step pattern |
-| Auto cleanup chay khong can user confirm | Developer khong can review | Xoa code production, data loss, trust erosion | Chi khi co marker system va user opt-in |
-| Dung `fillManagementReport()` cho ca fix-bug va complete-milestone | Reuse code | Impedance mismatch, fix-bug can data khong co, fail khi report chua ton tai | Khong bao gio — tao function rieng cho partial update |
-| Skip snapshot regeneration sau khi sua workflow | Nhanh hon | 4 platform outputs sai, regression o platform khac | Khong bao gio — snapshot la safety net |
-| Post-mortem tu dong ghi CLAUDE.md | User khong can lam gi | Ghi de config ca nhan, rule xung dot, trust erosion | Khong bao gio — chi de xuat, user tu quyet dinh |
+| Shortcut | Loi ich truoc mat | Chi phi dai han | Khi nao chap nhan |
+|----------|-------------------|-----------------|---------------------|
+| Hardcode model names trong agent files | Nhanh, don gian | Moi platform can bo agent files rieng, khong dung chung | KHONG BAO GIO — dung converter tier mapping |
+| Bo qua maxTurns cho agents | Agent chay tu do, linh hoat | 1 agent chay 50+ turns, tieu het token budget | Chi khi prototype/debug |
+| Inline evidence validation trong workflow thay vi module rieng | Nhanh ship | Khong test duoc, khong reuse cho platform khac | KHONG BAO GIO — phai la pure function |
+| Ghi agent state vao SESSION file tu ca agent va main | Don gian hon file rieng | Race condition, data corruption | KHONG BAO GIO — strict file ownership |
+| Skip agent support cho 1-2 platform ("lam sau") | Ship nhanh tren Claude | Platform kia bi loi, user mat tin tuong | Chi cho MVP/prototype, phai fix truoc release |
+| Dung Opus cho moi agent (de ket qua tot nhat) | Chat luong cao | Chi phi tang 10-20x, rate limit hit | KHONG BAO GIO trong production |
 
 ## Integration Gotchas
 
-| Integration | Common Mistake | Correct Approach |
-|-------------|----------------|------------------|
-| Reproduction test + fix-bug workflow | Tao test o Buoc 5 (phan tich) truoc khi co ket luan | Chi tao test TEMPLATE sau khi xac dinh nguyen nhan (sau Buoc 6c gate check) |
-| Regression analysis + FastCode MCP | Goi FastCode trong module lib/ | Workflow goi FastCode o Buoc 4, truyen ket qua cho `analyzeRegressionImpact(fastcodeResults)` |
-| Auto cleanup + git commit | Cleanup chay SAU git add | Cleanup chay TRUOC git add — xoa debug markers → git add → commit |
-| Business logic detection + Buoc 6.5 | Thay the AI judgment bang rule-based | Them signals tool HO TRO AI judgment, khong thay the no |
-| PDF update + fix-bug | Goi fillManagementReport() | Tao updateReportDiagram() rieng chi thay the mermaid block |
-| Security linking + scan data | Doc toan bo scan report | Filter theo line range cua bug va relevance scoring |
-| Post-mortem + CLAUDE.md | Tu dong Write vao CLAUDE.md | Output Markdown block trong BUG report, user tu copy |
-| Module moi + converter snapshots | Chi test Claude output | Chay 48 snapshot tests sau moi thay doi workflow |
-| Buoc moi + existing flow | Insert buoc giua cac buoc hien tai (vi du "Buoc 7.5") | Mo rong buoc hien tai (vi du them sub-step 5b.1) |
+| Tich hop | Loi thuong gap | Cach dung |
+|----------|---------------|-----------|
+| v1.5 repro-test-generator + pd-repro-engineer | Agent viet test rieng, bo qua `generateReproTest()` | Agent PHAI goi module qua Bash, dung output cua module lam base |
+| v1.5 regression-analyzer + pd-code-detective | Agent dung FastCode truc tiep ma khong chay `analyzeFromCallChain()` | Agent parse FastCode output roi goi `analyzeFromCallChain()` de co format chuan |
+| v1.5 debug-cleanup + workflow Buoc 9a | Buoc 9a bi bo qua vi Architect agent "da clean up" | Buoc 9a van thuoc main workflow SAU khi agent hoan thanh, KHONG phai agent responsibility |
+| v1.5 logic-sync + workflow Buoc 10a | Logic sync bi bo qua vi khong agent nao chiu trach nhiem | Buoc 10a van thuoc main workflow SAU user confirm, goi `runLogicSync()` nhu v1.5 |
+| SESSION file + Evidence files | Agent ghi thang vao SESSION thay vi evidence file rieng | SESSION chi duoc main workflow ghi. Agents chi ghi evidence_*.md cua minh |
+| BUG report + Architect evidence | Architect tao BUG report khac format voi Buoc 7 template | Architect chi de xuat root cause + fix plan. Main workflow tao BUG report theo template co san |
+| Context7 pipeline + pd-doc-specialist | DocSpec goi Context7 truc tiep khong theo canonical pipeline | DocSpec PHAI tham chieu `@references/context7-pipeline.md` — resolve-library-id truoc, query-docs sau |
+| Converter snapshots + Agent files | Them agent files ma khong update snapshot expectations | Chay `node bin/generate-snapshots.js` SAU moi thay doi agent files |
 
 ## Performance Traps
 
-| Trap | Symptoms | Prevention | When It Breaks |
-|------|----------|------------|----------------|
-| Regression analysis chay FastCode cho moi file trong project | Fix-bug session mat 2-3 phut cho analysis | Gioi han FastCode query: chi file truc tiep lien quan, max 5 queries | >5 FastCode calls per session |
-| Reproduction test generation cho moi bug | Token waste cho bug don gian (typo fix khong can test) | Chi generate test cho logic bugs (phan loai 🟡 tro len) | Bug don gian (🟢) bi bat tao test |
-| PDF re-render khi moi logic change | Puppeteer launch 2-5 giay, khong can thiet | Chi cap nhat markdown, de user tu render PDF | Moi fix-bug session goi Puppeteer |
-| Security scan file read cho moi bug | I/O unnecessary khi bug khong lien quan security | Chi doc scan data khi bug la 🔴 (bao mat) hoac file co known vulnerability | Moi fix-bug session doc scan data |
-| Full dependency tree traversal | FastCode timeout, token explosion | Gioi han depth 2, max 10 files | Utility function co 50+ dependents |
+| Trap | Trieu chung | Phong tranh | Khi nao gap |
+|------|-------------|-------------|-------------|
+| 5 agents tuan tu = 5x latency | Fix-bug mat 5-10 phut thay vi 1-2 phut | Spawn Detective + DocSpec song song (giam 1 round trip) | Moi session |
+| Haiku agent doc qua nhieu file | Janitor scan 50+ bug reports, het context | Gioi han: chi scan 10 bug reports gan nhat | Khi `.planning/bugs/` lon |
+| Opus agent cho ngang buoc thuc hien | Architect "suy nghi" 3 phut cho tong hop | Dat maxTurns va timeout cho Architect | Khi evidence phuc tap |
+| Background agent bi deny permission | Background agent can Write nhung khong co pre-approval | Pre-approve Write permission truoc khi spawn background agent | Khi dung background mode |
+| Agent re-read context7 docs da co | DocSpec goi resolve-library-id cho lib da cached | Cache library IDs trong evidence file, DocSpec kiem tra truoc khi resolve | Moi session voi lib da biet |
+| Token usage tang 4-7x | Hoa don API tang dot bien, rate limit hit | Monitor token usage per session, set budget cap | Khi dung thuong xuyen |
 
 ## Security Mistakes
 
-| Mistake | Risk | Prevention |
-|---------|------|------------|
-| Reproduction test hardcode credentials/tokens tu bug report | Test file chua secrets, committed vao git | Test template PHAI co placeholder `[CREDENTIALS_HERE]`, KHONG bao gio copy tu bug description |
-| Auto cleanup xoa security-related logs | Mat audit trail khi debug security incident | Whitelist `console.error`, `Logger.error`, `Logger.warn` khoi cleanup |
-| Post-mortem suggest disable security check | User follow suggestion → vuln moi | Module KHONG bao gio suggest disable/skip security (null check, auth check, validation) |
-| Security linking hien thi vulnerability details trong SESSION file | SESSION file co the bi share/commit | Chi hien thi title + severity, KHONG hien thi exploit details |
+| Loi | Rui ro | Phong tranh |
+|-----|--------|-------------|
+| Agent co `permissionMode: bypassPermissions` | Agent doc/ghi file nhay cam (.env, credentials) | Dung `permissionMode: default` hoac `dontAsk`. KHONG BAO GIO dung bypass |
+| Agent Bash tool chay lenh nguy hiem | Agent chay `rm -rf` hoac `git push --force` | Gioi han Bash tools bang hooks PreToolUse. Detective va DocSpec KHONG can Bash |
+| Evidence files chua thong tin nhay cam | Session file co credentials tu log output | Them pattern filter: loai bo dong chua password/token/secret tu evidence |
+| Background agent chay khi user khong giam sat | Agent thuc hien hanh dong khong mong muon | Chi dung background cho read-only agents (Janitor, DocSpec) |
 
 ## UX Pitfalls
 
-| Pitfall | User Impact | Better Approach |
-|---------|-------------|-----------------|
-| Moi fix-bug session chay tat ca 7 tinh nang moi | Bug don gian mat 5 phut thay vi 1 phut | Conditional: chi chay features lien quan den bug type |
-| Regression report dai 50 dong | User khong doc, skip | Max 10 dong, summary first, detail on demand |
-| 5+ canh bao bao mat moi bug | Alert fatigue, ignore tat ca | Max 3 canh bao lien quan nhat |
-| Post-mortem de xuat sau MOI bug | Moi fix-bug session co "bai hoc" | Chi de xuat cho bug 🟡 tro len (logic, data, security) |
-| Auto cleanup hoi confirm cho moi dong | 20 prompts "Xoa dong nay? (y/n)" | Hien thi danh sach, confirm 1 lan: "Xoa [N] dong debug? (y/n)" |
-| PDF render fail lam fix-bug cham | User doi Puppeteer | KHONG tu dong render PDF trong fix-bug. Chi cap nhat markdown |
+| Pitfall | Anh huong user | Cach tot hon |
+|---------|---------------|--------------|
+| Spawn 5 agent khong bao truoc | User khong biet dang xay ra gi, tuong bi treo | Hien thi: "Dang spawn [Agent Name] (tier: [X])..." truoc moi agent |
+| Agent hoi user question tu background | Background agent bi tu choi AskUserQuestion — mat cau hoi | Chi foreground agent duoc hoi user. Janitor (hoi 5 cau vang) phai la foreground |
+| Resume UI liet ke qua nhieu file | User thay 20+ files trong `.planning/debug/` | Chi hien SESSION files, khong hien evidence files. Danh so ID ro rang |
+| CHECKPOINT khong ro rang | User khong biet tra loi gi | CHECKPOINT phai co cau hoi CU THE va goi y dap an |
+| Agent chay lau khong feedback | User doi 3 phut khong thay gi | Progress indicator hoac periodic summary tu agent |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Reproduction test module:** Thuong thieu stack-specific template — verify co template cho NestJS, Flutter, va Generic
-- [ ] **Reproduction test output:** Thuong output file .test.ts thay vi Markdown — verify output la Markdown block trong SESSION file
-- [ ] **Regression analysis module:** Thuong goi FastCode truc tiep — verify module nhan ket qua FastCode qua parameter, khong tu goi
-- [ ] **Auto cleanup:** Thuong thieu marker system — verify AI them marker `[PD-DEBUG]` khi insert debug log, va cleanup chi xoa marker dong
-- [ ] **Auto cleanup:** Thuong thieu user confirm — verify co buoc hien thi list va cho user approve
-- [ ] **Business logic detection:** Thuong flag moi thay doi la "logic change" — verify co whitelist cho import/comment/whitespace changes
-- [ ] **PDF update:** Thuong goi fillManagementReport() — verify dung function rieng updateReportDiagram()
-- [ ] **PDF update:** Thuong fail khi report chua ton tai — verify co check existence va skip gracefully
-- [ ] **Security linking:** Thuong hien thi tat ca canh bao — verify co filter theo line range va max 3
-- [ ] **Post-mortem:** Thuong tu dong Write CLAUDE.md — verify CHI output Markdown suggestion, KHONG write file
-- [ ] **Post-mortem:** Thuong de xuat rule trung voi rule da co — verify co de-duplication check
-- [ ] **Workflow file:** Thuong vuot 400 dong — verify fix-bug.md duoi 420 dong sau thay doi
-- [ ] **Snapshot tests:** Thuong bi bo qua sau sua workflow — verify 48 snapshots in-sync sau moi workflow change
-- [ ] **Pure function:** Thuong bi vi pham boi module moi — verify 0 instances cua `require('fs')` trong `bin/lib/*.js` moi
+- [ ] **Agent spawning:** Agent files ton tai nhung chua duoc wire vao workflow `fix-bug.md` — kiem tra Buoc X co `spawn [agent-name]` instruction
+- [ ] **Evidence validation:** Evidence format doc duoc boi nguoi nhung Architect khong parse duoc — kiem tra heading chuan co match regex
+- [ ] **v1.5 module calls:** Agents hoat dong nhung KHONG goi pure functions — kiem tra `generateReproTest()`, `analyzeFromCallChain()`, `scanDebugMarkers()`, `runLogicSync()` co trong flow
+- [ ] **Converter coverage:** Agent files ton tai nhung khong xuat hien trong platform output — chay `npm test` va kiem tra snapshot count tang
+- [ ] **maxTurns enforcement:** Agent frontmatter co `maxTurns` nhung chay thuc te vuot gioi han — kiem tra transcript file co dung lai dung turns
+- [ ] **Degradation path:** Agent mode hoat dong nhung fallback ve single-agent khi loi — kiem tra tren platform khong ho tro agents
+- [ ] **Session continuity:** Resume UI hoat dong nhung khong resume DUNG agent context — kiem tra Architect resume voi evidence cu
+- [ ] **48 + N snapshot tests:** Them agent snapshots nhung khong cap nhat test expectations — chay `node bin/generate-snapshots.js` va kiem tra diff
+- [ ] **Elimination Log:** INCONCLUSIVE evidence co heading nhung thieu danh sach files da loai tru — kiem tra content co muc `### Da kiem tra va loai tru`
 
 ## Recovery Strategies
 
-| Pitfall | Recovery Cost | Recovery Steps |
-|---------|---------------|----------------|
-| Workflow qua dai, agent mat context | MEDIUM | Refactor: nhom sub-steps thanh conditional blocks, xoa steps khong can thiet, them skip conditions |
-| Test generation tao file trong test suite | LOW | Xoa generated test files, chuyen output sang Markdown format, update module |
-| Module vi pham pure function | MEDIUM | Refactor: tach I/O ra workflow, chuyen module sang pure input/output, sua tat ca tests |
-| Auto cleanup xoa production code | HIGH | `git stash pop` hoac `git checkout -- [file]` de khoi phuc. Them marker system, them user confirm |
-| Snapshot out of sync | LOW | `node test/generate-snapshots.js`, verify diff, commit snapshots rieng |
-| Report update fail khi report chua ton tai | LOW | Them existence check va skip. No error, no warning — just skip |
-| CLAUDE.md bi overwrite | MEDIUM | `git checkout -- CLAUDE.md` de khoi phuc. Chuyen module sang suggestion-only mode |
-| False positive security alerts | LOW | Them relevance filter, giam max alerts tu 10 xuong 3, them freshness check |
-| Regression analysis bao 50 files | LOW | Them depth limit (2), them max files (10), them function-level filter |
+| Pitfall | Chi phi khoi phuc | Cach khoi phuc |
+|---------|-------------------|----------------|
+| Context window bung no | THAP | Giam maxTurns, them summary protocol, restart session |
+| Subagent nesting vi pham | TRUNG BINH | Chuyen orchestration tu agent sang main workflow — refactor 1 file |
+| Race condition ghi file | CAO | Kiem tra tat ca evidence files, xac dinh data bi corrupt, chay lai agents bi anh huong |
+| v1.5 module bi bypass | CAO | Audit toan bo agent prompts, them explicit module calls, them integration tests |
+| Tier routing sai | THAP | Cap nhat `model:` field trong agent frontmatter, chay lai |
+| Evidence format sai | TRUNG BINH | Them validation hooks, re-train agent prompts voi vi du cu the |
+| Converter thieu agent files | CAO | Mo rong converter pipeline, them snapshot tests, regenerate tat ca snapshots |
+| Chi phi bung no | THAP | Ha model tier, giam maxTurns, hoac fallback ve single-agent |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Workflow step explosion (#1) | Phase 1 (Thiet ke workflow) | fix-bug.md duoi 420 dong; 0 buoc moi, chi sub-steps conditional |
-| Test generation khong gia tri (#2) | Phase reproduction test | Test template output co TODO markers; output la Markdown; test PHAI fail truoc fix |
-| Regression false cascade (#3) | Phase regression analysis | Max 10 files trong report; module KHONG goi MCP; depth <= 2 |
-| Auto cleanup xoa code (#4) | Phase auto cleanup + workflow integration | Co marker system `[PD-DEBUG]`; co user confirm; chi xoa files AI da sua |
-| Business logic false positives (#5) | Phase business logic detection | Co whitelist (import/comment/whitespace); false positive rate <20% tren test cases |
-| Pha vo pure function (#6) | MOI phase | 0 `require('fs')` trong bin/lib/ moi; tat ca test la `const result = fn(input)` |
-| Snapshot breakage (#7) | MOI phase co workflow change | 528+ tests pass; 48 snapshots in-sync; diff chi o fix-bug snapshots |
-| PDF dependency vong tron (#8) | Phase PDF integration | KHONG goi fillManagementReport() tu fix-bug; co updateReportDiagram() rieng |
-| Security wolf cry (#9) | Phase security linking | Max 3 alerts; filter theo line range; freshness check |
-| CLAUDE.md overwrite (#10) | Phase post-mortem (cuoi cung) | Module KHONG goi Write; output la Markdown suggestion; co de-dup |
-
-## Phase-Specific Risk Summary
-
-### Phase 1: Thiet ke workflow (HIGH RISK)
-Quyet dinh co ban: them buoc moi hay mo rong buoc hien tai? Sai o day = workflow khong maintain duoc cho toan bo v1.5. Phai xac dinh: moi tinh nang la conditional sub-step cua buoc nao, trigger condition la gi, skip condition la gi.
-- **Primary risks:** Pitfall 1 (step explosion), Pitfall 6 (pure function)
-- **Mitigation:** Budget max 420 dong, conditional-only additions, pure function contract
-
-### Phase module development (MEDIUM RISK)
-Tao cac pure function module. Risk chinh la vi pham pure function pattern va tao test khong co gia tri.
-- **Primary risks:** Pitfall 2 (test generation), Pitfall 3 (regression noise), Pitfall 5 (false positives), Pitfall 6 (pure function)
-- **Mitigation:** Pure function enforcement, template-not-file output, depth limits, signal-not-decision pattern
-
-### Phase workflow integration (HIGH RISK)
-Tich hop module vao fix-bug.md. Risk chinh la snapshot breakage va workflow complexity.
-- **Primary risks:** Pitfall 1 (step explosion), Pitfall 4 (auto cleanup), Pitfall 7 (snapshot)
-- **Mitigation:** Moi thay doi workflow → snapshot test ngay. Conditional sub-steps only.
-
-### Phase PDF + report (MEDIUM RISK)
-Cap nhat report khi logic thay doi. Risk chinh la dependency vong tron voi complete-milestone.
-- **Primary risks:** Pitfall 8 (PDF dependency)
-- **Mitigation:** Function rieng cho partial update. Khong dung fillManagementReport().
-
-### Phase post-mortem (LOW-MEDIUM RISK)
-De xuat cap nhat CLAUDE.md. Risk chinh la tu dong ghi file.
-- **Primary risks:** Pitfall 10 (CLAUDE.md overwrite)
-- **Mitigation:** Suggestion-only output. Maximum 2 suggestions. De-duplication check.
+| Context window bung no | Phase 1 (Resource Orchestration) | Token usage per session < 50K, khong bi auto-compact giua workflow |
+| Subagent nesting constraint | Phase 1 (Resource Orchestration) | Khong agent nao co `tools: Agent(...)`, main workflow la orchestrator |
+| Race condition ghi file | Phase 2 (Detective Protocols) | Moi evidence file chi co 1 owner, run concurrent test khong bi corruption |
+| v1.5 backward compatibility | Phase 4 (Execution Loop) | 601 tests van pass, moi v1.5 module duoc goi it nhat 1 lan trong workflow |
+| Tier/Model routing sai | Phase 1 (Resource Orchestration) | Moi agent co `model:` explicit, khong co `inherit`. Cross-platform test pass |
+| Evidence format khong nhat quan | Phase 2 (Detective Protocols) | validateEvidence() pure function pass cho moi evidence file |
+| Platform transpilation thieu | Phase 4 (Execution Loop) | Snapshot count = 48 + (5 agents x 4 platforms) = 68. Tat ca pass |
+| Chi phi bung no | Phase 1 (Resource Orchestration) | Budget cap per session, maxTurns enforcement, degradation path test |
 
 ## Sources
 
-- [IEEE/ACM 2024 — Automatic Generation of Test Cases based on Bug Reports: Feasibility Study with LLMs](https://dl.acm.org/doi/abs/10.1145/3639478.3643119)
-- [Anthropic research on agent token consumption — referenced via TowardsDataScience](https://towardsdatascience.com/a-developers-guide-to-building-scalable-ai-workflows-vs-agents/)
-- [DEV Community — Why Your AI Workflow Design Might Be Overcomplicated](https://dev.to/lofcz/why-your-ai-workflow-design-might-be-overcomplicated-1hfb)
-- [DEV Community — I Let an AI Agent Handle a Multi-Step Task. Here's Where It Broke](https://dev.to/leena_malhotra/i-let-an-ai-agent-handle-a-multi-step-task-heres-where-it-broke-m31)
-- [BrowserStack — How to avoid False Positives and False Negatives in Testing](https://www.browserstack.com/guide/false-positives-and-false-negatives-in-testing)
-- [NIST SAST false positive rates — referenced via Abnormal AI](https://abnormal.ai/blog/detection-engineering)
-- [Aikido — Remove Debugging and Temporary Code Before Commits](https://www.aikido.dev/code-quality/rules/remove-debugging-and-temporary-code-before-commits-a-security-and-performance-guide)
-- [Zed Editor — Auto Update Post-Mortem](https://zed.dev/blog/auto-update-post-mortem)
-- [QualityLogic — 5 Big Mistakes in Test Automation](https://www.qualitylogic.com/knowledge-center/top-5-reasons-test-automation-fails/)
-- Direct codebase analysis: `workflows/fix-bug.md` (347 dong, 10 buoc chinh voi sub-steps)
-- Direct codebase analysis: `commands/pd/fix-bug.md` (model: sonnet, 14 allowed-tools)
-- Direct codebase analysis: `bin/lib/*.js` (8 pure function modules, 0 file I/O)
-- Direct codebase analysis: `test/` (528 tests, 48 converter snapshots, 13 test files)
-- Direct codebase analysis: `bin/lib/report-filler.js` (pure function pattern, non-blocking try/catch)
-- Direct codebase analysis: `workflows/complete-milestone.md` Buoc 3.6 (non-blocking pattern precedent)
+- [Claude Code: Create custom subagents](https://code.claude.com/docs/en/sub-agents) — tai lieu chinh thuc, HIGH confidence
+- [GitHub Blog: Multi-agent workflows often fail](https://github.blog/ai-and-ml/generative-ai/multi-agent-workflows-often-fail-heres-how-to-engineer-ones-that-dont/) — engineering patterns, HIGH confidence
+- [arxiv: Why Do Multi-Agent LLM Systems Fail?](https://arxiv.org/pdf/2503.13657) — nghien cuu hoc thuat, 42% specification failures, 37% coordination failures, MEDIUM confidence
+- [DoltHub: Multi-Agent Persistence](https://www.dolthub.com/blog/2026-03-13-multi-agent-persistence/) — file-based persistence race conditions, MEDIUM confidence
+- [DEV.to: Multi-Model Routing Pattern](https://dev.to/askpatrick/the-multi-model-routing-pattern-how-to-cut-ai-agent-costs-by-78-1631) — tier routing chi phi, MEDIUM confidence
+- [Galileo: Why Multi-Agent AI Systems Fail](https://galileo.ai/blog/multi-agent-ai-failures-prevention) — failure taxonomy, MEDIUM confidence
+- [OpenClaw: Session memory markdown not flushed](https://github.com/openclaw/openclaw/issues/21382) — race condition bug thuc te, HIGH confidence
+- [RocketEdge: AI Agent Cost Control](https://rocketedge.com/2026/03/15/your-ai-agent-bill-is-30x-higher-than-it-needs-to-be-the-6-tier-fix/) — chi phi thuc te, MEDIUM confidence
+- Ma nguon hien tai: `commands/pd/fix-bug.md`, `workflows/fix-bug.md`, `bin/lib/*.js`, `bin/lib/converters/base.js` — PRIMARY source, HIGH confidence
 
 ---
-*Pitfalls research for: Nang cap fix-bug workflow v1.5 — Please-Done*
+*Pitfalls research cho: v2.1 Detective Orchestrator — chuyen doi single-agent sang multi-agent debug orchestration*
 *Researched: 2026-03-24*
