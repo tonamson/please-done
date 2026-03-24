@@ -319,6 +319,20 @@ Files: [file]: [thay đổi]"
 git add .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md .planning/milestones/[...]/TASKS.md
 git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt]'
 ```
+### 10a. Đồng bộ logic và báo cáo (non-blocking)
+> Toàn bộ bước này là non-blocking — lỗi chỉ tạo warning, KHÔNG chặn workflow.
+**1. Logic detection (LOGIC-01):**
+`git diff HEAD~1` → gọi `detectLogicChanges(diffText)` từ `bin/lib/logic-sync.js`
+- Ghi BUG report: "Thay đổi logic: CÓ/KHÔNG" + signals (nếu có)
+**2. Report update (RPT-01) — CHỈ KHI hasLogicChange = CÓ:**
+Glob `.planning/reports/*.md` + `.planning/milestones/*/` → file mới nhất theo mtime
+- Không có report → warning: "Không tìm thấy report để cập nhật"
+- Có → gọi `updateReportDiagram({reportContent, planContents})` → ghi file
+- Hỏi: "Cập nhật lại PDF? (Y/n)" → Y: `node bin/generate-pdf-report.js [path]`
+**3. Rule suggestion (PM-01):**
+Đọc SESSION + BUG report + CLAUDE.md → gọi `suggestClaudeRules({sessionContent, bugReportContent, claudeContent})`
+- Có đề xuất → hiện: "[Đề xuất rule] ..." → hỏi "Thêm vào CLAUDE.md? (Y/n)"
+- Y → append rules vào cuối CLAUDE.md → `git add CLAUDE.md && git commit -m '[LỖI] Thêm rule từ post-mortem'`
 ### User báo CHƯA SỬA:
 - Thu thập thêm (triệu chứng mới?)
 - Báo cáo: tăng "Lần sửa", thêm section "Lần sửa [N]"
