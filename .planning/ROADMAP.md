@@ -68,3 +68,4 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 | 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete | 2026-03-23 |
 | 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
 | 16. Bug Fixes | v1.2 | 5/5 | Complete | 2026-03-23 |
+| 18. Logic-First Execution | v1.3 | 1/1 | Complete | 2026-03-24 |
