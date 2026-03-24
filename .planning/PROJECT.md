@@ -47,8 +47,8 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Sơ đồ Luồng Nghiệp vụ (Business Logic Flowchart) bằng Mermaid.js — v1.4 (Phase 22)
 - ✓ Sơ đồ Kiến trúc Hệ thống (Architecture Diagram) minh họa Module/Service/DB/APIs — v1.4 (Phase 22)
 - ✓ Template Báo cáo Quản lý (MANAGEMENT_REPORT.md) chuyên nghiệp cho Manager — v1.4 (Phase 21)
-- [ ] Script generate-pdf-report.js tự động xuất Mermaid+Markdown sang PDF
-- [ ] Cập nhật workflow complete-milestone tích hợp bước vẽ sơ đồ
+- ✓ Script generate-pdf-report.js tự động xuất Mermaid+Markdown sang PDF — v1.4 (Phase 23)
+- ✓ Cập nhật workflow complete-milestone tích hợp bước vẽ sơ đồ + báo cáo quản lý — v1.4 (Phase 24)
 - ✓ Cập nhật Rules với quy tắc thẩm mỹ cho sơ đồ Mermaid — v1.4 (Phase 21)
 
 ### Out of Scope
@@ -75,7 +75,7 @@ Every workflow step must produce the highest quality code output while consuming
 ## Current State
 
 **Shipped:** v1.3 Truth-Driven Development (2026-03-24)
-**Current:** v1.4 Visual Business Logic Reports — Phase 22 complete, Phase 23 next
+**Current:** v1.4 Visual Business Logic Reports — Phase 24 complete, all phases done
 
 ## Context
 
@@ -141,4 +141,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after Phase 22 (diagram-generation) complete*
+*Last updated: 2026-03-24 after Phase 24 (workflow-integration) complete*
