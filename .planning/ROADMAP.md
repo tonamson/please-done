@@ -92,7 +92,10 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 **Muc tieu Milestone:** Bien `pd:fix-bug` thanh he thong dieu phoi da Agent (Task Force), tich hop tinh hoa gsd:debug va suc manh MCP cua please-done.
 
 - [x] **Phase 28: Agent Infrastructure & Resource Rules** (2/2 plans) — completed 2026-03-24
-- [ ] **Phase 29: Evidence Protocol & Session Management** - Evidence format chuan 3 outcomes, Resume UI, evidence-as-communication
+- [ ] **Phase 29: Evidence Protocol & Session Management** (3 plans)
+  - [ ] 29-01-PLAN.md — TDD evidence-protocol.js (3 outcome types, validation, parsing)
+  - [ ] 29-02-PLAN.md — TDD session-manager.js (session CRUD, folder-based structure)
+  - [ ] 29-03-PLAN.md — Cap nhat 5 agent files bo hardcode paths, them session-based evidence format
 - [ ] **Phase 30: Detective Interactions** - ROOT CAUSE choices, CHECKPOINT flow, Continuation Agent, parallel dispatch
 - [ ] **Phase 31: Project Memory & Regression Detection** - Bug history recall, regression alerts, double-check truoc khi fix
 - [ ] **Phase 32: Orchestrator Workflow** - 5-buoc execution loop tich hop tat ca agents va evidence
@@ -110,12 +113,12 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 **Goal**: Moi agent giao tiep qua evidence files voi format chuan, user co the tiep tuc phien debug cu
 **Depends on**: Phase 28
 **Requirements**: PROT-01, PROT-02, PROT-05, PROT-07
+**Plans**: 3 plans
 **Success Criteria** (what must be TRUE):
   1. User thay danh sach phien debug danh so khi khoi dong `pd:fix-bug`, co the chon tiep tuc hoac tao moi
   2. Moi agent tra ket qua theo dung 1 trong 3 outcomes: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
   3. Khi INCONCLUSIVE, evidence file chua Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
   4. Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase ma doc evidence
-**Plans**: TBD
 
 ### Phase 30: Detective Interactions
 **Goal**: User tuong tac voi orchestrator qua 3 nhanh ket qua (ROOT CAUSE, CHECKPOINT, parallel dispatch) mot cach tu nhien
@@ -196,7 +199,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 | 26. Don dep & An toan | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 27. Dong bo Logic & Bao cao | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
-| 29. Evidence Protocol & Session Management | v2.1 | 0/? | Not started | - |
+| 29. Evidence Protocol & Session Management | v2.1 | 0/3 | Not started | - |
 | 30. Detective Interactions | v2.1 | 0/? | Not started | - |
 | 31. Project Memory & Regression Detection | v2.1 | 0/? | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
