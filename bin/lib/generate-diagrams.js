@@ -348,6 +348,23 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
   };
 }
 
+// ─── Architecture Diagram (Plan 02) ──────────────────────
+
+/**
+ * Generate Architecture Diagram from codebase maps and plan metadata.
+ *
+ * @param {object} codebaseMaps
+ *   - architecture {string} - Noi dung ARCHITECTURE.md
+ *   - structure {string} - Noi dung STRUCTURE.md (optional)
+ * @param {object} planMeta
+ *   - filesModified {string[]} - Tat ca files bi thay doi trong milestone
+ * @param {object} [options] - { maxRetries: 2 }
+ * @returns {{ diagram: string, valid: boolean, errors: Array, warnings: Array, layerCount: number, nodeCount: number }}
+ */
+function generateArchitectureDiagram(codebaseMaps, planMeta, options = {}) {
+  throw new Error('Not implemented');
+}
+
 // ─── Exports ──────────────────────────────────────────────
 
-module.exports = { generateBusinessLogicDiagram };
+module.exports = { generateBusinessLogicDiagram, generateArchitectureDiagram };

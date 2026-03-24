@@ -9,7 +9,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
 // Module under test
-const { generateBusinessLogicDiagram } = require('../bin/lib/generate-diagrams');
+const { generateBusinessLogicDiagram, generateArchitectureDiagram } = require('../bin/lib/generate-diagrams');
 
 // Validator for cross-check
 const { mermaidValidator } = require('../bin/lib/mermaid-validator');
@@ -185,5 +185,147 @@ describe('generateBusinessLogicDiagram — validation', () => {
       null,
       `Found unquoted rectangle labels: ${JSON.stringify(unquotedRect)}`
     );
+  });
+});
+
+// ═══════════════════════════════════════════════════════════
+// Architecture Diagram Tests (Plan 02)
+// ═══════════════════════════════════════════════════════════
+
+// ─── Helper: makeArchitectureMd ──────────────────────────
+
+/**
+ * Build realistic ARCHITECTURE.md content with layer blocks.
+ * Default: 3 layers (Skill Framework, Template & Reference, Converter)
+ */
+function makeArchitectureMd(layers) {
+  if (!layers) {
+    layers = [
+      {
+        name: 'Skill Framework Layer',
+        location: 'bin/lib/utils.js',
+        contains: 'Markdown-to-structured-data parsers',
+        dependsOn: 'Node.js fs/path',
+        usedBy: 'Converters, Installers',
+      },
+      {
+        name: 'Template & Reference Layer',
+        location: 'templates/, references/',
+        contains: 'PLAN.md structure, state-machine, rules',
+        dependsOn: 'None',
+        usedBy: 'Skills',
+      },
+      {
+        name: 'Converter Layer',
+        location: 'bin/lib/converters/',
+        contains: 'Format converters (codex.js, gemini.js)',
+        dependsOn: 'Platforms, Utils',
+        usedBy: 'Installers',
+      },
+    ];
+  }
+  let md = '# Architecture\n\n## Layers\n\n';
+  for (const layer of layers) {
+    md += `**${layer.name}:**\n`;
+    md += `- Purpose: ${layer.contains}\n`;
+    md += `- Location: \`${layer.location}\`\n`;
+    md += `- Contains: ${layer.contains}\n`;
+    md += `- Depends on: ${layer.dependsOn}\n`;
+    md += `- Used by: ${layer.usedBy}\n\n`;
+  }
+  return md;
+}
+
+// ─── Architecture: Basic ────────────────────────────────
+
+describe('generateArchitectureDiagram — basic', () => {
+  it('2 layers with 3 modified files returns valid LR flowchart', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    const planMeta = { filesModified: ['bin/lib/utils.js', 'templates/plan.md', 'references/mermaid-rules.md'] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    assert.equal(result.valid, true);
+    assert.ok(result.diagram.includes('flowchart LR'));
+    assert.equal(result.layerCount, 2); // Only 2 of 3 layers have modified files
+    assert.ok(result.nodeCount >= 3);
+  });
+});
+
+// ─── Architecture: Milestone Scoping ────────────────────
+
+describe('generateArchitectureDiagram — milestone scoping', () => {
+  it('only filesModified appear as nodes', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    // Only 1 file from Skill Framework Layer
+    const planMeta = { filesModified: ['bin/lib/utils.js'] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    assert.equal(result.layerCount, 1); // Only Skill Framework Layer shown
+    assert.ok(!result.diagram.includes('Converter'), 'Converter Layer should be excluded');
+  });
+});
+
+// ─── Architecture: Shapes ───────────────────────────────
+
+describe('generateArchitectureDiagram — shapes', () => {
+  it('bin/lib files get rectangle, templates get subroutine', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    const planMeta = { filesModified: ['bin/lib/utils.js', 'templates/plan.md', 'references/mermaid-rules.md'] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    // Rectangle for service: ["label"]
+    assert.ok(result.diagram.includes('["'), 'should contain rectangle shape for bin/lib files');
+    // Subroutine for external: [["label"]]
+    assert.ok(result.diagram.includes('[["'), 'should contain subroutine shape for templates/references files');
+  });
+});
+
+// ─── Architecture: Subgraphs ────────────────────────────
+
+describe('generateArchitectureDiagram — subgraphs', () => {
+  it('each active layer becomes a subgraph', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    const planMeta = { filesModified: ['bin/lib/utils.js', 'templates/plan.md', 'references/mermaid-rules.md'] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    // Count subgraph occurrences — at least 2 for 2 active layers
+    const subgraphCount = (result.diagram.match(/subgraph /g) || []).length;
+    assert.ok(subgraphCount >= 2, `expected >= 2 subgraphs, got ${subgraphCount}`);
+  });
+});
+
+// ─── Architecture: Validation ───────────────────────────
+
+describe('generateArchitectureDiagram — validation', () => {
+  it('output passes mermaidValidator', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    const planMeta = { filesModified: ['bin/lib/utils.js', 'templates/plan.md'] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    assert.equal(result.valid, true);
+    assert.deepEqual(result.errors, []);
+
+    // Double-check with direct validator call
+    const validation = mermaidValidator(result.diagram);
+    assert.equal(validation.valid, true, `validator errors: ${JSON.stringify(validation.errors)}`);
+  });
+});
+
+// ─── Architecture: Edge Cases ───────────────────────────
+
+describe('generateArchitectureDiagram — edge cases', () => {
+  it('empty filesModified returns minimal diagram', () => {
+    const codebaseMaps = { architecture: makeArchitectureMd() };
+    const planMeta = { filesModified: [] };
+
+    const result = generateArchitectureDiagram(codebaseMaps, planMeta);
+
+    assert.equal(result.nodeCount, 0);
+    assert.equal(result.valid, true);
   });
 });
