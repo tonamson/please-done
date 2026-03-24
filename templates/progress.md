@@ -27,6 +27,11 @@
 
 ## Files đã viết
 (Cập nhật sau mỗi file — xác định cần viết thêm gì nếu gián đoạn)
+
+## Logic Changes (nếu có)
+<!-- CHỈ tạo khi phát hiện logic nghiệp vụ cần điều chỉnh. Không có → KHÔNG tạo section này. -->
+| Truth ID | Thay đổi | Lý do |
+|----------|---------|-------|
 ```
 
 ## Quy tắc
@@ -36,3 +41,4 @@
 - Xóa `rm -f` sau commit thành công
 - Task 🔄 có PROGRESS.md → khôi phục (Bước 1.1 Case 1)
 - Task 🔄 KHÔNG có PROGRESS.md → Bước 2, tạo mới
+- Không có logic change → KHÔNG tạo section "Logic Changes" (D-14)
