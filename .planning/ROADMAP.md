@@ -80,7 +80,7 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 **Milestone Goal:** Toi uu hoa do an toan va tu dong hoa dieu tra trong skill fix-bug — them tai hien loi, phan tich hoi quy, don dep log, dong bo business logic, va xuat bao cao PDF.
 
 - [x] **Phase 25: Dieu tra & Tai hien Loi** — Tao 2 module pure function moi (repro-test-generator, regression-analyzer) va tich hop vao workflow fix-bug (completed 2026-03-24)
-- [ ] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi
+- [x] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi (completed 2026-03-24)
 - [ ] **Phase 27: Dong bo Logic & Bao cao** — Phat hien thay doi business logic, cap nhat Mermaid/PDF, va de xuat post-mortem
 
 ## Phase Details
@@ -112,7 +112,11 @@ Plans:
   2. AI lien ket duoc canh bao bao mat tu pd:scan report cho file bi loi (toi da 3 canh bao, freshness 7 ngay), hien thi non-blocking trong workflow
   3. Auto cleanup KHONG xoa bat ky dong nao khong co marker `[PD-DEBUG]` — production logs, audit logs duoc bao toan
   4. Tat ca tests hien tai van pass va snapshots cap nhat
-**Plans**: TBD
+**Plans:** 2/2 plans complete
+
+Plans:
+- [x] 26-01-PLAN.md — Module debug-cleanup.js TDD (scanDebugMarkers + matchSecurityWarnings)
+- [x] 26-02-PLAN.md — Workflow integration sub-step 9a + snapshot regeneration
 
 ### Phase 27: Dong bo Logic & Bao cao
 **Goal**: AI phat hien khi ban sua thay doi business logic, tu dong cap nhat bao cao quan ly voi Mermaid diagram moi, va de xuat rule cho CLAUDE.md
@@ -158,5 +162,5 @@ Phases execute in numeric order: 25 → 26 → 27
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
 | 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete    | 2026-03-24 |
-| 26. Don dep & An toan | v1.5 | 0/0 | Not started | - |
+| 26. Don dep & An toan | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |

@@ -14,9 +14,9 @@ Requirements cho milestone Nang cap Skill Fix-Bug. Moi requirement map vao roadm
 
 ### Don dep & An toan
 
-- [ ] **CLEAN-01**: AI don dep debug log co marker `[PD-DEBUG]` truoc commit, hoi user truoc khi xoa
+- [x] **CLEAN-01**: AI don dep debug log co marker `[PD-DEBUG]` truoc commit, hoi user truoc khi xoa
 - [ ] **LOGIC-01**: AI danh gia ban sua co thay doi business logic/kien truc khong bang heuristics
-- [ ] **SEC-01**: AI lien ket canh bao bao mat tu pd:scan cho file bi loi (max 3 canh bao, freshness 7 ngay)
+- [x] **SEC-01**: AI lien ket canh bao bao mat tu pd:scan cho file bi loi (max 3 canh bao, freshness 7 ngay)
 
 ### Bao cao & Kien thuc
 
@@ -53,8 +53,8 @@ Deferred sang milestone sau. Tracked nhung khong trong roadmap hien tai.
 |-------------|-------|--------|
 | REPRO-01 | Phase 25 | Complete |
 | REGR-01 | Phase 25 | Complete |
-| CLEAN-01 | Phase 26 | Pending |
-| SEC-01 | Phase 26 | Pending |
+| CLEAN-01 | Phase 26 | Complete |
+| SEC-01 | Phase 26 | Complete |
 | LOGIC-01 | Phase 27 | Pending |
 | RPT-01 | Phase 27 | Pending |
 | PM-01 | Phase 27 | Pending |
