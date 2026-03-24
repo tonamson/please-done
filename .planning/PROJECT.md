@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, and verified end-to-end workflow logic with logic re-validation before code changes.
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, and automated Mermaid diagram generation with PDF report export.
 
 ## Core Value
 
@@ -41,15 +41,16 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Logic-First Execution — Buoc 1.7 re-validate logic before coding, structured verification report — v1.3 (Phase 18)
 - ✓ Knowledge Correction — Buoc 6.5 Logic Update in fix-bug, Logic Changes tracking in both workflows — v1.3 (Phase 19)
 - ✓ Logic Audit — CHECK-05 checkLogicCoverage with configurable severity, CHECK-04 refactored — v1.3 (Phase 20)
+- ✓ Mermaid aesthetic rules + management report template tieng Viet — v1.4 (Phase 21)
+- ✓ mermaidValidator() pure function (6 checks, 16 tests) — v1.4 (Phase 21)
+- ✓ generateBusinessLogicDiagram() (Truths → flowchart TD) + generateArchitectureDiagram() (layers → flowchart LR) — v1.4 (Phase 22)
+- ✓ pdf-renderer.js pure library (MD→HTML, A4 template, Mermaid CDN) — v1.4 (Phase 23)
+- ✓ generate-pdf-report.js CLI (Puppeteer PDF + .md fallback) — v1.4 (Phase 23)
+- ✓ fillManagementReport() pure function + Buoc 3.6 non-blocking workflow integration — v1.4 (Phase 24)
 
 ### Active
 
-- ✓ Sơ đồ Luồng Nghiệp vụ (Business Logic Flowchart) bằng Mermaid.js — v1.4 (Phase 22)
-- ✓ Sơ đồ Kiến trúc Hệ thống (Architecture Diagram) minh họa Module/Service/DB/APIs — v1.4 (Phase 22)
-- ✓ Template Báo cáo Quản lý (MANAGEMENT_REPORT.md) chuyên nghiệp cho Manager — v1.4 (Phase 21)
-- ✓ Script generate-pdf-report.js tự động xuất Mermaid+Markdown sang PDF — v1.4 (Phase 23)
-- ✓ Cập nhật workflow complete-milestone tích hợp bước vẽ sơ đồ + báo cáo quản lý — v1.4 (Phase 24)
-- ✓ Cập nhật Rules với quy tắc thẩm mỹ cho sơ đồ Mermaid — v1.4 (Phase 21)
+(None — planning next milestone)
 
 ### Out of Scope
 
@@ -60,41 +61,20 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v1.4 Visual Business Logic Reports
-
-**Goal:** Nâng cấp khả năng AI tự động phân tích code và kế hoạch để vẽ sơ đồ Mermaid minh họa Business Logic, kèm xuất PDF chuyên nghiệp cho Manager.
-
-**Target features:**
-- Sơ đồ Luồng Nghiệp vụ (Business Logic Flowchart) bằng Mermaid.js
-- Sơ đồ Kiến trúc Hệ thống (Architecture Diagram)
-- Template Báo cáo Quản lý (MANAGEMENT_REPORT.md)
-- Script generate-pdf-report.js xuất PDF
-- Cập nhật workflow complete-milestone tích hợp sơ đồ
-- Cập nhật Rules quy tắc thẩm mỹ sơ đồ
-
 ## Current State
 
-**Shipped:** v1.3 Truth-Driven Development (2026-03-24)
-**Current:** v1.4 Visual Business Logic Reports — Phase 24 complete, all phases done
-
-## Context
+**Shipped:** v1.4 Mermaid Diagrams (2026-03-24)
+**Current:** Planning next milestone
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
 Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
 Shipped v1.3 with 154 plan-checker tests (8 checks including CHECK-05), 29 files modified, +1,033 net LOC.
-v1.3 added: Buoc 1.7 logic re-validation, Buoc 6.5 Truth correction, Logic Changes tracking, CHECK-05 orphan detection.
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows.
+Shipped v1.4 with 526 total tests, 27 files modified, +4,839 net LOC.
 
-Post-v1.3 state:
-- Truths table expanded to 5 columns (ID, Description, Business Value, Edge Cases, Verification)
-- parseTruthsV11() backward-compatible with both 3-col (v1.1) and 5-col (v1.3) formats
-- CHECK-04 Direction 2 severity upgraded from WARN to BLOCK — every task must trace to a Truth
-- CHECK-05 checkLogicCoverage detects orphan tasks/Truths with configurable WARN severity
-- Workflow plan.md Buoc 4.3 instructs AI to produce 5-column format
-- write-code.md Buoc 1.7 re-validates logic before code changes (~100 token budget)
-- fix-bug.md Buoc 6.5 corrects Truths before code fix when bug is logic-related
-- 6 tech debt items tracked (5 documented with decisions, 1 info-level)
+v1.4 added: Mermaid diagram generation (business logic + architecture), PDF export with Puppeteer fallback, management report template fill, non-blocking workflow integration in complete-milestone Buoc 3.6.
+
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows, 7 JS library modules.
 
 ## Constraints
 
@@ -122,6 +102,9 @@ Post-v1.3 state:
 | Buoc 1.7 ~100 token budget | Keep logic validation concise, not verbose | ✓ Good — bullet paraphrase format effective |
 | Buoc 6.5 before code fix | Correct Truth before fixing code prevents drift | ✓ Good — logic stays in sync with implementation |
 | CHECK-05 default WARN severity | Orphan tasks are tech debt, not blockers | ✓ Good — configurable per project needs |
+| Pure function pattern for all v1.4 modules | No file I/O in library code — content passed as args | ✓ Good — testable, composable, consistent with plan-checker |
+| Section-specific Mermaid replacement | Avoid cross-section pollution in template fill | ✓ Good — Section 3 (TD) and Section 4 (LR) never mix |
+| Non-blocking pipeline for report generation | Milestone completion must never fail due to report errors | ✓ Good — try/catch per sub-step, warnings only |
 
 ## Evolution
 
@@ -141,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after Phase 24 (workflow-integration) complete*
+*Last updated: 2026-03-24 after v1.4 milestone*

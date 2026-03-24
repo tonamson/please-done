@@ -1,5 +1,41 @@
 # Milestones
 
+## v1.4 Mermaid Diagrams (Shipped: 2026-03-24)
+
+**Phases completed:** 13 phases, 29 plans, 56 tasks
+
+**Key accomplishments:**
+
+- TDD RED phase: 5 canonical structure enforcement tests defining section order, frontmatter fields, guards separation, output subsections, and reference tagging
+- 6 skill files (init, scan, write-code, test, fix-bug, conventions) normalized to canonical 7-section structure with guards, output, and rules sections added
+- 6 complex/divergent skills (plan, new-milestone, complete-milestone, what-next, fetch-doc, update) normalized to canonical structure with fixed section order, guards extraction, and output sections
+- 4 guard micro-templates + inlineGuardRefs function wired into converter pipeline via inlineWorkflow, with TDD tests for Plan 02 skill updates
+- Token counting script with js-tiktoken (cl100k_base) measuring 84,899 baseline tokens across 39 files in 4 directories
+- Compressed 4 largest workflow files (61% of workflow content) using telegraphic shorthand, reducing 31,523 -> 18,767 tokens (-40.5%) while preserving all behavioral instructions
+- Compressed 6 workflow files (test, complete-milestone, scan, init, what-next, conventions) from 1,317 to 839 lines with 25-50% token reduction per file
+- All 12 command/skill files compressed 20.3% (11,187 -> 8,917 tokens) using telegraphic shorthand while preserving canonical structure, frontmatter, and all behavioral instructions
+- 7 reference files compressed via telegraphic shorthand: 14,036 to 12,337 tokens (12.1% reduction) with all tables, code examples, and regex patterns preserved intact
+- All 10 template files compressed (770->661 lines, 20% tokens), total phase reduction verified at 30.6% across 45 files
+- classifyRefs() + CONDITIONAL_LOADING_MAP + inlineWorkflow() modification to produce <conditional_reading> for optional refs, with conventions.md promoted to (required) in all 8 skills
+- Added <conditional_reading> sections and task-analysis steps to 6 workflow files, with 4 integration tests verifying the full conditional loading pipeline and 12,549 tokens of optional refs now lazy-loaded
+- Effort field (simple/standard/complex) added to task templates, conventions reference, and 4 workflow files enabling per-task model routing (haiku/sonnet/opus)
+- 11 regression tests verifying effort classification in templates/conventions and effort->model routing in write-code/fix-bug/test workflows
+- Canonical Context7 pipeline reference with 2-step invocation, batch resolve, and 3-option error handling plus operational guard check
+- All 5 workflows refactored to reference canonical context7-pipeline.md, removing stack-specific rules and silent fallbacks
+- Context7 pipeline expanded with Buoc 0 version detection (3 manifest types + monorepo heuristic) and auto-fallback chain replacing Phase 6 hard-stop error handling
+- Kahn's algorithm topological sort with 6-stack hotspot patterns table, > Files: cross-reference, and auto-serialize conflict handling in write-code.md Buoc 1.5
+- Buoc 10 parallel upgrade with agent context minimization, post-wave git diff safety net, build check, wave summary report, and plan.md > Files: enforcement for plans >= 3 tasks
+- Shared base converter pipeline with config-driven delegation, 48 snapshot tests proving zero behavioral regression across all 4 platform converters
+- 7 silent catch blocks replaced with classified error handling -- soft warnings log context via log.warn(), hard errors throw naturally at final fallback
+- Mermaid aesthetic rules spec (8 sections, 5-color Corporate Blue palette, 6 Shape-by-Role mappings) and 7-section Vietnamese management report template with Mermaid flowchart placeholders
+- TDD pure function mermaidValidator() with 6 checks (3 syntax + 3 style), zero dependencies, 16 tests passing
+- generateBusinessLogicDiagram() pure function — Truths table to Mermaid flowchart TD with auto subgraph splitting, cross-plan arrows from depends_on, Vietnamese labels, mermaidValidator retry
+- generateArchitectureDiagram() pure function — ARCHITECTURE.md layer parser to milestone-scoped Mermaid flowchart LR with layered subgraphs and role-based shapes (rectangle/cylinder/rounded/subroutine)
+- CLI generate-pdf-report.js with Puppeteer A4 PDF rendering, Mermaid SVG wait, and graceful .md fallback to process.cwd()/.planning/reports/
+- fillManagementReport() pure function điền template báo cáo quản lý với Mermaid diagrams section-specific, tích hợp Bước 3.6 non-blocking vào workflow complete-milestone
+
+---
+
 ## v1.3 Truth-Driven Development (Shipped: 2026-03-24)
 
 **Phases completed:** 4 phases, 5 plans, 10 tasks

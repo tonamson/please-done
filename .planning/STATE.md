@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Mermaid Diagrams
-status: Milestone complete
+status: v1.4 milestone complete
 stopped_at: Completed 24-01-PLAN.md
-last_updated: "2026-03-24T09:54:36.391Z"
+last_updated: "2026-03-24T09:59:54.841Z"
 progress:
   total_phases: 13
-  completed_phases: 12
+  completed_phases: 13
   total_plans: 29
-  completed_plans: 28
+  completed_plans: 29
 ---
 
 # Project State

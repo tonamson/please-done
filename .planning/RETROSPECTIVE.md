@@ -173,6 +173,52 @@
 
 ---
 
+## Milestone: v1.4 — Mermaid Diagrams
+
+**Shipped:** 2026-03-24
+**Phases:** 4 | **Plans:** 7 | **Tasks:** 13
+
+### What Was Built
+- Mermaid aesthetic rules spec (Corporate Blue palette, Shape-by-Role mappings) + Vietnamese management report template
+- mermaidValidator() pure function (6 checks: 3 syntax + 3 style, 16 tests)
+- generateBusinessLogicDiagram() — Truths table → Mermaid flowchart TD with auto subgraph splitting
+- generateArchitectureDiagram() — ARCHITECTURE.md layer parser → Mermaid flowchart LR with role-based shapes
+- pdf-renderer.js pure library (markdownToHtml regex parser, buildHtml A4 template, Mermaid CDN)
+- generate-pdf-report.js CLI (Puppeteer A4 PDF + graceful .md fallback)
+- fillManagementReport() pure function (template fill + section-specific Mermaid replacement)
+- Buoc 3.6 non-blocking report generation in complete-milestone workflow
+
+### What Worked
+- Pure function pattern consistent across all 4 phases — no file I/O in any library module
+- Building blocks approach — Phase 21 foundation → Phase 22 diagrams → Phase 23 PDF → Phase 24 integration
+- TDD on every phase — tests written before implementation, 0 regressions
+- Section-specific Mermaid replacement — prevents cross-section pollution between Section 3 (TD) and Section 4 (LR)
+- Non-blocking pipeline design — each sub-step has independent try/catch, milestone completion never blocked
+
+### What Was Inefficient
+- Phase 23 plan 01 SUMMARY.md missing — had to create retroactively during milestone completion
+- Milestone audit stale — ran before phases 22-24 existed in ROADMAP, flagged all requirements as orphaned
+- Nyquist VALIDATION.md had to re-research to include Validation Architecture section
+
+### Patterns Established
+- Section-specific content replacement in templates (sectionPrefix matching before regex replacement)
+- Non-blocking pipeline: each sub-step wrapped in try/catch, errors logged as warnings
+- Template fill as pure function: content strings in, filled markdown out, no file I/O
+- Diagram generation as pure function: data structures in, Mermaid text out, with validation retry
+
+### Key Lessons
+1. Always create SUMMARY.md immediately after plan execution — retroactive creation during milestone is error-prone
+2. Milestone audits should be re-run after all phases are added to ROADMAP — stale audits create false gaps
+3. Non-blocking pipeline pattern is essential for optional features — report generation must never block core workflow
+4. Pure function pattern scales well — 7 library modules now follow the same pattern (plan-checker, generate-diagrams, pdf-renderer, mermaid-validator, report-filler, utils)
+
+### Cost Observations
+- Model mix: ~60% opus (research + planning + execution), ~40% sonnet (verification + checking)
+- Sessions: 1 (all 4 phases completed in single session)
+- Notable: 526 total tests, all passing in <1 second
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -183,6 +229,7 @@
 | v1.1 | 1 | 4 | Plan quality gate: 7 checks, workflow integration, dynamic reporting |
 | v1.2 | 2 | 3 | Audit + verify + fix cycle: systematic quality assurance of existing code |
 | v1.3 | 2 | 4 | Truth-driven enforcement: logic validation before code, orphan detection |
+| v1.4 | 1 | 4 | Visual reporting: Mermaid diagrams, PDF export, non-blocking workflow integration |
 
 ### Cumulative Quality
 
@@ -192,6 +239,7 @@
 | v1.1 | 443+ | Smoke + snapshot + plan checker | 0 |
 | v1.2 | 448 | Smoke + snapshot + plan checker + integrity | 0 |
 | v1.3 | 154 (plan-checker) | 8 checks incl. CHECK-05 logic coverage | 0 |
+| v1.4 | 526 total | Smoke + snapshot + plan-checker + diagram + PDF + report-filler | 0 (Puppeteer optional) |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -201,3 +249,5 @@
 4. Dynamic rendering > hardcoded content — static lists go stale as soon as the next phase ships
 5. Audit-first development: scan → classify → fix produces higher quality than ad-hoc bug hunting (v1.2)
 6. Milestone audits catch orphaned requirements — gap-closure phases are small and fast (v1.3)
+7. Non-blocking pipeline pattern essential for optional features — never block core workflow (v1.4)
+8. Pure function pattern scales to 7+ modules — consistent testability and composability (v1.0-v1.4)
