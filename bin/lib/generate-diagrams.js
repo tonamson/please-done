@@ -351,6 +351,97 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
 // ─── Architecture Diagram (Plan 02) ──────────────────────
 
 /**
+ * Parse ARCHITECTURE.md content to extract layers.
+ * Format: **Layer Name:** followed by bullet fields.
+ * @param {string} content
+ * @returns {Array<{name: string, location: string, dependsOn: string, usedBy: string}>}
+ */
+function parseArchitectureLayers(content) {
+  const layers = [];
+  const layerRegex = /\*\*([^*]+):\*\*\n([\s\S]*?)(?=\n\*\*[^*]+:\*\*|\n## |\n---|$)/g;
+  let match;
+  while ((match = layerRegex.exec(content)) !== null) {
+    const name = match[1].trim();
+    const block = match[2];
+    const locationMatch = block.match(/Location:\s*`([^`]+)`/);
+    const dependsMatch = block.match(/Depends on:\s*(.+)/);
+    const usedByMatch = block.match(/Used by:\s*(.+)/);
+    if (locationMatch) {
+      layers.push({
+        name,
+        location: locationMatch[1].trim(),
+        dependsOn: dependsMatch ? dependsMatch[1].trim() : '',
+        usedBy: usedByMatch ? usedByMatch[1].trim() : '',
+      });
+    }
+  }
+  return layers;
+}
+
+/**
+ * Determine Mermaid shape role based on file path.
+ * @param {string} filePath
+ * @returns {'service'|'database'|'api'|'external'}
+ */
+function detectRole(filePath) {
+  const lower = filePath.toLowerCase();
+  if (lower.includes('database') || lower.includes('db') || lower.includes('store')) return 'database';
+  if (lower.includes('templates/') || lower.includes('references/')) return 'external';
+  if (lower.includes('platforms') || lower.includes('workflow')) return 'api';
+  return 'service';
+}
+
+/**
+ * Return node definition with correct Mermaid shape syntax.
+ * @param {string} nodeId
+ * @param {string} label
+ * @param {string} role
+ * @returns {string}
+ */
+function shapeWrap(nodeId, label, role) {
+  const safe = sanitizeLabel(label);
+  switch (role) {
+    case 'database': return `${nodeId}[("${safe}")]`;
+    case 'api': return `${nodeId}("${safe}")`;
+    case 'external': return `${nodeId}[["${safe}"]]`;
+    default: return `${nodeId}["${safe}"]`;
+  }
+}
+
+/**
+ * Check if a file path matches a layer's location pattern.
+ * @param {string} filePath
+ * @param {string} layerLocation
+ * @returns {boolean}
+ */
+function fileMatchesLayer(filePath, layerLocation) {
+  const locations = layerLocation.split(',').map(l => l.trim().replace(/`/g, ''));
+  return locations.some(loc => {
+    if (loc.endsWith('/')) return filePath.startsWith(loc);
+    return filePath === loc || filePath.startsWith(loc);
+  });
+}
+
+/**
+ * Generate safe Mermaid node ID from file path.
+ * @param {string} filePath
+ * @returns {string}
+ */
+function makeNodeId(filePath) {
+  return filePath.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+}
+
+/**
+ * Extract basename from file path.
+ * @param {string} filePath
+ * @returns {string}
+ */
+function basename(filePath) {
+  const parts = filePath.split('/');
+  return parts[parts.length - 1];
+}
+
+/**
  * Generate Architecture Diagram from codebase maps and plan metadata.
  *
  * @param {object} codebaseMaps
@@ -362,7 +453,96 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
  * @returns {{ diagram: string, valid: boolean, errors: Array, warnings: Array, layerCount: number, nodeCount: number }}
  */
 function generateArchitectureDiagram(codebaseMaps, planMeta, options = {}) {
-  throw new Error('Not implemented');
+  const maxRetries = options.maxRetries ?? 2;
+
+  const architectureContent = (codebaseMaps && codebaseMaps.architecture) || '';
+  const filesModified = (planMeta && planMeta.filesModified) || [];
+
+  // Empty filesModified — minimal valid diagram
+  if (filesModified.length === 0) {
+    const minimal = 'flowchart LR\n  note["Khong co file thay doi trong milestone"]';
+    const validation = validateAndRetry(minimal, maxRetries);
+    return {
+      diagram: validation.diagram,
+      valid: validation.valid,
+      errors: validation.errors,
+      warnings: validation.warnings,
+      layerCount: 0,
+      nodeCount: 0,
+    };
+  }
+
+  // Parse layers from ARCHITECTURE.md
+  const layers = parseArchitectureLayers(architectureContent);
+
+  // Map files to layers — milestone scoped
+  const activeLayers = [];
+  for (const layer of layers) {
+    const matchedFiles = filesModified.filter(f => fileMatchesLayer(f, layer.location));
+    if (matchedFiles.length > 0) {
+      activeLayers.push({ ...layer, files: matchedFiles });
+    }
+  }
+
+  // Handle unmatched files — "Khac" layer
+  const allMatched = activeLayers.flatMap(l => l.files);
+  const unmatched = filesModified.filter(f => !allMatched.includes(f));
+  if (unmatched.length > 0) {
+    activeLayers.push({ name: 'Khac', location: '', files: unmatched, dependsOn: '', usedBy: '' });
+  }
+
+  // Build Mermaid text
+  const lines = [];
+  lines.push('flowchart LR');
+
+  // Generate safe subgraph IDs
+  for (let i = 0; i < activeLayers.length; i++) {
+    const layer = activeLayers[i];
+    const subgraphId = `Layer${i}`;
+    lines.push(`  subgraph ${subgraphId}["${sanitizeLabel(layer.name)}"]`);
+
+    for (const filePath of layer.files) {
+      const nodeId = makeNodeId(filePath);
+      const label = basename(filePath);
+      const role = detectRole(filePath);
+      lines.push(`    ${shapeWrap(nodeId, label, role)}`);
+    }
+
+    lines.push('  end');
+  }
+
+  // Add inter-layer connections based on dependsOn
+  for (let i = 0; i < activeLayers.length; i++) {
+    const layer = activeLayers[i];
+    if (layer.dependsOn && layer.dependsOn !== 'None' && layer.dependsOn !== '') {
+      for (let j = 0; j < activeLayers.length; j++) {
+        if (i === j) continue;
+        const otherName = activeLayers[j].name.toLowerCase();
+        const deps = layer.dependsOn.toLowerCase();
+        // Check if dependsOn references another active layer
+        if (deps.includes(otherName.split(' ')[0]) || otherName.split(' ').some(w => deps.includes(w) && w.length > 3)) {
+          lines.push(`  Layer${j} --> Layer${i}`);
+        }
+      }
+    }
+  }
+
+  // Count nodes
+  const nodeCount = activeLayers.reduce((sum, l) => sum + l.files.length, 0);
+
+  const mermaidText = lines.join('\n');
+
+  // Validate and retry
+  const validation = validateAndRetry(mermaidText, maxRetries);
+
+  return {
+    diagram: validation.diagram,
+    valid: validation.valid,
+    errors: validation.errors,
+    warnings: validation.warnings,
+    layerCount: activeLayers.length,
+    nodeCount,
+  };
 }
 
 // ─── Exports ──────────────────────────────────────────────
