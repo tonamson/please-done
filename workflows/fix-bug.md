@@ -311,6 +311,40 @@ Cập nhật liên kết trong SESSION file.
 
 ## Bước 9: Git commit (CHỈ HAS_GIT = true)
 
+### 9a: Dọn dẹp debug log + Cảnh báo bảo mật (TRƯỚC commit)
+
+**1. Debug cleanup:**
+`git diff --cached --name-only` → Read nội dung từng staged file → gọi `scanDebugMarkers(stagedFiles)` từ `bin/lib/debug-cleanup.js`
+- Input: `[{path, content}]` từ staged files
+- Kết quả rỗng → bỏ qua, không hiện gì (D-06)
+- Có kết quả → hiện danh sách group theo file (D-04):
+  ```
+  [PD-DEBUG] Tìm thấy debug markers:
+    src/app.js:
+      Dòng 15: console.log('[PD-DEBUG] giá trị x:', x)
+      Dòng 42: // [PD-DEBUG] tạm thời
+    src/utils.js:
+      Dòng 8: logger.info('[PD-DEBUG] check')
+  Xóa tất cả debug markers? (Y/n)
+  ```
+- User chọn Y → dùng Edit tool xóa từng dòng có marker → `git add` lại files đã sửa
+- User chọn n → hiện: "⚠️ Debug markers vẫn còn trong commit" → tiếp tục (D-07, non-blocking)
+
+**2. Security check:**
+`.planning/scan/SCAN_REPORT.md` tồn tại VÀ mtime < 7 ngày?
+- Không → bỏ qua, không hiện gì (D-08)
+- Có → Read nội dung → gọi `matchSecurityWarnings(reportContent, filePaths)` từ `bin/lib/debug-cleanup.js`
+  - Kết quả rỗng → bỏ qua
+  - Có cảnh báo (tối đa 3, D-09) → hiện non-blocking (D-10):
+    ```
+    ⚠️ Cảnh báo bảo mật liên quan:
+    - src/auth.js: [high] SQL injection risk in query builder
+    - src/api.js: [moderate] Missing input validation
+    ```
+  - Tiếp tục commit (non-blocking)
+
+### 9b: Git commit
+
 **Commit theo phân loại:**
 - 🟢🟡🔵: sửa code + báo cáo + phiên điều tra trong 1 commit
 - 🟠: commit riêng cho migration/sửa dữ liệu, commit riêng sửa code
