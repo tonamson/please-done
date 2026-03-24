@@ -216,4 +216,4 @@ function fillManagementReport(params) {
   };
 }
 
-module.exports = { fillManagementReport };
+module.exports = { fillManagementReport, replaceMermaidBlock };
