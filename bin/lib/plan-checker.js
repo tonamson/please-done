@@ -1,9 +1,10 @@
 /**
- * Plan Checker Module — 7 checks (4 core + 3 advanced) cho PLAN.md + TASKS.md
+ * Plan Checker Module — 8 checks (5 core + 3 advanced) cho PLAN.md + TASKS.md
  *
  * Kiem tra: requirement coverage (CHECK-01), task completeness (CHECK-02),
  * dependency correctness (CHECK-03), Truth-Task coverage (CHECK-04),
- * must_haves derivation (ADV-01), scope sanity (ADV-02), key links planned (ADV-03).
+ * logic coverage (CHECK-05), key links (ADV-01), scope sanity (ADV-02),
+ * effort classification (ADV-03).
  *
  * Tat ca functions la pure — nhan content, tra ket qua, khong doc file.
  * Rules spec: references/plan-checker.md
@@ -643,8 +644,8 @@ function checkDependencyCorrectness(planContent, tasksContent) {
 }
 
 /**
- * CHECK-04: Truth-Task Coverage
- * Kiem tra bidirectional: moi Truth co task, moi task co Truth.
+ * CHECK-04: Truth-Task Coverage (Direction 1 only: moi Truth phai co task)
+ * Direction 2 (Task without Truth) moved to CHECK-05 checkLogicCoverage.
  */
 function checkTruthTaskCoverage(planContent, tasksContent) {
   const result = { checkId: 'CHECK-04', status: 'pass', issues: [] };
@@ -655,7 +656,7 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
     return result;
   }
 
-  // v1.1: bidirectional check
+  // v1.1: Direction 1 check only
   if (!tasksContent) return result;
 
   const truths = parseTruthsV11(planContent);
@@ -683,21 +684,38 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
     }
   }
 
-  // Direction 2: Task without any Truth -> BLOCK (was WARN)
-  // Per D-05, D-06: "Khong co Truth = Khong co Code"
+  result.issues.push(...blockIssues);
+  result.status = blockIssues.length > 0 ? 'block' : 'pass';
+
+  return result;
+}
+
+/**
+ * CHECK-05: Logic Coverage (Direction 2)
+ * Task khong co Truth nao map = technical debt.
+ * Default severity: WARN (per D-04). Configurable via options.severity (per D-05).
+ */
+function checkLogicCoverage(planContent, tasksContent, options = {}) {
+  const severity = options.severity || 'warn';
+  const result = { checkId: 'CHECK-05', status: 'pass', issues: [] };
+  const format = detectPlanFormat(planContent);
+
+  if (format === 'v1.0' || format === 'unknown') return result;
+  if (!tasksContent) return result;
+
+  const tasks = parseTaskDetailBlocksV11(tasksContent);
+
   for (const task of tasks) {
     if (task.truths.length === 0) {
-      blockIssues.push({
-        message: `Task ${task.id} khong co Truth nao map`,
+      result.issues.push({
+        message: `Task ${task.id} khong co Truth nao map — technical debt`,
         location: `TASKS.md Task ${task.id}`,
         fixHint: `Them > Truths: [TX] vao metadata cua Task ${task.id}`
       });
     }
   }
 
-  result.issues.push(...blockIssues);
-  result.status = blockIssues.length > 0 ? 'block' : 'pass';
-
+  result.status = result.issues.length > 0 ? severity : 'pass';
   return result;
 }
 
@@ -928,17 +946,18 @@ function checkEffortClassification(planContent, tasksContent) {
 }
 
 /**
- * Chay tat ca 7 checks va aggregate ket qua.
+ * Chay tat ca 8 checks va aggregate ket qua.
  * overall = 'block' neu bat ky check nao block,
  * 'warn' neu co warn nhung khong block,
  * 'pass' neu tat ca pass.
  */
-function runAllChecks({ planContent, tasksContent, requirementIds }) {
+function runAllChecks({ planContent, tasksContent, requirementIds, check05Severity }) {
   const checks = [
     checkRequirementCoverage(planContent, requirementIds),
     checkTaskCompleteness(planContent, tasksContent),
     checkDependencyCorrectness(planContent, tasksContent),
     checkTruthTaskCoverage(planContent, tasksContent),
+    checkLogicCoverage(planContent, tasksContent, { severity: check05Severity }),
     checkKeyLinks(planContent, tasksContent),
     checkScopeThresholds(planContent, tasksContent),
     checkEffortClassification(planContent, tasksContent),
@@ -960,6 +979,7 @@ module.exports = {
   checkTaskCompleteness,
   checkDependencyCorrectness,
   checkTruthTaskCoverage,
+  checkLogicCoverage,
   runAllChecks,
   // New ADV-* check functions
   checkKeyLinks,
