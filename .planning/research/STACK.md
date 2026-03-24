@@ -1,268 +1,368 @@
 # Stack Research
 
-**Domain:** Visual business logic reports (Mermaid diagrams + PDF generation) for Node.js AI coding framework
+**Domain:** Nang cap skill fix-bug — tu dong hoa dieu tra, phan tich hoi quy, doc dep log, dong bo logic, cap nhat PDF
 **Researched:** 2026-03-24
 **Confidence:** HIGH
-**Scope:** NEW stack additions for v1.4 only. Existing stack (Node.js 16.7+, CommonJS, zero runtime deps, plan-checker with 8 checks, 12 skills, 10 workflows, 5 converters) is validated and NOT re-researched.
+**Scope:** CHI nhung thu CAN THEM cho v1.5. Stack hien tai (Node.js 18+, CommonJS, zero runtime deps, 7 JS library modules, 526 tests, node:test runner) da validated va KHONG re-research.
 
-## Executive Decision
+## Quyet dinh tong quat
 
-Use `puppeteer` + `marked` + Mermaid CDN injection in a single custom script (`generate-pdf-report.js`). This avoids heavy wrapper packages, keeps the "pure scripts" philosophy, and handles both Mermaid rendering and PDF generation in one Puppeteer browser session.
+**KHONG them bat ky dependency nao.** Tat ca 7 feature moi cua v1.5 co the xay dung hoan toan bang:
 
-**Node.js minimum must be raised from 16.7+ to 18+** because:
-- Node 16 reached end-of-life September 2023 (2.5 years ago)
-- Puppeteer requires Node 18+ (no workaround)
-- `@mermaid-js/mermaid-cli` requires Node ^18.19 or >=20
-- `marked` only supports current/LTS Node versions
-- Node 18 LTS itself ends April 2025; Node 20 LTS active until April 2026
+1. **Buoc moi trong workflow markdown** (fix-bug.md) — chi them huong dan cho AI agent
+2. **Pure function JS modules moi** (bin/lib/) — dung Node.js built-in APIs
+3. **Tai su dung module hien co** — report-filler.js, generate-diagrams.js, pdf-renderer.js, plan-checker.js
 
-This is not optional. Every library in the Mermaid/PDF ecosystem requires Node 18+.
+Ly do KHONG them dependency:
+- Du an hien tai co ZERO runtime dependencies (chi `js-tiktoken` devDep) — day la thiet ke co chu dich
+- Tat ca 7 JS library modules deu la pure functions (zero file I/O, content passed as args)
+- Cac feature v1.5 xu ly TEXT (markdown, regex, string diff) — Node.js built-in du suc
+- Them dependency = tang attack surface, phuc tap install, pham triet ly "pure scripts, no bundler"
 
 ## Recommended Stack
 
-### Core Technologies
+### Module JS Moi Can Tao
 
-| Technology | Version | Purpose | Why Recommended |
-|------------|---------|---------|-----------------|
-| puppeteer | ^24.x | PDF generation + Mermaid rendering | Industry standard headless Chrome. One browser session handles both Mermaid diagram rendering (via CDN script injection) and `page.pdf()` generation. Used by md-to-pdf, mermaid-cli, and every serious Markdown-to-PDF solution. Node 18+ required. |
-| marked | ^17.x | Markdown to HTML conversion | 11,484 dependents, actively maintained (17.0.5 released days ago), lightweight (~250 lines core), fast. Custom renderer API allows intercepting Mermaid code blocks to wrap them as `<pre class="mermaid">`. |
-| mermaid (CDN) | 11.x | Diagram rendering inside Puppeteer page | Injected via `page.addScriptTag({ url: CDN_URL })` into the Puppeteer page. No npm install needed for the rendering library itself -- it runs in the browser context. Avoids Node.js-side DOM dependency issues (Mermaid requires SVGTextElement.getBBox which JSDOM does not support). |
+| Module | File | Purpose | Why Pure Function |
+|--------|------|---------|-------------------|
+| Reproduction Test Generator | `bin/lib/repro-test-generator.js` | Tao test template tu trieu chung + stack info | Nhan symptom data + stack type, tra ve test code string. Khong can library — chi string template interpolation. |
+| Regression Analyzer | `bin/lib/regression-analyzer.js` | Phan tich call chain tu FastCode de tim module phu thuoc | Nhan call chain text, tra ve dependency tree + impacted modules list. Regex parsing du cho structured text cua FastCode. |
+| Log Cleanup | `bin/lib/log-cleanup.js` | Tim va xoa log tam thoi truoc commit | Nhan file content + rules, tra ve cleaned content + report nhung dong da xoa. Regex-based, zero I/O. |
+| Logic Change Detector | `bin/lib/logic-change-detector.js` | So sanh Truths bang truoc/sau de phat hien thay doi | Nhan old PLAN content + new PLAN content, tra ve diff list. Tai su dung parseTruthsFromContent tu generate-diagrams.js hoac extract thanh shared helper. |
+| Post-mortem Suggester | `bin/lib/postmortem-suggester.js` | De xuat cap nhat CLAUDE.md tu bug pattern | Nhan SESSION/BUG report content, tra ve suggested CLAUDE.md additions. String analysis + template generation. |
 
-### Supporting Libraries
+### Module Hien Co Can Mo Rong
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| @mermaid-js/mermaid-cli | ^11.x | Standalone diagram-to-SVG/PNG generation | ONLY if standalone Mermaid file rendering is needed (e.g., generating individual `.svg` files for architecture diagrams outside of PDF context). Provides programmatic `run()` API. Requires puppeteer as peer dependency. |
+| Module | File | Thay Doi | Ly Do |
+|--------|------|---------|-------|
+| Report Filler | `bin/lib/report-filler.js` | Them API de cap nhat section bug-related trong report | Hien tai chi fill template 1 lan khi complete-milestone. Can them incremental update khi fix-bug thay doi logic. |
+| Plan Checker (Truths parser) | `bin/lib/plan-checker.js` | Export parseTruthsV11 de share voi logic-change-detector | Hien tai la internal function. Can extract hoac re-export de tranh duplicate parsing logic. |
+| Generate Diagrams | `bin/lib/generate-diagrams.js` | Khong thay doi | Da export parseTruthsFromContent — co the dung truc tiep. Nhung CAN CHU Y: comment noi "Inline regex from plan-checker.js — do NOT require plan-checker to avoid circular deps." Can quyet dinh noi dat shared parser. |
 
-### Development Tools
+### Core Technologies (Da Co — KHONG them moi)
 
-| Tool | Purpose | Notes |
-|------|---------|-------|
-| Node.js built-in test runner | Testing generate-pdf-report.js | Already used by project (`node --test`). Mock Puppeteer for unit tests; integration tests generate actual PDFs and verify existence/size. |
+| Technology | Version | Purpose | Status v1.5 |
+|------------|---------|---------|-------------|
+| Node.js built-in `node:test` | Node 18+ | Test runner cho tat ca module moi | Tiep tuc su dung. Moi module moi can 1 test file tuong ung. |
+| Node.js built-in `node:assert/strict` | Node 18+ | Assertions | Tiep tuc su dung. |
+| Node.js built-in `fs`, `path`, `crypto` | Node 18+ | File I/O (chi o CLI wrappers), path manipulation, hashing | Chi dung trong CLI wrappers (bin/*.js), KHONG trong lib modules. |
+| Puppeteer (optional runtime) | ^24.x | PDF generation khi logic thay doi | Da co. generate-pdf-report.js se duoc goi tu workflow khi can. |
+| FastCode MCP | - | Call chain analysis cho regression | Da co. Workflow fix-bug da co quyen goi `mcp__fastcode__code_qa`. |
+| Context7 MCP | - | Library docs lookup | Da co. Workflow fix-bug da co quyen goi Context7. |
 
-## Architecture: Why a Custom Script (Not a Wrapper Package)
+## Chi Tiet Ky Thuat Tung Feature
 
-Three reasons to write `generate-pdf-report.js` directly instead of using md-to-pdf or similar:
+### 1. Reproduction Test Generator
 
-1. **md-to-pdf does NOT natively support Mermaid.** Adding it requires a custom `marked` renderer + CDN injection + `mermaid.run()` call -- the exact same code we would write directly. Extra dependency for zero benefit.
+**Dau vao:** Trieu chung (5 thong tin tu Buoc 1b), stack type (NestJS/Flutter/NextJS/WordPress/Solidity/Generic), file loi
+**Dau ra:** Test code string (`.spec.ts` cho NestJS, `_test.dart` cho Flutter, v.v.)
 
-2. **mermaid-md-to-pdf (klokie)** has only 5 commits, no releases. Not production-ready.
-
-3. **The project philosophy is "pure scripts, no bundler."** A ~100-line custom script using puppeteer + marked directly is more aligned than adding a wrapper package that itself wraps puppeteer + marked.
-
-### Script Flow (generate-pdf-report.js)
-
-```
-Input: MANAGEMENT_REPORT.md (Markdown with ```mermaid code blocks)
-  |
-  v
-[1] Read Markdown file (fs.readFileSync)
-  |
-  v
-[2] Convert Markdown to HTML (marked.parse with custom renderer)
-     - Custom renderer wraps ```mermaid blocks as <pre class="mermaid">
-     - Wraps HTML in styled template with CSS for print layout
-  |
-  v
-[3] Launch Puppeteer (headless Chrome)
-  |
-  v
-[4] Set HTML content (page.setContent)
-  |
-  v
-[5] Inject Mermaid.js from CDN (page.addScriptTag)
-  |
-  v
-[6] Execute mermaid.initialize + mermaid.run (page.evaluate)
-  |
-  v
-[7] Wait for diagrams to render (page.waitForSelector)
-  |
-  v
-[8] Generate PDF (page.pdf with A4 format/margin options)
-  |
-  v
-[9] Close browser, output PDF path
-```
-
-### Key Code Pattern
+**Ky thuat:** Template literals voi conditional sections theo stack.
 
 ```javascript
-const puppeteer = require('puppeteer');
-const { marked } = require('marked');
-const fs = require('fs');
+// Pattern — KHONG can AST parser hay code generation library
+function generateReproTest({ symptoms, stack, bugFile, bugFunction }) {
+  const templates = {
+    nestjs: (ctx) => `
+import { Test } from '@nestjs/testing';
+import { ${ctx.className} } from '${ctx.importPath}';
 
-// Custom renderer: wrap mermaid code blocks for browser rendering
-const renderer = {
-  code({ text, lang }) {
-    if (lang === 'mermaid') {
-      return `<pre class="mermaid">${text}</pre>`;
-    }
-    return false; // fallback to default renderer
-  }
-};
-marked.use({ renderer });
-
-async function generatePdf(inputMd, outputPdf) {
-  const markdown = fs.readFileSync(inputMd, 'utf8');
-  const html = marked.parse(markdown);
-  const fullHtml = wrapInTemplate(html); // Add CSS, page structure
-
-  const browser = await puppeteer.launch({ headless: true });
-  const page = await browser.newPage();
-  await page.setContent(fullHtml, { waitUntil: 'networkidle0' });
-
-  // Inject Mermaid from CDN
-  await page.addScriptTag({
-    url: 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js'
+describe('${ctx.className} - Reproduction: ${ctx.bugTitle}', () => {
+  it('should reproduce: ${ctx.symptom}', async () => {
+    // Arrange — setup theo trieu chung
+    // Act — thuc hien buoc tai hien
+    // Assert — kiem tra ket qua mong doi
+    throw new Error('TODO: Dien logic tai hien');
   });
+});`,
+    flutter: (ctx) => `
+import 'package:flutter_test/flutter_test.dart';
+import '${ctx.importPath}';
 
-  // Initialize and render all diagrams
-  await page.evaluate(async () => {
-    mermaid.initialize({ startOnLoad: false, theme: 'default' });
-    await mermaid.run();
+void main() {
+  test('Reproduction: ${ctx.bugTitle}', () {
+    // Arrange
+    // Act
+    // Assert — fail neu bug con ton tai
+    fail('TODO: Dien logic tai hien');
   });
+}`,
+    generic: (ctx) => `
+const { describe, it } = require('node:test');
+const assert = require('node:assert/strict');
 
-  // Generate PDF
-  await page.pdf({
-    path: outputPdf,
-    format: 'A4',
-    margin: { top: '20mm', right: '15mm', bottom: '20mm', left: '15mm' },
-    printBackground: true
+describe('Reproduction: ${ctx.bugTitle}', () => {
+  it('should reproduce bug', () => {
+    // TODO: Dien logic tai hien tu trieu chung
+    assert.fail('Bug chua duoc tai hien');
   });
-
-  await browser.close();
+});`,
+  };
+  return (templates[stack] || templates.generic)(buildContext(symptoms, bugFile, bugFunction));
 }
 ```
+
+**Tai sao KHONG can code generation library (ts-morph, @babel/generator):**
+- Output la test TEMPLATE (skeleton) — AI agent se dien logic cu the
+- Khong can parse AST cua file loi — chi can ten class/function tu trieu chung
+- Template literal du cho cac stack dang ho tro (6 stacks)
+- Complexity thap: ~100-150 LOC
+
+### 2. Regression Analyzer (via FastCode Call Chain)
+
+**Dau vao:** Call chain text tu `mcp__fastcode__code_qa`, file da sua
+**Dau ra:** Danh sach module bi anh huong + muc do rui ro
+
+**Ky thuat:** Parse structured text response tu FastCode, xay dung dependency graph.
+
+```javascript
+// Pattern — regex parsing cho FastCode output format
+function analyzeRegression({ callChainText, fixedFiles }) {
+  // Parse caller/callee relationships
+  const dependencies = parseCallChain(callChainText);
+  // Tim tat ca callers cua fixedFiles (upstream impact)
+  const impacted = findUpstreamCallers(dependencies, fixedFiles);
+  // Phan loai rui ro
+  return impacted.map(dep => ({
+    file: dep.file,
+    function: dep.function,
+    risk: dep.distance === 1 ? 'HIGH' : dep.distance === 2 ? 'MEDIUM' : 'LOW',
+    reason: `Goi ${dep.callPath.join(' -> ')}`,
+  }));
+}
+```
+
+**Tai sao KHONG can graph library (graphlib, dagre):**
+- FastCode tra ve call chains dang text — chi can regex parse
+- Graph chi co 1-3 levels deep (caller -> callee -> callee) — KHONG can thuoc bai graph traversal
+- Simple array-based BFS du cho bai nay
+- Complexity thap: ~80-120 LOC
+
+### 3. Auto Log Cleanup
+
+**Dau vao:** File content (string), cleanup rules
+**Dau ra:** Cleaned content + report (dong nao da xoa)
+
+**Ky thuat:** Regex matching + line-by-line filtering.
+
+```javascript
+// Pattern — regex-based, pure function
+const DEFAULT_PATTERNS = [
+  /^\s*console\.log\(.+DEBUG.+\)/,        // console.log DEBUG
+  /^\s*console\.log\(.+TODO.+\)/,          // console.log TODO
+  /^\s*console\.log\(.+TEMP.+\)/,          // console.log TEMP
+  /^\s*\/\/\s*DEBUG:/,                       // // DEBUG: comments
+  /^\s*\/\/\s*TODO:\s*remove/i,             // // TODO: remove
+  /^\s*print\(.+debug.+\)/,                 // Flutter print debug
+];
+
+function cleanupLogs(content, options = {}) {
+  const patterns = options.patterns || DEFAULT_PATTERNS;
+  const lines = content.split('\n');
+  const removed = [];
+  const cleaned = lines.filter((line, i) => {
+    const match = patterns.some(p => p.test(line));
+    if (match) removed.push({ line: i + 1, content: line.trim() });
+    return !match;
+  });
+  return { content: cleaned.join('\n'), removed, count: removed.length };
+}
+```
+
+**Tai sao KHONG can AST-based cleanup (jscodeshift, ts-morph):**
+- Muc dich la xoa LOG TAM THOI (debug/temp markers) — KHONG phai tat ca console.log
+- Markers ro rang (DEBUG, TEMP, TODO:remove) — regex du chinh xac
+- False positive it vi chi match nhung patterns co marker cu the
+- AST parser se qua nang (parse toan bo file) cho viec don gian nay
+- Multi-stack support (JS, TS, Dart, PHP) — regex lam duoc, AST khong lam duoc (can parser rieng moi ngon ngu)
+- Complexity thap: ~60-80 LOC
+
+### 4. Logic Change Detector
+
+**Dau vao:** Old PLAN.md content, new PLAN.md content (sau khi fix bug)
+**Dau ra:** Diff list (Truth nao thay doi, cot nao, gia tri cu/moi)
+
+**Ky thuat:** Tai su dung Truths parser + string comparison.
+
+```javascript
+// Pattern — tai su dung parseTruthsFromContent
+function detectLogicChanges(oldPlanContent, newPlanContent) {
+  const oldTruths = parseTruthsExtended(oldPlanContent); // {id, description, edgeCases, verification}
+  const newTruths = parseTruthsExtended(newPlanContent);
+
+  const changes = [];
+  for (const newT of newTruths) {
+    const oldT = oldTruths.find(t => t.id === newT.id);
+    if (!oldT) continue; // Truth moi — khong phai change
+    if (oldT.description !== newT.description) {
+      changes.push({ truthId: newT.id, column: 'Su that', old: oldT.description, new: newT.description });
+    }
+    // So sanh cac cot khac...
+  }
+  return { changes, hasLogicChange: changes.length > 0 };
+}
+```
+
+**Van de shared parser:** Hien tai `parseTruthsFromContent` ton tai o 2 noi:
+- `bin/lib/generate-diagrams.js` — inline (chi lay id + description)
+- `bin/lib/plan-checker.js` — `parseTruthsV11` (noi bo, khong export)
+
+**Quyet dinh:** Tao shared helper `parseTruthsExtended()` trong file moi hoac extract tu plan-checker. Khong import tu generate-diagrams (vi no thieu cac cot edge cases, verification).
+
+### 5. PDF Report Auto-Update khi Logic Thay Doi
+
+**Ky thuat:** Goi lai `fillManagementReport()` + `generate-pdf-report.js` da co.
+
+**KHONG can module moi.** Chi can them buoc trong workflow:
+1. Buoc 6.5d cap nhat PLAN.md (da co)
+2. Goi `fillManagementReport()` voi PLAN moi
+3. Goi `node bin/generate-pdf-report.js` de re-export PDF
+
+**Can mo rong `report-filler.js`:** Them function `updateReportSection()` nhan existing filled markdown + new data, thay vi fill tu template moi. Dieu nay tranh ghi de toan bo report khi chi 1 phan thay doi.
+
+### 6. Lien Ket Bao Mat (pd:scan Security Warnings)
+
+**Dau vao:** File path bi loi, noi dung security-checklist.md
+**Dau ra:** Danh sach checks lien quan
+
+**Ky thuat:** Keyword matching giua file extension/content va security checks.
+
+```javascript
+// Pattern — cross-reference file context voi checklist sections
+function linkSecurityChecks(bugFile, bugContent, securityChecklist) {
+  const ext = path.extname(bugFile);
+  const relevantSections = [];
+
+  // Map file type -> relevant sections
+  if (['.js', '.ts'].includes(ext)) relevantSections.push('Secrets', 'Injection');
+  if (ext === '.sol') relevantSections.push('Solidity');
+  if (ext === '.dart') relevantSections.push('Flutter');
+  // ...
+
+  // Keyword scan trong bug content
+  if (/eval\(|Function\(/.test(bugContent)) relevantSections.push('Injection');
+  if (/password|token|secret/i.test(bugContent)) relevantSections.push('Secrets');
+
+  return relevantSections;
+}
+```
+
+**Complexity:** Thap (~40-60 LOC). Khong can NLP hay semantic analysis — keyword matching la du vi security-checklist.md da co structure ro rang voi section headers.
+
+### 7. Post-mortem CLAUDE.md Suggester
+
+**Dau vao:** SESSION file content, BUG report content, CLAUDE.md hien tai
+**Dau ra:** Suggested additions cho CLAUDE.md
+
+**Ky thuat:** Pattern extraction tu bug data + de-duplication voi existing CLAUDE.md entries.
+
+**KHONG can AI/LLM call** (du an cam "LLM-as-judge" — Out of Scope). Chi dung rule-based suggestions:
+- Bug do logic sai -> suggest "Kiem tra [logic X] truoc khi..."
+- Bug o file cu the -> suggest "File [X] can chu y khi sua..."
+- Bug lap lai (3+ lan sua) -> suggest "Pattern loi: [X]"
+
+Complexity: ~80-100 LOC.
+
+## Alternatives Considered
+
+| Recommended | Alternative | Tai Sao Khong |
+|-------------|-------------|---------------|
+| Template literals cho test generation | ts-morph / @babel/generator | Qua nang cho test skeleton. Chi can interpolate variable vao template, khong can parse/generate AST. Them ~5MB dependency cho ~50 LOC tiet kiem. |
+| Regex cho log cleanup | jscodeshift / eslint custom rule | Multi-stack (JS, TS, Dart, PHP, Solidity). AST parser chi ho tro 1 ngon ngu. Regex lam duoc tat ca voi patterns co marker ro rang. |
+| Array-based BFS cho call chain | graphlib / d3-hierarchy | Call chain chi 1-3 levels. Graph library qua phuc tap. Array + loop du cho bai nay. |
+| String diff cho Truths comparison | diff / jsdiff library | Chi can so sanh cell-by-cell trong bang markdown. Khong can character-level diff. Strict equality (`!==`) du chinh xac. |
+| Rule-based post-mortem | LLM call | Out of Scope: "LLM-as-judge — plan already in context, calling another LLM is circular". Rule-based extraction tu structured data (SESSION, BUG report) la du. |
+| Keyword matching cho security links | NLP/semantic search | security-checklist.md da co structure ro rang. Keyword matching (file ext + content patterns) du chinh xac. False positive thap. |
+
+## What NOT to Use
+
+| Avoid | Tai Sao | Dung Thay The |
+|-------|---------|---------------|
+| ts-morph, @babel/generator | Test generation chi can template string, khong can AST manipulation. Them 5-10MB dep cho zero benefit. | Template literals |
+| jscodeshift | AST-based code transforms — overkill cho "xoa dong co marker DEBUG". Khong multi-stack. | Regex line filter |
+| graphlib, dagre | Graph traversal library — call chain chi 1-3 levels, BFS array-based du. | Simple array BFS |
+| diff, jsdiff | Character-level diff — Truths comparison chi can cell equality check. | String `!==` comparison |
+| Any LLM API call | Du an cam LLM-as-judge. Post-mortem suggestions phai rule-based. | Rule-based pattern extraction |
+| eslint-plugin-no-debug | Chi ho tro JS/TS, khong multi-stack. Yeu cau eslint config. | Regex patterns with markers |
+| cheerio / jsdom | HTML parsing — khong can thiet. Tat ca data la markdown/text. | Regex/string parsing |
 
 ## Installation
 
 ```bash
-# Core dependencies for PDF report generation (v1.4 feature)
-npm install puppeteer marked
+# v1.5 KHONG can install them bat ky package nao
+# Tat ca module moi dung Node.js built-in APIs
+
+# Verify hien tai:
+node --version  # >= 18 (da nang tu v1.4)
+npm test        # 526 tests pass
 ```
 
-**Note on install size:** Puppeteer downloads Chromium (~170-280MB depending on OS). This is a one-time cost. The script runs on developer machines, not in production servers -- the Chromium download is acceptable for a dev tool.
+## Stack Patterns theo Feature
 
-**Why `puppeteer` not `puppeteer-core`:** `puppeteer-core` requires users to manually configure the Chrome/Chromium executable path. For a dev tool that should "just work," auto-downloading Chromium is the right tradeoff.
+**Neu feature xu ly TEXT (markdown, structured text):**
+- Dung regex parsing + string manipulation
+- Vi: du an xu ly prompts/templates/plans — tat ca la text
+- Pattern: `bin/lib/[feature].js` — pure function, zero I/O
 
-## Alternatives Considered
+**Neu feature can goi MCP tool (FastCode, Context7):**
+- KHONG goi tu JS module. Goi tu WORKFLOW markdown (AI agent goi MCP)
+- JS module chi xu ly KET QUA tra ve tu MCP
+- Vi: MCP tools la AI agent capabilities, khong phai Node.js APIs
 
-| Recommended | Alternative | When to Use Alternative |
-|-------------|-------------|-------------------------|
-| puppeteer + marked (custom script) | md-to-pdf package | Never for this project. md-to-pdf lacks native Mermaid support; adding it requires the same custom code we write directly. Extra dependency for no benefit. |
-| puppeteer + marked (custom script) | @mermaid-js/mermaid-cli + separate PDF step | Only if you need standalone .svg/.png diagram files (not embedded in PDF). Two-step process adds complexity. |
-| puppeteer (full) | puppeteer-core | Only if install size is critical and users can be trusted to configure Chrome path manually. Not worth the DX cost for a dev tool. |
-| marked | markdown-it | If you need a rich plugins ecosystem. Marked is simpler, faster, and sufficient for this use case (render Markdown + intercept mermaid blocks). |
-| Mermaid CDN injection | mermaid npm package (server-side) | Never. Mermaid requires DOM (SVGTextElement.getBBox). JSDOM does not support this. Server-side rendering without a browser is not viable. |
-| Mermaid CDN injection | @rendermaid/core (pure TS renderer) | Unproven, limited diagram type support, not from official Mermaid team. Risk of rendering differences vs real Mermaid. |
+**Neu feature can cap nhat file (.planning/):**
+- CLI wrapper (`bin/[feature].js`) lam I/O
+- Library (`bin/lib/[feature].js`) nhan content, tra content
+- Vi: tach I/O khoi logic — testable, composable
 
-## What NOT to Use
-
-| Avoid | Why | Use Instead |
-|-------|-----|-------------|
-| mermaid npm package in Node.js | Requires DOM (SVGTextElement.getBBox). JSDOM fails. Cannot render server-side without browser. | CDN injection into Puppeteer page |
-| mermaid-isomorphic | Still uses Playwright under the hood (another browser engine, different from Puppeteer). Adds complexity. | Direct Puppeteer + CDN approach |
-| node-mermaid-render | Only 4 releases, last v1.0.3 in July 2023. Core code from mermaid-cli but less maintained. | @mermaid-js/mermaid-cli if standalone rendering needed |
-| markdown-pdf (npm) | Abandoned. Uses phantom.js which is deprecated. | puppeteer + marked |
-| mermaid.cli (old package name) | Deprecated. Development moved to @mermaid-js/mermaid-cli. | @mermaid-js/mermaid-cli |
-| Any Python-based solution | Project is pure Node.js. Adding Python dependency breaks stack consistency. | Node.js puppeteer + marked |
-| sebastianjs (pure SVG renderer) | Wrapper around custom SVG generation. Not official Mermaid, may miss diagram types or render differently. | Puppeteer + CDN (uses real Mermaid.js) |
-
-## Stack Patterns by Variant
-
-**If generating PDF reports with embedded Mermaid (primary use case):**
-- Use custom script with `puppeteer` + `marked` + Mermaid CDN
-- Input: `.md` file with ` ```mermaid ` code blocks
-- Output: `.pdf` file with rendered diagrams
-- Because: single browser session, no intermediate files, full CSS control
-
-**If generating standalone Mermaid diagrams (SVG/PNG files):**
-- Use `@mermaid-js/mermaid-cli` with programmatic `run()` API
-- Input: `.mmd` file with Mermaid syntax
-- Output: `.svg` or `.png` file
-- Because: official tool, well-tested, handles all diagram types
-
-**If generating both:**
-- The PDF script handles embedded diagrams
-- `@mermaid-js/mermaid-cli` handles standalone exports
-- Both share Puppeteer (mermaid-cli uses it as peer dependency)
+**Neu feature lien quan PDF:**
+- Tai su dung report-filler.js + generate-pdf-report.js
+- KHONG viet PDF logic moi
+- Vi: infrastructure da co, chi can goi lai
 
 ## Version Compatibility
 
-| Package | Compatible With | Notes |
-|---------|-----------------|-------|
-| puppeteer@24.x | Node.js >=18 | Downloads Chromium ~170-280MB on install |
-| marked@17.x | Node.js >=18 (current/LTS only) | Pure JS, no native modules, fast |
-| @mermaid-js/mermaid-cli@11.x | Node.js ^18.19 or >=20, puppeteer ^23 | Puppeteer is peer dependency |
-| mermaid@11.x (CDN) | Any browser | Loaded at runtime in Puppeteer page context, not installed via npm |
+| Component | Compatible Voi | Ghi Chu |
+|-----------|----------------|---------|
+| Module JS moi (v1.5) | Node.js >= 18 | Chi dung built-in APIs: regex, string, array |
+| node:test runner | Node.js >= 18 | Da dung tu v1.1 (140+ tests) |
+| report-filler.js (existing) | Tat ca module v1.5 | Pure function, nhan content tra content |
+| generate-pdf-report.js (existing) | Puppeteer optional | Fallback .md khi khong co Puppeteer |
+| FastCode MCP | fix-bug workflow | Da co trong allowed-tools cua skill |
+| plan-checker.js parseTruthsV11 | logic-change-detector.js | Can export hoac extract shared helper |
 
-### Node.js Version Upgrade Impact
+## Rui Ro Ky Thuat
 
-The existing project has:
-- `"engines": { "node": ">=16.7.0" }` in package.json
-- Only `js-tiktoken` as devDependency (no runtime deps)
-- Pure Node.js scripts, `node --test` for testing
+| Rui Ro | Muc Do | Giam Thieu |
+|--------|--------|------------|
+| parseTruthsFromContent duplicate | THAP | Extract shared helper vao `bin/lib/truths-parser.js`. Hoac de logic-change-detector.js tự inline (nhu generate-diagrams.js da lam). Trade-off: DRY vs circular dep risk. |
+| Regex false positive trong log cleanup | THAP | Chi match patterns co marker ro rang (DEBUG, TEMP, TODO:remove). User co the them custom patterns. Preview truoc khi xoa (dry-run mode). |
+| FastCode output format thay doi | TRUNG BINH | regression-analyzer.js parse co fallback. Neu format khong nhan dien duoc -> tra ve empty list + warning, khong crash. |
+| Test template khong khop project convention | THAP | Template chi la skeleton (TODO markers). AI agent se customize sau. Template khong can chay duoc — chi can structure dung. |
+| PDF re-generation cham (Puppeteer launch) | THAP | Chi trigger khi logic THAY DOI (khong phai moi bug). Non-blocking (try/catch, warning only). |
 
-Upgrading to `"node": ">=18"` affects:
-- **package.json engines field** -- must update
-- **Existing code** -- zero changes needed (Node 18 is fully backward compatible with 16)
-- **User installations** -- users on Node 16 (EOL since Sep 2023) must upgrade
-- **CI/CD** -- if any, update matrix to test Node 18/20/22
+## Tong Ket
 
-## Integration Points with Existing Project
-
-| Existing Component | Integration | Notes |
-|-------------------|-------------|-------|
-| `bin/` directory | Add `bin/generate-pdf-report.js` | Follows existing pattern (bin/plan-check.js handles CLI args + file I/O) |
-| `bin/lib/` | Add `bin/lib/pdf-generator.js` | Pure function module: markdown content in, PDF buffer out. Follows plan-checker pattern: separate I/O from logic. |
-| package.json scripts | Add `"report:pdf": "node bin/generate-pdf-report.js"` | Consistent with existing npm scripts |
-| package.json dependencies | Add `puppeteer` + `marked` to `dependencies` (not devDependencies) | These are runtime deps needed by `generate-pdf-report.js` |
-| `workflows/complete-milestone.md` | Add step to generate report | Skill instructs AI to run the script after milestone completion |
-| `templates/` | Add `templates/MANAGEMENT_REPORT.md` | Template with Mermaid placeholders that AI fills in |
-| `references/` | Add `references/mermaid-style-rules.md` | Aesthetic rules for diagram generation (colors, node shapes, edge labels) |
-| Test suite | Add `test/smoke-pdf-generator.test.js` | Test marked rendering logic (unit), mock puppeteer; optionally test full PDF generation (integration) |
-
-## Dependency Strategy
-
-```
-Runtime dependencies (npm install --save):
-  puppeteer   -- PDF generation + browser for Mermaid rendering
-  marked      -- Markdown to HTML conversion
-
-No new dev dependencies needed.
-
-Optional (install separately if standalone diagrams needed):
-  @mermaid-js/mermaid-cli  -- mmdc command for .mmd -> .svg/.png
-```
-
-Total new runtime dependencies: **2 packages** (plus Puppeteer's transitive deps including Chromium download).
-
-The project currently has zero runtime dependencies, so adding 2 for a major new capability (visual PDF report generation) is the minimum viable addition.
-
-## Known Risks
-
-| Risk | Mitigation |
-|------|------------|
-| Puppeteer Chromium download is ~200MB | One-time cost. Document in README. Consider `PUPPETEER_SKIP_DOWNLOAD=true` for CI if Chromium already available. |
-| CDN dependency for Mermaid.js | Pin specific CDN version (`mermaid@11.13.0`). Fallback: bundle mermaid.min.js locally (~2MB). |
-| Mermaid rendering timing issues | Use `page.waitForSelector('.mermaid svg')` after `mermaid.run()` to ensure diagrams are fully rendered before PDF generation. |
-| ESM vs CommonJS conflict | Mermaid CDN runs in browser context (not Node.js), so module system is irrelevant. `marked@17` supports CommonJS `require()`. `puppeteer@24` supports CommonJS `require()`. |
-| Node 18+ version bump breaks users on Node 16 | Node 16 is EOL since Sep 2023. This is a necessary migration. Document in CHANGELOG. |
+| Metric | Gia Tri |
+|--------|---------|
+| Dependency moi | 0 |
+| Module JS moi | 5 (repro-test-generator, regression-analyzer, log-cleanup, logic-change-detector, postmortem-suggester) |
+| Module JS mo rong | 2 (report-filler, plan-checker export) |
+| Shared helper moi | 1 (truths-parser hoac inline) |
+| Tong LOC uoc tinh | ~400-600 cho 5 modules + tests |
+| Test files moi | 5 (1 per module) |
+| Workflow changes | 1 (fix-bug.md them 3-4 buoc moi) |
 
 ## Sources
 
-- [Puppeteer system requirements](https://pptr.dev/guides/system-requirements) -- Node 18+ requirement (HIGH confidence)
-- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) -- v11.12.0, Node ^18.19 || >=20 (HIGH confidence)
-- [@mermaid-js/mermaid-cli GitHub](https://github.com/mermaid-js/mermaid-cli) -- programmatic `run()` API (HIGH confidence)
-- [marked npm](https://www.npmjs.com/package/marked) -- v17.0.5, current/LTS Node only (HIGH confidence)
-- [mermaid npm](https://www.npmjs.com/package/mermaid) -- v11.13.0 latest (HIGH confidence)
-- [md-to-pdf GitHub](https://github.com/simonhaenisch/md-to-pdf) -- no native Mermaid support (HIGH confidence)
-- [md-to-pdf Mermaid config gist](https://gist.github.com/danishcake/d045c867594d6be175cb394995c90e2c) -- custom renderer approach (MEDIUM confidence)
-- [Mermaid server-side rendering issue #3650](https://github.com/mermaid-js/mermaid/issues/3650) -- DOM required, JSDOM insufficient (HIGH confidence)
-- [Node.js EOL dates](https://endoflife.date/nodejs) -- Node 16 EOL Sep 2023, Node 18 EOL Apr 2025, Node 20 EOL Apr 2026 (HIGH confidence)
-- [Puppeteer vs puppeteer-core](https://pptr.dev/guides/installation) -- Chromium bundling differences (HIGH confidence)
+- Codebase analysis: `bin/lib/*.js` (7 existing modules), `workflows/fix-bug.md`, `commands/pd/fix-bug.md` — HIGH confidence
+- `package.json` — zero runtime deps confirmed — HIGH confidence
+- `test/*.test.js` — node:test runner confirmed (13 test files, 526 tests) — HIGH confidence
+- `references/security-checklist.md` — structured sections for keyword matching — HIGH confidence
+- `bin/lib/generate-diagrams.js:34` — parseTruthsFromContent inline regex — HIGH confidence
+- `bin/lib/report-filler.js` — fillManagementReport() pure function API — HIGH confidence
+- `bin/generate-pdf-report.js` — Puppeteer optional, fallback .md — HIGH confidence
+- Node.js 18+ built-in APIs (fs, path, crypto, node:test, node:assert) — HIGH confidence
 
 ---
-*Stack research for: Visual Business Logic Reports (Mermaid + PDF) in please-done v1.4*
+*Stack research for: v1.5 Nang cap Skill Fix-Bug trong please-done*
 *Researched: 2026-03-24*

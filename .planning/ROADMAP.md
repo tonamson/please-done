@@ -7,6 +7,7 @@
 - ✅ **v1.2 Skill Audit & Bug Fixes** — Phases 14-16 (shipped 2026-03-23)
 - ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
 - ✅ **v1.4 Mermaid Diagrams** — Phases 21-24 (shipped 2026-03-24)
+- 🚧 **v1.5 Nang cap Skill Fix-Bug** — Phases 25-27 (in progress)
 
 ## Phases
 
@@ -74,7 +75,61 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 
 </details>
 
+### 🚧 v1.5 Nang cap Skill Fix-Bug (In Progress)
+
+**Milestone Goal:** Toi uu hoa do an toan va tu dong hoa dieu tra trong skill fix-bug — them tai hien loi, phan tich hoi quy, don dep log, dong bo business logic, va xuat bao cao PDF.
+
+- [ ] **Phase 25: Dieu tra & Tai hien Loi** — Tao 2 module pure function moi (repro-test-generator, regression-analyzer) va tich hop vao workflow fix-bug
+- [ ] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi
+- [ ] **Phase 27: Dong bo Logic & Bao cao** — Phat hien thay doi business logic, cap nhat Mermaid/PDF, va de xuat post-mortem
+
+## Phase Details
+
+### Phase 25: Dieu tra & Tai hien Loi
+**Goal**: AI co the tu dong tao skeleton test tai hien loi va phan tich module phu thuoc bi anh huong truoc khi sua
+**Depends on**: Phase 24 (v1.4 hoan thanh)
+**Requirements**: REPRO-01, REGR-01
+**Success Criteria** (what must be TRUE):
+  1. Khi fix bug, AI tao duoc file test skeleton trong `.planning/debug/repro/` tuong ung voi stack (NestJS spec, Flutter test, hoac Generic) voi TODO markers de AI dien logic
+  2. Khi fix bug, AI phan tich duoc cac module phu thuoc qua FastCode call chain (hoac fallback BFS) va bao cao toi da 5-10 files bi anh huong trong BUG report
+  3. repro-test-generator.js la pure function (nhan content string, tra string, KHONG doc file) voi test file tuong ung pass
+  4. regression-analyzer.js la pure function (nhan dependency data, tra danh sach files, KHONG goi MCP) voi test file tuong ung pass
+  5. 526 tests hien tai van pass va snapshots da duoc regenerate neu workflow thay doi
+**Plans:** 4 plans
+
+Plans:
+- [ ] 25-01-PLAN.md — Shared helper truths-parser.js + refactor generate-diagrams.js
+- [ ] 25-02-PLAN.md — Module repro-test-generator.js (REPRO-01)
+- [ ] 25-03-PLAN.md — Module regression-analyzer.js (REGR-01)
+- [ ] 25-04-PLAN.md — Workflow integration + snapshot regeneration
+
+### Phase 26: Don dep & An toan
+**Goal**: AI tu dong don dep debug log tam thoi va hien thi canh bao bao mat lien quan truoc khi user commit ban sua
+**Depends on**: Phase 25
+**Requirements**: CLEAN-01, SEC-01
+**Success Criteria** (what must be TRUE):
+  1. AI scan duoc cac dong co marker `[PD-DEBUG]` trong staged files, hien thi danh sach cho user va CHI xoa khi user dong y
+  2. AI lien ket duoc canh bao bao mat tu pd:scan report cho file bi loi (toi da 3 canh bao, freshness 7 ngay), hien thi non-blocking trong workflow
+  3. Auto cleanup KHONG xoa bat ky dong nao khong co marker `[PD-DEBUG]` — production logs, audit logs duoc bao toan
+  4. Tat ca tests hien tai van pass va snapshots cap nhat
+**Plans**: TBD
+
+### Phase 27: Dong bo Logic & Bao cao
+**Goal**: AI phat hien khi ban sua thay doi business logic, tu dong cap nhat bao cao quan ly voi Mermaid diagram moi, va de xuat rule cho CLAUDE.md
+**Depends on**: Phase 26
+**Requirements**: LOGIC-01, RPT-01, PM-01
+**Success Criteria** (what must be TRUE):
+  1. AI danh gia duoc ban sua co thay doi business logic/kien truc khong bang heuristics (condition/arithmetic/endpoint signals) va ghi ket qua CO/KHONG vao BUG report
+  2. Khi LOGIC-01 = CO, AI tu dong cap nhat Mermaid diagram trong management report co san (KHONG tao report moi) va hoi user co muon re-render PDF khong
+  3. AI de xuat 1-2 rule moi cho CLAUDE.md sau khi fix xong, hien thi de xuat va CHI append khi user xac nhan
+  4. Pipeline cap nhat report la non-blocking — loi o bat ky sub-step nao chi tao warning, khong chan workflow fix-bug
+  5. Tat ca tests hien tai van pass, snapshots cap nhat, workflow fix-bug hoan chinh voi tat ca 7 tinh nang moi
+**Plans**: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 25 → 26 → 27
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -102,3 +157,6 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 | 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
+| 25. Dieu tra & Tai hien Loi | v1.5 | 0/4 | Planning | - |
+| 26. Don dep & An toan | v1.5 | 0/0 | Not started | - |
+| 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |

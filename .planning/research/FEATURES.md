@@ -1,269 +1,213 @@
 # Feature Research
 
-**Domain:** Visual business logic reporting for AI coding skill framework
+**Domain:** Nang cap skill fix-bug voi tu dong hoa dieu tra va an toan
 **Researched:** 2026-03-24
 **Confidence:** HIGH
 
-## Context
+## Boi canh
 
-v1.4 adds Visual Business Logic Reports to the existing please-done framework. The framework already has a complete milestone lifecycle that produces text-based summaries (MILESTONE_COMPLETE.md), truth tables tracking business logic correctness (5-column Truths with Business Value and Edge Cases), and structured CODE_REPORTs per task. The complete-milestone workflow (10 steps) already compiles all phase data, verifies goal-backward Truths, checks cross-phase integration, and produces MILESTONE_COMPLETE.md.
+v1.5 nang cap skill `fix-bug` hien co (10 buoc: trieu chung -> gia thuyet -> cong kiem tra -> sua -> xac nhan). Khong viet lai workflow, chi BO SUNG cac buoc moi vao vi tri phu hop trong workflow hien co.
 
-The gap: all outputs are text-only Markdown. Managers receiving MILESTONE_COMPLETE.md see task lists and bug tables, not visual representations of business logic flows or system architecture. The v1.4 milestone bridges this by generating Mermaid diagrams from existing structured data (Truths, Key Links, Artifacts, CODE_REPORTs) and packaging them into a professional MANAGEMENT_REPORT.md with PDF export.
+He thong da co san:
+- **Fix-bug workflow** 10 buoc voi SESSION tracking, phan loai rui ro, Logic Update (Buoc 6.5)
+- **FastCode MCP** cho code_qa, call chain analysis
+- **Context7 MCP** cho library docs
+- **Plan-checker** voi Truths parser, CHECK-01 den CHECK-05
+- **generate-diagrams.js** (Business Logic + Architecture Mermaid)
+- **report-filler.js** (fillManagementReport pure function)
+- **pdf-renderer.js** + **generate-pdf-report.js** (MD -> PDF via Puppeteer)
+- **scan workflow** voi npm audit, cau truc bao mat trong SCAN_REPORT.md
+- **Buoc 6.5 Logic Update** da phat hien va cap nhat Truth khi bug do logic sai
 
-The 6 target features from PROJECT.md Active requirements:
-1. **Business Logic Flowchart** -- Mermaid flowchart from Truths + Key Links
-2. **Architecture Diagram** -- Module/Service/DB/API visualization
-3. **Management Report Template** -- professional, manager-facing, product language
-4. **PDF Export Script** -- Markdown+Mermaid to PDF via Node.js
-5. **Workflow Integration** -- complete-milestone auto-generates diagrams
-6. **Mermaid Aesthetics Rules** -- consistent diagram styling conventions
+7 target features tu PROJECT.md:
+1. Tu dong tao Reproduction Test Case (NestJS/Flutter)
+2. Regression Analysis qua FastCode Call Chain
+3. Auto Cleanup log tam truoc commit
+4. Dong bo Business Logic — phat hien thay doi logic/kien truc
+5. Tu dong cap nhat bao cao quan ly + xuat PDF khi logic thay doi
+6. Lien ket pd:scan canh bao bao mat cho file bi loi
+7. Post-mortem de xuat cap nhat CLAUDE.md
 
 ---
 
 ## Table Stakes
 
-Features explicitly requested in PROJECT.md Active requirements. All 6 must ship for v1.4 to be complete.
+Cac feature CAN THIET de v1.5 co gia tri. Thieu bat ky feature nao = workflow khong hoan chinh.
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **TS-1: Mermaid Aesthetics Rules** | Without style rules, AI generates inconsistent diagrams per invocation -- random colors, unclear labels, inconsistent direction. Every subsequent diagram feature depends on having rules to follow. | LOW | New `references/diagram-rules.md`. Define: color palette (node type -> color), node shapes per component type (service=rounded, database=cylinder, API=hexagon), label conventions (Vietnamese, sentence case), max 25-30 nodes per diagram, default direction (TD for logic flows, LR for architecture). Also covers: subgraph naming, edge label rules, when to split into multiple diagrams. ~60 lines. |
-| **TS-2: Business Logic Flowchart** | Core deliverable. Managers need to see HOW features connect without reading code. Truths table already contains structured data (Description, Business Value, Edge Cases) that maps directly to flowchart nodes and decision diamonds. Replaces mental model construction with a visual artifact. | MEDIUM | Use `flowchart TD` syntax (top-down, universally supported). Data source: Truths table + Key Links from ALL phase PLAN.md files in the milestone. AI reads Truths descriptions as process nodes, Edge Cases as decision branches, Key Links as edges. Output: 1-2 flowcharts per milestone embedded in MANAGEMENT_REPORT.md. Each flowchart captures one major user flow. ~80 lines of workflow instruction + examples. **Dependency:** TS-1 (rules). |
-| **TS-3: Architecture Diagram** | Managers need system-level understanding: what components exist, how they connect, what external systems are involved. Current CODE_REPORTs list files modified but do not visualize relationships. Architecture diagrams answer "What does the system look like?" | MEDIUM | Use `flowchart LR` with subgraphs (left-right for system layout, subgraphs for module boundaries). Prefer over `architecture-beta` (v11.1+ only, experimental) and `C4Context` (also experimental in Mermaid). Data source: Artifacts table (file paths imply module structure), Key Links (connections), CODE_REPORT files (actual components created). Subgraph per major module/layer (API, Service, Database, External). ~60 lines of workflow instruction. **Dependency:** TS-1 (rules). |
-| **TS-4: Management Report Template** | Current MILESTONE_COMPLETE.md is developer-focused: task lists, bug tables, artifact paths. Managers need business outcomes, risk overview, architecture at a glance, and next steps -- in product language. Industry standard: Executive Summary + Business Outcomes + Visual Overview + Quality + Risk + Next Steps. | LOW | New `templates/visual-report.md` with 7 sections. Written following ui-brand.md Layer 1 principles ("User duoc gi?"). Embeds Mermaid diagram code blocks inline. Language: Vietnamese, product-oriented per existing conventions. ~80 lines template. Sections: (1) Executive Summary, (2) Business Outcomes (from Truths "Business Value" column), (3) Architecture Overview (embedded diagram), (4) Key Feature Flows (embedded flowchart), (5) Quality Metrics (tests, bugs, verification), (6) Risk & Tech Debt, (7) Next Steps. **Dependency:** TS-2, TS-3 (diagrams to embed). |
-| **TS-5: PDF Export Script** | Mermaid in Markdown renders in GitHub/VS Code but is not shareable with non-technical stakeholders who use email, Slack, or printed reports. PDF is the universal document format. Script must handle Mermaid rendering (requires JavaScript execution) which plain Markdown-to-PDF converters cannot do. | HIGH | New `scripts/generate-pdf-report.js`. Uses Puppeteer (headless Chromium) because Mermaid diagrams require JavaScript execution for rendering -- no simpler alternative exists. Pipeline: (1) Read .md file, (2) Convert Markdown to HTML with marked/markdown-it, (3) Inject Mermaid.js CDN script, (4) Open in Puppeteer, (5) Wait for Mermaid render, (6) Generate PDF with page.pdf(). Output to same directory as source file. New devDependency: `puppeteer` (~400MB Chromium download on first install). Consider `puppeteer-core` + system Chrome to reduce footprint. ~120 lines. **Dependency:** TS-4 (template to render). |
-| **TS-6: Workflow Integration** | Diagrams must be generated automatically during milestone completion, not as a manual step. The complete-milestone workflow already has all needed data at Step 4 (all CODE_REPORTs read, all phases verified). Integration point is clear: after verification, before git commit. | LOW | Update `workflows/complete-milestone.md`. Insert new Step 4.5 between current Step 4 (summary report) and Step 5 (CHANGELOG). Step 4.5: (1) AI generates Mermaid flowchart from Truths across all phases, (2) AI generates architecture diagram from Artifacts + Key Links, (3) Write MANAGEMENT_REPORT.md using template, (4) Call `node scripts/generate-pdf-report.js [path]`, (5) Report PDF path. Also update Step 10 notification to include PDF path. ~40 lines added to workflow. **Dependency:** TS-2, TS-3, TS-4, TS-5 (all upstream features). |
+| Feature | Tai sao can | Do phuc tap | Ghi chu |
+|---------|-------------|-------------|---------|
+| **TS-1: Reproduction Test Case** | Buoc 5b hien tai chi "tim duong ngan nhat" de tai hien — KHONG tao file test co the chay lai. Khong co test tai hien = khong chung minh duoc loi da xay ra truoc khi sua, va khong co regression net cho tuong lai. Day la best practice duoc moi AI coding tool (Claude Code, Copilot, Cursor) ap dung: SWE-bench do luong kha nang "identify, reproduce, fix". | MEDIUM | Bo sung vao Buoc 5b. Tao file test trong `.planning/debug/repro/` (KHONG trong src/test/). NestJS: file `.spec.ts` mock service + assert loi. Flutter: file `_test.dart` mock controller + assert. Stack khac: file test generic hoac script bash. AI sinh test, KHONG can chay duoc — muc dich la GHI LAI cach tai hien de doc lai. Neu muon chay: user tu copy vao test suite. **Phu thuoc:** Khong. Doc lap. |
+| **TS-2: Regression Analysis** | Buoc 8 hien tai chi sua code roi lint+build. KHONG kiem tra cac module phu thuoc bi anh huong. Nghien cuu cho thay 1 code change co the "ripple across the system" gay cascading failures. FastCode call chain da co san — chi can goi truoc khi bao cao hoan tat. | MEDIUM | Bo sung vao Buoc 8 (sau khi sua, truoc khi commit). Goi `mcp__fastcode__code_qa`: "Liet ke cac ham/module goi truc tiep [ham da sua]. Co ham nao bi anh huong boi thay doi nay?" Ket qua ghi vao SESSION + BUG report section "Anh huong". Neu FastCode loi → Grep import/require fallback. KHONG tu dong sua cac module phu thuoc — chi CANH BAO. **Phu thuoc:** FastCode MCP (da co). |
+| **TS-3: Auto Cleanup** | 68% production issues stem from debug artifacts (console.log, print, debugger). Trong fix-bug, AI thuong them log tam (Buoc 5c "them log tam") nhung khong co co che dam bao xoa truoc commit. Loi tam trong commit = no ky thuat + rui ro bao mat (log sensitive data). | LOW | Bo sung vao Buoc 9 (truoc git commit). Pattern matching: tim `console.log`, `print()`, `debugger`, `// TODO: remove`, `// TEMP`, `// DEBUG` trong cac files staged. Liet ke cho user: "Tim thay [N] log tam. Xoa truoc commit? (Y/n)". User dong y → AI xoa. User tu choi → ghi warning trong BUG report. KHONG xoa tu dong khong hoi — mot so log la co y dinh. **Phu thuoc:** Khong. Doc lap. |
+| **TS-4: Dong bo Business Logic** | Buoc 6.5 da phat hien logic bug va cap nhat Truth. Nhung SAU KHI SUA (Buoc 8), ban sua co the thay doi them logic/kien truc ma khong duoc ghi nhan. Vi du: sua loi tinh toan → thay doi formula → logic thay doi nhung khong ai cap nhat soi do/bao cao. Day la gap giua "phat hien" (Buoc 6.5) va "ghi nhan toan bo thay doi" (sau Buoc 8). | LOW | Bo sung vao Buoc 10 (truoc xac nhan user). AI tu danh gia: "Ban sua nay co lam thay doi luong nghiep vu/kien truc?" Tieu chi: (1) Thay doi signature ham public, (2) Them/xoa endpoint API, (3) Thay doi database schema, (4) Sua dieu kien nghiep vu (if/switch logic), (5) Thay doi thu tu xu ly. Ket qua: CO/KHONG. Neu CO → trigger TS-5. Ghi ket qua vao BUG report section "Logic Changes". **Phu thuoc:** Buoc 6.5 da co (chi mo rong scope kiem tra). |
+| **TS-5: Tu dong cap nhat bao cao + PDF** | Neu logic thay doi (TS-4 = CO), bao cao quan ly cu tro nen loi thoi. Manager doc PDF cu se hieu sai kien truc hien tai. Can tu dong cap nhat diagrams + xuat PDF moi. Modules `report-filler.js`, `generate-diagrams.js`, `generate-pdf-report.js` da co san tu v1.4. | MEDIUM | Bo sung vao Buoc 10, SAU TS-4 (chi khi CO thay doi logic). Pipeline: (1) Doc tat ca PLAN.md (co Truth da cap nhat tu Buoc 6.5d), (2) Goi generateBusinessLogicDiagram(), (3) Goi generateArchitectureDiagram(), (4) Goi fillManagementReport(), (5) Ghi management-report-v{version-goc}.md, (6) Goi `node bin/generate-pdf-report.js [path]`, (7) Thong bao user PDF moi. Non-blocking: loi chi log warning. **Phu thuoc:** TS-4 (trigger). report-filler.js, generate-diagrams.js, pdf-renderer.js (da co). |
 
 ## Differentiators
 
-Features not explicitly requested but would significantly increase the value of visual reporting. These leverage please-done's unique structured data (Truths, Key Links, verification results).
+Features KHONG bat buoc nhung tang gia tri dang ke. Please-done la framework DUY NHAT co cac tinh nang nay.
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **D-1: Truth-to-Diagram Tracing** | Each flowchart node annotated with Truth ID (T1, T2...) showing which business logic each visual element validates. Unique to please-done's truth-driven approach. Makes the connection between "what we promised" and "what we built" visible. | LOW | Add Truth IDs as node labels or annotations in flowchart. Data already available. Truths table has ID + Description. Flowchart node text = `T1: [Description]`. Minimal additional complexity over TS-2. Can be included in TS-2 implementation. |
-| **D-2: Cross-Phase Dependency Diagram** | Visualize how phases connect -- which phase outputs feed which phase inputs. Currently computed as text table in Step 3.5b but never visualized. | LOW | Use `flowchart LR` with phase nodes. Data source: cross-phase integration table already computed during complete-milestone Step 3.5b. Just needs Mermaid generation from existing data. Could be a third diagram in MANAGEMENT_REPORT.md or optional section. |
-| **D-3: Sequence Diagram for API Flows** | Show request/response flow for key API interactions. Managers understand "User does X, system responds Y" better than static architecture boxes. Especially valuable for milestones with user-facing API features. | MEDIUM | Use `sequenceDiagram` syntax. AI decides when appropriate based on milestone content (e.g., milestones with API endpoints in Thiết kế kỹ thuật section). Not every milestone needs one. Optional section in MANAGEMENT_REPORT.md. |
-| **D-4: Quality Dashboard Diagram** | Pie chart or bar chart showing test pass rates, bug distribution, verification results. Quick visual health check for managers. | LOW | Use Mermaid `pie` or `xychart-beta`. Data: TEST_REPORT pass/fail counts, bug counts by severity, verification pass rates. Simple aggregation. Optional section in MANAGEMENT_REPORT.md. |
-| **D-5: Milestone Timeline** | Gantt-style view showing phase durations and overlaps. Managers care about time investment per feature area. | LOW | Use Mermaid `gantt` syntax. Data: phase start/end dates from PLAN.md headers. Shows duration proportions. Optional section in MANAGEMENT_REPORT.md. |
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **D-1: Lien ket pd:scan bao mat** | Khi sua file, co the file do da co canh bao bao mat tu SCAN_REPORT.md (npm audit, dep vulnerabilities). Hien tai AI khong biet — co the vo tinh de ngo lo hole khi sua. Lien ket nay cho AI boi canh bao mat TRUOC KHI sua. Nghien cuu 2025 cho thay 30+ CVE trong AI coding tools do thieu context bao mat. | LOW | Bo sung vao Buoc 4 (tim hieu files lien quan). Doc `.planning/scan/SCAN_REPORT.md` → Grep cac file bi loi trong section "Canh bao bao mat". Khop → hien thi cho AI + ghi SESSION: "File [X] co canh bao bao mat: [mo ta]". KHONG chan — chi thong tin bo sung. Neu SCAN_REPORT khong ton tai → bo qua. **Phu thuoc:** pd:scan workflow (da co). SCAN_REPORT.md format (da dinh nghia). |
+| **D-2: Post-mortem de xuat CLAUDE.md** | 78% developers mat 7.5h/tuan giai thich lai context cho AI vi AI khong nho bai hoc cu. CLAUDE.md la "bo nho dai han" cua Claude Code. Sau moi bug fix, co the rut ra pattern/rule can ghi nho. Hien tai developer tu viet — AI co the de xuat. Day la "compounding engineering" — moi bug lam AI thong minh hon. | LOW | Bo sung vao Buoc 10 (sau user xac nhan DA SUA). AI phan tich: (1) Nguyen nhan goc, (2) File/module anh huong, (3) Pattern loi → de xuat 1-3 dong cho CLAUDE.md. Format: `"# Bai hoc tu [loi]: [quy tac]"`. Trinh bay cho user: "De xuat them vao CLAUDE.md: [noi dung]. Dong y? (Y/n)". User dong y → Append vao CLAUDE.md, commit rieng. KHONG tu dong — LUON hoi user. **Phu thuoc:** Khong. Doc lap. |
 
 ## Anti-Features
 
-Features that seem appealing but create problems in this context.
+Features TUONG nhu tot nhung gay van de trong boi canh nay.
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **AF-1: Interactive HTML Diagrams** | "Click nodes to see code details" | Adds web server dependency. Breaks offline use. Mermaid HTML output is fragile across browsers. Please-done is CLI-based, not a web app. Maintenance burden outweighs benefit. | Static PDF + Mermaid in GitHub Markdown (renders natively). VS Code Mermaid extension for dev preview. |
-| **AF-2: Real-time Diagrams During write-code** | "See architecture evolve as I code" | Requires file watchers + incremental Mermaid regeneration. Extremely complex for a prompt-based system. Diagrams are summary artifacts, not real-time monitoring tools. | Generate diagrams at milestone completion only -- when all code is stable and all phases are verified. |
-| **AF-3: Full Code-to-Flowchart Conversion** | "Convert every function to a flowchart" | Produces massive, unreadable diagrams. Business logic is NOT the same as all code. AST-level flowcharts show implementation, not business intent. Managers do not need to see every if/else branch. | Focus on business-facing logic from Truths table. AI selects which flows to visualize based on "Business Value" column. Quality over quantity. |
-| **AF-4: AI-Powered Diagram Layout Optimization** | "Make diagrams look professional with AI layout" | Mermaid layout is deterministic (dagre algorithm). LLMs cannot control pixel placement. Attempting to override layout creates brittle, non-reproducible output. "Beautify" is subjective and unverifiable. | Define clear, opinionated rules in diagram-rules.md. Use subgraphs for logical grouping. Keep diagrams under 30 nodes. Consistent rules produce consistent output. |
-| **AF-5: Multiple PDF Themes/Branding** | "Match company brand colors" | Scope creep. Every organization has different branding. Maintaining a theme engine is a product unto itself. Distracts from core value. | Single professional theme with neutral colors (grays, blues). Hardcoded CSS in script. Users can fork and customize if needed. |
-| **AF-6: Mermaid Live Editor Integration** | "Preview diagrams before generating PDF" | External dependency (mermaid.live), requires browser, breaks CLI workflow. Adds manual step to an automated process. Not reproducible. | Use `mmdc` CLI (`@mermaid-js/mermaid-cli`) for validation if needed. But primary validation is visual: PDF output IS the preview. |
-| **AF-7: Diagram Diff Between Milestones** | "Show architecture changes from v1.3 to v1.4" | Requires serializing diagram structure, computing graph diffs, and rendering change visualization. Research-level complexity for minimal value at this stage. | Each milestone gets its own diagrams. Managers can visually compare PDFs side by side. Consider for v2+ if demand emerges. |
-| **AF-8: `architecture-beta` or `C4Context` Syntax** | "Use proper architecture diagram notation" | Both are experimental in Mermaid (syntax may change between versions). `architecture-beta` requires v11.1+. C4 has limited styling options. Puppeteer/mmdc may not render experimental syntax reliably. Compatibility risk. | Use `flowchart LR` with subgraphs. Universally supported since Mermaid v8+. Subgraphs provide grouping semantics equivalent to C4 containers. Upgrade to `architecture-beta` in future when syntax stabilizes. |
+| Feature | Tai sao muon | Tai sao co van de | Thay the |
+|---------|-------------|---------------------|----------|
+| **AF-1: Tu dong CHAY reproduction test** | "Xac nhan loi bang test that" | Moi stack co test runner khac (jest, flutter test, hardhat test). Cau hinh test env phuc tap (database, env vars, mocks). AI khong dam bao test chay dung 100%. False negative → AI ket luan sai. Chi them complexity ma loi co the khong o code. | Tao FILE test de doc — user tu chay neu muon. Muc dich chinh: ghi lai cach tai hien, khong phai chay tu dong. |
+| **AF-2: Tu dong sua module phu thuoc** | "Regression analysis tim loi → AI tu sua luon" | Scope creep nghiem trong. Sua 1 bug → trigger cascading fixes → co the gay them bug. Moi fix can dieu tra rieng (gia thuyet, kiem chung). Vi pham principle "CHI sua code lien quan den loi". | Chi CANH BAO modules anh huong. User quyet dinh co can fix-bug rieng cho tung module khong. |
+| **AF-3: Full AST-based change detection** | "Phan tich AST de phat hien moi thay doi logic" | Can parser per-language (TypeScript AST, Dart AST, PHP AST, Solidity AST). Phuc tap vuot qua gia tri. Please-done la prompt-based framework, khong co runtime code analysis. Maintenance burden cho 5 stacks. | AI danh gia bang heuristics (signature change, endpoint change, schema change). Du chinh xac cho muc dich business logic detection. |
+| **AF-4: Dashboard web theo doi tat ca bugs** | "Xem tong quan bugs qua trinh milestone" | Please-done la CLI tool, khong co web server. Them dashboard = them dependency (Express/Next.js), them maintenance. BUG_*.md files + git log da la "dashboard" dang text. | Dung Grep `.planning/bugs/BUG_*.md` de thong ke. Hoac tich hop vao management report (TS-5). |
+| **AF-5: ML-based bug prediction** | "Du doan file nao se co bug tiep" | Can training data (lich su bugs), ML infrastructure. Vuot xa scope cua prompt-based framework. Cac tool lon (GitHub Copilot) moi bat dau lam dieu nay — qua som cho please-done. | FastCode call chain + manual code review. Bug patterns ghi vao CLAUDE.md (D-2) de AI hoc. |
+| **AF-6: Tu dong tao CVE reference** | "Lien ket bug voi CVE database" | Hau het bugs la logic bugs, khong phai security vulnerabilities co CVE. Goi CVE API them dependency + phuc tap. npm audit da bao loi bao mat dependencies. | D-1 da lien ket SCAN_REPORT (co npm audit). Neu bug la security → ghi manual reference trong BUG report. |
+| **AF-7: Auto-rollback khi fix fail** | "Tu dong revert git khi sua loi khong thanh cong" | Git destructive operations (reset, revert) nguy hiem trong AI context. User co the mat code. Hien tai workflow da co vong lap "user xac nhan" — an toan hon auto-rollback. | Giu vong lap hien tai: user bao chua sua → AI quay lai Buoc 5c. Git history giu moi commit [LOI]. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-TS-1: Mermaid Aesthetics Rules (references/diagram-rules.md)
-   |
-   +---> TS-2: Business Logic Flowchart (flowchart TD from Truths)
-   |        |
-   |        +---> D-1: Truth-to-Diagram Tracing (annotate nodes with T1, T2...)
-   |
-   +---> TS-3: Architecture Diagram (flowchart LR from Artifacts + Key Links)
-   |        |
-   |        +---> D-2: Cross-Phase Dependency Diagram (phase-level flowchart)
-   |        +---> D-3: Sequence Diagram (optional API flows)
-   |
-   +---> TS-4: Management Report Template (templates/visual-report.md)
-            |     (embeds TS-2 and TS-3 diagrams)
-            |
-            +---> D-4: Quality Dashboard Diagram (pie/chart in report)
-            +---> D-5: Milestone Timeline (gantt in report)
-            |
-            +---> TS-5: PDF Export Script (scripts/generate-pdf-report.js)
-                     |
-                     +---> TS-6: Workflow Integration (complete-milestone Step 4.5)
+TS-1: Reproduction Test Case (Buoc 5b)
+   [doc lap — khong phu thuoc gi]
+
+TS-2: Regression Analysis (Buoc 8)
+   └──requires──> FastCode MCP (da co)
+
+TS-3: Auto Cleanup (Buoc 9)
+   [doc lap — khong phu thuoc gi]
+
+TS-4: Dong bo Business Logic (Buoc 10)
+   └──requires──> Buoc 6.5 Logic Update (da co)
+
+TS-5: Tu dong cap nhat bao cao + PDF (Buoc 10)
+   └──requires──> TS-4 (trigger kiem tra)
+   └──requires──> report-filler.js (da co)
+   └──requires──> generate-diagrams.js (da co)
+   └──requires──> generate-pdf-report.js (da co)
+
+D-1: Lien ket pd:scan bao mat (Buoc 4)
+   └──requires──> SCAN_REPORT.md (da co)
+
+D-2: Post-mortem CLAUDE.md (Buoc 10)
+   [doc lap — khong phu thuoc gi]
 ```
 
-### Dependency Notes
+### Ghi chu phu thuoc
 
-- **TS-1 is the root dependency.** All diagram features reference aesthetics rules for consistent output. Must be built first.
-- **TS-2 and TS-3 are parallel after TS-1.** Both produce Mermaid diagrams using rules from TS-1. No dependency between them. Can be built in same phase.
-- **TS-4 depends on TS-2 and TS-3.** Template references and embeds the generated diagrams. Must know diagram output format to define embedding structure.
-- **TS-5 depends on TS-4.** PDF script renders the MANAGEMENT_REPORT.md file. Must know template structure (sections, Mermaid blocks, page break hints) to render correctly.
-- **TS-6 depends on TS-5 (and transitively all upstream).** Workflow integration wires everything together. Must be last.
-- **D-1 enhances TS-2.** Can be included in TS-2 implementation or added later. Low marginal cost.
-- **D-2, D-3 enhance TS-3.** Additional diagram types that follow same patterns. Can be added in same phase or deferred.
-- **D-4, D-5 enhance TS-4.** Additional report sections with embedded diagrams. Can be added in same phase or deferred.
+- **TS-1, TS-3, D-1, D-2 doc lap hoan toan.** Co the xay song song hoac bat ky thu tu nao.
+- **TS-2 phu thuoc FastCode** da co san — chi la goi MCP tool moi trong workflow step moi.
+- **TS-4 mo rong Buoc 6.5** da co — them kiem tra SAU khi sua (khong chi TRUOC khi sua).
+- **TS-5 phu thuoc TS-4** lam trigger — CHI chay khi TS-4 phat hien CO thay doi logic.
+- **TS-5 tai su dung toan bo v1.4 modules** — KHONG can viet code moi, chi goi functions da co.
+- **D-1 va D-2 la differentiators** — co the defer sang v1.5.x neu can.
 
 ---
 
 ## MVP Definition
 
-### Launch With (v1.4)
+### Launch With (v1.5)
 
-All 6 explicitly requested features. The dependency chain requires them in this build order:
+Tat ca 5 Table Stakes + 2 Differentiators. Thu tu build theo vi tri trong workflow:
 
-- [ ] **TS-1: Mermaid Aesthetics Rules** -- foundation, defines visual language for all diagrams
-- [ ] **TS-2: Business Logic Flowchart** -- core visual deliverable, maps Truths to process flow
-- [ ] **TS-3: Architecture Diagram** -- system structure visualization from CODE_REPORTs
-- [ ] **TS-4: Management Report Template** -- professional report embedding diagrams
-- [ ] **TS-5: PDF Export Script** -- renders Markdown+Mermaid to shareable PDF
-- [ ] **TS-6: Workflow Integration** -- automates diagram generation in complete-milestone
+- [x] **D-1: Lien ket pd:scan bao mat** (Buoc 4) — som nhat trong workflow, bo sung context
+- [x] **TS-1: Reproduction Test Case** (Buoc 5b) — tu dong tao test tai hien
+- [x] **TS-2: Regression Analysis** (Buoc 8) — kiem tra anh huong sau khi sua
+- [x] **TS-3: Auto Cleanup** (Buoc 9) — don dep truoc commit
+- [x] **TS-4: Dong bo Business Logic** (Buoc 10) — phat hien thay doi logic
+- [x] **TS-5: Cap nhat bao cao + PDF** (Buoc 10) — tu dong xuat PDF moi
+- [x] **D-2: Post-mortem CLAUDE.md** (Buoc 10) — de xuat bai hoc
 
-### Add After Validation (v1.4.x)
+### Defer (v1.5.x hoac v2+)
 
-Add once core diagram generation works reliably across a few real milestone completions:
-
-- [ ] **D-1: Truth-to-Diagram Tracing** -- annotate flowchart nodes with Truth IDs. Trigger: when first real flowcharts are generated successfully.
-- [ ] **D-2: Cross-Phase Dependency Diagram** -- visualize phase relationships. Trigger: when architecture diagram pattern is proven.
-- [ ] **D-4: Quality Dashboard** -- pie charts for test/bug metrics. Trigger: when PDF rendering handles basic diagrams.
-
-### Future Consideration (v1.5+)
-
-Features to defer until visual reporting has proven its value:
-
-- [ ] **D-3: Sequence Diagrams** -- useful for API-heavy milestones only. Wait for demand.
-- [ ] **D-5: Milestone Timeline** -- gantt charts. Requires date tracking not currently captured.
-- [ ] **Cumulative Architecture Diagrams** -- builds on previous milestones. Requires cross-milestone state.
-- [ ] **Upgrade to `architecture-beta` syntax** -- when Mermaid stabilizes the API (currently experimental).
+- [ ] **Tu dong chay test tai hien** — cho khi co test infrastructure chuan
+- [ ] **Auto-fix regression modules** — cho khi regression analysis da chung minh gia tri
+- [ ] **AST-based change detection** — cho khi heuristics khong du chinh xac
+- [ ] **Bug tracking dashboard** — cho khi co nhu cau web UI
 
 ---
 
 ## Feature Prioritization Matrix
 
-| Feature | User Value | Implementation Cost | Risk | Priority |
-|---------|------------|---------------------|------|----------|
-| TS-1: Mermaid Aesthetics Rules | MEDIUM | LOW | LOW | P1 |
-| TS-2: Business Logic Flowchart | HIGH | MEDIUM | LOW | P1 |
-| TS-3: Architecture Diagram | HIGH | MEDIUM | LOW | P1 |
-| TS-4: Management Report Template | HIGH | LOW | LOW | P1 |
-| TS-5: PDF Export Script | MEDIUM | HIGH | MEDIUM | P1 |
-| TS-6: Workflow Integration | HIGH | LOW | LOW | P1 |
-| D-1: Truth-to-Diagram Tracing | MEDIUM | LOW | LOW | P2 |
-| D-2: Cross-Phase Dependency Diagram | LOW | LOW | LOW | P2 |
-| D-3: Sequence Diagrams | MEDIUM | MEDIUM | LOW | P3 |
-| D-4: Quality Dashboard | LOW | LOW | LOW | P2 |
-| D-5: Milestone Timeline | LOW | LOW | MEDIUM | P3 |
+| Feature | Gia tri user | Chi phi trien khai | Rui ro | Uu tien |
+|---------|-------------|-------------------|--------|---------|
+| TS-1: Reproduction Test Case | HIGH | MEDIUM | LOW | P1 |
+| TS-2: Regression Analysis | HIGH | MEDIUM | LOW | P1 |
+| TS-3: Auto Cleanup | MEDIUM | LOW | LOW | P1 |
+| TS-4: Dong bo Business Logic | HIGH | LOW | LOW | P1 |
+| TS-5: Cap nhat bao cao + PDF | MEDIUM | MEDIUM | MEDIUM | P1 |
+| D-1: Lien ket scan bao mat | MEDIUM | LOW | LOW | P1 |
+| D-2: Post-mortem CLAUDE.md | HIGH | LOW | LOW | P1 |
 
-**Risk assessment:**
-- **TS-5 MEDIUM risk:** Puppeteer dependency is heavy (~400MB). Mermaid rendering timing in headless Chrome can be flaky (need explicit waits). PDF page breaks around diagrams need careful CSS. Consider `puppeteer-core` + system Chrome to reduce install size. Fallback: if PDF generation fails, MANAGEMENT_REPORT.md in Markdown is still valuable.
-- **TS-2/TS-3 LOW risk:** Mermaid `flowchart` syntax is stable (since v8). AI already generates Mermaid in many contexts. The structured data sources (Truths, Key Links, Artifacts) provide clear inputs. Risk is in diagram quality/readability, not in technical feasibility. Rules (TS-1) mitigate quality risk.
-
----
-
-## Existing Workflow Integration Points
-
-The complete-milestone workflow has clear, well-defined integration points.
-
-| Workflow Step | Current Behavior | v1.4 Integration |
-|---------------|------------------|------------------|
-| Step 2: Status check | Scans all phase-*/TASKS.md, TEST_REPORT.md, CODE_REPORT_TASK_*.md | **No change** -- data source for diagram generation |
-| Step 3.5a: Goal-backward verification | Verifies Truths per phase using 4-level verification | **No change** -- verification results feed Quality Metrics section |
-| Step 3.5b: Cross-phase links | Checks export/import match across phases | **No change** -- data feeds architecture diagram edges |
-| Step 4: Summary report | Writes MILESTONE_COMPLETE.md from CODE_REPORTs | **No change** -- MILESTONE_COMPLETE.md still generated for dev audience |
-| **NEW Step 4.5** | Does not exist | **ADD:** Generate MANAGEMENT_REPORT.md: (1) Read all Truths + Key Links + Artifacts from PLANs, (2) Generate flowchart per diagram-rules.md, (3) Generate architecture diagram, (4) Fill MANAGEMENT_REPORT.md template, (5) Call PDF script, (6) Report PDF path |
-| Step 5: CHANGELOG.md | Creates/updates changelog | **No change** |
-| Step 10: Notification | Summarizes milestone, git tag, suggests scan | **UPDATE:** Add PDF file path to notification output |
-
-### Data Sources Already Available for Diagram Generation
-
-| Data Source | Location | Feeds Into | Extraction Complexity |
-|-------------|----------|------------|----------------------|
-| Truths table (5-col) | phase-*/PLAN.md "Su that phai dat" | Flowchart nodes (Description), annotations (Business Value), decision points (Edge Cases) | LOW -- parseTruthsV11() already exists in plan-checker.js |
-| Key Links | phase-*/PLAN.md "Lien ket then chot" | Flowchart edges, Architecture connections | LOW -- structured table format |
-| Artifacts table | phase-*/PLAN.md "San pham can co" | Architecture Diagram components (file paths imply module structure) | LOW -- structured table format |
-| CODE_REPORT_TASK_*.md | phase-*/reports/ | Architecture Diagram (actual modules, APIs, services created) | MEDIUM -- semi-structured, AI must interpret |
-| Cross-phase integration | Computed at Step 3.5b | Cross-phase dependency diagram | LOW -- already computed, just needs Mermaid generation |
-| TEST_REPORT.md | phase-*/ | Quality Metrics (pass/fail counts) | LOW -- structured test results |
-| BUG_*.md | .planning/bugs/ | Risk section (open/resolved bugs) | LOW -- already scanned at Step 3 |
-| VERIFICATION_REPORT.md | phase-*/ | Verification status annotations | LOW -- structured pass/gap data |
+**Danh gia rui ro:**
+- **TS-1 LOW risk:** AI chi TAO file test, khong chay. Output la markdown/code snippet trong `.planning/debug/repro/`. Khong anh huong source code.
+- **TS-2 LOW risk:** FastCode MCP da duoc chung minh qua v1.0-v1.4. Fallback Grep da co. Chi them 1 buoc query.
+- **TS-3 LOW risk:** Pattern matching don gian. LUON hoi user truoc khi xoa. Worst case: user tu choi, khong mat gi.
+- **TS-4 LOW risk:** Heuristics-based, khong can parser phuc tap. Sai → chi miss 1 update bao cao, khong lam hong code.
+- **TS-5 MEDIUM risk:** Goi 3 modules v1.4 lien tiep. Pipeline co the fail o bat ky buoc nao. Giai phap: non-blocking nhu Buoc 3.6 cua complete-milestone — try/catch moi sub-step, chi log warning.
+- **D-1 LOW risk:** Read-only. Doc SCAN_REPORT, khong sua gi. Khong co SCAN_REPORT → bo qua.
+- **D-2 LOW risk:** LUON hoi user truoc khi append CLAUDE.md. User tu choi → khong lam gi.
 
 ---
 
-## Diagram Type Analysis
+## Diem tich hop vao Workflow hien co
 
-Which Mermaid diagram types provide the most value to managers?
+Mapping chinh xac vi tri bo sung trong `workflows/fix-bug.md`:
 
-| Diagram Type | Manager Value | Technical Stability | Recommended Use |
-|--------------|--------------|---------------------|-----------------|
-| `flowchart TD` | HIGH -- shows process/decision flow | HIGH -- stable since v8 | **Primary:** Business logic flows from Truths |
-| `flowchart LR` | HIGH -- shows system architecture | HIGH -- stable since v8 | **Primary:** Architecture overview with subgraphs |
-| `sequenceDiagram` | MEDIUM -- shows interactions | HIGH -- stable | **Secondary:** API flows when milestone has API features |
-| `pie` | MEDIUM -- proportions at a glance | HIGH -- stable | **Optional:** Quality dashboard |
-| `gantt` | MEDIUM -- timeline view | HIGH -- stable | **Optional:** Phase timeline |
-| `C4Context` / `C4Container` | HIGH notation value | LOW -- experimental | **Avoid:** Syntax may change. Use flowchart+subgraphs instead. |
-| `architecture-beta` | HIGH -- native arch support | LOW -- experimental, v11.1+ only | **Avoid:** Too new. PDF rendering untested. |
-| `classDiagram` | LOW -- too technical | HIGH -- stable | **Skip:** Not business-facing |
-| `erDiagram` | LOW -- database detail | HIGH -- stable | **Skip:** Not business-facing |
-| `stateDiagram-v2` | MEDIUM -- state transitions | HIGH -- stable | **Defer:** Useful for workflow visualization in v1.5+ |
+| Buoc hien tai | Hanh vi hien tai | v1.5 Bo sung |
+|---------------|------------------|--------------|
+| Buoc 4: Tim hieu files | FastCode + Context7 tim files lien quan | **THEM D-1:** Doc SCAN_REPORT.md → Grep file bi loi trong "Canh bao bao mat". Khop → ghi SESSION. |
+| Buoc 5b: Tai hien toi gian | Tim duong ngan nhat tai hien, ghi SESSION | **THEM TS-1:** Sau khi tai hien, tao file test trong `.planning/debug/repro/repro_[ten-tat].[ext]`. NestJS → .spec.ts. Flutter → _test.dart. Khac → .test.js hoac script.sh. |
+| Buoc 8: Sua code | Ap dung ban sua, lint+build, test theo phan loai | **THEM TS-2:** Sau lint+build, goi FastCode: "Cac ham/module nao goi [ham da sua]? Anh huong?" Ghi ket qua vao SESSION + BUG report. |
+| Buoc 9: Git commit | git add + commit [LOI] | **THEM TS-3:** TRUOC git add, scan staged files tim debug artifacts. Liet ke → hoi user → xoa hoac giu. |
+| Buoc 10: Xac nhan | User xac nhan da sua / chua sua | **THEM TS-4:** TRUOC hoi user, AI danh gia thay doi logic. **THEM TS-5:** Neu CO thay doi → goi pipeline bao cao. **THEM D-2:** SAU user xac nhan DA SUA → de xuat CLAUDE.md. |
 
-### Management Report Section Design
+### Du lieu da co san cho tung feature
 
-| Section | Content | Data Source | Audience Value |
-|---------|---------|-------------|----------------|
-| Executive Summary | 3-5 sentence business overview: what was built, why it matters, what's next | AI synthesis from Truths "Business Value" column + ROADMAP context | HIGH -- first thing managers read |
-| Business Outcomes | Bullet list of user-facing capabilities delivered | Truths table Descriptions, rewritten in product language per ui-brand.md | HIGH -- answers "What did we get?" |
-| Architecture Overview | Embedded `flowchart LR` + 2-3 sentence explanation | Generated from Artifacts + Key Links + CODE_REPORTs | HIGH -- answers "What does the system look like?" |
-| Key Feature Flows | Embedded `flowchart TD` + descriptions per flow | Generated from Truths + Key Links (user journey perspective) | HIGH -- answers "How does it work?" |
-| Quality Metrics | Tests passed/failed, bugs found/fixed, verification results | TEST_REPORT.md + BUG_*.md + Step 3.5a results | MEDIUM -- managers want confidence signal |
-| Risk & Tech Debt | Open issues, deferred items, areas needing attention | MILESTONE_COMPLETE.md "No ky thuat" section | MEDIUM -- answers "What should I worry about?" |
-| Next Steps | What's planned for next milestone | ROADMAP.md next milestone description | MEDIUM -- answers "What's coming?" |
+| Feature | Du lieu can | Nguon | Do kho truy cap |
+|---------|------------|-------|-----------------|
+| TS-1 | Stack type, trieu chung, buoc tai hien | CONTEXT.md (stack), SESSION (trieu chung) | LOW — da doc o Buoc 1+5 |
+| TS-2 | Ten ham/file da sua | Buoc 8 code changes | LOW — AI vua sua xong, biet files |
+| TS-3 | Files staged cho commit | `git diff --cached --name-only` | LOW — git command don gian |
+| TS-4 | Diff truoc/sau sua | Git diff hoac AI nho changes | LOW — AI vua sua xong |
+| TS-5 | PLAN.md files, templates | `.planning/milestones/[ver]/phase-*/PLAN.md` | LOW — da doc o Buoc 3 |
+| D-1 | SCAN_REPORT.md | `.planning/scan/SCAN_REPORT.md` | LOW — doc 1 file |
+| D-2 | Nguyen nhan goc, pattern loi | SESSION + BUG report | LOW — da co tu Buoc 5-6 |
 
 ---
 
-## Competitor Feature Analysis
+## Phan tich canh tranh
 
-| Feature | Generic Report Tools (Asana, Jira) | Code-to-Diagram Tools (Eraser, CodeToFlow) | Please-Done v1.4 |
-|---------|-------------------------------------|---------------------------------------------|-------------------|
-| Diagram source | Manual creation, templates | Code AST parsing | **AI + structured Truths/Key Links/Artifacts data** |
-| Business context in diagrams | None -- generic project data | None -- pure code visualization | **Truths "Business Value" column annotates every node** |
-| Automation level | Manual updates | One-shot generation | **Fully automated in milestone completion workflow** |
-| Output format | Web dashboard (vendor lock-in) | Web-only, proprietary format | **Markdown + PDF (portable, version-controlled, offline)** |
-| Integration with code workflow | Separate tool, manual sync | Standalone tool | **Built into same workflow that produces code** |
-| Consistency across reports | Template-based but manual | N/A (single use) | **Convention rules + template ensure every milestone looks the same** |
-| Cost | SaaS subscription ($10-25/user/month) | SaaS subscription ($8-20/user/month) | **Open source, zero marginal cost** |
+| Feature | Claude Code (vanilla) | GitHub Copilot Agent | Cursor BugBot | Please-Done v1.5 |
+|---------|----------------------|---------------------|---------------|-------------------|
+| Tai hien co he thong | Khong — fix truc tiep | Khong — fix truc tiep | Review PR, khong tai hien | **Tao file test tai hien + luu SESSION** |
+| Regression analysis | Khong — chi sua file duoc chi dinh | Copilot chay test nhung khong phan tich impact | Khong | **FastCode call chain + canh bao module phu thuoc** |
+| Don dep debug code | Khong — developer tu don | Khong | Khong | **Auto detect + hoi user truoc commit** |
+| Dong bo logic/kien truc | Khong — khong co Truth tracking | Khong — khong co structured logic | Khong | **Heuristics danh gia + tu dong cap nhat diagram/PDF** |
+| Bao cao tu dong | Khong | PR description tu dong | PR review comments | **Management report + PDF export khi logic thay doi** |
+| Lien ket bao mat | Khong | Dependabot rieng biet | Khong | **Lien ket SCAN_REPORT vao bug investigation** |
+| Hoc tu bug (memory) | CLAUDE.md manual | Khong — reset moi session | Khong | **De xuat CLAUDE.md tu dong sau xac nhan** |
 
-**Key insight:** Please-Done v1.4's unique advantage is that diagrams are generated FROM the same structured data (Truths, Artifacts, Key Links) that DRIVES development. This creates a direct traceability link from business requirement -> implementation plan -> visual diagram -> PDF report. No other tool provides this end-to-end chain in a single automated workflow.
-
----
-
-## Infrastructure Dependencies (Existing Components Reused, Not Modified)
-
-| Component | File | Used By | v1.4 Usage |
-|-----------|------|---------|------------|
-| Truths parser | `bin/lib/plan-checker.js` (parseTruthsV11) | TS-2 (flowchart generation) | Read Truths to generate flowchart nodes. Reuse parser, do NOT modify. |
-| ui-brand.md Layer 1 | `references/ui-brand.md` | TS-4 (report template) | Report language follows product framing rules. Reference, do NOT modify. |
-| complete-milestone | `workflows/complete-milestone.md` | TS-6 (workflow integration) | Add Step 4.5. MODIFY workflow file. |
-| conventions.md | `references/conventions.md` | TS-1 (rules may extend this) | Either add diagram rules section here OR create separate `references/diagram-rules.md`. Decision at plan time. |
-| Plan template | `templates/plan.md` | TS-2, TS-3 (data source) | Read Truths/Artifacts/Key Links tables. Do NOT modify template. |
-| Progress template | `templates/progress.md` | Not directly impacted | No change needed. |
-| Converter pipeline | `bin/lib/converters/*.js` | TS-6 (workflow changes need converter update) | complete-milestone.md changes will be transpiled to all 5 platforms. Need snapshot regeneration. |
-| Test suite | `test/*.test.js` | TS-5 (new script needs tests) | Add tests for generate-pdf-report.js. Plan-checker tests NOT impacted (no parser changes). |
+**Insight chinh:** Khong AI coding tool nao hien co ket hop tat ca 7 features trong 1 workflow lien tuc. Claude Code manh ve fix code nhung khong co structured investigation. Copilot manh ve PR nhung khong co regression analysis. Please-done v1.5 la workflow DUY NHAT co: tai hien → sua → kiem tra anh huong → don dep → dong bo logic → bao cao → hoc bai.
 
 ---
 
 ## Sources
 
-- [Mermaid.js Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html) -- official docs, HIGH confidence
-- [Mermaid Syntax Reference](https://mermaid.js.org/intro/syntax-reference.html) -- all diagram types, HIGH confidence
-- [Mermaid Architecture Diagrams v11.1+](https://mermaid.js.org/syntax/architecture.html) -- experimental feature, MEDIUM confidence
-- [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html) -- experimental, MEDIUM confidence
-- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) -- official CLI for rendering, HIGH confidence
-- [mermaid-cli GitHub](https://github.com/mermaid-js/mermaid-cli) -- API docs, HIGH confidence
-- [md-mermaid-to-pdf npm](https://www.npmjs.com/package/md-mermaid-to-pdf) -- Puppeteer-based PDF with Mermaid, MEDIUM confidence
-- [@ml-lubich/markpdf npm](https://www.npmjs.com/package/@ml-lubich/markpdf) -- modern Markdown+Mermaid to PDF, MEDIUM confidence
-- [Asana: Project Status Reports](https://asana.com/resources/how-project-status-reports) -- management report structure, MEDIUM confidence
-- [FineReport: Project Management Report](https://www.finereport.com/en/reporting-tools/project-management-report.html) -- report structure, MEDIUM confidence
-- [TheProjectGroup: Project Status Report 2025](https://www.theprojectgroup.com/blog/en/project-status-report/) -- report sections best practices, MEDIUM confidence
-- [Sourcegraph: Flowcharting Code with Mermaid](https://sourcegraph.com/blog/using-cody-and-mermaid-to-generate-flowcharts) -- AI + Mermaid patterns, MEDIUM confidence
-- [Zencoder: Generate Architecture Diagrams](https://docs.zencoder.ai/user-guides/tutorials/generate-codebase-diagrams) -- diagram generation patterns, MEDIUM confidence
-- [Puppeteer HTML to PDF](https://blog.risingstack.com/pdf-from-html-node-js-puppeteer/) -- PDF generation patterns, MEDIUM confidence
-- [How to Generate PDFs in 2025](https://dev.to/michal_szymanowski/how-to-generate-pdfs-in-2025-26gi) -- modern PDF approaches, MEDIUM confidence
-- Please-Done codebase: `workflows/complete-milestone.md`, `templates/plan.md`, `references/ui-brand.md`, `references/conventions.md`, `bin/lib/plan-checker.js`, `package.json` -- PRIMARY, HIGH confidence
+- [Qodo AI Code Review Tools](https://www.qodo.ai/) — business logic detection trong code review, MEDIUM confidence
+- [Quash: Regression Testing 2025](https://quashbugs.com/blog/regression-testing-2025-ai) — AI-driven change impact analysis, MEDIUM confidence
+- [Katalon: AI Regression Testing 2026](https://katalon.com/resources-center/blog/ai-in-regression-testing) — dependency analysis patterns, MEDIUM confidence
+- [AlterSquare: AI Coding Tool No Memory](https://altersquare.io/ai-coding-tool-no-memory-bug-broke-prod-last-quarter/) — post-mortem memory gap, MEDIUM confidence
+- [Pete Hodgson: AI Coding Assistant Keeps Doing It Wrong](https://blog.thepete.net/blog/2025/05/22/why-ai-coding-assistant-keeps-doing-it-wrong-and-how-to-fix-it/) — CLAUDE.md as institutional memory, MEDIUM confidence
+- [Aikido: Remove Debug Code Before Commits](https://www.aikido.dev/code-quality/rules/remove-debugging-and-temporary-code-before-commits-a-security-and-performance-guide) — 68% production issues from debug artifacts, MEDIUM confidence
+- [JetBrains: Cleanup Code Before Commit](https://www.jetbrains.com/guide/go/tips/vcs-cleanup-code-before-commit/) — pre-commit cleanup patterns, HIGH confidence
+- [Dev Genius: Copilot vs Cursor vs Claude Code Bug Fix Comparison](https://blog.devgenius.io/github-copilot-vs-cursor-vs-claude-code-which-ai-actually-fixes-production-bugs-9485b33131c6) — competitive landscape, MEDIUM confidence
+- [WorkOS: Cursor BugBot + Claude Code PRs](https://workos.com/blog/cursor-bugbot-autoreview-claude-code-prs) — BugBot autofix patterns, MEDIUM confidence
+- [NestJS Testing Docs](https://docs.nestjs.com/fundamentals/testing) — NestJS test patterns, HIGH confidence
+- Please-Done codebase: `workflows/fix-bug.md`, `commands/pd/fix-bug.md`, `workflows/scan.md`, `bin/lib/report-filler.js`, `bin/lib/generate-diagrams.js`, `bin/lib/pdf-renderer.js` — PRIMARY, HIGH confidence
 
 ---
-*Feature research for: Visual Business Logic Reports (please-done v1.4)*
+*Feature research cho: Nang cap skill fix-bug (please-done v1.5)*
 *Researched: 2026-03-24*

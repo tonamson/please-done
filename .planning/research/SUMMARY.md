@@ -1,17 +1,19 @@
 # Project Research Summary
 
-**Project:** please-done v1.4 — Visual Business Logic Reports
-**Domain:** Mermaid.js diagram generation, PDF export, management report templates, workflow integration
+**Project:** please-done v1.5 — Nang cap Skill Fix-Bug
+**Domain:** Tu dong hoa dieu tra loi, phan tich hoi quy, dong bo business logic, bao cao PDF
 **Researched:** 2026-03-24
 **Confidence:** HIGH
 
+---
+
 ## Executive Summary
 
-Milestone v1.4 them visual reporting vao please-done AI coding skill framework. Hien tai, toan bo dau ra cua framework la Markdown thuan tuy — cac nha quan ly nhan duoc danh sach task va bang loi, khong co bieu do luong nghiep vu hay kien truc he thong. v1.4 lap day khoang trong nay bang cach sinh so do Mermaid tu du lieu co cau truc san co (bang Truths, Key Links, Artifacts, CODE_REPORTs) roi dong goi thanh MANAGEMENT_REPORT.md chuyen nghiep kem xuat PDF. Loi the cot loi so voi cac cong cu SaaS: moi node trong so do co the truy vet nguoc ve Truth ID — duong ket noi truc tiep tu yeu cau nghiep vu -> ke hoach trien khai -> so do truc quan -> bao cao PDF.
+v1.5 nang cap workflow `fix-bug` hien co (10 buoc) bang cach them 7 tinh nang tu dong hoa: tao reproduction test case, phan tich regression qua FastCode call chain, don dep debug log truoc commit, dong bo business logic, cap nhat bao cao quan ly + PDF, lien ket canh bao bao mat, va de xuat post-mortem CLAUDE.md. Nghien cuu xac nhan tat ca 7 tinh nang co the xay dung hoan toan ma **khong them bat ky dependency moi** nao — chi can 2 module JS moi (repro-test-generator, regression-analyzer), mo rong workflow markdown, va tai su dung cac module v1.4 da co (report-filler, generate-diagrams, generate-pdf-report).
 
-Huong tiep can duoc khuyen nghi la kien truc hai lop: Lop 1 la AI sinh Mermaid-in-Markdown (zero dependencies, hoat dong tren Node 16.7+); Lop 2 la xuat PDF tuy chon qua Puppeteer (yeu cau Node 18+, cai rieng). Stack cu the la `puppeteer@24` + `marked@17` trong mot script tuy chinh `scripts/generate-report-pdf.js` — khong dung wrapper package vi md-to-pdf khong ho tro Mermaid native va triet ly du an la "pure scripts, no bundler". Day la 2 runtime dependency dau tien cua du an ke tu khi ra mat, nhung khong duoc them vao `package.json` dependencies chinh — phai dung runtime detection de bao toan install experience cho nguoi dung hien tai.
+Kien truc chinh la **Workflow-First, Module-Lean**: phan lon logic nam trong workflow markdown (AI agent xu ly), module JS moi CHI duoc tao khi co logic phuc tap can test don vi doc lap. Nguyen tac pure function tuyet doi (khong doc file, khong goi MCP trong lib/) phai duoc duy tri — day la constraint kien truc cot loi tu v1.1 dam bao 526 tests hien tai van chay. Tat ca 7 tinh nang moi deu la "conditional sub-steps" nam trong cac buoc hien co (khong tao buoc moi so), giu workflow duoi nguong 420 dong.
 
-Rui ro chinh la Puppeteer/Chromium binary bloat (~200MB) pha vo install experience neu bi them sai vao dependencies, Node.js version incompatibility neu nang engines tu 16.7 len 18 mot cach khong can than, va AI-generated Mermaid syntax errors do Mermaid parser nghiem ngat voi ky tu dac biet. Ba rui ro nay co the gay cascading failure xuyen suot toan bo 4 phase neu khong duoc giai quyet o Phase 1. Mitigation ro rang: Puppeteer la opt-in runtime dependency; giu `engines.node >= 16.7.0`; them Mermaid syntax validator khong can Puppeteer (merval pattern) vao Phase 2 truoc khi viet script.
+Rui ro lon nhat la Workflow Step Explosion — them tinh nang sai cach co the lam fix-bug.md vuot 400 dong va agent mat context. Phuong an phong tranh ro rang: nho tinh nang vao buoc hien tai (khong tao buoc moi so), dung conditional pattern, giu moi sub-step non-blocking. Cac rui ro khac (false positive tu auto cleanup, regression analysis noise, PDF dependency vong tron) deu co phuong an cu the da duoc nghien cuu.
 
 ---
 
@@ -19,80 +21,85 @@ Rui ro chinh la Puppeteer/Chromium binary bloat (~200MB) pha vo install experien
 
 ### Recommended Stack
 
-Toan bo ecosystem Mermaid/PDF yeu cau Node 18+, tuy nhien du an phai giu kha nang tuong thich voi Node 16.7+. Giai phap la dung lazy `require()` va runtime detection — script kiem tra Node version va Puppeteer availability luc chay, khong phai luc install. Mermaid duoc inject qua CDN vao Puppeteer page context (khong cai npm) vi Mermaid can DOM (`SVGTextElement.getBBox`) khong the chay server-side thuan tuy.
+Khong co dependency moi nao can them. Toan bo v1.5 xay dung tren Node.js 18+ built-in APIs (regex, string, array, node:test). 5 module JS moi uoc tinh tong ~400-600 LOC — tat ca la pure functions, moi module co 1 test file tuong ung.
 
-**Core technologies:**
-- `puppeteer@24`: PDF generation + headless Chrome cho Mermaid rendering — industry standard, tu download Chromium, Node 18+ required. Dung `puppeteer` (full) khong dung `puppeteer-core` de script "just work" ma khong can nguoi dung tu cau hinh Chrome path.
-- `marked@17`: Markdown-to-HTML voi custom renderer — 11,484 dependents, nhe, nhanh. Custom renderer intercept mermaid code blocks thanh `<pre class="mermaid">` cho Mermaid CDN render.
-- `mermaid@11` (CDN, khong npm): Diagram rendering trong Puppeteer page context — inject qua `page.addScriptTag({ url: CDN_URL })`. Pin version cu the de tranh CDN thay doi.
-- Mermaid syntax validator (zero-dependency, pure JS): validate truoc khi render, tranh crash workflow. Pattern: merval library hoac viet nho tuong duong.
+**Core technologies (lien quan v1.5):**
+- **Node.js built-ins (regex, string, array, node:test, node:assert):** Xu ly text cho 5 module moi — thay the hoan toan ts-morph, jscodeshift, graphlib, diff library
+- **Template literals JS:** Tao reproduction test skeleton theo stack (NestJS, Flutter, Generic) — ~100-150 LOC, khong can AST parser
+- **Regex line filter:** Auto cleanup debug logs multi-stack (JS, TS, Dart, PHP) — chi match pattern co marker ro rang `[PD-DEBUG]`
+- **Array-based BFS:** Regression dependency traversal 1-2 levels — thay the graphlib
+- **FastCode MCP (da co):** Call chain analysis chinh xac cho regression — module regression-analyzer la FALLBACK
+- **report-filler.js + generate-diagrams.js + generate-pdf-report.js (v1.4, da co):** Tai su dung truc tiep cho PDF pipeline, khong sua
 
-**Khong dung:** md-to-pdf (khong native Mermaid), mermaid npm package trong Node.js (can DOM), puppeteer-core (yeu cau manual Chrome config), architecture-beta / C4Context (experimental syntax, rui ro render).
+**Van de shared parser can giai quyet o Phase 1:** `parseTruthsFromContent` hien ton tai inline o 2 noi (generate-diagrams.js va plan-checker.js noi bo). Can quyet dinh: tao shared helper `bin/lib/truths-parser.js` rieng hay de logic-change-detector.js inline (nhu generate-diagrams.js da lam). Trade-off: DRY vs circular dep risk.
 
 **Chi tiet:** Xem `.planning/research/STACK.md`
 
 ### Expected Features
 
-6 tinh nang bat buoc cho v1.4, co dependency chain ro rang: TS-1 la root, TS-2 va TS-3 song song sau TS-1, TS-4 phu thuoc TS-2 va TS-3, TS-5 phu thuoc TS-4, TS-6 phu thuoc TS-5 va toan bo upstream.
+7 tinh nang chia lam 5 Table Stakes + 2 Differentiators, tat ca phai ship trong v1.5.
 
-**Must have (table stakes — toan bo 6 phai ship):**
-- **TS-1: Mermaid Aesthetics Rules** (`references/mermaid-rules.md`) — foundation: color palette, node shapes (service=rounded, DB=cylinder, API=hexagon), label conventions (toi da 20 ky tu/node), max 15-20 nodes/diagram, direction rules (TD cho logic, LR cho architecture), bat buoc double-quote quoting cho moi node label
-- **TS-2: Business Logic Flowchart** (`flowchart TD` tu Truths + Key Links) — core visual deliverable; node = Truth description, decision diamond = Edge Cases; tuy chon gop D-1 (Truth ID annotation)
-- **TS-3: Architecture Diagram** (`flowchart LR` voi subgraphs tu Artifacts + Key Links + CODE_REPORTs) — system structure; subgraph = module boundary; tranh experimental syntax
-- **TS-4: Management Report Template** (`templates/management-report.md`) — 7 sections: Executive Summary, Business Outcomes, Architecture Overview, Key Feature Flows, Quality Metrics, Risk & Tech Debt, Next Steps; ngon ngu tieng Viet huong san pham theo ui-brand.md Layer 1
-- **TS-5: PDF Export Script** (`scripts/generate-report-pdf.js`) — Puppeteer pipeline: read .md -> HTML (marked) -> inject Mermaid CDN -> render -> page.pdf(); graceful degradation neu Node < 18 hoac Puppeteer chua cai; 30s timeout; `finally` cleanup
-- **TS-6: Workflow Integration** (them Buoc 4.5 + 4.6 vao `workflows/complete-milestone.md`) — non-blocking, optional; MILESTONE_COMPLETE.md luon duoc tao bat ke diagram step co thanh cong hay khong
+**Must have — Table Stakes:**
+- **TS-1: Reproduction Test Case** (Buoc 5b) — tao skeleton test file trong `.planning/debug/repro/`, AI dien TODO markers, khong chay tu dong
+- **TS-2: Regression Analysis** (Buoc 8) — goi FastCode call chain truoc khi sua, bao cao modules anh huong (toi da 5-10 files), chi canh bao, khong tu dong sua
+- **TS-3: Auto Cleanup** (Buoc 9) — scan marker `[PD-DEBUG]` ma AI tu them, hoi user truoc khi xoa (list-only mode mac dinh), KHONG tu dong
+- **TS-4: Dong bo Business Logic** (Buoc 10) — AI danh gia thay doi logic bang heuristics (condition/arithmetic/endpoint signals), khong thay the AI judgment bang rule-based
+- **TS-5: Cap nhat bao cao + PDF** (Buoc 10, chi khi TS-4 = CO) — chi cap nhat Mermaid diagram trong report co san (khong tao report moi), PDF re-render la tuy chon
 
-**Should have (differentiators — them sau validation, v1.4.x):**
-- **D-1: Truth-to-Diagram Tracing** — annotate flowchart nodes voi Truth ID (e.g., `T1: [mo ta]`); low marginal cost, co the gop vao TS-2
-- **D-2: Cross-Phase Dependency Diagram** — flowchart LR tu cross-phase integration table da tinh o Buoc 3.5b
-- **D-4: Quality Dashboard** — Mermaid `pie` chart cho test/bug metrics
-
-**Defer (v1.5+):**
-- D-3: Sequence Diagrams (chi can cho milestone co API features)
-- D-5: Milestone Timeline (gantt; can date tracking chua co)
-- Upgrade len `architecture-beta` syntax (khi Mermaid on dinh API)
+**Should have — Differentiators:**
+- **D-1: Lien ket pd:scan bao mat** (Buoc 4) — loc canh bao lien quan theo file/function, max 3 canh bao, freshness check 7 ngay, non-blocking
+- **D-2: Post-mortem CLAUDE.md** (Buoc 10) — de xuat 1-2 rule, hoi user truoc khi append, KHONG tu dong ghi, KHONG truoc khi user xac nhan
 
 **Anti-features — khong lam:**
-- Interactive HTML diagrams (can web server, pha vo CLI workflow)
-- Real-time diagrams trong write-code (qua phuc tap cho prompt-based system)
-- Full code-to-flowchart conversion (so do khong doc duoc, sai muc dich)
+- Tu dong chay reproduction test (test runner khac nhau moi stack, false negative nguy hiem)
+- Auto-fix regression modules (scope creep, co the gay them bug)
+- AST-based change detection (maintenance burden cho 5 stacks)
+- Bug tracking dashboard web (ngoai scope CLI tool)
+- ML-based bug prediction (qua som cho please-done)
+
+**Defer sang v2+:**
+- Tu dong chay test tai hien khi co test infrastructure chuan
+- Auto-fix cascade khi regression analysis da chung minh gia tri
+- AST analysis khi heuristics khong du chinh xac
 
 **Chi tiet:** Xem `.planning/research/FEATURES.md`
 
 ### Architecture Approach
 
-Kien truc hai lop tach biet hoan toan AI text generation (zero dependencies, chay tren moi Node version) khoi PDF rendering (Puppeteer, Node 18+, optional). Lop 1 luon hoat dong va da co gia tri vi Mermaid-in-Markdown render native tren GitHub, VS Code, va cac Markdown viewer hien dai. Lop 2 la convenience cho manager nhan PDF. Moi component moi deu theo 6 patterns da thiet lap cua du an: template-driven output, conditional reading, pure functions, CLI wrapper, graceful degradation, non-blocking workflow steps.
+Kien truc v1.5 dua tren nguyen tac **Workflow-First, Module-Lean**: phan lon 7 tinh nang moi nam trong workflow markdown duoi dang conditional sub-steps, chi 2 module JS moi can tao (repro-test-generator va regression-analyzer) vi chung co logic phuc tap can unit test doc lap. 5 tinh nang con lai (auto cleanup, business logic signals, PDF update, security linking, post-mortem) duoc xu ly truc tiep boi AI agent trong workflow — khong can module rieng. Nguyen tac pure function tuyet doi: tat ca module trong `bin/lib/` nhan content string, tra ket qua, khong doc file, khong goi MCP.
 
-**Major components (6 moi, 5 sua doi):**
-1. `references/mermaid-rules.md` [MOI] — standalone reference, zero dependencies, dinh nghia visual language
-2. `templates/management-report.md` [MOI] — scaffold template voi Mermaid block placeholders, AI dien noi dung thuc
-3. `bin/lib/mermaid-validator.js` [MOI] — pure-function validator, zero deps, validate syntax truoc render
-4. `scripts/generate-report-pdf.js` [MOI] — CLI script voi lazy require Puppeteer, graceful exit neu thieu dep
-5. `bin/lib/report-generator.js` [MOI, optional] — pure-function helpers extract data tu CODE_REPORTs
-6. `workflows/complete-milestone.md` [SUA] — them Buoc 4.5 (MANAGEMENT_REPORT.md) + Buoc 4.6 (optional PDF)
-7. `commands/pd/complete-milestone.md` [SUA] — them conditional_reading cho template + mermaid-rules
-8. `test/smoke-mermaid-validator.test.js` [MOI] — unit tests cho validator
-9. `package.json` [SUA] — them npm script `"report:pdf"` (KHONG them puppeteer/marked vao dependencies)
-10. 48 converter snapshots [REGENERATE] — sau khi sua complete-milestone.md
+**Major components:**
+1. `workflows/fix-bug.md` (sua doi) — them 6 conditional sub-steps: 4a, 5b mo rong, 8a, 9.5, 9.7, 10.5
+2. `bin/lib/repro-test-generator.js` (moi) — pure function, tao skeleton test theo stack (NestJS/Flutter/Generic), ~100-150 LOC
+3. `bin/lib/regression-analyzer.js` (moi, fallback) — pure function, BFS 2 levels khi FastCode khong kha dung, ~80-120 LOC
+4. `test/snapshots/` (tai tao) — 4 platform snapshots (codex, copilot, gemini, opencode) can regenerate sau khi sua fix-bug.md
+5. Modules v1.4 khong sua — report-filler.js, generate-diagrams.js, generate-pdf-report.js
 
-**Files khong thay doi:** `plan-checker.js`, `workflows/plan.md`, `workflows/write-code.md`, `templates/plan.md`, platform converters (tu dong propagate).
+**Luong du lieu:**
+- D-1: SCAN_REPORT.md -> Grep file bi loi -> SESSION (canh bao)
+- TS-1: Trieu chung + Stack + File/function -> repro-test-generator.js -> test file trong .planning/debug/repro/
+- TS-2: File bi loi -> regression-analyzer.js HOAC FastCode call chain -> SESSION + BUG report
+- TS-3: `git diff --cached` -> Grep markers -> Edit xoa -> git add lai
+- TS-4/TS-5: BUG_*.md Logic Changes -> CO/KHONG -> fillManagementReport pipeline -> report + optional PDF
+- D-2: BUG_*.md + SESSION -> de xuat text -> user confirm -> append CLAUDE.md
 
 **Chi tiet:** Xem `.planning/research/ARCHITECTURE.md`
 
 ### Critical Pitfalls
 
-1. **Puppeteer vao main package.json dependencies** — pha vo Node 16.7 compatibility, tang install size 10,000x, anh huong tat ca users. Phong tranh: dung `try/require` runtime detection; KHONG them vao `dependencies` hay `devDependencies`; giu `engines.node >= 16.7.0`.
+1. **Workflow Step Explosion** — Them tinh nang nhu buoc moi so co the day workflow len 17+ buoc, agent mat context, bo qua buoc. **Phong tranh:** nho tinh nang vao buoc hien tai (5b, 8, 9, 10), dung conditional pattern, giu file duoi 420 dong, moi sub-step phai co skip condition.
 
-2. **AI-generated Mermaid syntax errors crash render pipeline** — Mermaid parser khong co partial-render mode, mot ky tu sai pha vo toan bo diagram. LLMs thuong sinh sai syntax (ky tu dac biet, reserved keywords, zero-width chars). Phong tranh: bat buoc double-quote quoting cho toan bo node labels trong mermaid-rules.md; them merval-style validator truoc khi render; graceful degradation sang raw Mermaid code block neu render fail.
+2. **Auto Cleanup Xoa Code Production** — Regex match `console.log` toan bo file co the xoa audit log, production logging, Flutter print() can thiet. **Phong tranh:** CHI xoa dong co marker `[PD-DEBUG]` ma AI tu them; luon hoi user truoc (list-only mode mac dinh); khong chay tren file AI khong sua.
 
-3. **complete-milestone workflow bi fragile** — bat ky failure nao o diagram step khong duoc block milestone completion. Phong tranh: Buoc 4.5 va 4.6 phai non-blocking; workflow instruction dung "attempt" khong dung "phai"; feature-flag: chi attempt render neu Puppeteer available.
+3. **Regression Analysis False Positive Cascade** — FastCode tra ve 50+ files phu thuoc cho 1 utility function, gay token waste va user hoang loan. **Phong tranh:** Gioi han 1-2 level depth, filter theo function bi loi (khong theo file), cap toi da 5-10 files trong bao cao.
 
-4. **Existing 448+ tests bi break** — Puppeteer import o top-level crash khi chua install; snapshot tests detect moi change trong workflows/templates. Phong tranh: lazy require trong function body; skip-guard trong test files; regenerate 48 snapshots sau khi thay doi complete-milestone.md trong commit tach biet.
+4. **Vi Pham Pure Function Pattern** — Module moi co `require('fs')` hoac goi MCP truc tiep pha vo toan bo testing strategy (526 tests can mock phuc tap, kho maintain). **Phong tranh:** Bat buoc `// KHONG doc file` trong JSDoc header; test litmus: neu test can mock filesystem -> vi pham.
 
-5. **Headless Chrome failures trong CI/Docker** — missing system libraries, no sandbox, corporate antivirus block Chromium. Phong tranh: PDF generation khong duoc la CI step; test Mermaid syntax only trong CI (zero-dep validator); script gracefully exit voi install instructions.
+5. **528 Tests + 48 Snapshots Bi Pha** — Sua fix-bug.md lan truyen den 4 platform snapshots (codex, copilot, gemini, opencode). **Phong tranh:** Chay `smoke-snapshot.test.js` sau moi thay doi workflow; regenerate snapshots trong commit rieng tach biet.
 
-6. **Vietnamese font rendering** — dau tieng Viet bi garbled trong PDF neu khong cau hinh font. Phong tranh: specify `fontFamily: "Noto Sans"` hoac font tuong duong trong Puppeteer page styles; test thuc te voi van ban tieng Viet truoc khi merge.
+6. **PDF Circular Dependency voi Complete-Milestone** — Fix-bug khong co STATE.md va toan bo PLAN.md context ma fillManagementReport() can. **Phong tranh:** CHI cap nhat Mermaid diagram trong report co san (ham rieng updateReportDiagram()), KHONG goi fillManagementReport() truc tiep.
+
+7. **Post-mortem Ghi De CLAUDE.md** — Auto ghi CLAUDE.md la xam pham user autonomy, rule co the xung dot voi config hien tai. **Phong tranh:** CHI de xuat (output la Markdown block trong BUG report), LUON hoi user, toi da 2 suggestions per bug.
 
 **Chi tiet:** Xem `.planning/research/PITFALLS.md`
 
@@ -100,51 +107,74 @@ Kien truc hai lop tach biet hoan toan AI text generation (zero dependencies, cha
 
 ## Implications for Roadmap
 
-Dependency chain TS-1 -> {TS-2, TS-3} -> TS-4 -> TS-5 -> TS-6 quyet dinh thu tu phase bat buoc. Khong the thay doi thu tu nay.
+Dua tren nghien cuu, de xuat cau truc 3 phase theo thu tu phu thuoc va rui ro:
 
-### Phase 1: Foundation — Mermaid Rules + Management Report Template
-**Rationale:** TS-1 la root dependency. Tat ca diagram features phu thuoc vao rules. TS-4 template can biet diagram output format de define embedding structure. Ca hai component deu standalone (zero dependencies), khong rui ro ky thuat. Phase nay thiet lap visual language va report format cho toan bo milestone.
-**Delivers:** `references/mermaid-rules.md` (node shapes, colors, label conventions, max 20 nodes, quoting rules, direction rules, anti-patterns) + `templates/management-report.md` (7-section scaffold template voi Mermaid placeholders va huong dan cho AI)
-**Addresses:** TS-1, TS-4 (foundation)
-**Avoids:** Pitfall 3 (AI syntax errors) bang explicit quoting rules va negative examples trong mermaid-rules.md
+### Phase 1: Nen Tang Module va Workflow Shell
 
-### Phase 2: Diagram Generation + Mermaid Validator
-**Rationale:** TS-2 va TS-3 co the build song song sau Phase 1. Mermaid validator phai ton tai truoc khi viet PDF script de validation logic co the unit test doc lap khong can Puppeteer. `report-generator.js` la optional acceleration — AI co the generate diagrams thuan tuy tu doc CODE_REPORTs.
-**Delivers:** `bin/lib/mermaid-validator.js` (pure-function, zero deps, validate syntax truoc render) + `test/smoke-mermaid-validator.test.js` + `bin/lib/report-generator.js` (optional) + workflow instructions cho AI tao `flowchart TD` va `flowchart LR` theo rules
-**Addresses:** TS-2 (Business Logic Flowchart), TS-3 (Architecture Diagram); tuy chon gop D-1 (Truth ID annotation)
-**Uses:** Pure-function pattern tu `plan-checker.js`; merval pattern cho validation
-**Avoids:** Pitfall 3 (syntax validation truoc render); Pitfall 5 (pure functions khong can Puppeteer, tests luon pass)
+**Rationale:** Phai giai quyet quyet dinh kien truc truoc khi code bat ky tinh nang nao. Tao 2 module pure function moi voi test files tuong ung. Them conditional sub-steps vao fix-bug.md theo dung vi tri. Giai quyet van de shared Truths parser (inline hay rieng). Day la phase mat nhieu quyet dinh kien truc nhat va sai o day se lan truyen den moi feature.
 
-### Phase 3: PDF Export Script
-**Rationale:** Script can template (Phase 1) de test end-to-end, va can validator (Phase 2) cho pre-render validation. Day la phase co rui ro ky thuat cao nhat vi lien quan den Puppeteer, Chromium, file I/O, cross-platform. Phai build doc lap truoc khi integrate vao workflow.
-**Delivers:** `scripts/generate-report-pdf.js` (lazy require Puppeteer, Node version check, 30s timeout, `finally` cleanup, graceful exit khi thieu deps) + npm script `"report:pdf"` trong package.json
-**Addresses:** TS-5 (PDF Export Script)
-**Uses:** `puppeteer@24` + `marked@17` + Mermaid CDN injection (`mermaid@11`)
-**Avoids:** Pitfall 1 (Node version — graceful exit Node < 18); Pitfall 2 (Puppeteer khong trong main deps); Pitfall 6 (CI/Docker — PDF khong phai CI step); Vietnamese font configuration trong script
+**Delivers:**
+- `bin/lib/repro-test-generator.js` + test file
+- `bin/lib/regression-analyzer.js` + test file
+- Quyet dinh Truths parser (inline trong logic-change-detector hay tao truths-parser.js rieng)
+- fix-bug.md voi 6 sub-steps moi duoi dang skeleton/placeholder
+- Tat ca 526 tests van xanh sau khi them module moi
+- Snapshots da duoc regenerate neu workflow thay doi
 
-### Phase 4: Workflow Integration + Snapshot Regeneration
-**Rationale:** TS-6 phai la phase cuoi vi phu thuoc tat ca upstream features. Thay doi `complete-milestone.md` affects tat ca 5 platform converters (48 snapshots). Regenerate snapshots phai la buoc rieng biet va duoc kiem tra ky. Day la phase co rui ro trung binh-cao nhat ve test stability.
-**Delivers:** `workflows/complete-milestone.md` (Buoc 4.5 non-blocking + Buoc 4.6 optional) + `commands/pd/complete-milestone.md` (conditional_reading) + 48 converter snapshots regenerated + Step 10 notification cap nhat PDF path
-**Addresses:** TS-6 (Workflow Integration)
-**Avoids:** Pitfall 4 (workflow fragility — non-blocking, optional); Pitfall 5 (snapshot regeneration trong isolated commit, khong gop voi workflow change commit)
+**Addresses:** TS-1 (skeleton module), TS-2 (skeleton module)
+
+**Avoids:** Pitfall 6 (pure function), Pitfall 7 (snapshot), Pitfall 1 (workflow structure — quyet dinh vi tri sub-steps)
+
+---
+
+### Phase 2: Tich hop Core Features (Buoc 5b, 8, 9 + D-1)
+
+**Rationale:** Sau khi co module va workflow shell, tich hop 3 tinh nang co gia tri cao nhat theo thu tu trong workflow: reproduction test (Buoc 5b), regression analysis (Buoc 8), auto cleanup (Buoc 9), va security linking (Buoc 4a). Ba tinh nang nay doc lap nhau va doc lap voi PDF/post-mortem.
+
+**Delivers:**
+- TS-1 day du: repro-test-generator tich hop vao Buoc 5b, tao file test trong `.planning/debug/repro/`
+- TS-2 day du: FastCode call chain tich hop vao Buoc 8a, regression-analyzer lam fallback, bao cao anh huong (max 5-10 files)
+- TS-3 day du: marker system `[PD-DEBUG]`, list-only mode, hoi user truoc khi xoa
+- D-1 day du: security warning linking voi freshness check (7 ngay), loc theo function, max 3 canh bao
+
+**Uses:** repro-test-generator.js, regression-analyzer.js, FastCode MCP (da co), Grep (da co)
+
+**Avoids:** Pitfall 2 (test that tests nothing), Pitfall 3 (false dependency cascade), Pitfall 4 (cleanup xoa production code), Pitfall 9 (wolf cry security warnings)
+
+---
+
+### Phase 3: Business Logic Sync, PDF Update, Post-mortem (Buoc 9.7, 10.5 + D-2)
+
+**Rationale:** Ba tinh nang nay phu thuoc vao nhau theo chieu: TS-4 trigger TS-5, D-2 chay sau khi user xac nhan DA SUA. Deu nam o Buoc 9.7 va 10.5 cua workflow. Can giai quyet Pitfall 8 (PDF circular dependency) truoc khi trien khai TS-5 — tao ham `updateReportDiagram()` rieng thay vi goi `fillManagementReport()`.
+
+**Delivers:**
+- TS-4 day du: heuristics phat hien logic signals (condition/arithmetic/endpoint changes), AI quyet dinh CO/KHONG
+- TS-5 day du: chi cap nhat Mermaid diagram trong report co san (ham updateReportDiagram() moi), PDF re-render la tuy chon do user chay
+- D-2 day du: de xuat 1-2 rule CLAUDE.md, hoi user, output la Markdown block trong BUG report
+- fix-bug.md hoan chinh, tat ca 526 tests xanh, snapshots cap nhat
+
+**Avoids:** Pitfall 5 (false positive logic detection), Pitfall 8 (PDF circular dependency), Pitfall 10 (CLAUDE.md overwrite)
+
+---
 
 ### Phase Ordering Rationale
 
-- **Foundation truoc:** TS-1 la root dependency, khong the bo qua. Template can rules truoc khi define scaffold. Ca hai la additive files moi, zero-risk.
-- **Validator truoc Script:** Mermaid validator phai ton tai truoc PDF script de pre-render validation co the goi validator. Tach biet validation logic khoi rendering logic cho phep unit test doc lap.
-- **Script truoc Workflow:** PDF script phai duoc test doc lap truoc khi integrate vao complete-milestone workflow de tranh pha vo workflow dang stable va da duoc battle-tested qua 4 milestones.
-- **Workflow la cuoi cung:** Thay doi complete-milestone la high-risk (affects 5 converters, 48 snapshots). Delay den cuoi de co the test hoan chinh voi script da verify.
-- **Tach biet rui ro:** Phase 1-2 zero-risk (khong dependency moi); Phase 3 high-risk (Puppeteer) duoc co lap; Phase 4 medium-risk (workflow change) duoc test sau khi Phase 3 stable.
+- **Phase 1 truoc:** Kien truc + module shell phai on truoc khi tich hop. Vi pham pure function pattern o Phase 1 se lan truyen den moi feature. Snapshot tests phai pass ngay tu dau.
+- **Phase 2 truoc Phase 3:** TS-1/TS-2/TS-3 doc lap, it rui ro, gia tri cao — hoan thien truoc khi tackle TS-4/TS-5 co phu thuoc phuc tap hon (TS-4 trigger TS-5).
+- **D-1 o Phase 2, D-2 o Phase 3:** D-1 (security linking) nam o Buoc 4a — som trong workflow, doc lap hoan toan. D-2 (post-mortem) nam o Buoc 10.5 — cuoi workflow, can context tu TS-4 (logic change) de suggestion co y nghia.
+- **TS-5 o Phase 3:** PDF update co rui ro Pitfall 8 (circular dependency voi complete-milestone) — can ham rieng `updateReportDiagram()` duoc thiet ke sau khi hieu ro impedance mismatch voi fillManagementReport().
 
 ### Research Flags
 
-Phases likely needing deeper research during planning:
-- **Phase 3 (PDF Script):** Puppeteer/Chromium timing issues va `waitForSelector` pattern cu the cho Mermaid render completion; Vietnamese font availability trong Chromium bundled by Puppeteer; cross-platform behavior (macOS/Linux/Windows); `page.pdf()` options cho landscape orientation voi wide flowcharts.
-- **Phase 4 (Workflow Integration):** Cu phap chinh xac cua conditional_reading trong complete-milestone command file; cach cac converter inline content de predict snapshot changes truoc khi chay.
+**Phases can deeper research trong planning:**
+- **Phase 2 (Regression Analysis):** FastCode output format chua duoc document chinh thuc — can prototype regression-analyzer voi real FastCode output truoc khi merge. Fallback Grep logic cung can xac nhan.
+- **Phase 2 (Auto Cleanup + Marker System):** Marker `[PD-DEBUG]` phai duoc them vao huong dan Buoc 5c (khi AI them debug log) dong thoi voi Buoc 9.5 (xoa). Neu hai buoc build tach biet, marker se khong nhat quan.
+- **Phase 3 (PDF Update):** `updateReportDiagram()` function chua ton tai — can xac dinh API contract truoc khi Phase 3 bat dau, tranh impedance mismatch voi `fillManagementReport()`.
 
-Phases with standard patterns (skip research-phase):
-- **Phase 1 (Foundation):** Tao reference/template file la well-documented pattern trong du an. Xem `references/ui-brand.md` va `templates/plan.md` lam mau.
-- **Phase 2 (Validator):** Pure-function validator theo pattern cua `plan-checker.js`. Mermaid syntax spec day du trong official docs. Khong can research them.
+**Phases co standard patterns (co the skip research-phase):**
+- **Phase 1 (Module Creation):** Pure function pattern da duoc chung minh trong 7 modules v1.4. Template la ro rang.
+- **Phase 2 (Reproduction Test):** Template literal approach da duoc validate trong STACK.md — khong can library, ~100-150 LOC.
+- **Phase 3 (Post-mortem):** Rule-based suggestion pattern don gian, LUON hoi user. Khong co ambiguity.
 
 ---
 
@@ -152,51 +182,46 @@ Phases with standard patterns (skip research-phase):
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | puppeteer, marked, mermaid-cli deu duoc verify tu official docs. Node version requirements la hard constraints da xac nhan. Tat ca alternatives duoc phan tich va loai bo voi ly do cu the. |
-| Features | HIGH | 6 table stakes features deu co trong PROJECT.md requirements. Dependency chain duoc phan tich tu codebase thuc te. Data sources (Truths, Artifacts, Key Links) da ton tai va co cau truc. |
-| Architecture | HIGH | Toan bo codebase hien tai da duoc doc va phan tich (10 workflows, 11 templates, tat ca converters, 448+ tests). Cac patterns tich hop da duoc verify. File layout sau v1.4 da duoc dinh nghia cu the. |
-| Pitfalls | HIGH | Cac pitfall dua tren GitHub issues thuc te (mermaid-cli #842, #556, #958), Puppeteer docs, va phan tich truc tiep codebase. Recovery strategies duoc document cho moi pitfall. |
+| Stack | HIGH | Phan tich truc tiep tren codebase — 7 existing modules, package.json, 526 tests. KHONG them dependency la quyet dinh first-principles, khong chi la tuy chon. |
+| Features | HIGH | 7 features duoc xac dinh ro tu PROJECT.md. MVP scope ro rang. Anti-features xac dinh va co ly do cu the. Dependency map day du. |
+| Architecture | HIGH | Phan tich toan bo 10 workflows, 12 commands, 7 library modules, 5 converters. Workflow-First pattern da validated qua v1.4. Nguyen tac pure function co 526 tests bao chung. |
+| Pitfalls | HIGH | 10 pitfalls cu the voi warning signs va phase to address. Pitfall 1 (workflow explosion) va Pitfall 6 (pure function) la cot loi — phai tuan thu tuyet doi. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **md-mermaid-to-pdf vs puppeteer+marked custom script:** ARCHITECTURE.md de xuat `md-mermaid-to-pdf` nhu Layer 2 package, nhung STACK.md khuyen nghi custom script `puppeteer + marked` truc tiep. Hai file nghien cuu co su khong nhat quan nay. **Khuyen nghi: theo STACK.md** — custom script phu hop hon voi triet ly du an, md-mermaid-to-pdf la package it duoc verify (MEDIUM confidence).
-
-- **optionalDependencies vs runtime detection:** ARCHITECTURE.md de xuat `optionalDependencies` trong package.json, nhung PITFALLS.md khuyen nghi khong them bat ky gi vao package.json va dung runtime detection hoan toan. **Khuyen nghi: runtime detection** (theo PITFALLS.md) de hoan toan khong anh huong install experience. Can quyet dinh cuoi trong Phase 1 planning.
-
-- **Diagram node limit:** ARCHITECTURE.md noi max 15 nodes, FEATURES.md noi 25-30 nodes, PITFALLS.md noi 15-20 nodes. **Khuyen nghi: 20 nodes hard limit, 15 nodes recommended** — ghi ro trong mermaid-rules.md voi ly giai: duoi 15 nodes la ideal, 15-20 chap nhan duoc, tren 20 phai split thanh overview + detail diagrams.
-
-- **Vietnamese font testing:** Can xac nhan fonts cu the available trong Chromium bundled by Puppeteer@24 tren macOS va Linux. Can test thuc te trong Phase 3 truoc khi merge. Noto Sans la first candidate.
+- **FastCode output format cho regression-analyzer:** Module can biet format chinh xac cua `mcp__fastcode__code_qa` response. STACK.md ghi "parse structured text" nhung chua co example output thuc te. Can prototype voi real call truoc khi viet parser chinh thuc.
+- **Marker system design nhat quan:** Auto cleanup marker `[PD-DEBUG]` phai duoc them vao huong dan Buoc 5c (khi AI them debug log) dong thoi voi viec tao Buoc 9.5 (xoa). Neu hai buoc nay duoc build tach biet, marker co the khong nhat quan giua them va xoa.
+- **`updateReportDiagram()` API contract:** TS-5 can function moi nay nhung STACK.md chi mo ta muc tieu, chua dinh nghia API. Can quyet dinh: (a) them vao report-filler.js hien tai hay (b) tao function trong workflow truc tiep. Phai quyet dinh o Phase 3 planning.
+- **Truths parser shared helper:** Quyet dinh cuoi cung (inline trong logic-change-detector.js hay tao `bin/lib/truths-parser.js` rieng) can duoc thong nhat o Phase 1 de tranh refactor sau.
 
 ---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-
-- Codebase analysis: `workflows/complete-milestone.md`, `templates/plan.md`, `references/ui-brand.md`, `bin/lib/plan-checker.js`, `package.json`, `test/` directory (448+ tests, 48 snapshots)
-- [Puppeteer system requirements](https://pptr.dev/guides/system-requirements) — Node 18+ requirement confirmed
-- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) — Node ^18.19 || >=20 requirement confirmed
-- [marked npm](https://www.npmjs.com/package/marked) — v17.0.5, current/LTS Node only
-- [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html) — official syntax reference
-- [Puppeteer troubleshooting](https://pptr.dev/troubleshooting) — headless Chrome failure modes
-- [Node.js EOL dates](https://endoflife.date/nodejs) — Node 16 EOL Sep 2023
+- Codebase: `bin/lib/*.js` (7 existing modules), `workflows/fix-bug.md`, `commands/pd/fix-bug.md` — phan tich truc tiep
+- `package.json` — zero runtime dependencies confirmed
+- `test/*.test.js` (13 files, 526 tests) — node:test runner confirmed
+- `references/security-checklist.md` — structured sections for keyword matching
+- `bin/lib/generate-diagrams.js:34` — parseTruthsFromContent inline regex confirmed
+- `bin/lib/report-filler.js` — fillManagementReport() pure function API confirmed
+- `bin/generate-pdf-report.js` — Puppeteer optional, fallback .md confirmed
+- Node.js 18+ built-in APIs documentation
 
 ### Secondary (MEDIUM confidence)
-
-- [Merval — zero-dependency Mermaid validator](https://github.com/aj-archipelago/merval) — validation without Puppeteer pattern
-- [mermaid-cli Issue #958](https://github.com/mermaid-js/mermaid-cli/issues/958) — CrowdStrike interference voi Chromium
-- [mermaid-cli Issue #842](https://github.com/mermaid-js/mermaid-cli/issues/842) — chrome-headless-shell not found
-- [GenAIScript: fixing AI-generated Mermaid errors](https://microsoft.github.io/genaiscript/blog/mermaids/) — LLM Mermaid syntax patterns
-- [Mermaid server-side rendering — Issue #3650](https://github.com/mermaid-js/mermaid/issues/3650) — DOM required, JSDOM insufficient
-- [Puppeteer Issue #3027](https://github.com/puppeteer/puppeteer/issues/3027) — Chromium binary size
-- [md-mermaid-to-pdf npm](https://www.npmjs.com/package/md-mermaid-to-pdf) — alternative package (MEDIUM: chua verify production-readiness)
-
-### Tertiary (LOW confidence)
-
-- [mermaid-md-to-pdf (klokie)](https://github.com/klokie/mermaid-md-to-pdf) — LOW: chi 5 commits, khong co releases, khong dung
-- [sebastianjs pure SVG renderer](https://github.com/mermaid-js/mermaid) — LOW: wrapper khong chinh thuc, co the render khac real Mermaid
+- [Qodo AI Code Review Tools](https://www.qodo.ai/) — business logic detection patterns
+- [Quash: Regression Testing 2025](https://quashbugs.com/blog/regression-testing-2025-ai) — AI-driven change impact analysis
+- [Katalon: AI Regression Testing 2026](https://katalon.com/resources-center/blog/ai-in-regression-testing) — dependency analysis patterns
+- [Aikido: Remove Debug Code Before Commits](https://www.aikido.dev/code-quality/rules/remove-debugging-and-temporary-code-before-commits-a-security-and-performance-guide) — 68% production issues from debug artifacts
+- [JetBrains: Cleanup Code Before Commit](https://www.jetbrains.com/guide/go/tips/vcs-cleanup-code-before-commit/) — pre-commit cleanup patterns
+- [Dev Genius: AI Bug Fix Comparison](https://blog.devgenius.io/github-copilot-vs-cursor-vs-claude-code-which-ai-actually-fixes-production-bugs-9485b33131c6) — competitive landscape
+- [AlterSquare: AI Coding Tool No Memory](https://altersquare.io/ai-coding-tool-no-memory-bug-broke-prod-last-quarter/) — CLAUDE.md institutional memory gap
+- [NestJS Testing Docs](https://docs.nestjs.com/fundamentals/testing) — NestJS test patterns (HIGH confidence)
+- IEEE/ACM 2024 "Automatic Generation of Test Cases based on Bug Reports" — 27-48% false positive rate LLM-generated tests
+- NIST: false positive rate automated static analysis tools 3-48%
+- [WorkOS: Cursor BugBot + Claude Code PRs](https://workos.com/blog/cursor-bugbot-autoreview-claude-code-prs) — BugBot autofix patterns
 
 ---
 *Research completed: 2026-03-24*
