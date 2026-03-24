@@ -6,7 +6,7 @@
 - ✅ **v1.1 Plan Checker** — Phases 10-13 (shipped 2026-03-23)
 - ✅ **v1.2 Skill Audit & Bug Fixes** — Phases 14-16 (shipped 2026-03-23)
 - ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
-- **v1.4 Mermaid Diagrams** — Phase 21 (in progress)
+- **v1.4 Mermaid Diagrams** — Phases 21-24 (in progress)
 
 ## Phases
 
@@ -62,6 +62,24 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 
 </details>
 
+### v1.4 Mermaid Diagrams (In Progress)
+
+- [x] Phase 21: Mermaid Foundation (2/2 plans) — completed 2026-03-24
+- [ ] Phase 22: Diagram Generation (2 plans)
+  **Goal:** AI tu dong ve Business Logic Flowchart va Architecture Diagram tu milestone data
+  **Requirements:** DIAG-01, DIAG-02
+  **Plans:**
+  - [x] 22-01-PLAN.md — TDD generateBusinessLogicDiagram() tu Truths table
+  - [ ] 22-02-PLAN.md — TDD generateArchitectureDiagram() tu codebase maps
+- [ ] Phase 23: PDF Export
+  **Goal:** Script generate-pdf-report.js xuat Markdown+Mermaid sang PDF, graceful fallback khi thieu deps
+  **Requirements:** PDF-01, PDF-02
+  **Gap Closure:** Closes orphaned requirements from v1.4 audit
+- [ ] Phase 24: Workflow Integration
+  **Goal:** complete-milestone tu dong goi ve so do + tao bao cao, non-blocking neu PDF loi
+  **Requirements:** INTG-01, INTG-02
+  **Gap Closure:** Closes orphaned requirements from v1.4 audit
+
 ## Progress
 
 | Phase | Milestone | Plans Complete | Status | Completed |
@@ -87,4 +105,6 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 | 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 21. Mermaid Foundation | v1.4 | 2/2 | Complete    | 2026-03-24 |
-| 22. Diagram Generation | v1.4 | 2/2 | Complete    | 2026-03-24 |
+| 22. Diagram Generation | v1.4 | 1/2 | In Progress|  |
+| 23. PDF Export | v1.4 | 0/0 | Not started | - |
+| 24. Workflow Integration | v1.4 | 0/0 | Not started | - |

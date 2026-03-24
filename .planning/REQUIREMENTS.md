@@ -9,7 +9,7 @@ Requirements for visual business logic reporting. Each maps to roadmap phases.
 
 ### Mermaid Foundation
 
-- [ ] **MERM-01**: AI tuan thu quy tac tham my Mermaid (mau sac, mui ten, nhan, layout) khi ve so do
+- [x] **MERM-01**: AI tuan thu quy tac tham my Mermaid (mau sac, mui ten, nhan, layout) khi ve so do
 - [x] **MERM-02**: Mermaid syntax duoc validate truoc khi dua vao bao cao (pure function, zero deps)
 
 ### Diagram Generation
@@ -19,7 +19,7 @@ Requirements for visual business logic reporting. Each maps to roadmap phases.
 
 ### Report
 
-- [ ] **REPT-01**: Template MANAGEMENT_REPORT.md chuyen nghiep tap trung ket qua kinh doanh, tich hop so do Mermaid
+- [x] **REPT-01**: Template MANAGEMENT_REPORT.md chuyen nghiep tap trung ket qua kinh doanh, tich hop so do Mermaid
 
 ### PDF Export
 
@@ -64,11 +64,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| MERM-01 | Phase 21 | Pending |
+| MERM-01 | Phase 21 | Complete |
 | MERM-02 | Phase 21 | Complete |
-| DIAG-01 | Phase 22 | Pending |
+| DIAG-01 | Phase 22 | Complete |
 | DIAG-02 | Phase 22 | Complete |
-| REPT-01 | Phase 21 | Pending |
+| REPT-01 | Phase 21 | Complete |
 | PDF-01 | Phase 23 | Pending |
 | PDF-02 | Phase 23 | Pending |
 | INTG-01 | Phase 24 | Pending |
@@ -76,9 +76,11 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 **Coverage:**
 - v1.4 requirements: 9 total
+- Complete: 3 (MERM-01, MERM-02, REPT-01)
+- Pending: 6 (Phases 22-24)
 - Mapped to phases: 9
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-24*
-*Last updated: 2026-03-24 after 21-02 plan completion*
+*Last updated: 2026-03-24 after gap closure phases 22-24 added*

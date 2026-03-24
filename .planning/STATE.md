@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.4
-milestone_name: Mermaid Foundation
-status: executing
+milestone_name: Mermaid Diagrams
+status: Phase complete — ready for verification
 stopped_at: Completed 22-02-PLAN.md
-last_updated: "2026-03-24"
+last_updated: "2026-03-24T08:08:50.572Z"
 progress:
-  total_phases: 4
-  completed_phases: 2
-  total_plans: 6
-  completed_plans: 4
+  total_phases: 13
+  completed_phases: 10
+  total_plans: 26
+  completed_plans: 25
 ---
 
 # Project State
@@ -19,13 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 22 Diagram Generation
+**Current focus:** Phase 22 — diagram-generation
 
 ## Current Position
 
-Phase: 22-diagram-generation
-Plan: 02 of 02 complete
-Status: Phase 22 complete — both generateBusinessLogicDiagram and generateArchitectureDiagram implemented
+Phase: 22 (diagram-generation) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -51,12 +50,16 @@ Status: Phase 22 complete — both generateBusinessLogicDiagram and generateArch
 | Phase 19-knowledge-correction P01 | 3min | 3 tasks | 11 files |
 | Phase 20-logic-audit P01 | 8min | 2 tasks | 8 files |
 | Phase 21-mermaid-foundation P01 | 3min | 2 tasks | 2 files |
+| Phase 22-diagram-generation P01 | 3min | 2 tasks | 2 files |
 | Phase 22-diagram-generation P02 | 3min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
 ### Decisions
 
+Decisions are logged in PROJECT.md Key Decisions table.
+
+- [Phase 22-diagram-generation]: Inline parseTruthsV11 regex to avoid circular deps with plan-checker.js
 - [Phase 22-diagram-generation]: Architecture diagram uses milestone-scoped file matching with layered subgraphs from ARCHITECTURE.md
 
 ### Pending Todos
@@ -69,6 +72,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24
+Last session: 2026-03-24T08:08:50.568Z
 Stopped at: Completed 22-02-PLAN.md
 Resume file: None
