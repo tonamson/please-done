@@ -102,3 +102,4 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 | 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
+| 28. Agent Infrastructure & Resource Rules | v2.1 | 1/2 | In Progress | - |
