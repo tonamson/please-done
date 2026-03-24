@@ -1,33 +1,75 @@
-# Chiến lược Tối ưu hóa Hiệu suất & Chi phí (Turbo-Efficiency)
+# Đại kế hoạch Tối ưu & Tách Agent (Agentic Reform & Turbo-Efficiency)
 
-Bản tổng hợp cuối cùng tích hợp từ các kế hoạch Research, Visual Logic, Fix-bug và Install. Mục tiêu: Giảm 60% token lãng phí, tăng 3x tốc độ phản hồi, giữ 100% độ an toàn.
+Bản nâng cấp toàn diện: Kết hợp giữa tối ưu hiệu suất (Token/Speed), tái cấu trúc hệ thống (Agent Specialization) và **Hệ thống Phân tầng Model Thích ứng (Adaptive Model Tiering)**.
 
-## 1. Nguyên tắc "Lazy-Loading Context" (Nạp bối cảnh theo nhu cầu)
-AI không đọc toàn bộ tài liệu ngay từ đầu. Thay vào đó:
-- **Surgical Reading**: Chỉ đọc `@references/` (như `ui-brand.md`, `security.md`) sau khi dùng `grep` phát hiện từ khóa liên quan trong mô tả task.
-- **Minified Rules**: Sử dụng bộ quy tắc nén `*.min.md` (loại bỏ emoji, ví dụ thừa) cho AI, chỉ để lại logic cốt lõi.
-- **On-demand Research**: Chỉ kích hoạt Research Squad (`/pd:research`) khi có yêu cầu phức tạp hoặc bắt đầu Milestone mới.
+## Milestone 1: Tách Agent & Chuyên môn hóa (Task Specialization)
 
-## 2. Chiến lược "Model-Tiering" (Phân tầng Model)
-Tận dụng tối đa sự chênh lệch giá và tốc độ của các dòng model:
-- **Haiku 4.5/5.0 (The Scout)**: Dành cho `init`, `scan`, `what-next`, Research thô, và Verification (Bước 9.5).
-- **Sonnet 4.6 (The Builder)**: Mặc định cho `write-code`, `fix-bug` (đặc biệt là Regression Analysis) và vẽ sơ đồ Mermaid.
-- **Opus 4.6 / Gemini Ultra (The Architect)**: Chỉ dùng cho `plan --discuss`, Synthesizer (Tổng hợp nghiên cứu) và Management Report.
+### 1. Thư viện Agent (Agent Repository)
+- **Vị trí**: `commands/pd/agents/`.
+- **Cấu trúc**: Mỗi Agent định nghĩa nhiệm vụ đơn nhất (Scout, Architect, Specialist).
+- **Phân công nhiệm vụ (Agent Registry)**:
+  - `gsd-codebase-mapper.md` -> Quét cấu trúc (`init`, `scan`, `new-milestone`).
+  - `gsd-security-researcher.md` -> Tìm CVE/Lỗ hổng (`research`, `plan`).
+  - `gsd-feature-analyst.md` -> Phân tích logic nghiệp vụ (`research`, `plan`).
+  - `gsd-research-synthesizer.md` -> Tổng hợp báo cáo (`research`).
+  - `gsd-planner.md` -> Lập kế hoạch chi tiết (`plan`).
+  - `gsd-repro-generator.md` -> Tạo mã tái hiện lỗi (`fix-bug`).
+  - `gsd-regression-analyzer.md` -> Phân tích vùng ảnh hưởng (`fix-bug`).
 
-## 3. Quy trình "Gọng kìm" & Trực quan hóa
-- **Nghiên cứu một lần**: Kết quả nghiên cứu từ `init` và `plan` được lưu thành `TECHNICAL_STRATEGY.md`. `write-code` chỉ đọc file này để lấy hướng đi, không chạy lại nghiên cứu.
-- **Visual Zero-Waste**: Chỉ vẽ sơ đồ Mermaid và xuất PDF khi phát hiện thay đổi trong Business Logic (dùng Haiku để quét nhanh trước).
-- **Automated Pipeline**: Script `generate-pdf-report.js` chạy ngầm, sử dụng cache cho các sơ đồ không đổi.
+### 2. Model Tiering Strategy (Phân tầng Thợ & Sếp)
+Thay vì dùng tên model cứng, PD sử dụng 3 cấp bậc (Tiers) để tương thích với mọi nền tảng (CLI/IDE):
 
-## 4. Danh sách lệnh được cập nhật (Reflected in @docs/)
-| Lệnh | Chế độ Lazy-load | Model đề xuất |
-|------|-----------------|---------------|
-| `pd init` | Quét cấu trúc (Codebase Mapper) | Haiku |
-| `pd research` | **MỚI**: Nghiên cứu đa tầng (Parallel) | Haiku (Squad) + Opus (Synth) |
-| `pd plan` | Chỉ đọc Strategy hiện có | Sonnet/Opus |
-| `pd write-code` | Lazy-load refs + Strategy | Sonnet |
-| `pd fix-bug` | Tự động tạo Repro Test | Sonnet |
-| `pd complete` | Vẽ sơ đồ + Xuất PDF (nếu logic đổi) | Sonnet (Mermaid) + Opus (Summary) |
+| Tier | Vai trò | Đặc điểm | Model tương ứng (Ví dụ) |
+|------|---------|----------|--------------------------|
+| **Scout** | Mapper, Security, Feature | Nhanh, Rẻ, Context rộng | Haiku 4.5, Gemini 3 Flash, GPT-5.3 Small |
+| **Builder** | Executor, Repro, Regression | Cân bằng, Code giỏi | Sonnet 4.6, Composer 2, GPT-5.4 |
+| **Architect** | Synthesizer, Planner | Thinking, Suy luận cao | Opus 4.6, Gemini 3.1 Pro, GPT-5.4 (Thinking) |
+
+## Milestone 2: Cơ chế Mapping Thông minh (Platform-Aware Mapping)
+
+### 1. Tự động nhận diện Nền tảng
+Skill `init` sẽ xác định bạn đang dùng công cụ nào để nạp cấu hình Model phù hợp:
+- **Nếu là Antigravity (Gemini CLI)**:
+  - Scout -> `gemini-3-flash`
+  - Architect -> `gemini-3.1-pro`
+- **Nếu là Cursor/Windsurf**:
+  - Scout -> `cursor-small` / `swe-1-mini`
+  - Builder -> `claude-3-5-sonnet` / `composer-2`
+- **Nếu là Claude Code (CLI)**:
+  - Scout -> `claude-4-5-haiku`
+  - Architect -> `claude-4-6-opus`
+
+### 2. Dự phòng (Fallback)
+Nếu một nền tảng không hỗ trợ model Architect (ví dụ: Antigravity không có Opus), hệ thống sẽ tự động hạ cấp xuống model cao nhất hiện có của nền tảng đó để đảm bảo workflow không bao giờ bị đứt gãy.
+
+## Milestone 3: Song song Thích ứng & Bàn giao (Handoff)
+- [ ] **Parallel Scouts**: Kích hoạt đồng thời N luồng Tier-Scout (Haiku/Flash) để quét dự án.
+- [ ] **Unified Handoff**: Mọi kết quả dù từ model nào cũng phải nộp về định dạng Markdown chuẩn trong `.planning/research/raw/`.
+
+## Milestone 4: An toàn, Audit & Feedback Loop
+- [ ] **State-First Principle**: Agent luôn đọc `STATE.md` để không bị mất bối cảnh khi chuyển đổi giữa các model khác nhau.
+- [ ] **Audit Citations**: Buộc thợ phải dẫn chứng link/file để sếp (Architect) kiểm tra chéo, tránh ảo giác giữa các dòng model khác nhau.
+
+## Milestone 5: Skill-Agent Integration (Tích hợp Workflow)
+
+### 1. Cập nhật `/pd:init` & `/pd:new-milestone`
+- **Tự động Mapping**: Khi khởi tạo dự án hoặc bắt đầu Milestone mới, Skill sẽ tự động triệu hồi `gsd-codebase-mapper` (Tier-Scout) để cập nhật hồ sơ `.planning/codebase/`.
+- **Squad Activation**: Thay thế các bước nghiên cứu thủ công trong `new-milestone` bằng việc kích hoạt đồng thời `Research Squad` (Mapper, Security, Feature, Synthesizer).
+
+### 2. Cập nhật `/pd:plan` (Strategy Guard)
+- **Cơ chế Blocking**: Chốt chặn `pd:plan` không cho thực thi nếu chưa có `TECHNICAL_STRATEGY.md`. 
+- **Auto-Injection**: Tự động nạp bản nén Strategy vào bối cảnh của `gsd-planner`, giúp AI thiết kế task sát với thực tế kỹ thuật nhất.
 
 ---
-*Ghi chú: Để kích hoạt bối cảnh đầy đủ (Force Full Context), user có thể thêm tham số `--verbose` hoặc `--full-context` vào bất kỳ lệnh nào.*
+### Bảng phối hợp Model (Tier Mapping Table):
+
+| Giai đoạn | Agent | Tier | Mục tiêu |
+|-----------|-------|------|----------|
+| **Init** | `codebase-mapper` | **Scout** | Nhanh, quét cấu trúc |
+| **Research** | `Scout Squad` | **Scout** | Song song, thu thập thô |
+| **Synthesis** | `synthesizer` | **Architect** | Suy luận, nén context |
+| **Plan** | `planner` | **Architect** | Thiết kế giải pháp |
+| **Coding** | `executor` | **Builder** | Viết code, chạy lint/build |
+
+---
+*Ghi chú: Cơ chế Mapping giúp PD linh hoạt trên mọi công cụ (Cursor, Gemini, Claude Code). Bạn không bao giờ phải lo lắng về việc thiếu model AI cho tác vụ.*

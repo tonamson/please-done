@@ -47,10 +47,22 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ pdf-renderer.js pure library (MD→HTML, A4 template, Mermaid CDN) — v1.4 (Phase 23)
 - ✓ generate-pdf-report.js CLI (Puppeteer PDF + .md fallback) — v1.4 (Phase 23)
 - ✓ fillManagementReport() pure function + Buoc 3.6 non-blocking workflow integration — v1.4 (Phase 24)
+- ✓ repro-test-generator.js + regression-analyzer.js pure functions + truths-parser shared helper + workflow sub-steps 5b.1/8a — v1.5 (Phase 25)
 
 ### Active
 
-(None — planning next milestone)
+## Current Milestone: v1.5 Nâng cấp Skill Fix-Bug
+
+**Goal:** Tối ưu hóa độ an toàn và tự động hóa điều tra trong skill fix-bug — thêm tái hiện lỗi, phân tích hồi quy, dọn dẹp log, đồng bộ business logic, và xuất báo cáo PDF.
+
+**Target features:**
+- Tự động tạo Reproduction Test Case cho NestJS/Flutter
+- Bước "Regression Analysis" tìm module phụ thuộc qua FastCode Call Chain
+- Cơ chế "Auto Cleanup" dọn log tạm thời trước commit
+- Đồng bộ Business Logic — phát hiện nếu bản sửa thay đổi logic/kiến trúc
+- Tự động cập nhật báo cáo quản lý + xuất PDF khi logic thay đổi
+- Liên kết pd:scan cảnh báo bảo mật cho file bị lỗi
+- Bước "Post-mortem" đề xuất cập nhật CLAUDE.md
 
 ### Out of Scope
 
@@ -64,7 +76,7 @@ Every workflow step must produce the highest quality code output while consuming
 ## Current State
 
 **Shipped:** v1.4 Mermaid Diagrams (2026-03-24)
-**Current:** Planning next milestone
+**Current:** v1.5 Nâng cấp Skill Fix-Bug — Phase 25 complete (repro test + regression analysis)
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
@@ -124,4 +136,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after v1.4 milestone*
+*Last updated: 2026-03-24 after v1.5 milestone start*
