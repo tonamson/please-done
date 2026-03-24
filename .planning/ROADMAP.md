@@ -86,4 +86,5 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 | 18. Logic-First Execution | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |
-| 21. Mermaid Foundation | v1.4 | 1/2 | In Progress | — |
+| 21. Mermaid Foundation | v1.4 | 2/2 | Complete    | 2026-03-24 |
+| 22. Diagram Generation | v1.4 | 2/2 | Complete    | 2026-03-24 |

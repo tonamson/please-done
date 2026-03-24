@@ -14,8 +14,8 @@ Requirements for visual business logic reporting. Each maps to roadmap phases.
 
 ### Diagram Generation
 
-- [ ] **DIAG-01**: AI tu dong ve Business Logic Flowchart tu Truths/PLAN.md cua milestone
-- [ ] **DIAG-02**: AI tu dong ve Architecture Diagram minh hoa Module/Service/DB/APIs cua du an
+- [x] **DIAG-01**: AI tu dong ve Business Logic Flowchart tu Truths/PLAN.md cua milestone
+- [x] **DIAG-02**: AI tu dong ve Architecture Diagram minh hoa Module/Service/DB/APIs cua du an
 
 ### Report
 
@@ -67,7 +67,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MERM-01 | Phase 21 | Pending |
 | MERM-02 | Phase 21 | Complete |
 | DIAG-01 | Phase 22 | Pending |
-| DIAG-02 | Phase 22 | Pending |
+| DIAG-02 | Phase 22 | Complete |
 | REPT-01 | Phase 21 | Pending |
 | PDF-01 | Phase 23 | Pending |
 | PDF-02 | Phase 23 | Pending |
