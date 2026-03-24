@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
-status: Milestone complete
-stopped_at: Completed 28-02-PLAN.md
-last_updated: "2026-03-24T16:01:30.618Z"
+status: Ready to execute
+stopped_at: Completed 29-02-PLAN.md
+last_updated: "2026-03-24T17:12:06.792Z"
 progress:
-  total_phases: 13
-  completed_phases: 13
-  total_plans: 32
-  completed_plans: 32
+  total_phases: 6
+  completed_phases: 1
+  total_plans: 5
+  completed_plans: 4
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 28 — agent-infrastructure-resource-rules
+**Current focus:** Phase 29 — evidence-protocol-session-management
 
 ## Current Position
 
-Phase: 28
-Plan: Not started
+Phase: 29 (evidence-protocol-session-management) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -57,6 +57,8 @@ Plan: Not started
 | Phase 24 P01 | 4min | 2 tasks | 3 files |
 | Phase 28 P01 | 2min | 2 tasks | 2 files |
 | Phase 28 P02 | 2min | 2 tasks | 7 files |
+| Phase 29 P01 | 2min | 2 tasks | 2 files |
+| Phase 29 P02 | 4min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -74,6 +76,10 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 28]: Cap nhat .claude/.gitignore de cho phep agents/*.md — gitignore goc ignore * trong .claude/
 - [Phase 28]: Tools field dung comma-separated string (Claude Code native), khong dung YAML array
 - [Phase 28]: Bi-directional tool verification — kiem tra ca 2 chieu (file→registry va registry→file)
+- [Phase 29]: Non-blocking validation: validateEvidence() tra warnings thay vi throw khi format sai (per D-13)
+- [Phase 29]: Elimination Log kiem tra ca heading lan table data — it nhat 3 dong chua pipe character (D-10)
+- [Phase 29]: Them assembleMd vao utils.js exports — ham da ton tai nhung chua duoc export
+- [Phase 29]: Session slug generation bo dau tieng Viet bang normalize(NFD) + regex, gioi han 40 ky tu
 
 ### Pending Todos
 
@@ -85,6 +91,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-24T15:52:00Z
-Stopped at: Completed 28-02-PLAN.md
+Last session: 2026-03-24T17:12:06.787Z
+Stopped at: Completed 29-02-PLAN.md
 Resume file: None

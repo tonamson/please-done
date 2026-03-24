@@ -16,11 +16,11 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 
 ### Giao thuc Tham tu (PROT)
 
-- [ ] **PROT-01**: User thay danh sach phien debug danh so ID khi khoi dong, co the nhap so de tiep tuc hoac mo ta moi de tao session moi
-- [ ] **PROT-02**: Moi agent tra ket qua theo 1 trong 3 outcomes chuan: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
+- [x] **PROT-01**: User thay danh sach phien debug danh so ID khi khoi dong, co the nhap so de tiep tuc hoac mo ta moi de tao session moi
+- [x] **PROT-02**: Moi agent tra ket qua theo 1 trong 3 outcomes chuan: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
 - [ ] **PROT-03**: Khi ROOT CAUSE duoc tim thay, user duoc chon 1 trong 3: Sua ngay, Len ke hoach, hoac Tu sua
 - [ ] **PROT-04**: Khi agent ghi CHECKPOINT REACHED, orchestrator hien cau hoi cho user va truyen cau tra loi cho agent tiep theo
-- [ ] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
+- [x] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
 - [ ] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
 - [ ] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
 - [ ] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
@@ -85,9 +85,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ORCH-02 | Phase 28 | Pending |
 | ORCH-03 | Phase 28 | Pending |
 | ORCH-04 | Phase 28 | Pending |
-| PROT-01 | Phase 29 | Pending |
-| PROT-02 | Phase 29 | Pending |
-| PROT-05 | Phase 29 | Pending |
+| PROT-01 | Phase 29 | Complete |
+| PROT-02 | Phase 29 | Complete |
+| PROT-05 | Phase 29 | Complete |
 | PROT-07 | Phase 29 | Pending |
 | PROT-03 | Phase 30 | Pending |
 | PROT-04 | Phase 30 | Pending |
