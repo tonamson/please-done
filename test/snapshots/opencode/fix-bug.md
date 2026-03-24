@@ -173,7 +173,37 @@ fix-bug luon chay voi sonnet (theo skill file `commands/pd/fix-bug.md` line 4: `
 1. Đã tái hiện HOẶC bằng chứng thay thế đủ mạnh (log rõ ràng, lỗi logic hiển nhiên, dấu vết chỉ thẳng dòng)
 2. Đã xác định file + logic cụ thể
 3. Đã có kế hoạch kiểm tra sau sửa
-Thiếu điều kiện → quay Bước 5b/5c. Đủ → Bước 7.
+Thiếu điều kiện → quay Bước 5b/5c. Đủ → Bước 6.5 (nếu logic bug) hoặc Bước 7.
+## Bước 6.5: Logic Update — cập nhật Truth khi bug do logic sai
+**Phân loại:** Nguyên nhân bug (từ Bước 6b) liên quan đến business logic / Truth trong PLAN.md?
+- Typo, off-by-one, import thiếu, lỗi cú pháp → KHÔNG phải logic bug → **skip 6.5, tới Bước 7**
+- Logic tính toán sai, điều kiện nghiệp vụ sai, edge case thiếu, giá trị ngưỡng sai → **logic bug → tiếp tục 6.5**
+### 6.5a. Tìm PLAN.md liên quan
+Dùng cùng strategy Bước 3: Grep `.planning/milestones/[version-gốc]/phase-*/PLAN.md` → tìm bảng Truths 5 cột.
+Không tìm thấy PLAN.md → ghi vào BUG report: "Không có PLAN.md để cập nhật Truth". Skip 6.5, tới Bước 7.
+### 6.5b. Xác định Truth cần sửa
+- CHỈ sửa Truth hiện có, KHÔNG thêm Truth mới
+- CHỈ sửa cột liên quan (Sự thật, Trường hợp biên, Cách kiểm chứng — hoặc nhiều cột)
+- Logic thiếu hoàn toàn → ghi Deferred, KHÔNG thêm Truth mới
+### 6.5c. Xác nhận với user
+```
+Bug này do Truth sai — cần cập nhật PLAN.md:
+| Truth | Hiện tại | Sửa thành |
+|-------|---------|-----------|
+| T[x] | [giá trị cũ] | [giá trị mới] |
+Đồng ý sửa PLAN.md? (Y/n)
+```
+- User đồng ý → 6.5d
+- User bác ("không phải logic bug") → skip 6.5, ghi SESSION: "User bác phân loại logic bug" → Bước 7
+### 6.5d. Cập nhật PLAN.md + commit
+- Sửa bảng Truths trong PLAN.md (CHỈ PLAN.md, KHÔNG sửa TASKS.md)
+- Giá trị cũ ghi trong BUG report "Phân tích nguyên nhân"
+- Commit riêng:
+  ```
+  git add [PLAN.md path]
+  git commit -m "[LỖI] Cập nhật Truth [TX]: [tóm tắt thay đổi]"
+  ```
+- Tiếp tục Bước 7
 ## Bước 7: Viết báo cáo lỗi
 `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 ```markdown
@@ -195,6 +225,9 @@ Thiếu điều kiện → quay Bước 5b/5c. Đủ → Bước 7.
 ### [Phần code/thay đổi — TÙY phân loại]:
 🟢🟡🟠🔴 Lỗi code → Code TRƯỚC/SAU (file, code gốc → nguyên nhân, code sửa)
 🔵 Hạ tầng/cấu hình → Tóm tắt (file, giá trị cũ → mới, lý do)
+## Logic Changes (nếu có)
+| Truth ID | Thay đổi | Lý do |
+|----------|---------|-------|
 ## Ảnh hưởng
 ## Kế hoạch kiểm tra
 ## Xác nhận
