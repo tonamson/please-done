@@ -53,7 +53,7 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 
 - [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-23
 - [x] Phase 18: Logic-First Execution (1/1 plans) — completed 2026-03-24
-- [ ] Phase 19: Knowledge Correction
+- [x] Phase 19: Knowledge Correction (completed 2026-03-24)
 - [ ] Phase 20: Logic Audit
 
 ### Phase 18: Logic-First Execution
@@ -68,12 +68,20 @@ Plans:
 ### Phase 19: Knowledge Correction
 **Goal:** Khi bug do logic sai, AI phải sửa PLAN.md (Truth) trước khi sửa code, và ghi lại logic changes trong progress report
 **Requirements:** CORR-01, CORR-02
+**Plans:** 1/1 plans complete
 **Gap Closure:** Closes orphaned requirements from v1.3 audit
+
+Plans:
+- [x] 19-01-PLAN.md — Add Buoc 6.5 Logic Update to fix-bug workflow + Logic Changes tracking in both workflows and progress template
 
 ### Phase 20: Logic Audit
 **Goal:** plan-checker tự động phát hiện code mồ côi (tasks thiếu Truths hoặc Truths thiếu tasks) qua CHECK-05
 **Requirements:** AUDIT-01
+**Plans:** 0/1 plans executed
 **Gap Closure:** Closes orphaned requirements from v1.3 audit
+
+Plans:
+- [ ] 20-01-PLAN.md — Split CHECK-04 + add CHECK-05 checkLogicCoverage with configurable severity
 
 ## Progress
 
@@ -97,5 +105,5 @@ Plans:
 | 16. Bug Fixes | v1.2 | 5/5 | Complete | 2026-03-23 |
 | 17. Truth Protocol | v1.3 | 2/2 | Complete | 2026-03-23 |
 | 18. Logic-First Execution | v1.3 | 1/1 | Complete    | 2026-03-24 |
-| 19. Knowledge Correction | v1.3 | 0/0 | Not Started | — |
-| 20. Logic Audit | v1.3 | 0/0 | Not Started | — |
+| 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
+| 20. Logic Audit | v1.3 | 0/1 | Planned    |  |

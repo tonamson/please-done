@@ -20,12 +20,12 @@ Requirements for Truth-Driven Development. Each maps to roadmap phases.
 
 ### Knowledge Correction
 
-- [ ] **CORR-01**: fix-bug workflow có Bước 6.5 "Logic Update" — nếu bug do logic sai, sửa PLAN.md (cập nhật Truth) trước khi sửa code
-- [ ] **CORR-02**: progress template có mục "Logic Changes" ghi lại các thay đổi nghiệp vụ phát sinh trong quá trình làm
+- [x] **CORR-01**: fix-bug workflow có Bước 6.5 "Logic Update" — nếu bug do logic sai, sửa PLAN.md (cập nhật Truth) trước khi sửa code
+- [x] **CORR-02**: progress template có mục "Logic Changes" ghi lại các thay đổi nghiệp vụ phát sinh trong quá trình làm
 
 ### Logic Audit
 
-- [ ] **AUDIT-01**: plan-checker.js có hàm checkLogicCoverage (CHECK-05) — WARN cho tasks thiếu Truths, BLOCK cho Truths thiếu tasks. Code "mồ côi" = Technical Debt
+- [x] **AUDIT-01**: plan-checker.js có hàm checkLogicCoverage (CHECK-05) — WARN cho tasks thiếu Truths, BLOCK cho Truths thiếu tasks. Code "mồ côi" = Technical Debt
 
 ## Future Requirements
 
@@ -55,9 +55,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | TRUTH-03 | Phase 17 | Complete |
 | EXEC-01 | Phase 18 | Complete |
 | EXEC-02 | Phase 18 | Complete |
-| CORR-01 | Phase 19 | Pending |
-| CORR-02 | Phase 19 | Pending |
-| AUDIT-01 | Phase 20 | Pending |
+| CORR-01 | Phase 19 | Complete |
+| CORR-02 | Phase 19 | Complete |
+| AUDIT-01 | Phase 20 | Complete |
 
 **Coverage:**
 - v1.3 requirements: 8 total
