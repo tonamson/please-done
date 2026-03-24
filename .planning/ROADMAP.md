@@ -6,6 +6,7 @@
 - ✅ **v1.1 Plan Checker** — Phases 10-13 (shipped 2026-03-23)
 - ✅ **v1.2 Skill Audit & Bug Fixes** — Phases 14-16 (shipped 2026-03-23)
 - ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
+- **v1.4 Mermaid Diagrams** — Phase 21 (in progress)
 
 ## Phases
 
@@ -85,3 +86,4 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 | 18. Logic-First Execution | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |
+| 21. Mermaid Foundation | v1.4 | 1/2 | In Progress | — |
