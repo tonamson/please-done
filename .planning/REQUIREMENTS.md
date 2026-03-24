@@ -15,13 +15,13 @@ Requirements cho milestone Nang cap Skill Fix-Bug. Moi requirement map vao roadm
 ### Don dep & An toan
 
 - [x] **CLEAN-01**: AI don dep debug log co marker `[PD-DEBUG]` truoc commit, hoi user truoc khi xoa
-- [ ] **LOGIC-01**: AI danh gia ban sua co thay doi business logic/kien truc khong bang heuristics
+- [x] **LOGIC-01**: AI danh gia ban sua co thay doi business logic/kien truc khong bang heuristics
 - [x] **SEC-01**: AI lien ket canh bao bao mat tu pd:scan cho file bi loi (max 3 canh bao, freshness 7 ngay)
 
 ### Bao cao & Kien thuc
 
-- [ ] **RPT-01**: Khi logic thay doi (LOGIC-01 = CO), tu dong cap nhat Mermaid diagram trong report + tuy chon PDF re-render
-- [ ] **PM-01**: AI de xuat 1-2 rule moi cho CLAUDE.md sau khi fix, hoi user truoc khi append
+- [x] **RPT-01**: Khi logic thay doi (LOGIC-01 = CO), tu dong cap nhat Mermaid diagram trong report + tuy chon PDF re-render
+- [x] **PM-01**: AI de xuat 1-2 rule moi cho CLAUDE.md sau khi fix, hoi user truoc khi append
 
 ## v2 Requirements
 
@@ -55,9 +55,9 @@ Deferred sang milestone sau. Tracked nhung khong trong roadmap hien tai.
 | REGR-01 | Phase 25 | Complete |
 | CLEAN-01 | Phase 26 | Complete |
 | SEC-01 | Phase 26 | Complete |
-| LOGIC-01 | Phase 27 | Pending |
-| RPT-01 | Phase 27 | Pending |
-| PM-01 | Phase 27 | Pending |
+| LOGIC-01 | Phase 27 | Complete |
+| RPT-01 | Phase 27 | Complete |
+| PM-01 | Phase 27 | Complete |
 
 **Coverage:**
 - v1.5 requirements: 7 total

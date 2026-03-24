@@ -80,7 +80,7 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
 **Milestone Goal:** Toi uu hoa do an toan va tu dong hoa dieu tra trong skill fix-bug — them tai hien loi, phan tich hoi quy, don dep log, dong bo business logic, va xuat bao cao PDF.
 
 - [x] **Phase 25: Dieu tra & Tai hien Loi** — Tao 2 module pure function moi (repro-test-generator, regression-analyzer) va tich hop vao workflow fix-bug (completed 2026-03-24)
-- [ ] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi
+- [x] **Phase 26: Don dep & An toan** — Tu dong don debug log va lien ket canh bao bao mat cho file bi loi (completed 2026-03-24)
 - [ ] **Phase 27: Dong bo Logic & Bao cao** — Phat hien thay doi business logic, cap nhat Mermaid/PDF, va de xuat post-mortem
 
 ## Phase Details
@@ -112,7 +112,7 @@ Plans:
   2. AI lien ket duoc canh bao bao mat tu pd:scan report cho file bi loi (toi da 3 canh bao, freshness 7 ngay), hien thi non-blocking trong workflow
   3. Auto cleanup KHONG xoa bat ky dong nao khong co marker `[PD-DEBUG]` — production logs, audit logs duoc bao toan
   4. Tat ca tests hien tai van pass va snapshots cap nhat
-**Plans:** 0/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 26-01-PLAN.md — Module debug-cleanup.js TDD (scanDebugMarkers + matchSecurityWarnings)
@@ -128,7 +128,11 @@ Plans:
   3. AI de xuat 1-2 rule moi cho CLAUDE.md sau khi fix xong, hien thi de xuat va CHI append khi user xac nhan
   4. Pipeline cap nhat report la non-blocking — loi o bat ky sub-step nao chi tao warning, khong chan workflow fix-bug
   5. Tat ca tests hien tai van pass, snapshots cap nhat, workflow fix-bug hoan chinh voi tat ca 7 tinh nang moi
-**Plans**: TBD
+**Plans:** 1/2 plans executed
+
+Plans:
+- [x] 27-01-PLAN.md — Module logic-sync.js TDD (detectLogicChanges + updateReportDiagram + suggestClaudeRules + runLogicSync)
+- [ ] 27-02-PLAN.md — Workflow integration Buoc 10a + snapshot regeneration
 
 ## Progress
 
@@ -162,5 +166,5 @@ Phases execute in numeric order: 25 → 26 → 27
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
 | 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete    | 2026-03-24 |
-| 26. Don dep & An toan | v1.5 | 0/2 | Planned    |  |
-| 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |
+| 26. Don dep & An toan | v1.5 | 0/2 | Complete    | 2026-03-24 |
+| 27. Dong bo Logic & Bao cao | v1.5 | 1/2 | In Progress|  |
