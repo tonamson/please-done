@@ -95,11 +95,11 @@ Full details: `.planning/milestones/v1.4-ROADMAP.md`
   3. repro-test-generator.js la pure function (nhan content string, tra string, KHONG doc file) voi test file tuong ung pass
   4. regression-analyzer.js la pure function (nhan dependency data, tra danh sach files, KHONG goi MCP) voi test file tuong ung pass
   5. 526 tests hien tai van pass va snapshots da duoc regenerate neu workflow thay doi
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 
 Plans:
 - [ ] 25-01-PLAN.md — Shared helper truths-parser.js + refactor generate-diagrams.js
-- [ ] 25-02-PLAN.md — Module repro-test-generator.js (REPRO-01)
+- [x] 25-02-PLAN.md — Module repro-test-generator.js (REPRO-01)
 - [ ] 25-03-PLAN.md — Module regression-analyzer.js (REGR-01)
 - [ ] 25-04-PLAN.md — Workflow integration + snapshot regeneration
 
@@ -157,6 +157,6 @@ Phases execute in numeric order: 25 → 26 → 27
 | 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
-| 25. Dieu tra & Tai hien Loi | v1.5 | 0/4 | Planning | - |
+| 25. Dieu tra & Tai hien Loi | v1.5 | 1/4 | In Progress|  |
 | 26. Don dep & An toan | v1.5 | 0/0 | Not started | - |
 | 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |

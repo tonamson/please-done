@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.4
-milestone_name: Mermaid Diagrams
-status: v1.4 milestone complete
-stopped_at: Completed 24-01-PLAN.md
-last_updated: "2026-03-24T09:59:54.841Z"
+milestone: v1.5
+milestone_name: Nang cap Skill Fix-Bug
+status: Ready to execute
+stopped_at: Completed 25-02-PLAN.md
+last_updated: "2026-03-24T11:35:18.570Z"
 progress:
-  total_phases: 13
-  completed_phases: 13
-  total_plans: 29
-  completed_plans: 29
+  total_phases: 3
+  completed_phases: 0
+  total_plans: 4
+  completed_plans: 1
 ---
 
 # Project State
@@ -19,20 +19,20 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 24 — workflow-integration
+**Current focus:** Phase 25 — dieu-tra-tai-hien-loi
 
 ## Current Position
 
-Phase: 24
-Plan: Not started
+Phase: 25 (dieu-tra-tai-hien-loi) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 44 (22 v1.0 + 6 v1.1 + 11 v1.2 + 5 v1.3)
-- Average duration: ~4 min
-- Total execution time: ~3.5 hours across 4 milestones
+- Total plans completed: 55 (22 v1.0 + 6 v1.1 + 11 v1.2 + 5 v1.3 + 11 v1.4)
+- Average duration: ~3.5 min
+- Total execution time: ~4.5 hours across 5 milestones
 
 **Milestone History:**
 
@@ -42,19 +42,10 @@ Plan: Not started
 | v1.1 | 4 | 6 | 2026-03-23 (~4 hours) |
 | v1.2 | 3 | 11 | 2026-03-23 (~7 hours) |
 | v1.3 | 4 | 5 | 2026-03-24 |
+| v1.4 | 4 | 11 | 2026-03-24 |
 
 *Updated after each plan completion*
-| Phase 17-truth-protocol P01 | ~4min | 3 tasks | 5 files |
-| Phase 17-truth-protocol P02 | ~3min | 2 tasks | 5 files |
-| Phase 18-logic-first-execution P01 | 3min | 3 tasks | 6 files |
-| Phase 19-knowledge-correction P01 | 3min | 3 tasks | 11 files |
-| Phase 20-logic-audit P01 | 8min | 2 tasks | 8 files |
-| Phase 21-mermaid-foundation P01 | 3min | 2 tasks | 2 files |
-| Phase 22-diagram-generation P01 | 3min | 2 tasks | 2 files |
-| Phase 22-diagram-generation P02 | 3min | 2 tasks | 2 files |
-| Phase 23-pdf-export P01 | 2min | 1 tasks | 2 files |
-| Phase 23-pdf-export P02 | 2min | 2 tasks | 2 files |
-| Phase 24 P01 | 4min | 2 tasks | 3 files |
+| Phase 25 P02 | 2min | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -62,13 +53,10 @@ Plan: Not started
 
 Decisions are logged in PROJECT.md Key Decisions table.
 
-- [Phase 22-diagram-generation]: Inline parseTruthsV11 regex to avoid circular deps with plan-checker.js
-- [Phase 22-diagram-generation]: Architecture diagram uses milestone-scoped file matching with layered subgraphs from ARCHITECTURE.md
-- [Phase 23-pdf-export]: Regex-based MD-to-HTML over external deps — zero-dependency, predictable template input
-- [Phase 23-pdf-export]: generatePdf stays in CLI file (not pdf-renderer.js) — Puppeteer is optional dep with file I/O
-- [Phase 23-pdf-export]: Output path uses process.cwd()/.planning/reports/ per D-12, exit 0 on fallback per D-11
-- [Phase 24]: fillManagementReport() là pure function — KHÔNG đọc file, nhận content strings qua tham số
-- [Phase 24]: Bước 3.6 gồm 4 sub-steps non-blocking, mỗi step có try/catch riêng
+- [v1.5 roadmap]: 3 phases theo thu tu phu thuoc — module truoc (P25), workflow integration (P26), business logic sync (P27)
+- [v1.5 roadmap]: REPRO-01 + REGR-01 gom chung Phase 25 vi deu can module JS moi voi pure function pattern
+- [v1.5 roadmap]: LOGIC-01 + RPT-01 + PM-01 gom Phase 27 vi RPT-01 trigger boi LOGIC-01, PM-01 cuoi workflow
+- [Phase 25]: Single generic template cho tat ca repro tests (per D-02)
 
 ### Pending Todos
 
@@ -76,10 +64,12 @@ None.
 
 ### Blockers/Concerns
 
-None.
+- FastCode output format chua duoc document chinh thuc — can prototype regression-analyzer voi real output truoc khi merge
+- Truths parser shared helper — quyet dinh inline hay tao rieng o Phase 25
+- updateReportDiagram() API contract can dinh nghia o Phase 27
 
 ## Session Continuity
 
-Last session: 2026-03-24T09:48:13.583Z
-Stopped at: Completed 24-01-PLAN.md
+Last session: 2026-03-24T11:35:18.566Z
+Stopped at: Completed 25-02-PLAN.md
 Resume file: None
