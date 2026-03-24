@@ -119,28 +119,50 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Invalid task/plan reference | BLOCK |
 | v1.0 plan-level deps (single-plan context) | PASS (skip) |
 
-## 5. CHECK-04: Truth-Task Coverage
+## 5. CHECK-04: Truth-Task Coverage (Direction 1)
 
-> Per D-04
+> Per D-04, D-01 (Phase 20)
 
 ### v1.0 Format
-- Parse truths tu frontmatter `must_haves: truths:` (nested YAML — parse raw frontmatter string voi regex, khong dung parseFrontmatter vi no flatten nested keys)
-- Tasks khong co explicit Truth refs trong v1.0 -> tu dong PASS cho bidirectional check
-- Follows D-10 graceful-skip principle, tranh false positives per D-17
+- Parse truths tu frontmatter `must_haves: truths:` (nested YAML)
+- Tasks khong co explicit Truth refs trong v1.0 -> tu dong PASS
+- Follows D-10 graceful-skip principle
 
 ### v1.1 Format
-- Parse Truths tu PLAN.md Truths table (`| T1 | [mo ta] | [kiem chung] |` v1.1 hoac `| T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] |` v1.3)
+- Parse Truths tu PLAN.md Truths table
 - Parse task Truth refs tu `> Truths: [T1, T2]` metadata trong TASKS.md
-- Check ca hai chieu:
-  - Truth khong co task nao map -> BLOCK (success criterion se khong dat duoc)
-  - Task khong co Truth nao map -> BLOCK (v1.3: "Khong co Truth = Khong co Code")
+- Direction 1 only: Truth khong co task nao map -> BLOCK
 
 **Severity:**
 | Dieu kien | Severity |
 |-----------|----------|
 | Truth khong co task nao map (v1.1+) | BLOCK |
-| Task khong co Truth nao map (v1.1+) | BLOCK |
 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
+
+## 5b. CHECK-05: Logic Coverage (Direction 2)
+
+> Per D-01, D-02, D-04, D-05, D-06 (Phase 20)
+
+### v1.0 Format
+- Khong co Truth-Task mapping -> tu dong PASS
+
+### v1.1 Format
+- Parse tasks tu TASKS.md
+- Direction 2: Task khong co Truth nao map -> severity configurable (default WARN per D-04)
+- Orphan tasks = technical debt, reported trong PASS table issues (per D-06)
+
+### Configuration
+- Default severity: `'warn'`
+- Override via `options.severity` parameter truyen qua `runAllChecks({ check05Severity: 'block' })`
+- Du an strict co the nang len BLOCK (per D-05)
+
+**Severity:**
+| Dieu kien | Severity |
+|-----------|----------|
+| Task khong co Truth nao map (v1.1+) | WARN (default) |
+| Task khong co Truth nao map + severity override | BLOCK (configurable) |
+| v1.0 format | PASS (skip) |
+| unknown format | PASS (skip) |
 
 ## 6. ADV-01: Key Links Verification
 
@@ -253,6 +275,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
     { "checkId": "CHECK-02", "status": "pass", "issues": [] },
     { "checkId": "CHECK-03", "status": "pass", "issues": [] },
     { "checkId": "CHECK-04", "status": "pass", "issues": [] },
+    { "checkId": "CHECK-05", "status": "pass", "issues": [] },
     { "checkId": "ADV-01", "status": "pass", "issues": [] },
     { "checkId": "ADV-02", "status": "pass", "issues": [] },
     { "checkId": "ADV-03", "status": "pass", "issues": [] }
@@ -280,8 +303,10 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | CHECK-03 | Invalid task/plan reference | BLOCK |
 | CHECK-03 | v1.0 plan-level deps (single-plan context) | PASS (skip) |
 | CHECK-04 | Truth khong co task nao map (v1.1+) | BLOCK |
-| CHECK-04 | Task khong co Truth nao map (v1.1+) | BLOCK |
 | CHECK-04 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
+| CHECK-05 | Task khong co Truth nao map (v1.1+) | WARN (default) |
+| CHECK-05 | Task khong co Truth nao map + severity override | BLOCK (configurable) |
+| CHECK-05 | v1.0/unknown format | PASS (skip) |
 | ADV-01 | Key Link path khong co trong bat ky task Files nao | BLOCK |
 | ADV-01 | Khong co task nao touch ca 2 dau cung luc | BLOCK |
 | ADV-01 | Khong co Key Links section | PASS (skip) |

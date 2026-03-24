@@ -332,6 +332,7 @@ Check name mapping (dùng cho PASS table và ISSUES FOUND headers):
 - CHECK-02 = Task Completeness
 - CHECK-03 = Dependency Correctness
 - CHECK-04 = Truth-Task Coverage
+- CHECK-05 = Logic Coverage
 - ADV-01 = Key Links
 - ADV-02 = Scope Thresholds
 - ADV-03 = Effort Classification
