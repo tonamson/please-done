@@ -4,13 +4,11 @@
 Khởi tạo cấu trúc quản lý dự án theo chuẩn **please-done (PD)**. Đây là bước đầu tiên để biến một thư mục code thông thường thành một dự án được AI hỗ trợ quản lý chặt chẽ.
 
 ## Cách hoạt động
-Khi chạy `pd init`, AI sẽ:
-1. **Phân tích bối cảnh:** Quét thư mục hiện tại để hiểu loại dự án (Node.js, Flutter, NestJS, v.v.).
-2. **Tạo cấu trúc `.planning/`:** Đây là "não bộ" của dự án, nơi lưu trữ mọi kế hoạch và trạng thái.
-3. **Khởi tạo tài liệu gốc:**
-   - `PROJECT.md`: Tầm nhìn và các ràng buộc cốt lõi.
-   - `ROADMAP.md`: Danh sách các Milestone và Phase cần thực hiện.
-   - `STATE.md`: Lưu trữ trạng thái hiện tại của Agent (đang làm gì, ở đâu).
+Khi chạy `pd init`, AI (Sử dụng **Haiku 4.5**) sẽ:
+1. **Phân tích bối cảnh:** Quét thư mục hiện tại để hiểu loại dự án.
+2. **Codebase Mapper (MỚI):** Tự động quét thực trạng hoặc đề xuất Blueprint (cho dự án mới).
+3. **Tạo cấu trúc `.planning/`:** Khởi tạo thư mục `codebase/` với các file STACK, ARCHITECTURE.
+4. **Khởi tạo tài liệu gốc:** PROJECT, ROADMAP, STATE.
 
 ## Đầu vào (Input)
 - **Yêu cầu từ User:** Mô tả tổng quan về dự án hoặc tính năng muốn xây dựng.
