@@ -204,6 +204,12 @@ Tuân thủ Phần C (toàn cục): phòng DoS, race condition, replay, timing a
 - Giới hạn: mục tiêu 300 dòng, BẮT BUỘC tách >500 (Solidity: 500/800)
 **Per-stack:** NestJS → migration khi đổi schema. Solidity → BẮT BUỘC SafeERC20, clearUnknownToken, rescueETH, NatSpec EN, signature hash binding. Khác → xem rules, tra Context7.
 **Cập nhật PROGRESS.md** sau mỗi file: đánh dấu `[x]`, thêm tên file vào "Files đã viết", cập nhật giai đoạn + thời gian.
+**Logic Changes (nếu có):**
+Phát hiện logic nghiệp vụ cần điều chỉnh trong quá trình code (VD: edge case mới, giá trị ngưỡng cần sửa):
+1. Cập nhật PLAN.md Truths tương ứng (chỉ sửa Truth hiện có, KHÔNG thêm mới)
+2. Ghi vào PROGRESS.md section "## Logic Changes":
+   `| Truth ID | Thay đổi | Lý do |`
+3. Không có logic change → KHÔNG tạo section này
 ---
 ## Bước 5: Lint + Build
 CONTEXT.md → Tech Stack → thư mục + công cụ build.
