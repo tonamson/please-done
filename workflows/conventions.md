@@ -80,4 +80,3 @@ Quy tắc: CHỈ viết thứ AI không tự suy ra. KHÔNG lặp kiến thức 
 - CẤM đọc/hiển thị file nhạy cảm
 - File tương thích Claude Code auto-load (CLAUDE.md ở root)
 </rules>
-</output>

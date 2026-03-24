@@ -157,6 +157,6 @@ Phases execute in numeric order: 25 → 26 → 27
 | 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
 | 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
-| 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete   | 2026-03-24 |
+| 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete    | 2026-03-24 |
 | 26. Don dep & An toan | v1.5 | 0/0 | Not started | - |
 | 27. Dong bo Logic & Bao cao | v1.5 | 0/0 | Not started | - |

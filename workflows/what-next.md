@@ -89,4 +89,3 @@ Fetch lỗi/version giống → bỏ qua.
 - Format ngày DD_MM_YYYY
 - Output PHẢI tiếng Việt có dấu
 </rules>
-</output>

@@ -129,4 +129,3 @@ Copy từ `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:
 - CẤM đọc/hiển thị `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`
 - CONTEXT.md đã có → hỏi giữ/khởi tạo lại
 </rules>
-</output>

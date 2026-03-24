@@ -246,4 +246,3 @@ Kết quả: X/Y đạt"
 - Test files chưa commit → hỏi người dùng giữ hay viết lại.
 - KHÔNG ghi đè test files/report mà không hỏi người dùng.
 </rules>
-</output>

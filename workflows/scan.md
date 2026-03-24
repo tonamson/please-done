@@ -101,4 +101,3 @@ Tóm tắt kết quả. Nếu CONTEXT.md/rules cập nhật → thông báo rõ.
 - PHẢI cập nhật CONTEXT.md sau quét
 - Tech stack thay đổi → PHẢI re-copy rules
 </rules>
-</output>

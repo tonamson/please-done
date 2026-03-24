@@ -264,4 +264,3 @@ Lỗi đã sửa: [...]"
 - CHANGELOG ghi rõ từng lỗi: mô tả + nguyên nhân + cách sửa
 - Báo cáo + CHANGELOG viết hướng sản phẩm (xem @references/ui-brand.md)
 </rules>
-</output>
