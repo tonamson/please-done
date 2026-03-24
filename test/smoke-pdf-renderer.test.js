@@ -191,3 +191,65 @@ describe('renderMarkdownFallback', () => {
     assert.equal(typeof result, 'string', 'should return string');
   });
 });
+
+// ─── CLI integration — generate-pdf-report.js ───────────────
+
+const { execSync } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+
+describe('CLI integration — generate-pdf-report.js', () => {
+  it('Test 23: prints usage and exits 1 when no args', () => {
+    try {
+      execSync('node bin/generate-pdf-report.js', { encoding: 'utf8', stdio: 'pipe' });
+      assert.fail('should have exited non-zero');
+    } catch (err) {
+      assert.ok(err.stderr.includes('Usage:') || err.stdout.includes('Usage:'),
+        'output should contain "Usage:"');
+    }
+  });
+
+  it('Test 24: exits 1 when input file does not exist', () => {
+    try {
+      execSync('node bin/generate-pdf-report.js nonexistent-file-xyz.md', { encoding: 'utf8', stdio: 'pipe' });
+      assert.fail('should have exited non-zero');
+    } catch (err) {
+      assert.ok(err.status === 1, 'exit code should be 1');
+    }
+  });
+
+  it('Test 25: fallback path creates output in .planning/reports/ and exits 0', () => {
+    // Create a temp directory to act as process.cwd()
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'pdf-test-'));
+    const inputPath = path.join(tmpDir, 'test-report.md');
+    fs.writeFileSync(inputPath, '# Test Report\n\nSome content\n');
+    const planningDir = path.join(tmpDir, '.planning', 'reports');
+
+    try {
+      // Run from tmpDir so process.cwd() points there
+      const output = execSync(`node ${path.resolve('bin/generate-pdf-report.js')} ${inputPath}`, {
+        encoding: 'utf8',
+        stdio: 'pipe',
+        cwd: tmpDir,
+      });
+      // If puppeteer not installed, fallback .md should exist
+      if (fs.existsSync(path.join(planningDir, 'test-report.md'))) {
+        assert.ok(true, 'Fallback .md created');
+      } else if (fs.existsSync(path.join(planningDir, 'test-report.pdf'))) {
+        assert.ok(true, 'PDF created (puppeteer available)');
+      } else {
+        assert.fail('Neither .md nor .pdf created in .planning/reports/');
+      }
+    } finally {
+      // Cleanup
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    }
+  });
+
+  it('Test 26: output uses process.cwd() not __dirname', () => {
+    const script = fs.readFileSync(path.resolve('bin/generate-pdf-report.js'), 'utf8');
+    assert.ok(script.includes('process.cwd()'), 'should use process.cwd()');
+    assert.ok(!script.includes('__dirname'), 'should NOT use __dirname for output path');
+  });
+});
