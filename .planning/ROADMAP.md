@@ -5,7 +5,7 @@
 - ✅ **v1.0 Workflow Optimization** — Phases 1-9 (shipped 2026-03-22)
 - ✅ **v1.1 Plan Checker** — Phases 10-13 (shipped 2026-03-23)
 - ✅ **v1.2 Skill Audit & Bug Fixes** — Phases 14-16 (shipped 2026-03-23)
-- 🔄 **v1.3 Truth-Driven Development** — Phases 17-20
+- ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
 
 ## Phases
 
@@ -49,39 +49,17 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 
 </details>
 
-### v1.3 Truth-Driven Development (Phases 17-20)
+<details>
+<summary>✅ v1.3 Truth-Driven Development (Phases 17-20) — SHIPPED 2026-03-24</summary>
 
 - [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-23
 - [x] Phase 18: Logic-First Execution (1/1 plans) — completed 2026-03-24
-- [x] Phase 19: Knowledge Correction (completed 2026-03-24)
-- [ ] Phase 20: Logic Audit
+- [x] Phase 19: Knowledge Correction (1/1 plans) — completed 2026-03-24
+- [x] Phase 20: Logic Audit (1/1 plans) — completed 2026-03-24
 
-### Phase 18: Logic-First Execution
-**Goal:** Đảm bảo AI luôn validate lại business logic trước khi viết code, và báo cáo verification theo cấu trúc Truths
-**Requirements:** EXEC-01, EXEC-02
-**Plans:** 1/1 plans complete
-**Gap Closure:** Closes orphaned requirements from v1.3 audit
+Full details: `.planning/milestones/v1.3-ROADMAP.md`
 
-Plans:
-- [x] 18-01-PLAN.md — Add Buoc 1.7 Re-validate Logic to write-code workflow + restructure verification-report with typed evidence
-
-### Phase 19: Knowledge Correction
-**Goal:** Khi bug do logic sai, AI phải sửa PLAN.md (Truth) trước khi sửa code, và ghi lại logic changes trong progress report
-**Requirements:** CORR-01, CORR-02
-**Plans:** 1/1 plans complete
-**Gap Closure:** Closes orphaned requirements from v1.3 audit
-
-Plans:
-- [x] 19-01-PLAN.md — Add Buoc 6.5 Logic Update to fix-bug workflow + Logic Changes tracking in both workflows and progress template
-
-### Phase 20: Logic Audit
-**Goal:** plan-checker tự động phát hiện code mồ côi (tasks thiếu Truths hoặc Truths thiếu tasks) qua CHECK-05
-**Requirements:** AUDIT-01
-**Plans:** 0/1 plans executed
-**Gap Closure:** Closes orphaned requirements from v1.3 audit
-
-Plans:
-- [ ] 20-01-PLAN.md — Split CHECK-04 + add CHECK-05 checkLogicCoverage with configurable severity
+</details>
 
 ## Progress
 
@@ -106,4 +84,4 @@ Plans:
 | 17. Truth Protocol | v1.3 | 2/2 | Complete | 2026-03-23 |
 | 18. Logic-First Execution | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
-| 20. Logic Audit | v1.3 | 0/1 | Planned    |  |
+| 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |

@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking, and verified end-to-end workflow logic.
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, and verified end-to-end workflow logic with logic re-validation before code changes.
 
 ## Core Value
 
@@ -38,6 +38,9 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ End-to-end verification of 3 critical workflows (new-milestone, write-code, fix-bug) — v1.2 (Phase 15)
 - ✓ 22/27 audit issues fixed, 448 tests pass, 48/48 snapshots in sync — v1.2 (Phase 16)
 - ✓ Truth Protocol — 5-col Truths table, backward-compat parser, CHECK-04 BLOCK severity — v1.3 (Phase 17)
+- ✓ Logic-First Execution — Buoc 1.7 re-validate logic before coding, structured verification report — v1.3 (Phase 18)
+- ✓ Knowledge Correction — Buoc 6.5 Logic Update in fix-bug, Logic Changes tracking in both workflows — v1.3 (Phase 19)
+- ✓ Logic Audit — CHECK-05 checkLogicCoverage with configurable severity, CHECK-04 refactored — v1.3 (Phase 20)
 
 ### Active
 
@@ -54,7 +57,7 @@ None — v1.3 milestone complete.
 
 ## Current State
 
-**Shipped:** v1.3 Truth-Driven Development (2026-03-23)
+**Shipped:** v1.3 Truth-Driven Development (2026-03-24)
 **Next milestone:** Not yet planned — run `/gsd:new-milestone` to start
 
 ## Context
@@ -62,15 +65,18 @@ None — v1.3 milestone complete.
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
 Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
-Shipped v1.3 with 455 total tests, Truth Protocol enforced across templates and plan checker.
+Shipped v1.3 with 154 plan-checker tests (8 checks including CHECK-05), 29 files modified, +1,033 net LOC.
+v1.3 added: Buoc 1.7 logic re-validation, Buoc 6.5 Truth correction, Logic Changes tracking, CHECK-05 orphan detection.
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows.
 
 Post-v1.3 state:
 - Truths table expanded to 5 columns (ID, Description, Business Value, Edge Cases, Verification)
 - parseTruthsV11() backward-compatible with both 3-col (v1.1) and 5-col (v1.3) formats
 - CHECK-04 Direction 2 severity upgraded from WARN to BLOCK — every task must trace to a Truth
+- CHECK-05 checkLogicCoverage detects orphan tasks/Truths with configurable WARN severity
 - Workflow plan.md Buoc 4.3 instructs AI to produce 5-column format
-- 4 converter snapshots regenerated, 455 tests pass (7 new for Truth Protocol)
+- write-code.md Buoc 1.7 re-validates logic before code changes (~100 token budget)
+- fix-bug.md Buoc 6.5 corrects Truths before code fix when bug is logic-related
 - 6 tech debt items tracked (5 documented with decisions, 1 info-level)
 
 ## Constraints
@@ -96,6 +102,9 @@ Post-v1.3 state:
 | Audit + fix in same milestone (v1.2) | Scan first (Phase 14-15), fix after (Phase 16) | ✓ Good — found 27 issues, fixed 22, deferred 5 with docs |
 | CLI wrapper for plan-check | Separate file I/O from library logic | ✓ Good — bin/plan-check.js reads files, calls library |
 | Defer re-export cleanup to v2.0 | COPILOT/GEMINI_TOOL_MAP re-exports are harmless | ✓ Good — low risk, tracked as tech debt |
+| Buoc 1.7 ~100 token budget | Keep logic validation concise, not verbose | ✓ Good — bullet paraphrase format effective |
+| Buoc 6.5 before code fix | Correct Truth before fixing code prevents drift | ✓ Good — logic stays in sync with implementation |
+| CHECK-05 default WARN severity | Orphan tasks are tech debt, not blockers | ✓ Good — configurable per project needs |
 
 ## Evolution
 
@@ -115,4 +124,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after v1.3 Phase 17 completed*
+*Last updated: 2026-03-24 after v1.3 milestone complete*

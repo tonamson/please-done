@@ -131,6 +131,48 @@
 
 ---
 
+## Milestone: v1.3 — Truth-Driven Development
+
+**Shipped:** 2026-03-24
+**Phases:** 4 | **Plans:** 5 | **Tasks:** 10
+
+### What Was Built
+- 5-column Truths table (ID, Description, Business Value, Edge Cases, Verification) with backward-compatible parser
+- Buoc 1.7 Re-validate Logic — AI paraphrases business logic before writing code (~100 token budget)
+- Buoc 6.5 Logic Update — fix-bug workflow corrects Truths before code fix when bug is logic-related
+- Logic Changes tracking in both write-code and fix-bug workflows
+- CHECK-05 checkLogicCoverage — detects orphan tasks/Truths with configurable WARN severity
+- CHECK-04 refactored: Direction 1 (BLOCK) kept, Direction 2 extracted to CHECK-05
+
+### What Worked
+- Milestone audit driving gap closure — 3 phases (18-20) emerged from v1.3 audit identifying orphaned requirements
+- Small, focused phases — each phase had 1 plan targeting 2-3 requirements, completed in 3-8 minutes
+- Surgical workflow edits — Buoc 1.7 and 6.5 inserted precisely without disrupting existing flow
+- Configurable severity for CHECK-05 — WARN by default allows projects to opt into stricter enforcement
+
+### What Was Inefficient
+- Phase 17 had 2 plans while Phases 18-20 had 1 each — inconsistent granularity, though Phase 17 covered more ground
+- Snapshot regeneration required after every workflow change — predictable but adds overhead
+
+### Patterns Established
+- Truth-driven enforcement: every task must trace to a business logic truth (CHECK-04 BLOCK)
+- Logic re-validation before code changes (Buoc 1.7) — prevents drift between plan and implementation
+- Conditional tracking sections — Logic Changes only appears when changes actually occur (D-14 pattern)
+- Check function splitting pattern — extract sub-check to separate function when severity needs differ
+
+### Key Lessons
+1. Milestone audits are high-value — they caught 3 orphaned requirements that would have been missed
+2. Inserting workflow steps requires precise placement — Buoc 6.5 between 6c and 7 maintains flow integrity
+3. Configurable severity is better than fixed — projects have different maturity levels
+4. Small gap-closure phases execute faster than multi-requirement phases — keep phases focused
+
+### Cost Observations
+- Model mix: ~50% opus (planning + research), ~50% sonnet (execution + verification)
+- Sessions: 2 (Phase 17 in session 1, Phases 18-20 in session 2)
+- Notable: 154 plan-checker tests covering 8 checks — comprehensive quality gate
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -140,6 +182,7 @@
 | v1.0 | 1 | 9 | Full optimization cycle: structure → tokens → architecture → capabilities |
 | v1.1 | 1 | 4 | Plan quality gate: 7 checks, workflow integration, dynamic reporting |
 | v1.2 | 2 | 3 | Audit + verify + fix cycle: systematic quality assurance of existing code |
+| v1.3 | 2 | 4 | Truth-driven enforcement: logic validation before code, orphan detection |
 
 ### Cumulative Quality
 
@@ -148,6 +191,7 @@
 | v1.0 | 303 | Full smoke + snapshot | 0 (js-tiktoken only) |
 | v1.1 | 443+ | Smoke + snapshot + plan checker | 0 |
 | v1.2 | 448 | Smoke + snapshot + plan checker + integrity | 0 |
+| v1.3 | 154 (plan-checker) | 8 checks incl. CHECK-05 logic coverage | 0 |
 
 ### Top Lessons (Verified Across Milestones)
 
@@ -156,3 +200,4 @@
 3. Pure function patterns enable additive growth without refactoring (v1.0 base converter, v1.1 plan checker)
 4. Dynamic rendering > hardcoded content — static lists go stale as soon as the next phase ships
 5. Audit-first development: scan → classify → fix produces higher quality than ad-hoc bug hunting (v1.2)
+6. Milestone audits catch orphaned requirements — gap-closure phases are small and fast (v1.3)

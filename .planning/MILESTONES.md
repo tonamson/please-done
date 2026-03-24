@@ -1,5 +1,20 @@
 # Milestones
 
+## v1.3 Truth-Driven Development (Shipped: 2026-03-24)
+
+**Phases completed:** 4 phases, 5 plans, 10 tasks
+**Files modified:** 29 | **Net LOC:** +1,033
+
+**Key accomplishments:**
+
+- 5-column Truths table with backward-compatible parser, CHECK-04 Direction 2 upgraded to BLOCK severity
+- Planner workflow updated with 5-column Truths instruction and 4 converter snapshots regenerated
+- Buoc 1.7 Re-validate Logic step in write-code workflow with typed evidence verification-report
+- Buoc 6.5 Logic Update in fix-bug workflow with Truth correction before code fix, plus Logic Changes tracking in both workflows and progress template
+- Split CHECK-04 into Direction 1 (BLOCK) + new CHECK-05 checkLogicCoverage Direction 2 (configurable WARN) with 154 tests passing
+
+---
+
 ## v1.2 Skill Audit & Bug Fixes (Shipped: 2026-03-23)
 
 **Phases completed:** 3 phases, 11 plans, 18 tasks
