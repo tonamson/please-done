@@ -27,6 +27,11 @@ Mỗi bản nghiên cứu BẮT BUỘC phải bao gồm:
 - [ ] **Evidence Collector**: Tác tử chuyên trách việc kiểm chứng nguồn tin và trích xuất dẫn chứng.
 - [ ] **Fact Checker**: Tác tử đối soát chéo thông tin giữa các researcher để loại bỏ ảo giác.
 
+#### 4. Workflow Guards & Enforcement (Cơ chế cưỡng chế)
+- [ ] **Plan-Gate Integration**: Cập nhật `workflows/plan.md` để thêm lớp bảo vệ (Guard). Trước khi lập kế hoạch, AI **BẮT BUỘC** kiểm tra sự tồn tại của `.planning/research/internal/TECHNICAL_STRATEGY.md`.
+- [ ] **Mandatory Suggestion**: Nếu thiếu file Strategy, AI phải dừng lại và yêu cầu: *"Thiếu hồ sơ nghiên cứu kỹ thuật. Vui lòng chạy `/pd:research` để đảm bảo an toàn kiến trúc trước khi lập kế hoạch."*
+- [ ] **Strategy Injection**: Đảm bảo `workflows/write-code.md` và `workflows/plan.md` luôn tự động đọc và tuân thủ các quyết định trong Strategy mới nhất.
+
 ### Lợi ích của Hệ thống Audit
 - **Minh bạch**: Người dùng biết chính xác AI lấy thông tin từ đâu.
 - **Bền vững**: Thông tin nghiên cứu cũ không bị mất đi khi có nghiên cứu mới.
