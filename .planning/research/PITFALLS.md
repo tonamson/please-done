@@ -1,154 +1,194 @@
 # Pitfalls Research
 
-**Domain:** Truth-Driven Development -- Business logic traceability enforcement for AI coding workflow framework
-**Researched:** 2026-03-23
-**Confidence:** HIGH (deep analysis of 1025-line plan-checker.js, 1345-line test suite, 10 workflows, 448 existing tests)
+**Domain:** Adding Mermaid diagram generation + PDF export to existing Node.js AI coding skill framework
+**Researched:** 2026-03-24
+**Confidence:** HIGH
 
 ## Critical Pitfalls
 
-### Pitfall 1: Template Schema Drift Breaks 48 Converter Snapshots
+### Pitfall 1: Node.js Version Incompatibility -- mermaid-cli Requires Node 18+
 
 **What goes wrong:**
-Changing the Truths table format in `templates/plan.md` (adding "Business Value" and "Edge Cases" columns) causes the v1.1 Truths table parser (`parseTruthsV11`) to stop matching. The regex `| T1 | [description] | [verification] |` becomes `| T1 | [description] | [business value] | [edge cases] | [verification] |`. Every converter that inlines workflow content containing plan/task templates re-renders differently, causing all 48 snapshot tests to fail. The team cannot distinguish "expected changes from template update" vs "actual regression" -- this is snapshot poisoning.
+`@mermaid-js/mermaid-cli` (mmdc) requires Node.js `^18.19 || >=20.0`. The project declares `"engines": { "node": ">=16.7.0" }`. Installing mermaid-cli as a production dependency breaks the minimum version contract. Users on Node 16 or 17 get install failures or runtime crashes.
 
 **Why it happens:**
-The parser uses a positional regex (`/\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g`) that captures exactly 3 pipe-delimited columns. Adding columns shifts captured groups. Developers focus on the template and forget the parser is coupled to the column count. Meanwhile, converter snapshots are generated from the template content -- any template change cascades to all 5 platform outputs.
+mermaid-cli depends on Puppeteer 23+ which itself requires Node 18+. This is a hard constraint -- not configurable. The entire mermaid-cli -> puppeteer -> chromium chain enforces Node 18+.
 
 **How to avoid:**
-1. Update `parseTruthsV11` BEFORE or SIMULTANEOUSLY with the template change -- never template-first
-2. Make the parser column-count-agnostic: match `T\d+` in column 1, treat everything after as a named capture or use column-header detection
-3. After template change, run snapshot update (`--update-snapshots`) in an ISOLATED commit, then run full test suite to confirm only template-derived snapshots changed
-4. Converter snapshots test the pipeline (inlining, path replacement, tool mapping) -- template content changes are expected to update snapshots. The danger is when a template change ALSO accidentally breaks pipeline logic
+1. Do NOT add `@mermaid-js/mermaid-cli` or `puppeteer` to `dependencies` or `devDependencies` in the project's package.json.
+2. Treat `generate-pdf-report.js` as a standalone script with runtime dependency detection. The script checks at execution time: "Is mmdc available? Is puppeteer available?" and fails gracefully with install instructions if not.
+3. Use `npx @mermaid-js/mermaid-cli mmdc` for on-demand rendering -- no permanent dependency footprint.
+4. Alternative approach: generate Mermaid syntax only (text in .md files). The PDF step is optional and documented as requiring Node 18+.
+5. Keep the project's `engines.node >= 16.7.0` contract intact -- the 12 skills, 10 workflows, 5 converters must remain runnable on Node 16.
 
 **Warning signs:**
-- `npm test` shows 48 snapshot failures after a template-only change
-- `parseTruthsV11` returns empty array for plans with the new column format
-- CHECK-04 (Truth-Task Coverage) reports "0 Truths found" on valid plans
+- `package.json` engines field changes to `>=18`
+- CI or user reports "Cannot find module" or engine incompatibility warnings
+- `npm install` triggers 300MB+ Chromium binary download as a top-level dependency
 
 **Phase to address:**
-Phase 1 (Truth Protocol -- template + plan-checker changes). Template and parser MUST ship in the same commit. Snapshot update MUST be a separate, immediately-following commit.
+Phase 1 (Architecture/Script setup) -- decide dependency isolation strategy before writing any code.
 
 ---
 
-### Pitfall 2: checkLogicCoverage Breaks Pure-Function Contract
+### Pitfall 2: Puppeteer/Chromium Binary Bloat Destroys Install Experience
 
 **What goes wrong:**
-The new `checkLogicCoverage` function (checking that code files have corresponding Truths) needs to inspect actual source code to determine if code exists without Truth backing. This violates the established pure-function contract: "All functions are pure -- receive content, return result, no file I/O" (line 8 of plan-checker.js). If the function does `fs.readFileSync()` or `require('child_process')`, it breaks testability, composability, and the existing 140-test pattern where every test passes string content as arguments.
+Puppeteer downloads a Chromium binary (~170-350MB) during `npm install`. This:
+1. Triples the project install time for ALL users
+2. Fails in network-restricted or air-gapped environments
+3. Fails on platforms without matching Chromium binaries (ARM Linux, some macOS setups)
+4. Makes `npm install please-done` prohibitively slow for users who only want the AI skills
+5. CrowdStrike and corporate antivirus software flags Chromium spawning and kills the process (documented in mermaid-cli Issue #958)
 
 **Why it happens:**
-The requirement "code without Truth = Technical Debt" implies inspecting the actual codebase, not just plan documents. Developers naturally reach for file system access. The boundary between "plan checker" (document validator) and "code auditor" (codebase scanner) is unclear.
+`puppeteer` (not `puppeteer-core`) auto-downloads Chromium. If added as a regular dependency, every `npm install` triggers the download -- even for users who never use PDF export. The project currently has ZERO production dependencies and only one devDependency (`js-tiktoken`). Adding Puppeteer would be a 10,000x increase in dependency weight.
 
 **How to avoid:**
-Redefine the scope: `checkLogicCoverage` checks PLAN.md/TASKS.md content only, NOT source code. Specifically:
-- Check that every task's acceptance criteria reference at least one Truth
-- Check that no task exists without a Logic Reference (Truths field)
-- Check that the Truths table has "Business Value" populated (not empty)
-- This keeps it as a pure document validator consistent with the 7 existing checks
-If codebase-level audit is needed later, it belongs in a SEPARATE module (e.g., `code-auditor.js`), not in `plan-checker.js`
+- Never add `puppeteer` to the main `package.json` dependencies.
+- The PDF generation script should check for Puppeteer at runtime and provide a clear error message with install instructions if missing:
+  ```javascript
+  let puppeteer;
+  try { puppeteer = require('puppeteer'); }
+  catch { console.error('PDF export requires puppeteer. Install: npm install -g puppeteer'); process.exit(1); }
+  ```
+- Consider `puppeteer-core` + system Chrome detection as a lighter alternative for users who already have Chrome installed.
+- Document: "PDF export is optional. Install puppeteer separately if needed."
 
 **Warning signs:**
-- New check function has `require('fs')` or `require('path')` at the top
-- New tests use `beforeEach` with temp directories instead of string fixtures
-- Test execution time jumps from <1s to >3s (I/O bound)
+- `package-lock.json` grows by 50MB+
+- `node_modules` exceeds 500MB
+- CI pipeline install step takes 3x longer
+- Users report install failures on non-x86 platforms
 
 **Phase to address:**
-Phase 4 (Logic Audit). Define the check's input contract in Phase 4 design: `checkLogicCoverage(planContent, tasksContent)` -- same signature as all other checks.
+Phase 1 (Script architecture) -- make Puppeteer an opt-in runtime dependency, never a package dependency.
 
 ---
 
-### Pitfall 3: "Re-validate Logic" Step Doubles Token Cost Per Task
+### Pitfall 3: AI-Generated Mermaid Syntax Errors Crash the Render Pipeline
 
 **What goes wrong:**
-Adding "Buoc 0: Re-validate Logic" to the write-code workflow forces the AI to print the full Business Logic table before writing any code. For plans with 4-6 Truths and rich Business Value/Edge Cases columns, this adds 500-1500 tokens of output per task. In `--auto` mode with 5 tasks, this adds 2500-7500 tokens of pure overhead. In `--parallel` mode, every spawned agent pays this cost independently. The workflow becomes measurably slower and more expensive without proportional quality gain.
+AI models (Claude/Codex/Gemini) generate Mermaid syntax that looks correct but fails to render due to:
+- Special characters in node labels: parentheses `()`, brackets `[]`, curly braces `{}`
+- Reserved keywords as node names: `end`, `graph`, `subgraph`, `call`
+- Non-breaking spaces or zero-width characters (U+200B, U+FEFF) injected by LLMs
+- Missing arrows between nodes (`-->`)
+- Inconsistent indentation in subgraphs
+- Node labels containing colons, semicolons, or pipe characters
+
+When the render fails, the entire `complete-milestone` workflow could break at the diagram step -- no report diagrams, potentially no milestone completion.
 
 **Why it happens:**
-The impulse is correct -- force the AI to "think about logic first." But printing a table the AI already has in its context window is redundant. The AI reads PLAN.md in Buoc 2 already. Requiring it to PRINT the table is cargo-cult verification -- it looks like the AI is thinking, but it already processed the content during context reading.
+Mermaid's parser is strict about syntax but has no partial-render mode. One bad character in one node label crashes the entire diagram. LLMs have inconsistent training on Mermaid syntax rules and frequently produce syntactically invalid output. Microsoft's GenAIScript blog documents this as a known pattern: "syntax matters and LLMs sometimes get it wrong."
 
 **How to avoid:**
-Make "Re-validate Logic" lightweight and genuine:
-- INSTEAD OF: "Print the full Truths table with Business Value and Edge Cases"
-- DO: "For the current task, list only the Truths referenced in this task's `> Truths:` field. For each, state in 1 sentence what the code MUST do. If any Truth is unclear, STOP."
-This is ~50-100 tokens per task (not 500-1500), forces genuine comprehension (paraphrase, not copy), and actually catches problems (unclear Truths surface early).
+1. **Validation before rendering:** Use `merval` (zero-dependency Mermaid validator, pure JS, supports 13 diagram types) to validate syntax before passing to mmdc. Catches errors in milliseconds without Puppeteer.
+2. **Quoting rule in templates/rules:** ALL node labels MUST use double quotes: `A["Label with (special) chars"]`. Enforce this in the Mermaid aesthetics rules added to `rules/general.md`.
+3. **Sanitization function:** Write a `sanitizeMermaid(code)` utility that:
+   - Strips zero-width characters (U+200B, U+FEFF, U+200C, U+200D)
+   - Replaces non-breaking spaces with regular spaces
+   - Wraps unquoted labels containing special chars in double quotes
+   - Escapes semicolons as `#59;` (Mermaid's HTML entity syntax)
+4. **Graceful degradation:** If Mermaid render fails, fall back to including the raw Mermaid code block in the report (readable in GitHub, VS Code, Obsidian -- any Markdown viewer that supports Mermaid natively).
+5. **Never block milestone completion on diagram rendering failure.** The diagram is supplementary -- the milestone report is essential.
 
 **Warning signs:**
-- AI output starts with a verbatim copy of the Truths table from PLAN.md
-- Token usage per task increases 20%+ with no quality improvement
-- `--parallel` agents all output identical logic tables
+- `mmdc` exits with non-zero code
+- SVG output is empty or contains error text
+- AI prompt templates do not include explicit Mermaid syntax rules
+- Node labels in generated diagrams lack double quotes
 
 **Phase to address:**
-Phase 2 (Logic-First Execution). Design the step's output format explicitly. Set a token budget in the workflow step description: "~100 tokens max per task."
+Phase 2 (Mermaid template + rules) for syntax rules. Phase 3 (script) for validation + sanitization.
 
 ---
 
-### Pitfall 4: Verification Restructure Invalidates Buoc 9.5 Logic
+### Pitfall 4: complete-milestone Workflow Becomes Fragile After Diagram Integration
 
 **What goes wrong:**
-Changing verification from "Test Case Passed" to "Truths Verified" sounds like a naming change but actually restructures the verification loop in Buoc 9.5. The current loop is: 9.5a (artifact exists) -> 9.5b (stub detection) -> 9.5c (key links) -> 9.5d (logic Truths) -> 9.5e (report). If "Truths Verified" replaces "Test Case Passed" as the primary success criterion, the 4-level cascade may need reordering (Truths first, artifacts second). This changes the VERIFICATION_REPORT.md template AND the workflow step sequence. The 3 critical workflows verified end-to-end in v1.2 (Phase 15, with 60 steps and 29 Truths) become invalid documentation.
+Adding diagram generation to Buoc 4 of `complete-milestone.md` introduces a new failure mode in a critical workflow path. If the diagram step fails (Puppeteer crash, syntax error, timeout, missing dependency), the entire milestone completion blocks. The existing 10-step workflow has been battle-tested through v1.0-v1.3 (4 milestones, 20 phases). Adding a step that depends on external binaries (Chromium) breaks the reliability contract.
 
 **Why it happens:**
-The verification system was designed bottom-up (file exists -> file has content -> files connect -> logic works). Switching to top-down (logic correct -> therefore artifacts exist) inverts the pyramid. Developers assume "just rename the column" but the verification ORDER determines what gets checked when, and early failures short-circuit later checks.
+The diagram/PDF step requires a headless browser -- fundamentally different from everything else in the workflow (which is pure text/Markdown manipulation). This is a category shift: from deterministic file operations to browser-dependent rendering. The current workflow has ZERO external binary dependencies.
 
 **How to avoid:**
-Do NOT restructure the verification cascade. Instead, ENHANCE it:
-- Keep the existing 4-level order (9.5a-d) intact
-- In 9.5e (report generation), change the SUMMARY framing: instead of "Test Cases: X/Y passed", write "Truths Verified: X/Y with evidence"
-- The evidence column maps directly to the existing Buoc 9.5d output
-- The VERIFICATION_REPORT.md template already has a "Truths" section (lines 20-25 of verification-report.md template) -- enhance it, don't replace the artifact/link sections
+1. **Make the diagram step non-blocking and optional.** If rendering fails, log a warning and continue. MILESTONE_COMPLETE.md must always be generated regardless.
+2. **Separate the diagram step from the report step.** Buoc 4 writes MILESTONE_COMPLETE.md (text). A new optional Buoc 4.5 generates MANAGEMENT_REPORT.md with diagrams. A separate Buoc 4.7 runs PDF export. Failure in 4.5 or 4.7 does not prevent Buoc 5-10.
+3. **Feature-flag the entire diagram pipeline.** Check: does `scripts/generate-pdf-report.js` exist? Is `puppeteer` available? Only attempt rendering if both are true. No dependency = skip gracefully.
+4. **Timeout protection.** Puppeteer can hang indefinitely on malformed input. The script must set a 30-second timeout on the render process. Kill and continue on timeout.
+5. **The workflow instruction must say "attempt" not "must."** Use language: "If diagram tools are available, generate Mermaid diagrams. Otherwise, include raw Mermaid code blocks."
 
 **Warning signs:**
-- Verification loop order changes (9.5d before 9.5a)
-- VERIFICATION_REPORT.md loses artifact-level or key-link-level detail
-- End-to-end verification traces from Phase 15 no longer match actual workflow behavior
+- `complete-milestone` workflow gains `DUNG` (STOP/BLOCK) conditions related to diagrams
+- The workflow has no fallback path when rendering fails
+- Tests for complete-milestone don't cover the "no Puppeteer installed" scenario
+- Buoc 4 now requires external binary availability
 
 **Phase to address:**
-Phase 2 (Logic-First Execution) for the write-code workflow changes. Phase 3 (Knowledge Correction) for the fix-bug workflow changes. Do NOT touch Buoc 9.5 ordering in either phase.
+Phase 4 (Workflow integration) -- must be the LAST integration point, after script and templates are proven stable independently.
 
 ---
 
-### Pitfall 5: Logic Reference Enforcement Creates Circular Failure
+### Pitfall 5: Existing 448+ Tests Break Due to New Dependencies or Import Side Effects
 
 **What goes wrong:**
-The requirement "AI cannot create Task without corresponding Truth" creates a chicken-and-egg problem in the plan workflow. During `pd:plan`, the AI writes Truths and Tasks in the same document. If the plan-checker runs mid-authoring and blocks because a Task references T3 but T3 is not yet written (it is further down in the same document), the AI enters a loop: write Task -> checker blocks -> remove Task -> write Truth -> write Task -> checker blocks (if Truth table parsing fails on partial content).
+Adding new modules (`scripts/generate-pdf-report.js`, Mermaid utilities) can break existing tests if:
+- New modules import Puppeteer at module load time (fails when Puppeteer is not installed)
+- New test files are picked up by the glob `test/*.test.js` and fail in CI without Puppeteer
+- Snapshot tests (48 snapshots via `test/smoke-snapshot.test.js`) detect new/changed files in `commands/`, `workflows/`, `templates/`
+- The integrity test (`smoke-integrity.test.js`, 704 lines) validates file structures and may fail if new files don't match expected patterns
+- Changes to `complete-milestone.md` (adding Buoc 4.5) alter converter snapshot output for all 5 platforms
 
 **Why it happens:**
-Plan-checker is designed to validate COMPLETED plans, not partial in-progress documents. Enforcing Truth-Task coupling during plan CREATION (not just plan VALIDATION) adds a real-time constraint the system was not designed for.
+The test suite uses `node --test 'test/*.test.js'` which discovers all test files. The snapshot system compares converter output byte-for-byte. The integrity test validates structural consistency of the entire `commands/`, `workflows/`, `templates/` tree. Any of these can trigger unexpectedly from seemingly unrelated file additions.
 
 **How to avoid:**
-Enforce Logic Reference at VALIDATION time only (when `pd:plan` runs the plan-checker at the end of Buoc 8, after the complete PLAN.md + TASKS.md are written). Do NOT add real-time enforcement during plan authoring. The plan-checker already runs as a gate after plan creation -- this is the correct enforcement point. The new `checkLogicCoverage` check simply joins the existing 7 checks in `runAllChecks`.
+1. **Isolate PDF-related tests:** If creating `test/smoke-pdf-report.test.js`, add a guard at the top that skips all tests if Puppeteer is not available. Use `node:test`'s skip mechanism.
+2. **Never import Puppeteer at module top-level.** Always use lazy `require()` inside the function that needs it.
+3. **Update snapshots deliberately.** If `templates/visual-report.md` or `workflows/complete-milestone.md` changes, regenerate snapshots (`node test/generate-snapshots.js`) and verify that ONLY expected snapshots changed. Commit snapshot updates in a separate, clearly labeled commit.
+4. **Check converter output for all 5 platforms** after ANY template or workflow file change. The converters inline workflow content -- any word change propagates to Claude, Codex, Gemini, OpenCode, and Copilot outputs.
+5. **Run `npm test` early and often.** After each file addition or modification, run the full suite. The 448+ tests are the project's primary safety net.
 
 **Warning signs:**
-- Workflow adds a "check Truth exists" validation INSIDE the task-writing loop
-- Plan creation takes multiple retries due to premature validation
-- AI spends tokens re-generating Tasks that were already correct
+- `npm test` fails on machines without Puppeteer installed
+- Snapshot test count changes unexpectedly (48 becomes 50+)
+- `smoke-integrity.test.js` reports unexpected files or missing expected patterns
+- CI pipeline requires Puppeteer installation as a new mandatory step
 
 **Phase to address:**
-Phase 1 (Truth Protocol) for template rules, Phase 4 (Logic Audit) for the check function. Enforcement is post-authoring validation, not real-time constraint.
+Every phase -- run `npm test` (all 448+ tests) after each change. Especially critical in Phase 3 (script creation) and Phase 4 (workflow integration where complete-milestone.md changes).
 
 ---
 
-### Pitfall 6: Over-Engineering Enforcement Kills AI Creativity
+### Pitfall 6: Headless Chromium Fails in CI/Server/Docker Environments
 
 **What goes wrong:**
-If every task MUST have a Logic Reference AND every acceptance criterion MUST trace to a specific Truth AND the Business Value column MUST be non-empty AND Edge Cases MUST list at least 2 items -- the enforcement becomes so strict that the AI spends more tokens on bureaucratic compliance than on actual code quality. Infrastructure tasks (setting up ESLint, creating barrel exports, configuring CI) genuinely have no Business Logic -- forcing fake Truths for these tasks pollutes the Truth table with noise like "T7: ESLint is configured" which is not business logic.
+Puppeteer's headless Chrome fails to launch in many environments:
+- Missing shared libraries (`libnss3.so`, `libatk-bridge-2.0.so`, `libgbm.so`) on minimal Linux images
+- No sandbox available in Docker (requires `--no-sandbox --disable-setuid-sandbox` flags)
+- CrowdStrike/antivirus blocks Chromium process spawn on corporate machines (documented Issue #958 -- not flagged consistently, intermittent failures)
+- ARM-based CI runners (Apple Silicon macOS, AWS Graviton) may lack compatible Chromium binaries
+- `chrome-headless-shell` binary not found (documented Issue #842, Jan 2025)
 
 **Why it happens:**
-The desire for "no code without Truth backing" is philosophically sound but practically overbroad. Not all tasks are business-logic tasks. v1.1's existing CHECK-04 already handles this gracefully: Task without Truth is a WARN (not BLOCK) because infrastructure tasks are valid without Truth mapping.
+Chromium requires a full set of system libraries and optionally a display server. Minimal Docker images and CI environments strip these to save space. Security software flags headless browser spawning as suspicious behavior. The Puppeteer team frequently changes the default Chrome variant downloaded.
 
 **How to avoid:**
-Preserve the WARN vs BLOCK distinction:
-- Task missing Truths -> WARN (same as current CHECK-04 behavior)
-- Truth with zero tasks -> BLOCK (logic gap -- this is the real danger)
-- `checkLogicCoverage` new checks should be WARN severity for "Task without Business Value" but BLOCK for "Truth without any task coverage"
-- Allow an explicit `infrastructure` task type that is exempt from Truth requirements (already supported via the "Loai:" field in TASKS.md)
+1. **PDF generation must NEVER be a required CI step.** It is a developer/manager convenience, not a test gate.
+2. **Provide puppeteerConfigFile support** in the script. Allow users to pass `--no-sandbox`, custom executable paths, etc. via a JSON config.
+3. **Document system requirements clearly** in the script's `--help` output: "PDF export requires: Chromium or Chrome installed, or run `npx puppeteer browsers install chrome`."
+4. **Test Mermaid SYNTAX in CI (using merval), not rendered output.** Syntax validation is zero-dependency and fast.
+5. **Provide a Docker example** only if users specifically request CI-based PDF generation. This is not part of the core workflow.
 
 **Warning signs:**
-- Every check in the new function is BLOCK severity
-- Infrastructure tasks get fake Truths to pass the checker
-- Truths table grows to 10+ entries with non-business items
-- AI output includes lengthy justifications for why `npm install` relates to business logic
+- "Failed to launch the browser process" errors
+- Timeout during `mmdc` or Puppeteer execution
+- Tests that pass locally but fail in CI
+- Binary download failures during CI `npm install`
 
 **Phase to address:**
-Phase 4 (Logic Audit). The severity levels must be designed explicitly: document which conditions are BLOCK vs WARN in the PLAN.md for Phase 4.
+Phase 3 (Script implementation) -- build with graceful failure from day one. The script must handle "no browser" as a normal exit path, not an exception.
 
 ---
 
@@ -156,114 +196,146 @@ Phase 4 (Logic Audit). The severity levels must be designed explicitly: document
 
 | Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
 |----------|-------------------|----------------|-----------------|
-| Hardcode new Truths table column count in parser | Fast implementation | Breaks if columns change again in future versions | Never -- use column-header detection from the start |
-| Add `checkLogicCoverage` with file I/O | Can check actual source files | Breaks pure-function contract, 140 tests become unreliable | Never -- separate into a different module |
-| Skip snapshot update commit | Fewer commits | Cannot distinguish template changes from regressions in git history | Never -- always separate template-update snapshots |
-| Copy-paste Buoc 9.5 for "Truths Verified" variant | Works immediately | Two verification code paths diverge over time | Only if the original Buoc 9.5 is truly incompatible (it is not) |
-| Make all new checks BLOCK severity | Simpler logic | False positives on infrastructure tasks kill trust in checker | Never -- design WARN/BLOCK correctly from day one |
-| Add "Re-validate Logic" as a full table dump | Easy to implement | Token waste compounds across tasks and modes | Never -- use targeted paraphrase approach |
+| Add puppeteer to main package.json | Simpler install for PDF users | 300MB+ install bloat, Node 16 breakage, all users affected | Never -- use runtime detection or npx |
+| Hardcode Mermaid theme/colors in script | Quick visual result | Cannot adapt to different project branding | MVP only -- make configurable via JSON by Phase 2 |
+| Skip Mermaid syntax validation | Fewer files to write | Silent failures, broken diagrams in reports | Never -- merval is zero-dependency, trivial to add |
+| Inline diagram generation in complete-milestone workflow | One-step workflow | Tightly coupled, cannot generate diagrams outside milestone completion | Never -- separate script with CLI interface, reusable |
+| Skip snapshot regeneration after template changes | Faster development | Snapshot tests fail for next contributor, regression masked | Never -- always regenerate and commit separately |
+| Synchronous Puppeteer calls in script | Simpler code | Blocks Node.js event loop, no timeout support | Acceptable ONLY because generate-pdf-report.js is a CLI script, not a library |
+| Generate PNG instead of SVG | Simpler embedding | Blurry text in PDF, 5-10x larger file size | Never for diagrams with text -- always SVG |
 
 ## Integration Gotchas
 
 | Integration | Common Mistake | Correct Approach |
 |-------------|----------------|------------------|
-| plan-checker.js + new check | Adding 8th check without updating `runAllChecks` AND the dynamic PASS table name mapping (Phase 13 legacy) | Add to `runAllChecks` array + verify name mapping auto-discovers it. Test by running `runAllChecks` and confirming 8 check results returned |
-| templates/plan.md + converter snapshots | Updating template without regenerating snapshots | Update template -> run converter tests with `--update` -> verify ONLY template-derived lines changed in snapshot diff -> commit snapshots separately |
-| write-code workflow + new Buoc 0 | Adding step that requires PLAN.md read BEFORE Buoc 1 (which determines which PLAN.md to read) | Buoc 0 MUST come AFTER Buoc 1 (task selection) and Buoc 2 (context read). Rename to "Buoc 2.5" or integrate into Buoc 2 |
-| fix-bug workflow + "fix PLAN.md first" | Modifying PLAN.md Truths during bug fix without re-running plan-checker | After PLAN.md Truth modification, plan-checker MUST re-validate. Add this to fix-bug Buoc 8 explicitly |
-| TASKS.md `> Truths:` field + existing tasks | Adding required Truths field to template but not backfilling existing in-progress tasks | New template applies to NEW plans only. Existing v1.0/v1.1 plans use format detection (`detectPlanFormat`) to skip checks gracefully |
-| VERIFICATION_REPORT.md "Truths Verified" + existing reports | Changing report template invalidates existing Phase 15 verification traces | Keep both formats readable. Version the report format or add a `> Format: v1.3` header |
+| mermaid-cli + Node 16 project | Adding as dependency breaks `engines.node` contract | Use `npx` or isolated script with runtime detection; project's package.json unchanged |
+| Puppeteer in test suite | Top-level `require('puppeteer')` crashes when not installed | Lazy require inside function body; skip test if `require` throws |
+| complete-milestone + diagrams | Making diagrams a blocking prerequisite for milestone completion | Non-blocking optional step (new Buoc 4.5); MILESTONE_COMPLETE.md generated regardless |
+| Mermaid code in MANAGEMENT_REPORT.md | Expecting all recipients to have Mermaid-capable viewers | Export to SVG and embed as image in PDF; keep Mermaid source in .md as fallback for devs |
+| Template changes + 5 converters | Forgetting that converters inline workflow content | Test all converter outputs after modifying complete-milestone.md or adding visual-report.md |
+| Vietnamese text in diagrams | Default Chromium fonts may not render Vietnamese diacritics correctly | Specify `fontFamily` with Vietnamese support (e.g., "Noto Sans", "Roboto") in Mermaid config |
+| PDF page layout | Default A4 portrait truncates wide flowcharts | Use landscape orientation for diagrams, or limit diagram width in Mermaid config |
+| Script output path | Hardcoding output to `scripts/output/` | Output alongside the source report (e.g., same directory as MANAGEMENT_REPORT.md) |
 
 ## Performance Traps
 
 | Trap | Symptoms | Prevention | When It Breaks |
 |------|----------|------------|----------------|
-| Re-validate Logic runs on every task in --auto | Token cost scales linearly with task count, noticeable at 5+ tasks | Cap output to task-specific Truths only (~100 tokens) | Immediate -- measurable from first --auto run |
-| checkLogicCoverage parses plan twice | Plan already parsed by other checks, re-parsing is redundant | Parse once in `runAllChecks`, pass parsed structures to all checks | At 8+ checks with repeated parsing, adds ~50ms overhead |
-| Truths table with 10+ entries | Scope bloat, every task touches multiple Truths, CHECK-04 generates many warnings | ADV-02 already warns at >6 Truths. Respect this threshold | When plans exceed 6 Truths regularly |
-| "Logic Changes" tracking in PROGRESS.md | Extra write operations on every task, PROGRESS.md grows, recovery logic (Buoc 1.1) becomes more complex | Keep tracking lightweight: single line "Logic validated: T1, T3" not a full table | When tasks modify 3+ Truths frequently |
+| Launching Puppeteer per diagram | 2-5 second cold start per diagram; 5+ diagrams = 25 sec | Launch browser once, render all diagrams in same instance, then close | >2 diagrams per report |
+| Large Mermaid diagrams (50+ nodes) | Render timeout, truncated text, overlapping labels, node labels disappear | Limit diagram complexity in rules (max 15-20 nodes); split into overview + detail diagrams | >30 nodes in a single diagram |
+| No timeout on mmdc/Puppeteer | Process hangs forever on malformed input; CI job never completes | Set 30-second timeout, kill process on expiry, continue with fallback | Any malformed Mermaid syntax |
+| Re-rendering unchanged diagrams | Script always re-renders even if Mermaid source hasn't changed | Hash Mermaid code blocks, skip render if hash matches cached SVG | Report with 5+ diagrams, run repeatedly |
+| Chromium download on every CI run | 170-350MB download adds 30-60 seconds per CI pipeline | Cache Chromium binary in CI, or don't run PDF generation in CI at all | Every CI pipeline execution |
+
+## Security Mistakes
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Running Puppeteer with `--no-sandbox` without awareness | Reduced browser isolation; malicious Mermaid input could escape sandbox | Only use in Docker/CI with documented tradeoff; never in interactive use |
+| Storing generated PDFs in git | Repository bloat with binary files; git history grows permanently | Add `*.pdf`, `scripts/output/` to `.gitignore` before first PDF is generated |
+| User-supplied Mermaid input without sanitization | XSS via Mermaid's HTML entity support (Mermaid official docs warn: "it is hard to guarantee no loop holes") | Sanitize input; only accept Mermaid from trusted sources (AI-generated from project plans) |
 
 ## UX Pitfalls
 
 | Pitfall | User Impact | Better Approach |
 |---------|-------------|-----------------|
-| Strict Logic Reference blocks plan creation | User runs `pd:plan`, gets BLOCK for every infrastructure task, has to add fake Truths | WARN for tasks without Truths, BLOCK only for Truths without tasks. Let infrastructure tasks be Truths-free |
-| "Re-validate Logic" step produces wall of text | User sees AI dumping a table they already wrote, wasting time and tokens | Targeted 1-sentence paraphrase per relevant Truth. Quick, genuine, useful |
-| Verification report format change | User familiar with v1.1/v1.2 verification reports confused by different format | Evolve the existing format (add column), don't replace it. Keep "Truths" section already in template as the anchor |
-| "Fix PLAN.md before code" in fix-bug workflow | User reporting a simple CSS bug is told to update PLAN.md Truths first | Apply only to LOGIC bugs (classification: loi logic). Non-logic bugs (CSS, typo, config) skip PLAN.md update. Use existing bug classification (Buoc 6a) to route |
-| New plan-checker check fails on old plans | User opens a v1.0 plan, gets BLOCK from checkLogicCoverage | Format detection (`detectPlanFormat`) MUST return graceful PASS for v1.0/unknown formats, same pattern as CHECK-03 and CHECK-04 |
+| Requiring Puppeteer for ALL workflow usage | Users who don't need PDF can't complete milestones | Feature-flag: diagrams generated only when dependencies available; milestone completion never blocked |
+| Silent diagram generation failure | User thinks report is complete but diagrams are missing or broken | Clear console output: "Diagram rendered: [path]" or "SKIP: Diagram skipped (puppeteer not installed)" |
+| Mermaid diagrams only viewable in specific tools | Manager opens .md file in Notepad, sees raw code | Generate standalone PDF with rendered diagrams; the PDF IS the manager deliverable |
+| Vietnamese labels in diagrams garbled | Diacritics appear as boxes or question marks in rendered SVG/PDF | Configure Mermaid + Puppeteer with Vietnamese-compatible fonts; test with real Vietnamese text |
+| Overly complex diagrams unintelligible | Manager receives a 50-node spaghetti flowchart | Rules limit to 15-20 nodes per diagram; use hierarchy: 1 overview diagram + N detail diagrams |
+| PDF generation requires manual steps | Developer must remember to run separate script after milestone | Integrate as optional step in workflow with clear skip behavior; provide `--skip-pdf` flag |
 
 ## "Looks Done But Isn't" Checklist
 
-- [ ] **Template change:** `parseTruthsV11` regex updated to handle new column count -- verify by running existing 140 plan-checker tests + adding test cases for new format
-- [ ] **New check function:** Exported in `module.exports` AND added to `runAllChecks` array AND dynamic PASS table discovers it -- verify by running `runAllChecks({...})` and checking result has 8 checks
-- [ ] **Snapshot update:** All 48 snapshots regenerated in isolated commit -- verify by `git diff` showing only template-content changes in snapshot files
-- [ ] **write-code Buoc 0:** Step number does not conflict with existing Buoc 1 task-selection logic -- verify by tracing through a complete task lifecycle
-- [ ] **fix-bug PLAN.md-first:** Only applies to logic bugs, non-logic bugs skip -- verify by testing with a CSS-only bug
-- [ ] **Backward compatibility:** `detectPlanFormat` still returns "v1.0" for old plans and all v1.0-specific code paths still work -- verify by running historical validation against 22 v1.0 plans (the D-17 gate from v1.1)
-- [ ] **VERIFICATION_REPORT.md:** Old reports still render correctly alongside new format -- verify by reading a v1.2 report after template change
-- [ ] **Token budget:** "Re-validate Logic" output is under 150 tokens per task in a real run -- verify by measuring actual output length
-- [ ] **WARN vs BLOCK:** Infrastructure tasks pass with WARN (not BLOCK) when missing Truths -- verify with a test fixture containing an infra-only task
+- [ ] **PDF script:** Often missing error handling for "puppeteer not installed" -- verify script exits gracefully with install instructions, not a stack trace
+- [ ] **Mermaid in report:** Often missing double-quote wrapping on labels with special chars -- verify ALL node labels are quoted in template examples
+- [ ] **complete-milestone integration:** Often missing fallback path when render fails -- verify milestone completes successfully when Puppeteer is NOT installed
+- [ ] **Template visual-report.md:** Often missing from converter test snapshots -- verify all 5 platform converters handle the new template file correctly
+- [ ] **Vietnamese font rendering:** Often missing font configuration in Puppeteer/Mermaid -- verify diacritics (e.g., "Luong nghiep vu" vs "Luong nghiep vu") render correctly in PDF output
+- [ ] **Mermaid syntax validation:** Often missing pre-render validation -- verify merval or equivalent checks syntax before mmdc rendering
+- [ ] **Git ignore:** Often missing PDF and image outputs from .gitignore -- verify binary artifacts are excluded from git tracking
+- [ ] **Node 16 compatibility:** Often broken by importing new modules that transitively require Node 18 -- verify `npm test` passes without mermaid-cli or puppeteer installed
+- [ ] **Timeout handling:** Often missing for Puppeteer processes -- verify 30-second timeout kills hung processes and script continues
+- [ ] **Browser cleanup:** Often missing `browser.close()` in error paths -- verify no orphan Chromium processes after script errors (check with `finally` block)
+- [ ] **Landscape PDF for wide diagrams:** Often using default portrait -- verify wide flowcharts are not truncated in PDF output
 
 ## Recovery Strategies
 
 | Pitfall | Recovery Cost | Recovery Steps |
 |---------|---------------|----------------|
-| Parser breaks on new Truths table format | LOW | Fix regex in `parseTruthsV11`, run tests, all 140 tests guide the fix. ~30 min |
-| Snapshot tests mass-fail after template change | LOW | Run `--update-snapshots`, review diff to confirm only template content changed, commit. ~15 min |
-| New check breaks pure-function contract | MEDIUM | Extract file I/O into separate module, refactor check to accept content strings, update tests. ~2 hours |
-| Verification loop reordered, reports invalid | HIGH | Revert verification changes, restore original 9.5a-d order, re-verify against Phase 15 traces. ~4 hours |
-| Over-strict enforcement adopted, fake Truths everywhere | MEDIUM | Change BLOCK to WARN on task-level checks, remove fake Truths from existing plans, re-run checker. ~1 hour |
-| "Re-validate Logic" bloats token usage | LOW | Rewrite step to targeted paraphrase format, measure token reduction. ~30 min |
-| "Fix PLAN.md first" applied to non-logic bugs | LOW | Add classification gate in fix-bug workflow, route non-logic bugs to skip PLAN.md step. ~30 min |
+| Puppeteer added to main dependencies | LOW | Remove from dependencies, move to runtime detection in script, regenerate package-lock.json, verify `npm install` is fast again |
+| Existing tests broken by new imports | LOW | Add lazy `require()` pattern, isolate test file with skip guard, re-run full 448+ test suite |
+| complete-milestone blocks on diagram failure | MEDIUM | Add try/catch around diagram step in workflow, add explicit fallback path, test both "with Puppeteer" and "without Puppeteer" scenarios |
+| Node 16 support broken by transitive dependency | HIGH | Revert the dependency addition, restructure as runtime-detected separate install, update all documentation, test on Node 16 |
+| Snapshot tests out of sync after workflow change | LOW | Run `node test/generate-snapshots.js`, diff to confirm only expected changes, commit updated snapshots separately |
+| Vietnamese text garbled in PDF | LOW | Add `fontFamily: "Noto Sans"` CSS override in Puppeteer page styles, embed font or reference system font |
+| Mermaid syntax errors in generated report | LOW | Add merval validation step in script, auto-fix common issues (quote unquoted labels), re-render |
+| CI pipeline broken by Chromium dependency | MEDIUM | Remove Puppeteer from CI requirements, test syntax only in CI, provide Docker config for optional PDF CI |
+| Orphan Chromium processes after error | LOW | Add `finally { await browser.close(); }` block in script, add process exit handler |
 
 ## Pitfall-to-Phase Mapping
 
 | Pitfall | Prevention Phase | Verification |
 |---------|------------------|--------------|
-| Template Schema Drift Breaks Snapshots | Phase 1 (Truth Protocol) | 48 snapshot tests pass + parseTruthsV11 handles both old and new column format + historical D-17 gate passes |
-| checkLogicCoverage Breaks Pure-Function Contract | Phase 4 (Logic Audit) | New check function signature is `(planContent, tasksContent)` with no `require('fs')` + test uses string fixtures only |
-| "Re-validate Logic" Doubles Token Cost | Phase 2 (Logic-First Execution) | Measured token output per task < 150 tokens + output is task-specific paraphrase not table dump |
-| Verification Restructure Invalidates Buoc 9.5 | Phase 2 (Logic-First Execution) | Buoc 9.5a-d order unchanged + VERIFICATION_REPORT.md has enhanced "Truths Verified" summary without losing artifact/link detail |
-| Logic Reference Creates Circular Failure | Phase 1 (Truth Protocol) + Phase 4 (Logic Audit) | Plan-checker enforcement is post-authoring only + no validation during task-writing loop |
-| Over-Engineering Kills AI Creativity | Phase 4 (Logic Audit) | WARN/BLOCK severity explicitly documented + infrastructure tasks pass with WARN + Truths table stays under 6 entries |
-| "Fix PLAN.md first" on non-logic bugs | Phase 3 (Knowledge Correction) | Bug classification gate routes non-logic bugs to skip PLAN.md update + CSS/config bugs complete without Truth modification |
+| Node.js version incompatibility (mermaid-cli needs 18+) | Phase 1 (Architecture) | `engines.node` in package.json unchanged at `>=16.7.0`; `npm test` passes without mermaid-cli installed |
+| Chromium binary bloat | Phase 1 (Architecture) | `puppeteer` NOT in package.json dependencies; project install size unchanged; `npm install` speed unchanged |
+| AI-generated Mermaid syntax errors | Phase 2 (Templates + Rules) | Template includes explicit quoting rules and examples; merval validates before render in script |
+| complete-milestone workflow fragility | Phase 4 (Workflow integration) | Milestone completes successfully when Puppeteer is NOT installed; diagram step is explicitly optional |
+| Existing 448+ test breakage | Every phase | `npm test` passes all tests after each change; no new mandatory dependencies added |
+| Headless Chrome in CI/Docker | Phase 3 (Script) | Script provides clear error message and exits gracefully without Puppeteer; no CI dependency on Chromium |
+| Vietnamese font rendering in PDF | Phase 3 (Script) | PDF output displays Vietnamese diacritics correctly with configured fonts |
+| Diagram complexity overflow | Phase 2 (Templates + Rules) | Rules limit nodes per diagram to 15-20; template provides split-diagram hierarchy example |
+| PDF/image artifacts in git | Phase 1 (Architecture) | `.gitignore` includes `*.pdf`, `*.svg` (generated), `scripts/output/` before first generation |
+| Browser process cleanup | Phase 3 (Script) | Script closes browser in `finally` block; no orphan processes after error; verified with error injection test |
 
 ## Phase-Specific Risk Summary
 
-### Phase 1: Truth Protocol (HIGH RISK)
-The most dangerous phase because it touches the template (cascade to 48 snapshots), the parser (cascade to 140 tests), and establishes the schema all other phases depend on. A mistake here propagates to every subsequent phase.
-- **Primary risks:** Pitfall 1 (parser/snapshot), Pitfall 5 (circular enforcement)
-- **Mitigation:** Parser + template in same commit. Snapshot update in next commit. Run D-17 historical gate.
+### Phase 1: Architecture/Setup (MEDIUM RISK)
+Establishes the dependency isolation strategy that all other phases depend on. Getting this wrong (adding puppeteer to package.json) cascades to every user. The primary decision -- runtime detection vs. package dependency -- must be made here and must be "runtime detection."
+- **Primary risks:** Pitfall 1 (Node version), Pitfall 2 (binary bloat)
+- **Mitigation:** Zero new entries in package.json dependencies. Script uses `try/require` pattern. .gitignore updated.
 
-### Phase 2: Logic-First Execution (MEDIUM RISK)
-Touches the largest workflow file (write-code.md, 427 lines). Step numbering and ordering must not conflict with the existing 10-step process.
-- **Primary risks:** Pitfall 3 (token bloat), Pitfall 4 (verification restructure)
-- **Mitigation:** Insert as Buoc 2.5 (not Buoc 0). Keep 9.5 order intact. Measure tokens.
+### Phase 2: Templates + Mermaid Rules (LOW-MEDIUM RISK)
+Adds template files and rules. Lower risk because templates are additive (new files, not modified existing). Main risk is that poorly specified Mermaid syntax rules lead to AI generating invalid diagrams in all subsequent milestones.
+- **Primary risks:** Pitfall 3 (syntax errors from AI)
+- **Mitigation:** Template includes comprehensive quoting rules with positive and negative examples. Rules include a "Mermaid Syntax Checklist" the AI must follow.
 
-### Phase 3: Knowledge Correction (LOW-MEDIUM RISK)
-Touches fix-bug workflow (317 lines) which has fewer integration points than write-code. Main risk is applying logic-correction universally instead of only to logic bugs.
-- **Primary risk:** "Fix PLAN.md first" on non-logic bugs (UX pitfall)
-- **Mitigation:** Gate behind existing bug classification (Buoc 6a). Route non-logic bugs to skip.
+### Phase 3: Script Implementation (HIGH RISK)
+The most technically risky phase because it touches Puppeteer, Chromium, file I/O, and must work across macOS/Linux/Windows while gracefully handling missing dependencies. This is where most integration issues surface.
+- **Primary risks:** Pitfall 5 (test breakage), Pitfall 6 (headless Chrome failures), Vietnamese fonts
+- **Mitigation:** Lazy require pattern. Comprehensive error handling. 30-second timeout. `finally` cleanup. Skip-guard in tests.
 
-### Phase 4: Logic Audit (MEDIUM RISK)
-Adds the 8th check function to plan-checker.js. Lower risk if Phase 1 already established the correct Truths table format. Main risk is breaking the pure-function contract or mis-calibrating severity.
-- **Primary risks:** Pitfall 2 (pure-function violation), Pitfall 6 (over-engineering)
-- **Mitigation:** Same function signature as existing checks. WARN for task-level, BLOCK for Truth-level. Run full 140+ test suite.
+### Phase 4: Workflow Integration (MEDIUM-HIGH RISK)
+Modifies `complete-milestone.md` -- a battle-tested workflow with 10 steps verified across 4 milestones. Any change here affects all 5 platform converters (48 snapshots). The integration must be additive and non-blocking.
+- **Primary risks:** Pitfall 4 (workflow fragility), Pitfall 5 (snapshot breakage)
+- **Mitigation:** New Buoc 4.5 (optional, non-blocking). Snapshot regeneration in isolated commit. Full converter test pass for all 5 platforms.
 
 ## Sources
 
-- Direct codebase analysis: `bin/lib/plan-checker.js` (1025 lines, 7 checks, 25 exported functions)
-- Direct codebase analysis: `test/smoke-plan-checker.test.js` (1345 lines, 140 tests)
-- Direct codebase analysis: `workflows/write-code.md` (427 lines, 10 steps + parallel mode)
-- Direct codebase analysis: `workflows/fix-bug.md` (317 lines, 10 steps)
-- Direct codebase analysis: `templates/plan.md` (Truths table format at line 141-144)
-- Direct codebase analysis: `templates/tasks.md` (Truths traceability at line 47-52)
-- Direct codebase analysis: `templates/verification-report.md` (Truths section at line 20-25)
-- Direct codebase analysis: `bin/lib/converters/base.js` (9-step pipeline, 48 snapshot tests)
-- Historical context: v1.1 D-17 acceptance gate (22 v1.0 plans, zero false positives)
-- Historical context: v1.2 Phase 15 end-to-end verification (60 steps, 29 Truths across 3 workflows)
+- [mermaid-cli browser launch failures -- Issue #842](https://github.com/mermaid-js/mermaid-cli/issues/842)
+- [mermaid-cli Puppeteer timeout/crash -- Issue #556](https://github.com/mermaid-js/mermaid-cli/issues/556)
+- [mermaid-cli CrowdStrike interference -- Issue #958](https://github.com/mermaid-js/mermaid-cli/issues/958)
+- [md-to-pdf Docker/CI browser process failures -- Issue #92](https://github.com/simonhaenisch/md-to-pdf/issues/92)
+- [Puppeteer system requirements (Node 18+)](https://pptr.dev/guides/system-requirements)
+- [Puppeteer troubleshooting](https://pptr.dev/troubleshooting)
+- [Puppeteer Chromium binary size discussion -- Issue #3027](https://github.com/puppeteer/puppeteer/issues/3027)
+- [Mermaid special characters break parsing -- Issue #54](https://github.com/mermaid-js/mermaid/issues/54)
+- [Mermaid character escaping -- Issue #170](https://github.com/mermaid-js/mermaid/issues/170)
+- [Mermaid text truncation -- Issue #6379](https://github.com/mermaid-js/mermaid/issues/6379)
+- [Mermaid node labels disappear when too wide -- Issue #5785](https://github.com/mermaid-js/mermaid/issues/5785)
+- [Mermaid subgraph title overlap -- Issue #3806](https://github.com/mermaid-js/mermaid/issues/3806)
+- [Mermaid reserved keywords cause syntax error -- Issue #4645](https://github.com/mermaid-js/mermaid/issues/4645)
+- [Merval -- zero-dependency Mermaid validator](https://github.com/aj-archipelago/merval)
+- [GenAIScript: fixing AI-generated Mermaid errors](https://microsoft.github.io/genaiscript/blog/mermaids/)
+- [Preventing Arrow Errors in Mermaid Syntax](https://robiriu.github.io/blog/2026-01-23-preventing-arrow-errors-in-diagrams-with-mermaid-s/)
+- [mermaid-cli npm -- Node ^18.19 or >=20.0 requirement](https://www.npmjs.com/package/@mermaid-js/mermaid-cli)
+- [md-to-pdf GitHub -- engines node >=12, puppeteer >=8.0.0](https://github.com/simonhaenisch/md-to-pdf)
+- [Server-side Mermaid rendering without browser -- Issue #3650](https://github.com/mermaid-js/mermaid/issues/3650)
+- Direct codebase analysis: `package.json` (zero production dependencies, engines node >=16.7.0)
+- Direct codebase analysis: `workflows/complete-milestone.md` (10-step workflow, Buoc 4 is report generation)
+- Direct codebase analysis: `test/` (448+ tests across 8 test files, 48 converter snapshots)
 
 ---
-*Pitfalls research for: Truth-Driven Development (v1.3) -- Business logic traceability enforcement*
-*Researched: 2026-03-23*
+*Pitfalls research for: Mermaid + PDF integration into Please-Done v1.4*
+*Researched: 2026-03-24*

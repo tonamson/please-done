@@ -1,167 +1,203 @@
 # Project Research Summary
 
-**Project:** please-done v1.3 — Truth-Driven Development
-**Domain:** AI coding workflow enforcement — business logic traceability in plan/task/verification templates
-**Researched:** 2026-03-23
+**Project:** please-done v1.4 — Visual Business Logic Reports
+**Domain:** Mermaid.js diagram generation, PDF export, management report templates, workflow integration
+**Researched:** 2026-03-24
 **Confidence:** HIGH
 
 ## Executive Summary
 
-please-done v1.3 implements Truth-Driven Development: a synthesis of BDD Feature Injection, Design-by-Contract, and Requirements Traceability Matrix patterns adapted for AI-prompt-as-specification workflows. The milestone goal is "Khong co Truths = Khong co Code" — enforced at four lifecycle points: planning (checkLogicCoverage static analysis), pre-coding (Re-validate Logic step), post-coding (Truths Verified verification), and debugging (Knowledge Correction workflow). Research confirms this approach is unique among SDD competitors (BMAD Method, GitHub spec-kit, fspec) who cover at most 1-2 of these lifecycle points.
+Milestone v1.4 them visual reporting vao please-done AI coding skill framework. Hien tai, toan bo dau ra cua framework la Markdown thuan tuy — cac nha quan ly nhan duoc danh sach task va bang loi, khong co bieu do luong nghiep vu hay kien truc he thong. v1.4 lap day khoang trong nay bang cach sinh so do Mermaid tu du lieu co cau truc san co (bang Truths, Key Links, Artifacts, CODE_REPORTs) roi dong goi thanh MANAGEMENT_REPORT.md chuyen nghiep kem xuat PDF. Loi the cot loi so voi cac cong cu SaaS: moi node trong so do co the truy vet nguoc ve Truth ID — duong ket noi truc tiep tu yeu cau nghiep vu -> ke hoach trien khai -> so do truc quan -> bao cao PDF.
 
-The recommended implementation approach is deliberately minimal: zero new dependencies, zero new runtime files. All changes are modifications to existing markdown templates and workflows, plus one new pure function in `bin/lib/plan-checker.js`. The Truths table in `templates/plan.md` gains two columns (Business Value from BDD Feature Injection, Edge Cases from Design-by-Contract preconditions), the parser gains backward-compatible 5-column support, and a new `checkLogicCoverage` (CHECK-05) function joins the existing 7-check quality gate. Total scope: 9 modified files, approximately 280 lines changed.
+Huong tiep can duoc khuyen nghi la kien truc hai lop: Lop 1 la AI sinh Mermaid-in-Markdown (zero dependencies, hoat dong tren Node 16.7+); Lop 2 la xuat PDF tuy chon qua Puppeteer (yeu cau Node 18+, cai rieng). Stack cu the la `puppeteer@24` + `marked@17` trong mot script tuy chinh `scripts/generate-report-pdf.js` — khong dung wrapper package vi md-to-pdf khong ho tro Mermaid native va triet ly du an la "pure scripts, no bundler". Day la 2 runtime dependency dau tien cua du an ke tu khi ra mat, nhung khong duoc them vao `package.json` dependencies chinh — phai dung runtime detection de bao toan install experience cho nguoi dung hien tai.
 
-The highest risk in this milestone is Phase 1: the Truths table template change cascades to a positional regex in `parseTruthsV11()` and to 48 converter snapshot tests. Template and parser must ship in the same commit; snapshot regeneration must be its own isolated commit immediately after. Every subsequent phase depends on the schema established in Phase 1, making it the highest-leverage and highest-risk phase of the milestone.
+Rui ro chinh la Puppeteer/Chromium binary bloat (~200MB) pha vo install experience neu bi them sai vao dependencies, Node.js version incompatibility neu nang engines tu 16.7 len 18 mot cach khong can than, va AI-generated Mermaid syntax errors do Mermaid parser nghiem ngat voi ky tu dac biet. Ba rui ro nay co the gay cascading failure xuyen suot toan bo 4 phase neu khong duoc giai quyet o Phase 1. Mitigation ro rang: Puppeteer la opt-in runtime dependency; giu `engines.node >= 16.7.0`; them Mermaid syntax validator khong can Puppeteer (merval pattern) vao Phase 2 truoc khi viet script.
+
+---
 
 ## Key Findings
 
 ### Recommended Stack
 
-v1.3 adds zero new dependencies and zero new runtime files. The existing stack (Node.js 16.7+, CommonJS, zero runtime deps, `plan-checker.js` with 7 pure check functions, 12 skills, 10 workflows, 5 converters) is the complete stack. All v1.3 features are achievable through template text edits, workflow text edits, and one new pure function following the identical pattern of the 7 existing check functions.
+Toan bo ecosystem Mermaid/PDF yeu cau Node 18+, tuy nhien du an phai giu kha nang tuong thich voi Node 16.7+. Giai phap la dung lazy `require()` va runtime detection — script kiem tra Node version va Puppeteer availability luc chay, khong phai luc install. Mermaid duoc inject qua CDN vao Puppeteer page context (khong cai npm) vi Mermaid can DOM (`SVGTextElement.getBBox`) khong the chay server-side thuan tuy.
 
 **Core technologies:**
-- `bin/lib/plan-checker.js`: existing check library — extend with `checkLogicCoverage` following the `(planContent, tasksContent) => { checkId, status, issues[] }` pure-function pattern already used by 7 existing checks
-- `parseTruthsV11()` regex parser: extend to support 5-column Truths table with 3-column fallback; Option A two-pass regex is recommended over a single flexible regex for readability and testability
-- `node:test` (Node 18+): existing test runner — add ~30-40 tests for `checkLogicCoverage` and the extended parser following `test/smoke-plan-checker.test.js` string-fixture patterns
-- Markdown templates: the "specification" AI follows; changes cascade through all workflows automatically via the converter pipeline `inlineWorkflow()` mechanism with zero converter code changes needed
+- `puppeteer@24`: PDF generation + headless Chrome cho Mermaid rendering — industry standard, tu download Chromium, Node 18+ required. Dung `puppeteer` (full) khong dung `puppeteer-core` de script "just work" ma khong can nguoi dung tu cau hinh Chrome path.
+- `marked@17`: Markdown-to-HTML voi custom renderer — 11,484 dependents, nhe, nhanh. Custom renderer intercept mermaid code blocks thanh `<pre class="mermaid">` cho Mermaid CDN render.
+- `mermaid@11` (CDN, khong npm): Diagram rendering trong Puppeteer page context — inject qua `page.addScriptTag({ url: CDN_URL })`. Pin version cu the de tranh CDN thay doi.
+- Mermaid syntax validator (zero-dependency, pure JS): validate truoc khi render, tranh crash workflow. Pattern: merval library hoac viet nho tuong duong.
+
+**Khong dung:** md-to-pdf (khong native Mermaid), mermaid npm package trong Node.js (can DOM), puppeteer-core (yeu cau manual Chrome config), architecture-beta / C4Context (experimental syntax, rui ro render).
+
+**Chi tiet:** Xem `.planning/research/STACK.md`
 
 ### Expected Features
 
-**Must have (table stakes — all 7 required for "Khong co Truths = Khong co Code"):**
-- TS-1: Enhanced Truths Table — add "Business Value" (WHY) and "Edge Cases" (boundaries) columns to `templates/plan.md`; root dependency for all other features
-- TS-2: Logic Reference Enforcement — change CHECK-04 Direction 2 severity from WARN to BLOCK; tasks without Truth reference are structural violations in a Truth-Driven paradigm
-- TS-3: Re-validate Logic Before Code — insert Buoc 1.7 in `workflows/write-code.md`; AI must restate relevant Truths as targeted paraphrase (~100 tokens, not table dump) before coding
-- TS-4: Logic Update in Bug Fixes — insert Buoc 6.5 in `workflows/fix-bug.md`; classify bug as Logic Error vs Implementation Error; update PLAN.md Truth before fixing code if Logic Error
-- TS-5: Truths Verified in Report — enhance `templates/verification-report.md` with Edge Cases verification and "Business Value Confirmed" framing; keep existing 4-level cascade order intact
-- TS-6: Logic Changes Tracking — add `## Logic Changes` section to `templates/progress.md` for session-level audit trail of Truth modifications
-- TS-7: checkLogicCoverage Gate — new CHECK-05 pure function validating Truths table completeness (non-empty Business Value, Edge Cases) and task-level Truth depth; unique capability among all SDD competitors
+6 tinh nang bat buoc cho v1.4, co dependency chain ro rang: TS-1 la root, TS-2 va TS-3 song song sau TS-1, TS-4 phu thuoc TS-2 va TS-3, TS-5 phu thuoc TS-4, TS-6 phu thuoc TS-5 va toan bo upstream.
 
-**Should have (competitive differentiators — defer post-launch validation):**
-- D-1: Edge Case -> Acceptance Criteria keyword alignment (heuristic overlap, WARN severity)
-- D-2: Business Value quality heuristic (flag Truths where Value merely restates description)
-- D-3: Logic Change propagation check (flag stale tasks when a Truth is modified via Knowledge Correction)
+**Must have (table stakes — toan bo 6 phai ship):**
+- **TS-1: Mermaid Aesthetics Rules** (`references/mermaid-rules.md`) — foundation: color palette, node shapes (service=rounded, DB=cylinder, API=hexagon), label conventions (toi da 20 ky tu/node), max 15-20 nodes/diagram, direction rules (TD cho logic, LR cho architecture), bat buoc double-quote quoting cho moi node label
+- **TS-2: Business Logic Flowchart** (`flowchart TD` tu Truths + Key Links) — core visual deliverable; node = Truth description, decision diamond = Edge Cases; tuy chon gop D-1 (Truth ID annotation)
+- **TS-3: Architecture Diagram** (`flowchart LR` voi subgraphs tu Artifacts + Key Links + CODE_REPORTs) — system structure; subgraph = module boundary; tranh experimental syntax
+- **TS-4: Management Report Template** (`templates/management-report.md`) — 7 sections: Executive Summary, Business Outcomes, Architecture Overview, Key Feature Flows, Quality Metrics, Risk & Tech Debt, Next Steps; ngon ngu tieng Viet huong san pham theo ui-brand.md Layer 1
+- **TS-5: PDF Export Script** (`scripts/generate-report-pdf.js`) — Puppeteer pipeline: read .md -> HTML (marked) -> inject Mermaid CDN -> render -> page.pdf(); graceful degradation neu Node < 18 hoac Puppeteer chua cai; 30s timeout; `finally` cleanup
+- **TS-6: Workflow Integration** (them Buoc 4.5 + 4.6 vao `workflows/complete-milestone.md`) — non-blocking, optional; MILESTONE_COMPLETE.md luon duoc tao bat ke diagram step co thanh cong hay khong
 
-**Defer (v2+):**
-- Semantic AI validation of Truth quality (circular, explicitly out of scope in PROJECT.md)
-- Mandatory Edge Cases BLOCK for all Truths (infrastructure Truths legitimately have none; use WARN)
-- Separate LOGIC_CHANGELOG.md (per-phase logic changes are 0-3; PROGRESS.md is sufficient)
-- Real-time logic drift detection during coding (cost-benefit negative for prompt-based system)
-- Automatic Truth generation from code (inverts TDD causality; anti-pattern SDD was created to prevent)
+**Should have (differentiators — them sau validation, v1.4.x):**
+- **D-1: Truth-to-Diagram Tracing** — annotate flowchart nodes voi Truth ID (e.g., `T1: [mo ta]`); low marginal cost, co the gop vao TS-2
+- **D-2: Cross-Phase Dependency Diagram** — flowchart LR tu cross-phase integration table da tinh o Buoc 3.5b
+- **D-4: Quality Dashboard** — Mermaid `pie` chart cho test/bug metrics
+
+**Defer (v1.5+):**
+- D-3: Sequence Diagrams (chi can cho milestone co API features)
+- D-5: Milestone Timeline (gantt; can date tracking chua co)
+- Upgrade len `architecture-beta` syntax (khi Mermaid on dinh API)
+
+**Anti-features — khong lam:**
+- Interactive HTML diagrams (can web server, pha vo CLI workflow)
+- Real-time diagrams trong write-code (qua phuc tap cho prompt-based system)
+- Full code-to-flowchart conversion (so do khong doc duoc, sai muc dich)
+
+**Chi tiet:** Xem `.planning/research/FEATURES.md`
 
 ### Architecture Approach
 
-The system is a layered modification of 9 existing files with a clear dependency hierarchy: templates define the data format, plan-checker validates it, workflows consume it. All 9 files are modifications (0 new files created). The converter pipeline auto-propagates workflow changes to all 5 platforms via `inlineWorkflow()` — no converter changes needed. The plan-checker maintains its pure-function architecture with content passed as arguments and no file I/O.
+Kien truc hai lop tach biet hoan toan AI text generation (zero dependencies, chay tren moi Node version) khoi PDF rendering (Puppeteer, Node 18+, optional). Lop 1 luon hoat dong va da co gia tri vi Mermaid-in-Markdown render native tren GitHub, VS Code, va cac Markdown viewer hien dai. Lop 2 la convenience cho manager nhan PDF. Moi component moi deu theo 6 patterns da thiet lap cua du an: template-driven output, conditional reading, pure functions, CLI wrapper, graceful degradation, non-blocking workflow steps.
 
-**Major components:**
-1. `templates/plan.md` — root dependency; Truths table format change (3-col to 5-col) that all other components read, validate, or display
-2. `bin/lib/plan-checker.js` — validator; `parseTruthsV11()` regex update (backward-compatible two-pass) + new `checkLogicCoverage` (CHECK-05) registered in `runAllChecks()`
-3. `workflows/write-code.md` — pre-coding enforcement; Buoc 1.7 "Re-validate Logic" step inserted after Buoc 1 task selection, before Buoc 2 context read
-4. `workflows/fix-bug.md` — bug-time enforcement; Buoc 6.5 "Logic Update Check" routing Logic Errors to update PLAN.md before code fix
-5. Supporting templates (`tasks.md`, `progress.md`, `verification-report.md`) — downstream artifact format updates with additive columns and new sections
+**Major components (6 moi, 5 sua doi):**
+1. `references/mermaid-rules.md` [MOI] — standalone reference, zero dependencies, dinh nghia visual language
+2. `templates/management-report.md` [MOI] — scaffold template voi Mermaid block placeholders, AI dien noi dung thuc
+3. `bin/lib/mermaid-validator.js` [MOI] — pure-function validator, zero deps, validate syntax truoc render
+4. `scripts/generate-report-pdf.js` [MOI] — CLI script voi lazy require Puppeteer, graceful exit neu thieu dep
+5. `bin/lib/report-generator.js` [MOI, optional] — pure-function helpers extract data tu CODE_REPORTs
+6. `workflows/complete-milestone.md` [SUA] — them Buoc 4.5 (MANAGEMENT_REPORT.md) + Buoc 4.6 (optional PDF)
+7. `commands/pd/complete-milestone.md` [SUA] — them conditional_reading cho template + mermaid-rules
+8. `test/smoke-mermaid-validator.test.js` [MOI] — unit tests cho validator
+9. `package.json` [SUA] — them npm script `"report:pdf"` (KHONG them puppeteer/marked vao dependencies)
+10. 48 converter snapshots [REGENERATE] — sau khi sua complete-milestone.md
 
-**Build order enforced by dependency graph:**
-templates/plan.md (1) -> templates/tasks.md (2) -> templates/progress.md (3) -> templates/verification-report.md (4) -> bin/lib/plan-checker.js (5) -> workflows/write-code.md (6) -> workflows/fix-bug.md (7)
+**Files khong thay doi:** `plan-checker.js`, `workflows/plan.md`, `workflows/write-code.md`, `templates/plan.md`, platform converters (tu dong propagate).
+
+**Chi tiet:** Xem `.planning/research/ARCHITECTURE.md`
 
 ### Critical Pitfalls
 
-1. **Template Schema Drift Breaks Parser and 48 Snapshots** — The current `parseTruthsV11()` positional regex (`| T1 | desc | verify |`) will silently mis-parse the new 5-column table, causing CHECK-04 to report "0 Truths found." This cascades to all 48 converter snapshot tests. Prevention: update template and parser in the SAME commit; regenerate snapshots in an isolated commit immediately after; run D-17 historical gate (22 v1.0 plans, zero false positives) to confirm backward compatibility.
+1. **Puppeteer vao main package.json dependencies** — pha vo Node 16.7 compatibility, tang install size 10,000x, anh huong tat ca users. Phong tranh: dung `try/require` runtime detection; KHONG them vao `dependencies` hay `devDependencies`; giu `engines.node >= 16.7.0`.
 
-2. **checkLogicCoverage Breaks Pure-Function Contract** — The temptation to have CHECK-05 read actual source files (`require('fs')`) to detect "code without Truth" violates the established pattern. All 7 existing check functions are pure — content passed as args, no I/O — and tested with string fixtures. Prevention: scope CHECK-05 to plan/tasks document validation only. Codebase-level audit belongs in a separate future module (`code-auditor.js`).
+2. **AI-generated Mermaid syntax errors crash render pipeline** — Mermaid parser khong co partial-render mode, mot ky tu sai pha vo toan bo diagram. LLMs thuong sinh sai syntax (ky tu dac biet, reserved keywords, zero-width chars). Phong tranh: bat buoc double-quote quoting cho toan bo node labels trong mermaid-rules.md; them merval-style validator truoc khi render; graceful degradation sang raw Mermaid code block neu render fail.
 
-3. **"Re-validate Logic" Step Doubles Token Cost** — Printing the full Truths table before each task adds 500-1500 tokens per task (2500-7500 in `--parallel` mode with 5 agents). Prevention: targeted paraphrase format — AI states in 1 sentence per Truth what the code must do (budget: ~100 tokens per task, max 150). Verbatim table dump is explicitly an anti-feature.
+3. **complete-milestone workflow bi fragile** — bat ky failure nao o diagram step khong duoc block milestone completion. Phong tranh: Buoc 4.5 va 4.6 phai non-blocking; workflow instruction dung "attempt" khong dung "phai"; feature-flag: chi attempt render neu Puppeteer available.
 
-4. **Verification Restructure Invalidates Buoc 9.5 Logic** — Changing the framing to "Truths Verified" risks reordering the 4-level verification cascade (9.5a-d), invalidating Phase 15 end-to-end traces (60 steps, 29 Truths). Prevention: do NOT reorder. Enhance only the Buoc 9.5e report summary framing. The existing cascade (artifact -> stub detection -> key links -> logic) is correct and must remain intact.
+4. **Existing 448+ tests bi break** — Puppeteer import o top-level crash khi chua install; snapshot tests detect moi change trong workflows/templates. Phong tranh: lazy require trong function body; skip-guard trong test files; regenerate 48 snapshots sau khi thay doi complete-milestone.md trong commit tach biet.
 
-5. **Over-Engineering Enforcement Kills AI Creativity** — Making all new checks BLOCK severity forces AI to create fake Truths for infrastructure tasks (ESLint setup, CI config, barrel exports) that have no business logic. This pollutes the Truths table with noise. Prevention: preserve WARN vs BLOCK distinction — WARN for tasks missing Truths (infrastructure is legitimate), BLOCK for Truths missing tasks (genuine logic gap). `Loai: infrastructure` tasks are exempt.
+5. **Headless Chrome failures trong CI/Docker** — missing system libraries, no sandbox, corporate antivirus block Chromium. Phong tranh: PDF generation khong duoc la CI step; test Mermaid syntax only trong CI (zero-dep validator); script gracefully exit voi install instructions.
+
+6. **Vietnamese font rendering** — dau tieng Viet bi garbled trong PDF neu khong cau hinh font. Phong tranh: specify `fontFamily: "Noto Sans"` hoac font tuong duong trong Puppeteer page styles; test thuc te voi van ban tieng Viet truoc khi merge.
+
+**Chi tiet:** Xem `.planning/research/PITFALLS.md`
+
+---
 
 ## Implications for Roadmap
 
-Based on the dependency graph from ARCHITECTURE.md and pitfall-to-phase mapping from PITFALLS.md, four phases are recommended — matching the four enforcement points in the milestone goal.
+Dependency chain TS-1 -> {TS-2, TS-3} -> TS-4 -> TS-5 -> TS-6 quyet dinh thu tu phase bat buoc. Khong the thay doi thu tu nay.
 
-### Phase 1: Truth Protocol
-**Rationale:** TS-1 is the root dependency for all other features. Templates define the data format; everything downstream reads this format. Establishing the correct schema first prevents cascading rework. This is the highest-risk phase because a parser regression here cascades to all 140+ tests and 48 snapshots.
-**Delivers:** Enhanced 5-column Truths table in `templates/plan.md`, backward-compatible `parseTruthsV11()` two-pass regex, strengthened Truths requirement wording in `templates/tasks.md`, Logic Changes section in `templates/progress.md`, Edge Cases column in `templates/verification-report.md`
-**Implements features:** TS-1 (root), TS-2 (CHECK-04 severity: WARN -> BLOCK), TS-6 (progress template)
-**Avoids:** Pitfall 1 (template/parser sync in same commit; snapshots in isolated next commit), Pitfall 5 (circular enforcement — plan-checker runs post-authoring only, never mid-authoring)
-**Key constraint:** Template and parser MUST ship in same commit. Snapshot regeneration MUST be a separate commit immediately after. Run D-17 historical gate.
+### Phase 1: Foundation — Mermaid Rules + Management Report Template
+**Rationale:** TS-1 la root dependency. Tat ca diagram features phu thuoc vao rules. TS-4 template can biet diagram output format de define embedding structure. Ca hai component deu standalone (zero dependencies), khong rui ro ky thuat. Phase nay thiet lap visual language va report format cho toan bo milestone.
+**Delivers:** `references/mermaid-rules.md` (node shapes, colors, label conventions, max 20 nodes, quoting rules, direction rules, anti-patterns) + `templates/management-report.md` (7-section scaffold template voi Mermaid placeholders va huong dan cho AI)
+**Addresses:** TS-1, TS-4 (foundation)
+**Avoids:** Pitfall 3 (AI syntax errors) bang explicit quoting rules va negative examples trong mermaid-rules.md
 
-### Phase 2: Logic-First Execution
-**Rationale:** After the Truths schema is established, the write-code workflow can safely insert the pre-coding logic restatement step. The verification template enhancement (TS-5) also goes here since it references the new column names from Phase 1.
-**Delivers:** Buoc 1.7 "Re-validate Logic" in `workflows/write-code.md`, enhanced Buoc 9.5e verification framing, TS-5 "Truths Verified" report with Edge Cases evidence column
-**Implements features:** TS-3, TS-5
-**Avoids:** Pitfall 3 (targeted paraphrase, explicitly ~100 tokens per task — not table dump), Pitfall 4 (do NOT reorder Buoc 9.5a-d; enhance only Buoc 9.5e summary and existing Truths section)
-**Key constraint:** Insert as Buoc 1.7 (after Buoc 1 task selection, before Buoc 2 context read) — never as a literal Buoc 0 which would require knowing which task before task selection. workflow change triggers 48 snapshot tests for regeneration.
+### Phase 2: Diagram Generation + Mermaid Validator
+**Rationale:** TS-2 va TS-3 co the build song song sau Phase 1. Mermaid validator phai ton tai truoc khi viet PDF script de validation logic co the unit test doc lap khong can Puppeteer. `report-generator.js` la optional acceleration — AI co the generate diagrams thuan tuy tu doc CODE_REPORTs.
+**Delivers:** `bin/lib/mermaid-validator.js` (pure-function, zero deps, validate syntax truoc render) + `test/smoke-mermaid-validator.test.js` + `bin/lib/report-generator.js` (optional) + workflow instructions cho AI tao `flowchart TD` va `flowchart LR` theo rules
+**Addresses:** TS-2 (Business Logic Flowchart), TS-3 (Architecture Diagram); tuy chon gop D-1 (Truth ID annotation)
+**Uses:** Pure-function pattern tu `plan-checker.js`; merval pattern cho validation
+**Avoids:** Pitfall 3 (syntax validation truoc render); Pitfall 5 (pure functions khong can Puppeteer, tests luon pass)
 
-### Phase 3: Knowledge Correction
-**Rationale:** fix-bug workflow changes depend on the Progress template (Phase 1) and Verification Report format (Phase 2) being complete. The Logic Update step (Buoc 6.5) writes to PROGRESS.md and references the Verification Report format. Fewer integration points than Phase 2 — lower risk.
-**Delivers:** Buoc 6.5 "Logic Update Check" in `workflows/fix-bug.md`, bug classification gate routing Logic Errors to Truth-update-first flow, re-validation of plan-checker after PLAN.md Truth modification
-**Implements features:** TS-4
-**Avoids:** UX pitfall of applying PLAN.md update to non-logic bugs (CSS, typo, config) — existing Buoc 6a classification gates this step; non-logic bugs skip PLAN.md modification entirely
-**Key constraint:** After any PLAN.md Truth modification, plan-checker MUST re-validate before code fix proceeds. Buoc 6.5 inserts between Buoc 6b (assessment) and Buoc 6c (pre-fix gate).
+### Phase 3: PDF Export Script
+**Rationale:** Script can template (Phase 1) de test end-to-end, va can validator (Phase 2) cho pre-render validation. Day la phase co rui ro ky thuat cao nhat vi lien quan den Puppeteer, Chromium, file I/O, cross-platform. Phai build doc lap truoc khi integrate vao workflow.
+**Delivers:** `scripts/generate-report-pdf.js` (lazy require Puppeteer, Node version check, 30s timeout, `finally` cleanup, graceful exit khi thieu deps) + npm script `"report:pdf"` trong package.json
+**Addresses:** TS-5 (PDF Export Script)
+**Uses:** `puppeteer@24` + `marked@17` + Mermaid CDN injection (`mermaid@11`)
+**Avoids:** Pitfall 1 (Node version — graceful exit Node < 18); Pitfall 2 (Puppeteer khong trong main deps); Pitfall 6 (CI/Docker — PDF khong phai CI step); Vietnamese font configuration trong script
 
-### Phase 4: Logic Audit
-**Rationale:** checkLogicCoverage (CHECK-05) depends on the finalized 5-column Truths table format (Phase 1) for correct parsing. Building the checker last means all test fixtures can use the finalized schema. The Dynamic PASS table (Phase 13 legacy feature) auto-discovers new checks — no additional wiring needed.
-**Delivers:** `checkLogicCoverage` pure function in `bin/lib/plan-checker.js`, CHECK-05 registered in `runAllChecks()`, `references/plan-checker.md` documentation update, ~40 new tests in `test/smoke-plan-checker.test.js`
-**Implements features:** TS-7
-**Avoids:** Pitfall 2 (same `(planContent, tasksContent)` signature, no `require('fs')`, string fixture tests only), Pitfall 6 (WARN for task-level missing Truths, BLOCK for Truth-level missing tasks — explicitly calibrated)
-**Key constraint:** After adding to `runAllChecks`, verify dynamic PASS table auto-discovers 8 checks by name. Run full 140+ test suite (not just new tests). Infrastructure tasks with `Loai: infrastructure` must pass with WARN, not BLOCK.
+### Phase 4: Workflow Integration + Snapshot Regeneration
+**Rationale:** TS-6 phai la phase cuoi vi phu thuoc tat ca upstream features. Thay doi `complete-milestone.md` affects tat ca 5 platform converters (48 snapshots). Regenerate snapshots phai la buoc rieng biet va duoc kiem tra ky. Day la phase co rui ro trung binh-cao nhat ve test stability.
+**Delivers:** `workflows/complete-milestone.md` (Buoc 4.5 non-blocking + Buoc 4.6 optional) + `commands/pd/complete-milestone.md` (conditional_reading) + 48 converter snapshots regenerated + Step 10 notification cap nhat PDF path
+**Addresses:** TS-6 (Workflow Integration)
+**Avoids:** Pitfall 4 (workflow fragility — non-blocking, optional); Pitfall 5 (snapshot regeneration trong isolated commit, khong gop voi workflow change commit)
 
 ### Phase Ordering Rationale
 
-- Templates precede checker and workflows because templates define the data format. Building the checker before the template format is finalized would require the checker to change when the format changes.
-- Checker (Phase 4) comes last, not second, because its correctness depends on the exact 5-column schema being finalized and stable. Early checker implementation risks building to a schema that changes during Phase 1.
-- write-code workflow (Phase 2) precedes fix-bug workflow (Phase 3) because write-code Buoc 1.7 establishes the "print Business Logic before acting" pattern that fix-bug Buoc 6.5 adapts. Consistency in pattern is easier to achieve if the first example is built first.
-- Phase 4 is last because it validates everything the other phases produce. A working checker at the end is a quality gate on all previous phases.
+- **Foundation truoc:** TS-1 la root dependency, khong the bo qua. Template can rules truoc khi define scaffold. Ca hai la additive files moi, zero-risk.
+- **Validator truoc Script:** Mermaid validator phai ton tai truoc PDF script de pre-render validation co the goi validator. Tach biet validation logic khoi rendering logic cho phep unit test doc lap.
+- **Script truoc Workflow:** PDF script phai duoc test doc lap truoc khi integrate vao complete-milestone workflow de tranh pha vo workflow dang stable va da duoc battle-tested qua 4 milestones.
+- **Workflow la cuoi cung:** Thay doi complete-milestone la high-risk (affects 5 converters, 48 snapshots). Delay den cuoi de co the test hoan chinh voi script da verify.
+- **Tach biet rui ro:** Phase 1-2 zero-risk (khong dependency moi); Phase 3 high-risk (Puppeteer) duoc co lap; Phase 4 medium-risk (workflow change) duoc test sau khi Phase 3 stable.
 
 ### Research Flags
 
 Phases likely needing deeper research during planning:
-- **Phase 1:** Backward-compatibility testing strategy — the two-pass regex approach is specified but the exact test fixture design for all three format versions (v1.0 YAML frontmatter, v1.1 3-column, v1.3 5-column) needs explicit planning-time design before implementation
-- **Phase 3:** Bug classification decision tree — which bug categories route to Logic Error vs Implementation Error is underspecified; needs explicit classification rules and examples before Buoc 6.5 can be written
+- **Phase 3 (PDF Script):** Puppeteer/Chromium timing issues va `waitForSelector` pattern cu the cho Mermaid render completion; Vietnamese font availability trong Chromium bundled by Puppeteer; cross-platform behavior (macOS/Linux/Windows); `page.pdf()` options cho landscape orientation voi wide flowcharts.
+- **Phase 4 (Workflow Integration):** Cu phap chinh xac cua conditional_reading trong complete-milestone command file; cach cac converter inline content de predict snapshot changes truoc khi chay.
 
 Phases with standard patterns (skip research-phase):
-- **Phase 2:** write-code Buoc 1.7 insertion follows the same additive-step pattern as previous milestone workflow changes; insertion point is precisely specified (after line 148, before `## Buoc 2`)
-- **Phase 4:** `checkLogicCoverage` follows the exact same pattern as 7 existing check functions with known signature, test structure, and registration mechanism; no new patterns to discover
+- **Phase 1 (Foundation):** Tao reference/template file la well-documented pattern trong du an. Xem `references/ui-brand.md` va `templates/plan.md` lam mau.
+- **Phase 2 (Validator):** Pure-function validator theo pattern cua `plan-checker.js`. Mermaid syntax spec day du trong official docs. Khong can research them.
+
+---
 
 ## Confidence Assessment
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Entire v1.3 stack is modifications to existing validated codebase; zero new dependencies; all technology choices are the same patterns as v1.0-v1.2 |
-| Features | HIGH | 7 table stakes derived directly from PROJECT.md requirements; competitor analysis (BMAD, fspec, spec-kit) confirms differentiation; full dependency graph traced |
-| Architecture | HIGH | All 7 integration points analyzed against actual file contents with line numbers confirmed; dependency graph traced from real code; build order derived from actual coupling |
-| Pitfalls | HIGH | All 6 critical pitfalls derived from direct codebase analysis: 1025-line plan-checker, 1345-line test suite, 427-line write-code workflow, 317-line fix-bug workflow |
+| Stack | HIGH | puppeteer, marked, mermaid-cli deu duoc verify tu official docs. Node version requirements la hard constraints da xac nhan. Tat ca alternatives duoc phan tich va loai bo voi ly do cu the. |
+| Features | HIGH | 6 table stakes features deu co trong PROJECT.md requirements. Dependency chain duoc phan tich tu codebase thuc te. Data sources (Truths, Artifacts, Key Links) da ton tai va co cau truc. |
+| Architecture | HIGH | Toan bo codebase hien tai da duoc doc va phan tich (10 workflows, 11 templates, tat ca converters, 448+ tests). Cac patterns tich hop da duoc verify. File layout sau v1.4 da duoc dinh nghia cu the. |
+| Pitfalls | HIGH | Cac pitfall dua tren GitHub issues thuc te (mermaid-cli #842, #556, #958), Puppeteer docs, va phan tich truc tiep codebase. Recovery strategies duoc document cho moi pitfall. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Bug classification taxonomy (Phase 3):** The boundary between "Logic Error" (Truth wrong) and "Implementation Error" (code wrong) needs explicit examples documented in the fix-bug workflow design. Current research specifies the pattern but not the classification rules. Address during Phase 3 plan authoring with a decision matrix.
-- **Token budget enforcement (Phase 2):** The ~100-token budget for Re-validate Logic is a recommended constraint with no programmatic enforcement. Address during Phase 2 by specifying the exact output sentence format in the workflow step (e.g., "One sentence: 'This task must [verb] [noun] when [condition].'") to naturally constrain length through format rather than counting.
-- **Snapshot regeneration discipline (Phase 1):** The isolated-commit pattern for snapshot updates after template changes is specified but not yet encoded in any workflow. Teams may accidentally combine template + snapshot commits, making regression detection harder. Address during Phase 1 execution by using two separate commits with explicit commit messages documenting the pattern.
+- **md-mermaid-to-pdf vs puppeteer+marked custom script:** ARCHITECTURE.md de xuat `md-mermaid-to-pdf` nhu Layer 2 package, nhung STACK.md khuyen nghi custom script `puppeteer + marked` truc tiep. Hai file nghien cuu co su khong nhat quan nay. **Khuyen nghi: theo STACK.md** — custom script phu hop hon voi triet ly du an, md-mermaid-to-pdf la package it duoc verify (MEDIUM confidence).
+
+- **optionalDependencies vs runtime detection:** ARCHITECTURE.md de xuat `optionalDependencies` trong package.json, nhung PITFALLS.md khuyen nghi khong them bat ky gi vao package.json va dung runtime detection hoan toan. **Khuyen nghi: runtime detection** (theo PITFALLS.md) de hoan toan khong anh huong install experience. Can quyet dinh cuoi trong Phase 1 planning.
+
+- **Diagram node limit:** ARCHITECTURE.md noi max 15 nodes, FEATURES.md noi 25-30 nodes, PITFALLS.md noi 15-20 nodes. **Khuyen nghi: 20 nodes hard limit, 15 nodes recommended** — ghi ro trong mermaid-rules.md voi ly giai: duoi 15 nodes la ideal, 15-20 chap nhan duoc, tren 20 phai split thanh overview + detail diagrams.
+
+- **Vietnamese font testing:** Can xac nhan fonts cu the available trong Chromium bundled by Puppeteer@24 tren macOS va Linux. Can test thuc te trong Phase 3 truoc khi merge. Noto Sans la first candidate.
+
+---
 
 ## Sources
 
 ### Primary (HIGH confidence)
-- `/Volumes/Code/Nodejs/please-done/bin/lib/plan-checker.js` — 7 existing check functions, pure-function pattern, 1025 lines; confirmed architecture and function signatures
-- `/Volumes/Code/Nodejs/please-done/test/smoke-plan-checker.test.js` — 140 tests, string-fixture testing pattern, 1345 lines
-- `/Volumes/Code/Nodejs/please-done/workflows/write-code.md` — 427 lines, 10 steps + parallel mode; Buoc 1.7 insertion point at line 148 verified
-- `/Volumes/Code/Nodejs/please-done/workflows/fix-bug.md` — 317 lines, 10 steps; Buoc 6.5 insertion point verified
-- `/Volumes/Code/Nodejs/please-done/templates/plan.md` — current Truths table at line 141; 3-column format confirmed
-- `/Volumes/Code/Nodejs/please-done/.planning/PROJECT.md` — v1.3 milestone requirements, 7 integration points
+
+- Codebase analysis: `workflows/complete-milestone.md`, `templates/plan.md`, `references/ui-brand.md`, `bin/lib/plan-checker.js`, `package.json`, `test/` directory (448+ tests, 48 snapshots)
+- [Puppeteer system requirements](https://pptr.dev/guides/system-requirements) — Node 18+ requirement confirmed
+- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) — Node ^18.19 || >=20 requirement confirmed
+- [marked npm](https://www.npmjs.com/package/marked) — v17.0.5, current/LTS Node only
+- [Mermaid Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html) — official syntax reference
+- [Puppeteer troubleshooting](https://pptr.dev/troubleshooting) — headless Chrome failure modes
+- [Node.js EOL dates](https://endoflife.date/nodejs) — Node 16 EOL Sep 2023
 
 ### Secondary (MEDIUM confidence)
-- [BDD Feature Injection template](https://docs.behat.org/en/v2.5/guides/1.gherkin.html) — Business Value column design; "In order to / As a / I want" pattern (Dan North, 2006)
-- [Design by Contract (Wikipedia)](https://en.wikipedia.org/wiki/Design_by_contract) — Edge Cases column design; precondition/postcondition/invariant (Bertrand Meyer, 1986)
-- [Requirements Traceability Matrix (Inflectra)](https://www.inflectra.com/Ideas/Topic/Requirements-Traceability.aspx) — bidirectional tracing pattern; ISO/IEC 29148 standard
-- [Thoughtworks: Spec-Driven Development](https://thoughtworks.medium.com/spec-driven-development-d85995a81387) — "intent is source of truth" paradigm; 2025 Tech Radar
-- [BMAD Method GitHub](https://github.com/bmad-code-org/BMAD-METHOD) — competitor analysis confirming Please-Done differentiation at 4 lifecycle points vs competitors' 1-2
-- [Addy Osmani: My LLM coding workflow going into 2026](https://addyosmani.com/blog/ai-coding-workflow/) — "plan before code" pattern validation
+
+- [Merval — zero-dependency Mermaid validator](https://github.com/aj-archipelago/merval) — validation without Puppeteer pattern
+- [mermaid-cli Issue #958](https://github.com/mermaid-js/mermaid-cli/issues/958) — CrowdStrike interference voi Chromium
+- [mermaid-cli Issue #842](https://github.com/mermaid-js/mermaid-cli/issues/842) — chrome-headless-shell not found
+- [GenAIScript: fixing AI-generated Mermaid errors](https://microsoft.github.io/genaiscript/blog/mermaids/) — LLM Mermaid syntax patterns
+- [Mermaid server-side rendering — Issue #3650](https://github.com/mermaid-js/mermaid/issues/3650) — DOM required, JSDOM insufficient
+- [Puppeteer Issue #3027](https://github.com/puppeteer/puppeteer/issues/3027) — Chromium binary size
+- [md-mermaid-to-pdf npm](https://www.npmjs.com/package/md-mermaid-to-pdf) — alternative package (MEDIUM: chua verify production-readiness)
 
 ### Tertiary (LOW confidence)
-- [Spec-Driven Development (arXiv)](https://arxiv.org/html/2602.00180v1) — academic SDD analysis; methodology alignment; directional only
-- [Why BDD Is Essential for AI Agents (Medium)](https://medium.com/@meirgotroot/why-bdd-is-essential-in-the-age-of-ai-agents-65027f47f7f6) — BDD as AI agent contract; single source, needs validation
+
+- [mermaid-md-to-pdf (klokie)](https://github.com/klokie/mermaid-md-to-pdf) — LOW: chi 5 commits, khong co releases, khong dung
+- [sebastianjs pure SVG renderer](https://github.com/mermaid-js/mermaid) — LOW: wrapper khong chinh thuc, co the render khac real Mermaid
 
 ---
-*Research completed: 2026-03-23*
+*Research completed: 2026-03-24*
 *Ready for roadmap: yes*

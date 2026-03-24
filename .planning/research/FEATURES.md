@@ -1,193 +1,269 @@
-# Feature Landscape: Truth-Driven Development (v1.3)
+# Feature Research
 
-**Domain:** Business Logic enforcement across AI coding skill framework
-**Researched:** 2026-03-23
+**Domain:** Visual business logic reporting for AI coding skill framework
+**Researched:** 2026-03-24
 **Confidence:** HIGH
 
 ## Context
 
-v1.3 adds Truth-Driven Development to the existing please-done framework. The ecosystem context is Spec-Driven Development (SDD) -- a methodology gaining strong adoption in 2025-2026 where formal specifications are created before implementation code, acting as contracts that AI agents must honor. Key competitors: BMAD Method (multi-agent orchestration with QA traceability), GitHub spec-kit (spec -> plan -> tasks -> code pipeline), fspec (Gherkin-based spec system with auto-generated tests).
+v1.4 adds Visual Business Logic Reports to the existing please-done framework. The framework already has a complete milestone lifecycle that produces text-based summaries (MILESTONE_COMPLETE.md), truth tables tracking business logic correctness (5-column Truths with Business Value and Edge Cases), and structured CODE_REPORTs per task. The complete-milestone workflow (10 steps) already compiles all phase data, verifies goal-backward Truths, checks cross-phase integration, and produces MILESTONE_COMPLETE.md.
 
-Please-Done already has strong foundations: Truths table in PLAN.md (3-column: #, Description, Verification), `> Truths:` field in TASKS.md, CHECK-04 bidirectional Truth-Task coverage, 4-level verification in write-code Step 9.5, and a 7-check plan-checker with 140 tests.
+The gap: all outputs are text-only Markdown. Managers receiving MILESTONE_COMPLETE.md see task lists and bug tables, not visual representations of business logic flows or system architecture. The v1.4 milestone bridges this by generating Mermaid diagrams from existing structured data (Truths, Key Links, Artifacts, CODE_REPORTs) and packaging them into a professional MANAGEMENT_REPORT.md with PDF export.
 
-The milestone goal is "Khong co Truths = Khong co Code" -- enforced across Plan, Write, Fix, and Test workflows. The 4 target features from PROJECT.md Active requirements:
-1. **Truth Protocol** -- Enhanced Truths table with "Business Value" + "Edge Cases" columns
-2. **Logic-First Execution** -- Step 0 "Re-validate Logic" before coding, "Truths Verified" verification
-3. **Knowledge Correction** -- Bug -> Logic Update -> Code Fix workflow
-4. **Logic Audit** -- `checkLogicCoverage` function in plan-checker
+The 6 target features from PROJECT.md Active requirements:
+1. **Business Logic Flowchart** -- Mermaid flowchart from Truths + Key Links
+2. **Architecture Diagram** -- Module/Service/DB/API visualization
+3. **Management Report Template** -- professional, manager-facing, product language
+4. **PDF Export Script** -- Markdown+Mermaid to PDF via Node.js
+5. **Workflow Integration** -- complete-milestone auto-generates diagrams
+6. **Mermaid Aesthetics Rules** -- consistent diagram styling conventions
 
 ---
 
 ## Table Stakes
 
-Features that complete the Truth-Driven Development promise. Missing any = the milestone goal is not met. These are also industry table stakes for SDD systems (BMAD, fspec, spec-kit all have equivalents).
+Features explicitly requested in PROJECT.md Active requirements. All 6 must ship for v1.4 to be complete.
 
 | Feature | Why Expected | Complexity | Notes |
 |---------|--------------|------------|-------|
-| **TS-1: Enhanced Truths Table** (Business Value + Edge Cases columns) | SDD ecosystem consensus: every requirement must state WHY it exists (Business Value) and WHERE it breaks (Edge Cases). BMAD, fspec, GitHub spec-kit all enforce value-justification and edge-case enumeration per spec item. Without these, Truths degrade into a technical checklist that AI follows blindly. Silent logic failures make up 60% of AI-generated code faults -- edge cases left implicit become edge cases left unimplemented. | LOW | Add 2 columns to existing 3-column table in `templates/plan.md` (line 141). Parser `parseTruthsV11()` in plan-checker.js (line 125-136) needs column-index update. Backward-compatible: try 5-column regex first, fall back to 3-column. ~15 lines changed in template, ~20 lines in parser. |
-| **TS-2: Logic Reference Enforcement** (Task-Truth BLOCK severity) | Already partially exists: CHECK-04 validates bidirectional coverage. But Direction 2 (task without Truth) currently emits WARN (line ~710 in plan-checker.js). In a Truth-Driven paradigm, "code without Truth backing" is a structural violation, not a suggestion. Every SDD framework treats unlinked code as a defect. | LOW | Change `warnIssues.push(...)` to `blockIssues.push(...)` in `checkTruthTaskCoverage()` for Direction 2. ~3 lines changed. Update test expectations (existing tests check severity level). |
-| **TS-3: Re-validate Logic Before Code** (Step 0 in write-code) | **UNIQUE to Please-Done.** No SDD competitor inserts a mandatory logic-restatement step before coding. BMAD delegates to separate QA agent post-code. fspec generates tests from specs but does not require the coding agent to RESTATE logic before writing. This forces AI to "think before it codes." Industry pattern: "Ask for a plan before you ask for code -- plans are cheap to change, code is expensive to unwind" (Addy Osmani, 2026). | MEDIUM | New step between current Step 1.6 (reference analysis) and Step 2 (read context) in `workflows/write-code.md`. AI reads PLAN.md Truths table + task's Truth refs, then prints: (1) Which Truths this task serves, (2) Business Value of each, (3) Edge Cases to handle, (4) "Logic confirmed, proceeding to code." If AI cannot restate logic = STOP. ~40 lines. **Dependency:** TS-1 (new columns provide data for restatement). |
-| **TS-4: Logic Update in Bug Fixes** (Knowledge Correction) | SDD treats specs as source of truth, but NO competitor has a formalized "bug = spec was wrong, update spec BEFORE fixing code" workflow. BMAD updates PRD manually. fspec updates Gherkin manually. spec-kit has no bug-to-spec flow. This automates the feedback loop: classify bug type -> update Truths -> fix code, creating an audit trail of logic evolution. | MEDIUM | New step between Step 7 (bug report) and Step 8 (fix code) in `workflows/fix-bug.md`. Decision tree: (1) Classify as "Logic Error" (Truth wrong/incomplete) vs "Implementation Error" (Truth correct, code wrong). (2) Logic Error -> update PLAN.md Truths, add Logic Changes entry, THEN fix code. (3) Implementation Error -> proceed to fix code directly. ~50 lines. **Dependencies:** TS-1 (structure to update), TS-6 (tracking destination). |
-| **TS-5: Truths Verified in Report** | Current VERIFICATION_REPORT.md already has `## Truths -- Su that phai dat` section. The shift from implicit "DAT" to explicit "Truths Verified with evidence" completes Truth-centric language. Every SDD framework (BMAD, fspec) frames verification in terms of spec compliance with evidence, not just pass/fail. Add Edge Cases verification. | LOW | Update `templates/verification-report.md`. Enhance write-code Step 9.5d to require evidence strings per Truth. Change column header from generic "Bang chung" to structured evidence format. ~15 lines. |
-| **TS-6: Logic Changes Tracking** | Track when and why Truths change during execution. Creates institutional memory no competitor offers. Enables post-mortem: "How many times did our understanding of requirements change?" | LOW | Add `## Logic Changes` section to `templates/progress.md`. Format: `| Ngay | Truth | Thay doi | Ly do |`. Ephemeral (session-level). Persistent record surfaces in STATE.md cumulative context. ~10 lines. **No dependency on TS-1** -- can be built independently. |
-| **TS-7: checkLogicCoverage Gate** | **UNIQUE static analysis on PLANS.** No competitor performs plan-level logic coverage analysis. BMAD has QA traceability but post-hoc. fspec links tests to specs but does not flag unlinked code at planning time. This catches scope creep BEFORE code: "code without Truth backing = Technical Debt." | MEDIUM | New pure function in `bin/lib/plan-checker.js` following existing 7-check pattern. Algorithm: (1) Collect files from TASKS.md `> Files:` across all tasks, (2) Parse Artifacts table from PLAN.md "San pham can co" section, (3) Cross-reference: files in tasks but NOT in any Artifact with Truth tracing = Technical Debt warning. Register as ADV-04 (8th check) in `runAllChecks()`. Backward-compatible: only activates on v1.2 format (5-column). ~80 lines + ~40 lines tests. **Dependency:** TS-1 (parser must support new column count). |
+| **TS-1: Mermaid Aesthetics Rules** | Without style rules, AI generates inconsistent diagrams per invocation -- random colors, unclear labels, inconsistent direction. Every subsequent diagram feature depends on having rules to follow. | LOW | New `references/diagram-rules.md`. Define: color palette (node type -> color), node shapes per component type (service=rounded, database=cylinder, API=hexagon), label conventions (Vietnamese, sentence case), max 25-30 nodes per diagram, default direction (TD for logic flows, LR for architecture). Also covers: subgraph naming, edge label rules, when to split into multiple diagrams. ~60 lines. |
+| **TS-2: Business Logic Flowchart** | Core deliverable. Managers need to see HOW features connect without reading code. Truths table already contains structured data (Description, Business Value, Edge Cases) that maps directly to flowchart nodes and decision diamonds. Replaces mental model construction with a visual artifact. | MEDIUM | Use `flowchart TD` syntax (top-down, universally supported). Data source: Truths table + Key Links from ALL phase PLAN.md files in the milestone. AI reads Truths descriptions as process nodes, Edge Cases as decision branches, Key Links as edges. Output: 1-2 flowcharts per milestone embedded in MANAGEMENT_REPORT.md. Each flowchart captures one major user flow. ~80 lines of workflow instruction + examples. **Dependency:** TS-1 (rules). |
+| **TS-3: Architecture Diagram** | Managers need system-level understanding: what components exist, how they connect, what external systems are involved. Current CODE_REPORTs list files modified but do not visualize relationships. Architecture diagrams answer "What does the system look like?" | MEDIUM | Use `flowchart LR` with subgraphs (left-right for system layout, subgraphs for module boundaries). Prefer over `architecture-beta` (v11.1+ only, experimental) and `C4Context` (also experimental in Mermaid). Data source: Artifacts table (file paths imply module structure), Key Links (connections), CODE_REPORT files (actual components created). Subgraph per major module/layer (API, Service, Database, External). ~60 lines of workflow instruction. **Dependency:** TS-1 (rules). |
+| **TS-4: Management Report Template** | Current MILESTONE_COMPLETE.md is developer-focused: task lists, bug tables, artifact paths. Managers need business outcomes, risk overview, architecture at a glance, and next steps -- in product language. Industry standard: Executive Summary + Business Outcomes + Visual Overview + Quality + Risk + Next Steps. | LOW | New `templates/visual-report.md` with 7 sections. Written following ui-brand.md Layer 1 principles ("User duoc gi?"). Embeds Mermaid diagram code blocks inline. Language: Vietnamese, product-oriented per existing conventions. ~80 lines template. Sections: (1) Executive Summary, (2) Business Outcomes (from Truths "Business Value" column), (3) Architecture Overview (embedded diagram), (4) Key Feature Flows (embedded flowchart), (5) Quality Metrics (tests, bugs, verification), (6) Risk & Tech Debt, (7) Next Steps. **Dependency:** TS-2, TS-3 (diagrams to embed). |
+| **TS-5: PDF Export Script** | Mermaid in Markdown renders in GitHub/VS Code but is not shareable with non-technical stakeholders who use email, Slack, or printed reports. PDF is the universal document format. Script must handle Mermaid rendering (requires JavaScript execution) which plain Markdown-to-PDF converters cannot do. | HIGH | New `scripts/generate-pdf-report.js`. Uses Puppeteer (headless Chromium) because Mermaid diagrams require JavaScript execution for rendering -- no simpler alternative exists. Pipeline: (1) Read .md file, (2) Convert Markdown to HTML with marked/markdown-it, (3) Inject Mermaid.js CDN script, (4) Open in Puppeteer, (5) Wait for Mermaid render, (6) Generate PDF with page.pdf(). Output to same directory as source file. New devDependency: `puppeteer` (~400MB Chromium download on first install). Consider `puppeteer-core` + system Chrome to reduce footprint. ~120 lines. **Dependency:** TS-4 (template to render). |
+| **TS-6: Workflow Integration** | Diagrams must be generated automatically during milestone completion, not as a manual step. The complete-milestone workflow already has all needed data at Step 4 (all CODE_REPORTs read, all phases verified). Integration point is clear: after verification, before git commit. | LOW | Update `workflows/complete-milestone.md`. Insert new Step 4.5 between current Step 4 (summary report) and Step 5 (CHANGELOG). Step 4.5: (1) AI generates Mermaid flowchart from Truths across all phases, (2) AI generates architecture diagram from Artifacts + Key Links, (3) Write MANAGEMENT_REPORT.md using template, (4) Call `node scripts/generate-pdf-report.js [path]`, (5) Report PDF path. Also update Step 10 notification to include PDF path. ~40 lines added to workflow. **Dependency:** TS-2, TS-3, TS-4, TS-5 (all upstream features). |
 
 ## Differentiators
 
-Features that go beyond the 7 explicit integration points and add depth. Not required for v1.3 launch but increase value.
+Features not explicitly requested but would significantly increase the value of visual reporting. These leverage please-done's unique structured data (Truths, Key Links, verification results).
 
 | Feature | Value Proposition | Complexity | Notes |
 |---------|-------------------|------------|-------|
-| **D-1: Edge Case -> Acceptance Criteria alignment** | Not just "task references Truth" but "task acceptance criteria mentions edge cases from that Truth." Heuristic keyword overlap catches planning gaps where edge cases are listed but not tasked. | MEDIUM | Extension of checkLogicCoverage. Keyword tokenization of edge case text vs acceptance criteria text. WARN severity (not BLOCK -- false positive risk). Defer until real usage shows gap frequency. |
-| **D-2: Business Value quality heuristic** | Flag Truths where Business Value merely restates the description ("Truth: User can login, Value: User can login"). Catches lazy planning that defeats the purpose of the Business Value column. | LOW | Simple string similarity check (Jaccard or substring) within checkLogicCoverage. WARN severity. Low implementation cost. |
-| **D-3: Logic Change propagation check** | When a Truth is modified via Knowledge Correction, flag all tasks referencing that Truth as potentially needing update. Prevents stale task descriptions. | LOW | Cross-reference modified Truth IDs against task `> Truths:` fields. Part of fix-bug Logic Update step. Requires TS-4. |
+| **D-1: Truth-to-Diagram Tracing** | Each flowchart node annotated with Truth ID (T1, T2...) showing which business logic each visual element validates. Unique to please-done's truth-driven approach. Makes the connection between "what we promised" and "what we built" visible. | LOW | Add Truth IDs as node labels or annotations in flowchart. Data already available. Truths table has ID + Description. Flowchart node text = `T1: [Description]`. Minimal additional complexity over TS-2. Can be included in TS-2 implementation. |
+| **D-2: Cross-Phase Dependency Diagram** | Visualize how phases connect -- which phase outputs feed which phase inputs. Currently computed as text table in Step 3.5b but never visualized. | LOW | Use `flowchart LR` with phase nodes. Data source: cross-phase integration table already computed during complete-milestone Step 3.5b. Just needs Mermaid generation from existing data. Could be a third diagram in MANAGEMENT_REPORT.md or optional section. |
+| **D-3: Sequence Diagram for API Flows** | Show request/response flow for key API interactions. Managers understand "User does X, system responds Y" better than static architecture boxes. Especially valuable for milestones with user-facing API features. | MEDIUM | Use `sequenceDiagram` syntax. AI decides when appropriate based on milestone content (e.g., milestones with API endpoints in Thiết kế kỹ thuật section). Not every milestone needs one. Optional section in MANAGEMENT_REPORT.md. |
+| **D-4: Quality Dashboard Diagram** | Pie chart or bar chart showing test pass rates, bug distribution, verification results. Quick visual health check for managers. | LOW | Use Mermaid `pie` or `xychart-beta`. Data: TEST_REPORT pass/fail counts, bug counts by severity, verification pass rates. Simple aggregation. Optional section in MANAGEMENT_REPORT.md. |
+| **D-5: Milestone Timeline** | Gantt-style view showing phase durations and overlaps. Managers care about time investment per feature area. | LOW | Use Mermaid `gantt` syntax. Data: phase start/end dates from PLAN.md headers. Shows duration proportions. Optional section in MANAGEMENT_REPORT.md. |
 
 ## Anti-Features
 
-Features to explicitly NOT build.
+Features that seem appealing but create problems in this context.
 
-| Anti-Feature | Why Avoid | What to Do Instead |
-|--------------|-----------|-------------------|
-| **AF-1: AI semantic validation of Truth quality** | Same AI that wrote the Truth cannot objectively judge quality. Circular validation. Explicitly Out of Scope in PROJECT.md ("LLM-as-judge review -- plan already in context, calling another LLM is circular"). | Keep checker STRUCTURAL (columns present, non-empty, cross-referenced). AI reads Truths for context, not quality judgment. |
-| **AF-2: Mandatory Edge Cases for all Truths** | Infrastructure truths ("All tests pass", "Backward compatibility maintained") have no meaningful edge cases. Forcing empty columns adds noise and friction. | WARN for missing Edge Cases, not BLOCK. Allow infrastructure truths to use "-" or "N/A". |
-| **AF-3: Separate LOGIC_CHANGELOG.md file** | Logic changes per phase are typically 0-3. Separate file is overkill for this volume and creates file proliferation. | Track in PROGRESS.md (ephemeral, per-session). Persistent record lives in bug report or STATE.md cumulative context. |
-| **AF-4: Re-validate ALL Truths in write-code** | Step 0 should print only Truths relevant to CURRENT task. Printing all Truths wastes context window and dilutes focus. | Filter by `> Truths: [T1, T2]` field of selected task. Only print those. |
-| **AF-5: Programmatic gate in Step 0** | Adding a programmatic check in the workflow step (beyond plan-checker) creates dual enforcement. Confusing. | Step 0 is INFORMATIONAL (AI reads and displays). plan-checker is STRUCTURAL (validates format). Clear boundary. |
-| **AF-6: Breaking change to Truths table parser** | Existing v1.0 (YAML frontmatter) and v1.1 (3-column) plans must continue working. Making parser only support 5 columns breaks backward compatibility (explicit constraint in PROJECT.md). | Two-pass regex: try 5-column first, fall back to 3-column. Add "v1.2" to `detectPlanFormat()`. checkLogicCoverage depth checks only activate on v1.2 format. |
-| **AF-7: Automatic Truth generation from code** | Inverts TDD causality. Truths must come from BUSINESS REQUIREMENTS, not from code. Auto-generating from code describes what code DOES, not what it SHOULD do -- the anti-pattern SDD was created to prevent. | Truths are created during plan workflow (Step 4.3 Goal-backward) from ROADMAP deliverables. |
-| **AF-8: Real-time logic drift detection during coding** | Requires continuous parsing during write-code. False positives halt coding repeatedly. Cost-benefit is terrible for prompt-based system. | Step 0 catches drift at task START. Step 9.5 catches drift at phase END. Two checkpoints are sufficient. |
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| **AF-1: Interactive HTML Diagrams** | "Click nodes to see code details" | Adds web server dependency. Breaks offline use. Mermaid HTML output is fragile across browsers. Please-done is CLI-based, not a web app. Maintenance burden outweighs benefit. | Static PDF + Mermaid in GitHub Markdown (renders natively). VS Code Mermaid extension for dev preview. |
+| **AF-2: Real-time Diagrams During write-code** | "See architecture evolve as I code" | Requires file watchers + incremental Mermaid regeneration. Extremely complex for a prompt-based system. Diagrams are summary artifacts, not real-time monitoring tools. | Generate diagrams at milestone completion only -- when all code is stable and all phases are verified. |
+| **AF-3: Full Code-to-Flowchart Conversion** | "Convert every function to a flowchart" | Produces massive, unreadable diagrams. Business logic is NOT the same as all code. AST-level flowcharts show implementation, not business intent. Managers do not need to see every if/else branch. | Focus on business-facing logic from Truths table. AI selects which flows to visualize based on "Business Value" column. Quality over quantity. |
+| **AF-4: AI-Powered Diagram Layout Optimization** | "Make diagrams look professional with AI layout" | Mermaid layout is deterministic (dagre algorithm). LLMs cannot control pixel placement. Attempting to override layout creates brittle, non-reproducible output. "Beautify" is subjective and unverifiable. | Define clear, opinionated rules in diagram-rules.md. Use subgraphs for logical grouping. Keep diagrams under 30 nodes. Consistent rules produce consistent output. |
+| **AF-5: Multiple PDF Themes/Branding** | "Match company brand colors" | Scope creep. Every organization has different branding. Maintaining a theme engine is a product unto itself. Distracts from core value. | Single professional theme with neutral colors (grays, blues). Hardcoded CSS in script. Users can fork and customize if needed. |
+| **AF-6: Mermaid Live Editor Integration** | "Preview diagrams before generating PDF" | External dependency (mermaid.live), requires browser, breaks CLI workflow. Adds manual step to an automated process. Not reproducible. | Use `mmdc` CLI (`@mermaid-js/mermaid-cli`) for validation if needed. But primary validation is visual: PDF output IS the preview. |
+| **AF-7: Diagram Diff Between Milestones** | "Show architecture changes from v1.3 to v1.4" | Requires serializing diagram structure, computing graph diffs, and rendering change visualization. Research-level complexity for minimal value at this stage. | Each milestone gets its own diagrams. Managers can visually compare PDFs side by side. Consider for v2+ if demand emerges. |
+| **AF-8: `architecture-beta` or `C4Context` Syntax** | "Use proper architecture diagram notation" | Both are experimental in Mermaid (syntax may change between versions). `architecture-beta` requires v11.1+. C4 has limited styling options. Puppeteer/mmdc may not render experimental syntax reliably. Compatibility risk. | Use `flowchart LR` with subgraphs. Universally supported since Mermaid v8+. Subgraphs provide grouping semantics equivalent to C4 containers. Upgrade to `architecture-beta` in future when syntax stabilizes. |
 
 ---
 
 ## Feature Dependencies
 
 ```
-TS-1: Enhanced Truths Table (templates/plan.md)
+TS-1: Mermaid Aesthetics Rules (references/diagram-rules.md)
    |
-   +---> TS-7: checkLogicCoverage (parseTruthsV11 regex must support new columns)
+   +---> TS-2: Business Logic Flowchart (flowchart TD from Truths)
    |        |
-   |        +---> D-1: Edge Case alignment (needs Edge Cases column)
-   |        +---> D-2: Business Value heuristic (needs Business Value column)
+   |        +---> D-1: Truth-to-Diagram Tracing (annotate nodes with T1, T2...)
    |
-   +---> TS-3: Re-validate Logic (reads new columns to display)
+   +---> TS-3: Architecture Diagram (flowchart LR from Artifacts + Key Links)
+   |        |
+   |        +---> D-2: Cross-Phase Dependency Diagram (phase-level flowchart)
+   |        +---> D-3: Sequence Diagram (optional API flows)
    |
-   +---> TS-5: Truths Verified (verification uses Edge Cases data)
-   |
-   +---> TS-4: Logic Update (fix-bug reads/writes new columns)
-
-TS-2: Logic Reference Enforcement (plan-checker.js)
-   |
-   +---> TS-7: checkLogicCoverage (validates strengthened rule)
-
-TS-6: Logic Changes Tracking (templates/progress.md)
-   |
-   +---> TS-3: Re-validate Logic (write-code writes Logic Changes)
-   +---> TS-4: Logic Update (fix-bug writes Logic Changes)
-
-D-3: Logic Change propagation
-   requires TS-4 (Logic Update triggers propagation check)
+   +---> TS-4: Management Report Template (templates/visual-report.md)
+            |     (embeds TS-2 and TS-3 diagrams)
+            |
+            +---> D-4: Quality Dashboard Diagram (pie/chart in report)
+            +---> D-5: Milestone Timeline (gantt in report)
+            |
+            +---> TS-5: PDF Export Script (scripts/generate-pdf-report.js)
+                     |
+                     +---> TS-6: Workflow Integration (complete-milestone Step 4.5)
 ```
 
 ### Dependency Notes
 
-- **TS-1 is the root dependency.** All features referencing Truths table content depend on the enhanced format. Must be first.
-- **TS-2 and TS-6 are independent of TS-1.** They modify different files (plan-checker severity, progress template) and don't reference Truths table columns.
-- **TS-3, TS-4, TS-5, TS-7 all depend on TS-1.** They read, display, update, or validate the enhanced Truths table.
-- **D-1 and D-2 are extensions of TS-7.** They add depth checks but are not required for the base function.
+- **TS-1 is the root dependency.** All diagram features reference aesthetics rules for consistent output. Must be built first.
+- **TS-2 and TS-3 are parallel after TS-1.** Both produce Mermaid diagrams using rules from TS-1. No dependency between them. Can be built in same phase.
+- **TS-4 depends on TS-2 and TS-3.** Template references and embeds the generated diagrams. Must know diagram output format to define embedding structure.
+- **TS-5 depends on TS-4.** PDF script renders the MANAGEMENT_REPORT.md file. Must know template structure (sections, Mermaid blocks, page break hints) to render correctly.
+- **TS-6 depends on TS-5 (and transitively all upstream).** Workflow integration wires everything together. Must be last.
+- **D-1 enhances TS-2.** Can be included in TS-2 implementation or added later. Low marginal cost.
+- **D-2, D-3 enhance TS-3.** Additional diagram types that follow same patterns. Can be added in same phase or deferred.
+- **D-4, D-5 enhance TS-4.** Additional report sections with embedded diagrams. Can be added in same phase or deferred.
 
 ---
 
-## MVP Recommendation
+## MVP Definition
 
-All 7 table stakes (TS-1 through TS-7) ship together. The milestone goal "Khong co Truths = Khong co Code" requires the complete chain: enhanced table -> enforcement -> pre-code validation -> post-code verification -> bug correction -> tracking -> static analysis.
+### Launch With (v1.4)
 
-**Prioritize (build order):**
-1. TS-1: Enhanced Truths Table -- root dependency, must be first
-2. TS-2: Logic Reference Enforcement -- minimal change, independent of TS-1
-3. TS-6: Logic Changes Tracking -- minimal change, independent of TS-1
-4. TS-5: Truths Verified Report -- depends on TS-1 for column names
-5. TS-7: checkLogicCoverage -- depends on TS-1 for parser update
-6. TS-3: Re-validate Logic Step -- depends on TS-1 for display format
-7. TS-4: Logic Update Process -- depends on TS-1 and TS-6
+All 6 explicitly requested features. The dependency chain requires them in this build order:
 
-**Defer:**
-- D-1 (Edge Case alignment): Add after TS-7 is validated with real plans
-- D-2 (Business Value heuristic): Add after real usage shows lazy planning
-- D-3 (Logic Change propagation): Add after TS-4 patterns emerge
+- [ ] **TS-1: Mermaid Aesthetics Rules** -- foundation, defines visual language for all diagrams
+- [ ] **TS-2: Business Logic Flowchart** -- core visual deliverable, maps Truths to process flow
+- [ ] **TS-3: Architecture Diagram** -- system structure visualization from CODE_REPORTs
+- [ ] **TS-4: Management Report Template** -- professional report embedding diagrams
+- [ ] **TS-5: PDF Export Script** -- renders Markdown+Mermaid to shareable PDF
+- [ ] **TS-6: Workflow Integration** -- automates diagram generation in complete-milestone
+
+### Add After Validation (v1.4.x)
+
+Add once core diagram generation works reliably across a few real milestone completions:
+
+- [ ] **D-1: Truth-to-Diagram Tracing** -- annotate flowchart nodes with Truth IDs. Trigger: when first real flowcharts are generated successfully.
+- [ ] **D-2: Cross-Phase Dependency Diagram** -- visualize phase relationships. Trigger: when architecture diagram pattern is proven.
+- [ ] **D-4: Quality Dashboard** -- pie charts for test/bug metrics. Trigger: when PDF rendering handles basic diagrams.
+
+### Future Consideration (v1.5+)
+
+Features to defer until visual reporting has proven its value:
+
+- [ ] **D-3: Sequence Diagrams** -- useful for API-heavy milestones only. Wait for demand.
+- [ ] **D-5: Milestone Timeline** -- gantt charts. Requires date tracking not currently captured.
+- [ ] **Cumulative Architecture Diagrams** -- builds on previous milestones. Requires cross-milestone state.
+- [ ] **Upgrade to `architecture-beta` syntax** -- when Mermaid stabilizes the API (currently experimental).
 
 ---
 
 ## Feature Prioritization Matrix
 
-| Feature | User Value | Impl. Cost | Risk | Priority |
-|---------|------------|------------|------|----------|
-| TS-1: Enhanced Truths Table | HIGH | LOW | LOW | P1 |
-| TS-2: Logic Reference Enforcement | HIGH | LOW | LOW | P1 |
-| TS-3: Re-validate Logic | HIGH | MEDIUM | LOW | P1 |
-| TS-4: Logic Update | HIGH | MEDIUM | MEDIUM | P1 |
-| TS-5: Truths Verified | MEDIUM | LOW | LOW | P1 |
-| TS-6: Logic Changes Tracking | MEDIUM | LOW | LOW | P1 |
-| TS-7: checkLogicCoverage | HIGH | MEDIUM | MEDIUM | P1 |
-| D-1: Edge Case alignment | MEDIUM | MEDIUM | MEDIUM | P2 |
-| D-2: Business Value heuristic | LOW | LOW | LOW | P3 |
-| D-3: Logic Change propagation | LOW | LOW | LOW | P3 |
+| Feature | User Value | Implementation Cost | Risk | Priority |
+|---------|------------|---------------------|------|----------|
+| TS-1: Mermaid Aesthetics Rules | MEDIUM | LOW | LOW | P1 |
+| TS-2: Business Logic Flowchart | HIGH | MEDIUM | LOW | P1 |
+| TS-3: Architecture Diagram | HIGH | MEDIUM | LOW | P1 |
+| TS-4: Management Report Template | HIGH | LOW | LOW | P1 |
+| TS-5: PDF Export Script | MEDIUM | HIGH | MEDIUM | P1 |
+| TS-6: Workflow Integration | HIGH | LOW | LOW | P1 |
+| D-1: Truth-to-Diagram Tracing | MEDIUM | LOW | LOW | P2 |
+| D-2: Cross-Phase Dependency Diagram | LOW | LOW | LOW | P2 |
+| D-3: Sequence Diagrams | MEDIUM | MEDIUM | LOW | P3 |
+| D-4: Quality Dashboard | LOW | LOW | LOW | P2 |
+| D-5: Milestone Timeline | LOW | LOW | MEDIUM | P3 |
 
 **Risk assessment:**
-- TS-7 MEDIUM risk: `parseTruthsV11()` regex change affects all existing plan validation. Must maintain backward compatibility with 3-column tables.
-- TS-4 MEDIUM risk: Adding "Logic bug?" decision tree to fix-bug changes a critical workflow. May need iteration to find right UX.
+- **TS-5 MEDIUM risk:** Puppeteer dependency is heavy (~400MB). Mermaid rendering timing in headless Chrome can be flaky (need explicit waits). PDF page breaks around diagrams need careful CSS. Consider `puppeteer-core` + system Chrome to reduce install size. Fallback: if PDF generation fails, MANAGEMENT_REPORT.md in Markdown is still valuable.
+- **TS-2/TS-3 LOW risk:** Mermaid `flowchart` syntax is stable (since v8). AI already generates Mermaid in many contexts. The structured data sources (Truths, Key Links, Artifacts) provide clear inputs. Risk is in diagram quality/readability, not in technical feasibility. Rules (TS-1) mitigate quality risk.
+
+---
+
+## Existing Workflow Integration Points
+
+The complete-milestone workflow has clear, well-defined integration points.
+
+| Workflow Step | Current Behavior | v1.4 Integration |
+|---------------|------------------|------------------|
+| Step 2: Status check | Scans all phase-*/TASKS.md, TEST_REPORT.md, CODE_REPORT_TASK_*.md | **No change** -- data source for diagram generation |
+| Step 3.5a: Goal-backward verification | Verifies Truths per phase using 4-level verification | **No change** -- verification results feed Quality Metrics section |
+| Step 3.5b: Cross-phase links | Checks export/import match across phases | **No change** -- data feeds architecture diagram edges |
+| Step 4: Summary report | Writes MILESTONE_COMPLETE.md from CODE_REPORTs | **No change** -- MILESTONE_COMPLETE.md still generated for dev audience |
+| **NEW Step 4.5** | Does not exist | **ADD:** Generate MANAGEMENT_REPORT.md: (1) Read all Truths + Key Links + Artifacts from PLANs, (2) Generate flowchart per diagram-rules.md, (3) Generate architecture diagram, (4) Fill MANAGEMENT_REPORT.md template, (5) Call PDF script, (6) Report PDF path |
+| Step 5: CHANGELOG.md | Creates/updates changelog | **No change** |
+| Step 10: Notification | Summarizes milestone, git tag, suggests scan | **UPDATE:** Add PDF file path to notification output |
+
+### Data Sources Already Available for Diagram Generation
+
+| Data Source | Location | Feeds Into | Extraction Complexity |
+|-------------|----------|------------|----------------------|
+| Truths table (5-col) | phase-*/PLAN.md "Su that phai dat" | Flowchart nodes (Description), annotations (Business Value), decision points (Edge Cases) | LOW -- parseTruthsV11() already exists in plan-checker.js |
+| Key Links | phase-*/PLAN.md "Lien ket then chot" | Flowchart edges, Architecture connections | LOW -- structured table format |
+| Artifacts table | phase-*/PLAN.md "San pham can co" | Architecture Diagram components (file paths imply module structure) | LOW -- structured table format |
+| CODE_REPORT_TASK_*.md | phase-*/reports/ | Architecture Diagram (actual modules, APIs, services created) | MEDIUM -- semi-structured, AI must interpret |
+| Cross-phase integration | Computed at Step 3.5b | Cross-phase dependency diagram | LOW -- already computed, just needs Mermaid generation |
+| TEST_REPORT.md | phase-*/ | Quality Metrics (pass/fail counts) | LOW -- structured test results |
+| BUG_*.md | .planning/bugs/ | Risk section (open/resolved bugs) | LOW -- already scanned at Step 3 |
+| VERIFICATION_REPORT.md | phase-*/ | Verification status annotations | LOW -- structured pass/gap data |
+
+---
+
+## Diagram Type Analysis
+
+Which Mermaid diagram types provide the most value to managers?
+
+| Diagram Type | Manager Value | Technical Stability | Recommended Use |
+|--------------|--------------|---------------------|-----------------|
+| `flowchart TD` | HIGH -- shows process/decision flow | HIGH -- stable since v8 | **Primary:** Business logic flows from Truths |
+| `flowchart LR` | HIGH -- shows system architecture | HIGH -- stable since v8 | **Primary:** Architecture overview with subgraphs |
+| `sequenceDiagram` | MEDIUM -- shows interactions | HIGH -- stable | **Secondary:** API flows when milestone has API features |
+| `pie` | MEDIUM -- proportions at a glance | HIGH -- stable | **Optional:** Quality dashboard |
+| `gantt` | MEDIUM -- timeline view | HIGH -- stable | **Optional:** Phase timeline |
+| `C4Context` / `C4Container` | HIGH notation value | LOW -- experimental | **Avoid:** Syntax may change. Use flowchart+subgraphs instead. |
+| `architecture-beta` | HIGH -- native arch support | LOW -- experimental, v11.1+ only | **Avoid:** Too new. PDF rendering untested. |
+| `classDiagram` | LOW -- too technical | HIGH -- stable | **Skip:** Not business-facing |
+| `erDiagram` | LOW -- database detail | HIGH -- stable | **Skip:** Not business-facing |
+| `stateDiagram-v2` | MEDIUM -- state transitions | HIGH -- stable | **Defer:** Useful for workflow visualization in v1.5+ |
+
+### Management Report Section Design
+
+| Section | Content | Data Source | Audience Value |
+|---------|---------|-------------|----------------|
+| Executive Summary | 3-5 sentence business overview: what was built, why it matters, what's next | AI synthesis from Truths "Business Value" column + ROADMAP context | HIGH -- first thing managers read |
+| Business Outcomes | Bullet list of user-facing capabilities delivered | Truths table Descriptions, rewritten in product language per ui-brand.md | HIGH -- answers "What did we get?" |
+| Architecture Overview | Embedded `flowchart LR` + 2-3 sentence explanation | Generated from Artifacts + Key Links + CODE_REPORTs | HIGH -- answers "What does the system look like?" |
+| Key Feature Flows | Embedded `flowchart TD` + descriptions per flow | Generated from Truths + Key Links (user journey perspective) | HIGH -- answers "How does it work?" |
+| Quality Metrics | Tests passed/failed, bugs found/fixed, verification results | TEST_REPORT.md + BUG_*.md + Step 3.5a results | MEDIUM -- managers want confidence signal |
+| Risk & Tech Debt | Open issues, deferred items, areas needing attention | MILESTONE_COMPLETE.md "No ky thuat" section | MEDIUM -- answers "What should I worry about?" |
+| Next Steps | What's planned for next milestone | ROADMAP.md next milestone description | MEDIUM -- answers "What's coming?" |
 
 ---
 
 ## Competitor Feature Analysis
 
-| Feature | BMAD Method | GitHub spec-kit | fspec | Please-Done v1.3 |
-|---------|-------------|-----------------|-------|-------------------|
-| Spec-to-code traceability | QA agent creates traceability matrix post-implementation | spec -> plan -> tasks -> code pipeline | Gherkin scenarios linked to code via auto-generated tests | Truths -> Artifacts -> Tasks -> Code with bidirectional enforcement at plan time (CHECK-04 BLOCK) |
-| Business value per requirement | PRD contains value propositions (document-level) | Spec "why" sections (optional) | Not present | **Business Value column** per-Truth, mandatory, parsed by plan-checker |
-| Edge case specification | Gherkin Scenario Outline with examples | Optional in spec templates | Gherkin edge-case scenarios (manual) | **Edge Cases column** per-Truth, mandatory, enumerated during planning |
-| Logic validation before coding | Not present -- agents code directly | Not present -- relies on spec quality | Tests run after code generation | **Step 0 Re-validate Logic** -- AI must restate logic BEFORE coding |
-| Bug-to-spec update workflow | Manual PRD update (no formalized flow) | Not formalized | Manual Gherkin update | **Knowledge Correction** -- formalized: classify bug -> update Truth -> track change -> fix code |
-| Logic evolution tracking | Not present | Not present | Not present | **Logic Changes** in progress + STATE.md cumulative context |
-| Plan-level static analysis | Not present | Not present | Not present | **checkLogicCoverage** + existing 7 checks = 8-check quality gate |
-| Backward compatibility | N/A (new projects) | N/A (new projects) | N/A (new projects) | `detectPlanFormat()` handles v1.0/v1.1/v1.2 graceful degradation |
+| Feature | Generic Report Tools (Asana, Jira) | Code-to-Diagram Tools (Eraser, CodeToFlow) | Please-Done v1.4 |
+|---------|-------------------------------------|---------------------------------------------|-------------------|
+| Diagram source | Manual creation, templates | Code AST parsing | **AI + structured Truths/Key Links/Artifacts data** |
+| Business context in diagrams | None -- generic project data | None -- pure code visualization | **Truths "Business Value" column annotates every node** |
+| Automation level | Manual updates | One-shot generation | **Fully automated in milestone completion workflow** |
+| Output format | Web dashboard (vendor lock-in) | Web-only, proprietary format | **Markdown + PDF (portable, version-controlled, offline)** |
+| Integration with code workflow | Separate tool, manual sync | Standalone tool | **Built into same workflow that produces code** |
+| Consistency across reports | Template-based but manual | N/A (single use) | **Convention rules + template ensure every milestone looks the same** |
+| Cost | SaaS subscription ($10-25/user/month) | SaaS subscription ($8-20/user/month) | **Open source, zero marginal cost** |
 
-**Key insight:** Please-Done v1.3 is the only framework that enforces Truth-Driven Development at FOUR points in the lifecycle: planning (checkLogicCoverage), pre-coding (Re-validate Logic), post-coding (Truths Verified), and debugging (Knowledge Correction). Competitors cover 1-2 of these at most.
+**Key insight:** Please-Done v1.4's unique advantage is that diagrams are generated FROM the same structured data (Truths, Artifacts, Key Links) that DRIVES development. This creates a direct traceability link from business requirement -> implementation plan -> visual diagram -> PDF report. No other tool provides this end-to-end chain in a single automated workflow.
 
 ---
 
-## Infrastructure Dependencies (Existing Components Impacted)
+## Infrastructure Dependencies (Existing Components Reused, Not Modified)
 
-| Component | File | Line(s) | v1.3 Impact |
-|-----------|------|---------|-------------|
-| Truths parser | `bin/lib/plan-checker.js` | 125-136 (`parseTruthsV11`) | Parse 5-column table, fall back to 3-column |
-| Truth-Task coverage | `bin/lib/plan-checker.js` | 669-728 (`checkTruthTaskCoverage`) | Direction 2 severity: WARN -> BLOCK |
-| Plan format detection | `bin/lib/plan-checker.js` | 431-456 (`detectPlanFormat`) | Add v1.2 detection (5-column Truths table) |
-| Run all checks | `bin/lib/plan-checker.js` | 974-990 (`runAllChecks`) | Add checkLogicCoverage as 8th check |
-| Module exports | `bin/lib/plan-checker.js` | 994-1025 | Add new function + helpers |
-| Plan template | `templates/plan.md` | 141 (Truths table) | 3-col -> 5-col: `# | Su that | Gia tri KD | Truong hop bien | Cach kiem chung` |
-| Plan workflow | `workflows/plan.md` | Step 4.3 | Generate 5-column Truths table |
-| write-code workflow | `workflows/write-code.md` | Between 1.6 and 2 | Insert Step 0 "Re-validate Logic" |
-| fix-bug workflow | `workflows/fix-bug.md` | Between Step 7 and 8 | Insert Logic Update step |
-| Verification report | `templates/verification-report.md` | Truths section | Reframe as "Truths Verified" |
-| Progress template | `templates/progress.md` | End of file | Add Logic Changes section |
-| Test suite | `tests/` | 140 plan checker tests | New tests: parser, checkLogicCoverage, severity, format detection |
+| Component | File | Used By | v1.4 Usage |
+|-----------|------|---------|------------|
+| Truths parser | `bin/lib/plan-checker.js` (parseTruthsV11) | TS-2 (flowchart generation) | Read Truths to generate flowchart nodes. Reuse parser, do NOT modify. |
+| ui-brand.md Layer 1 | `references/ui-brand.md` | TS-4 (report template) | Report language follows product framing rules. Reference, do NOT modify. |
+| complete-milestone | `workflows/complete-milestone.md` | TS-6 (workflow integration) | Add Step 4.5. MODIFY workflow file. |
+| conventions.md | `references/conventions.md` | TS-1 (rules may extend this) | Either add diagram rules section here OR create separate `references/diagram-rules.md`. Decision at plan time. |
+| Plan template | `templates/plan.md` | TS-2, TS-3 (data source) | Read Truths/Artifacts/Key Links tables. Do NOT modify template. |
+| Progress template | `templates/progress.md` | Not directly impacted | No change needed. |
+| Converter pipeline | `bin/lib/converters/*.js` | TS-6 (workflow changes need converter update) | complete-milestone.md changes will be transpiled to all 5 platforms. Need snapshot regeneration. |
+| Test suite | `test/*.test.js` | TS-5 (new script needs tests) | Add tests for generate-pdf-report.js. Plan-checker tests NOT impacted (no parser changes). |
 
 ---
 
 ## Sources
 
-- [CodeRabbit: 2025 was AI speed, 2026 is AI quality](https://www.coderabbit.ai/blog/2025-was-the-year-of-ai-speed-2026-will-be-the-year-of-ai-quality) -- industry direction
-- [Augment Code: What Is Spec-Driven Development?](https://www.augmentcode.com/guides/what-is-spec-driven-development) -- SDD methodology
-- [Augment Code: 6 Best SDD Tools for 2026](https://www.augmentcode.com/tools/best-spec-driven-development-tools) -- tool landscape
-- [Red Hat: How SDD improves AI coding quality](https://developers.redhat.com/articles/2025/10/22/how-spec-driven-development-improves-ai-coding-quality) -- quality metrics
-- [O'Reilly: How to Write a Good Spec for AI Agents](https://www.oreilly.com/radar/how-to-write-a-good-spec-for-ai-agents/) -- spec authoring
-- [Addy Osmani: My LLM coding workflow going into 2026](https://addyosmani.com/blog/ai-coding-workflow/) -- plan-before-code pattern
-- [BMAD Method GitHub](https://github.com/bmad-code-org/BMAD-METHOD) -- competitor analysis
-- [Spec-Driven Development: From Code to Contract (arXiv)](https://arxiv.org/html/2602.00180v1) -- academic SDD analysis
-- [AI Coding Rules Standard](https://aicodingrules.org/) -- rule enforcement patterns
-- [Thoughtworks: Spec-Driven Development](https://thoughtworks.medium.com/spec-driven-development-d85995a81387) -- industry adoption
-- Please-Done codebase: `templates/plan.md`, `templates/tasks.md`, `templates/verification-report.md`, `templates/progress.md`, `workflows/write-code.md`, `workflows/fix-bug.md`, `bin/lib/plan-checker.js` -- PRIMARY, HIGH confidence
+- [Mermaid.js Flowchart Syntax](https://mermaid.js.org/syntax/flowchart.html) -- official docs, HIGH confidence
+- [Mermaid Syntax Reference](https://mermaid.js.org/intro/syntax-reference.html) -- all diagram types, HIGH confidence
+- [Mermaid Architecture Diagrams v11.1+](https://mermaid.js.org/syntax/architecture.html) -- experimental feature, MEDIUM confidence
+- [Mermaid C4 Diagrams](https://mermaid.js.org/syntax/c4.html) -- experimental, MEDIUM confidence
+- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) -- official CLI for rendering, HIGH confidence
+- [mermaid-cli GitHub](https://github.com/mermaid-js/mermaid-cli) -- API docs, HIGH confidence
+- [md-mermaid-to-pdf npm](https://www.npmjs.com/package/md-mermaid-to-pdf) -- Puppeteer-based PDF with Mermaid, MEDIUM confidence
+- [@ml-lubich/markpdf npm](https://www.npmjs.com/package/@ml-lubich/markpdf) -- modern Markdown+Mermaid to PDF, MEDIUM confidence
+- [Asana: Project Status Reports](https://asana.com/resources/how-project-status-reports) -- management report structure, MEDIUM confidence
+- [FineReport: Project Management Report](https://www.finereport.com/en/reporting-tools/project-management-report.html) -- report structure, MEDIUM confidence
+- [TheProjectGroup: Project Status Report 2025](https://www.theprojectgroup.com/blog/en/project-status-report/) -- report sections best practices, MEDIUM confidence
+- [Sourcegraph: Flowcharting Code with Mermaid](https://sourcegraph.com/blog/using-cody-and-mermaid-to-generate-flowcharts) -- AI + Mermaid patterns, MEDIUM confidence
+- [Zencoder: Generate Architecture Diagrams](https://docs.zencoder.ai/user-guides/tutorials/generate-codebase-diagrams) -- diagram generation patterns, MEDIUM confidence
+- [Puppeteer HTML to PDF](https://blog.risingstack.com/pdf-from-html-node-js-puppeteer/) -- PDF generation patterns, MEDIUM confidence
+- [How to Generate PDFs in 2025](https://dev.to/michal_szymanowski/how-to-generate-pdfs-in-2025-26gi) -- modern PDF approaches, MEDIUM confidence
+- Please-Done codebase: `workflows/complete-milestone.md`, `templates/plan.md`, `references/ui-brand.md`, `references/conventions.md`, `bin/lib/plan-checker.js`, `package.json` -- PRIMARY, HIGH confidence
 
 ---
-*Feature research for: Truth-Driven Development (please-done v1.3)*
-*Researched: 2026-03-23*
+*Feature research for: Visual Business Logic Reports (please-done v1.4)*
+*Researched: 2026-03-24*

@@ -1,465 +1,565 @@
-# Architecture: Truth-Driven Development Integration
+# Architecture: Visual Business Logic Report Integration
 
-**Domain:** Business Logic enforcement across AI coding skill framework
-**Researched:** 2026-03-23
-**Confidence:** HIGH (all 7 target files read and analyzed, dependency graph traced through existing code)
+**Domain:** Mermaid diagram generation + PDF export integrated into AI coding skill framework
+**Researched:** 2026-03-24
+**Confidence:** HIGH (existing codebase fully analyzed, all 10 workflows and 11 templates read, npm ecosystem verified)
 
-## System Overview -- Current State (v1.2)
+## System Overview -- Current State (v1.3) with v1.4 Integration Points
 
 ```
-/pd:plan                  /pd:write-code              /pd:fix-bug
-   |                           |                           |
-   v                           v                           v
-workflows/plan.md         workflows/write-code.md     workflows/fix-bug.md
-   |                           |                           |
-   v                           v                           v
-+---templates/plan.md     +---templates/tasks.md       +---templates/progress.md
-|   (Truths table:        |   (> Truths: [T1,T2]      |   (checkpoint list)
-|    T1 | desc | verify)  |    in task metadata)       |
-|                         |                            |
-+---templates/tasks.md    +---templates/progress.md    +---templates/verification-report.md
-|   (Truths column)       |   (checkpoint list)        |   (Truths verified table)
-|                         |                            |
-+---bin/lib/plan-checker  +---PLAN.md (read)           +---PLAN.md (read)
-    .js (7 checks)        +---TASKS.md (read/write)    +---TASKS.md (read/write)
+CURRENT complete-milestone FLOW:
+=================================
+
+/pd:complete-milestone
+   |
+   v
+workflows/complete-milestone.md
+   |
+   +-- Buoc 1: Read CURRENT_MILESTONE.md -> version
+   +-- Buoc 2: Check all phase-*/TASKS.md, TEST_REPORT.md, CODE_REPORT_TASK_*.md
+   +-- Buoc 3: Check bugs
+   +-- Buoc 3.5: Goal-backward verification (4-level) + cross-phase links
+   +-- Buoc 4: Compile CODE_REPORTs -> MILESTONE_COMPLETE.md  <--- INSERT HERE
+   +-- Buoc 5: CHANGELOG.md
+   +-- Buoc 6-6.5: Update ROADMAP, REQUIREMENTS, STATE, PROJECT
+   +-- Buoc 7-8: Update CURRENT_MILESTONE, VERSION
+   +-- Buoc 9: Git commit + tag
+   +-- Buoc 10: Notify
+
+
+v1.4 NEW FLOW (additions marked with >>>):
+=============================================
+
+   +-- Buoc 4: Compile CODE_REPORTs -> MILESTONE_COMPLETE.md
+   +-- >>> Buoc 4.5: Generate MANAGEMENT_REPORT.md with Mermaid diagrams
+   +-- >>> Buoc 4.6: (Optional) Export PDF via generate-report-pdf.js
+   +-- Buoc 5: CHANGELOG.md (unchanged)
+   ...
 ```
 
-**Key architectural facts from codebase analysis:**
+## Component Inventory: New vs Modified
 
-1. **Templates** are consumed by workflows as format definitions. Workflows reference `@templates/X.md` to know what format to produce/read.
-2. **Workflows** are the execution logic. They define step-by-step processes that AI follows.
-3. **plan-checker.js** is a pure-function library (no file I/O). Content is passed in as args. 7 existing checks: CHECK-01 through CHECK-04, ADV-01 through ADV-03.
-4. **bin/plan-check.js** is the CLI wrapper that reads files from disk and calls `runAllChecks()`.
-5. **Converter pipeline** auto-inlines workflow content into commands for all 5 platforms. Template/workflow changes propagate automatically.
+### NEW Components (6 files)
 
-## The 7 Integration Points -- Analysis
+| # | Component | Location | Type | Purpose |
+|---|-----------|----------|------|---------|
+| N1 | Management report template | `templates/management-report.md` | Template | Format definition for MANAGEMENT_REPORT.md with Mermaid diagram scaffolds |
+| N2 | Mermaid aesthetics rules | `references/mermaid-rules.md` | Reference | Style rules for Mermaid diagrams (colors, labels, layout direction) |
+| N3 | PDF export script | `scripts/generate-report-pdf.js` | Script | Node.js script to render Markdown+Mermaid to PDF |
+| N4 | Mermaid validator | `bin/lib/mermaid-validator.js` | Library | Pure-function Mermaid syntax validator (no Puppeteer) |
+| N5 | Report generator helper | `bin/lib/report-generator.js` | Library | Pure functions to extract data from CODE_REPORTs and structure into report sections |
+| N6 | Mermaid validator tests | `test/smoke-mermaid-validator.test.js` | Test | Unit tests for validator |
 
-### Point 1: templates/plan.md -- Add Business Value + Edge Cases to Truths table
+### MODIFIED Components (5 files)
 
-**Current Truths table (line 141):**
+| # | Component | Location | Change |
+|---|-----------|----------|--------|
+| M1 | complete-milestone workflow | `workflows/complete-milestone.md` | Add Buoc 4.5 (diagrams) + Buoc 4.6 (PDF) |
+| M2 | complete-milestone command | `commands/pd/complete-milestone.md` | Reference new template + Mermaid rules |
+| M3 | conventions reference | `references/conventions.md` | Add Mermaid section (if rules are small enough) OR reference new mermaid-rules.md |
+| M4 | Converter snapshots | `test/snapshots/*.txt` | Regenerate after command/workflow changes |
+| M5 | package.json | `package.json` | Add optionalDependencies for PDF export |
+
+### NOT MODIFIED (explicitly scoped out)
+
+| Component | Why not |
+|-----------|---------|
+| `plan-checker.js` | No new checks needed -- report is output, not a plan quality gate |
+| `workflows/plan.md` | Report is generated at complete-milestone, not planning time |
+| `workflows/write-code.md` | No code-writing changes needed |
+| `templates/plan.md` | Truths table unchanged from v1.3 |
+| `bin/lib/utils.js` | Existing helpers sufficient |
+| Platform converters | New template/reference auto-propagates via existing converter pipeline |
+
+## Recommended Architecture
+
+### Principle: Two-Layer Strategy
+
+The architecture separates **diagram text generation** (AI-driven, zero dependencies) from **PDF rendering** (optional, heavy dependencies).
+
+```
+Layer 1: AI-Generated Markdown+Mermaid (ZERO dependencies)
+===========================================================
+AI reads CODE_REPORTs + PLAN.md + TASKS.md
+   |
+   v
+templates/management-report.md (format definition)
+   + references/mermaid-rules.md (style rules)
+   |
+   v
+.planning/milestones/[version]/MANAGEMENT_REPORT.md
+   (Markdown with embedded ```mermaid code blocks)
+   |
+   +-- Viewable on GitHub (native Mermaid rendering)
+   +-- Viewable in VS Code (Mermaid extensions)
+   +-- Viewable in any Markdown viewer with Mermaid support
+
+
+Layer 2: Optional PDF Export (requires Node >= 18, Puppeteer)
+==============================================================
+node scripts/generate-report-pdf.js [path/to/MANAGEMENT_REPORT.md]
+   |
+   v
+md-mermaid-to-pdf (npm package)
+   |
+   +-- Puppeteer (headless Chromium)
+   +-- mermaid.js (client-side rendering in Chromium)
+   |
+   v
+.planning/milestones/[version]/MANAGEMENT_REPORT.pdf
+```
+
+**Rationale:** This two-layer approach is critical because:
+1. The project's minimum Node.js version is 16.7, but Puppeteer/mermaid-cli require Node >= 18.19
+2. Mermaid text in Markdown is already renderable on GitHub, VS Code, and most modern viewers
+3. PDF export is a "nice to have" for managers who need offline documents
+4. The AI generates diagrams as text (its core competency) -- rendering is delegated
+
+### Component Boundaries
+
+| Component | Responsibility | Input | Output | Communicates With |
+|-----------|---------------|-------|--------|-------------------|
+| `templates/management-report.md` | Define report structure with Mermaid scaffolds | N/A (template) | Format spec | `workflows/complete-milestone.md` reads it |
+| `references/mermaid-rules.md` | Mermaid styling conventions (colors, shapes, labels) | N/A (reference) | Style rules | AI follows when generating diagrams |
+| `workflows/complete-milestone.md` (Buoc 4.5-4.6) | Orchestrate diagram generation + optional PDF | CODE_REPORTs, PLAN.md, TASKS.md | MANAGEMENT_REPORT.md + optional PDF | Reads template, reads mermaid-rules, calls PDF script |
+| `scripts/generate-report-pdf.js` | Render Markdown+Mermaid to PDF | MANAGEMENT_REPORT.md file path | MANAGEMENT_REPORT.pdf | Uses md-mermaid-to-pdf or mermaid-cli + md-to-pdf |
+| `bin/lib/mermaid-validator.js` | Validate Mermaid syntax (pure function) | Mermaid text string | { valid, errors[] } | Called by report-generator or directly |
+| `bin/lib/report-generator.js` | Extract/structure report data from CODE_REPORTs | Array of CODE_REPORT contents | Structured data object | Called by workflow logic (AI) |
+
+### Data Flow
+
+```
+CODE_REPORT_TASK_1.md  --+
+CODE_REPORT_TASK_2.md  --+---> AI reads all reports
+CODE_REPORT_TASK_N.md  --+          |
+                                    v
+PLAN.md (Truths table)  ---------> AI analyzes business logic
+TASKS.md (task deps)    ---------> AI traces dependencies
+                                    |
+                                    v
+                          templates/management-report.md
+                          references/mermaid-rules.md
+                                    |
+                                    v
+                     MANAGEMENT_REPORT.md
+                     (Business Logic Flowchart + Architecture Diagram)
+                                    |
+                          [Optional: Node >= 18]
+                                    |
+                                    v
+                     scripts/generate-report-pdf.js
+                                    |
+                                    v
+                     MANAGEMENT_REPORT.pdf
+```
+
+## Detailed Design: New Components
+
+### N1: templates/management-report.md
+
+Template defining the report format. Follows the same pattern as `templates/plan.md` and `templates/verification-report.md`.
+
 ```markdown
-| # | Su that | Cach kiem chung |
-|---|---------|-----------------|
-| T1 | [VD: User co the dang nhap bang email + password] | [VD: POST /auth/login tra ve JWT hop le] |
+# Mau MANAGEMENT_REPORT.md
+
+> `/pd:complete-milestone` tao (Buoc 4.5) | Manager doc
+
+Bao cao tong ket milestone danh cho quan ly.
+Tap trung vao gia tri kinh doanh va kien truc, KHONG chi tiet ky thuat.
+
+## Mau
+
+(template content with placeholder sections:)
+- Executive Summary
+- Business Logic Flowchart (```mermaid flowchart TD ...)
+- Architecture Diagram (```mermaid graph LR ...)
+- Key Metrics table
+- Risk/Debt section
 ```
 
-**Target Truths table:**
+**Key design decisions:**
+- Template provides **scaffold Mermaid blocks** with comments showing the AI what to generate, not hardcoded diagrams
+- Two mandatory diagrams: Business Logic Flowchart (user journey), Architecture Diagram (module/service connections)
+- Optional diagrams: Sequence Diagram (for API-heavy milestones), State Diagram (for state machine changes)
+- Template language follows existing Vietnamese convention with `@references/mermaid-rules.md` reference
+
+### N2: references/mermaid-rules.md
+
+Style reference for Mermaid diagrams. Follows the pattern of `references/ui-brand.md`.
+
 ```markdown
-| # | Su that | Gia tri kinh doanh | Edge Cases | Cach kiem chung |
-|---|---------|-------------------|------------|-----------------|
-| T1 | [...] | [VD: User khong bi chan ngoai voi ung dung] | [VD: Email sai format, password < 8 ky tu] | [...] |
+Structure:
+- Direction rules: flowchart TD for logic, graph LR for architecture
+- Node shape rules: rectangles for processes, diamonds for decisions, cylinders for DB
+- Color palette: 3-4 named styles (classDef) for consistency
+- Label rules: Vietnamese labels for manager-facing, max 20 chars per node
+- Subgraph rules: group by domain/module
+- Anti-patterns: no more than 15 nodes per diagram, no crossing edges
 ```
 
-**Type:** MODIFY existing file
-**Impact radius:**
-- `workflows/plan.md` creates PLAN.md using this template -- must produce the new columns
-- `workflows/write-code.md` Buoc 2 reads PLAN.md Truths -- now has more context available
-- `workflows/fix-bug.md` Buoc 3 reads PLAN.md -- now has Edge Cases to trace bugs against
-- `bin/lib/plan-checker.js` `parseTruthsV11()` parses Truths table with 3-column regex -- MUST update to handle 5 columns
-- `templates/verification-report.md` references Truths -- format unchanged (just T# and description)
+**Rationale for separate file (not inline in conventions.md):**
+- conventions.md is already 99 lines and referenced by ALL workflows
+- Mermaid rules are only relevant to complete-milestone
+- Separate file = conditional loading (only read when generating report)
 
-**Critical detail:** `parseTruthsV11()` at line 128 uses this regex:
+### N3: scripts/generate-report-pdf.js
+
+Pure Node.js script following the pattern of `scripts/count-tokens.js`.
+
 ```javascript
-const tableRegex = /\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
-```
-This captures exactly 3 pipe-delimited groups. With 5 columns, the regex will still match (it captures first 3 groups from the left) but will capture `Gia tri kinh doanh` as `description` instead of the actual description. **This MUST be updated.**
+// Architecture:
+// 1. Read MANAGEMENT_REPORT.md from argv[1]
+// 2. Check Node.js version >= 18 (warn + exit gracefully if not)
+// 3. Try require('md-mermaid-to-pdf') or dynamic import
+// 4. Convert Markdown+Mermaid to PDF
+// 5. Write PDF to same directory as input file
+// 6. Print success message with file path
 
-### Point 2: templates/tasks.md -- Add Logic Reference field per task
-
-**Current task metadata (line 22-24):**
-```markdown
-## Task 1: [Ten]
-> Trang thai: ... | Uu tien: Cao | Phu thuoc: Khong | Loai: Backend | Effort: standard
-> Files: [danh sach files du kien]
-> Truths: [T1, T2] <- truy vet Tieu chi thanh cong PLAN.md
-```
-
-**Target:** `> Truths:` already exists (added in v1.1). The "Logic Reference" requirement maps to the existing `> Truths:` field. The milestone requirement states "Ep moi Task phai co Logic Reference tro toi Truth (T1, T2...)" -- this is **already implemented** as `> Truths: [T1, T2]`.
-
-**What needs to change:** Strengthen the rule language. Currently `> Truths:` is described as "truy vet" (traceability). Change to "BAT BUOC -- task KHONG co Truths = KHONG duoc tao."
-
-**Type:** MODIFY existing file (minor wording change)
-**Impact radius:** Minimal -- existing parsers already handle `> Truths:` field.
-
-### Point 3: workflows/write-code.md -- Insert "Buoc 0: Re-validate Logic"
-
-**Current flow:**
-```
-Buoc 1: Xac dinh task (read PLAN.md, TASKS.md)
-Buoc 1.1: Diem khoi phuc
-Buoc 1.5: Parallel waves (--parallel only)
-Buoc 1.6: Phan tich task
-Buoc 2: Doc context
-Buoc 3: Research code
-Buoc 4: Viet code
-...
+// Key constraints:
+// - MUST handle missing dependency gracefully (not crash)
+// - MUST check Node version before attempting import
+// - Output path: same directory, same name, .pdf extension
+// - Uses process.exit(0) on success, process.exit(1) on error
 ```
 
-**Target:** Insert between Buoc 1 (task selection) and Buoc 2 (context reading). Numbering: "Buoc 1.7" or renumber as "Buoc 0" (conceptual, not literal since Buoc 1 must select the task first).
-
-**Recommended placement: Buoc 1.7 -- Re-validate Logic** (after task selection, before context deep-read). Rationale:
-- Needs the selected task to know which Truths to validate
-- Must run BEFORE code writing starts
-- "Buoc 0" would be before task selection -- impossible since we need to know WHICH task's Truths to print
-
-**What the step does:**
-1. Read PLAN.md Truths table (now with Business Value + Edge Cases columns)
-2. Filter to Truths referenced by current task (`> Truths: [T1, T2]`)
-3. Print them verbatim before proceeding: "Business Logic cho task nay:"
-4. If ANY referenced Truth is missing from PLAN.md -> **DUNG**: "Truth [TX] khong ton tai trong PLAN.md. Chay `/pd:plan --discuss` de bo sung."
-
-**Type:** MODIFY existing file
-**Impact radius:**
-- No impact on other files -- this is a new validation step within the workflow
-- Converters auto-propagate (transparent via inlineWorkflow)
-- `--parallel` mode: each spawned agent runs its own Buoc 1.7 for its task
-
-### Point 4: workflows/fix-bug.md -- Add "Logic Update" process
-
-**Current flow:**
-```
-Buoc 1: Kiem tra phien dieu tra + thu thap trieu chung
-Buoc 2: Xac dinh patch version
-Buoc 3: Doc tai lieu ky thuat (PLAN.md + CODE_REPORT)
-Buoc 4: Tim hieu files lien quan
-Buoc 5: Phan tich khoa hoc
-Buoc 6: Danh gia ket qua dieu tra
-Buoc 7: Viet bao cao loi
-Buoc 8: Sua code
-Buoc 9: Git commit
-Buoc 10: Yeu cau xac nhan
-```
-
-**Target:** After Buoc 6 (root cause found) and before Buoc 7 (bug report), add logic check:
-- "Loi nay co phai do Logic (Truth) sai khong?"
-- If YES -> update PLAN.md Truth first, THEN fix code
-- If NO -> proceed normally
-
-**Recommended placement: Buoc 6.5 -- Logic Update Check**
-
-**What the step does:**
-1. After root cause identified (Buoc 6a phân loại + 6b danh gia)
-2. Ask: "Nguyen nhan goc co phai do Business Logic (Truth) sai?"
-3. If YES:
-   a. Identify which Truth(s) need correction in PLAN.md
-   b. Update PLAN.md Truth table (description, edge cases, verification method)
-   c. Update related TASKS.md if Truth changes affect task scope
-   d. Log the Logic Change (feeds Point 6)
-   e. THEN proceed to code fix (Buoc 8)
-4. If NO: proceed to Buoc 7 normally
-
-**Type:** MODIFY existing file
-**Impact radius:**
-- templates/plan.md read/write (PLAN.md content updated)
-- templates/progress.md will track Logic Changes (Point 6)
-- Bug report (Buoc 7) should note "Logic updated" if applicable
-- Converters auto-propagate
-
-### Point 5: templates/verification-report.md -- Restructure to "Truths Verified"
-
-**Current structure (already Truth-centric):**
-```markdown
-## Truths -- Su that phai dat
-| # | Su that | Trang thai | Bang chung |
-...
-## Artifacts -- San pham can co
-...
-## Lien ket then chot (Key Links)
-...
-## Anti-pattern phat hien
-```
-
-**Analysis:** The verification report **already uses Truths as the primary structure** (line 20-25). The "Truths -- Su that phai dat" table IS the "Truths Verified" structure the milestone requires.
-
-**What actually needs to change:**
-1. Add "Edge Cases Verified" column or sub-section under each Truth (leveraging the new Edge Cases column from Point 1)
-2. Add "Business Value Confirmed" indicator (was the value delivered, not just the code working?)
-3. Strengthen the language: verification report header from "Xac minh tinh nang" to "Xac minh Business Logic"
-
-**Type:** MODIFY existing file (incremental enhancement)
-**Impact radius:**
-- `workflows/write-code.md` Buoc 9.5 creates this report -- must produce new columns
-- `workflows/complete-milestone.md` reads this report -- benefits from richer data
-
-### Point 6: templates/progress.md -- Add "Logic Changes" section
-
-**Current structure:**
-```markdown
-# Tien trinh thuc thi
-> Cap nhat: [DD_MM_YYYY HH:MM]
-> Task: [N] -- [Ten task]
-> Giai doan: [...]
-
-## Cac buoc
-- [x] Chon task
-- [ ] Doc context + nghien cuu
-- [ ] Viet code
-- [ ] Lint + Build
-- [ ] Tao bao cao
-- [ ] Commit
-
-## Files du kien
-## Files da viet
-```
-
-**Target:** Add new section:
-```markdown
-## Logic Changes (neu co)
-| Truth | Thay doi | Ly do | Phase goc |
-|-------|---------|-------|-----------|
-| T2 | Edge case them: password < 8 ky tu | Phat hien khi fix-bug | Phase 1.1 |
-```
-
-**Type:** MODIFY existing file
-**Impact radius:**
-- `workflows/write-code.md` creates/updates PROGRESS.md -- must include Logic Changes
-- `workflows/fix-bug.md` updates PROGRESS.md via Buoc 6.5 Logic Update
-- PROGRESS.md is ephemeral (deleted after commit) -- Logic Changes here are a session log, NOT persistent. Persistent tracking goes into verification report or bug report.
-
-### Point 7: bin/lib/plan-checker.js -- New checkLogicCoverage function
-
-**Current exports (line 994-1025):**
-- 7 check functions: CHECK-01 through CHECK-04, ADV-01 through ADV-03
-- `runAllChecks()` aggregates all checks
-- 15 helper functions exported for testing
-
-**Target:** Add CHECK-05 (or ADV-04) `checkLogicCoverage`:
-- "Code khong co Truth bao ke = Technical Debt"
-- Parse TASKS.md tasks with `> Truths:` field
-- Parse PLAN.md Truths table (new 5-column format)
-- Flag tasks where referenced Truths lack Business Value column
-- Flag tasks where referenced Truths lack Edge Cases column
-- This EXTENDS existing CHECK-04 (Truth-Task bidirectional) with depth check
-
-**Type:** MODIFY existing file
-**Impact radius:**
-- `runAllChecks()` must include new check in array
-- `bin/plan-check.js` CLI wrapper -- no change needed (calls runAllChecks)
-- `references/plan-checker.md` must document the new check rules
-- `test/smoke-plan-checker.test.js` must add tests for new check
-- Dynamic PASS table (Phase 13 feature) auto-includes new check via name mapping
-
-**Critical implementation detail:** The new check function must follow the pure-function pattern:
+**Node version handling strategy:**
 ```javascript
-function checkLogicCoverage(planContent, tasksContent) {
-  const result = { checkId: "CHECK-05", status: "pass", issues: [] };
-  // ... parse and validate ...
-  return result;
+const [major] = process.versions.node.split('.').map(Number);
+if (major < 18) {
+  console.log('PDF export yeu cau Node.js >= 18.');
+  console.log('MANAGEMENT_REPORT.md da duoc tao thanh cong.');
+  console.log('Mo file Markdown de xem so do Mermaid (GitHub/VS Code ho tro render).');
+  process.exit(0); // Graceful, not error
 }
 ```
 
-No file I/O, content passed as args. This maintains the existing architectural pattern.
+**Dependency strategy:**
+- `md-mermaid-to-pdf` as optionalDependency in package.json (not required for install)
+- Script checks for dependency at runtime, provides install instructions if missing
+- This preserves the "no build step" constraint while enabling PDF for users who want it
 
-## Component Dependency Graph
+### N4: bin/lib/mermaid-validator.js
 
-```
-Point 1: templates/plan.md (Truths table columns)
-    |
-    +---> Point 7: plan-checker.js (parseTruthsV11 regex update)
-    |         |
-    |         +---> Point 7: plan-checker.js (new checkLogicCoverage)
-    |
-    +---> Point 3: workflows/write-code.md (Buoc 1.7 reads new columns)
-    |
-    +---> Point 5: templates/verification-report.md (Edge Cases verified)
-    |
-    +---> Point 4: workflows/fix-bug.md (Logic Update reads new columns)
+Pure-function library (same pattern as plan-checker.js: no file I/O, content passed as args).
 
-Point 2: templates/tasks.md (strengthen Truths requirement)
-    |
-    +---> Point 7: plan-checker.js (enforces the strengthened rule)
-
-Point 6: templates/progress.md (Logic Changes section)
-    |
-    +---> Point 3: workflows/write-code.md (writes Logic Changes)
-    +---> Point 4: workflows/fix-bug.md (writes Logic Changes)
-```
-
-## Recommended Build Order
-
-Based on the dependency graph above:
-
-| Phase | Component | Type | Depends On | Rationale |
-|-------|-----------|------|-----------|-----------|
-| 1 | `templates/plan.md` | MODIFY | Nothing | Foundation: Truths table structure change. Everything downstream reads this format. Must be settled first. |
-| 2 | `templates/tasks.md` | MODIFY | Point 1 | Strengthen Truths requirement language. Minor change, but needed before checker validates it. |
-| 3 | `templates/progress.md` | MODIFY | Nothing | Add Logic Changes section. Simple addition, no dependencies on other changes. |
-| 4 | `templates/verification-report.md` | MODIFY | Point 1 | Add Edge Cases / Business Value verification. Needs to know new column names from plan template. |
-| 5 | `bin/lib/plan-checker.js` | MODIFY | Points 1, 2 | Update `parseTruthsV11()` for 5-column table. Add `checkLogicCoverage()`. Must know final column format. |
-| 6 | `workflows/write-code.md` | MODIFY | Points 1, 3 | Insert Buoc 1.7. Update Buoc 9.5 verification. Must know Truths format + Progress format. |
-| 7 | `workflows/fix-bug.md` | MODIFY | Points 1, 3, 4 | Insert Buoc 6.5. Must know all template formats for Logic Update flow. |
-
-**Phase ordering rationale:**
-- **Templates first (1-4):** Templates define the data format. Workflows and checkers consume templates. Changing templates after workflows would require rework.
-- **Checker before workflows (5 before 6-7):** The checker validates what templates produce. Workflows invoke the checker. Having checker ready means workflows can reference the check results.
-- **write-code before fix-bug (6 before 7):** fix-bug Buoc 6.5 Logic Update creates a pattern that write-code Buoc 1.7 also follows (print Business Logic before proceeding). Building write-code first establishes the pattern, fix-bug adapts it.
-
-## New vs Modified Files -- Explicit
-
-| File | Action | Lines Changed (est.) | Risk |
-|------|--------|---------------------|------|
-| `templates/plan.md` | MODIFY | ~10 lines (Truths table + example) | LOW -- additive columns |
-| `templates/tasks.md` | MODIFY | ~5 lines (rule wording) | LOW -- existing field |
-| `templates/progress.md` | MODIFY | ~10 lines (new section) | LOW -- additive section |
-| `templates/verification-report.md` | MODIFY | ~15 lines (enhanced verification) | LOW -- additive columns |
-| `bin/lib/plan-checker.js` | MODIFY | ~80 lines (regex fix + new function) | MEDIUM -- regex change affects existing parsing |
-| `references/plan-checker.md` | MODIFY | ~30 lines (new check documentation) | LOW -- additive documentation |
-| `workflows/write-code.md` | MODIFY | ~40 lines (Buoc 1.7 + Buoc 9.5 update) | MEDIUM -- touches critical workflow |
-| `workflows/fix-bug.md` | MODIFY | ~50 lines (Buoc 6.5 Logic Update) | MEDIUM -- touches critical workflow |
-| `test/smoke-plan-checker.test.js` | MODIFY | ~40 lines (new check tests) | LOW -- additive tests |
-
-**Total: 0 new files, 9 modified files.** All changes are additive modifications to existing files.
-
-## Critical Integration Details
-
-### parseTruthsV11() Regex Update Strategy
-
-**Current regex (matches 3-column table):**
 ```javascript
-/\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g
-```
-Captures: T#, description, verification method.
-
-**Required: match 5-column table while remaining backward compatible with 3-column:**
-
-Option A -- Greedy 5-column with 3-column fallback:
-```javascript
-// Try 5-column first
-const regex5 = /\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
-// Fallback to 3-column
-const regex3 = /\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|\s*([^|]+)\s*\|/g;
-```
-
-Option B -- Single flexible regex:
-```javascript
-/\|\s*(T\d+)\s*\|\s*([^|]+)\s*\|(?:\s*([^|]+)\s*\|)?(?:\s*([^|]+)\s*\|)?(?:\s*([^|]+)\s*\|)?/g
+// Core function:
+// validateMermaid(mermaidText) -> { valid: boolean, errors: string[] }
+//
+// Validates:
+// - Has valid diagram type declaration (flowchart/graph/sequenceDiagram/stateDiagram)
+// - Balanced brackets/parentheses
+// - No empty node labels
+// - Direction is valid (TD/TB/BT/LR/RL)
+// - Node IDs don't contain spaces
+//
+// Does NOT render -- just syntax validation (like merval approach)
+// Zero dependencies -- pure regex/string parsing
 ```
 
-**Recommendation: Option A** (two-pass). Simpler to read, test, and debug. Try 5-column; if no matches, fall back to 3-column. This maintains backward compatibility with existing v1.1 plans that have 3 columns.
+**Rationale:** Validation without rendering avoids the Puppeteer/Node-18 dependency. The AI can validate its own output before writing the file.
 
-### runAllChecks() Extension Pattern
+### N5: bin/lib/report-generator.js
 
-**Current:**
+Pure-function helpers for extracting report data.
+
 ```javascript
-function runAllChecks({ planContent, tasksContent, requirementIds }) {
-  const checks = [
-    checkRequirementCoverage(planContent, requirementIds),
-    checkTaskCompleteness(planContent, tasksContent),
-    checkDependencyCorrectness(planContent, tasksContent),
-    checkTruthTaskCoverage(planContent, tasksContent),
-    checkKeyLinks(planContent, tasksContent),
-    checkScopeThresholds(planContent, tasksContent),
-    checkEffortClassification(planContent, tasksContent),
-  ];
-  // ... aggregate
+// extractFeatures(codeReportContents[]) -> Feature[]
+// extractMetrics(codeReportContents[], tasksContent) -> Metrics
+// generateFlowchartSkeleton(features, truthsTable) -> string (Mermaid text)
+// generateArchitectureSkeleton(features) -> string (Mermaid text)
+//
+// These provide DATA to the AI, not final diagrams.
+// The AI uses these skeletons as starting points and enriches them.
+```
+
+**Important:** These helpers are optional acceleration for the AI. The AI CAN generate diagrams purely from reading CODE_REPORTs + PLAN.md. The helpers reduce token cost by pre-structuring data.
+
+## Detailed Design: Modified Components
+
+### M1: workflows/complete-milestone.md -- Buoc 4.5 + 4.6
+
+Insert after existing Buoc 4, before Buoc 5:
+
+```markdown
+## Buoc 4.5: Bao cao quan ly voi so do Mermaid
+
+Doc tat ca `phase-*/PLAN.md` (Truths table) + `phase-*/reports/CODE_REPORT_TASK_*.md`.
+Phan tich:
+1. Luong nghiep vu chinh (user actions -> system responses -> outcomes)
+2. Kien truc he thong (modules, services, databases, APIs)
+
+Viet `.planning/milestones/[version]/MANAGEMENT_REPORT.md`:
+- Theo mau @templates/management-report.md
+- Tuan thu @references/mermaid-rules.md
+- IT NHAT 2 so do Mermaid: Business Logic Flowchart + Architecture Diagram
+- Ngon ngu: Tieng Viet huong san pham (nhu MILESTONE_COMPLETE.md)
+
+## Buoc 4.6: Xuat PDF (tuy chon)
+
+Kiem tra:
+1. `node -v` >= 18? -> tiep tuc | < 18 -> bo qua, thong bao user
+2. `scripts/generate-report-pdf.js` ton tai?
+3. Chay: `node scripts/generate-report-pdf.js .planning/milestones/[version]/MANAGEMENT_REPORT.md`
+4. Thanh cong -> thong bao duong dan PDF
+5. That bai -> canh bao, KHONG chan workflow (PDF la optional)
+```
+
+**Integration pattern:** Same as how Buoc 3.5 was added in v1.2 -- insert between existing steps, non-blocking.
+
+### M2: commands/pd/complete-milestone.md
+
+Add to `<required_reading>` or `<conditional_reading>`:
+
+```markdown
+<conditional_reading>
+- @templates/management-report.md -> format bao cao quan ly -- KHI tao MANAGEMENT_REPORT.md
+- @references/mermaid-rules.md -> quy tac ve so do Mermaid -- KHI tao so do
+</conditional_reading>
+```
+
+This follows the established conditional loading pattern from v1.0 Phase 4.
+
+### M5: package.json
+
+```json
+{
+  "optionalDependencies": {
+    "md-mermaid-to-pdf": "^1.0.0"
+  },
+  "scripts": {
+    "report:pdf": "node scripts/generate-report-pdf.js"
+  }
 }
 ```
 
-**After v1.3:**
-```javascript
-function runAllChecks({ planContent, tasksContent, requirementIds }) {
-  const checks = [
-    // ... existing 7 checks ...
-    checkLogicCoverage(planContent, tasksContent),  // NEW
-  ];
-  // ... aggregate (unchanged)
-}
-```
-
-The Dynamic PASS table (Phase 13 feature) auto-discovers checks from `runAllChecks()` return. New check auto-included with zero template changes.
-
-### Workflow Insertion Points -- Exact Locations
-
-**workflows/write-code.md:**
-- Insert Buoc 1.7 after line 148 (end of Buoc 1.6 section, before `## Buoc 2: Doc context`)
-- Update Buoc 9.5d "Cap 4: Kiem tra logic Truths" to include Edge Cases verification
-- Update Buoc 9.5e to generate enhanced verification report
-
-**workflows/fix-bug.md:**
-- Insert Buoc 6.5 after line 183 (end of `Buoc 6b. Danh gia ket qua`) before `### 6c. Cong kiem tra truoc khi sua`
-- Actually better: between 6b (Buoc 6b assessment complete) and 6c (gate check). The Logic Update is a DECISION step: "Is this a Logic bug?" If yes, update Truth first. Then 6c gate check still applies normally.
-
-### Converter Pipeline -- Zero Changes Needed
-
-Confirmed by reading base.js converter pipeline:
-1. `inlineWorkflow()` in utils.js reads workflow content and inlines it
-2. Changes to `workflows/write-code.md` and `workflows/fix-bug.md` content auto-propagate
-3. Template changes (`templates/*.md`) are referenced via `@templates/` -- converters handle path transformation
-4. `bin/lib/plan-checker.js` is NOT part of the converter pipeline -- it runs standalone. Changes to checker are transparent to converters.
-
-### Snapshot Test Impact
-
-The project has 48 converter snapshot tests. Modifying `workflows/write-code.md` and `workflows/fix-bug.md` will cause snapshot test failures because inlined workflow content changes.
-
-**Mitigation:** Regenerate snapshots after workflow changes. This is expected and safe -- the v1.2 milestone already handled this pattern (Phase 16: "48/48 snapshots in sync").
+**Why optionalDependencies (not dependencies or devDependencies):**
+- `npm install` succeeds even if md-mermaid-to-pdf fails to install
+- Users on Node 16 are not blocked
+- Users who want PDF can `npm install md-mermaid-to-pdf` manually
+- Preserves existing install experience
 
 ## Patterns to Follow
 
-### Pattern 1: Truth-First Validation Gate
+### Pattern 1: Template-Driven Output
 
-**What:** Before any code action (write or fix), the AI must explicitly read and display the relevant Business Logic (Truths) for the current task.
+**What:** All structured output is defined by a template file in `templates/`.
+**Why:** This is the established pattern. The AI reads the template to know what format to produce.
+**Example from existing code:** `templates/plan.md` defines PLAN.md format, `workflows/plan.md` references it as `@templates/plan.md`.
 
-**When:** Every task execution in write-code and every bug investigation in fix-bug.
+Apply to: `templates/management-report.md` defines MANAGEMENT_REPORT.md format.
 
-**Why:** Forces the AI to have Business Logic in its immediate context window, reducing the chance of code that ignores business requirements.
+### Pattern 2: Conditional Reading
 
-### Pattern 2: Logic-Before-Code in Bug Fixes
+**What:** Optional references loaded only when needed, declared in `<conditional_reading>`.
+**Why:** Token optimization (v1.0 Phase 4). Mermaid rules are only needed during report generation.
+**Example from existing code:**
+```markdown
+<conditional_reading>
+- @references/ui-brand.md -> viet bao cao huong san pham -- KHI milestone co UI deliverables
+</conditional_reading>
+```
 
-**What:** When a bug's root cause is incorrect Business Logic (not just a code error), update PLAN.md Truth first, then fix code.
+Apply to: Mermaid rules reference.
 
-**When:** fix-bug Buoc 6.5 determines the bug is a Logic bug.
+### Pattern 3: Pure Functions for Library Code
 
-**Why:** Prevents the "fix the symptom, not the cause" anti-pattern. If the Truth itself is wrong, fixing code to match the wrong Truth perpetuates the error.
+**What:** Library code in `bin/lib/` takes content as args, returns results, no file I/O.
+**Why:** Testable, composable, side-effect free. Established by plan-checker.js.
+**Example:** `runAllChecks({ planContent, tasksContent, requirementIds })` in plan-checker.js.
 
-### Pattern 3: Pure Function Extension for Checker
+Apply to: `mermaid-validator.js` and `report-generator.js`.
 
-**What:** New check function follows the same signature as existing checks: `(planContent, tasksContent) => { checkId, status, issues[] }`.
+### Pattern 4: CLI Wrapper for Scripts
 
-**When:** Adding checkLogicCoverage to plan-checker.js.
+**What:** Separate file I/O from logic. Script reads files, calls library, writes output.
+**Why:** Same separation as `bin/plan-check.js` wrapping `bin/lib/plan-checker.js`.
 
-**Why:** Maintains testability (content passed as args, no file I/O), composability (runAllChecks aggregates uniformly), and the established testing pattern.
+Apply to: `scripts/generate-report-pdf.js` handles file I/O, calls rendering library.
+
+### Pattern 5: Graceful Degradation
+
+**What:** Optional features fail gracefully with informative messages, never block the workflow.
+**Why:** The project supports Node 16.7+. PDF export requires Node 18+. Must not break existing users.
+
+Apply to: PDF export step. Missing dependency or wrong Node version -> inform user, continue workflow.
+
+### Pattern 6: Non-Blocking Workflow Steps
+
+**What:** New workflow steps that can fail without blocking milestone completion.
+**Why:** Buoc 3.5 (goal-backward verification) already follows this pattern -- issues are WARNINGS, not BLOCKS.
+
+Apply to: Buoc 4.5 (report generation) and 4.6 (PDF export) are both non-blocking.
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Breaking the Truths Table Parser for Old Plans
+### Anti-Pattern 1: Hardcoded Diagram Content in Templates
 
-**What goes wrong:** Updating `parseTruthsV11()` to ONLY handle 5 columns breaks parsing of existing 3-column PLAN.md files from v1.1 and v1.2.
+**What:** Putting actual Mermaid diagrams in the template file.
+**Why bad:** Every milestone has different features. Hardcoded diagrams would be wrong for any real project.
+**Instead:** Template provides scaffold/instructions with comments. AI generates actual diagram content based on CODE_REPORTs.
 
-**Prevention:** Two-pass regex strategy (try 5-column first, fall back to 3-column). Test with both old and new format plans.
+### Anti-Pattern 2: Requiring Puppeteer/Chromium for Core Flow
 
-### Anti-Pattern 2: Making Buoc 0 Truly Step Zero
+**What:** Making PDF export a required step in complete-milestone.
+**Why bad:** Breaks Node 16.7 compatibility. Adds 200+ MB Chromium download. Fails in CI without Chrome.
+**Instead:** Mermaid-in-Markdown is the primary output. PDF is optional Layer 2.
 
-**What goes wrong:** Adding a "Buoc 0" before Buoc 1 (task selection) means the AI tries to validate Truths before knowing which task it's working on.
+### Anti-Pattern 3: AI Rendering Diagrams to Images
 
-**Prevention:** Place it as Buoc 1.7 (after task selection, before context deep-read).
+**What:** Having the AI call mermaid-cli or generate SVG files directly.
+**Why bad:** AI cannot execute commands reliably across platforms. The converter pipeline would need to handle binary files.
+**Instead:** AI writes Mermaid text in Markdown. A separate script handles rendering.
 
-### Anti-Pattern 3: Persisting Logic Changes in Progress.md
+### Anti-Pattern 4: Modifying plan-checker for Report Validation
 
-**What goes wrong:** PROGRESS.md is ephemeral (deleted after commit). If Logic Changes are ONLY tracked here, they're lost.
+**What:** Adding CHECK-06 to validate MANAGEMENT_REPORT.md.
+**Why bad:** Plan checker runs BEFORE coding (at plan time). Report is generated AFTER coding (at complete-milestone time). Wrong lifecycle stage.
+**Instead:** Mermaid validator is a standalone library, called inline during Buoc 4.5.
 
-**Prevention:** Logic Changes in PROGRESS.md are session-level logging only. Persistent tracking goes into: (a) the bug report for fix-bug, (b) the verification report for write-code, (c) PLAN.md itself (the updated Truth).
+### Anti-Pattern 5: Creating a New Workflow File
 
-### Anti-Pattern 4: Coupling Checker to Workflow State
+**What:** Adding `workflows/generate-report.md` as a separate workflow.
+**Why bad:** Report generation is part of the complete-milestone lifecycle, not a standalone action. Adding a workflow would require a new command, new converter entries, etc.
+**Instead:** Extend existing complete-milestone workflow with new steps.
 
-**What goes wrong:** Making checkLogicCoverage depend on STATE.md or CURRENT_MILESTONE.md breaks the pure-function contract. The checker should only need planContent and tasksContent.
+## Integration Impact Analysis
 
-**Prevention:** Keep the same function signature. The CLI wrapper (bin/plan-check.js) handles file reading. The library function receives content strings only.
+### Converter Pipeline Propagation
+
+When `workflows/complete-milestone.md` and `commands/pd/complete-milestone.md` are modified:
+1. The converter pipeline (`bin/lib/converters/`) auto-inlines workflow content into commands
+2. All 5 platform outputs (Claude, Codex, Gemini, OpenCode, Copilot) are updated automatically
+3. 48 converter snapshots need regeneration (verified via `test/smoke-snapshot.test.js`)
+
+**No converter code changes needed** -- the existing pipeline handles this automatically.
+
+### Template/Reference Auto-Discovery
+
+New files in `templates/` and `references/` directories:
+- Are automatically included in `package.json` `"files"` array (directory-level inclusion)
+- Are automatically counted by `scripts/count-tokens.js`
+- Are automatically part of the install manifest (`bin/lib/manifest.js`)
+
+**No manifest/install code changes needed.**
+
+### Test Impact
+
+| Test File | Impact | Action |
+|-----------|--------|--------|
+| `smoke-snapshot.test.js` | Snapshots change due to workflow modification | Regenerate via `node test/generate-snapshots.js` |
+| `smoke-integrity.test.js` | May check file counts or directory structure | Verify no hardcoded counts |
+| `smoke-plan-checker.test.js` | No impact -- plan checker unchanged | None |
+| New: `smoke-mermaid-validator.test.js` | New test file | Write tests for mermaid-validator.js |
+| New: `smoke-report-generator.test.js` | New test file | Write tests for report-generator.js |
+
+## Scalability Considerations
+
+| Concern | Current (1 milestone) | At 10 milestones | At 50 milestones |
+|---------|----------------------|-------------------|-------------------|
+| Report generation time | < 1 min (AI generates text) | Same -- each milestone independent | Same |
+| PDF export time | 5-10 sec per report | 5-10 sec per report | 5-10 sec per report |
+| Disk space (Markdown) | ~5-10 KB per report | ~50-100 KB total | ~250-500 KB total |
+| Disk space (PDF) | ~200-500 KB per report | ~2-5 MB total | ~10-25 MB total |
+| Chromium download | ~200 MB (one-time) | Same | Same |
+
+No scalability concerns. Reports are per-milestone and independent.
+
+## Build Order (Dependency-Driven)
+
+```
+Phase 1: Foundation (no dependencies on other new components)
+  1.1 references/mermaid-rules.md  -- standalone reference
+  1.2 templates/management-report.md  -- standalone template (references mermaid-rules)
+  1.3 bin/lib/mermaid-validator.js + tests  -- standalone library
+
+Phase 2: Workflow Integration (depends on Phase 1 templates/references)
+  2.1 workflows/complete-milestone.md Buoc 4.5  -- references template + mermaid-rules
+  2.2 commands/pd/complete-milestone.md update  -- conditional_reading for new refs
+  2.3 Regenerate 48 converter snapshots
+
+Phase 3: PDF Export (depends on Phase 1 + Phase 2 for testing)
+  3.1 scripts/generate-report-pdf.js  -- standalone script
+  3.2 package.json optionalDependencies update
+  3.3 workflows/complete-milestone.md Buoc 4.6 (add after 4.5)
+
+Phase 4: Optional Helpers (independent, can defer)
+  4.1 bin/lib/report-generator.js + tests  -- data extraction helpers
+```
+
+**Ordering rationale:**
+- Phase 1 has zero dependencies -- all components are standalone
+- Phase 2 requires Phase 1 templates/references to exist (workflow references them)
+- Phase 3 requires Phase 2 so the PDF script can be tested end-to-end with a real MANAGEMENT_REPORT.md
+- Phase 4 is optional acceleration -- AI can generate reports without helpers
+
+## Node.js Version Compatibility Strategy
+
+```
+Node 16.7+ (project minimum):
+  [x] Mermaid text in Markdown (no dependencies)
+  [x] Mermaid syntax validation (pure string parsing)
+  [x] MANAGEMENT_REPORT.md generation
+  [ ] PDF export (gracefully unavailable)
+
+Node 18.19+ (optional upgrade):
+  [x] All of the above
+  [x] PDF export via md-mermaid-to-pdf
+  [x] mermaid-cli for standalone SVG/PNG generation
+```
+
+The strategy preserves backward compatibility while enabling PDF for users on modern Node.
+
+## File System Layout After v1.4
+
+```
+please-done/
+  bin/
+    lib/
+      mermaid-validator.js    [NEW]
+      report-generator.js     [NEW - optional]
+      plan-checker.js         (unchanged)
+      utils.js                (unchanged)
+    plan-check.js             (unchanged)
+    install.js                (unchanged)
+  scripts/
+    generate-report-pdf.js    [NEW]
+    count-tokens.js           (unchanged)
+  templates/
+    management-report.md      [NEW]
+    plan.md                   (unchanged)
+    tasks.md                  (unchanged)
+    ...                       (unchanged)
+  references/
+    mermaid-rules.md          [NEW]
+    conventions.md            (unchanged)
+    plan-checker.md           (unchanged)
+    ...                       (unchanged)
+  workflows/
+    complete-milestone.md     [MODIFIED - Buoc 4.5 + 4.6]
+    plan.md                   (unchanged)
+    ...                       (unchanged)
+  commands/pd/
+    complete-milestone.md     [MODIFIED - conditional_reading]
+    ...                       (unchanged)
+  test/
+    smoke-mermaid-validator.test.js  [NEW]
+    smoke-report-generator.test.js   [NEW - if Phase 4 built]
+    snapshots/                       [REGENERATED]
+  .planning/milestones/[version]/
+    MANAGEMENT_REPORT.md      [NEW - generated per milestone]
+    MANAGEMENT_REPORT.pdf     [NEW - optional, generated per milestone]
+    MILESTONE_COMPLETE.md     (unchanged)
+```
 
 ## Sources
 
-- `/Volumes/Code/Nodejs/please-done/templates/plan.md` -- Current Truths table format (line 139-151)
-- `/Volumes/Code/Nodejs/please-done/templates/tasks.md` -- Current task metadata format (line 17-52)
-- `/Volumes/Code/Nodejs/please-done/templates/verification-report.md` -- Current verification structure
-- `/Volumes/Code/Nodejs/please-done/templates/progress.md` -- Current progress tracking format
-- `/Volumes/Code/Nodejs/please-done/workflows/write-code.md` -- Full write-code workflow (403 lines)
-- `/Volumes/Code/Nodejs/please-done/workflows/fix-bug.md` -- Full fix-bug workflow (316 lines)
-- `/Volumes/Code/Nodejs/please-done/bin/lib/plan-checker.js` -- Plan checker library (1025 lines)
-- `/Volumes/Code/Nodejs/please-done/bin/plan-check.js` -- CLI wrapper (71 lines)
-- `/Volumes/Code/Nodejs/please-done/bin/lib/utils.js` -- Shared utilities (extractXmlSection, parseFrontmatter)
-- `/Volumes/Code/Nodejs/please-done/references/plan-checker.md` -- Check rules specification
-- `/Volumes/Code/Nodejs/please-done/references/verification-patterns.md` -- 4-level verification model
-- `/Volumes/Code/Nodejs/please-done/.planning/PROJECT.md` -- v1.3 milestone requirements
-
----
-*Architecture research for: Truth-Driven Development Integration into please-done v1.3*
-*Researched: 2026-03-23*
+- [mermaid-js/mermaid-cli GitHub](https://github.com/mermaid-js/mermaid-cli) -- CLI tool, Node API, Node >= 18.19 requirement
+- [@mermaid-js/mermaid-cli npm](https://www.npmjs.com/package/@mermaid-js/mermaid-cli) -- Package details, version info
+- [md-mermaid-to-pdf npm](https://www.npmjs.com/package/md-mermaid-to-pdf) -- Markdown+Mermaid to PDF conversion
+- [merval - zero-dependency validator](https://github.com/aj-archipelago/merval) -- Validation without Puppeteer pattern
+- [Mermaid Flowchart Syntax](https://mermaid.ai/open-source/syntax/flowchart.html) -- Official syntax reference
+- [Puppeteer System Requirements](https://pptr.dev/guides/system-requirements) -- Node >= 18 requirement
+- [mermaid.ink](https://mermaid.ink/) -- Online rendering API (alternative for PDF)
+- [Mermaid.js Official](https://mermaid.js.org/) -- Core library documentation
+- Codebase analysis: all files in workflows/, templates/, bin/lib/, references/, commands/pd/, test/
