@@ -65,7 +65,7 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 ### v1.4 Mermaid Diagrams (In Progress)
 
 - [x] Phase 21: Mermaid Foundation (2/2 plans) — completed 2026-03-24
-- [ ] Phase 22: Diagram Generation (2 plans)
+- [x] Phase 22: Diagram Generation (2 plans) (completed 2026-03-24)
   **Goal:** AI tu dong ve Business Logic Flowchart va Architecture Diagram tu milestone data
   **Requirements:** DIAG-01, DIAG-02
   **Plans:**
@@ -105,6 +105,6 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 | 19. Knowledge Correction | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 21. Mermaid Foundation | v1.4 | 2/2 | Complete    | 2026-03-24 |
-| 22. Diagram Generation | v1.4 | 1/2 | In Progress|  |
+| 22. Diagram Generation | v1.4 | 1/2 | Complete    | 2026-03-24 |
 | 23. PDF Export | v1.4 | 0/0 | Not started | - |
 | 24. Workflow Integration | v1.4 | 0/0 | Not started | - |
