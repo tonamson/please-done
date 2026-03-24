@@ -74,7 +74,9 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 - [ ] Phase 23: PDF Export
   **Goal:** Script generate-pdf-report.js xuat Markdown+Mermaid sang PDF, graceful fallback khi thieu deps
   **Requirements:** PDF-01, PDF-02
-  **Gap Closure:** Closes orphaned requirements from v1.4 audit
+  **Plans:** 2 plans
+  - [ ] 23-01-PLAN.md — TDD pdf-renderer.js pure library (markdownToHtml, buildHtml, canUsePuppeteer, fallback)
+  - [ ] 23-02-PLAN.md — CLI wrapper generate-pdf-report.js + generatePdf Puppeteer function
 - [ ] Phase 24: Workflow Integration
   **Goal:** complete-milestone tu dong goi ve so do + tao bao cao, non-blocking neu PDF loi
   **Requirements:** INTG-01, INTG-02
@@ -106,5 +108,5 @@ Full details: `.planning/milestones/v1.3-ROADMAP.md`
 | 20. Logic Audit | v1.3 | 1/1 | Complete    | 2026-03-24 |
 | 21. Mermaid Foundation | v1.4 | 2/2 | Complete    | 2026-03-24 |
 | 22. Diagram Generation | v1.4 | 1/2 | Complete    | 2026-03-24 |
-| 23. PDF Export | v1.4 | 0/0 | Not started | - |
+| 23. PDF Export | v1.4 | 1/2 | In Progress | - |
 | 24. Workflow Integration | v1.4 | 0/0 | Not started | - |

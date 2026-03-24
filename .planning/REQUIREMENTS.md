@@ -23,8 +23,8 @@ Requirements for visual business logic reporting. Each maps to roadmap phases.
 
 ### PDF Export
 
-- [ ] **PDF-01**: Script generate-pdf-report.js xuat Markdown+Mermaid sang PDF voi hinh anh ro net
-- [ ] **PDF-02**: Script hoat dong graceful khi khong co Puppeteer/Node 18+ (fallback sang Markdown-only)
+- [x] **PDF-01**: Script generate-pdf-report.js xuat Markdown+Mermaid sang PDF voi hinh anh ro net
+- [x] **PDF-02**: Script hoat dong graceful khi khong co Puppeteer/Node 18+ (fallback sang Markdown-only)
 
 ### Workflow Integration
 
@@ -69,8 +69,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DIAG-01 | Phase 22 | Complete |
 | DIAG-02 | Phase 22 | Complete |
 | REPT-01 | Phase 21 | Complete |
-| PDF-01 | Phase 23 | Pending |
-| PDF-02 | Phase 23 | Pending |
+| PDF-01 | Phase 23 | Complete |
+| PDF-02 | Phase 23 | Complete |
 | INTG-01 | Phase 24 | Pending |
 | INTG-02 | Phase 24 | Pending |
 
