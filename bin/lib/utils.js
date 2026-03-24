@@ -413,6 +413,7 @@ module.exports = {
   log,
   parseFrontmatter,
   buildFrontmatter,
+  assembleMd,
   fileHash,
   listSkillFiles,
   commandExists,
