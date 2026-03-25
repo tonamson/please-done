@@ -1,7 +1,7 @@
 /**
  * Research Store Module Tests
- * Kiem tra createEntry, parseEntry, nextId, formatFilename, CONFIDENCE_LEVELS.
- * Pure functions — khong doc file, khong side effects.
+ * Kiem tra createEntry, parseEntry, validateConfidence, generateFilename.
+ * Pure function tests — khong can file system.
  */
 
 'use strict';
@@ -12,289 +12,425 @@ const assert = require('node:assert/strict');
 // Module under test
 const {
   CONFIDENCE_LEVELS,
+  CONFIDENCE_CRITERIA,
+  REQUIRED_FIELDS,
+  SOURCE_TYPES,
   createEntry,
   parseEntry,
-  nextId,
-  formatFilename,
+  validateConfidence,
+  generateFilename,
 } = require('../bin/lib/research-store');
 
-// ─── CONFIDENCE_LEVELS ─────────────────────────────────
+// ─── Constants ──────────────────────────────────────────────
 
-describe('CONFIDENCE_LEVELS', () => {
-  it('co 3 bac: HIGH, MEDIUM, LOW', () => {
-    assert.ok(CONFIDENCE_LEVELS.HIGH);
-    assert.ok(CONFIDENCE_LEVELS.MEDIUM);
-    assert.ok(CONFIDENCE_LEVELS.LOW);
+describe('Constants', () => {
+  it('CONFIDENCE_LEVELS co 3 bac: HIGH, MEDIUM, LOW', () => {
+    assert.equal(CONFIDENCE_LEVELS.HIGH, 'HIGH');
+    assert.equal(CONFIDENCE_LEVELS.MEDIUM, 'MEDIUM');
+    assert.equal(CONFIDENCE_LEVELS.LOW, 'LOW');
     assert.equal(Object.keys(CONFIDENCE_LEVELS).length, 3);
   });
 
-  it('moi bac co label va description', () => {
-    for (const level of Object.values(CONFIDENCE_LEVELS)) {
-      assert.ok(level.label, 'thieu label');
-      assert.ok(level.description, 'thieu description');
-    }
+  it('CONFIDENCE_CRITERIA co mo ta cho tung bac', () => {
+    assert.ok(CONFIDENCE_CRITERIA.HIGH);
+    assert.ok(CONFIDENCE_CRITERIA.MEDIUM);
+    assert.ok(CONFIDENCE_CRITERIA.LOW);
   });
 
-  it('labels khop voi keys', () => {
-    assert.equal(CONFIDENCE_LEVELS.HIGH.label, 'HIGH');
-    assert.equal(CONFIDENCE_LEVELS.MEDIUM.label, 'MEDIUM');
-    assert.equal(CONFIDENCE_LEVELS.LOW.label, 'LOW');
-  });
-});
-
-// ─── createEntry ────────────────────────────────────────
-
-describe('createEntry — internal type', () => {
-  const result = createEntry({
-    type: 'internal',
-    topic: 'Auth flow analysis',
-    agent: 'evidence-collector',
-    confidence: 'HIGH',
-    summary: 'Auth dung JWT voi refresh rotation',
-    claims: [
-      { text: 'JWT tokens co expiry 15 phut', confidence: 'HIGH', source: 'src/auth/jwt.ts:42' },
-      { text: 'Refresh token luu trong httpOnly cookie', confidence: 'MEDIUM', source: 'src/auth/cookie.ts:18' },
-    ],
-    created: '2026-03-25T10:00:00.000Z',
+  it('REQUIRED_FIELDS gom 5 truong bat buoc', () => {
+    assert.deepStrictEqual(REQUIRED_FIELDS, ['agent', 'created', 'source', 'topic', 'confidence']);
   });
 
-  it('tra ve filename dang INT-*.md', () => {
-    assert.match(result.filename, /^INT-auth-flow-analysis\.md$/);
-  });
-
-  it('content co YAML frontmatter day du', () => {
-    assert.match(result.content, /^---\n/);
-    assert.match(result.content, /agent: evidence-collector/);
-    assert.match(result.content, /created: "2026-03-25T10:00:00.000Z"/);
-    assert.match(result.content, /source: internal/);
-    assert.match(result.content, /topic: "Auth flow analysis"/);
-    assert.match(result.content, /confidence: HIGH/);
-    assert.match(result.content, /\n---\n/);
-  });
-
-  it('co section ## Tong ket', () => {
-    assert.match(result.content, /## Tong ket/);
-    assert.match(result.content, /Auth dung JWT voi refresh rotation/);
-  });
-
-  it('co section ## Bang chung voi claims', () => {
-    assert.match(result.content, /## Bang chung/);
-    assert.match(result.content, /\*\*\[HIGH\]\*\* JWT tokens co expiry 15 phut/);
-    assert.match(result.content, /\*\*\[MEDIUM\]\*\* Refresh token luu trong httpOnly cookie/);
-  });
-
-  it('claims co inline confidence va source', () => {
-    assert.match(result.content, /- \*\*\[HIGH\]\*\*/);
-    assert.match(result.content, /Nguon: src\/auth\/jwt\.ts:42/);
+  it('SOURCE_TYPES gom internal va external', () => {
+    assert.deepStrictEqual(SOURCE_TYPES, ['internal', 'external']);
   });
 });
 
-describe('createEntry — external type', () => {
-  const result = createEntry({
-    type: 'external',
-    topic: 'NestJS Guards best practices',
-    agent: 'evidence-collector',
-    confidence: 'MEDIUM',
-    claims: [],
-    created: '2026-03-25T12:00:00.000Z',
+// ─── validateConfidence ─────────────────────────────────────
+
+describe('validateConfidence', () => {
+  it('HIGH tra ve true', () => {
+    assert.equal(validateConfidence('HIGH'), true);
   });
 
-  it('tra ve filename dang RES-001-*.md', () => {
-    assert.match(result.filename, /^RES-001-nestjs-guards-best-practices\.md$/);
+  it('MEDIUM tra ve true', () => {
+    assert.equal(validateConfidence('MEDIUM'), true);
   });
 
-  it('frontmatter co source: external', () => {
-    assert.match(result.content, /source: external/);
+  it('LOW tra ve true', () => {
+    assert.equal(validateConfidence('LOW'), true);
   });
 
-  it('bang chung rong hien placeholder', () => {
-    assert.match(result.content, /\(chua co bang chung\)/);
+  it('lowercase "high" van hop le (case insensitive)', () => {
+    assert.equal(validateConfidence('high'), true);
+  });
+
+  it('mixed case "Medium" van hop le', () => {
+    assert.equal(validateConfidence('Medium'), true);
+  });
+
+  it('gia tri khac "INVALID" tra ve false', () => {
+    assert.equal(validateConfidence('INVALID'), false);
+  });
+
+  it('empty string tra ve false', () => {
+    assert.equal(validateConfidence(''), false);
+  });
+
+  it('null tra ve false', () => {
+    assert.equal(validateConfidence(null), false);
+  });
+
+  it('undefined tra ve false', () => {
+    assert.equal(validateConfidence(undefined), false);
+  });
+
+  it('number tra ve false', () => {
+    assert.equal(validateConfidence(42), false);
+  });
+});
+
+// ─── generateFilename ───────────────────────────────────────
+
+describe('generateFilename — internal', () => {
+  it('internal tra ve slug-based name tu topic', () => {
+    const result = generateFilename({ source: 'internal', topic: 'NestJS Auth Flow' });
+    assert.equal(result, 'nestjs-auth-flow.md');
+  });
+
+  it('internal voi custom slug', () => {
+    const result = generateFilename({ source: 'internal', topic: 'Anything', slug: 'custom-name' });
+    assert.equal(result, 'custom-name.md');
+  });
+
+  it('internal loai bo ky tu dac biet trong topic', () => {
+    const result = generateFilename({ source: 'internal', topic: 'API v2.0 (beta)' });
+    assert.equal(result, 'api-v20-beta.md');
+  });
+});
+
+describe('generateFilename — external', () => {
+  it('external tra ve RES-[ID]-[SLUG].md', () => {
+    const result = generateFilename({ source: 'external', topic: 'React Hooks', id: 1 });
+    assert.equal(result, 'RES-001-react-hooks.md');
+  });
+
+  it('external voi id lon zero-padded', () => {
+    const result = generateFilename({ source: 'external', topic: 'Vue Router', id: 42 });
+    assert.equal(result, 'RES-042-vue-router.md');
+  });
+
+  it('external thieu id throw error', () => {
+    assert.throws(
+      () => generateFilename({ source: 'external', topic: 'Test' }),
+      /external source yeu cau id/
+    );
+  });
+
+  it('external voi id=0 throw error', () => {
+    assert.throws(
+      () => generateFilename({ source: 'external', topic: 'Test', id: 0 }),
+      /external source yeu cau id/
+    );
+  });
+
+  it('external voi id am throw error', () => {
+    assert.throws(
+      () => generateFilename({ source: 'external', topic: 'Test', id: -1 }),
+      /external source yeu cau id/
+    );
+  });
+});
+
+describe('generateFilename — validation', () => {
+  it('thieu source throw error', () => {
+    assert.throws(
+      () => generateFilename({ topic: 'Test' }),
+      /thieu tham so bat buoc/
+    );
+  });
+
+  it('thieu topic throw error', () => {
+    assert.throws(
+      () => generateFilename({ source: 'internal' }),
+      /thieu tham so bat buoc/
+    );
+  });
+
+  it('source khong hop le throw error', () => {
+    assert.throws(
+      () => generateFilename({ source: 'invalid', topic: 'Test' }),
+      /source khong hop le/
+    );
+  });
+
+  it('null options throw error', () => {
+    assert.throws(() => generateFilename(null), /thieu tham so bat buoc/);
+  });
+});
+
+// ─── createEntry ────────────────────────────────────────────
+
+describe('createEntry — internal source', () => {
+  it('tao content voi frontmatter day du', () => {
+    const result = createEntry({
+      agent: 'evidence-collector',
+      source: 'internal',
+      topic: 'Auth Module Analysis',
+      confidence: 'HIGH',
+      created: '2026-03-25T10:00:00.000Z',
+    });
+
+    assert.ok(result.content.includes('agent: evidence-collector'));
+    assert.ok(result.content.includes('source: internal'));
+    assert.ok(result.content.includes('topic: Auth Module Analysis'));
+    assert.ok(result.content.includes('confidence: HIGH'));
+    assert.ok(result.content.includes('created: 2026-03-25T10:00:00.000Z'));
+    assert.equal(result.filename, 'auth-module-analysis.md');
+  });
+
+  it('body mac dinh co heading va section Bang chung', () => {
+    const result = createEntry({
+      agent: 'test-agent',
+      source: 'internal',
+      topic: 'Test Topic',
+      confidence: 'MEDIUM',
+      created: '2026-03-25T10:00:00.000Z',
+    });
+
+    assert.ok(result.content.includes('# Test Topic'));
+    assert.ok(result.content.includes('## Bang chung'));
+  });
+
+  it('custom body duoc su dung thay vi mac dinh', () => {
+    const result = createEntry({
+      agent: 'test-agent',
+      source: 'internal',
+      topic: 'Test',
+      confidence: 'LOW',
+      body: '# Custom Content\n\nSome analysis here.\n',
+      created: '2026-03-25T10:00:00.000Z',
+    });
+
+    assert.ok(result.content.includes('# Custom Content'));
+    assert.ok(result.content.includes('Some analysis here.'));
+    assert.ok(!result.content.includes('## Bang chung'));
+  });
+});
+
+describe('createEntry — external source', () => {
+  it('tao file voi ten RES-[ID]-[SLUG].md', () => {
+    const result = createEntry({
+      agent: 'evidence-collector',
+      source: 'external',
+      topic: 'React Query Docs',
+      confidence: 'HIGH',
+      id: 5,
+      created: '2026-03-25T10:00:00.000Z',
+    });
+
+    assert.equal(result.filename, 'RES-005-react-query-docs.md');
+    assert.ok(result.content.includes('source: external'));
   });
 });
 
 describe('createEntry — validation', () => {
-  it('throw khi type khong hop le', () => {
+  it('thieu agent throw error', () => {
     assert.throws(
-      () => createEntry({ type: 'unknown', topic: 'x', agent: 'a', confidence: 'HIGH' }),
-      /type phai la/
+      () => createEntry({ source: 'internal', topic: 'Test', confidence: 'HIGH' }),
+      /thieu truong bat buoc: agent/
     );
   });
 
-  it('throw khi confidence khong hop le', () => {
+  it('thieu source throw error', () => {
     assert.throws(
-      () => createEntry({ type: 'internal', topic: 'x', agent: 'a', confidence: 'SUPER' }),
-      /confidence phai la/
+      () => createEntry({ agent: 'test', topic: 'Test', confidence: 'HIGH' }),
+      /thieu truong bat buoc: source/
     );
   });
 
-  it('throw khi topic rong', () => {
+  it('thieu topic throw error', () => {
     assert.throws(
-      () => createEntry({ type: 'internal', topic: '', agent: 'a', confidence: 'HIGH' }),
-      /topic bat buoc/
+      () => createEntry({ agent: 'test', source: 'internal', confidence: 'HIGH' }),
+      /thieu truong bat buoc: topic/
     );
   });
 
-  it('throw khi agent rong', () => {
+  it('thieu confidence throw error', () => {
     assert.throws(
-      () => createEntry({ type: 'internal', topic: 'x', agent: '', confidence: 'HIGH' }),
-      /agent bat buoc/
+      () => createEntry({ agent: 'test', source: 'internal', topic: 'Test' }),
+      /thieu truong bat buoc: confidence/
     );
   });
 
-  it('claim voi confidence khong hop le duoc default ve LOW', () => {
-    const result = createEntry({
-      type: 'internal',
-      topic: 'test',
-      agent: 'test-agent',
-      confidence: 'HIGH',
-      claims: [{ text: 'claim nao do', confidence: 'INVALID', source: '' }],
-      created: '2026-03-25T10:00:00.000Z',
-    });
-    assert.match(result.content, /\*\*\[LOW\]\*\*/);
+  it('confidence khong hop le throw error', () => {
+    assert.throws(
+      () => createEntry({ agent: 'test', source: 'internal', topic: 'Test', confidence: 'INVALID' }),
+      /confidence khong hop le/
+    );
+  });
+
+  it('source khong hop le throw error', () => {
+    assert.throws(
+      () => createEntry({ agent: 'test', source: 'unknown', topic: 'Test', confidence: 'HIGH' }),
+      /source khong hop le/
+    );
+  });
+
+  it('null options throw error', () => {
+    assert.throws(() => createEntry(null), /thieu tham so options/);
   });
 });
 
-// ─── parseEntry ─────────────────────────────────────────
+describe('createEntry — auto-generate created timestamp', () => {
+  it('neu khong truyen created, tu dong tao ISO timestamp', () => {
+    const result = createEntry({
+      agent: 'test',
+      source: 'internal',
+      topic: 'Auto Time',
+      confidence: 'MEDIUM',
+    });
 
-describe('parseEntry — frontmatter', () => {
-  const content = `---
+    assert.ok(result.content.includes('created:'));
+    // ISO format check
+    const match = result.content.match(/created: (.+)/);
+    assert.ok(match);
+    const date = new Date(match[1]);
+    assert.ok(!isNaN(date.getTime()));
+  });
+});
+
+// ─── parseEntry ─────────────────────────────────────────────
+
+describe('parseEntry — valid content', () => {
+  it('parse frontmatter day du tra ve valid=true', () => {
+    const content = `---
 agent: evidence-collector
-created: "2026-03-25T10:00:00.000Z"
+created: 2026-03-25T10:00:00.000Z
 source: internal
-topic: "Auth flow"
+topic: Auth Analysis
 confidence: HIGH
 ---
-
-# Auth flow
-
-## Tong ket
-
-Auth dung JWT.
+# Auth Analysis
 
 ## Bang chung
 
-- **[HIGH]** JWT co expiry 15 phut
-  - Nguon: src/auth/jwt.ts:42
-- **[MEDIUM]** Refresh token httpOnly
-  - Nguon: src/auth/cookie.ts:18
-`;
-
-  const result = parseEntry(content);
-
-  it('parse frontmatter chinh xac', () => {
-    assert.equal(result.frontmatter.agent, 'evidence-collector');
-    assert.equal(result.frontmatter.source, 'internal');
-    assert.equal(result.frontmatter.topic, 'Auth flow');
-    assert.equal(result.frontmatter.confidence, 'HIGH');
-  });
-
-  it('parse claims tu Bang chung', () => {
-    assert.equal(result.claims.length, 2);
-    assert.equal(result.claims[0].confidence, 'HIGH');
-    assert.match(result.claims[0].text, /JWT co expiry/);
-    assert.equal(result.claims[0].source, 'src/auth/jwt.ts:42');
-  });
-
-  it('claim thu 2 co confidence MEDIUM', () => {
-    assert.equal(result.claims[1].confidence, 'MEDIUM');
-    assert.match(result.claims[1].text, /Refresh token/);
-    assert.equal(result.claims[1].source, 'src/auth/cookie.ts:18');
-  });
-
-  it('parse sections', () => {
-    assert.ok(result.sections['Tong ket']);
-    assert.ok(result.sections['Bang chung']);
-  });
-});
-
-describe('parseEntry — empty content', () => {
-  it('empty string tra ve defaults', () => {
-    const result = parseEntry('');
-    assert.deepStrictEqual(result.frontmatter, {});
-    assert.deepStrictEqual(result.claims, []);
-    assert.deepStrictEqual(result.sections, {});
-  });
-
-  it('null tra ve defaults', () => {
-    const result = parseEntry(null);
-    assert.deepStrictEqual(result.frontmatter, {});
-    assert.deepStrictEqual(result.claims, []);
-  });
-
-  it('undefined tra ve defaults', () => {
-    const result = parseEntry(undefined);
-    assert.deepStrictEqual(result.frontmatter, {});
-  });
-});
-
-describe('parseEntry — no claims section', () => {
-  it('file khong co Bang chung tra ve claims rong', () => {
-    const content = `---
-agent: test
-source: internal
-topic: "test"
-confidence: LOW
----
-
-# Test
-
-## Tong ket
-
-Chi co tong ket.
+Source code analysis shows...
 `;
     const result = parseEntry(content);
-    assert.deepStrictEqual(result.claims, []);
-    assert.ok(result.sections['Tong ket']);
+    assert.equal(result.valid, true);
+    assert.deepStrictEqual(result.errors, []);
+    assert.equal(result.frontmatter.agent, 'evidence-collector');
+    assert.equal(result.frontmatter.source, 'internal');
+    assert.equal(result.frontmatter.topic, 'Auth Analysis');
+    assert.equal(result.frontmatter.confidence, 'HIGH');
+    assert.ok(result.body.includes('# Auth Analysis'));
+  });
+
+  it('external source parse dung', () => {
+    const content = `---
+agent: evidence-collector
+created: 2026-03-25T10:00:00.000Z
+source: external
+topic: React Query
+confidence: MEDIUM
+---
+# React Query Research
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, true);
+    assert.equal(result.frontmatter.source, 'external');
   });
 });
 
-// ─── nextId ─────────────────────────────────────────────
-
-describe('nextId', () => {
-  it('tra ve 001 khi khong co files', () => {
-    assert.equal(nextId([]), '001');
+describe('parseEntry — missing fields', () => {
+  it('thieu confidence: valid=false voi error', () => {
+    const content = `---
+agent: test
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Test
+---
+# Test
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('confidence')));
   });
 
-  it('tra ve 001 khi null', () => {
-    assert.equal(nextId(null), '001');
+  it('thieu agent: valid=false', () => {
+    const content = `---
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Test
+confidence: HIGH
+---
+# Test
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('agent')));
   });
 
-  it('tra ve ID tiep theo', () => {
-    assert.equal(nextId(['RES-001-topic-a.md', 'RES-003-topic-b.md']), '004');
-  });
-
-  it('bo qua files khong match pattern', () => {
-    assert.equal(nextId(['INT-some-topic.md', 'README.md', 'RES-002-x.md']), '003');
-  });
-
-  it('xu ly ID lon', () => {
-    assert.equal(nextId(['RES-099-x.md']), '100');
+  it('thieu nhieu truong: errors liet ke tat ca', () => {
+    const content = `---
+created: 2026-03-25T10:00:00.000Z
+---
+# Test
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.length >= 3); // agent, source, topic, confidence
   });
 });
 
-// ─── formatFilename ─────────────────────────────────────
-
-describe('formatFilename', () => {
-  it('internal: INT-[slug].md', () => {
-    assert.equal(formatFilename({ type: 'internal', slug: 'auth-flow' }), 'INT-auth-flow.md');
+describe('parseEntry — invalid values', () => {
+  it('confidence khong hop le: valid=false', () => {
+    const content = `---
+agent: test
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Test
+confidence: VERY_HIGH
+---
+# Test
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('confidence khong hop le')));
   });
 
-  it('external: RES-[id]-[slug].md', () => {
-    assert.equal(
-      formatFilename({ type: 'external', id: '003', slug: 'nestjs-guards' }),
-      'RES-003-nestjs-guards.md'
-    );
+  it('source khong hop le: valid=false', () => {
+    const content = `---
+agent: test
+created: 2026-03-25T10:00:00.000Z
+source: unknown
+topic: Test
+confidence: HIGH
+---
+# Test
+`;
+    const result = parseEntry(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.some(e => e.includes('source khong hop le')));
+  });
+});
+
+describe('parseEntry — edge cases', () => {
+  it('null content tra ve valid=false', () => {
+    const result = parseEntry(null);
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.length > 0);
   });
 
-  it('slug duoc normalize (bo dau, lowercase)', () => {
-    const name = formatFilename({ type: 'internal', slug: 'Phân Tích Auth' });
-    assert.equal(name, 'INT-phan-tich-auth.md');
+  it('empty string tra ve valid=false', () => {
+    const result = parseEntry('');
+    assert.equal(result.valid, false);
   });
 
-  it('external throw khi thieu id', () => {
-    assert.throws(
-      () => formatFilename({ type: 'external', slug: 'test' }),
-      /id bat buoc/
-    );
+  it('content khong co frontmatter tra ve valid=false', () => {
+    const result = parseEntry('# Just a heading\n\nSome content.');
+    assert.equal(result.valid, false);
+    assert.ok(result.errors.length >= 5); // all required fields missing
   });
 });

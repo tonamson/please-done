@@ -1,261 +1,234 @@
 /**
- * Research Store — Pure functions cho luu tru nghien cuu phan tach.
+ * Research Store Module — Tao va parse research files.
  *
- * Cung cap: createEntry, parseEntry, nextId, formatFilename, CONFIDENCE_LEVELS.
- * KHONG doc file — tat ca content truyen qua tham so.
+ * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
+ * Content truyen qua tham so, return structured object.
+ *
+ * - createEntry: tao markdown content voi frontmatter chuan
+ * - parseEntry: parse research file content, validate required fields
+ * - validateConfidence: kiem tra confidence hop le (HIGH/MEDIUM/LOW)
+ * - generateFilename: tao ten file theo source type (internal/external)
  */
 
 'use strict';
 
-// ─── Constants ──────────────────────────────────────────
+const { parseFrontmatter, buildFrontmatter } = require('./utils');
+
+// ─── Constants ────────────────────────────────────────────
 
 /**
- * 3 bac confidence — rule-based, KHONG dung LLM tu danh gia.
+ * 3 bac confidence chuan cho research files.
+ * - HIGH: Official docs, codebase analysis, verified sources
+ * - MEDIUM: Nhieu nguon dong y, community consensus
+ * - LOW: 1 nguon duy nhat, khong xac minh duoc
  */
 const CONFIDENCE_LEVELS = {
-  HIGH: {
-    label: 'HIGH',
-    description: 'Official docs, codebase verification, hoac nhieu nguon doc lap dong y',
-  },
-  MEDIUM: {
-    label: 'MEDIUM',
-    description: 'Nhieu nguon dong y nhung khong co official docs truc tiep',
-  },
-  LOW: {
-    label: 'LOW',
-    description: '1 nguon duy nhat, khong xac minh duoc, hoac thong tin cu/khong ro rang',
-  },
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW',
 };
 
-const VALID_CONFIDENCE = ['HIGH', 'MEDIUM', 'LOW'];
-const VALID_TYPES = ['internal', 'external'];
-
-// ─── createEntry ────────────────────────────────────────
+/**
+ * Mo ta tieu chi cho tung bac confidence.
+ */
+const CONFIDENCE_CRITERIA = {
+  HIGH: 'Official docs, codebase, verified sources',
+  MEDIUM: 'Nhieu nguon dong y, community consensus',
+  LOW: '1 nguon duy nhat hoac khong xac minh duoc',
+};
 
 /**
- * Tao noi dung markdown research file voi YAML frontmatter chuan.
- *
- * @param {object} opts
- * @param {'internal'|'external'} opts.type - Loai nghien cuu
- * @param {string} opts.topic - Chu de nghien cuu
- * @param {string} opts.agent - Ten agent tao file (vd: 'evidence-collector')
- * @param {'HIGH'|'MEDIUM'|'LOW'} opts.confidence - Confidence cap file
- * @param {Array<{text: string, confidence: string, source: string}>} [opts.claims] - Danh sach claims
- * @param {string} [opts.summary] - Tong ket ngan gon
- * @param {string} [opts.created] - ISO-8601 timestamp (mac dinh: now)
- * @returns {{ filename: string, content: string }}
+ * Danh sach truong bat buoc trong frontmatter research file.
+ * Theo AUDIT-01: agent, created, source, topic, confidence.
  */
-function createEntry({ type, topic, agent, confidence, claims = [], summary = '', created = null }) {
-  // Validate inputs
-  if (!VALID_TYPES.includes(type)) {
-    throw new Error(`type phai la 'internal' hoac 'external', nhan duoc: '${type}'`);
+const REQUIRED_FIELDS = ['agent', 'created', 'source', 'topic', 'confidence'];
+
+/**
+ * Source types hop le.
+ */
+const SOURCE_TYPES = ['internal', 'external'];
+
+// ─── validateConfidence ────────────────────────────────────
+
+/**
+ * Kiem tra confidence level co hop le khong.
+ *
+ * @param {string} level - Confidence level can kiem tra
+ * @returns {boolean} true neu hop le (HIGH/MEDIUM/LOW)
+ */
+function validateConfidence(level) {
+  if (level == null || typeof level !== 'string') return false;
+  return Object.values(CONFIDENCE_LEVELS).includes(level.toUpperCase());
+}
+
+// ─── generateFilename ──────────────────────────────────────
+
+/**
+ * Tao ten file research theo source type.
+ *
+ * - internal: `[slug].md` (slugified tu topic)
+ * - external: `RES-[ID]-[SLUG].md` (id bat buoc)
+ *
+ * @param {object} options
+ * @param {string} options.source - 'internal' hoac 'external'
+ * @param {string} options.topic - Chu de research
+ * @param {number} [options.id] - So thu tu (bat buoc cho external)
+ * @param {string} [options.slug] - Custom slug (neu khong co, tu dong tao tu topic)
+ * @returns {string} Ten file
+ * @throws {Error} Khi thieu tham so bat buoc
+ */
+function generateFilename(options) {
+  if (!options || !options.source || !options.topic) {
+    throw new Error('thieu tham so bat buoc: source, topic');
   }
-  if (!VALID_CONFIDENCE.includes(confidence)) {
-    throw new Error(`confidence phai la HIGH/MEDIUM/LOW, nhan duoc: '${confidence}'`);
+
+  const { source, topic, id, slug } = options;
+
+  if (!SOURCE_TYPES.includes(source)) {
+    throw new Error(`source khong hop le: ${source}. Chi chap nhan: ${SOURCE_TYPES.join(', ')}`);
+  }
+
+  // Tao slug tu topic hoac dung custom slug
+  const finalSlug = slug || topic
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 50);
+
+  if (source === 'external') {
+    if (id == null || typeof id !== 'number' || id < 1) {
+      throw new Error('external source yeu cau id (so nguyen duong)');
+    }
+    const paddedId = String(id).padStart(3, '0');
+    return `RES-${paddedId}-${finalSlug}.md`;
+  }
+
+  // internal
+  return `${finalSlug}.md`;
+}
+
+// ─── createEntry ───────────────────────────────────────────
+
+/**
+ * Tao markdown content cho research file voi frontmatter chuan.
+ *
+ * @param {object} options
+ * @param {string} options.agent - Ten agent tao file (vd: 'evidence-collector')
+ * @param {string} options.source - 'internal' hoac 'external'
+ * @param {string} options.topic - Chu de research
+ * @param {string} options.confidence - HIGH/MEDIUM/LOW
+ * @param {string} [options.body] - Noi dung body (mac dinh rong)
+ * @param {number} [options.id] - So thu tu (bat buoc cho external)
+ * @param {string} [options.slug] - Custom slug cho filename
+ * @param {string} [options.created] - ISO-8601 timestamp (mac dinh: now)
+ * @returns {{ content: string, filename: string }}
+ * @throws {Error} Khi thieu truong bat buoc hoac gia tri khong hop le
+ */
+function createEntry(options) {
+  if (!options) {
+    throw new Error('thieu tham so options');
+  }
+
+  const { agent, source, topic, confidence, body, id, slug, created } = options;
+
+  // Validate required fields
+  if (!agent || typeof agent !== 'string') {
+    throw new Error('thieu truong bat buoc: agent');
+  }
+  if (!source || typeof source !== 'string') {
+    throw new Error('thieu truong bat buoc: source');
+  }
+  if (!SOURCE_TYPES.includes(source)) {
+    throw new Error(`source khong hop le: ${source}. Chi chap nhan: ${SOURCE_TYPES.join(', ')}`);
   }
   if (!topic || typeof topic !== 'string') {
-    throw new Error('topic bat buoc va phai la string');
+    throw new Error('thieu truong bat buoc: topic');
   }
-  if (!agent || typeof agent !== 'string') {
-    throw new Error('agent bat buoc va phai la string');
+  if (!confidence || typeof confidence !== 'string') {
+    throw new Error('thieu truong bat buoc: confidence');
   }
-
-  const timestamp = created || new Date().toISOString();
-  const slug = slugify(topic);
-
-  // Build YAML frontmatter
-  const frontmatter = [
-    '---',
-    `agent: ${agent}`,
-    `created: "${timestamp}"`,
-    `source: ${type}`,
-    `topic: "${topic}"`,
-    `confidence: ${confidence}`,
-    '---',
-  ].join('\n');
-
-  // Build body
-  const lines = [frontmatter, '', `# ${topic}`, ''];
-
-  // Summary section
-  lines.push('## Tong ket', '');
-  lines.push(summary || '(chua co tong ket)', '');
-
-  // Evidence section with inline confidence per claim
-  lines.push('## Bang chung', '');
-  if (claims.length === 0) {
-    lines.push('(chua co bang chung)', '');
-  } else {
-    for (const claim of claims) {
-      const claimConf = VALID_CONFIDENCE.includes(claim.confidence) ? claim.confidence : 'LOW';
-      lines.push(`- **[${claimConf}]** ${claim.text}`);
-      if (claim.source) {
-        lines.push(`  - Nguon: ${claim.source}`);
-      }
-    }
-    lines.push('');
+  if (!validateConfidence(confidence)) {
+    throw new Error(`confidence khong hop le: ${confidence}. Chi chap nhan: HIGH, MEDIUM, LOW`);
   }
 
-  const content = lines.join('\n');
-
-  // Generate filename
-  const filename = type === 'external'
-    ? `RES-001-${slug}.md`
-    : `INT-${slug}.md`;
-
-  return { filename, content };
-}
-
-// ─── parseEntry ─────────────────────────────────────────
-
-/**
- * Parse markdown research file thanh structured object.
- *
- * @param {string} content - Noi dung day du cua research file (bao gom frontmatter)
- * @returns {{ frontmatter: object, claims: Array<{text: string, confidence: string, source: string}>, sections: object }}
- */
-function parseEntry(content) {
-  const result = {
-    frontmatter: {},
-    claims: [],
-    sections: {},
+  // Build frontmatter
+  const fm = {
+    agent,
+    created: created || new Date().toISOString(),
+    source,
+    topic,
+    confidence: confidence.toUpperCase(),
   };
 
-  if (!content || typeof content !== 'string' || content.trim() === '') {
-    return result;
-  }
+  // Build body
+  const bodyContent = body || `# ${topic}\n\n## Bang chung\n\n_(Chua co bang chung)_\n`;
 
-  // Parse YAML frontmatter
-  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
-  if (fmMatch) {
-    const fmLines = fmMatch[1].split('\n');
-    for (const line of fmLines) {
-      const colonIdx = line.indexOf(':');
-      if (colonIdx === -1) continue;
-      const key = line.slice(0, colonIdx).trim();
-      let value = line.slice(colonIdx + 1).trim();
-      // Strip quotes
-      if ((value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))) {
-        value = value.slice(1, -1);
-      }
-      result.frontmatter[key] = value;
-    }
-  }
+  // Build content
+  const content = `---\n${buildFrontmatter(fm)}\n---\n${bodyContent}`;
 
-  // Parse sections (## headings)
-  const sectionRegex = /^## (.+)$/gm;
-  let match;
-  const sectionPositions = [];
-  while ((match = sectionRegex.exec(content)) !== null) {
-    sectionPositions.push({ name: match[1].trim(), start: match.index + match[0].length });
-  }
+  // Generate filename
+  const filename = generateFilename({ source, topic, id, slug });
 
-  for (let i = 0; i < sectionPositions.length; i++) {
-    const section = sectionPositions[i];
-    const end = i + 1 < sectionPositions.length
-      ? sectionPositions[i + 1].start - `## ${sectionPositions[i + 1].name}`.length - 1
-      : content.length;
-    result.sections[section.name] = content.slice(section.start, end).trim();
-  }
-
-  // Parse claims from "## Bang chung" section
-  const evidenceSection = result.sections['Bang chung'] || '';
-  const claimRegex = /^- \*\*\[(\w+)\]\*\* (.+)$/gm;
-  let claimMatch;
-  const claimList = [];
-  while ((claimMatch = claimRegex.exec(evidenceSection)) !== null) {
-    claimList.push({
-      confidence: claimMatch[1],
-      text: claimMatch[2],
-      source: '',
-    });
-  }
-
-  // Attach sources to claims
-  const lines = evidenceSection.split('\n');
-  let currentClaimIdx = -1;
-  for (const line of lines) {
-    if (line.match(/^- \*\*\[\w+\]\*\*/)) {
-      currentClaimIdx++;
-    } else if (line.match(/^\s+- Nguon: /) && currentClaimIdx >= 0 && currentClaimIdx < claimList.length) {
-      claimList[currentClaimIdx].source = line.replace(/^\s+- Nguon: /, '').trim();
-    }
-  }
-
-  result.claims = claimList;
-
-  return result;
+  return { content, filename };
 }
 
-// ─── nextId ─────────────────────────────────────────────
+// ─── parseEntry ────────────────────────────────────────────
 
 /**
- * Tinh ID tiep theo cho external research files.
+ * Parse research file content, validate required fields.
  *
- * @param {string[]} existingFiles - Danh sach ten file hien co (vd: ['RES-001-topic.md', 'RES-002-topic.md'])
- * @returns {string} - ID tiep theo, zero-padded 3 digits (vd: '003')
+ * @param {string} content - Noi dung markdown cua research file
+ * @returns {{ frontmatter: object, body: string, valid: boolean, errors: string[] }}
  */
-function nextId(existingFiles) {
-  if (!Array.isArray(existingFiles) || existingFiles.length === 0) {
-    return '001';
+function parseEntry(content) {
+  if (content == null || typeof content !== 'string') {
+    return {
+      frontmatter: {},
+      body: '',
+      valid: false,
+      errors: ['content khong hop le hoac rong'],
+    };
   }
 
-  let maxId = 0;
-  for (const file of existingFiles) {
-    const match = file.match(/^RES-(\d{3})-/);
-    if (match) {
-      const id = parseInt(match[1], 10);
-      if (id > maxId) maxId = id;
+  const { frontmatter, body } = parseFrontmatter(content);
+  const errors = [];
+
+  // Validate required fields
+  for (const field of REQUIRED_FIELDS) {
+    if (!frontmatter[field]) {
+      errors.push(`thieu truong bat buoc: ${field}`);
     }
   }
 
-  return String(maxId + 1).padStart(3, '0');
-}
-
-// ─── formatFilename ─────────────────────────────────────
-
-/**
- * Tao ten file chuan cho research file.
- *
- * @param {object} opts
- * @param {'internal'|'external'} opts.type - Loai nghien cuu
- * @param {string} [opts.id] - ID cho external files (vd: '003')
- * @param {string} opts.slug - Slug cua topic
- * @returns {string} - Ten file (vd: 'INT-auth-flow.md' hoac 'RES-003-nestjs-guards.md')
- */
-function formatFilename({ type, id, slug }) {
-  const cleanSlug = slugify(slug);
-  if (type === 'external') {
-    if (!id) throw new Error('id bat buoc cho external files');
-    return `RES-${id}-${cleanSlug}.md`;
+  // Validate confidence level
+  if (frontmatter.confidence && !validateConfidence(frontmatter.confidence)) {
+    errors.push(`confidence khong hop le: ${frontmatter.confidence}`);
   }
-  return `INT-${cleanSlug}.md`;
+
+  // Validate source type
+  if (frontmatter.source && !SOURCE_TYPES.includes(frontmatter.source)) {
+    errors.push(`source khong hop le: ${frontmatter.source}`);
+  }
+
+  return {
+    frontmatter,
+    body,
+    valid: errors.length === 0,
+    errors,
+  };
 }
 
-// ─── Helpers ────────────────────────────────────────────
-
-/**
- * Chuyen topic thanh slug an toan cho ten file.
- * @param {string} text
- * @returns {string}
- */
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Remove diacritics
-    .replace(/[^a-z0-9]+/g, '-')     // Replace non-alphanumeric with hyphens
-    .replace(/^-+|-+$/g, '')         // Trim leading/trailing hyphens
-    .slice(0, 50);                   // Limit length
-}
-
-// ─── Exports ────────────────────────────────────────────
+// ─── Exports ───────────────────────────────────────────────
 
 module.exports = {
   CONFIDENCE_LEVELS,
+  CONFIDENCE_CRITERIA,
+  REQUIRED_FIELDS,
+  SOURCE_TYPES,
   createEntry,
   parseEntry,
-  nextId,
-  formatFilename,
+  validateConfidence,
+  generateFilename,
 };
