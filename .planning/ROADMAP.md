@@ -108,7 +108,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 ### v3.0 Research Squad
 
-- [ ] **Phase 38: Nen tang Luu tru Nghien cuu** — Thu muc phan tach internal/external, frontmatter chuan, confidence conventions
+- [x] **Phase 38: Nen tang Luu tru Nghien cuu** — Thu muc phan tach internal/external, frontmatter chuan, confidence conventions (completed 2026-03-25)
 - [ ] **Phase 39: Tieu chuan Kiem chung & Chi muc** — Evidence format, audit log append-only, INDEX.md tu dong
 - [ ] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents
 - [ ] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection
@@ -178,7 +178,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Nen tang Luu tru Nghien cuu | 0/2 | Planned | - |
+| 38. Nen tang Luu tru Nghien cuu | 0/2 | Complete    | 2026-03-25 |
 | 39. Tieu chuan Kiem chung & Chi muc | 0/? | Not started | - |
 | 40. Tac tu Nghien cuu | 0/? | Not started | - |
 | 41. Bao ve Workflow | 0/? | Not started | - |
