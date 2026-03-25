@@ -86,7 +86,7 @@ describe('Repo integrity — command/workflow graph', () => {
       const inlined = inlineWorkflow(body, ROOT);
 
       assert.ok(!inlined.includes(`@workflows/${skill.name}.md`), `${skill.name}: còn sót workflow ref sau inline`);
-      assert.match(inlined, /<process>[\s\S]*Bước [0-9]+[\s\S]*<\/process>/, `${skill.name}: process chưa được inline đầy đủ`);
+      assert.match(inlined, /<process>[\s\S]*(Bước|Buoc) [0-9]+[\s\S]*<\/process>/, `${skill.name}: process chưa được inline đầy đủ`);
 
       if (workflowContent.includes('<required_reading>')) {
         assert.match(inlined, /<required_reading>[\s\S]*SKILLS_DIR[\s\S]*<\/required_reading>/, `${skill.name}: thiếu required_reading sau inline`);
@@ -453,10 +453,24 @@ describe('Repo integrity -- effort-level routing', () => {
     assert.match(content, /model:\s*\{resolved_model\}/, 'write-code.md: thieu model param trong Buoc 10');
   });
 
-  it('fix-bug workflow co effort routing tu bug classification', () => {
+  it('fix-bug workflow co agent-based orchestration', () => {
     const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
-    assert.match(content, /Effort routing cho fix-bug/, 'fix-bug.md: thieu effort routing section');
-    assert.match(content, /fix-bug luon chay voi sonnet/, 'fix-bug.md: thieu sonnet-only note');
+    assert.match(content, /pd-bug-janitor/, 'fix-bug.md: thieu agent janitor reference');
+    assert.match(content, /pd-fix-architect/, 'fix-bug.md: thieu agent architect reference');
+  });
+
+  it('fix-bug workflow co single-agent fallback', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
+    assert.match(content, /--single/, 'fix-bug.md: thieu --single flag handling');
+    assert.match(content, /fix-bug-v1\.5/, 'fix-bug.md: thieu v1.5 fallback reference');
+    assert.match(content, /Kiem tra che do hoat dong/, 'fix-bug.md: thieu Buoc 0 detection');
+  });
+
+  it('fix-bug workflow co inconclusive loop-back', () => {
+    const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
+    assert.match(content, /buildInconclusiveContext/, 'fix-bug.md: thieu buildInconclusiveContext call');
+    assert.match(content, /inconclusive_rounds/, 'fix-bug.md: thieu inconclusive round tracking');
+    assert.match(content, /user_input_round_/, 'fix-bug.md: thieu user input file pattern');
   });
 
   it('test workflow co effort routing', () => {
@@ -466,11 +480,14 @@ describe('Repo integrity -- effort-level routing', () => {
   });
 
   it('executor workflows co backward compat default sonnet', () => {
-    const executorWorkflows = ['write-code.md', 'fix-bug.md', 'test.md'];
+    const executorWorkflows = ['write-code.md', 'test.md'];
     for (const wf of executorWorkflows) {
       const content = fs.readFileSync(path.join(ROOT, 'workflows', wf), 'utf8');
       assert.match(content, /sonnet/, `${wf}: thieu backward compat default sonnet`);
     }
+    // fix-bug.md v2.1 dung agent tiers (haiku/sonnet/opus qua resource-config), khong hardcode sonnet
+    const fixBugContent = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
+    assert.match(fixBugContent, /pd-code-detective/, 'fix-bug.md: thieu agent reference (thay the cho sonnet check)');
   });
 });
 

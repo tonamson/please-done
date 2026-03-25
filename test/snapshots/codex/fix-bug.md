@@ -53,7 +53,21 @@ Doc truoc khi bat dau:
 - [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <process>
-## Buoc 0: Resume UI
+## Buoc 0: Kiem tra che do hoat dong
+1. Parse {{GSD_ARGS}} -> kiem tra co `--single` flag khong
+2. Neu KHONG co --single:
+   - Kiem tra 5 files ton tai:
+     `.claude/agents/pd-bug-janitor.md`
+     `.claude/agents/pd-code-detective.md`
+     `.claude/agents/pd-doc-specialist.md`
+     `.claude/agents/pd-repro-engineer.md`
+     `.claude/agents/pd-fix-architect.md`
+   - Thieu bat ky file nao -> auto-fallback = true
+3. Neu --single HOAC auto-fallback:
+   Hien: "--- Che do don agent: Thieu agent configs, dung che do don agent ---"
+   Doc va thuc hien theo noi dung file `workflows/fix-bug-v1.5.md`. DUNG workflow v2.1 tai day.
+4. Neu du 5 files -> tiep tuc Buoc 0.5 (Resume UI ben duoi)
+## Buoc 0.5: Resume UI
 `git rev-parse --git-dir 2>/dev/null` -> luu `HAS_GIT`
 `mkdir -p .planning/debug`
 1. Glob `.planning/debug/S*` -> lay danh sach folder names
@@ -75,10 +89,10 @@ Doc truoc khi bat dau:
 5. User nhap so -> doc SESSION.md cua phien do -> xac dinh buoc tiep theo tu status:
    - status=active -> Buoc 1 (tiep tuc voi session hien tai, truyen session_dir)
    - status=paused -> doc evidence files da co -> nhay buoc phu hop
-6. User nhap mo ta moi -> Buoc 0.5
-7. Khong co sessions nao VA co {{GSD_ARGS}} -> Buoc 0.5
-8. Khong co sessions nao VA khong co {{GSD_ARGS}} -> hoi user mo ta loi -> Buoc 0.5
-## Buoc 0.5: Phan tich bug -- quyet dinh tai lieu tham khao
+6. User nhap mo ta moi -> Buoc 0.6
+7. Khong co sessions nao VA co {{GSD_ARGS}} -> Buoc 0.6
+8. Khong co sessions nao VA khong co {{GSD_ARGS}} -> hoi user mo ta loi -> Buoc 0.6
+## Buoc 0.6: Phan tich bug -- quyet dinh tai lieu tham khao
 - Nhieu bugs can uu tien? -> doc [SKILLS_DIR]/references/prioritization.md
 Neu chi co 1 bug -> BO QUA.
 ### Tao session moi (per D-09)
@@ -111,9 +125,12 @@ Janitor FAIL (agent throw/timeout):
 ## Buoc 2: Phan tich code va tai lieu
 --- Buoc 2/5: Phan tich code va tai lieu ---
 1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
-   - sessionDir: gia tri session_dir tu Buoc 0.5
+   - sessionDir: gia tri session_dir tu Buoc 0.6
    - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
    - Ket qua: { agents, warnings } — agents gom pd-code-detective (critical) va pd-doc-specialist (optional)
+   Neu day la INCONCLUSIVE loop-back (co user_input_round_N.md trong session_dir):
+     Goi `buildInconclusiveContext({ evidenceContent: noi_dung_evidence_architect_cu, userInputPath: '{session_dir}/user_input_round_{N}.md', sessionDir: session_dir, currentRound: N })` tu `bin/lib/outcome-router.js`
+     Them prompt vao prompt cua Detective va DocSpec de agents biet Elimination Log va thong tin moi tu user.
 2. Spawn Agent `pd-code-detective`:
    "Session dir: {absolute_session_dir}.
     Doc evidence_janitor.md va phan tich code nguon. Ghi evidence_code.md."
@@ -212,12 +229,23 @@ Sau khi agent hoan tat:
      Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
      Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
 **NEU outcome = 'inconclusive':**
-  1. Hien Elimination Log tu evidence_architect.md (section ## Elimination Log)
-  2. De xuat 2 lua chon:
-     (1) Bo sung thong tin moi -> ghi thong tin vao SESSION.md qua updateSession(), status='paused'. DUNG workflow.
-         (Quay lai Buoc 2 la FLOW-06 — Phase 33, NGOAI scope Phase 32)
-     (2) Dung dieu tra -> Read `{session_dir}/SESSION.md` -> currentMd
-         Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
+  1. Goi `buildInconclusiveContext({ evidenceContent: content, userInputPath: null, sessionDir: session_dir, currentRound })` tu `bin/lib/outcome-router.js`
+     - currentRound: doc tu SESSION.md (grep `inconclusive_rounds:` -> parse so, mac dinh 1 neu chua co)
+     -> { eliminationLog, canContinue, prompt, warnings }
+  2. Hien Elimination Log cho user
+  3. NEU canContinue = false (da dat 3 vong):
+     Thong bao: "Da dieu tra 3 vong. Day la Elimination Log day du:\n{eliminationLog}"
+     Read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+     Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+  4. NEU canContinue = true:
+     Hoi user bo sung thong tin qua cau hoi truc tiep (free-text)
+     Ghi response vao `{session_dir}/user_input_round_{currentRound}.md`
+     Read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { appendToBody: '- inconclusive_rounds: ' + currentRound })` tu `bin/lib/session-manager.js`
+     Ghi ket qua vao `{session_dir}/SESSION.md`
+     Hien banner: "--- Vong {currentRound}/3: Dang dieu tra them voi thong tin moi ---"
+     Quay lai Buoc 2 (spawn Detective + DocSpec voi context moi tu prompt)
 Architect FAIL (agent throw/timeout):
 - Hien tat ca evidence da thu thap (janitor, detective, docs, repro) truc tiep cho user
 - Hoi: "Architect khong tra phan quyet. Ban muon: (1) Xem evidence va tu quyet dinh, (2) Dung lai?"
