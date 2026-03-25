@@ -107,7 +107,9 @@ Janitor FAIL (agent throw/timeout):
 --- Buoc 2/5: Phan tich code va tai lieu ---
 0. Goi `isHeavyAgent('pd-code-detective')` tu `bin/lib/resource-config.js`
    - true -> WARNING: "Detective dung heavy tool (FastCode). Chi 1 tac vu nang tai 1 thoi diem."
-   - Ghi warning vao `{session_dir}/SESSION.md` qua updateSession() neu co
+   - read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { appendToBody: 'WARNING: Detective dung heavy tool. Chi 1 tac vu nang tai 1 thoi diem.' })` tu `bin/lib/session-manager.js`
+     Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
 1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
    - sessionDir: gia tri session_dir tu Buoc 0.6
    - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
@@ -172,7 +174,9 @@ Sau khi agent hoan tat:
    Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
 Repro FAIL (agent throw/timeout):
 - WARNING: "Khong tao duoc test tai hien. Tiep tuc voi evidence phan tich."
-- Ghi warning vao SESSION.md qua updateSession()
+- read `{session_dir}/SESSION.md` -> currentMd
+  Goi `updateSession(currentMd, { appendToBody: 'WARNING: Repro Engineer fail. Tiep tuc voi evidence phan tich.' })` tu `bin/lib/session-manager.js`
+  Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
 - Tiep tuc Buoc 4 (Repro la bo sung, khong block workflow)
 ## Buoc 4: Tong hop va ra phan quyet
 --- Buoc 4/5: Tong hop va ra phan quyet ---
@@ -185,6 +189,7 @@ Sau khi agent hoan tat:
 2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { valid, outcome }
 3. Goi `parseEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { frontmatter, body, sections }
 ### Routing theo outcome:
+Khoi tao roundNumber = 1 (mac dinh cho lan dau). Neu quay lai Buoc 4 sau continuation, tang roundNumber len 1.
 **NEU outcome = 'root_cause':**
   1. Goi `buildRootCauseMenu(content)` tu `bin/lib/outcome-router.js`
      -> { question, choices } (3 lua chon: fix_now, fix_plan, self_fix)
@@ -194,7 +199,7 @@ Sau khi agent hoan tat:
        -> { action, reusableModules, evidence, suggestion, commitPrefix, warnings } -> Buoc 5
      - fix_plan -> Goi `prepareFixPlan(content, sessionDir)` tu `bin/lib/outcome-router.js`
        -> { planPath, planContent }
-       Ghi planContent vao planPath. Thong bao: "Da tao ke hoach sua tai {planPath}."
+       Ghi planContent vao {session_dir}/FIX-PLAN.md (planPath da chua full path tu prepareFixPlan). Thong bao: "Da tao ke hoach sua tai {planPath}."
        read `{session_dir}/SESSION.md` -> currentMd
        Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
        Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
@@ -288,10 +293,10 @@ git commit -m "fix([LOI]): {mo_ta_ngan}"
 ### 5e: User verify (per D-10)
 Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
 **User xac nhan OK:**
-  1. Goi `createBugRecord({ file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` tu `bin/lib/bug-memory.js`
-     -> bugRecordMd
-  2. Ghi bugRecordMd vao `.planning/bugs/BUG-{NNN}.md`
-     (Xac dinh NNN: glob `.planning/bugs/BUG-*.md` -> tim so cao nhat + 1, bat dau tu 001)
+  1. glob `.planning/bugs/BUG-*.md` -> parse so tu moi filename (VD: BUG-003.md -> {number: 3}) -> tao mang existingBugs
+  2. Goi `createBugRecord({ existingBugs, file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` tu `bin/lib/bug-memory.js`
+     -> bugRecord (object voi { id, fileName, content, number })
+  3. Ghi bugRecord.content vao `.planning/bugs/${bugRecord.fileName}`
   3. glob `.planning/bugs/BUG-*.md` -> read tat ca -> parse thanh records
      Goi `buildIndex(bugRecords)` tu `bin/lib/bug-memory.js` -> indexMd
      Ghi indexMd vao `.planning/bugs/INDEX.md`
