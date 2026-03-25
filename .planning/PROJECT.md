@@ -61,6 +61,7 @@ Every workflow step must produce the highest quality code output while consuming
 - [x] Workflow Execution Loop — 5-step orchestrator integrating all agents — v2.1 (Phase 32-33)
 - [x] Integration Wiring Fixes — 4 call signature bugs, 2 enforcement points, DocSpec evidence chain — v2.1 (Phase 34)
 - [x] Evidence Encoding & Critical Wiring — encoding mismatch fix, roundNumber init, planPath, createBugRecord, SESSION.md write-back — v2.1 (Phase 35)
+- [x] Workflow Wiring Fixes — mergeParallelResults shape mismatch, runLogicSync destructuring — v2.1 (Phase 36)
 
 ## Current Milestone: v2.1 Detective Orchestrator
 
