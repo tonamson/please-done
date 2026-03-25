@@ -111,13 +111,17 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
 - [x] **Phase 34: Fix Integration Wiring** (gap closure) (completed 2026-03-25)
   - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
-- [ ] **Phase 35: Fix Evidence Encoding & Critical Wiring** (gap closure)
+- [ ] **Phase 35: Fix Evidence Encoding & Critical Wiring** (2 plans) (gap closure)
   - INT-01: Dong bo section names ASCII/Unicode giua modules va agents
   - INT-02: Khoi tao roundNumber trong CHECKPOINT continuation
   - INT-03: Resolve FIX-PLAN.md path vao session_dir
   - INT-04: Truyen existingBugs cho createBugRecord, fix return field naming
   - INT-05: Them SESSION.md write-back tai 2 vi tri thieu
   - Documentation: Cap nhat REQUIREMENTS.md checkboxes va SUMMARY frontmatter
+
+Plans:
+- [ ] 35-01-PLAN.md — Dong bo encoding ASCII->Unicode trong 3 JS modules va 3 test files (INT-01)
+- [ ] 35-02-PLAN.md — Fix roundNumber, planPath, createBugRecord, write-back trong workflow va doc sync (INT-02..05, D-07)
 
 ## Phase Details
 
@@ -220,6 +224,7 @@ Plans:
 **Depends on**: Phase 34
 **Requirements**: PROT-02, PROT-03, PROT-04, PROT-05, PROT-06, MEM-04, ORCH-03, FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05
 **Gap Closure**: Closes INT-01 (P0), INT-02 (P1), INT-03 (P2), INT-04 (P2), INT-05 (P3) from v2.1 milestone audit
+**Plans**: 2 plans
 **Success Criteria** (what must be TRUE):
   1. evidence-protocol.js section names khop chinh xac voi headings trong 5 agent files — validateEvidence() PASS cho real agent output
   2. outcome-router.js section lookups tra ve noi dung thuc (khong empty) khi doc evidence co dau tieng Viet
@@ -270,4 +275,4 @@ Plans:
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
-| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/0 | Not started | - |
+| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/2 | Not started | - |
