@@ -31,7 +31,7 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 - [ ] **GUARD-01**: CHECK-06 trong plan-checker kiem tra plan co research backing — kiem tra Key Links/References den `.planning/research/` files (severity: WARN default, configurable)
 - [ ] **GUARD-02**: Mandatory Suggestion phat hien >= 2 hedging patterns (chua ro, can tim hieu, co the...hoac, khong chac) trong plan body va goi y chay `pd research`
-- [ ] **GUARD-03**: Strategy Injection tu dong load research context (max 2 files, 2000 tokens) vao agent prompts khi spawn — keyword match tu INDEX.md
+- [x] **GUARD-03**: Strategy Injection tu dong load research context (max 2 files, 2000 tokens) vao agent prompts khi spawn — keyword match tu INDEX.md
 
 ### Nang cao (EXTRA)
 
@@ -79,7 +79,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGENT-03 | Phase 42 | Pending |
 | GUARD-01 | Phase 41 | Pending |
 | GUARD-02 | Phase 41 | Pending |
-| GUARD-03 | Phase 41 | Pending |
+| GUARD-03 | Phase 41 | Complete |
 | EXTRA-01 | Phase 42 | Pending |
 
 **Coverage:**

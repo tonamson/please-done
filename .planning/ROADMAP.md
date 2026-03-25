@@ -168,7 +168,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [ ] 41-01-PLAN.md — CHECK-06 Research Backing + CHECK-07 Hedging Language trong plan-checker.js
-- [ ] 41-02-PLAN.md — Strategy Injection guard trong workflow files + snapshot regeneration
+- [x] 41-02-PLAN.md — Strategy Injection guard trong workflow files + snapshot regeneration
 
 ### Phase 42: Lenh pd research
 **Goal**: Nguoi dung co the goi 1 lenh duy nhat de nghien cuu — he thong tu phan loai internal/external va chay pipeline thu thap + xac minh tu dong
@@ -188,5 +188,5 @@ Plans:
 | 38. Nen tang Luu tru Nghien cuu | 0/2 | Complete    | 2026-03-25 |
 | 39. Tieu chuan Kiem chung & Chi muc | 1/1 | Complete    | 2026-03-25 |
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
-| 41. Bao ve Workflow | 0/2 | Not started | - |
+| 41. Bao ve Workflow | 1/2 | In progress | - |
 | 42. Lenh pd research | 0/? | Not started | - |
