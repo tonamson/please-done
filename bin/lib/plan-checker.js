@@ -720,6 +720,66 @@ function checkLogicCoverage(planContent, tasksContent, options = {}) {
 }
 
 /**
+ * CHECK-06: Research Backing
+ * Kiem tra plan co reference den research files khong.
+ * Chi check khi co research files trong project (hasResearchFiles).
+ * Default severity: WARN. Configurable via options.severity.
+ */
+function checkResearchBacking(planContent, options = {}) {
+  const severity = options.severity || 'warn';
+  const result = { checkId: 'CHECK-06', status: 'pass', issues: [] };
+
+  // Khong co research files -> PASS (khong co gi de check)
+  if (!options.hasResearchFiles) return result;
+
+  // Severity off -> PASS
+  if (severity === 'off') return result;
+
+  // Kiem tra plan co reference den .planning/research/
+  const hasRef = /\.planning\/research\//.test(planContent);
+  if (!hasRef) {
+    result.issues.push({
+      message: 'Plan khong co reference den research files',
+      location: 'PLAN.md',
+      fixHint: 'Chay pd research de thu thap bang chung, sau do them Key Links den .planning/research/ files'
+    });
+  }
+
+  result.status = result.issues.length > 0 ? severity : 'pass';
+  return result;
+}
+
+/**
+ * CHECK-07: Hedging Language
+ * Phat hien ngon ngu mo ho (chua ro, can tim hieu, co the...hoac, khong chac).
+ * Goi y chay pd research khi phat hien >= 2 hedging patterns.
+ * Default severity: WARN. Configurable via options.severity.
+ */
+function checkHedgingLanguage(planContent, options = {}) {
+  const HEDGING_PATTERNS = /chua ro|can tim hieu|co the.*hoac|khong chac|chua xac dinh|can nghien cuu/gi;
+  const severity = options.severity || 'warn';
+  const result = { checkId: 'CHECK-07', status: 'pass', issues: [] };
+
+  // Severity off -> PASS
+  if (severity === 'off') return result;
+
+  // planContent rong/null -> PASS
+  if (!planContent) return result;
+
+  const matches = planContent.match(HEDGING_PATTERNS) || [];
+  if (matches.length >= 2) {
+    result.issues.push({
+      message: `Plan co ${matches.length} hedging patterns (${matches.slice(0, 3).join(', ')}${matches.length > 3 ? '...' : ''}) — chay pd research de lam ro`,
+      location: 'PLAN.md',
+      fixHint: 'Chay pd research de thu thap bang chung thay the ngon ngu mo ho'
+    });
+  }
+
+  result.status = result.issues.length > 0 ? severity : 'pass';
+  return result;
+}
+
+/**
  * ADV-01: Key Links Verification
  * Key Links trong PLAN.md phai duoc phan anh trong task Files.
  * Ca 2 dau (from + to) phai co task touch, va it nhat 1 task phai touch ca 2 dau cung luc.
@@ -946,18 +1006,20 @@ function checkEffortClassification(planContent, tasksContent) {
 }
 
 /**
- * Chay tat ca 8 checks va aggregate ket qua.
+ * Chay tat ca 10 checks va aggregate ket qua.
  * overall = 'block' neu bat ky check nao block,
  * 'warn' neu co warn nhung khong block,
  * 'pass' neu tat ca pass.
  */
-function runAllChecks({ planContent, tasksContent, requirementIds, check05Severity }) {
+function runAllChecks({ planContent, tasksContent, requirementIds, check05Severity, check06Options, check07Severity }) {
   const checks = [
     checkRequirementCoverage(planContent, requirementIds),
     checkTaskCompleteness(planContent, tasksContent),
     checkDependencyCorrectness(planContent, tasksContent),
     checkTruthTaskCoverage(planContent, tasksContent),
     checkLogicCoverage(planContent, tasksContent, { severity: check05Severity }),
+    checkResearchBacking(planContent, check06Options || {}),
+    checkHedgingLanguage(planContent, { severity: check07Severity }),
     checkKeyLinks(planContent, tasksContent),
     checkScopeThresholds(planContent, tasksContent),
     checkEffortClassification(planContent, tasksContent),
@@ -980,6 +1042,8 @@ module.exports = {
   checkDependencyCorrectness,
   checkTruthTaskCoverage,
   checkLogicCoverage,
+  checkResearchBacking,
+  checkHedgingLanguage,
   runAllChecks,
   // New ADV-* check functions
   checkKeyLinks,
