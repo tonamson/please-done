@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
 status: Milestone complete
-stopped_at: Phase 35 context gathered
-last_updated: "2026-03-25T10:10:44.879Z"
+stopped_at: Phase 36 context gathered
+last_updated: "2026-03-25T10:39:26.657Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 8
   total_plans: 18
   completed_plans: 18
@@ -113,6 +113,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T09:34:43.483Z
-Stopped at: Phase 35 context gathered
-Resume file: .planning/phases/35-fix-evidence-encoding-critical-wiring/35-CONTEXT.md
+Last session: 2026-03-25T10:39:26.652Z
+Stopped at: Phase 36 context gathered
+Resume file: .planning/phases/36-fix-workflow-wiring/36-CONTEXT.md
