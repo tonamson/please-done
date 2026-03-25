@@ -38,9 +38,10 @@ created: 2026-03-25
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 38-01-01 | 01 | 0 | STORE-01, STORE-02 | unit | `node --test test/smoke-research-store.test.js` | ❌ W0 | ⬜ pending |
-| 38-01-02 | 01 | 1 | STORE-01, STORE-02, AUDIT-01, AUDIT-03 | unit | `node --test test/smoke-research-store.test.js` | ❌ W0 | ⬜ pending |
-| 38-02-01 | 02 | 1 | STORE-01, STORE-02 | smoke | `test -d .planning/research/internal && test -d .planning/research/external` | ✅ | ⬜ pending |
+| 38-01-01 | 01 | 1 | STORE-01, STORE-02 | shell | `test -f .planning/milestones/v3.0-research/STACK.md && test ! -f .planning/research/STACK.md` | ✅ | ⬜ pending |
+| 38-01-02 | 01 | 1 | STORE-01, STORE-02 | shell | `test -d .planning/research/internal && test -d .planning/research/external && test -f .planning/research/internal/.gitkeep` | ✅ | ⬜ pending |
+| 38-02-01 | 02 | 1 | STORE-01, STORE-02, AUDIT-01, AUDIT-03 | unit | `node --test test/smoke-research-store.test.js` | ❌ W0 | ⬜ pending |
+| 38-02-02 | 02 | 1 | STORE-01, STORE-02, AUDIT-01, AUDIT-03 | unit | `node --test test/smoke-research-store.test.js` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
