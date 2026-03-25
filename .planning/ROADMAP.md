@@ -111,7 +111,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 38: Nen tang Luu tru Nghien cuu** — Thu muc phan tach internal/external, frontmatter chuan, confidence conventions (completed 2026-03-25)
 - [x] **Phase 39: Tieu chuan Kiem chung & Chi muc** — Evidence format, audit log append-only, INDEX.md tu dong (completed 2026-03-25)
 - [x] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents (1/? plans complete) (completed 2026-03-25)
-- [ ] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection
+- [x] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection (completed 2026-03-25)
 - [ ] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation
 
 ## Phase Details
@@ -168,7 +168,7 @@ Plans:
 **Plans**: 2 plans
 Plans:
 - [ ] 41-01-PLAN.md — CHECK-06 Research Backing + CHECK-07 Hedging Language trong plan-checker.js
-- [x] 41-02-PLAN.md — Strategy Injection guard trong workflow files + snapshot regeneration
+- [ ] 41-02-PLAN.md — Strategy Injection guard trong workflow files + snapshot regeneration
 
 ### Phase 42: Lenh pd research
 **Goal**: Nguoi dung co the goi 1 lenh duy nhat de nghien cuu — he thong tu phan loai internal/external va chay pipeline thu thap + xac minh tu dong
@@ -188,5 +188,5 @@ Plans:
 | 38. Nen tang Luu tru Nghien cuu | 0/2 | Complete    | 2026-03-25 |
 | 39. Tieu chuan Kiem chung & Chi muc | 1/1 | Complete    | 2026-03-25 |
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
-| 41. Bao ve Workflow | 1/2 | In progress | - |
+| 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 0/? | Not started | - |
