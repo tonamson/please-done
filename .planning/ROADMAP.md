@@ -103,7 +103,9 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 - [ ] **Phase 31: Project Memory & Regression Detection** (2 plans)
   - [ ] 31-01-PLAN.md — TDD bug-memory.js (createBugRecord, searchBugs, buildIndex)
   - [ ] 31-02-PLAN.md — Cap nhat agent prompts (Janitor ghi "Bug tuong tu", Architect kiem tra regression)
-- [ ] **Phase 32: Orchestrator Workflow** - 5-buoc execution loop tich hop tat ca agents va evidence
+- [x] **Phase 32: Orchestrator Workflow** (2/2 plans) (completed 2026-03-25)
+  - [x] 32-01-PLAN.md — Backup v1.5 va rewrite fix-bug.md phan dau (Buoc 0-2)
+  - [x] 32-02-PLAN.md — Hoan thanh workflow (Buoc 3-5, rules, success_criteria)
 - [ ] **Phase 33: Resilience & Backward Compatibility** - Loop-back khi INCONCLUSIVE, single-agent fallback, converter pipeline
 
 ## Phase Details
@@ -161,7 +163,12 @@ Plans:
   3. Buoc 3: Repro Engineer (builder/sonnet) tao Red Test tu evidence Buoc 2, tai su dung repro-test-generator.js
   4. Buoc 4: Fix Architect (architect/opus) tong hop evidence va ra phan quyet, tai su dung regression-analyzer.js
   5. Buoc 5: Orchestrator truc tiep sua code, chay test, commit voi tag [LOI], goi debug-cleanup.js va logic-sync.js tu v1.5
-**Plans**: TBD
+**Plans**: 2 plans
+**Status**: Complete (2026-03-25)
+
+Plans:
+- [x] 32-01-PLAN.md — Backup v1.5 va rewrite fix-bug.md phan dau (Buoc 0-2)
+- [x] 32-02-PLAN.md — Hoan thanh workflow (Buoc 3-5, rules, success_criteria)
 
 ### Phase 33: Resilience & Backward Compatibility
 **Goal**: Workflow xu ly duoc moi truong hop loi va tuong thich nguoc voi v1.5 single-agent mode
@@ -211,5 +218,5 @@ Plans:
 | 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 30. Detective Interactions | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
-| 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
+| 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 0/? | Not started | - |

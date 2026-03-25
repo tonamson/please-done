@@ -36,9 +36,9 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 
 - [ ] **FLOW-01**: Buoc 1 — Orchestrator spawn Janitor agent (scout/haiku) thu thap trieu chung va kiem tra session cu
 - [ ] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) song song sau khi Janitor hoan tat
-- [ ] **FLOW-03**: Buoc 3 — Orchestrator spawn Repro Engineer (builder/sonnet) tao Red Test tu evidence cua Buoc 2
-- [ ] **FLOW-04**: Buoc 4 — Orchestrator spawn Fix Architect (architect/opus) tong hop tat ca evidence va ra phan quyet
-- [ ] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
+- [x] **FLOW-03**: Buoc 3 — Orchestrator spawn Repro Engineer (builder/sonnet) tao Red Test tu evidence cua Buoc 2
+- [x] **FLOW-04**: Buoc 4 — Orchestrator spawn Fix Architect (architect/opus) tong hop tat ca evidence va ra phan quyet
+- [x] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
 - [ ] **FLOW-06**: Khi INCONCLUSIVE o Buoc 4, orchestrator quay lai Buoc 2 voi Elimination Log va thong tin moi tu user (max 3 vong)
 - [ ] **FLOW-07**: User co the chay single-agent mode (v1.5 cu) khi khong co agent configs hoac truyen --single flag
 - [ ] **FLOW-08**: Orchestrator an chi tiet agent spawning, chi hien ket qua cuoi cung cho user (progressive disclosure)
@@ -99,9 +99,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | MEM-04 | Phase 31 | Pending |
 | FLOW-01 | Phase 32 | Pending |
 | FLOW-02 | Phase 32 | Pending |
-| FLOW-03 | Phase 32 | Pending |
-| FLOW-04 | Phase 32 | Pending |
-| FLOW-05 | Phase 32 | Pending |
+| FLOW-03 | Phase 32 | Complete |
+| FLOW-04 | Phase 32 | Complete |
+| FLOW-05 | Phase 32 | Complete |
 | FLOW-08 | Phase 32 | Pending |
 | FLOW-06 | Phase 33 | Pending |
 | FLOW-07 | Phase 33 | Pending |
