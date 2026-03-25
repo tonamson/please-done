@@ -92,10 +92,10 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 **Muc tieu Milestone:** Bien `pd:fix-bug` thanh he thong dieu phoi da Agent (Task Force), tich hop tinh hoa gsd:debug va suc manh MCP cua please-done.
 
 - [x] **Phase 28: Agent Infrastructure & Resource Rules** (2/2 plans) — completed 2026-03-24
-- [ ] **Phase 29: Evidence Protocol & Session Management** (3 plans)
+- [x] **Phase 29: Evidence Protocol & Session Management** (3 plans) (completed 2026-03-25)
   - [x] 29-01-PLAN.md — TDD evidence-protocol.js (3 outcome types, validation, parsing)
   - [x] 29-02-PLAN.md — TDD session-manager.js (session CRUD, folder-based structure)
-  - [ ] 29-03-PLAN.md — Cap nhat 5 agent files bo hardcode paths, them session-based evidence format
+  - [x] 29-03-PLAN.md — Cap nhat 5 agent files bo hardcode paths, them session-based evidence format
 - [ ] **Phase 30: Detective Interactions** - ROOT CAUSE choices, CHECKPOINT flow, Continuation Agent, parallel dispatch
 - [ ] **Phase 31: Project Memory & Regression Detection** - Bug history recall, regression alerts, double-check truoc khi fix
 - [ ] **Phase 32: Orchestrator Workflow** - 5-buoc execution loop tich hop tat ca agents va evidence
@@ -199,7 +199,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 | 26. Don dep & An toan | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 27. Dong bo Logic & Bao cao | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
-| 29. Evidence Protocol & Session Management | v2.1 | 2/3 | In Progress|  |
+| 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete   | 2026-03-25 |
 | 30. Detective Interactions | v2.1 | 0/? | Not started | - |
 | 31. Project Memory & Regression Detection | v2.1 | 0/? | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
