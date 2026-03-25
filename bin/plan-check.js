@@ -54,7 +54,34 @@ if (fs.existsSync(roadmapPath)) {
   }
 }
 
-const result = runAllChecks({ planContent, tasksContent, requirementIds });
+// Kiem tra co research files khong (CHECK-06)
+const researchInternalDir = path.resolve(planDir, '../../../research/internal');
+const researchExternalDir = path.resolve(planDir, '../../../research/external');
+let hasResearchFiles = false;
+try {
+  hasResearchFiles = (
+    (fs.existsSync(researchInternalDir) && fs.readdirSync(researchInternalDir).filter(f => f.endsWith('.md')).length > 0) ||
+    (fs.existsSync(researchExternalDir) && fs.readdirSync(researchExternalDir).filter(f => f.endsWith('.md')).length > 0)
+  );
+} catch {}
+
+// Doc config.json cho severity overrides (CHECK-06, CHECK-07)
+let check06Severity, check07Severity;
+const configPath = path.resolve(planDir, '../../../config.json');
+if (fs.existsSync(configPath)) {
+  try {
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    check06Severity = config?.checks?.research_backing?.severity;
+    check07Severity = config?.checks?.hedging_language?.severity;
+  } catch {}
+}
+
+const check06Options = { hasResearchFiles, severity: check06Severity || 'warn' };
+const result = runAllChecks({
+  planContent, tasksContent, requirementIds,
+  check06Options,
+  check07Severity
+});
 
 // JSON output
 console.log(JSON.stringify(result, null, 2));
