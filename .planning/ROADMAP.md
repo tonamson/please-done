@@ -109,6 +109,8 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 - [x] **Phase 33: Resilience & Backward Compatibility** (2 plans) (completed 2026-03-25)
   - [x] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
+- [ ] **Phase 34: Fix Integration Wiring** (gap closure)
+  - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
 
 ## Phase Details
 
@@ -187,6 +189,21 @@ Plans:
 - [ ] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
 - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
 
+### Phase 34: Fix Integration Wiring
+**Goal**: Sua call signatures va them enforcement points de tat ca modules duoc goi dung tu workflow fix-bug.md
+**Depends on**: Phase 33
+**Requirements**: ORCH-03, ORCH-04, PROT-03, PROT-06, PROT-07, PROT-08, FLOW-02, FLOW-05
+**Gap Closure**: Closes gaps from v2.1 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. mergeParallelResults goi dung param names {detectiveResult, docSpecResult} — merge step khong false-fail
+  2. buildContinuationContext goi voi object {evidencePath, userAnswer, sessionDir, currentRound, agentName} — continuation context day du
+  3. prepareSelfFix/prepareFixNow return fields duoc doc dung (filesForReview, resumeHint, action, reusableModules, evidence, suggestion)
+  4. isHeavyAgent() duoc goi truoc khi spawn Detective tai Buoc 2 — Heavy Lock enforced
+  5. shouldDegrade() duoc goi trong error handler — auto-degrade tu parallel sang sequential
+  6. pd-doc-specialist.md doc evidence_janitor.md explicitly — evidence chain hoan chinh
+  7. Toan bo tests pass, snapshots cap nhat
+**Plans**: TBD
+
 ## Progress
 
 **Thu tu thuc hien:** Phase 28 -> 29 -> 30 (song song voi 31) -> 32 -> 33
@@ -226,3 +243,4 @@ Plans:
 | 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
+| 34. Fix Integration Wiring | v2.1 | 0/? | Not started | - |
