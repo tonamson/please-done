@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.1
-milestone_name: Detective Orchestrator
-status: v2.1 milestone complete
-stopped_at: Completed 37-01-PLAN.md
-last_updated: "2026-03-25T13:44:37.461Z"
+milestone: v3.0
+milestone_name: Research Squad
+status: Defining requirements
+stopped_at: Milestone v3.0 started
+last_updated: "2026-03-25T14:30:00.000Z"
 progress:
-  total_phases: 10
-  completed_phases: 10
-  total_plans: 20
-  completed_plans: 20
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State

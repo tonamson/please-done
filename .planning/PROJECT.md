@@ -58,18 +58,24 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-<!-- Next milestone scope goes here -->
+<!-- Current scope: v3.0 Research Squad -->
 
-## Current Milestone: (Planning next milestone)
+- [ ] Cấu trúc lưu trữ phân tách — internal/ + external/ + INDEX.md
+- [ ] Tiêu chuẩn báo cáo Audit — Metadata, Evidence, Confidence, Audit Log
+- [ ] Research Squad agents — Evidence Collector + Fact Checker
+- [ ] Workflow Guards — Plan-Gate, Mandatory Suggestion, Strategy Injection
+- [ ] Lệnh pd research — auto-detect internal vs external context
 
-**Previous:** v2.1 Detective Orchestrator — shipped 2026-03-25
-**Summary:** Biến `pd:fix-bug` thành hệ thống điều phối đa Agent (Task Force) với 7 pure function modules, 5 agent files, và 1 orchestrator workflow. 24/24 requirements satisfied, 763 tests pass.
+## Current Milestone: v3.0 Research Squad
+
+**Goal:** Tích hợp bộ tác tử nghiên cứu đa năng với cơ chế lưu trữ phân tách, đánh số, dẫn chứng minh bạch, và audit-ready system.
 
 **Target features:**
-- Dynamic Resource Orchestration (Tier → Model mapping, 2 sub-agents max, Heavy Lock, hạ cấp thông minh)
-- Detective Protocols (Resume UI, Evidence Format, Checkpoint/Continuation Agent)
-- Project Memory & Regression Detection (Bug history, regression alerts, double-check)
-- Workflow Execution Loop (Janitor → Detective+DocSpec → Repro → Architect → Fix+Commit)
+- Cấu trúc lưu trữ phân tách (.planning/research/ — internal + external + INDEX.md)
+- Tiêu chuẩn báo cáo "Chống Ảo Giác" (Metadata, Evidence, Confidence Level, Audit Log)
+- Research Squad agents (Evidence Collector, Fact Checker trong commands/pd/agents/)
+- Workflow Guards & Enforcement (Plan-Gate, Mandatory Suggestion, Strategy Injection)
+- Lệnh `pd research` (auto-detect context, internal vs external routing)
 
 ### Out of Scope
 
