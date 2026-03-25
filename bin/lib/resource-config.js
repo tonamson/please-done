@@ -35,6 +35,8 @@ const AGENT_REGISTRY = {
   'pd-doc-specialist': { tier: 'scout',     tools: ['Read', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs'] },
   'pd-repro-engineer': { tier: 'builder',   tools: ['Read', 'Write', 'Edit', 'Bash'] },
   'pd-fix-architect':  { tier: 'architect',  tools: ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep'] },
+  'pd-evidence-collector': { tier: 'builder', tools: ['Read', 'Glob', 'Grep', 'Write', 'Bash', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs'] },
+  'pd-fact-checker':   { tier: 'architect',  tools: ['Read', 'Glob', 'Grep', 'Bash'] },
 };
 
 /**
