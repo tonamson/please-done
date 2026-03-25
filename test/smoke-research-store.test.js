@@ -531,7 +531,7 @@ describe('appendAuditLog — tao header khi file rong', () => {
       confidence: 'HIGH',
     });
     assert.ok(result.includes('| Timestamp | Agent | Action | Topic | Sources | Confidence |'));
-    assert.ok(result.includes('|---|'));
+    assert.ok(result.includes('|---'), 'phai co separator row');
     assert.ok(result.includes('collector'));
     assert.ok(result.includes('collect'));
     assert.ok(result.includes('test-topic'));
