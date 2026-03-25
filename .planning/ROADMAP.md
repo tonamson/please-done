@@ -265,6 +265,10 @@ Plans:
   3. INCONCLUSIVE round counter duoc doc bang cach dem "## Round" headings trong SESSION.md (khong grep body append)
   4. Round counter hoat dong dung qua 3 vong INCONCLUSIVE lien tiep
   5. Toan bo tests pass, snapshots cap nhat, khong regression
+**Plans:** 1 plan
+
+Plans:
+- [ ] 37-01-PLAN.md — Fix INT-09 (buildIndex param shape) va INT-10 (round counter), regenerate snapshots
 
 ## Progress
 
@@ -308,4 +312,4 @@ Plans:
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
 | 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
 | 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete    | 2026-03-25 |
-| 37. Fix Workflow Prose Gaps | v2.1 | 0/0 | Not started | - |
+| 37. Fix Workflow Prose Gaps | v2.1 | 0/1 | Not started | - |
