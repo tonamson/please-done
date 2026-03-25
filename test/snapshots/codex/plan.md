@@ -59,6 +59,20 @@ Dữ liệu nhập: {{GSD_ARGS}}
 - [SKILLS_DIR]/references/plan-checker.md -- KHI task can
 - [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
+<research_injection>
+## Tự động tải research context
+Trước khi bắt đầu code, kiểm tra research liên quan:
+1. Đọc `.planning/research/INDEX.md` — nếu không tồn tại, bỏ qua toàn bộ bước này
+2. Tìm entries có topic match với task hiện tại (keyword match tên task, tên file, tên module)
+3. Đọc tối đa 2 entries match (ưu tiên HIGH confidence trước)
+4. Mỗi file đọc tối đa 2000 ký tự đầu tiên
+5. Wrap nội dung trong block:
+   <research-context>
+   [nội dung research file 1]
+   [nội dung research file 2]
+   </research-context>
+6. Không có INDEX.md hoặc không match -> bỏ qua, tiếp tục bình thường (KHÔNG báo lỗi)
+</research_injection>
 <process>
 ## Bước 1: Đọc context
 - `.planning/PROJECT.md` → tầm nhìn, đối tượng, ràng buộc
