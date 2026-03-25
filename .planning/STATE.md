@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
 status: Ready to plan
-stopped_at: Phase 31 plans created and verified
-last_updated: "2026-03-25T03:57:53.844Z"
+stopped_at: Completed 31-02-PLAN.md
+last_updated: "2026-03-25T05:14:41.886Z"
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 10
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 30 — detective-interactions
+**Current focus:** Phase 31 — project-memory-regression-detection
 
 ## Current Position
 
-Phase: 31
+Phase: 32
 Plan: Not started
 
 ## Performance Metrics
@@ -62,6 +62,8 @@ Plan: Not started
 | Phase 30 P02 | 2min | 2 tasks | 2 files |
 | Phase 30 P01 | 2min | 2 tasks | 2 files |
 | Phase 30 P03 | 3min | 2 tasks | 2 files |
+| Phase 31 P01 | 3min | 1 tasks | 2 files |
+| Phase 31 P02 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -88,6 +90,9 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 30]: Pure function pattern nhat quan voi evidence-protocol.js — truyen content qua tham so, tra structured object voi warnings
 - [Phase 30]: prepareFixNow KHONG tra agentName — orchestrator truc tiep sua code (D-02)
 - [Phase 30]: DocSpec fail push result {valid: false} de allSucceeded phan anh dung trang thai
+- [Phase 31]: searchBugs file/error dung bi-directional substring, function dung exact match — giam false positive
+- [Phase 31]: Error message keyword extraction lay phan truoc dau colon lam keyword chinh cho buildIndex
+- [Phase 31]: Prompt-based approach cho agent bug memory — agent tu thuc hien scoring va matching theo huong dan chi tiet
 
 ### Pending Todos
 
@@ -99,6 +104,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T03:57:53.829Z
-Stopped at: Phase 31 plans created and verified
-Resume file: .planning/phases/31-project-memory-regression-detection/31-01-PLAN.md
+Last session: 2026-03-25T05:10:36.511Z
+Stopped at: Completed 31-02-PLAN.md
+Resume file: None
