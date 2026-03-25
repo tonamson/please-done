@@ -315,6 +315,7 @@ function inlineWorkflow(body, skillsDir) {
   const wfProcess = extractXmlSection(workflowContent, 'process');
   const wfRules = extractXmlSection(workflowContent, 'rules');
   const wfRequiredReading = extractXmlSection(workflowContent, 'required_reading');
+  const wfResearchInjection = extractXmlSection(workflowContent, 'research_injection');
 
   // Classify command refs as required/optional
   const { required: cmdRequired, optional: cmdOptional } = classifyRefs(executionContext);
@@ -374,6 +375,17 @@ function inlineWorkflow(body, skillsDir) {
     }
   } else {
     body = body.replace(/<execution_context>[\s\S]*?<\/execution_context>\n?/, '');
+  }
+
+  // 1b. Inject <research_injection> từ workflow (sau conditional_reading, trước process)
+  if (wfResearchInjection) {
+    const researchBlock = `\n<research_injection>\n${wfResearchInjection}\n</research_injection>`;
+    // Chèn sau </conditional_reading> nếu có, nếu không thì sau </required_reading>
+    if (body.includes('</conditional_reading>')) {
+      body = body.replace('</conditional_reading>', '</conditional_reading>' + researchBlock);
+    } else if (body.includes('</required_reading>')) {
+      body = body.replace('</required_reading>', '</required_reading>' + researchBlock);
+    }
   }
 
   // 2. Thay <process> mỏng bằng <process> đầy đủ từ workflow
