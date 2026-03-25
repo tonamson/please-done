@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
 status: Milestone complete
-stopped_at: Phase 36 context gathered
-last_updated: "2026-03-25T10:39:26.657Z"
+stopped_at: Completed 36-01-PLAN.md
+last_updated: "2026-03-25T10:53:30Z"
 progress:
   total_phases: 9
   completed_phases: 8
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 
 ## Current Position
 
-Phase: 35
-Plan: Not started
+Phase: 36
+Plan: 01 (completed)
 
 ## Performance Metrics
 
@@ -67,6 +67,7 @@ Plan: Not started
 | Phase 33 P02 | 4min | 2 tasks | 6 files |
 | Phase 34 P02 | 1min | 1 tasks | 1 files |
 | Phase 34-fix-integration-wiring P01 | 3min | 2 tasks | 5 files |
+| Phase 36-fix-workflow-wiring P01 | 1min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 33]: Regex inlineWorkflow ho tro ca Buoc (khong dau) va Buoc (co dau) de backward compat
 - [Phase 34]: Buoc 1 moi doc evidence_janitor.md truoc khi xac dinh thu vien — nhat quan voi pd-code-detective.md
 - [Phase 34-fix-integration-wiring]: Xoa fixInstructions ke ca trong fallback section de dam bao zero old param names
+- [Phase 36]: Rename validateEvidence result thanh detectiveValidation/docSpecValidation de tranh shape mismatch voi mergeParallelResults
+- [Phase 36]: Dung optional chaining (logicResult?.hasLogicChange, rulesResult?.suggestions?.length) de an toan voi null returns tu runLogicSync
 
 ### Pending Todos
 
@@ -113,6 +116,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T10:39:26.652Z
-Stopped at: Phase 36 context gathered
-Resume file: .planning/phases/36-fix-workflow-wiring/36-CONTEXT.md
+Last session: 2026-03-25T10:53:30Z
+Stopped at: Completed 36-01-PLAN.md
+Resume file: .planning/phases/36-fix-workflow-wiring/36-01-SUMMARY.md

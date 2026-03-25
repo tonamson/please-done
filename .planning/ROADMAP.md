@@ -292,4 +292,4 @@ Plans:
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
 | 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
-| 36. Fix Workflow Wiring | v2.1 | 0/1 | Not started | - |
+| 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete | 2026-03-25 |
