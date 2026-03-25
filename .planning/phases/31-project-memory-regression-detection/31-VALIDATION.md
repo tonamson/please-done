@@ -19,7 +19,7 @@ created: 2026-03-25
 |----------|-------|
 | **Framework** | node:test (built-in) |
 | **Config file** | none — uses node:test built-in |
-| **Quick run command** | `node --test test/bug-memory.test.js` |
+| **Quick run command** | `node --test test/smoke-bug-memory.test.js` |
 | **Full suite command** | `node --test test/` |
 | **Estimated runtime** | ~5 seconds |
 
@@ -27,7 +27,7 @@ created: 2026-03-25
 
 ## Sampling Rate
 
-- **After every task commit:** Run `node --test test/bug-memory.test.js`
+- **After every task commit:** Run `node --test test/smoke-bug-memory.test.js`
 - **After every plan wave:** Run `node --test test/`
 - **Before `/gsd:verify-work`:** Full suite must be green
 - **Max feedback latency:** 5 seconds
@@ -38,18 +38,18 @@ created: 2026-03-25
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 31-01-01 | 01 | 1 | MEM-01, MEM-04 | unit | `node --test test/bug-memory.test.js` | ❌ W0 | ⬜ pending |
-| 31-01-02 | 01 | 1 | MEM-02 | unit | `node --test test/bug-memory.test.js` | ❌ W0 | ⬜ pending |
-| 31-02-01 | 02 | 2 | MEM-01 | unit | `node --test test/bug-memory.test.js` | ❌ W0 | ⬜ pending |
-| 31-02-02 | 02 | 2 | MEM-03 | unit | `node --test test/bug-memory.test.js` | ❌ W0 | ⬜ pending |
+| 31-01-01 | 01 | 1 | MEM-01, MEM-04 | unit | `node --test test/smoke-bug-memory.test.js` | :x: W0 | :white_large_square: pending |
+| 31-01-02 | 01 | 1 | MEM-02 | unit | `node --test test/smoke-bug-memory.test.js` | :x: W0 | :white_large_square: pending |
+| 31-02-01 | 02 | 2 | MEM-01, MEM-02 | unit | `node --test test/smoke-bug-memory.test.js` | :x: W0 | :white_large_square: pending |
+| 31-02-02 | 02 | 2 | MEM-03 | unit | `node --test test/smoke-bug-memory.test.js` | :x: W0 | :white_large_square: pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: :white_large_square: pending · :white_check_mark: green · :x: red · :warning: flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `test/bug-memory.test.js` — stubs for MEM-01, MEM-02, MEM-03, MEM-04
+- [ ] `test/smoke-bug-memory.test.js` — stubs for MEM-01, MEM-02, MEM-03, MEM-04
 
 *Existing infrastructure covers test framework — only test file needs creation.*
 
@@ -61,6 +61,7 @@ created: 2026-03-25
 |----------|-------------|------------|-------------------|
 | Agent prompt update | MEM-01 | Agent prompt changes need manual review | Verify pd-bug-janitor.md contains "Bug tuong tu" section instructions |
 | Agent prompt update | MEM-03 | Agent prompt changes need manual review | Verify pd-fix-architect.md contains related bugs context instructions |
+| INDEX.md rebuild prompt | MEM-04 | Agent prompt change | Verify pd-bug-janitor.md contains INDEX.md rebuild instructions |
 
 ---
 

@@ -100,7 +100,9 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - [x] 30-01-PLAN.md — outcome-router.js (ROOT CAUSE 3 lua chon, FIX-PLAN template)
   - [x] 30-02-PLAN.md — checkpoint-handler.js (CHECKPOINT flow, Continuation Agent max 2 vong)
   - [x] 30-03-PLAN.md — parallel-dispatch.js (Detective+DocSpec song song, partial failure)
-- [ ] **Phase 31: Project Memory & Regression Detection** - Bug history recall, regression alerts, double-check truoc khi fix
+- [ ] **Phase 31: Project Memory & Regression Detection** (2 plans)
+  - [ ] 31-01-PLAN.md — TDD bug-memory.js (createBugRecord, searchBugs, buildIndex)
+  - [ ] 31-02-PLAN.md — Cap nhat agent prompts (Janitor ghi "Bug tuong tu", Architect kiem tra regression)
 - [ ] **Phase 32: Orchestrator Workflow** - 5-buoc execution loop tich hop tat ca agents va evidence
 - [ ] **Phase 33: Resilience & Backward Compatibility** - Loop-back khi INCONCLUSIVE, single-agent fallback, converter pipeline
 
@@ -143,7 +145,11 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   2. Khi loi hien tai khop >= 2/3 tieu chi (file, function, error message) voi bug cu, orchestrator hien canh bao regression ro rang
   3. Fix Architect kiem tra fix moi khong pha vo cac fix cu lien quan truoc khi ra phan quyet cuoi cung
   4. `.planning/bugs/INDEX.md` duoc tu dong tao va cap nhat, liet ke tat ca bug theo file/function/keyword
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 31-01-PLAN.md — TDD bug-memory.js (createBugRecord, searchBugs, buildIndex)
+- [ ] 31-02-PLAN.md — Cap nhat agent prompts (Janitor ghi "Bug tuong tu", Architect kiem tra regression)
 
 ### Phase 32: Orchestrator Workflow
 **Goal**: 5-buoc execution loop hoan chinh: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix+Commit
@@ -204,6 +210,6 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 | 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
 | 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 30. Detective Interactions | v2.1 | 3/3 | Complete    | 2026-03-25 |
-| 31. Project Memory & Regression Detection | v2.1 | 0/? | Not started | - |
+| 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
 | 33. Resilience & Backward Compatibility | v2.1 | 0/? | Not started | - |
