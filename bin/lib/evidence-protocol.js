@@ -28,9 +28,9 @@ const { parseFrontmatter } = require('./utils');
  * - inconclusive: Chua ket luan duoc (D-09)
  */
 const OUTCOME_TYPES = {
-  root_cause:   { label: 'ROOT CAUSE FOUND',          requiredSections: ['Nguyen nhan', 'Bang chung', 'De xuat'] },
-  checkpoint:   { label: 'CHECKPOINT REACHED',         requiredSections: ['Tien do dieu tra', 'Cau hoi cho User', 'Context cho Agent tiep'] },
-  inconclusive: { label: 'INVESTIGATION INCONCLUSIVE', requiredSections: ['Elimination Log', 'Huong dieu tra tiep'] },
+  root_cause:   { label: 'ROOT CAUSE FOUND',          requiredSections: ['Nguyên nhân', 'Bằng chứng', 'Đề xuất'] },
+  checkpoint:   { label: 'CHECKPOINT REACHED',         requiredSections: ['Tiến độ điều tra', 'Câu hỏi cho User', 'Context cho Agent tiếp'] },
+  inconclusive: { label: 'INVESTIGATION INCONCLUSIVE', requiredSections: ['Elimination Log', 'Hướng điều tra tiếp'] },
 };
 
 // ─── getRequiredSections ────────────────────────────────────

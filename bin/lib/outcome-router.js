@@ -54,7 +54,7 @@ function buildRootCauseMenu(evidenceContent) {
     };
   }
 
-  const rootCause = parsed.sections['Nguyen nhan'] || 'Khong co mo ta';
+  const rootCause = parsed.sections['Nguyên nhân'] || 'Khong co mo ta';
   const question = `Da tim thay nguyen nhan:\n${rootCause}\n\nBan muon lam gi?`;
   const summary = rootCause.split('\n')[0].slice(0, 120);
 
@@ -79,8 +79,8 @@ function buildRootCauseMenu(evidenceContent) {
 function prepareFixNow(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const evidence = parsed.sections['Bang chung'] || '';
-  const suggestion = parsed.sections['De xuat'] || '';
+  const evidence = parsed.sections['Bằng chứng'] || '';
+  const suggestion = parsed.sections['Đề xuất'] || '';
 
   return {
     action: 'fix_now',
@@ -105,9 +105,9 @@ function prepareFixNow(evidenceContent) {
 function prepareFixPlan(evidenceContent, sessionDir) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Nguyen nhan'] || '';
-  const evidence = parsed.sections['Bang chung'] || '';
-  const suggestion = parsed.sections['De xuat'] || '';
+  const rootCause = parsed.sections['Nguyên nhân'] || '';
+  const evidence = parsed.sections['Bằng chứng'] || '';
+  const suggestion = parsed.sections['Đề xuất'] || '';
 
   const frontmatter = {
     type: 'fix-plan',
@@ -115,7 +115,7 @@ function prepareFixPlan(evidenceContent, sessionDir) {
     created: new Date().toISOString(),
   };
 
-  const body = `\n# FIX-PLAN\n\n## Nguyen nhan\n${rootCause}\n\n## Files can sua\n${evidence}\n\n## Test can viet\n- [ ] Test tai hien loi\n- [ ] Test sau khi sua\n\n## De xuat\n${suggestion}\n\n## Risk Assessment\n- [ ] Anh huong modules khac?\n- [ ] Can cap nhat docs?\n`;
+  const body = `\n# FIX-PLAN\n\n## Nguyên nhân\n${rootCause}\n\n## Files can sua\n${evidence}\n\n## Test can viet\n- [ ] Test tai hien loi\n- [ ] Test sau khi sua\n\n## Đề xuất\n${suggestion}\n\n## Risk Assessment\n- [ ] Anh huong modules khac?\n- [ ] Can cap nhat docs?\n`;
 
   const planContent = assembleMd(frontmatter, body);
 
@@ -139,8 +139,8 @@ function prepareFixPlan(evidenceContent, sessionDir) {
 function prepareSelfFix(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Nguyen nhan'] || '';
-  const evidence = parsed.sections['Bang chung'] || '';
+  const rootCause = parsed.sections['Nguyên nhân'] || '';
+  const evidence = parsed.sections['Bằng chứng'] || '';
 
   return {
     action: 'self_fix',

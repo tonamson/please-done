@@ -38,12 +38,12 @@ function extractCheckpointQuestion(evidenceContent) {
     return { question: '', context: '', agentName: null, warnings };
   }
 
-  const question = parsed.sections['Cau hoi cho User'] || '';
-  const context = parsed.sections['Context cho Agent tiep'] || '';
+  const question = parsed.sections['Câu hỏi cho User'] || '';
+  const context = parsed.sections['Context cho Agent tiếp'] || '';
   const agentName = parsed.agent;
 
   if (!question) {
-    warnings.push('Evidence thieu section "Cau hoi cho User"');
+    warnings.push('Evidence thieu section "Câu hỏi cho User"');
   }
 
   return { question, context, agentName, warnings };
