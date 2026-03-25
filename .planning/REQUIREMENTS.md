@@ -23,8 +23,8 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 ### Tac tu Nghien cuu (AGENT)
 
-- [ ] **AGENT-01**: Evidence Collector (builder/sonnet) thu thap bang chung tu 2+ nguon doc lap, ghi ket qua theo format chuan vao internal/ hoac external/
-- [ ] **AGENT-02**: Fact Checker (architect/opus) xac minh source con valid, phat hien claim thieu bang chung, danh dau "KHONG XAC MINH DUOC" cho confidence LOW
+- [x] **AGENT-01**: Evidence Collector (builder/sonnet) thu thap bang chung tu 2+ nguon doc lap, ghi ket qua theo format chuan vao internal/ hoac external/
+- [x] **AGENT-02**: Fact Checker (architect/opus) xac minh source con valid, phat hien claim thieu bang chung, danh dau "KHONG XAC MINH DUOC" cho confidence LOW
 - [ ] **AGENT-03**: pd research tu dong chay pipeline Evidence Collector -> Fact Checker (spawn tuan tu, output Collector la input Checker)
 
 ### Bao ve Workflow (GUARD)
@@ -74,8 +74,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUDIT-02 | Phase 39 | Complete |
 | AUDIT-03 | Phase 38 | Pending |
 | AUDIT-04 | Phase 39 | Complete |
-| AGENT-01 | Phase 40 | Pending |
-| AGENT-02 | Phase 40 | Pending |
+| AGENT-01 | Phase 40 | Complete |
+| AGENT-02 | Phase 40 | Complete |
 | AGENT-03 | Phase 42 | Pending |
 | GUARD-01 | Phase 41 | Pending |
 | GUARD-02 | Phase 41 | Pending |
@@ -89,4 +89,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after Phase 39 Plan 01*
+*Last updated: 2026-03-25 after Phase 40 Plan 01*

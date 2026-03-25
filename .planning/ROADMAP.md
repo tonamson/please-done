@@ -110,7 +110,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 - [x] **Phase 38: Nen tang Luu tru Nghien cuu** — Thu muc phan tach internal/external, frontmatter chuan, confidence conventions (completed 2026-03-25)
 - [x] **Phase 39: Tieu chuan Kiem chung & Chi muc** — Evidence format, audit log append-only, INDEX.md tu dong (completed 2026-03-25)
-- [ ] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents
+- [ ] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents (1/? plans complete)
 - [ ] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection
 - [ ] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation
 
@@ -123,7 +123,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 **Success Criteria** (dieu phai DUNG khi phase hoan thanh):
   1. Thu muc `.planning/research/internal/` luu ket qua phan tich codebase voi frontmatter day du (agent, created, source: internal, topic, confidence)
   2. Thu muc `.planning/research/external/` luu ket qua tra cuu web voi ten `RES-[ID]-[SLUG].md`, moi ban la file rieng biet co so tang dan
-  3. Moi research file co confidence 3 bac (HIGH/MEDIUM/LOW) gan o ca cap file va cap claim (inline)
+  3. Moi research file co confidence 3 bac (HIGH/MEDIUM/LOW) gan o ca cap file (frontmatter) va cap claim (inline)
   4. `research-store.js` pure function module (createEntry, parseEntry) hoat dong dung voi ca 2 loai thu muc
 **Plans**: 2 plans
 Plans:
@@ -152,9 +152,9 @@ Plans:
   2. Fact Checker (architect/opus) xac minh source con valid, phat hien claim thieu bang chung, danh dau "KHONG XAC MINH DUOC" cho confidence LOW
   3. Ca 2 agents duoc dang ky trong resource-config.js voi tier/model mapping nhat quan voi he thong hien co
   4. Agent definitions tai `.claude/agents/` voi Claude Code native YAML frontmatter, source-or-skip rule bat buoc trong prompt
-**Plans**: 1 plan
+**Plans**: 1+ plans
 Plans:
-- [ ] 40-01-PLAN.md — Tao 2 agent definitions + dang ky AGENT_REGISTRY + cap nhat tests
+- [x] 40-01-PLAN.md — Evidence Collector va Fact Checker agent definitions + resource-config registration
 
 ### Phase 41: Bao ve Workflow
 **Goal**: Workflow plan tu dong phat hien khi thieu research backing va goi y bo sung — khong block, chi canh bao
@@ -184,6 +184,6 @@ Plans:
 |-------|----------------|--------|-----------|
 | 38. Nen tang Luu tru Nghien cuu | 0/2 | Complete    | 2026-03-25 |
 | 39. Tieu chuan Kiem chung & Chi muc | 1/1 | Complete    | 2026-03-25 |
-| 40. Tac tu Nghien cuu | 0/1 | Planning done | - |
+| 40. Tac tu Nghien cuu | 1/? | In progress | - |
 | 41. Bao ve Workflow | 0/? | Not started | - |
 | 42. Lenh pd research | 0/? | Not started | - |
