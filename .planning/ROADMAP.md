@@ -9,6 +9,7 @@
 - ✅ **v1.4 Mermaid Diagrams** — Phases 21-24 (shipped 2026-03-24)
 - ✅ **v1.5 Nang cap Skill Fix-Bug** — Phases 25-27 (shipped 2026-03-24)
 - ✅ **v2.1 Detective Orchestrator** — Phases 28-37 (shipped 2026-03-25)
+- 🔄 **v3.0 Research Squad** — Phases 38-42
 
 ## Phases
 
@@ -105,6 +106,77 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 </details>
 
+### v3.0 Research Squad
+
+- [ ] **Phase 38: Nen tang Luu tru Nghien cuu** — Thu muc phan tach internal/external, frontmatter chuan, confidence conventions
+- [ ] **Phase 39: Tieu chuan Kiem chung & Chi muc** — Evidence format, audit log append-only, INDEX.md tu dong
+- [ ] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents
+- [ ] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection
+- [ ] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation
+
+## Phase Details
+
+### Phase 38: Nen tang Luu tru Nghien cuu
+**Goal**: Nguoi dung co noi luu tru research co cau truc phan tach — moi file co metadata chuan, confidence ro rang
+**Depends on**: Khong (phase dau tien v3.0)
+**Requirements**: STORE-01, STORE-02, AUDIT-01, AUDIT-03
+**Success Criteria** (dieu phai DUNG khi phase hoan thanh):
+  1. Thu muc `.planning/research/internal/` luu ket qua phan tich codebase voi frontmatter day du (agent, created, source: internal, topic, confidence)
+  2. Thu muc `.planning/research/external/` luu ket qua tra cuu web voi ten `RES-[ID]-[SLUG].md`, moi ban la file rieng biet co so tang dan
+  3. Moi research file co confidence 3 bac (HIGH/MEDIUM/LOW) gan o ca cap file (frontmatter) va cap claim (inline)
+  4. `research-store.js` pure function module (createEntry, parseEntry) hoat dong dung voi ca 2 loai thu muc
+**Plans**: TBD
+
+### Phase 39: Tieu chuan Kiem chung & Chi muc
+**Goal**: Moi claim trong research file deu co bang chung dan chieu, moi hanh dong research deu duoc ghi lai, va INDEX.md tu dong phan anh trang thai thuc
+**Depends on**: Phase 38
+**Requirements**: AUDIT-02, AUDIT-04, STORE-03
+**Success Criteria** (dieu phai DUNG khi phase hoan thanh):
+  1. Moi research file co section `## Bang chung` voi source citation cho tung claim — claim khong co source khong duoc ghi
+  2. AUDIT_LOG.md ghi lai moi hanh dong research theo format append-only (timestamp, agent, action, topic, source-count, confidence)
+  3. INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
+  4. `confidence-scorer.js` pure function tinh confidence rule-based (KHONG dung LLM tu danh gia) — dem so nguon, classify chat luong nguon
+**Plans**: TBD
+
+### Phase 40: Tac tu Nghien cuu
+**Goal**: He thong co 2 agents chuyen biet — mot thu thap bang chung tu nhieu nguon, mot xac minh tinh chinh xac — voi giao thuc ro rang chong ao giac
+**Depends on**: Phase 39
+**Requirements**: AGENT-01, AGENT-02
+**Success Criteria** (dieu phai DUNG khi phase hoan thanh):
+  1. Evidence Collector (builder/sonnet) thu thap bang chung tu 2+ nguon doc lap va ghi ket qua vao internal/ hoac external/ theo format chuan
+  2. Fact Checker (architect/opus) xac minh source con valid, phat hien claim thieu bang chung, danh dau "KHONG XAC MINH DUOC" cho confidence LOW
+  3. Ca 2 agents duoc dang ky trong resource-config.js voi tier/model mapping nhat quan voi he thong hien co
+  4. Agent definitions tai `.claude/agents/` voi Claude Code native YAML frontmatter, source-or-skip rule bat buoc trong prompt
+**Plans**: TBD
+
+### Phase 41: Bao ve Workflow
+**Goal**: Workflow plan tu dong phat hien khi thieu research backing va goi y bo sung — khong block, chi canh bao
+**Depends on**: Phase 38 (chi can INDEX.md va plan-checker.js da co)
+**Requirements**: GUARD-01, GUARD-02, GUARD-03
+**Success Criteria** (dieu phai DUNG khi phase hoan thanh):
+  1. CHECK-06 trong plan-checker kiem tra plan co research backing (Key Links den `.planning/research/` files) — severity WARN mac dinh, configurable
+  2. Mandatory Suggestion phat hien >= 2 hedging patterns (chua ro, can tim hieu, co the...hoac, khong chac) trong plan body va goi y chay `pd research`
+  3. Strategy Injection tu dong load research context (max 2 files, 2000 tokens) vao agent prompts khi spawn — keyword match tu INDEX.md
+  4. False positive rate cua CHECK-06 duoi 5% khi test tren existing plans
+**Plans**: TBD
+
+### Phase 42: Lenh pd research
+**Goal**: Nguoi dung co the goi 1 lenh duy nhat de nghien cuu — he thong tu phan loai internal/external va chay pipeline thu thap + xac minh tu dong
+**Depends on**: Phase 40, Phase 41
+**Requirements**: STORE-04, AGENT-03, EXTRA-01
+**Success Criteria** (dieu phai DUNG khi phase hoan thanh):
+  1. Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (ten file/function -> internal, ten thu vien/API -> external)
+  2. Pipeline tu dong Evidence Collector -> Fact Checker chay tuan tu — output Collector la input Checker
+  3. Fact Checker cross-validate internal/ va external/ files cung topic, phat hien xung dot, ghi vao `## Xung dot phat hien` section
+  4. Skill file `pd-research.md` va workflow `research.md` duoc them vao converter pipeline voi snapshots cap nhat
+**Plans**: TBD
+
 ## Progress
 
-Full v2.1 phase details: `.planning/milestones/v2.1-ROADMAP.md`
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 38. Nen tang Luu tru Nghien cuu | 0/? | Not started | - |
+| 39. Tieu chuan Kiem chung & Chi muc | 0/? | Not started | - |
+| 40. Tac tu Nghien cuu | 0/? | Not started | - |
+| 41. Bao ve Workflow | 0/? | Not started | - |
+| 42. Lenh pd research | 0/? | Not started | - |

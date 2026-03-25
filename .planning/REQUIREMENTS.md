@@ -66,27 +66,27 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| STORE-01 | TBD | Pending |
-| STORE-02 | TBD | Pending |
-| STORE-03 | TBD | Pending |
-| STORE-04 | TBD | Pending |
-| AUDIT-01 | TBD | Pending |
-| AUDIT-02 | TBD | Pending |
-| AUDIT-03 | TBD | Pending |
-| AUDIT-04 | TBD | Pending |
-| AGENT-01 | TBD | Pending |
-| AGENT-02 | TBD | Pending |
-| AGENT-03 | TBD | Pending |
-| GUARD-01 | TBD | Pending |
-| GUARD-02 | TBD | Pending |
-| GUARD-03 | TBD | Pending |
-| EXTRA-01 | TBD | Pending |
+| STORE-01 | Phase 38 | Pending |
+| STORE-02 | Phase 38 | Pending |
+| STORE-03 | Phase 39 | Pending |
+| STORE-04 | Phase 42 | Pending |
+| AUDIT-01 | Phase 38 | Pending |
+| AUDIT-02 | Phase 39 | Pending |
+| AUDIT-03 | Phase 38 | Pending |
+| AUDIT-04 | Phase 39 | Pending |
+| AGENT-01 | Phase 40 | Pending |
+| AGENT-02 | Phase 40 | Pending |
+| AGENT-03 | Phase 42 | Pending |
+| GUARD-01 | Phase 41 | Pending |
+| GUARD-02 | Phase 41 | Pending |
+| GUARD-03 | Phase 41 | Pending |
+| EXTRA-01 | Phase 42 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 15 total
-- Mapped to phases: 0
-- Unmapped: 15
+- Mapped to phases: 15
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 after roadmap creation*
