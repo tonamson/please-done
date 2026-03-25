@@ -19,6 +19,7 @@ const {
   parseEntry,
   validateConfidence,
   generateFilename,
+  validateEvidence,
 } = require('../bin/lib/research-store');
 
 // ─── Constants ──────────────────────────────────────────────
@@ -432,5 +433,86 @@ describe('parseEntry — edge cases', () => {
     const result = parseEntry('# Just a heading\n\nSome content.');
     assert.equal(result.valid, false);
     assert.ok(result.errors.length >= 5); // all required fields missing
+  });
+});
+
+// ─── validateEvidence ──────────────────────────────────────
+
+describe('validateEvidence — valid content', () => {
+  it('content co section Bang chung va claims voi source => valid=true', () => {
+    const content = `# Research
+## Bang chung
+- Phat hien A — Source1 (confidence: HIGH)
+- Phat hien B -- Source2 (confidence: MEDIUM)
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, true);
+    assert.deepStrictEqual(result.warnings, []);
+  });
+
+  it('content co nhieu sections — chi check section Bang chung', () => {
+    const content = `# Research
+## Tong quan
+Noi dung tong quan.
+## Bang chung
+- Claim A — SourceX (confidence: HIGH)
+## Ket luan
+Done.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, true);
+    assert.deepStrictEqual(result.warnings, []);
+  });
+});
+
+describe('validateEvidence — thieu section', () => {
+  it('content KHONG co section Bang chung => valid=false', () => {
+    const content = `# Research
+## Tong quan
+Noi dung gi do.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('thieu section')));
+  });
+});
+
+describe('validateEvidence — section rong', () => {
+  it('section Bang chung rong => valid=false', () => {
+    const content = `# Research
+## Bang chung
+
+## Ket luan
+Done.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('rong')));
+  });
+});
+
+describe('validateEvidence — claim thieu source', () => {
+  it('claim khong co em dash hoac double dash => warning', () => {
+    const content = `# Research
+## Bang chung
+- Claim khong co source chi tiet
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('claim thieu source')));
+  });
+});
+
+describe('validateEvidence — null/empty input', () => {
+  it('null throw Error', () => {
+    assert.throws(() => validateEvidence(null), /thieu tham so content/);
+  });
+
+  it('empty string throw Error', () => {
+    assert.throws(() => validateEvidence(''), /thieu tham so content/);
+  });
+
+  it('undefined throw Error', () => {
+    assert.throws(() => validateEvidence(undefined), /thieu tham so content/);
   });
 });
