@@ -23,7 +23,7 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 - [x] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
 - [x] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
 - [x] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
-- [x] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
+- [ ] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
 
 ### Tri nho Du an (MEM)
 
@@ -35,10 +35,10 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 ### Vong lap Thuc thi (FLOW)
 
 - [x] **FLOW-01**: Buoc 1 — Orchestrator spawn Janitor agent (scout/haiku) thu thap trieu chung va kiem tra session cu
-- [x] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) doc lap sau khi Janitor hoan tat (tuan tu do rang buoc Claude Code Agent tool, logical parallel qua buildParallelPlan)
+- [ ] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) doc lap sau khi Janitor hoan tat (tuan tu do rang buoc Claude Code Agent tool, logical parallel qua buildParallelPlan)
 - [x] **FLOW-03**: Buoc 3 — Orchestrator spawn Repro Engineer (builder/sonnet) tao Red Test tu evidence cua Buoc 2
 - [x] **FLOW-04**: Buoc 4 — Orchestrator spawn Fix Architect (architect/opus) tong hop tat ca evidence va ra phan quyet
-- [x] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
+- [ ] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
 - [x] **FLOW-06**: Khi INCONCLUSIVE o Buoc 4, orchestrator quay lai Buoc 2 voi Elimination Log va thong tin moi tu user (max 3 vong)
 - [x] **FLOW-07**: User co the chay single-agent mode (v1.5 cu) khi khong co agent configs hoac truyen --single flag
 - [x] **FLOW-08**: Orchestrator an chi tiet agent spawning, chi hien ket qua cuoi cung cho user (progressive disclosure)
@@ -92,16 +92,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-03 | Phase 34, Phase 35 (path fix) | Complete |
 | PROT-04 | Phase 30, Phase 35 (roundNumber fix) | Complete |
 | PROT-06 | Phase 34, Phase 35 (roundNumber fix) | Complete |
-| PROT-08 | Phase 34 (gap closure) | Complete |
+| PROT-08 | Phase 34, Phase 36 (wiring fix) | Pending |
 | MEM-01 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-02 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-03 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-04 | Phase 31, Phase 35 (bug-record fix) | Complete |
 | FLOW-01 | Phase 32, Phase 35 (encoding fix) | Complete |
-| FLOW-02 | Phase 34, Phase 35 (encoding fix) | Complete |
+| FLOW-02 | Phase 34, Phase 35, Phase 36 (wiring fix) | Pending |
 | FLOW-03 | Phase 32, Phase 35 (write-back fix) | Complete |
 | FLOW-04 | Phase 32, Phase 35 (encoding fix) | Complete |
-| FLOW-05 | Phase 34, Phase 35 (bug-record fix) | Complete |
+| FLOW-05 | Phase 34, Phase 35, Phase 36 (wiring fix) | Pending |
 | FLOW-08 | Phase 32 | Complete |
 | FLOW-06 | Phase 33 | Complete |
 | FLOW-07 | Phase 33 | Complete |
@@ -113,4 +113,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-24*
-*Last updated: 2026-03-25 after Phase 35 gap closure completion*
+*Last updated: 2026-03-25 after Phase 36 gap closure planning (reset 3 requirements to Pending for re-verification)*

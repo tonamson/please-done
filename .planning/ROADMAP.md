@@ -8,7 +8,7 @@
 - ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
 - ✅ **v1.4 Mermaid Diagrams** — Phases 21-24 (shipped 2026-03-24)
 - ✅ **v1.5 Nang cap Skill Fix-Bug** — Phases 25-27 (shipped 2026-03-24)
-- **v2.1 Detective Orchestrator** — Phases 28-33 (in progress)
+- **v2.1 Detective Orchestrator** — Phases 28-36 (in progress)
 
 ## Phases
 
@@ -118,10 +118,9 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - INT-04: Truyen existingBugs cho createBugRecord, fix return field naming
   - INT-05: Them SESSION.md write-back tai 2 vi tri thieu
   - Documentation: Cap nhat REQUIREMENTS.md checkboxes va SUMMARY frontmatter
-
-Plans:
-- [ ] 35-01-PLAN.md — Dong bo encoding ASCII->Unicode trong 3 JS modules va 3 test files (INT-01)
-- [ ] 35-02-PLAN.md — Fix roundNumber, planPath, createBugRecord, write-back trong workflow va doc sync (INT-02..05, D-07)
+- [ ] **Phase 36: Fix Workflow Wiring** (gap closure)
+  - INT-07: Fix detectiveResult shape mismatch trong mergeParallelResults call
+  - INT-08: Fix runLogicSync return destructuring sai
 
 ## Phase Details
 
@@ -235,6 +234,19 @@ Plans:
   7. REQUIREMENTS.md checkboxes ORCH-01/02 va MEM-01..04 duoc cap nhat [x]
   8. Toan bo tests pass, khong regression
 
+### Phase 36: Fix Workflow Wiring — mergeParallelResults & runLogicSync
+**Goal**: Fix 2 wiring bugs trong fix-bug.md: detectiveResult shape mismatch khi goi mergeParallelResults (INT-07), va runLogicSync return destructuring sai (INT-08)
+**Depends on**: Phase 35
+**Requirements**: PROT-08, FLOW-02, FLOW-05
+**Gap Closure**: Closes INT-07 (P1), INT-08 (P2) from v2.1 milestone audit (post-Phase 35)
+**Success Criteria** (what must be TRUE):
+  1. mergeParallelResults nhan { evidenceContent: detectiveContent } — khong nhan validateEvidence result
+  2. mergeParallelResults.allSucceeded = true khi ca Detective va DocSpec thanh cong (khong luon false)
+  3. runLogicSync return duoc destructure dung: logicResult.hasLogicChange, reportResult, rulesResult.suggestions
+  4. Khi hasLogicChange = true va reportResult !== null, PDF update prompt fires
+  5. Khi rulesResult.suggestions co items, CLAUDE.md update prompt fires
+  6. Toan bo tests pass, snapshots cap nhat, khong regression
+
 ## Progress
 
 **Thu tu thuc hien:** Phase 28 -> 29 -> 30 (song song voi 31) -> 32 -> 33
@@ -275,4 +287,5 @@ Plans:
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
-| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
+| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
+| 36. Fix Workflow Wiring | v2.1 | 0/0 | Not started | - |
