@@ -21,6 +21,8 @@ const AGENT_NAMES = [
   'pd-doc-specialist',
   'pd-repro-engineer',
   'pd-fix-architect',
+  'pd-evidence-collector',
+  'pd-fact-checker',
 ];
 
 // ─── Helper: Parse YAML frontmatter ───────────────────────
@@ -79,7 +81,7 @@ function parseAgentFrontmatter(filePath) {
 // ─── Test: Agent files existence ──────────────────────────
 
 describe('Agent files existence', () => {
-  it('5 agent files ton tai tai .claude/agents/', () => {
+  it('7 agent files ton tai tai .claude/agents/', () => {
     for (const name of AGENT_NAMES) {
       const filePath = join(AGENTS_DIR, `${name}.md`);
       // readFileSync se throw neu file khong ton tai
@@ -135,6 +137,24 @@ describe('Agent files frontmatter', () => {
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, 'high');
     assert.deepEqual(fm.tools, ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep']);
+  });
+
+  it('pd-evidence-collector co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-evidence-collector.md'));
+    assert.equal(fm.name, 'pd-evidence-collector');
+    assert.equal(fm.model, 'sonnet');
+    assert.equal(fm.maxTurns, 25);
+    assert.equal(fm.effort, 'medium');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Write', 'Bash', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs']);
+  });
+
+  it('pd-fact-checker co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-fact-checker.md'));
+    assert.equal(fm.name, 'pd-fact-checker');
+    assert.equal(fm.model, 'opus');
+    assert.equal(fm.maxTurns, 30);
+    assert.equal(fm.effort, 'high');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash']);
   });
 });
 

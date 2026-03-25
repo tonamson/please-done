@@ -1,19 +1,10 @@
 ---
 name: pd-evidence-collector
 description: Thu thap bang chung tu nhieu nguon doc lap cho research — ghi ket qua theo format chuan voi citations day du.
-tier: builder
+tools: Read, Glob, Grep, Write, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: sonnet
 maxTurns: 25
 effort: medium
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Write
-  - Bash
-  - mcp__context7__resolve-library-id
-  - mcp__context7__query-docs
-tools: Read, Glob, Grep, Write, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
 ---
 
 <objective>

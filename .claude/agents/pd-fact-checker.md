@@ -1,16 +1,10 @@
 ---
 name: pd-fact-checker
 description: Xac minh tinh chinh xac cua research — phat hien claim thieu bang chung, danh dau KHONG XAC MINH DUOC.
-tier: architect
+tools: Read, Glob, Grep, Bash
 model: opus
 maxTurns: 30
 effort: high
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - Bash
-tools: Read, Glob, Grep, Bash
 ---
 
 <objective>

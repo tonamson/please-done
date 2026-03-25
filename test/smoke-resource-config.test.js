@@ -111,6 +111,33 @@ describe('getAgentConfig', () => {
     assert.ok(cfg.tools.includes('Grep'));
   });
 
+  it('tra ve full config cho pd-evidence-collector', () => {
+    const cfg = getAgentConfig('pd-evidence-collector');
+    assert.equal(cfg.name, 'pd-evidence-collector');
+    assert.equal(cfg.tier, 'builder');
+    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.effort, 'medium');
+    assert.equal(cfg.maxTurns, 25);
+    assert.ok(cfg.tools.includes('Read'));
+    assert.ok(cfg.tools.includes('Write'));
+    assert.ok(cfg.tools.includes('Bash'));
+    assert.ok(cfg.tools.includes('mcp__context7__resolve-library-id'));
+    assert.ok(cfg.tools.includes('mcp__context7__query-docs'));
+  });
+
+  it('tra ve full config cho pd-fact-checker', () => {
+    const cfg = getAgentConfig('pd-fact-checker');
+    assert.equal(cfg.name, 'pd-fact-checker');
+    assert.equal(cfg.tier, 'architect');
+    assert.equal(cfg.model, 'opus');
+    assert.equal(cfg.effort, 'high');
+    assert.equal(cfg.maxTurns, 30);
+    assert.ok(cfg.tools.includes('Read'));
+    assert.ok(cfg.tools.includes('Glob'));
+    assert.ok(cfg.tools.includes('Grep'));
+    assert.ok(cfg.tools.includes('Bash'));
+  });
+
   it('throw khi agent null', () => {
     assert.throws(() => getAgentConfig(null), /thieu tham so/);
   });
@@ -187,8 +214,8 @@ describe('Constants', () => {
     assert.equal(Object.keys(TIER_MAP).length, 3);
   });
 
-  it('AGENT_REGISTRY co 5 agents', () => {
-    assert.equal(Object.keys(AGENT_REGISTRY).length, 5);
+  it('AGENT_REGISTRY co 7 agents', () => {
+    assert.equal(Object.keys(AGENT_REGISTRY).length, 7);
   });
 
   it('PARALLEL_LIMIT la 2', () => {
