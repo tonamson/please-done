@@ -217,5 +217,5 @@ Plans:
 | 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 30. Detective Interactions | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 31. Project Memory & Regression Detection | v2.1 | 1/2 | Complete    | 2026-03-25 |
-| 32. Orchestrator Workflow | v2.1 | 0/2 | Not started | - |
+| 32. Orchestrator Workflow | v2.1 | 1/2 | In progress | - |
 | 33. Resilience & Backward Compatibility | v2.1 | 0/? | Not started | - |
