@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
 status: Milestone complete
-stopped_at: Completed 36-01-PLAN.md
-last_updated: "2026-03-25T11:03:31.380Z"
+stopped_at: Completed 37-01-PLAN.md
+last_updated: "2026-03-25T13:20:49.551Z"
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 19
-  completed_plans: 19
+  total_phases: 10
+  completed_phases: 10
+  total_plans: 20
+  completed_plans: 20
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-24)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 34 — fix-integration-wiring
+**Current focus:** Phase 37 — fix-workflow-prose-gaps
 
 ## Current Position
 
-Phase: 36
+Phase: 37
 Plan: Not started
 
 ## Performance Metrics
@@ -68,6 +68,7 @@ Plan: Not started
 | Phase 34 P02 | 1min | 1 tasks | 1 files |
 | Phase 34-fix-integration-wiring P01 | 3min | 2 tasks | 5 files |
 | Phase 36-fix-workflow-wiring P01 | 1min | 2 tasks | 5 files |
+| Phase 37 P01 | 2min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -105,6 +106,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 34-fix-integration-wiring]: Xoa fixInstructions ke ca trong fallback section de dam bao zero old param names
 - [Phase 36]: Rename validateEvidence result thanh detectiveValidation/docSpecValidation de tranh shape mismatch voi mergeParallelResults
 - [Phase 36]: Dung optional chaining (logicResult?.hasLogicChange, rulesResult?.suggestions?.length) de an toan voi null returns tu runLogicSync
+- [Phase 37]: INT-09: Buoc 5e chi ro parseFrontmatter() call va {id, frontmatter} object construction
+- [Phase 37]: INT-10: Doi tu grep inconclusive_rounds sang dem ## Round headings + 1
 
 ### Pending Todos
 
@@ -116,6 +119,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T10:53:30Z
-Stopped at: Completed 36-01-PLAN.md
-Resume file: .planning/phases/36-fix-workflow-wiring/36-01-SUMMARY.md
+Last session: 2026-03-25T13:17:38.247Z
+Stopped at: Completed 37-01-PLAN.md
+Resume file: None
