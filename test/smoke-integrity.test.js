@@ -469,7 +469,7 @@ describe('Repo integrity -- effort-level routing', () => {
   it('fix-bug workflow co inconclusive loop-back', () => {
     const content = fs.readFileSync(path.join(ROOT, 'workflows', 'fix-bug.md'), 'utf8');
     assert.match(content, /buildInconclusiveContext/, 'fix-bug.md: thieu buildInconclusiveContext call');
-    assert.match(content, /inconclusive_rounds/, 'fix-bug.md: thieu inconclusive round tracking');
+    assert.match(content, /## Round.*INCONCLUSIVE/, 'fix-bug.md: thieu inconclusive round tracking');
     assert.match(content, /user_input_round_/, 'fix-bug.md: thieu user input file pattern');
   });
 

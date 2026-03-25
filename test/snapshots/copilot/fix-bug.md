@@ -225,7 +225,7 @@ Khoi tao roundNumber = 1 (mac dinh cho lan dau). Neu quay lai Buoc 4 sau continu
      Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
 **NEU outcome = 'inconclusive':**
   1. Goi `buildInconclusiveContext({ evidenceContent: content, userInputPath: null, sessionDir: session_dir, currentRound })` tu `bin/lib/outcome-router.js`
-     - currentRound: doc tu SESSION.md (grep `inconclusive_rounds:` -> parse so, mac dinh 1 neu chua co)
+     - currentRound: doc tu SESSION.md body — dem so "## Round" headings + 1 (mac dinh 1 neu chua co heading nao)
      -> { eliminationLog, canContinue, prompt, warnings }
   2. Hien Elimination Log cho user
   3. NEU canContinue = false (da dat 3 vong):
@@ -237,7 +237,7 @@ Khoi tao roundNumber = 1 (mac dinh cho lan dau). Neu quay lai Buoc 4 sau continu
      Hoi user bo sung thong tin qua cau hoi truc tiep (free-text)
      Ghi response vao `{session_dir}/user_input_round_{currentRound}.md`
      read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { appendToBody: '- inconclusive_rounds: ' + currentRound })` tu `bin/lib/session-manager.js`
+     Goi `updateSession(currentMd, { appendToBody: '\n## Round ' + currentRound + ': INCONCLUSIVE\n' })` tu `bin/lib/session-manager.js`
      Ghi ket qua vao `{session_dir}/SESSION.md`
      Hien banner: "--- Vong {currentRound}/3: Dang dieu tra them voi thong tin moi ---"
      Quay lai Buoc 2 (spawn Detective + DocSpec voi context moi tu prompt)
@@ -299,7 +299,12 @@ Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
   2. Goi `createBugRecord({ existingBugs, file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` tu `bin/lib/bug-memory.js`
      -> bugRecord (object voi { id, fileName, content, number })
   3. Ghi bugRecord.content vao `.planning/bugs/${bugRecord.fileName}`
-  3. glob `.planning/bugs/BUG-*.md` -> read tat ca -> parse thanh records
+  3. glob `.planning/bugs/BUG-*.md` -> read tat ca
+     Voi moi file BUG-*.md:
+       - Goi `parseFrontmatter(content)` tu `bin/lib/utils.js` -> { frontmatter }
+       - Parse so tu filename (VD: BUG-003.md -> 'BUG-003')
+       - Construct object: { id: 'BUG-003', frontmatter: parsed.frontmatter }
+     Tao mang bugRecords tu tat ca objects tren
      Goi `buildIndex(bugRecords)` tu `bin/lib/bug-memory.js` -> indexMd
      Ghi indexMd vao `.planning/bugs/INDEX.md`
   4. read `{session_dir}/SESSION.md` -> currentMd
