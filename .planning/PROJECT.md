@@ -93,7 +93,9 @@ Shipped v1.5 with 601 total tests, 47 files modified, +4,366 net LOC.
 
 v1.5 added: 7 new features in fix-bug workflow — reproduction test generation (5b.1), regression analysis (8a), debug log cleanup (9a), security warnings (9a), logic change detection (10a), Mermaid report update (10a), CLAUDE.md rule suggestion (10a). 5 new pure function modules, 75 new tests.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows, 12 JS library modules.
+Phase 30 complete: 3 detective interaction modules — outcome-router.js (ROOT CAUSE 3 lựa chọn), checkpoint-handler.js (CHECKPOINT flow, max 2 vòng), parallel-dispatch.js (Detective+DocSpec song song). 26 tests, 6 pure functions.
+
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 12 skills, 10 workflows, 15 JS library modules.
 
 ## Constraints
 
@@ -146,4 +148,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-24 after Phase 28 complete*
+*Last updated: 2026-03-25 after Phase 30 complete*
