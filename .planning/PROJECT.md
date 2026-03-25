@@ -61,7 +61,7 @@ Every workflow step must produce the highest quality code output while consuming
 <!-- Current scope: v3.0 Research Squad -->
 
 - [x] Cấu trúc lưu trữ phân tách — internal/ + external/ + research-store.js — v3.0 (Phase 38)
-- [ ] Tiêu chuẩn báo cáo Audit — Metadata, Evidence, Confidence, Audit Log
+- [x] Tiêu chuẩn báo cáo Audit — confidence-scorer.js, audit-logger.js, index-generator.js, validateEvidence — v3.0 (Phase 39)
 - [ ] Research Squad agents — Evidence Collector + Fact Checker
 - [ ] Workflow Guards — Plan-Gate, Mandatory Suggestion, Strategy Injection
 - [ ] Lệnh pd research — auto-detect internal vs external context
