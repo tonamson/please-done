@@ -96,7 +96,10 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - [x] 29-01-PLAN.md — TDD evidence-protocol.js (3 outcome types, validation, parsing)
   - [x] 29-02-PLAN.md — TDD session-manager.js (session CRUD, folder-based structure)
   - [x] 29-03-PLAN.md — Cap nhat 5 agent files bo hardcode paths, them session-based evidence format
-- [ ] **Phase 30: Detective Interactions** - ROOT CAUSE choices, CHECKPOINT flow, Continuation Agent, parallel dispatch
+- [ ] **Phase 30: Detective Interactions** (3 plans)
+  - [ ] 30-01-PLAN.md — outcome-router.js (ROOT CAUSE 3 lua chon, FIX-PLAN template)
+  - [ ] 30-02-PLAN.md — checkpoint-handler.js (CHECKPOINT flow, Continuation Agent max 2 vong)
+  - [ ] 30-03-PLAN.md — parallel-dispatch.js (Detective+DocSpec song song, partial failure)
 - [ ] **Phase 31: Project Memory & Regression Detection** - Bug history recall, regression alerts, double-check truoc khi fix
 - [ ] **Phase 32: Orchestrator Workflow** - 5-buoc execution loop tich hop tat ca agents va evidence
 - [ ] **Phase 33: Resilience & Backward Compatibility** - Loop-back khi INCONCLUSIVE, single-agent fallback, converter pipeline
@@ -124,12 +127,12 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 **Goal**: User tuong tac voi orchestrator qua 3 nhanh ket qua (ROOT CAUSE, CHECKPOINT, parallel dispatch) mot cach tu nhien
 **Depends on**: Phase 29
 **Requirements**: PROT-03, PROT-04, PROT-06, PROT-08
+**Plans**: 3 plans
 **Success Criteria** (what must be TRUE):
   1. Khi ROOT CAUSE duoc tim thay, user duoc hien 3 lua chon: Sua ngay, Len ke hoach, Tu sua — va orchestrator hanh dong dung theo lua chon
   2. Khi agent ghi CHECKPOINT REACHED, orchestrator hien cau hoi cho user va truyen cau tra loi cho agent tiep theo
   3. Khi user tra loi CHECKPOINT, orchestrator spawn Continuation Agent moi tiep nhan context tu evidence files truoc do
   4. Code Detective va Doc Specialist chay song song thanh cong, ca 2 doc evidence_janitor.md ma khong xung dot file
-**Plans**: TBD
 
 ### Phase 31: Project Memory & Regression Detection
 **Goal**: He thong nho lich su bug va canh bao regression truoc khi fix, giam lap lai cung loi
@@ -200,7 +203,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 | 27. Dong bo Logic & Bao cao | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
 | 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
-| 30. Detective Interactions | v2.1 | 0/? | Not started | - |
+| 30. Detective Interactions | v2.1 | 0/3 | Not started | - |
 | 31. Project Memory & Regression Detection | v2.1 | 0/? | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
 | 33. Resilience & Backward Compatibility | v2.1 | 0/? | Not started | - |
