@@ -246,6 +246,10 @@ Plans:
   4. Khi hasLogicChange = true va reportResult !== null, PDF update prompt fires
   5. Khi rulesResult.suggestions co items, CLAUDE.md update prompt fires
   6. Toan bo tests pass, snapshots cap nhat, khong regression
+**Plans**: 1 plan
+
+Plans:
+- [ ] 36-01-PLAN.md — Fix detectiveResult shape mismatch (INT-07) va runLogicSync destructuring (INT-08), regenerate snapshots
 
 ## Progress
 
@@ -288,4 +292,4 @@ Plans:
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
 | 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
-| 36. Fix Workflow Wiring | v2.1 | 0/0 | Not started | - |
+| 36. Fix Workflow Wiring | v2.1 | 0/1 | Not started | - |
