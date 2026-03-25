@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
 status: Ready to execute
-stopped_at: Completed 30-02-PLAN.md
-last_updated: "2026-03-25T02:44:59.869Z"
+stopped_at: Completed 30-01-PLAN.md
+last_updated: "2026-03-25T02:45:29.213Z"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 8
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-24)
 ## Current Position
 
 Phase: 30 (detective-interactions) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -60,6 +60,7 @@ Plan: 2 of 3
 | Phase 29 P01 | 2min | 2 tasks | 2 files |
 | Phase 29 P02 | 4min | 2 tasks | 3 files |
 | Phase 30 P02 | 2min | 2 tasks | 2 files |
+| Phase 30 P01 | 2min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,8 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 29]: Session slug generation bo dau tieng Viet bang normalize(NFD) + regex, gioi han 40 ky tu
 - [Phase 30]: canContinue dung <= de round 1 va 2 deu cho phep tiep tuc, round 3 moi false
 - [Phase 30]: Prompt continuation gom 4 dong join newline — de parse va de doc cho continuation agent
+- [Phase 30]: Pure function pattern nhat quan voi evidence-protocol.js — truyen content qua tham so, tra structured object voi warnings
+- [Phase 30]: prepareFixNow KHONG tra agentName — orchestrator truc tiep sua code (D-02)
 
 ### Pending Todos
 
@@ -94,6 +97,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-25T02:44:59.857Z
-Stopped at: Completed 30-02-PLAN.md
+Last session: 2026-03-25T02:45:29.190Z
+Stopped at: Completed 30-01-PLAN.md
 Resume file: None
