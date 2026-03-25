@@ -122,7 +122,7 @@ function prepareFixPlan(evidenceContent, sessionDir) {
   return {
     action: 'fix_plan',
     planContent,
-    planPath: 'FIX-PLAN.md',
+    planPath: `${sessionDir}/FIX-PLAN.md`,
     warnings: [],
   };
 }

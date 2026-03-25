@@ -90,7 +90,7 @@ describe('prepareFixPlan', () => {
     assert.equal(result.action, 'fix_plan');
     assert.ok(result.planContent.includes('## Nguyên nhân'));
     assert.ok(result.planContent.includes('## Risk Assessment'));
-    assert.equal(result.planPath, 'FIX-PLAN.md');
+    assert.ok(result.planPath.includes('/S001-test/FIX-PLAN.md'));
   });
 });
 
