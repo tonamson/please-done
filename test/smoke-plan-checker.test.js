@@ -825,7 +825,7 @@ describe('runAllChecks', () => {
       requirementIds: ['REQ-01']
     });
     assert.equal(result.overall, 'pass');
-    assert.equal(result.checks.length, 8);
+    assert.equal(result.checks.length, 10);
     assert.ok(result.checks.every(c => c.status === 'pass'));
   });
 
@@ -900,18 +900,20 @@ describe('runAllChecks', () => {
     assert.equal(result.overall, 'warn');
   });
 
-  it('returns 4 check results with correct checkIds', () => {
+  it('returns 10 check results with correct checkIds', () => {
     const result = pc.runAllChecks({
       planContent: 'test',
       tasksContent: null,
       requirementIds: []
     });
-    assert.equal(result.checks.length, 8);
+    assert.equal(result.checks.length, 10);
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-05'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-06'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-07'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
@@ -1371,21 +1373,98 @@ describe('ADV-03: checkEffortClassification', () => {
 // ─── runAllChecks with 8 checks ─────────────────────────
 
 describe('runAllChecks with ADV checks', () => {
-  it('returns 8 checks total', () => {
+  it('returns 10 checks total', () => {
     const result = pc.runAllChecks({
       planContent: 'test',
       tasksContent: null,
       requirementIds: []
     });
-    assert.equal(result.checks.length, 8);
+    assert.equal(result.checks.length, 10);
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-01'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-02'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-03'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-04'));
     assert.ok(result.checks.some(c => c.checkId === 'CHECK-05'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-06'));
+    assert.ok(result.checks.some(c => c.checkId === 'CHECK-07'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-01'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-02'));
     assert.ok(result.checks.some(c => c.checkId === 'ADV-03'));
+  });
+});
+
+// ─── CHECK-06: Research Backing ─────────────────────────
+
+describe('CHECK-06: Research Backing', () => {
+  it('PASS khi hasResearchFiles=false (khong co research files)', () => {
+    const result = pc.checkResearchBacking('plan content khong co ref', { hasResearchFiles: false });
+    assert.equal(result.checkId, 'CHECK-06');
+    assert.equal(result.status, 'pass');
+    assert.equal(result.issues.length, 0);
+  });
+
+  it('PASS khi hasResearchFiles=true va plan co .planning/research/ reference', () => {
+    const planContent = 'Xem .planning/research/internal/analysis.md de biet them';
+    const result = pc.checkResearchBacking(planContent, { hasResearchFiles: true });
+    assert.equal(result.status, 'pass');
+    assert.equal(result.issues.length, 0);
+  });
+
+  it('WARN khi hasResearchFiles=true nhung plan KHONG co .planning/research/ reference', () => {
+    const planContent = 'Plan khong co reference nao den research';
+    const result = pc.checkResearchBacking(planContent, { hasResearchFiles: true });
+    assert.equal(result.status, 'warn');
+    assert.equal(result.issues.length, 1);
+    assert.ok(result.issues[0].fixHint.includes('pd research'));
+  });
+
+  it('PASS khi severity=off bat ke input', () => {
+    const result = pc.checkResearchBacking('no ref', { hasResearchFiles: true, severity: 'off' });
+    assert.equal(result.status, 'pass');
+  });
+
+  it('BLOCK khi severity=block va co issue', () => {
+    const result = pc.checkResearchBacking('no ref', { hasResearchFiles: true, severity: 'block' });
+    assert.equal(result.status, 'block');
+    assert.equal(result.issues.length, 1);
+  });
+});
+
+// ─── CHECK-07: Hedging Language ─────────────────────────
+
+describe('CHECK-07: Hedging Language', () => {
+  it('PASS khi planContent co 0 hedging patterns', () => {
+    const result = pc.checkHedgingLanguage('Plan ro rang khong co gi mo ho');
+    assert.equal(result.checkId, 'CHECK-07');
+    assert.equal(result.status, 'pass');
+    assert.equal(result.issues.length, 0);
+  });
+
+  it('PASS khi planContent co 1 hedging pattern (threshold la 2)', () => {
+    const result = pc.checkHedgingLanguage('Chua ro lieu co can khong');
+    assert.equal(result.status, 'pass');
+  });
+
+  it('WARN khi planContent co 2+ hedging patterns', () => {
+    const result = pc.checkHedgingLanguage('Chua ro lieu co can khong. Can tim hieu them ve van de nay.');
+    assert.equal(result.status, 'warn');
+    assert.equal(result.issues.length, 1);
+    assert.ok(result.issues[0].message.includes('pd research'));
+  });
+
+  it('PASS khi severity=off', () => {
+    const result = pc.checkHedgingLanguage('Chua ro. Can tim hieu them.', { severity: 'off' });
+    assert.equal(result.status, 'pass');
+  });
+
+  it('BLOCK khi severity=block va co 2+ matches', () => {
+    const result = pc.checkHedgingLanguage('Chua ro. Can tim hieu them.', { severity: 'block' });
+    assert.equal(result.status, 'block');
+  });
+
+  it('PASS khi planContent rong/null', () => {
+    assert.equal(pc.checkHedgingLanguage(null).status, 'pass');
+    assert.equal(pc.checkHedgingLanguage('').status, 'pass');
   });
 });
 
@@ -1440,8 +1519,8 @@ describe('Historical v1.0 plan validation (D-17)', () => {
     });
   }
 
-  // Verify all 22 plans return 8 checks each (expanded suite)
-  it('all 22 historical plans return 8 checks each (expanded suite)', () => {
+  // Verify all 22 plans return 10 checks each (expanded suite)
+  it('all 22 historical plans return 10 checks each (expanded suite)', () => {
     for (const planPath of HISTORICAL_PLANS) {
       const content = fs.readFileSync(path.join(ROOT, planPath), 'utf8');
       const result = pc.runAllChecks({
@@ -1449,8 +1528,8 @@ describe('Historical v1.0 plan validation (D-17)', () => {
         tasksContent: null,
         requirementIds: []
       });
-      assert.equal(result.checks.length, 8,
-        `${planPath} returned ${result.checks.length} checks instead of 8`);
+      assert.equal(result.checks.length, 10,
+        `${planPath} returned ${result.checks.length} checks instead of 10`);
     }
   });
 
