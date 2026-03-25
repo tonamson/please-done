@@ -103,6 +103,10 @@ Janitor FAIL (agent throw/timeout):
 
 --- Buoc 2/5: Phan tich code va tai lieu ---
 
+0. Goi `isHeavyAgent('pd-code-detective')` tu `bin/lib/resource-config.js`
+   - true -> WARNING: "Detective dung heavy tool (FastCode). Chi 1 tac vu nang tai 1 thoi diem."
+   - Ghi warning vao `{session_dir}/SESSION.md` qua updateSession() neu co
+
 1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
    - sessionDir: gia tri session_dir tu Buoc 0.6
    - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
@@ -141,6 +145,10 @@ Janitor FAIL (agent throw/timeout):
    - Detective THANH CONG -> tiep tuc Buoc 3
    - Detective FAIL + DocSpec THANH CONG -> WARNING: "Code Detective khong tra ket qua. Chi co tai lieu." Tiep tuc Buoc 3 voi evidence_docs.md.
    - CA HAI FAIL -> STOP: "Khong the phan tich. Vui long kiem tra lai mo ta loi."
+   - Detective FAIL do timeout/spawn error:
+     Goi `shouldDegrade(error)` tu `bin/lib/resource-config.js`
+     true -> WARNING: "Ha cap sang che do tuan tu." Spawn DocSpec truoc, dung evidence_docs.md de spawn Detective lai.
+     false -> xu ly nhu tren (STOP neu ca hai fail)
 
 DocSpec fail la NON-BLOCKING (per D-06). Chi Detective fail moi co the block workflow.
 

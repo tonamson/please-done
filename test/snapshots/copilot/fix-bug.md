@@ -105,6 +105,9 @@ Janitor FAIL (agent throw/timeout):
 - KHONG co trieu chung -> STOP: "Khong the thu thap trieu chung. Vui long thu lai."
 ## Buoc 2: Phan tich code va tai lieu
 --- Buoc 2/5: Phan tich code va tai lieu ---
+0. Goi `isHeavyAgent('pd-code-detective')` tu `bin/lib/resource-config.js`
+   - true -> WARNING: "Detective dung heavy tool (FastCode). Chi 1 tac vu nang tai 1 thoi diem."
+   - Ghi warning vao `{session_dir}/SESSION.md` qua updateSession() neu co
 1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
    - sessionDir: gia tri session_dir tu Buoc 0.6
    - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
@@ -123,9 +126,9 @@ Janitor FAIL (agent throw/timeout):
 5. read `{session_dir}/evidence_docs.md` -> docSpecContent (co the khong ton tai)
    - Neu file ton tai: validateEvidence(docSpecContent) -> docSpecResult
    - Neu file KHONG ton tai hoac invalid: docSpecResult = null
-6. Goi `mergeParallelResults({ detective: detectiveResult, docSpec: docSpecResult })` tu `bin/lib/parallel-dispatch.js`
-   - detective: { evidenceContent: detectiveContent } hoac { error: { message: '...' } }
-   - docSpec: { evidenceContent: docSpecContent } hoac { error: { message: '...' } } hoac null
+6. Goi `mergeParallelResults({ detectiveResult, docSpecResult })` tu `bin/lib/parallel-dispatch.js`
+   - detectiveResult: { evidenceContent: detectiveContent } hoac { error: { message: '...' } }
+   - docSpecResult: { evidenceContent: docSpecContent } hoac { error: { message: '...' } } hoac null
    - Ket qua: { results, allSucceeded, warnings }
 7. Ghi warnings vao SESSION.md (neu co):
    - read `{session_dir}/SESSION.md` -> currentMd
@@ -135,6 +138,10 @@ Janitor FAIL (agent throw/timeout):
    - Detective THANH CONG -> tiep tuc Buoc 3
    - Detective FAIL + DocSpec THANH CONG -> WARNING: "Code Detective khong tra ket qua. Chi co tai lieu." Tiep tuc Buoc 3 voi evidence_docs.md.
    - CA HAI FAIL -> STOP: "Khong the phan tich. Vui long kiem tra lai mo ta loi."
+   - Detective FAIL do timeout/spawn error:
+     Goi `shouldDegrade(error)` tu `bin/lib/resource-config.js`
+     true -> WARNING: "Ha cap sang che do tuan tu." Spawn DocSpec truoc, dung evidence_docs.md de spawn Detective lai.
+     false -> xu ly nhu tren (STOP neu ca hai fail)
 DocSpec fail la NON-BLOCKING (per D-06). Chi Detective fail moi co the block workflow.
 ### Progressive Disclosure (FLOW-08)
 Moi buoc bat dau bang banner format:
@@ -184,7 +191,7 @@ Sau khi agent hoan tat:
   2. Hien question va 3 lua chon cho user (dung cau hoi truc tiep, KHONG hien agent output)
   3. User chon:
      - fix_now -> Goi `prepareFixNow(content)` tu `bin/lib/outcome-router.js`
-       -> { fixInstructions, targetFiles, rootCause } -> Buoc 5
+       -> { action, reusableModules, evidence, suggestion, commitPrefix, warnings } -> Buoc 5
      - fix_plan -> Goi `prepareFixPlan(content, sessionDir)` tu `bin/lib/outcome-router.js`
        -> { planPath, planContent }
        Ghi planContent vao planPath. Thong bao: "Da tao ke hoach sua tai {planPath}."
@@ -192,8 +199,8 @@ Sau khi agent hoan tat:
        Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
        Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
      - self_fix -> Goi `prepareSelfFix(content)` tu `bin/lib/outcome-router.js`
-       -> { summary, suggestedSteps }
-       Hien summary va suggestedSteps cho user.
+       -> { action, sessionUpdate, summary, filesForReview, resumeHint, warnings }
+       Hien summary, filesForReview va resumeHint cho user.
        read `{session_dir}/SESSION.md` -> currentMd
        Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
        Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
@@ -201,8 +208,8 @@ Sau khi agent hoan tat:
   1. Goi `extractCheckpointQuestion(content)` tu `bin/lib/checkpoint-handler.js`
      -> { question, context }
   2. Hien question cho user, cho tra loi
-  3. User tra loi -> Goi `buildContinuationContext(content, userAnswer, roundNumber)` tu `bin/lib/checkpoint-handler.js`
-     -> { canContinue, prompt, warnings }
+  3. User tra loi -> Goi `buildContinuationContext({ evidencePath: '{session_dir}/evidence_architect.md', userAnswer, sessionDir: session_dir, currentRound: roundNumber, agentName: 'pd-fix-architect' })` tu `bin/lib/checkpoint-handler.js`
+     -> { canContinue, prompt, agentName, round, warnings }
   4. canContinue = true -> Spawn lai `pd-fix-architect` voi continuation prompt. Quay lai dau Buoc 4.
   5. canContinue = false (da vuot MAX_CONTINUATION_ROUNDS = 2 vong) ->
      Thong bao: "Da vuot 2 vong hoi dap. Can nguoi xem xet."
@@ -231,13 +238,13 @@ Architect FAIL (agent throw/timeout):
 - Hien tat ca evidence da thu thap (janitor, detective, docs, repro) truc tiep cho user
 - Hoi: "Architect khong tra phan quyet. Ban muon: (1) Xem evidence va tu quyet dinh, (2) Dung lai?"
 - User chon (1) -> hien evidence, cho user quyet dinh fix_now/fix_plan/self_fix
-  Neu fix_now -> tao fixInstructions thu cong tu evidence -> Buoc 5
+  Neu fix_now -> tao evidence va suggestion thu cong tu evidence files -> Buoc 5
 - User chon (2) -> read `{session_dir}/SESSION.md` -> currentMd
   Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
 ## Buoc 5: Sua code va commit
 --- Buoc 5/5: Sua code va commit ---
 ### 5a: Regression analysis (truoc khi sua)
-1. Doc fixInstructions tu prepareFixNow() (Buoc 4) -> lay targetFiles, targetFunction
+1. Doc evidence va suggestion tu prepareFixNow() (Buoc 4) -> parse targetFiles va targetFunction tu evidence content
 2. Try:
    - Dung FastCode `code_qa`: "Liet ke cac files import hoac goi {targetFunction} trong {targetFile}"
    - Thanh cong -> goi `analyzeFromCallChain({ callChainText, targetFile, targetFunction })` tu `bin/lib/regression-analyzer.js`
@@ -247,7 +254,7 @@ Architect FAIL (agent throw/timeout):
    Goi `updateSession(currentMd, { appendToBody: 'Regression: {N} files bi anh huong: {list}' })` tu `bin/lib/session-manager.js`
    Ghi ket qua vao `{session_dir}/SESSION.md`
 ### 5b: Sua code
-1. Doc fixInstructions va rootCause tu prepareFixNow() output
+1. Doc evidence va suggestion tu prepareFixNow() output — evidence chua bang chung, suggestion chua de xuat fix
 2. Ap dung fix theo huong dan
 3. Chay test: xac dinh test command tu project (package.json scripts hoac .planning rules)
 4. Test FAIL -> doc error, dieu chinh fix, chay lai (toi da 3 lan)
