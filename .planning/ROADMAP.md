@@ -125,7 +125,10 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   2. Thu muc `.planning/research/external/` luu ket qua tra cuu web voi ten `RES-[ID]-[SLUG].md`, moi ban la file rieng biet co so tang dan
   3. Moi research file co confidence 3 bac (HIGH/MEDIUM/LOW) gan o ca cap file (frontmatter) va cap claim (inline)
   4. `research-store.js` pure function module (createEntry, parseEntry) hoat dong dung voi ca 2 loai thu muc
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 38-01-PLAN.md — Tai cau truc thu muc research (di chuyen legacy, tao internal/external)
+- [ ] 38-02-PLAN.md — TDD research-store.js 6 pure functions
 
 ### Phase 39: Tieu chuan Kiem chung & Chi muc
 **Goal**: Moi claim trong research file deu co bang chung dan chieu, moi hanh dong research deu duoc ghi lai, va INDEX.md tu dong phan anh trang thai thuc
@@ -175,7 +178,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 38. Nen tang Luu tru Nghien cuu | 0/? | Not started | - |
+| 38. Nen tang Luu tru Nghien cuu | 0/2 | Planned | - |
 | 39. Tieu chuan Kiem chung & Chi muc | 0/? | Not started | - |
 | 40. Tac tu Nghien cuu | 0/? | Not started | - |
 | 41. Bao ve Workflow | 0/? | Not started | - |
