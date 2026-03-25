@@ -35,8 +35,8 @@ Người dùng nhập: $ARGUMENTS
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
 (Claude Code: cat ~/.config/opencode/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
-Đọc trước khi bắt đầu:
-- [SKILLS_DIR]/references/conventions.md → version matching, patch version, biểu tượng, commit prefixes
+Doc truoc khi bat dau:
+- [SKILLS_DIR]/references/conventions.md -> version matching, patch version, bieu tuong, commit prefixes
 </required_reading>
 <conditional_reading>
 Đọc CHỈ KHI cần (phân tích mô tả task trước):
@@ -44,303 +44,261 @@ Người dùng nhập: $ARGUMENTS
 - [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <process>
-## Bước 0.5: Phân tích bug -- quyết định tài liệu tham khảo
-- Nhiều bugs cần ưu tiên? → đọc [SKILLS_DIR]/references/prioritization.md
-Nếu chỉ có 1 bug → BỎ QUA.
-## Bước 1: Kiểm tra phiên điều tra + thu thập triệu chứng
-`git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT`
+## Buoc 0: Resume UI
+`git rev-parse --git-dir 2>/dev/null` -> luu `HAS_GIT`
 `mkdir -p .planning/debug`
-### 1a. Kiểm tra phiên điều tra đang mở
-Glob `.planning/debug/SESSION_*.md` → Grep `> Trạng thái:` → lọc **có thể tiếp tục**:
-- `Đang điều tra`, `Điểm dừng`, `Chờ quyết định`, `Tạm dừng`
-Trạng thái **KHÔNG tự liệt kê** (chỉ mở khi user nêu rõ):
-- `Đã tìm nguyên nhân`, `Đã giải quyết`, `Chưa kết luận` (→ nhảy **Bước 5c** với thông tin mới)
-- Có phiên tiếp tục được VÀ không có $ARGUMENTS → liệt kê (trạng thái + giả thuyết + việc tiếp):
-  - `Đang điều tra` / `Tạm dừng` → **Bước 5c**
-  - `Điểm dừng` → hiển thị câu hỏi, chờ trả lời → **Bước 5c**
-  - `Chờ quyết định` → hiển thị phương án, chờ chọn → **Bước 6b** rồi **6c**
-- Có $ARGUMENTS → tiếp tục thu thập mới
-Có báo cáo lỗi mở (`.planning/bugs/BUG_*.md` → Grep `Trạng thái: (Chưa xử lý|Đang sửa)`):
-- Liệt kê → user chọn → đọc báo cáo → điền triệu chứng → nhảy Bước 3
-### 1b. Thu thập triệu chứng (lỗi mới)
-Thu đủ 5 thông tin — từ $ARGUMENTS hoặc hỏi:
-1. **Mong đợi** — Lẽ ra thế nào?
-2. **Thực tế** — Xảy ra gì?
-3. **Thông báo lỗi** — Log/error cụ thể?
-4. **Dòng thời gian** — Khi nào? Trước đó bình thường? Thay đổi gần đây?
-5. **Tái hiện** — Làm gì để lỗi xảy ra lại?
-$ARGUMENTS đủ → KHÔNG hỏi thêm, tự trích xuất.
-Thiếu (#2, #5) → hỏi bổ sung.
-Hỏi kèm gợi ý đáp án phổ biến + cho phép tự nhập.
-Sau 5 triệu chứng vẫn thiếu context → linh hoạt hỏi thêm (route, payload, log...).
-## Bước 2: Xác định patch version
-Xem [SKILLS_DIR]/references/conventions.md → 'Patch version'.
-- `.planning/CURRENT_MILESTONE.md` → version hiện tại
-- Không tồn tại → hỏi user version, bỏ qua logic so sánh
-- So sánh version lỗi với hiện tại:
-| Trường hợp | Patch version |
-|-----------|---------------|
-| Lỗi version CŨ (milestone hoàn tất) | Glob bugs/ → Grep patch version → tìm cao nhất → +1 hoặc `[version-gốc].1` |
-| Lỗi version HIỆN TẠI | `[version].0` hoặc tìm cao nhất → +1 |
-- User không chỉ rõ version → hỏi
-- `.planning/milestones/[version-gốc]/` không tồn tại → "Kiểm tra version." → **DỪNG**
-## Bước 3: Đọc tài liệu kỹ thuật (CHỈ PHẦN LIÊN QUAN)
-Dùng **version gốc** (KHÔNG dùng patch version):
-**Tìm phase liên quan TRƯỚC:**
-1. Grep chức năng lỗi trong `.planning/milestones/[version-gốc]/phase-*/PLAN.md`
-2. CHỈ đọc PLAN.md + CODE_REPORT của phase(s) liên quan
-3. Grep không khớp → mở rộng tìm tất cả PLAN.md
-- PLAN.md → thiết kế, API, database
-- CODE_REPORT → files đã tạo, quyết định kỹ thuật
-- `.planning/rules/` → quy ước code
-## Bước 4: Tìm hiểu files liên quan
-`mcp__fastcode__code_qa`:
-1. Files liên quan [chức năng lỗi]?
-2. Backend: luồng controller → service → database?
-3. Frontend: components, stores, API calls?
-FastCode lỗi → Grep/Read. Cảnh báo: "FastCode không khả dụng."
-**Lỗi liên quan thư viện** → Thực hiện theo [SKILLS_DIR]/references/context7-pipeline.md
-## Bước 5: Phân tích theo phương pháp khoa học
-### 5a. Tạo/cập nhật phiên điều tra
-`.planning/debug/SESSION_[tên-tắt].md`
-**Tên-tắt**: viết thường, gạch ngang, tối đa 30 ký tự (VD: `login-timeout`, `cart-empty`)
-```markdown
-# Phiên điều tra: [tên-tắt]
-> Bắt đầu: [DD_MM_YYYY HH:MM] | Trạng thái: Đang điều tra
-> Phân loại: [🟢/🟡/🟠/🔴/🔵 — xem Bước 6a]
-> Báo cáo lỗi: BUG_[timestamp].md (liên kết sau Bước 7)
-## Triệu chứng
-- **Mong đợi:** [...]
-- **Thực tế:** [...]
-- **Thông báo lỗi:** [...]
-- **Dòng thời gian:** [...]
-- **Tái hiện:** [...]
-## Tái hiện tối giản (nếu cần)
-## Giả thuyết
-### GT1: [mô tả]
-- **Kiểm tra bằng:** [...]
-- **Bằng chứng:** [...]
-- **Kết quả:** ✅ Đúng / ❌ Sai / ⏳ Chưa kiểm tra
-## Files đã kiểm tra
-- `[file:dòng]`: [phát hiện]
-## Kết luận
+1. Glob `.planning/debug/S*` -> lay danh sach folder names
+2. Voi moi folder, Read `{folder}/SESSION.md` -> lay content
+3. Goi `listSessions(folderNames, sessionContents)` tu `bin/lib/session-manager.js`
+   - folderNames: mang ten folders (VD: `['S001-login-timeout', 'S002-cart-empty']`)
+   - sessionContents: mang `[{folderName, sessionMdContent}]`
+   - Tra ve danh sach sessions chua resolved, gom { number, id, slug, status, outcome, updated }
+4. Neu co sessions active/paused:
+   Hien bang:
+   ```
+   Phien dieu tra dang mo:
+   | # | ID   | Mo ta            | Trang thai |
+   |---|------|------------------|------------|
+   | 1 | S001 | login-timeout    | active     |
+   | 2 | S003 | cart-empty       | paused     |
+   ```
+   Hoi: "Nhap so de tiep tuc, hoac mo ta loi moi de tao phien."
+5. User nhap so -> doc SESSION.md cua phien do -> xac dinh buoc tiep theo tu status:
+   - status=active -> Buoc 1 (tiep tuc voi session hien tai, truyen session_dir)
+   - status=paused -> doc evidence files da co -> nhay buoc phu hop
+6. User nhap mo ta moi -> Buoc 0.5
+7. Khong co sessions nao VA co $ARGUMENTS -> Buoc 0.5
+8. Khong co sessions nao VA khong co $ARGUMENTS -> hoi user mo ta loi -> Buoc 0.5
+## Buoc 0.5: Phan tich bug -- quyet dinh tai lieu tham khao
+- Nhieu bugs can uu tien? -> doc [SKILLS_DIR]/references/prioritization.md
+Neu chi co 1 bug -> BO QUA.
+### Tao session moi (per D-09)
+Goi `createSession({ existingSessions, description })` tu `bin/lib/session-manager.js`
+- existingSessions: danh sach sessions tu Buoc 0 (mang { number })
+- description: mo ta loi tu user ($ARGUMENTS hoac input)
+- Ket qua: { id, slug, folderName, sessionMd }
+- `mkdir -p .planning/debug/{folderName}`
+- Ghi sessionMd vao `.planning/debug/{folderName}/SESSION.md`
+- Luu `session_dir` = duong dan tuyet doi toi `.planning/debug/{folderName}` de truyen cho cac buoc sau
+## Buoc 1: Thu thap trieu chung
+--- Buoc 1/5: Thu thap trieu chung ---
+Spawn Agent `pd-bug-janitor`:
+  "Session dir: {absolute_session_dir}.
+   Mo ta loi: {user_description}.
+   Thu thap 5 trieu chung cot loi va ghi evidence_janitor.md vao session dir."
+Sau khi agent hoan tat:
+1. Read `{session_dir}/evidence_janitor.md`
+2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js`
+3. Kiem tra ket qua:
+   - valid=true -> tiep tuc Buoc 2
+   - valid=false VA content chua trieu chung (grep "Trieu chung" hoac "Mong doi") -> WARNING, ghi vao SESSION.md, tiep tuc Buoc 2
+   - valid=false VA KHONG co trieu chung -> STOP: "Khong du thong tin de dieu tra. Vui long mo ta loi chi tiet hon."
+4. Goi `updateSession(currentMd, { status: 'active', appendToBody: '- evidence_janitor.md: da ghi' })` tu `bin/lib/session-manager.js`
+   - Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+Janitor FAIL (agent throw/timeout):
+- Co $ARGUMENTS du trieu chung -> WARNING: "Janitor khong phan hoi. Tiep tuc voi thong tin ban dau."
+  Tao evidence_janitor.md thu cong tu $ARGUMENTS (5 trieu chung theo format evidence), tiep Buoc 2.
+- KHONG co trieu chung -> STOP: "Khong the thu thap trieu chung. Vui long thu lai."
+## Buoc 2: Phan tich code va tai lieu
+--- Buoc 2/5: Phan tich code va tai lieu ---
+1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
+   - sessionDir: gia tri session_dir tu Buoc 0.5
+   - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
+   - Ket qua: { agents, warnings } — agents gom pd-code-detective (critical) va pd-doc-specialist (optional)
+2. Spawn Agent `pd-code-detective`:
+   "Session dir: {absolute_session_dir}.
+    Doc evidence_janitor.md va phan tich code nguon. Ghi evidence_code.md."
+3. Read `{session_dir}/evidence_code.md` -> detectiveContent
+   - Goi `validateEvidence(detectiveContent)` tu `bin/lib/evidence-protocol.js` -> detectiveResult
+4. Spawn Agent `pd-doc-specialist`:
+   "Session dir: {absolute_session_dir}.
+    Doc evidence_janitor.md va tra cuu tai lieu thu vien. Ghi evidence_docs.md."
+5. Read `{session_dir}/evidence_docs.md` -> docSpecContent (co the khong ton tai)
+   - Neu file ton tai: validateEvidence(docSpecContent) -> docSpecResult
+   - Neu file KHONG ton tai hoac invalid: docSpecResult = null
+6. Goi `mergeParallelResults({ detective: detectiveResult, docSpec: docSpecResult })` tu `bin/lib/parallel-dispatch.js`
+   - detective: { evidenceContent: detectiveContent } hoac { error: { message: '...' } }
+   - docSpec: { evidenceContent: docSpecContent } hoac { error: { message: '...' } } hoac null
+   - Ket qua: { results, allSucceeded, warnings }
+7. Ghi warnings vao SESSION.md (neu co):
+   - Read `{session_dir}/SESSION.md` -> currentMd
+   - Goi `updateSession(currentMd, { appendToBody: '\n' + warnings.join('\n') })` tu `bin/lib/session-manager.js`
+   - Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+8. Kiem tra:
+   - Detective THANH CONG -> tiep tuc Buoc 3
+   - Detective FAIL + DocSpec THANH CONG -> WARNING: "Code Detective khong tra ket qua. Chi co tai lieu." Tiep tuc Buoc 3 voi evidence_docs.md.
+   - CA HAI FAIL -> STOP: "Khong the phan tich. Vui long kiem tra lai mo ta loi."
+DocSpec fail la NON-BLOCKING (per D-06). Chi Detective fail moi co the block workflow.
+### Progressive Disclosure (FLOW-08)
+Moi buoc bat dau bang banner format:
 ```
-### 5b. Tái hiện tối giản (cho lỗi khó)
-**Khi cần:** bước tái hiện không rõ, lúc có lúc không, hoặc 5+ bước.
-Tìm đường ngắn nhất → loại yếu tố nhiễu → ghi SESSION → dùng làm cơ sở giả thuyết.
-Lỗi rõ ràng (thông báo chỉ thẳng file/dòng) → bỏ qua.
-### 5b.1: Tạo Reproduction Test (SAU giả thuyết, TRƯỚC fix)
-**CHỈ KHI** có đủ triệu chứng (Bước 1b) VÀ file lỗi đã xác định (Bước 4).
-1. `mkdir -p .planning/debug/repro`
-2. Gọi `generateReproTest()` từ `bin/lib/repro-test-generator.js`:
-   - Input: `{ symptoms }` (từ Bước 1b), `bugTitle` (từ SESSION tên-tắt), `filePath` (từ Bước 4), `functionName` (nếu có)
-   - **Lỗi → DỪNG.** Báo: "Không tạo được reproduction test: [lỗi]"
-3. Ghi file `.planning/debug/repro/[testFileName]`
-4. Ghi SESSION: `Reproduction test: .planning/debug/repro/[testFileName]`
-### 5c. Hình thành + kiểm chứng giả thuyết
-CONTEXT.md → stack → đọc `.planning/rules/[stack].md` → truy vết luồng:
-Khong xac dinh duoc stack tu CONTEXT.md → dung luong truy vet generic: entry point → handler → business logic → data layer → response. Ghi note: "Stack khong xac dinh, dung luong generic."
-| Stack | Luồng |
-|-------|-------|
-| NestJS | request → controller → service → database → response |
-| NextJS | page/component → store → API call → hiển thị |
-| WordPress | hook/action → callback → $wpdb → output |
-| Solidity | function → require → state change → external → events |
-| Flutter | View (Obx) → Logic (GetxController) → Repository → API → Response |
-| Generic/Khac | entry point → handler → business logic → data layer → response |
-**Quy trình:**
-1. Triệu chứng + truy vết → 1-3 giả thuyết
-2. Mỗi GT: xác định cách kiểm tra → thu thập bằng chứng → ✅ Đúng (nguyên nhân gốc) / ❌ Sai (loại, ghi lý do)
-3. Cập nhật SESSION sau mỗi GT
-4. Tất cả sai → mở rộng phạm vi, giả thuyết mới
-**Điểm dừng** (cần user xác minh):
-- SESSION: `> Trạng thái: Điểm dừng`
-- Thêm section `## Điểm dừng [N]` (Loại, Câu hỏi, Trả lời)
-- User trả lời → cập nhật → `Đang điều tra` → tiếp tục
-**Chung:** tìm file + dòng gây lỗi, giải thích tại sao, đánh giá ảnh hưởng.
-## Bước 6: Đánh giá kết quả điều tra
-### 6a. Phân loại rủi ro
-Phân loại theo [SKILLS_DIR]/references/prioritization.md → 'Phân loại rủi ro bug'. Cập nhật SESSION.
-Ảnh hưởng: format báo cáo (Bước 7), mức kiểm thử (Bước 8), chiến lược commit (Bước 9).
-### 6a.1. Effort routing cho fix-bug
-fix-bug luon chay voi sonnet (theo skill file `commands/pd/fix-bug.md` line 4: `model: sonnet`). Effort routing khong ap dung cho fix-bug -- agent da duoc spawn voi model co dinh truoc khi workflow chay.
-### 6b. Đánh giá kết quả
-**✅ Tìm được nguyên nhân, cách sửa rõ** → SESSION `Đã tìm nguyên nhân` + điền Kết luận → Bước 6c
-**⚠️ Tìm được nhưng CẦN USER QUYẾT ĐỊNH** (di chuyển dữ liệu, logic auth/thanh toán/contract, phá API cũ, nhiều cách sửa):
-- SESSION `Chờ quyết định`
-- Trình bày: nguyên nhân + phương án A/B (ưu/nhược)
-- User chọn → Bước 6c
-**❌ Không tìm được** → SESSION `Chưa kết luận`:
-- Báo: "[N] giả thuyết đã kiểm tra, chưa xác định nguyên nhân."
-- Gợi ý: (1) Bổ sung thông tin, (2) Mở rộng phạm vi, (3) Thêm log tạm
-- User bổ sung → cập nhật SESSION → **Bước 5c**
-- User dừng → SESSION `Tạm dừng`
-- KHÔNG tạo BUG_*.md khi chưa tìm nguyên nhân
-### 6c. Cổng kiểm tra trước khi sửa
-**3 điều kiện BẮT BUỘC:**
-1. Đã tái hiện HOẶC bằng chứng thay thế đủ mạnh (log rõ ràng, lỗi logic hiển nhiên, dấu vết chỉ thẳng dòng)
-2. Đã xác định file + logic cụ thể
-3. Đã có kế hoạch kiểm tra sau sửa
-Thiếu điều kiện → quay Bước 5b/5c. Đủ → Bước 6.5 (nếu logic bug) hoặc Bước 7.
-## Bước 6.5: Logic Update — cập nhật Truth khi bug do logic sai
-**Phân loại:** Nguyên nhân bug (từ Bước 6b) liên quan đến business logic / Truth trong PLAN.md?
-- Typo, off-by-one, import thiếu, lỗi cú pháp → KHÔNG phải logic bug → **skip 6.5, tới Bước 7**
-- Logic tính toán sai, điều kiện nghiệp vụ sai, edge case thiếu, giá trị ngưỡng sai → **logic bug → tiếp tục 6.5**
-### 6.5a. Tìm PLAN.md liên quan
-Dùng cùng strategy Bước 3: Grep `.planning/milestones/[version-gốc]/phase-*/PLAN.md` → tìm bảng Truths 5 cột.
-Không tìm thấy PLAN.md → ghi vào BUG report: "Không có PLAN.md để cập nhật Truth". Skip 6.5, tới Bước 7.
-### 6.5b. Xác định Truth cần sửa
-- CHỈ sửa Truth hiện có, KHÔNG thêm Truth mới
-- CHỈ sửa cột liên quan (Sự thật, Trường hợp biên, Cách kiểm chứng — hoặc nhiều cột)
-- Logic thiếu hoàn toàn → ghi Deferred, KHÔNG thêm Truth mới
-### 6.5c. Xác nhận với user
+--- Buoc N/5: [Mo ta ngan] ---
 ```
-Bug này do Truth sai — cần cập nhật PLAN.md:
-| Truth | Hiện tại | Sửa thành |
-|-------|---------|-----------|
-| T[x] | [giá trị cũ] | [giá trị mới] |
-Đồng ý sửa PLAN.md? (Y/n)
+Danh sach banner:
+- `--- Buoc 1/5: Thu thap trieu chung ---`
+- `--- Buoc 2/5: Phan tich code va tai lieu ---`
+- `--- Buoc 3/5: Tao test tai hien ---`
+- `--- Buoc 4/5: Tong hop va ra phan quyet ---`
+- `--- Buoc 5/5: Sua code va commit ---`
+Chi hien banner va ket qua cuoi. KHONG hien chi tiet agent output cho user.
+## Buoc 3: Tao test tai hien
+--- Buoc 3/5: Tao test tai hien ---
+Spawn Agent `pd-repro-engineer`:
+  "Session dir: {absolute_session_dir}.
+   Doc evidence_janitor.md va evidence_code.md (va evidence_docs.md neu co).
+   Tao reproduction test va ghi evidence_repro.md."
+Sau khi agent hoan tat:
+1. Read `{session_dir}/evidence_repro.md`
+2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js`
+3. Kiem tra:
+   - valid=true -> tiep tuc Buoc 4
+   - valid=false -> WARNING: "Repro Engineer khong tao duoc test tai hien." Tiep tuc Buoc 4 voi evidence tu Buoc 2.
+4. Read `{session_dir}/SESSION.md` -> currentMd
+   Goi `updateSession(currentMd, { appendToBody: '- evidence_repro.md: da ghi' })` tu `bin/lib/session-manager.js`
+   Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+Repro FAIL (agent throw/timeout):
+- WARNING: "Khong tao duoc test tai hien. Tiep tuc voi evidence phan tich."
+- Ghi warning vao SESSION.md qua updateSession()
+- Tiep tuc Buoc 4 (Repro la bo sung, khong block workflow)
+## Buoc 4: Tong hop va ra phan quyet
+--- Buoc 4/5: Tong hop va ra phan quyet ---
+Spawn Agent `pd-fix-architect`:
+  "Session dir: {absolute_session_dir}.
+   Doc TAT CA evidence files (evidence_janitor.md, evidence_code.md, evidence_docs.md, evidence_repro.md).
+   Tong hop va ra phan quyet. Ghi evidence_architect.md."
+Sau khi agent hoan tat:
+1. Read `{session_dir}/evidence_architect.md`
+2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { valid, outcome }
+3. Goi `parseEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { frontmatter, body, sections }
+### Routing theo outcome:
+**NEU outcome = 'root_cause':**
+  1. Goi `buildRootCauseMenu(content)` tu `bin/lib/outcome-router.js`
+     -> { question, choices } (3 lua chon: fix_now, fix_plan, self_fix)
+  2. Hien question va 3 lua chon cho user (dung cau hoi truc tiep, KHONG hien agent output)
+  3. User chon:
+     - fix_now -> Goi `prepareFixNow(content)` tu `bin/lib/outcome-router.js`
+       -> { fixInstructions, targetFiles, rootCause } -> Buoc 5
+     - fix_plan -> Goi `prepareFixPlan(content, sessionDir)` tu `bin/lib/outcome-router.js`
+       -> { planPath, planContent }
+       Ghi planContent vao planPath. Thong bao: "Da tao ke hoach sua tai {planPath}."
+       Read `{session_dir}/SESSION.md` -> currentMd
+       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+     - self_fix -> Goi `prepareSelfFix(content)` tu `bin/lib/outcome-router.js`
+       -> { summary, suggestedSteps }
+       Hien summary va suggestedSteps cho user.
+       Read `{session_dir}/SESSION.md` -> currentMd
+       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+**NEU outcome = 'checkpoint':**
+  1. Goi `extractCheckpointQuestion(content)` tu `bin/lib/checkpoint-handler.js`
+     -> { question, context }
+  2. Hien question cho user, cho tra loi
+  3. User tra loi -> Goi `buildContinuationContext(content, userAnswer, roundNumber)` tu `bin/lib/checkpoint-handler.js`
+     -> { canContinue, prompt, warnings }
+  4. canContinue = true -> Spawn lai `pd-fix-architect` voi continuation prompt. Quay lai dau Buoc 4.
+  5. canContinue = false (da vuot MAX_CONTINUATION_ROUNDS = 2 vong) ->
+     Thong bao: "Da vuot 2 vong hoi dap. Can nguoi xem xet."
+     Read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+     Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+**NEU outcome = 'inconclusive':**
+  1. Hien Elimination Log tu evidence_architect.md (section ## Elimination Log)
+  2. De xuat 2 lua chon:
+     (1) Bo sung thong tin moi -> ghi thong tin vao SESSION.md qua updateSession(), status='paused'. DUNG workflow.
+         (Quay lai Buoc 2 la FLOW-06 — Phase 33, NGOAI scope Phase 32)
+     (2) Dung dieu tra -> Read `{session_dir}/SESSION.md` -> currentMd
+         Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
+Architect FAIL (agent throw/timeout):
+- Hien tat ca evidence da thu thap (janitor, detective, docs, repro) truc tiep cho user
+- Hoi: "Architect khong tra phan quyet. Ban muon: (1) Xem evidence va tu quyet dinh, (2) Dung lai?"
+- User chon (1) -> hien evidence, cho user quyet dinh fix_now/fix_plan/self_fix
+  Neu fix_now -> tao fixInstructions thu cong tu evidence -> Buoc 5
+- User chon (2) -> Read `{session_dir}/SESSION.md` -> currentMd
+  Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
+## Buoc 5: Sua code va commit
+--- Buoc 5/5: Sua code va commit ---
+### 5a: Regression analysis (truoc khi sua)
+1. Doc fixInstructions tu prepareFixNow() (Buoc 4) -> lay targetFiles, targetFunction
+2. Try:
+   - Dung FastCode `code_qa`: "Liet ke cac files import hoac goi {targetFunction} trong {targetFile}"
+   - Thanh cong -> goi `analyzeFromCallChain({ callChainText, targetFile, targetFunction })` tu `bin/lib/regression-analyzer.js`
+   - FastCode loi -> doc source files quanh targetFile -> goi `analyzeFromSourceFiles({ sourceFiles, targetFile, targetFunction })` tu `bin/lib/regression-analyzer.js`
+   Catch: WARNING: "Khong phan tich duoc regression: {error.message}". Tiep tuc.
+3. Ket qua affectedFiles -> Read `{session_dir}/SESSION.md` -> currentMd
+   Goi `updateSession(currentMd, { appendToBody: 'Regression: {N} files bi anh huong: {list}' })` tu `bin/lib/session-manager.js`
+   Ghi ket qua vao `{session_dir}/SESSION.md`
+### 5b: Sua code
+1. Doc fixInstructions va rootCause tu prepareFixNow() output
+2. Ap dung fix theo huong dan
+3. Chay test: xac dinh test command tu project (package.json scripts hoac .planning rules)
+4. Test FAIL -> doc error, dieu chinh fix, chay lai (toi da 3 lan)
+5. Test PASS -> tiep tuc 5c
+### 5c: Debug cleanup (truoc commit)
+1. `git diff --cached --name-only` -> danh sach staged files
+2. Read noi dung tung staged file -> tao array [{path, content}]
+3. Try: goi `scanDebugMarkers(stagedFiles)` tu `bin/lib/debug-cleanup.js`
+   Catch: WARNING: "Debug cleanup loi: {error.message}". Tiep tuc.
+4. Ket qua co markers -> hien danh sach theo file:
+   ```
+   [PD-DEBUG] Tim thay debug markers:
+     {file}: Dong {line}: {content}
+   Xoa tat ca debug markers? (Y/n)
+   ```
+   User Y -> xoa markers, git add lai files
+   User n -> WARNING: "Debug markers van con trong commit."
+5. Try: doc `.planning/scan/SCAN_REPORT.md` (neu ton tai va < 7 ngay)
+   -> goi `matchSecurityWarnings(reportContent, filePaths)` tu `bin/lib/debug-cleanup.js`
+   Catch: bo qua.
+   Co canh bao -> hien non-blocking (toi da 3):
+   ```
+   Canh bao bao mat lien quan:
+   - {file}: [{severity}] {message}
+   ```
+### 5d: Commit
 ```
-- User đồng ý → 6.5d
-- User bác ("không phải logic bug") → skip 6.5, ghi SESSION: "User bác phân loại logic bug" → Bước 7
-### 6.5d. Cập nhật PLAN.md + commit
-- Sửa bảng Truths trong PLAN.md (CHỈ PLAN.md, KHÔNG sửa TASKS.md)
-- Giá trị cũ ghi trong BUG report "Phân tích nguyên nhân"
-- Commit riêng:
-  ```
-  git add [PLAN.md path]
-  git commit -m "[LỖI] Cập nhật Truth [TX]: [tóm tắt thay đổi]"
-  ```
-- Tiếp tục Bước 7
-## Bước 7: Viết báo cáo lỗi
-`.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
-```markdown
-# Báo cáo lỗi
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Nghiêm trọng/Cao/Trung bình/Nhẹ
-> Trạng thái: Đang sửa | Chức năng: [Tên] | Task: [N] (nếu biết)
-> Patch version: [x.x.x] | Lần sửa: 1
-> Phân loại: [🟢/🟡/🟠/🔴/🔵 tên loại]
-> Phiên điều tra: SESSION_[tên-tắt].md
-## Mô tả lỗi
-## Triệu chứng
-- **Mong đợi:** | **Thực tế:** | **Dòng thời gian:**
-## Bước tái hiện
-1. → 2. → Lỗi
-## Phân tích nguyên nhân
-### Giả thuyết đã kiểm tra:
-- GT1: [mô tả] → ❌ Loại bỏ vì [lý do]
-- GT2: [mô tả] → ✅ **Nguyên nhân gốc**
-### [Phần code/thay đổi — TÙY phân loại]:
-🟢🟡🟠🔴 Lỗi code → Code TRƯỚC/SAU (file, code gốc → nguyên nhân, code sửa)
-🔵 Hạ tầng/cấu hình → Tóm tắt (file, giá trị cũ → mới, lý do)
-## Logic Changes (nếu có)
-| Truth ID | Thay đổi | Lý do |
-|----------|---------|-------|
-## Ảnh hưởng
-## Kế hoạch kiểm tra
-## Xác nhận
-- [ ] Đã áp dụng bản sửa
-- [ ] User xác nhận đúng
-- [ ] Không phát sinh lỗi mới
+git add {fixed files} {session_dir}/SESSION.md {session_dir}/evidence_*.md
+git commit -m "fix([LOI]): {mo_ta_ngan}"
 ```
-Cập nhật liên kết trong SESSION file.
-## Bước 8: Sửa code
-### 8a: Phân tích Regression (TRƯỚC khi sửa)
-**CHỈ KHI** đã xác định file lỗi (Bước 4).
-1. Thử FastCode `code_qa` hỏi: "Liệt kê các files import hoặc gọi [function] trong [targetFile]"
-   - Thành công → gọi `analyzeFromCallChain()` từ `bin/lib/regression-analyzer.js`:
-     Input: `{ callChainText, targetFile, targetFunction }`
-   - FastCode lỗi → đọc source files quanh targetFile → gọi `analyzeFromSourceFiles()`:
-     Input: `{ sourceFiles: [{path, content}], targetFile, targetFunction }`
-   - **Lỗi → DỪNG.** Báo: "Không phân tích được regression: [lỗi]"
-2. Kết quả `affectedFiles` (tối đa 5) → ghi vào BUG report section "Ảnh hưởng"
-3. Ghi SESSION: `Regression: [số] files bị ảnh hưởng`
-- Áp dụng bản sửa, tuân thủ `.planning/rules/`
-- Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Lint + build đúng thư mục (xem rules/[stack].md → **Build & Lint**)
-**Kiểm thử theo phân loại:**
-| Phân loại | Yêu cầu |
-|-----------|---------|
-| 🟢 Sửa nhanh | lint + build qua đủ |
-| 🟡 Lỗi logic | PHẢI thêm/cập nhật test |
-| 🟠 Lỗi dữ liệu | sao lưu trước, kiểm tra toàn vẹn sau |
-| 🔴 Bảo mật | test BẮT BUỘC + xác nhận user trước áp dụng |
-| 🔵 Hạ tầng | kiểm tra cấu hình đúng môi trường |
-## Bước 9: Git commit (CHỈ HAS_GIT = true)
-### 9a: Dọn dẹp debug log + Cảnh báo bảo mật (TRƯỚC commit)
-**1. Debug cleanup:**
-`git diff --cached --name-only` → Read nội dung từng staged file → gọi `scanDebugMarkers(stagedFiles)` từ `bin/lib/debug-cleanup.js`
-- Input: `[{path, content}]` từ staged files
-- Kết quả rỗng → bỏ qua, không hiện gì (D-06)
-- Có kết quả → hiện danh sách group theo file (D-04):
-  ```
-  [PD-DEBUG] Tìm thấy debug markers:
-    src/app.js:
-      Dòng 15: console.log('[PD-DEBUG] giá trị x:', x)
-      Dòng 42: // [PD-DEBUG] tạm thời
-    src/utils.js:
-      Dòng 8: logger.info('[PD-DEBUG] check')
-  Xóa tất cả debug markers? (Y/n)
-  ```
-- User chọn Y → dùng Edit tool xóa từng dòng có marker → `git add` lại files đã sửa
-- User chọn n → hiện: "⚠️ Debug markers vẫn còn trong commit" → tiếp tục (D-07, non-blocking)
-**2. Security check:**
-`.planning/scan/SCAN_REPORT.md` tồn tại VÀ mtime < 7 ngày?
-- Không → bỏ qua, không hiện gì (D-08)
-- Có → Read nội dung → gọi `matchSecurityWarnings(reportContent, filePaths)` từ `bin/lib/debug-cleanup.js`
-  - Kết quả rỗng → bỏ qua
-  - Có cảnh báo (tối đa 3, D-09) → hiện non-blocking (D-10):
-    ```
-    ⚠️ Cảnh báo bảo mật liên quan:
-    - src/auth.js: [high] SQL injection risk in query builder
-    - src/api.js: [moderate] Missing input validation
-    ```
-  - Tiếp tục commit (non-blocking)
-### 9b: Git commit
-**Commit theo phân loại:**
-- 🟢🟡🔵: sửa code + báo cáo + phiên điều tra trong 1 commit
-- 🟠: commit riêng cho migration/sửa dữ liệu, commit riêng sửa code
-- 🔴: commit riêng, KHÔNG gộp thay đổi không liên quan
-```
-git add [files sửa] .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md
-git commit -m "[LỖI] Khắc phục [tóm tắt]
-Phân loại: [🟢/🟡/🟠/🔴/🔵]
-Nguyên nhân: [...]
-Files: [file]: [thay đổi]"
-```
-## Bước 10: Yêu cầu xác nhận
-> "Đã sửa [mô tả]. Vui lòng kiểm tra và xác nhận."
-### User xác nhận ĐÃ SỬA:
-- Báo cáo: Trạng thái → Đã giải quyết, tick checklist
-- Phiên điều tra: `Đã giải quyết`
-- TASKS.md: dùng version GỐC (KHÔNG version hiện tại) → Glob `.planning/milestones/[version-gốc]/phase-*/TASKS.md` → Grep task → 🐛 → ✅ CẢ HAI nơi (bảng + detail)
-- HAS_GIT:
-```
-git add .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md .planning/milestones/[...]/TASKS.md
-git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt]'
-```
-### 10a. Đồng bộ logic và báo cáo (non-blocking)
-> Toàn bộ bước này là non-blocking — lỗi chỉ tạo warning, KHÔNG chặn workflow.
-**1. Logic detection (LOGIC-01):**
-`git diff HEAD~1` → gọi `detectLogicChanges(diffText)` từ `bin/lib/logic-sync.js`
-- Ghi BUG report: "Thay đổi logic: CÓ/KHÔNG" + signals (nếu có)
-**2. Report update (RPT-01) — CHỈ KHI hasLogicChange = CÓ:**
-Glob `.planning/reports/*.md` + `.planning/milestones/*/` → file mới nhất theo mtime
-- Không có report → warning: "Không tìm thấy report để cập nhật"
-- Có → gọi `updateReportDiagram({reportContent, planContents})` → ghi file
-- Hỏi: "Cập nhật lại PDF? (Y/n)" → Y: `node bin/generate-pdf-report.js [path]`
-**3. Rule suggestion (PM-01):**
-Đọc SESSION + BUG report + CLAUDE.md → gọi `suggestClaudeRules({sessionContent, bugReportContent, claudeContent})`
-- Có đề xuất → hiện: "[Đề xuất rule] ..." → hỏi "Thêm vào CLAUDE.md? (Y/n)"
-- Y → append rules vào cuối CLAUDE.md → `git add CLAUDE.md && git commit -m '[LỖI] Thêm rule từ post-mortem'`
-### User báo CHƯA SỬA:
-- Thu thập thêm (triệu chứng mới?)
-- Báo cáo: tăng "Lần sửa", thêm section "Lần sửa [N]"
-- Phiên điều tra: giả thuyết mới, bằng chứng mới
-- Quay **Bước 5c** — giả thuyết mới từ bằng chứng mới
-- Mỗi lần sửa commit [LỖI]
-- 3+ lần → gợi ý: phân tích lại, thay đổi cách tiếp cận, thêm log tạm
-- **TIẾP TỤC cho đến khi user xác nhận**
+### 5e: User verify (per D-10)
+Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
+**User xac nhan OK:**
+  1. Goi `createBugRecord({ file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` tu `bin/lib/bug-memory.js`
+     -> bugRecordMd
+  2. Ghi bugRecordMd vao `.planning/bugs/BUG-{NNN}.md`
+     (Xac dinh NNN: Glob `.planning/bugs/BUG-*.md` -> tim so cao nhat + 1, bat dau tu 001)
+  3. Glob `.planning/bugs/BUG-*.md` -> Read tat ca -> parse thanh records
+     Goi `buildIndex(bugRecords)` tu `bin/lib/bug-memory.js` -> indexMd
+     Ghi indexMd vao `.planning/bugs/INDEX.md`
+  4. Read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { status: 'resolved' })` tu `bin/lib/session-manager.js`
+     Ghi ket qua vao `{session_dir}/SESSION.md`
+  5. Git add va commit:
+     ```
+     git add .planning/bugs/BUG-{NNN}.md .planning/bugs/INDEX.md {session_dir}/SESSION.md
+     git commit -m "fix([LOI]): ghi bug record va dong session {sessionId}"
+     ```
+**User xac nhan CHUA SUA:**
+  - Thu thap them trieu chung moi tu user
+  - Quay lai 5b voi thong tin bo sung
+  - Toi da 3 lan -> goi y: "Da thu 3 lan. De xuat: phan tich lai tu Buoc 2 hoac dung lai."
+### 5f: Logic sync (non-blocking, SAU user verify thanh cong)
+1. `git diff HEAD~1` -> diffText
+2. Read `{session_dir}/SESSION.md` -> sessionContent
+3. Read BUG report vua tao (`.planning/bugs/BUG-{NNN}.md`) -> bugReportContent
+4. Read `CLAUDE.md` -> claudeContent (neu ton tai)
+5. Glob `.planning/reports/*.md` -> reportContent (file moi nhat, neu co)
+6. Try: goi `runLogicSync({ diffText, bugReportContent, sessionContent, claudeContent, reportContent, planContents: [] })` tu `bin/lib/logic-sync.js`
+   -> { hasLogicChange, signals, diagramUpdated, rulesSuggested }
+   Catch: WARNING: "Logic sync loi: {error.message}". KHONG block.
+7. hasLogicChange = true va diagramUpdated -> hoi: "Cap nhat lai PDF? (Y/n)"
+   Y -> `node bin/generate-pdf-report.js {reportPath}`
+8. rulesSuggested co noi dung -> hien va hoi: "Them vao CLAUDE.md? (Y/n)"
+   Y -> append vao CLAUDE.md, git add va commit:
+   ```
+   git add CLAUDE.md
+   git commit -m "fix([LOI]): them rule tu post-mortem"
+   ```
 </process>
 <output>
 **Tạo/Cập nhật:**
@@ -363,23 +321,19 @@ Glob `.planning/reports/*.md` + `.planning/milestones/*/` → file mới nhất 
 - PHẢI qua cổng kiểm tra (gate check) trước khi sửa code
 - PHẢI lặp lại vòng lặp cho đến khi người dùng xác nhận thành công
 - KHÔNG được sửa code không liên quan đến lỗi
-- Tuân thủ `.planning/rules/` (general + stack-specific)
-- CẤM đọc/hiển thị file nhạy cảm (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
-- PHẢI đọc PLAN.md + CODE_REPORT trước khi sửa (CHỈ phase liên quan)
-- PHẢI tìm hiểu trước khi sửa — KHÔNG đoán mò
-- PHẢI hình thành giả thuyết trước khi sửa — KHÔNG sửa mò
-- PHẢI qua cổng kiểm tra (tái hiện/bằng chứng + file/logic cụ thể + kế hoạch kiểm tra) trước khi sửa
-- PHẢI phân loại rủi ro → quyết định kiểm thử + commit strategy
-- PHẢI viết báo cáo lỗi: code TRƯỚC/SAU (lỗi code) hoặc tóm tắt (hạ tầng)
-- PHẢI duy trì phiên điều tra (.planning/debug/) — cập nhật sau mỗi bước
-- KHÔNG tạo BUG_*.md khi chưa qua cổng kiểm tra
-- KHÔNG tự đóng lỗi — PHẢI chờ user xác nhận
-- KHÔNG giới hạn lần sửa — lặp đến khi xác nhận
-- Mỗi lần sửa: commit riêng [LỖI]
-- Patch version tăng dần: 1.0 → 1.0.1 → 1.0.2
-- Sửa ảnh hưởng chức năng khác → THÔNG BÁO user
-- 🔴 bảo mật: PHẢI có user đồng ý trước áp dụng
-- ⚠️ đánh đổi: PHẢI trình bày phương án + ưu/nhược, chờ chọn
-- FastCode lỗi → Grep/Read, KHÔNG DỪNG
-- Tiếp tục phiên → đọc SESSION TRƯỚC, không bắt đầu lại
+- Tuan thu `.planning/rules/` (general + stack-specific)
+- CAM doc/hien thi file nhay cam (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
+- PHAI spawn agents theo dung thu tu: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix
+- PHAI truyen absolute session_dir path khi spawn moi agent
+- PHAI goi validateEvidence() sau moi agent hoan tat
+- PHAI xu ly ca 3 outcomes sau Buoc 4: root_cause, checkpoint, inconclusive
+- PHAI tao bug record SAU user verify (KHONG truoc) — per D-10
+- PHAI dong session SAU bug record + INDEX rebuild — per D-11
+- KHONG hien chi tiet agent output cho user — chi hien banners va ket qua cuoi (progressive disclosure)
+- KHONG block workflow khi DocSpec hoac Repro fail — chi WARNING va tiep tuc
+- CHI STOP khi: (1) Janitor fail khong co trieu chung, (2) Detective fail, (3) User chon dung
+- Moi v1.5 module call (debug-cleanup, logic-sync, regression-analyzer) PHAI wrap trong try/catch — loi chi tao WARNING
+- Commit message format: `fix([LOI]): mo ta` — per D-08
+- Tiep tuc phien cu -> doc SESSION.md TRUOC, khong bat dau lai
+- KHONG de agent spawn agent — chi orchestrator (workflow nay) moi spawn agent
 </rules>
