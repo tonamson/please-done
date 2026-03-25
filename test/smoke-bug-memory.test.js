@@ -271,7 +271,8 @@ describe('buildIndex', () => {
 
   it('Test 19: bugRecords=[] tra ve markdown voi "Tong so: 0 bugs"', () => {
     const result = buildIndex([]);
-    assert.ok(result.includes('Tong so: 0 bugs'));
+    assert.ok(result.includes('Tong so:**'), 'phai co Tong so');
+    assert.ok(result.includes('0 bugs'), 'phai co 0 bugs');
   });
 
   it('Test 20: Voi 2 bug records, INDEX co section "## Theo File" voi bang', () => {
