@@ -121,12 +121,14 @@ Janitor FAIL (agent throw/timeout):
    "Session dir: {absolute_session_dir}.
     Doc evidence_janitor.md va phan tich code nguon. Ghi evidence_code.md."
 3. read `{session_dir}/evidence_code.md` -> detectiveContent
-   - Goi `validateEvidence(detectiveContent)` tu `bin/lib/evidence-protocol.js` -> detectiveResult
+   - Goi `validateEvidence(detectiveContent)` tu `bin/lib/evidence-protocol.js` -> detectiveValidation
+   - Construct detectiveResult: { evidenceContent: detectiveContent }
 4. Spawn agent `pd-doc-specialist`:
    "Session dir: {absolute_session_dir}.
     Doc evidence_janitor.md va tra cuu tai lieu thu vien. Ghi evidence_docs.md."
 5. read `{session_dir}/evidence_docs.md` -> docSpecContent (co the khong ton tai)
-   - Neu file ton tai: validateEvidence(docSpecContent) -> docSpecResult
+   - Neu file ton tai: validateEvidence(docSpecContent) -> docSpecValidation
+   - Construct docSpecResult: { evidenceContent: docSpecContent }
    - Neu file KHONG ton tai hoac invalid: docSpecResult = null
 6. Goi `mergeParallelResults({ detectiveResult, docSpecResult })` tu `bin/lib/parallel-dispatch.js`
    - detectiveResult: { evidenceContent: detectiveContent } hoac { error: { message: '...' } }
@@ -319,11 +321,11 @@ Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
 4. read `CLAUDE.md` -> claudeContent (neu ton tai)
 5. glob `.planning/reports/*.md` -> reportContent (file moi nhat, neu co)
 6. Try: goi `runLogicSync({ diffText, bugReportContent, sessionContent, claudeContent, reportContent, planContents: [] })` tu `bin/lib/logic-sync.js`
-   -> { hasLogicChange, signals, diagramUpdated, rulesSuggested }
+   -> { logicResult, reportResult, rulesResult, warnings }
    Catch: WARNING: "Logic sync loi: {error.message}". KHONG block.
-7. hasLogicChange = true va diagramUpdated -> hoi: "Cap nhat lai PDF? (Y/n)"
+7. logicResult?.hasLogicChange = true va reportResult !== null -> hoi: "Cap nhat lai PDF? (Y/n)"
    Y -> `node bin/generate-pdf-report.js {reportPath}`
-8. rulesSuggested co noi dung -> hien va hoi: "Them vao CLAUDE.md? (Y/n)"
+8. rulesResult?.suggestions?.length > 0 -> hien rulesResult.suggestions va hoi: "Them vao CLAUDE.md? (Y/n)"
    Y -> append vao CLAUDE.md, git add va commit:
    ```
    git add CLAUDE.md
