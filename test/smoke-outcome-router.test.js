@@ -21,17 +21,17 @@ function makeEvidence({ agent = 'pd-fix-architect', outcome = 'root_cause', sess
   return `---\nagent: ${agent}\noutcome: ${outcome}\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: ${session}\n---\n${body}`;
 }
 
-const BODY_INCONCLUSIVE = `## INVESTIGATION INCONCLUSIVE\n\n## Elimination Log\n| File | Logic | Ket qua |\n|------|-------|--------|\n| src/api.js | null check | Binh thuong |\n| src/db.js | query logic | Binh thuong |\n\n## Huong dieu tra tiep\nCan kiem tra them middleware layer.`;
+const BODY_INCONCLUSIVE = `## INVESTIGATION INCONCLUSIVE\n\n## Elimination Log\n| File | Logic | Ket qua |\n|------|-------|--------|\n| src/api.js | null check | Binh thuong |\n| src/db.js | query logic | Binh thuong |\n\n## Hướng điều tra tiếp\nCan kiem tra them middleware layer.`;
 
 const BODY_ROOT_CAUSE = `## ROOT CAUSE FOUND
 
-## Nguyen nhan
+## Nguyên nhân
 Loi null pointer o dong 42 cua src/api.js.
 
-## Bang chung
+## Bằng chứng
 src/api.js:42 — variable user chua duoc kiem tra null.
 
-## De xuat
+## Đề xuất
 Them null check truoc khi truy cap user.name.`;
 
 // ─── ROOT_CAUSE_CHOICES ──────────────────────────────────────
@@ -65,7 +65,7 @@ describe('buildRootCauseMenu', () => {
   });
 
   it('tra ve choices rong khi outcome khong phai root_cause', () => {
-    const result = buildRootCauseMenu(makeEvidence({ outcome: 'checkpoint', body: '## CHECKPOINT REACHED\n\n## Tien do dieu tra\n50%.\n\n## Cau hoi cho User\nCo thay doi gi?\n\n## Context cho Agent tiep\nDa kiem tra.' }));
+    const result = buildRootCauseMenu(makeEvidence({ outcome: 'checkpoint', body: '## CHECKPOINT REACHED\n\n## Tiến độ điều tra\n50%.\n\n## Câu hỏi cho User\nCo thay doi gi?\n\n## Context cho Agent tiếp\nDa kiem tra.' }));
     assert.equal(result.choices.length, 0);
     assert.ok(result.warnings.length > 0);
   });
@@ -88,7 +88,7 @@ describe('prepareFixPlan', () => {
   it('tra ve FIX-PLAN.md content voi template sections', () => {
     const result = prepareFixPlan(makeEvidence({ body: BODY_ROOT_CAUSE }), '/tmp/S001-test');
     assert.equal(result.action, 'fix_plan');
-    assert.ok(result.planContent.includes('## Nguyen nhan'));
+    assert.ok(result.planContent.includes('## Nguyên nhân'));
     assert.ok(result.planContent.includes('## Risk Assessment'));
     assert.equal(result.planPath, 'FIX-PLAN.md');
   });
@@ -180,7 +180,7 @@ describe('buildInconclusiveContext', () => {
   });
 
   it('warning khi evidence thieu section "Elimination Log"', () => {
-    const bodyNoElim = `## INVESTIGATION INCONCLUSIVE\n\n## Huong dieu tra tiep\nCan kiem tra them.`;
+    const bodyNoElim = `## INVESTIGATION INCONCLUSIVE\n\n## Hướng điều tra tiếp\nCan kiem tra them.`;
     const result = buildInconclusiveContext({
       evidenceContent: makeEvidence({ outcome: 'inconclusive', body: bodyNoElim }),
       userInputPath: null,

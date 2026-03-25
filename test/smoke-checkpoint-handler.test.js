@@ -18,7 +18,7 @@ function makeEvidence({ agent = 'pd-code-detective', outcome = 'checkpoint', ses
   return `---\nagent: ${agent}\noutcome: ${outcome}\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: ${session}\n---\n${body}`;
 }
 
-const BODY_CHECKPOINT = `## CHECKPOINT REACHED\n\n## Tien do dieu tra\nDa kiem tra 3/5 files nghi ngo.\n\n## Cau hoi cho User\nBan co thay doi gi o src/config.js gan day khong?\n\n## Context cho Agent tiep\nDa loai tru src/api.js va src/utils.js. Con lai src/config.js, src/routes.js, src/middleware.js.`;
+const BODY_CHECKPOINT = `## CHECKPOINT REACHED\n\n## Tiến độ điều tra\nDa kiem tra 3/5 files nghi ngo.\n\n## Câu hỏi cho User\nBan co thay doi gi o src/config.js gan day khong?\n\n## Context cho Agent tiếp\nDa loai tru src/api.js va src/utils.js. Con lai src/config.js, src/routes.js, src/middleware.js.`;
 
 // ─── MAX_CONTINUATION_ROUNDS ────────────────────────────────
 
@@ -47,7 +47,7 @@ describe('extractCheckpointQuestion', () => {
   });
 
   it('tra ve question rong khi outcome khong phai checkpoint', () => {
-    const result = extractCheckpointQuestion(makeEvidence({ outcome: 'root_cause', body: '## ROOT CAUSE FOUND\n\n## Nguyen nhan\nLoi.\n\n## Bang chung\nFile.\n\n## De xuat\nSua.' }));
+    const result = extractCheckpointQuestion(makeEvidence({ outcome: 'root_cause', body: '## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi.\n\n## Bằng chứng\nFile.\n\n## Đề xuất\nSua.' }));
     assert.equal(result.question, '');
     assert.ok(result.warnings.length > 0);
   });
