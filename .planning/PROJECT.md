@@ -60,6 +60,7 @@ Every workflow step must produce the highest quality code output while consuming
 - [x] Project Memory & Regression Detection — Bug history recall, regression alerts — v2.1 (Phase 31)
 - [x] Workflow Execution Loop — 5-step orchestrator integrating all agents — v2.1 (Phase 32-33)
 - [x] Integration Wiring Fixes — 4 call signature bugs, 2 enforcement points, DocSpec evidence chain — v2.1 (Phase 34)
+- [x] Evidence Encoding & Critical Wiring — encoding mismatch fix, roundNumber init, planPath, createBugRecord, SESSION.md write-back — v2.1 (Phase 35)
 
 ## Current Milestone: v2.1 Detective Orchestrator
 
@@ -83,7 +84,7 @@ Every workflow step must produce the highest quality code output while consuming
 ## Current State
 
 **Shipped:** v1.5 Nang cap Skill Fix-Bug (2026-03-24)
-**In progress:** v2.1 Detective Orchestrator (Phase 34 complete — gap closure done)
+**In progress:** v2.1 Detective Orchestrator (Phase 35 complete — all gap closures done, milestone ready for audit)
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
@@ -149,4 +150,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-25 after Phase 34 complete*
+*Last updated: 2026-03-25 after Phase 35 complete*
