@@ -220,6 +220,131 @@ function parseEntry(content) {
   };
 }
 
+// ─── validateEvidence ─────────────────────────────────────
+
+/**
+ * Kiem tra research file co section Bang chung hop le hay khong.
+ * Non-blocking: tra { valid, warnings } thay vi throw khi format sai.
+ * Chi throw khi content null/undefined/empty (loi lap trinh).
+ *
+ * Claim format: `- [text] — [source] (confidence: LEVEL)`
+ * Cho phep ca em dash (—) va double dash (--) lam source separator.
+ *
+ * @param {string} content - Noi dung research file
+ * @returns {{ valid: boolean, warnings: string[] }}
+ * @throws {Error} Khi content null/undefined/empty
+ */
+function validateEvidence(content) {
+  if (content == null || typeof content !== 'string' || content.trim() === '') {
+    throw new Error('thieu tham so content');
+  }
+
+  const warnings = [];
+
+  // Kiem tra section ## Bang chung ton tai
+  const hasSection = /^## Bang chung/m.test(content);
+  if (!hasSection) {
+    warnings.push('thieu section: ## Bang chung');
+    return { valid: false, warnings };
+  }
+
+  // Extract noi dung section (giua ## Bang chung va ## tiep theo hoac EOF)
+  const sectionMatch = content.match(/^## Bang chung\s*\n([\s\S]*?)(?=^## |\s*$)/m);
+  if (!sectionMatch || !sectionMatch[1].trim()) {
+    warnings.push('section Bang chung rong');
+    return { valid: false, warnings };
+  }
+
+  // Tim cac claims (dong bat dau bang -)
+  const claims = sectionMatch[1].match(/^- .+/gm) || [];
+
+  // Kiem tra tung claim co source separator khong
+  for (const claim of claims) {
+    if (!claim.includes('\u2014') && !claim.includes('--')) {
+      warnings.push(`claim thieu source: ${claim.slice(0, 60)}${claim.length > 60 ? '...' : ''}`);
+    }
+  }
+
+  return { valid: warnings.length === 0, warnings };
+}
+
+// ─── appendAuditLog ───────────────────────────────────────
+
+/**
+ * Tao hoac cap nhat noi dung AUDIT_LOG.md.
+ * Neu existingContent rong/null/khong co header => tao header truoc.
+ * Append 1 row moi voi timestamp hien tai.
+ *
+ * Pure function: return string, KHONG ghi file. Caller ghi file.
+ *
+ * @param {string|null} existingContent - Noi dung hien tai cua AUDIT_LOG.md (hoac null/rong)
+ * @param {object} entry - Thong tin audit
+ * @param {string} entry.agent - Ten agent (vd: 'collector', 'verifier')
+ * @param {string} entry.action - Hanh dong (vd: 'collect', 'verify', 'index')
+ * @param {string} entry.topic - Chu de research
+ * @param {number} entry.sourceCount - So luong sources
+ * @param {string} entry.confidence - Confidence level (HIGH/MEDIUM/LOW)
+ * @returns {string} Noi dung AUDIT_LOG.md da cap nhat
+ * @throws {Error} Khi thieu entry
+ */
+const AUDIT_HEADER = '| Timestamp | Agent | Action | Topic | Sources | Confidence |';
+const AUDIT_SEPARATOR = '|-----------|-------|--------|-------|---------|------------|';
+
+function appendAuditLog(existingContent, entry) {
+  if (entry == null) {
+    throw new Error('thieu tham so entry');
+  }
+
+  let content = (existingContent || '').trim();
+
+  // Tao header neu chua co
+  if (!content || !content.includes(AUDIT_HEADER)) {
+    content = `# Audit Log\n\n${AUDIT_HEADER}\n${AUDIT_SEPARATOR}`;
+  }
+
+  // Append row moi
+  const timestamp = new Date().toISOString();
+  const row = `| ${timestamp} | ${entry.agent} | ${entry.action} | ${entry.topic} | ${entry.sourceCount} | ${entry.confidence} |`;
+  content += `\n${row}`;
+
+  return content;
+}
+
+// ─── generateIndex ────────────────────────────────────────
+
+/**
+ * Tao noi dung INDEX.md tu danh sach entries.
+ * Sort entries theo created (moi nhat truoc).
+ *
+ * Pure function: return string, KHONG ghi file. Caller ghi file.
+ *
+ * @param {Array|null} entries - Mang { fileName, source, topic, confidence, created }
+ * @returns {string} Noi dung INDEX.md dang markdown
+ */
+function generateIndex(entries) {
+  const timestamp = new Date().toISOString();
+  const safeEntries = Array.isArray(entries) ? entries : [];
+
+  if (safeEntries.length === 0) {
+    return `# Research Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** 0 files\n`;
+  }
+
+  // Sort theo created descending (moi nhat truoc)
+  const sorted = [...safeEntries].sort((a, b) => {
+    return new Date(b.created).getTime() - new Date(a.created).getTime();
+  });
+
+  let md = `# Research Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** ${sorted.length} files\n\n`;
+  md += '| File | Source | Topic | Confidence | Created |\n';
+  md += '|------|--------|-------|------------|----------|\n';
+
+  for (const entry of sorted) {
+    md += `| ${entry.fileName} | ${entry.source} | ${entry.topic} | ${entry.confidence} | ${entry.created} |\n`;
+  }
+
+  return md;
+}
+
 // ─── Exports ───────────────────────────────────────────────
 
 module.exports = {
@@ -231,4 +356,7 @@ module.exports = {
   parseEntry,
   validateConfidence,
   generateFilename,
+  validateEvidence,
+  appendAuditLog,
+  generateIndex,
 };

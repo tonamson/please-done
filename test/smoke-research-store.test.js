@@ -19,6 +19,9 @@ const {
   parseEntry,
   validateConfidence,
   generateFilename,
+  validateEvidence,
+  appendAuditLog,
+  generateIndex,
 } = require('../bin/lib/research-store');
 
 // ─── Constants ──────────────────────────────────────────────
@@ -432,5 +435,230 @@ describe('parseEntry — edge cases', () => {
     const result = parseEntry('# Just a heading\n\nSome content.');
     assert.equal(result.valid, false);
     assert.ok(result.errors.length >= 5); // all required fields missing
+  });
+});
+
+// ─── validateEvidence ──────────────────────────────────────
+
+describe('validateEvidence — valid content', () => {
+  it('content co section Bang chung va claims voi source => valid=true', () => {
+    const content = `# Research
+## Bang chung
+- Phat hien A — Source1 (confidence: HIGH)
+- Phat hien B -- Source2 (confidence: MEDIUM)
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, true);
+    assert.deepStrictEqual(result.warnings, []);
+  });
+
+  it('content co nhieu sections — chi check section Bang chung', () => {
+    const content = `# Research
+## Tong quan
+Noi dung tong quan.
+## Bang chung
+- Claim A — SourceX (confidence: HIGH)
+## Ket luan
+Done.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, true);
+    assert.deepStrictEqual(result.warnings, []);
+  });
+});
+
+describe('validateEvidence — thieu section', () => {
+  it('content KHONG co section Bang chung => valid=false', () => {
+    const content = `# Research
+## Tong quan
+Noi dung gi do.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('thieu section')));
+  });
+});
+
+describe('validateEvidence — section rong', () => {
+  it('section Bang chung rong => valid=false', () => {
+    const content = `# Research
+## Bang chung
+
+## Ket luan
+Done.
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('rong')));
+  });
+});
+
+describe('validateEvidence — claim thieu source', () => {
+  it('claim khong co em dash hoac double dash => warning', () => {
+    const content = `# Research
+## Bang chung
+- Claim khong co source chi tiet
+`;
+    const result = validateEvidence(content);
+    assert.equal(result.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('claim thieu source')));
+  });
+});
+
+describe('validateEvidence — null/empty input', () => {
+  it('null throw Error', () => {
+    assert.throws(() => validateEvidence(null), /thieu tham so content/);
+  });
+
+  it('empty string throw Error', () => {
+    assert.throws(() => validateEvidence(''), /thieu tham so content/);
+  });
+
+  it('undefined throw Error', () => {
+    assert.throws(() => validateEvidence(undefined), /thieu tham so content/);
+  });
+});
+
+// ─── appendAuditLog ────────────────────────────────────────
+
+describe('appendAuditLog — tao header khi file rong', () => {
+  it('empty string => tao header + separator + 1 row', () => {
+    const result = appendAuditLog('', {
+      agent: 'collector',
+      action: 'collect',
+      topic: 'test-topic',
+      sourceCount: 3,
+      confidence: 'HIGH',
+    });
+    assert.ok(result.includes('| Timestamp | Agent | Action | Topic | Sources | Confidence |'));
+    assert.ok(result.includes('|---'), 'phai co separator row');
+    assert.ok(result.includes('collector'));
+    assert.ok(result.includes('collect'));
+    assert.ok(result.includes('test-topic'));
+    assert.ok(result.includes('3'));
+    assert.ok(result.includes('HIGH'));
+  });
+
+  it('null => tao header + 1 row (null treated as empty)', () => {
+    const result = appendAuditLog(null, {
+      agent: 'verifier',
+      action: 'verify',
+      topic: 'auth',
+      sourceCount: 2,
+      confidence: 'MEDIUM',
+    });
+    assert.ok(result.includes('| Timestamp | Agent | Action | Topic | Sources | Confidence |'));
+    assert.ok(result.includes('verifier'));
+  });
+});
+
+describe('appendAuditLog — append row khi co header', () => {
+  it('existing content voi header => append row (khong duplicate header)', () => {
+    const existing = `# Audit Log
+
+| Timestamp | Agent | Action | Topic | Sources | Confidence |
+|-----------|-------|--------|-------|---------|------------|
+| 2026-03-25T10:00:00.000Z | collector | collect | topic1 | 2 | HIGH |`;
+
+    const result = appendAuditLog(existing, {
+      agent: 'verifier',
+      action: 'verify',
+      topic: 'topic2',
+      sourceCount: 1,
+      confidence: 'LOW',
+    });
+
+    // Header chi xuat hien 1 lan
+    const headerCount = (result.match(/\| Timestamp \| Agent \| Action/g) || []).length;
+    assert.equal(headerCount, 1);
+    // Co ca 2 rows
+    assert.ok(result.includes('collector'));
+    assert.ok(result.includes('verifier'));
+  });
+});
+
+describe('appendAuditLog — row format', () => {
+  it('row co dung format | timestamp | agent | action | topic | sourceCount | confidence |', () => {
+    const result = appendAuditLog('', {
+      agent: 'test-agent',
+      action: 'index',
+      topic: 'my-topic',
+      sourceCount: 5,
+      confidence: 'MEDIUM',
+    });
+    const lines = result.split('\n');
+    const dataRow = lines[lines.length - 1];
+    assert.ok(dataRow.startsWith('|'));
+    assert.ok(dataRow.includes('test-agent'));
+    assert.ok(dataRow.includes('index'));
+    assert.ok(dataRow.includes('my-topic'));
+    assert.ok(dataRow.includes('5'));
+    assert.ok(dataRow.includes('MEDIUM'));
+    // Kiem tra co timestamp ISO format
+    const isoMatch = dataRow.match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    assert.ok(isoMatch, 'row phai co ISO timestamp');
+  });
+});
+
+describe('appendAuditLog — validation', () => {
+  it('thieu entry => throw Error', () => {
+    assert.throws(() => appendAuditLog('', null), /thieu tham so entry/);
+  });
+
+  it('entry undefined => throw Error', () => {
+    assert.throws(() => appendAuditLog('', undefined), /thieu tham so entry/);
+  });
+});
+
+// ─── generateIndex ─────────────────────────────────────────
+
+describe('generateIndex — empty entries', () => {
+  it('empty array => Tong so: 0 files, khong co table', () => {
+    const result = generateIndex([]);
+    assert.ok(result.includes('0 files'));
+    assert.ok(!result.includes('| File |'));
+  });
+
+  it('null => Tong so: 0 files', () => {
+    const result = generateIndex(null);
+    assert.ok(result.includes('0 files'));
+  });
+});
+
+describe('generateIndex — co entries', () => {
+  it('1 entry => table voi 1 row', () => {
+    const result = generateIndex([
+      { fileName: 'auth.md', source: 'internal', topic: 'Auth', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
+    ]);
+    assert.ok(result.includes('| File | Source | Topic | Confidence | Created |'));
+    assert.ok(result.includes('auth.md'));
+    assert.ok(result.includes('internal'));
+    assert.ok(result.includes('1 files'));
+  });
+
+  it('nhieu entries => sorted theo created (moi nhat truoc)', () => {
+    const entries = [
+      { fileName: 'old.md', source: 'internal', topic: 'Old', confidence: 'LOW', created: '2026-03-20T10:00:00.000Z' },
+      { fileName: 'new.md', source: 'external', topic: 'New', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
+      { fileName: 'mid.md', source: 'internal', topic: 'Mid', confidence: 'MEDIUM', created: '2026-03-22T10:00:00.000Z' },
+    ];
+    const result = generateIndex(entries);
+
+    // Kiem tra thu tu: new truoc mid truoc old
+    const newIdx = result.indexOf('new.md');
+    const midIdx = result.indexOf('mid.md');
+    const oldIdx = result.indexOf('old.md');
+    assert.ok(newIdx < midIdx, 'new.md phai xuat hien truoc mid.md');
+    assert.ok(midIdx < oldIdx, 'mid.md phai xuat hien truoc old.md');
+    assert.ok(result.includes('3 files'));
+  });
+});
+
+describe('generateIndex — table header format', () => {
+  it('table header dung format: | File | Source | Topic | Confidence | Created |', () => {
+    const result = generateIndex([
+      { fileName: 'test.md', source: 'internal', topic: 'Test', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
+    ]);
+    assert.ok(result.includes('| File | Source | Topic | Confidence | Created |'));
   });
 });
