@@ -118,7 +118,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - INT-04: Truyen existingBugs cho createBugRecord, fix return field naming
   - INT-05: Them SESSION.md write-back tai 2 vi tri thieu
   - Documentation: Cap nhat REQUIREMENTS.md checkboxes va SUMMARY frontmatter
-- [ ] **Phase 36: Fix Workflow Wiring** (gap closure)
+- [x] **Phase 36: Fix Workflow Wiring** (gap closure) (completed 2026-03-25)
   - INT-07: Fix detectiveResult shape mismatch trong mergeParallelResults call
   - INT-08: Fix runLogicSync return destructuring sai
 
@@ -292,4 +292,4 @@ Plans:
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
 | 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
-| 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete | 2026-03-25 |
+| 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete    | 2026-03-25 |
