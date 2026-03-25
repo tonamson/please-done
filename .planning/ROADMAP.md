@@ -111,7 +111,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
 - [x] **Phase 34: Fix Integration Wiring** (gap closure) (completed 2026-03-25)
   - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
-- [ ] **Phase 35: Fix Evidence Encoding & Critical Wiring** (2 plans) (gap closure)
+- [x] **Phase 35: Fix Evidence Encoding & Critical Wiring** (2 plans) (gap closure) (completed 2026-03-25)
   - INT-01: Dong bo section names ASCII/Unicode giua modules va agents
   - INT-02: Khoi tao roundNumber trong CHECKPOINT continuation
   - INT-03: Resolve FIX-PLAN.md path vao session_dir
@@ -275,4 +275,4 @@ Plans:
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
-| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/2 | Not started | - |
+| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
