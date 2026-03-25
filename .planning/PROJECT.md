@@ -50,23 +50,20 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ repro-test-generator.js + regression-analyzer.js pure functions + truths-parser shared helper + workflow sub-steps 5b.1/8a — v1.5 (Phase 25)
 - ✓ debug-cleanup.js pure functions (scanDebugMarkers + matchSecurityWarnings) + workflow sub-step 9a — v1.5 (Phase 26)
 - ✓ logic-sync.js (detectLogicChanges + updateReportDiagram + suggestClaudeRules + runLogicSync) + workflow Buoc 10a — v1.5 (Phase 27)
+- ✓ Dynamic Resource Orchestration — Tier/Model mapping, resource safety rules — v2.1 (Phase 28)
+- ✓ Detective Protocols — Resume UI, Evidence Format, Continuation Agent — v2.1 (Phase 29-30)
+- ✓ Project Memory & Regression Detection — Bug history recall, regression alerts — v2.1 (Phase 31)
+- ✓ Workflow Execution Loop — 5-step orchestrator integrating all agents — v2.1 (Phase 32-33)
+- ✓ Integration Wiring — call signatures, enforcement points, encoding, prose gaps — v2.1 (Phase 34-37)
 
 ### Active
 
-<!-- Current scope: v2.1 Detective Orchestrator -->
+<!-- Next milestone scope goes here -->
 
-- [x] Dynamic Resource Orchestration — Tier/Model mapping, resource safety rules — v2.1 (Phase 28)
-- [x] Detective Protocols — Resume UI, Evidence Format, Continuation Agent — v2.1 (Phase 29-30)
-- [x] Project Memory & Regression Detection — Bug history recall, regression alerts — v2.1 (Phase 31)
-- [x] Workflow Execution Loop — 5-step orchestrator integrating all agents — v2.1 (Phase 32-33)
-- [x] Integration Wiring Fixes — 4 call signature bugs, 2 enforcement points, DocSpec evidence chain — v2.1 (Phase 34)
-- [x] Evidence Encoding & Critical Wiring — encoding mismatch fix, roundNumber init, planPath, createBugRecord, SESSION.md write-back — v2.1 (Phase 35)
-- [x] Workflow Wiring Fixes — mergeParallelResults shape mismatch, runLogicSync destructuring — v2.1 (Phase 36)
-- [x] Workflow Prose Gaps — buildIndex param shape, INCONCLUSIVE round counter — v2.1 (Phase 37)
+## Current Milestone: (Planning next milestone)
 
-## Current Milestone: v2.1 Detective Orchestrator
-
-**Goal:** Biến `pd:fix-bug` thành hệ thống điều phối đa Agent (Task Force), tích hợp tinh hoa gsd:debug và sức mạnh MCP của please-done.
+**Previous:** v2.1 Detective Orchestrator — shipped 2026-03-25
+**Summary:** Biến `pd:fix-bug` thành hệ thống điều phối đa Agent (Task Force) với 7 pure function modules, 5 agent files, và 1 orchestrator workflow. 24/24 requirements satisfied, 763 tests pass.
 
 **Target features:**
 - Dynamic Resource Orchestration (Tier → Model mapping, 2 sub-agents max, Heavy Lock, hạ cấp thông minh)

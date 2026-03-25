@@ -8,7 +8,7 @@
 - ✅ **v1.3 Truth-Driven Development** — Phases 17-20 (shipped 2026-03-24)
 - ✅ **v1.4 Mermaid Diagrams** — Phases 21-24 (shipped 2026-03-24)
 - ✅ **v1.5 Nang cap Skill Fix-Bug** — Phases 25-27 (shipped 2026-03-24)
-- **v2.1 Detective Orchestrator** — Phases 28-36 (in progress)
+- ✅ **v2.1 Detective Orchestrator** — Phases 28-37 (shipped 2026-03-25)
 
 ## Phases
 
@@ -87,229 +87,24 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 
 </details>
 
-### v2.1 Detective Orchestrator (Dang thuc hien)
+<details>
+<summary>✅ v2.1 Detective Orchestrator (Phases 28-37) — SHIPPED 2026-03-25</summary>
 
-**Muc tieu Milestone:** Bien `pd:fix-bug` thanh he thong dieu phoi da Agent (Task Force), tich hop tinh hoa gsd:debug va suc manh MCP cua please-done.
+- [x] Phase 28: Agent Infrastructure & Resource Rules (2/2 plans) — completed 2026-03-24
+- [x] Phase 29: Evidence Protocol & Session Management (3/3 plans) — completed 2026-03-25
+- [x] Phase 30: Detective Interactions (3/3 plans) — completed 2026-03-25
+- [x] Phase 31: Project Memory & Regression Detection (2/2 plans) — completed 2026-03-25
+- [x] Phase 32: Orchestrator Workflow (2/2 plans) — completed 2026-03-25
+- [x] Phase 33: Resilience & Backward Compatibility (2/2 plans) — completed 2026-03-25
+- [x] Phase 34: Fix Integration Wiring (2/2 plans) — completed 2026-03-25
+- [x] Phase 35: Fix Evidence Encoding & Critical Wiring (2/2 plans) — completed 2026-03-25
+- [x] Phase 36: Fix Workflow Wiring (1/1 plan) — completed 2026-03-25
+- [x] Phase 37: Fix Workflow Prose Gaps (1/1 plan) — completed 2026-03-25
 
-- [x] **Phase 28: Agent Infrastructure & Resource Rules** (2/2 plans) — completed 2026-03-24
-- [x] **Phase 29: Evidence Protocol & Session Management** (3 plans) (completed 2026-03-25)
-  - [x] 29-01-PLAN.md — TDD evidence-protocol.js (3 outcome types, validation, parsing)
-  - [x] 29-02-PLAN.md — TDD session-manager.js (session CRUD, folder-based structure)
-  - [x] 29-03-PLAN.md — Cap nhat 5 agent files bo hardcode paths, them session-based evidence format
-- [x] **Phase 30: Detective Interactions** (3 plans) (completed 2026-03-25)
-  - [x] 30-01-PLAN.md — outcome-router.js (ROOT CAUSE 3 lua chon, FIX-PLAN template)
-  - [x] 30-02-PLAN.md — checkpoint-handler.js (CHECKPOINT flow, Continuation Agent max 2 vong)
-  - [x] 30-03-PLAN.md — parallel-dispatch.js (Detective+DocSpec song song, partial failure)
-- [ ] **Phase 31: Project Memory & Regression Detection** (2 plans)
-  - [ ] 31-01-PLAN.md — TDD bug-memory.js (createBugRecord, searchBugs, buildIndex)
-  - [ ] 31-02-PLAN.md — Cap nhat agent prompts (Janitor ghi "Bug tuong tu", Architect kiem tra regression)
-- [x] **Phase 32: Orchestrator Workflow** (2/2 plans) (completed 2026-03-25)
-  - [x] 32-01-PLAN.md — Backup v1.5 va rewrite fix-bug.md phan dau (Buoc 0-2)
-  - [x] 32-02-PLAN.md — Hoan thanh workflow (Buoc 3-5, rules, success_criteria)
-- [x] **Phase 33: Resilience & Backward Compatibility** (2 plans) (completed 2026-03-25)
-  - [x] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
-  - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
-- [x] **Phase 34: Fix Integration Wiring** (gap closure) (completed 2026-03-25)
-  - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
-- [x] **Phase 35: Fix Evidence Encoding & Critical Wiring** (2 plans) (gap closure) (completed 2026-03-25)
-  - INT-01: Dong bo section names ASCII/Unicode giua modules va agents
-  - INT-02: Khoi tao roundNumber trong CHECKPOINT continuation
-  - INT-03: Resolve FIX-PLAN.md path vao session_dir
-  - INT-04: Truyen existingBugs cho createBugRecord, fix return field naming
-  - INT-05: Them SESSION.md write-back tai 2 vi tri thieu
-  - Documentation: Cap nhat REQUIREMENTS.md checkboxes va SUMMARY frontmatter
-- [x] **Phase 36: Fix Workflow Wiring** (gap closure) (completed 2026-03-25)
-  - INT-07: Fix detectiveResult shape mismatch trong mergeParallelResults call
-  - INT-08: Fix runLogicSync return destructuring sai
-- [x] **Phase 37: Fix Workflow Prose Gaps** (gap closure) (completed 2026-03-25)
-  - INT-09: Fix buildIndex param shape underspecified
-  - INT-10: Fix INCONCLUSIVE round counter fragile
+Full details: `.planning/milestones/v2.1-ROADMAP.md`
 
-## Phase Details
-
-### Phase 28: Agent Infrastructure & Resource Rules
-**Goal**: 5 agent chay duoc voi dung model, orchestrator kiem soat tai nguyen (parallel limit, heavy lock, ha cap tu dong)
-**Depends on**: Nothing (nen tang cho toan bo v2.1)
-**Requirements**: ORCH-01, ORCH-02, ORCH-03, ORCH-04
-**Status**: Complete (2026-03-24)
-
-### Phase 29: Evidence Protocol & Session Management
-**Goal**: Moi agent giao tiep qua evidence files voi format chuan, user co the tiep tuc phien debug cu
-**Depends on**: Phase 28
-**Requirements**: PROT-01, PROT-02, PROT-05, PROT-07
-**Plans**: 3 plans
-**Success Criteria** (what must be TRUE):
-  1. User thay danh sach phien debug danh so khi khoi dong `pd:fix-bug`, co the chon tiep tuc hoac tao moi
-  2. Moi agent tra ket qua theo dung 1 trong 3 outcomes: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
-  3. Khi INCONCLUSIVE, evidence file chua Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
-  4. Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase ma doc evidence
-
-### Phase 30: Detective Interactions
-**Goal**: User tuong tac voi orchestrator qua 3 nhanh ket qua (ROOT CAUSE, CHECKPOINT, parallel dispatch) mot cach tu nhien
-**Depends on**: Phase 29
-**Requirements**: PROT-03, PROT-04, PROT-06, PROT-08
-**Plans**: 3 plans
-**Success Criteria** (what must be TRUE):
-  1. Khi ROOT CAUSE duoc tim thay, user duoc hien 3 lua chon: Sua ngay, Len ke hoach, Tu sua — va orchestrator hanh dong dung theo lua chon
-  2. Khi agent ghi CHECKPOINT REACHED, orchestrator hien cau hoi cho user va truyen cau tra loi cho agent tiep theo
-  3. Khi user tra loi CHECKPOINT, orchestrator spawn Continuation Agent moi tiep nhan context tu evidence files truoc do
-  4. Code Detective va Doc Specialist chay song song thanh cong, ca 2 doc evidence_janitor.md ma khong xung dot file
-
-### Phase 31: Project Memory & Regression Detection
-**Goal**: He thong nho lich su bug va canh bao regression truoc khi fix, giam lap lai cung loi
-**Depends on**: Phase 29
-**Requirements**: MEM-01, MEM-02, MEM-03, MEM-04
-**Success Criteria** (what must be TRUE):
-  1. Janitor tu dong tim bug tuong tu tu `.planning/bugs/` bang keyword matching va ghi ket qua vao evidence
-  2. Khi loi hien tai khop >= 2/3 tieu chi (file, function, error message) voi bug cu, orchestrator hien canh bao regression ro rang
-  3. Fix Architect kiem tra fix moi khong pha vo cac fix cu lien quan truoc khi ra phan quyet cuoi cung
-  4. `.planning/bugs/INDEX.md` duoc tu dong tao va cap nhat, liet ke tat ca bug theo file/function/keyword
-**Plans**: 2 plans
-
-Plans:
-- [ ] 31-01-PLAN.md — TDD bug-memory.js (createBugRecord, searchBugs, buildIndex)
-- [ ] 31-02-PLAN.md — Cap nhat agent prompts (Janitor ghi "Bug tuong tu", Architect kiem tra regression)
-
-### Phase 32: Orchestrator Workflow
-**Goal**: 5-buoc execution loop hoan chinh: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix+Commit
-**Depends on**: Phase 28, Phase 29, Phase 30, Phase 31
-**Requirements**: FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05, FLOW-08
-**Success Criteria** (what must be TRUE):
-  1. Buoc 1: Janitor agent (scout/haiku) duoc spawn, thu thap trieu chung va kiem tra session cu, ghi evidence_janitor.md
-  2. Buoc 2: Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) duoc spawn song song sau khi Janitor hoan tat
-  3. Buoc 3: Repro Engineer (builder/sonnet) tao Red Test tu evidence Buoc 2, tai su dung repro-test-generator.js
-  4. Buoc 4: Fix Architect (architect/opus) tong hop evidence va ra phan quyet, tai su dung regression-analyzer.js
-  5. Buoc 5: Orchestrator truc tiep sua code, chay test, commit voi tag [LOI], goi debug-cleanup.js va logic-sync.js tu v1.5
-**Plans**: 2 plans
-**Status**: Complete (2026-03-25)
-
-Plans:
-- [x] 32-01-PLAN.md — Backup v1.5 va rewrite fix-bug.md phan dau (Buoc 0-2)
-- [x] 32-02-PLAN.md — Hoan thanh workflow (Buoc 3-5, rules, success_criteria)
-
-### Phase 33: Resilience & Backward Compatibility
-**Goal**: Workflow xu ly duoc moi truong hop loi va tuong thich nguoc voi v1.5 single-agent mode
-**Depends on**: Phase 32
-**Requirements**: FLOW-06, FLOW-07
-**Success Criteria** (what must be TRUE):
-  1. Khi INCONCLUSIVE o Buoc 4, orchestrator quay lai Buoc 2 voi Elimination Log va thong tin moi tu user (toi da 3 vong)
-  2. User co the chay `pd:fix-bug --single` hoac khi khong co agent configs, workflow tu dong dung v1.5 single-agent mode
-  3. Orchestrator an chi tiet agent spawning, chi hien ket qua cuoi cung va milestones chinh cho user (progressive disclosure)
-  4. Toan bo 601+ tests hien tai van pass, converter pipeline xu ly agent files moi, snapshots duoc cap nhat
-**Plans**: 2 plans
-
-Plans:
-- [ ] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
-- [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
-
-### Phase 34: Fix Integration Wiring
-**Goal**: Sua call signatures va them enforcement points de tat ca modules duoc goi dung tu workflow fix-bug.md
-**Depends on**: Phase 33
-**Requirements**: ORCH-03, ORCH-04, PROT-03, PROT-06, PROT-07, PROT-08, FLOW-02, FLOW-05
-**Gap Closure**: Closes gaps from v2.1 milestone audit
-**Success Criteria** (what must be TRUE):
-  1. mergeParallelResults goi dung param names {detectiveResult, docSpecResult} — merge step khong false-fail
-  2. buildContinuationContext goi voi object {evidencePath, userAnswer, sessionDir, currentRound, agentName} — continuation context day du
-  3. prepareSelfFix/prepareFixNow return fields duoc doc dung (filesForReview, resumeHint, action, reusableModules, evidence, suggestion)
-  4. isHeavyAgent() duoc goi truoc khi spawn Detective tai Buoc 2 — Heavy Lock enforced
-  5. shouldDegrade() duoc goi trong error handler — auto-degrade tu parallel sang sequential
-  6. pd-doc-specialist.md doc evidence_janitor.md explicitly — evidence chain hoan chinh
-  7. Toan bo tests pass, snapshots cap nhat
-**Plans**: 2 plans
-
-Plans:
-- [ ] 34-01-PLAN.md — Sua 4 call signature bugs + them 2 enforcement points trong fix-bug.md
-- [ ] 34-02-PLAN.md — Cap nhat pd-doc-specialist.md doc evidence_janitor.md explicitly
-
-### Phase 35: Fix Evidence Encoding & Critical Wiring
-**Goal**: Sua tat ca integration wiring gaps de E2E flows hoat dong dung: encoding mismatch, CHECKPOINT roundNumber, FIX-PLAN path, createBugRecord params, SESSION.md write-back
-**Depends on**: Phase 34
-**Requirements**: PROT-02, PROT-03, PROT-04, PROT-05, PROT-06, MEM-04, ORCH-03, FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05
-**Gap Closure**: Closes INT-01 (P0), INT-02 (P1), INT-03 (P2), INT-04 (P2), INT-05 (P3) from v2.1 milestone audit
-**Plans**: 2 plans
-**Success Criteria** (what must be TRUE):
-  1. evidence-protocol.js section names khop chinh xac voi headings trong 5 agent files — validateEvidence() PASS cho real agent output
-  2. outcome-router.js section lookups tra ve noi dung thuc (khong empty) khi doc evidence co dau tieng Viet
-  3. checkpoint-handler.js buildContinuationContext nhan currentRound = 1 lan dau → canContinue = true
-  4. FIX-PLAN.md duoc ghi vao {session_dir}/FIX-PLAN.md (khong phai project root)
-  5. createBugRecord nhan existingBugs tu Glob → ID tang dung (khong luon BUG-001)
-  6. SESSION.md duoc cap nhat day du tai isHeavyAgent warning va Repro FAIL
-  7. REQUIREMENTS.md checkboxes ORCH-01/02 va MEM-01..04 duoc cap nhat [x]
-  8. Toan bo tests pass, khong regression
-
-### Phase 36: Fix Workflow Wiring — mergeParallelResults & runLogicSync
-**Goal**: Fix 2 wiring bugs trong fix-bug.md: detectiveResult shape mismatch khi goi mergeParallelResults (INT-07), va runLogicSync return destructuring sai (INT-08)
-**Depends on**: Phase 35
-**Requirements**: PROT-08, FLOW-02, FLOW-05
-**Gap Closure**: Closes INT-07 (P1), INT-08 (P2) from v2.1 milestone audit (post-Phase 35)
-**Success Criteria** (what must be TRUE):
-  1. mergeParallelResults nhan { evidenceContent: detectiveContent } — khong nhan validateEvidence result
-  2. mergeParallelResults.allSucceeded = true khi ca Detective va DocSpec thanh cong (khong luon false)
-  3. runLogicSync return duoc destructure dung: logicResult.hasLogicChange, reportResult, rulesResult.suggestions
-  4. Khi hasLogicChange = true va reportResult !== null, PDF update prompt fires
-  5. Khi rulesResult.suggestions co items, CLAUDE.md update prompt fires
-  6. Toan bo tests pass, snapshots cap nhat, khong regression
-**Plans**: 1 plan
-
-Plans:
-- [ ] 36-01-PLAN.md — Fix detectiveResult shape mismatch (INT-07) va runLogicSync destructuring (INT-08), regenerate snapshots
-
-### Phase 37: Fix Workflow Prose Gaps — buildIndex & Round Counter
-**Goal**: Fix 2 workflow prose gaps trong fix-bug.md: buildIndex param shape underspecified (INT-09), va INCONCLUSIVE round counter fragile (INT-10)
-**Depends on**: Phase 36
-**Requirements**: MEM-04, FLOW-06
-**Gap Closure**: Closes INT-09 (P1), INT-10 (P2) from v2.1 milestone audit (post-Phase 36)
-**Success Criteria** (what must be TRUE):
-  1. Buoc 5e co instruction cu the: doc BUG-*.md -> parseFrontmatter(content) -> construct {id, frontmatter} objects truoc khi goi buildIndex()
-  2. buildIndex nhan dung shape {id, frontmatter} — INDEX.md khong co entries (unknown)
-  3. INCONCLUSIVE round counter duoc doc bang cach dem "## Round" headings trong SESSION.md (khong grep body append)
-  4. Round counter hoat dong dung qua 3 vong INCONCLUSIVE lien tiep
-  5. Toan bo tests pass, snapshots cap nhat, khong regression
-**Plans:** 1/1 plans complete
-
-Plans:
-- [ ] 37-01-PLAN.md — Fix INT-09 (buildIndex param shape) va INT-10 (round counter), regenerate snapshots
+</details>
 
 ## Progress
 
-**Thu tu thuc hien:** Phase 28 -> 29 -> 30 (song song voi 31) -> 32 -> 33
-
-| Phase | Milestone | Plans Complete | Status | Completed |
-|-------|-----------|----------------|--------|-----------|
-| 1. Skill Structure Normalization | v1.0 | 3/3 | Complete | 2026-03-22 |
-| 2. Cross-Skill Deduplication | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 3. Prompt Prose Compression | v1.0 | 6/6 | Complete | 2026-03-22 |
-| 4. Conditional Context Loading | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 5. Effort-Level Routing | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 6. Context7 Standardization | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 7. Library Fallback and Version Detection | v1.0 | 1/1 | Complete | 2026-03-22 |
-| 8. Wave-Based Parallel Execution | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 9. Converter Pipeline Optimization | v1.0 | 2/2 | Complete | 2026-03-22 |
-| 10. Core Plan Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
-| 11. Workflow Integration | v1.1 | 1/1 | Complete | 2026-03-23 |
-| 12. Advanced Checks | v1.1 | 2/2 | Complete | 2026-03-23 |
-| 13. Display Fix | v1.1 | 1/1 | Complete | 2026-03-23 |
-| 14. Skill & Workflow Audit | v1.2 | 3/3 | Complete | 2026-03-23 |
-| 15. Workflow Verification | v1.2 | 3/3 | Complete | 2026-03-23 |
-| 16. Bug Fixes | v1.2 | 5/5 | Complete | 2026-03-23 |
-| 17. Truth Protocol | v1.3 | 2/2 | Complete | 2026-03-23 |
-| 18. Logic-First Execution | v1.3 | 1/1 | Complete | 2026-03-24 |
-| 19. Knowledge Correction | v1.3 | 1/1 | Complete | 2026-03-24 |
-| 20. Logic Audit | v1.3 | 1/1 | Complete | 2026-03-24 |
-| 21. Mermaid Foundation | v1.4 | 2/2 | Complete | 2026-03-24 |
-| 22. Diagram Generation | v1.4 | 2/2 | Complete | 2026-03-24 |
-| 23. PDF Export | v1.4 | 2/2 | Complete | 2026-03-24 |
-| 24. Workflow Integration | v1.4 | 1/1 | Complete | 2026-03-24 |
-| 25. Dieu tra & Tai hien Loi | v1.5 | 4/4 | Complete | 2026-03-24 |
-| 26. Don dep & An toan | v1.5 | 2/2 | Complete | 2026-03-24 |
-| 27. Dong bo Logic & Bao cao | v1.5 | 2/2 | Complete | 2026-03-24 |
-| 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
-| 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
-| 30. Detective Interactions | v2.1 | 3/3 | Complete    | 2026-03-25 |
-| 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
-| 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
-| 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
-| 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
-| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
-| 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete    | 2026-03-25 |
-| 37. Fix Workflow Prose Gaps | v2.1 | 0/1 | Complete    | 2026-03-25 |
+Full v2.1 phase details: `.planning/milestones/v2.1-ROADMAP.md`

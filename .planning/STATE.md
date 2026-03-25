@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Detective Orchestrator
-status: Milestone complete
+status: v2.1 milestone complete
 stopped_at: Completed 37-01-PLAN.md
-last_updated: "2026-03-25T13:20:49.551Z"
+last_updated: "2026-03-25T13:44:37.461Z"
 progress:
   total_phases: 10
   completed_phases: 10

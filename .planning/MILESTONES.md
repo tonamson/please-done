@@ -1,5 +1,27 @@
 # Milestones
 
+## v2.1 Detective Orchestrator (Shipped: 2026-03-25)
+
+**Phases completed:** 10 phases, 20 plans, 24 tasks
+
+**Key accomplishments:**
+
+- TDD resource-config.js voi 5 pure functions: tier mapping (scout/haiku, builder/sonnet, architect/opus), parallel limit 2, heavy agent detection qua mcp__fastcode__ pattern, degradation logic cho TIMEOUT/RESOURCE_EXHAUSTED/RATE_LIMIT
+- 5 agent files tai .claude/agents/ voi Claude Code native YAML frontmatter (haiku/sonnet/opus) va 10 integration tests verify consistency voi resource-config.js
+- TDD evidence-protocol.js — module pure function chuan hoa 3 outcome types voi non-blocking validation va Elimination Log table check
+- TDD session-manager.js — pure function module quan ly debug sessions voi folder-based S{NNN}-{slug} structure, 35 tests pass
+- 4 pure functions routing ROOT CAUSE choices (Sua ngay/Len ke hoach/Tu sua) tu evidence content, 8 tests pass
+- Module checkpoint-handler.js xu ly CHECKPOINT flow va Continuation Agent — extractCheckpointQuestion trich xuat cau hoi, buildContinuationContext tao prompt 4 thanh phan, enforce max 2 vong
+- buildParallelPlan() va mergeParallelResults() cho song song Detective + DocSpec, xu ly partial failure non-blocking per D-12/D-13
+- Status:
+- Commit:
+- 1. [Rule 2 - Missing] Xoa fixInstructions trong Architect FAIL fallback (dong 257)
+- 1. [Rule 3 - Blocking] Regenerate converter snapshots
+- Fix 2 wiring bugs trong fix-bug.md: detectiveResult shape mismatch (INT-07) va runLogicSync return destructuring sai (INT-08) — gap closure cuoi cung cua v2.1
+- 1. [Rule 1 - Bug] Cap nhat integrity test regex cho INT-10 pattern moi
+
+---
+
 ## v1.5 Nang cap Skill Fix-Bug (Shipped: 2026-03-24)
 
 **Phases completed:** 3 phases, 8 plans, 14 tasks
