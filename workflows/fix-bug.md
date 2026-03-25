@@ -137,6 +137,95 @@ Danh sach banner:
 
 Chi hien banner va ket qua cuoi. KHONG hien chi tiet agent output cho user.
 
+## Buoc 3: Tao test tai hien
+
+--- Buoc 3/5: Tao test tai hien ---
+
+Spawn Agent `pd-repro-engineer`:
+  "Session dir: {absolute_session_dir}.
+   Doc evidence_janitor.md va evidence_code.md (va evidence_docs.md neu co).
+   Tao reproduction test va ghi evidence_repro.md."
+
+Sau khi agent hoan tat:
+1. Read `{session_dir}/evidence_repro.md`
+2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js`
+3. Kiem tra:
+   - valid=true -> tiep tuc Buoc 4
+   - valid=false -> WARNING: "Repro Engineer khong tao duoc test tai hien." Tiep tuc Buoc 4 voi evidence tu Buoc 2.
+4. Read `{session_dir}/SESSION.md` -> currentMd
+   Goi `updateSession(currentMd, { appendToBody: '- evidence_repro.md: da ghi' })` tu `bin/lib/session-manager.js`
+   Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+
+Repro FAIL (agent throw/timeout):
+- WARNING: "Khong tao duoc test tai hien. Tiep tuc voi evidence phan tich."
+- Ghi warning vao SESSION.md qua updateSession()
+- Tiep tuc Buoc 4 (Repro la bo sung, khong block workflow)
+
+## Buoc 4: Tong hop va ra phan quyet
+
+--- Buoc 4/5: Tong hop va ra phan quyet ---
+
+Spawn Agent `pd-fix-architect`:
+  "Session dir: {absolute_session_dir}.
+   Doc TAT CA evidence files (evidence_janitor.md, evidence_code.md, evidence_docs.md, evidence_repro.md).
+   Tong hop va ra phan quyet. Ghi evidence_architect.md."
+
+Sau khi agent hoan tat:
+1. Read `{session_dir}/evidence_architect.md`
+2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { valid, outcome }
+3. Goi `parseEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { frontmatter, body, sections }
+
+### Routing theo outcome:
+
+**NEU outcome = 'root_cause':**
+  1. Goi `buildRootCauseMenu(content)` tu `bin/lib/outcome-router.js`
+     -> { question, choices } (3 lua chon: fix_now, fix_plan, self_fix)
+  2. Hien question va 3 lua chon cho user (dung cau hoi truc tiep, KHONG hien agent output)
+  3. User chon:
+     - fix_now -> Goi `prepareFixNow(content)` tu `bin/lib/outcome-router.js`
+       -> { fixInstructions, targetFiles, rootCause } -> Buoc 5
+     - fix_plan -> Goi `prepareFixPlan(content, sessionDir)` tu `bin/lib/outcome-router.js`
+       -> { planPath, planContent }
+       Ghi planContent vao planPath. Thong bao: "Da tao ke hoach sua tai {planPath}."
+       Read `{session_dir}/SESSION.md` -> currentMd
+       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+     - self_fix -> Goi `prepareSelfFix(content)` tu `bin/lib/outcome-router.js`
+       -> { summary, suggestedSteps }
+       Hien summary va suggestedSteps cho user.
+       Read `{session_dir}/SESSION.md` -> currentMd
+       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+
+**NEU outcome = 'checkpoint':**
+  1. Goi `extractCheckpointQuestion(content)` tu `bin/lib/checkpoint-handler.js`
+     -> { question, context }
+  2. Hien question cho user, cho tra loi
+  3. User tra loi -> Goi `buildContinuationContext(content, userAnswer, roundNumber)` tu `bin/lib/checkpoint-handler.js`
+     -> { canContinue, prompt, warnings }
+  4. canContinue = true -> Spawn lai `pd-fix-architect` voi continuation prompt. Quay lai dau Buoc 4.
+  5. canContinue = false (da vuot MAX_CONTINUATION_ROUNDS = 2 vong) ->
+     Thong bao: "Da vuot 2 vong hoi dap. Can nguoi xem xet."
+     Read `{session_dir}/SESSION.md` -> currentMd
+     Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
+     Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
+
+**NEU outcome = 'inconclusive':**
+  1. Hien Elimination Log tu evidence_architect.md (section ## Elimination Log)
+  2. De xuat 2 lua chon:
+     (1) Bo sung thong tin moi -> ghi thong tin vao SESSION.md qua updateSession(), status='paused'. DUNG workflow.
+         (Quay lai Buoc 2 la FLOW-06 — Phase 33, NGOAI scope Phase 32)
+     (2) Dung dieu tra -> Read `{session_dir}/SESSION.md` -> currentMd
+         Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
+
+Architect FAIL (agent throw/timeout):
+- Hien tat ca evidence da thu thap (janitor, detective, docs, repro) truc tiep cho user
+- Hoi: "Architect khong tra phan quyet. Ban muon: (1) Xem evidence va tu quyet dinh, (2) Dung lai?"
+- User chon (1) -> hien evidence, cho user quyet dinh fix_now/fix_plan/self_fix
+  Neu fix_now -> tao fixInstructions thu cong tu evidence -> Buoc 5
+- User chon (2) -> Read `{session_dir}/SESSION.md` -> currentMd
+  Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
+
 </process>
 
 <rules>
