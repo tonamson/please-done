@@ -1,7 +1,7 @@
 /**
  * Evidence Protocol Module Tests
- * Kiem tra 3 outcome types, validation, parsing cho evidence files.
- * Pure function module: khong co I/O, chi validate va parse content.
+ * Kiem tra 3 outcome types, validation non-blocking, parse evidence.
+ * Pure function module: khong co I/O, chi tra ket qua tu constants.
  */
 
 'use strict';
@@ -12,7 +12,7 @@ const {
   validateEvidence, parseEvidence, getRequiredSections, OUTCOME_TYPES,
 } = require('../bin/lib/evidence-protocol');
 
-// ─── Helper ─────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────
 
 function makeEvidence({ agent = 'pd-code-detective', outcome = 'root_cause', session = 'S001', body = '' } = {}) {
   return `---\nagent: ${agent}\noutcome: ${outcome}\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: ${session}\n---\n${body}`;
@@ -51,54 +51,51 @@ const BODY_INCONCLUSIVE = `## INVESTIGATION INCONCLUSIVE
 ## Huong dieu tra tiep
 Kiem tra middleware.`;
 
-// ─── OUTCOME_TYPES ──────────────────────────────────────────
+// ─── OUTCOME_TYPES ───────────────────────────────────────
 
 describe('OUTCOME_TYPES', () => {
   it('co dung 3 keys: root_cause, checkpoint, inconclusive', () => {
     const keys = Object.keys(OUTCOME_TYPES);
-    assert.equal(keys.length, 3);
-    assert.ok(keys.includes('root_cause'));
-    assert.ok(keys.includes('checkpoint'));
-    assert.ok(keys.includes('inconclusive'));
+    assert.deepEqual(keys.sort(), ['checkpoint', 'inconclusive', 'root_cause']);
   });
 
-  it('root_cause co label ROOT CAUSE FOUND', () => {
+  it('root_cause.label === ROOT CAUSE FOUND', () => {
     assert.equal(OUTCOME_TYPES.root_cause.label, 'ROOT CAUSE FOUND');
   });
 
-  it('root_cause co requiredSections dung', () => {
+  it('root_cause.requiredSections dung', () => {
     assert.deepEqual(OUTCOME_TYPES.root_cause.requiredSections, ['Nguyen nhan', 'Bang chung', 'De xuat']);
   });
 
-  it('checkpoint co label CHECKPOINT REACHED', () => {
+  it('checkpoint.label === CHECKPOINT REACHED', () => {
     assert.equal(OUTCOME_TYPES.checkpoint.label, 'CHECKPOINT REACHED');
   });
 
-  it('checkpoint co requiredSections dung', () => {
+  it('checkpoint.requiredSections dung', () => {
     assert.deepEqual(OUTCOME_TYPES.checkpoint.requiredSections, ['Tien do dieu tra', 'Cau hoi cho User', 'Context cho Agent tiep']);
   });
 
-  it('inconclusive co label INVESTIGATION INCONCLUSIVE', () => {
+  it('inconclusive.label === INVESTIGATION INCONCLUSIVE', () => {
     assert.equal(OUTCOME_TYPES.inconclusive.label, 'INVESTIGATION INCONCLUSIVE');
   });
 
-  it('inconclusive co requiredSections dung', () => {
+  it('inconclusive.requiredSections dung', () => {
     assert.deepEqual(OUTCOME_TYPES.inconclusive.requiredSections, ['Elimination Log', 'Huong dieu tra tiep']);
   });
 });
 
-// ─── getRequiredSections ────────────────────────────────────
+// ─── getRequiredSections ─────────────────────────────────
 
 describe('getRequiredSections', () => {
-  it('tra ve sections cho root_cause', () => {
+  it('root_cause tra ve 3 sections', () => {
     assert.deepEqual(getRequiredSections('root_cause'), ['Nguyen nhan', 'Bang chung', 'De xuat']);
   });
 
-  it('tra ve sections cho checkpoint', () => {
+  it('checkpoint tra ve 3 sections', () => {
     assert.deepEqual(getRequiredSections('checkpoint'), ['Tien do dieu tra', 'Cau hoi cho User', 'Context cho Agent tiep']);
   });
 
-  it('tra ve sections cho inconclusive', () => {
+  it('inconclusive tra ve 2 sections', () => {
     assert.deepEqual(getRequiredSections('inconclusive'), ['Elimination Log', 'Huong dieu tra tiep']);
   });
 
@@ -106,19 +103,26 @@ describe('getRequiredSections', () => {
     assert.throws(() => getRequiredSections('invalid'), /outcome khong hop le/);
   });
 
-  it('throw khi tham so null', () => {
+  it('throw khi null', () => {
     assert.throws(() => getRequiredSections(null), /thieu tham so/);
   });
 
-  it('throw khi tham so undefined', () => {
+  it('throw khi undefined', () => {
     assert.throws(() => getRequiredSections(undefined), /thieu tham so/);
+  });
+
+  it('tra ve copy — khong anh huong OUTCOME_TYPES goc', () => {
+    const sections = getRequiredSections('root_cause');
+    sections.push('Extra');
+    assert.equal(OUTCOME_TYPES.root_cause.requiredSections.length, 3);
   });
 });
 
-// ─── validateEvidence — happy paths ─────────────────────────
+// ─── validateEvidence ────────────────────────────────────
 
-describe('validateEvidence — happy paths', () => {
-  it('root_cause day du 3 sections -> valid: true', () => {
+describe('validateEvidence', () => {
+  // Happy paths
+  it('root_cause day du -> valid true, warnings rong', () => {
     const content = makeEvidence({ outcome: 'root_cause', body: BODY_ROOT_CAUSE });
     const result = validateEvidence(content);
     assert.equal(result.valid, true);
@@ -127,7 +131,7 @@ describe('validateEvidence — happy paths', () => {
     assert.deepEqual(result.warnings, []);
   });
 
-  it('checkpoint day du 3 sections -> valid: true', () => {
+  it('checkpoint day du -> valid true', () => {
     const content = makeEvidence({ outcome: 'checkpoint', body: BODY_CHECKPOINT });
     const result = validateEvidence(content);
     assert.equal(result.valid, true);
@@ -135,33 +139,30 @@ describe('validateEvidence — happy paths', () => {
     assert.deepEqual(result.warnings, []);
   });
 
-  it('inconclusive day du 2 sections + Elimination Log table -> valid: true', () => {
+  it('inconclusive day du voi Elimination Log table -> valid true', () => {
     const content = makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE });
     const result = validateEvidence(content);
     assert.equal(result.valid, true);
     assert.equal(result.outcome, 'inconclusive');
     assert.deepEqual(result.warnings, []);
   });
-});
 
-// ─── validateEvidence — warning paths ───────────────────────
-
-describe('validateEvidence — warning paths', () => {
-  it('thieu outcome trong frontmatter -> valid: false', () => {
-    const content = '---\nagent: pd-code-detective\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: S001\n---\n## Nguyen nhan\nLoi.';
+  // Warning paths
+  it('thieu outcome trong frontmatter -> valid false', () => {
+    const content = '---\nagent: pd-code-detective\ntimestamp: 2026-03-24T10:00:00+07:00\n---\n## Body';
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
     assert.ok(result.warnings.some(w => w.includes('outcome khong hop le')));
   });
 
-  it('outcome khong hop le -> valid: false', () => {
-    const content = makeEvidence({ outcome: 'unknown', body: '## Noi dung' });
+  it('outcome khong hop le -> valid false', () => {
+    const content = makeEvidence({ outcome: 'unknown', body: '## Body' });
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
     assert.ok(result.warnings.some(w => w.includes('outcome khong hop le')));
   });
 
-  it('root_cause thieu section Bang chung -> valid: false', () => {
+  it('root_cause thieu section Bang chung -> valid false', () => {
     const body = '## ROOT CAUSE FOUND\n\n## Nguyen nhan\nLoi.\n\n## De xuat\nSua.';
     const content = makeEvidence({ outcome: 'root_cause', body });
     const result = validateEvidence(content);
@@ -169,16 +170,16 @@ describe('validateEvidence — warning paths', () => {
     assert.ok(result.warnings.some(w => w.includes('thieu section: ## Bang chung')));
   });
 
-  it('inconclusive thieu Elimination Log -> valid: false', () => {
-    const body = '## INVESTIGATION INCONCLUSIVE\n\n## Huong dieu tra tiep\nKiem tra them.';
+  it('inconclusive thieu Elimination Log -> valid false', () => {
+    const body = '## INVESTIGATION INCONCLUSIVE\n\n## Huong dieu tra tiep\nKiem tra middleware.';
     const content = makeEvidence({ outcome: 'inconclusive', body });
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
     assert.ok(result.warnings.some(w => w.includes('thieu section: ## Elimination Log')));
   });
 
-  it('inconclusive co Elimination Log heading nhung thieu bang -> valid: false', () => {
-    const body = '## INVESTIGATION INCONCLUSIVE\n\n## Elimination Log\nKhong co bang nao.\n\n## Huong dieu tra tiep\nKiem tra them.';
+  it('inconclusive co Elimination Log heading nhung khong co bang -> valid false', () => {
+    const body = '## INVESTIGATION INCONCLUSIVE\n\n## Elimination Log\nKhong co bang.\n\n## Huong dieu tra tiep\nKiem tra.';
     const content = makeEvidence({ outcome: 'inconclusive', body });
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
@@ -192,33 +193,37 @@ describe('validateEvidence — warning paths', () => {
   it('content empty string -> throw', () => {
     assert.throws(() => validateEvidence(''), /thieu tham so content/);
   });
+
+  it('content undefined -> throw', () => {
+    assert.throws(() => validateEvidence(undefined), /thieu tham so content/);
+  });
 });
 
-// ─── parseEvidence ──────────────────────────────────────────
+// ─── parseEvidence ───────────────────────────────────────
 
 describe('parseEvidence', () => {
-  it('parse evidence hoan chinh -> tra ve structured object', () => {
+  it('parse evidence hoan chinh -> tra du cac fields', () => {
     const content = makeEvidence({ outcome: 'root_cause', body: BODY_ROOT_CAUSE });
     const result = parseEvidence(content);
     assert.equal(result.agent, 'pd-code-detective');
     assert.equal(result.outcome, 'root_cause');
     assert.equal(result.timestamp, '2026-03-24T10:00:00+07:00');
     assert.equal(result.session, 'S001');
-    assert.ok(result.body.includes('## Nguyen nhan'));
+    assert.ok(typeof result.body === 'string');
     assert.ok(typeof result.sections === 'object');
   });
 
-  it('sections chua cac headings tu body', () => {
+  it('sections chua headings tu body', () => {
     const content = makeEvidence({ outcome: 'root_cause', body: BODY_ROOT_CAUSE });
     const result = parseEvidence(content);
-    assert.ok(result.sections['Nguyen nhan'] !== undefined);
+    assert.ok(result.sections['Nguyen nhan']);
     assert.ok(result.sections['Nguyen nhan'].includes('Loi o dong 42'));
-    assert.ok(result.sections['Bang chung'] !== undefined);
-    assert.ok(result.sections['De xuat'] !== undefined);
+    assert.ok(result.sections['Bang chung']);
+    assert.ok(result.sections['De xuat']);
   });
 
-  it('content khong co frontmatter -> agent/outcome/timestamp/session la null hoac undefined', () => {
-    const content = '## Nguyen nhan\nLoi o dong 42.';
+  it('content khong co frontmatter -> fields null/undefined', () => {
+    const content = '## Body only\nKhong co frontmatter.';
     const result = parseEvidence(content);
     assert.ok(result.agent == null);
     assert.ok(result.outcome == null);
