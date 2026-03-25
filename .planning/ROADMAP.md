@@ -139,7 +139,10 @@ Plans:
   2. AUDIT_LOG.md ghi lai moi hanh dong research theo format append-only (timestamp, agent, action, topic, source-count, confidence)
   3. INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
   4. `confidence-scorer.js` pure function tinh confidence rule-based (KHONG dung LLM tu danh gia) — dem so nguon, classify chat luong nguon
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 39-01-PLAN.md — TDD confidence-scorer.js (scoreConfidence rule-based)
+- [ ] 39-02-PLAN.md — TDD mo rong research-store.js (validateEvidence, appendAuditLog, generateIndex)
 
 ### Phase 40: Tac tu Nghien cuu
 **Goal**: He thong co 2 agents chuyen biet — mot thu thap bang chung tu nhieu nguon, mot xac minh tinh chinh xac — voi giao thuc ro rang chong ao giac
@@ -179,7 +182,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 38. Nen tang Luu tru Nghien cuu | 0/2 | Complete    | 2026-03-25 |
-| 39. Tieu chuan Kiem chung & Chi muc | 0/? | Not started | - |
+| 39. Tieu chuan Kiem chung & Chi muc | 0/2 | Planning | - |
 | 40. Tac tu Nghien cuu | 0/? | Not started | - |
 | 41. Bao ve Workflow | 0/? | Not started | - |
 | 42. Lenh pd research | 0/? | Not started | - |
