@@ -21,13 +21,13 @@ function makeEvidence({ agent = 'pd-code-detective', outcome = 'root_cause', ses
 const VALID_DETECTIVE_EVIDENCE = makeEvidence({
   agent: 'pd-code-detective',
   outcome: 'root_cause',
-  body: '## ROOT CAUSE FOUND\n\n## Nguyen nhan\nLoi o dong 42.\n\n## Bang chung\nsrc/api.js:42\n\n## De xuat\nSua dong 42.',
+  body: '## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi o dong 42.\n\n## Bằng chứng\nsrc/api.js:42\n\n## Đề xuất\nSua dong 42.',
 });
 
 const VALID_DOCSPEC_EVIDENCE = makeEvidence({
   agent: 'pd-doc-specialist',
   outcome: 'root_cause',
-  body: '## ROOT CAUSE FOUND\n\n## Nguyen nhan\nDocs sai version.\n\n## Bang chung\nREADME.md:10\n\n## De xuat\nCap nhat docs.',
+  body: '## ROOT CAUSE FOUND\n\n## Nguyên nhân\nDocs sai version.\n\n## Bằng chứng\nREADME.md:10\n\n## Đề xuất\nCap nhat docs.',
 });
 
 // ─── buildParallelPlan ──────────────────────────────────────
