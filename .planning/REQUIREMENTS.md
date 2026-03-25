@@ -92,16 +92,16 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-03 | Phase 34, Phase 35 (path fix) | Complete |
 | PROT-04 | Phase 30, Phase 35 (roundNumber fix) | Complete |
 | PROT-06 | Phase 34, Phase 35 (roundNumber fix) | Complete |
-| PROT-08 | Phase 34, Phase 36 (wiring fix) | Pending |
+| PROT-08 | Phase 34, Phase 36 (wiring fix) | Complete |
 | MEM-01 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-02 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-03 | Phase 31, Phase 35 (doc sync) | Complete |
 | MEM-04 | Phase 31, Phase 35 (bug-record fix) | Complete |
 | FLOW-01 | Phase 32, Phase 35 (encoding fix) | Complete |
-| FLOW-02 | Phase 34, Phase 35, Phase 36 (wiring fix) | Pending |
+| FLOW-02 | Phase 34, Phase 35, Phase 36 (wiring fix) | Complete |
 | FLOW-03 | Phase 32, Phase 35 (write-back fix) | Complete |
 | FLOW-04 | Phase 32, Phase 35 (encoding fix) | Complete |
-| FLOW-05 | Phase 34, Phase 35, Phase 36 (wiring fix) | Pending |
+| FLOW-05 | Phase 34, Phase 35, Phase 36 (wiring fix) | Complete |
 | FLOW-08 | Phase 32 | Complete |
 | FLOW-06 | Phase 33 | Complete |
 | FLOW-07 | Phase 33 | Complete |
