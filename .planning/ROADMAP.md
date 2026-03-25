@@ -202,7 +202,11 @@ Plans:
   5. shouldDegrade() duoc goi trong error handler — auto-degrade tu parallel sang sequential
   6. pd-doc-specialist.md doc evidence_janitor.md explicitly — evidence chain hoan chinh
   7. Toan bo tests pass, snapshots cap nhat
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 34-01-PLAN.md — Sua 4 call signature bugs + them 2 enforcement points trong fix-bug.md
+- [ ] 34-02-PLAN.md — Cap nhat pd-doc-specialist.md doc evidence_janitor.md explicitly
 
 ## Progress
 
@@ -243,4 +247,4 @@ Plans:
 | 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
-| 34. Fix Integration Wiring | v2.1 | 0/? | Not started | - |
+| 34. Fix Integration Wiring | v2.1 | 0/2 | Not started | - |
