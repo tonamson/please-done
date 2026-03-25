@@ -22,6 +22,9 @@ const { assembleMd } = require('./utils');
 
 // ─── Constants ────────────────────────────────────────────
 
+/** Gioi han so vong INCONCLUSIVE loop-back (FLOW-06). */
+const MAX_INCONCLUSIVE_ROUNDS = 3;
+
 /**
  * 3 lua chon khi ROOT CAUSE duoc tim thay (D-01).
  */
@@ -149,6 +152,52 @@ function prepareSelfFix(evidenceContent) {
   };
 }
 
+// ─── buildInconclusiveContext ────────────────────────────
+
+/**
+ * Tao context cho Buoc 2 agents khi INCONCLUSIVE loop-back (FLOW-06).
+ * Trich xuat Elimination Log tu evidence_architect.md, tao prompt cho vong tiep theo.
+ *
+ * Pattern: giong buildContinuationContext() cua checkpoint-handler.js.
+ * Pure function — KHONG import fs. Content truyen qua tham so.
+ *
+ * @param {object} params
+ * @param {string} params.evidenceContent - Noi dung evidence file (frontmatter + body)
+ * @param {string|null} params.userInputPath - Duong dan file thong tin bo sung tu user
+ * @param {string} params.sessionDir - Thu muc session
+ * @param {number} params.currentRound - Vong hien tai (1-based)
+ * @returns {{ prompt: string, eliminationLog: string, round: number, canContinue: boolean, warnings: string[] }}
+ */
+function buildInconclusiveContext({ evidenceContent, userInputPath, sessionDir, currentRound }) {
+  const warnings = [];
+  const canContinue = currentRound <= MAX_INCONCLUSIVE_ROUNDS;
+
+  if (!canContinue) {
+    warnings.push(`Da vuot qua ${MAX_INCONCLUSIVE_ROUNDS} vong dieu tra — can nguoi xem xet`);
+  }
+
+  const parsed = parseEvidence(evidenceContent);
+  const eliminationLog = parsed.sections['Elimination Log'] || '';
+
+  if (!eliminationLog) {
+    warnings.push('Evidence thieu Elimination Log section');
+  }
+
+  const promptParts = [
+    `INCONCLUSIVE LOOP-BACK — Vong ${currentRound}/${MAX_INCONCLUSIVE_ROUNDS}`,
+    `Session dir: ${sessionDir}`,
+    `Elimination Log tu vong truoc:\n${eliminationLog}`,
+  ];
+
+  if (userInputPath) {
+    promptParts.push(`Thong tin bo sung tu user: ${userInputPath}`);
+  }
+
+  const prompt = promptParts.join('\n');
+
+  return { prompt, eliminationLog, round: currentRound, canContinue, warnings };
+}
+
 // ─── Exports ─────────────────────────────────────────────
 
 module.exports = {
@@ -156,5 +205,7 @@ module.exports = {
   prepareFixNow,
   prepareFixPlan,
   prepareSelfFix,
+  buildInconclusiveContext,
   ROOT_CAUSE_CHOICES,
+  MAX_INCONCLUSIVE_ROUNDS,
 };
