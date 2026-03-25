@@ -111,6 +111,13 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
 - [x] **Phase 34: Fix Integration Wiring** (gap closure) (completed 2026-03-25)
   - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
+- [ ] **Phase 35: Fix Evidence Encoding & Critical Wiring** (gap closure)
+  - INT-01: Dong bo section names ASCII/Unicode giua modules va agents
+  - INT-02: Khoi tao roundNumber trong CHECKPOINT continuation
+  - INT-03: Resolve FIX-PLAN.md path vao session_dir
+  - INT-04: Truyen existingBugs cho createBugRecord, fix return field naming
+  - INT-05: Them SESSION.md write-back tai 2 vi tri thieu
+  - Documentation: Cap nhat REQUIREMENTS.md checkboxes va SUMMARY frontmatter
 
 ## Phase Details
 
@@ -208,6 +215,21 @@ Plans:
 - [ ] 34-01-PLAN.md — Sua 4 call signature bugs + them 2 enforcement points trong fix-bug.md
 - [ ] 34-02-PLAN.md — Cap nhat pd-doc-specialist.md doc evidence_janitor.md explicitly
 
+### Phase 35: Fix Evidence Encoding & Critical Wiring
+**Goal**: Sua tat ca integration wiring gaps de E2E flows hoat dong dung: encoding mismatch, CHECKPOINT roundNumber, FIX-PLAN path, createBugRecord params, SESSION.md write-back
+**Depends on**: Phase 34
+**Requirements**: PROT-02, PROT-03, PROT-04, PROT-05, PROT-06, MEM-04, ORCH-03, FLOW-01, FLOW-02, FLOW-03, FLOW-04, FLOW-05
+**Gap Closure**: Closes INT-01 (P0), INT-02 (P1), INT-03 (P2), INT-04 (P2), INT-05 (P3) from v2.1 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. evidence-protocol.js section names khop chinh xac voi headings trong 5 agent files — validateEvidence() PASS cho real agent output
+  2. outcome-router.js section lookups tra ve noi dung thuc (khong empty) khi doc evidence co dau tieng Viet
+  3. checkpoint-handler.js buildContinuationContext nhan currentRound = 1 lan dau → canContinue = true
+  4. FIX-PLAN.md duoc ghi vao {session_dir}/FIX-PLAN.md (khong phai project root)
+  5. createBugRecord nhan existingBugs tu Glob → ID tang dung (khong luon BUG-001)
+  6. SESSION.md duoc cap nhat day du tai isHeavyAgent warning va Repro FAIL
+  7. REQUIREMENTS.md checkboxes ORCH-01/02 va MEM-01..04 duoc cap nhat [x]
+  8. Toan bo tests pass, khong regression
+
 ## Progress
 
 **Thu tu thuc hien:** Phase 28 -> 29 -> 30 (song song voi 31) -> 32 -> 33
@@ -248,3 +270,4 @@ Plans:
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
+| 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 0/0 | Not started | - |
