@@ -121,6 +121,9 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 - [x] **Phase 36: Fix Workflow Wiring** (gap closure) (completed 2026-03-25)
   - INT-07: Fix detectiveResult shape mismatch trong mergeParallelResults call
   - INT-08: Fix runLogicSync return destructuring sai
+- [ ] **Phase 37: Fix Workflow Prose Gaps** (gap closure)
+  - INT-09: Fix buildIndex param shape underspecified
+  - INT-10: Fix INCONCLUSIVE round counter fragile
 
 ## Phase Details
 
@@ -251,6 +254,18 @@ Plans:
 Plans:
 - [ ] 36-01-PLAN.md — Fix detectiveResult shape mismatch (INT-07) va runLogicSync destructuring (INT-08), regenerate snapshots
 
+### Phase 37: Fix Workflow Prose Gaps — buildIndex & Round Counter
+**Goal**: Fix 2 workflow prose gaps trong fix-bug.md: buildIndex param shape underspecified (INT-09), va INCONCLUSIVE round counter fragile (INT-10)
+**Depends on**: Phase 36
+**Requirements**: MEM-04, FLOW-06
+**Gap Closure**: Closes INT-09 (P1), INT-10 (P2) from v2.1 milestone audit (post-Phase 36)
+**Success Criteria** (what must be TRUE):
+  1. Buoc 5e co instruction cu the: doc BUG-*.md -> parseFrontmatter(content) -> construct {id, frontmatter} objects truoc khi goi buildIndex()
+  2. buildIndex nhan dung shape {id, frontmatter} — INDEX.md khong co entries (unknown)
+  3. INCONCLUSIVE round counter duoc doc bang cach dem "## Round" headings trong SESSION.md (khong grep body append)
+  4. Round counter hoat dong dung qua 3 vong INCONCLUSIVE lien tiep
+  5. Toan bo tests pass, snapshots cap nhat, khong regression
+
 ## Progress
 
 **Thu tu thuc hien:** Phase 28 -> 29 -> 30 (song song voi 31) -> 32 -> 33
@@ -293,3 +308,4 @@ Plans:
 | 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
 | 35. Fix Evidence Encoding & Critical Wiring | v2.1 | 2/2 | Complete    | 2026-03-25 |
 | 36. Fix Workflow Wiring | v2.1 | 1/1 | Complete    | 2026-03-25 |
+| 37. Fix Workflow Prose Gaps | v2.1 | 0/0 | Not started | - |
