@@ -199,7 +199,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 | 26. Don dep & An toan | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 27. Dong bo Logic & Bao cao | v1.5 | 2/2 | Complete | 2026-03-24 |
 | 28. Agent Infrastructure & Resource Rules | v2.1 | 2/2 | Complete | 2026-03-24 |
-| 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete   | 2026-03-25 |
+| 29. Evidence Protocol & Session Management | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 30. Detective Interactions | v2.1 | 0/? | Not started | - |
 | 31. Project Memory & Regression Detection | v2.1 | 0/? | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 0/? | Not started | - |
