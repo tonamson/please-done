@@ -106,8 +106,8 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 - [x] **Phase 32: Orchestrator Workflow** (2/2 plans) (completed 2026-03-25)
   - [x] 32-01-PLAN.md — Backup v1.5 va rewrite fix-bug.md phan dau (Buoc 0-2)
   - [x] 32-02-PLAN.md — Hoan thanh workflow (Buoc 3-5, rules, success_criteria)
-- [ ] **Phase 33: Resilience & Backward Compatibility** (2 plans)
-  - [ ] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
+- [x] **Phase 33: Resilience & Backward Compatibility** (2 plans) (completed 2026-03-25)
+  - [x] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
 
 ## Phase Details
@@ -225,4 +225,4 @@ Plans:
 | 30. Detective Interactions | v2.1 | 3/3 | Complete    | 2026-03-25 |
 | 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
-| 33. Resilience & Backward Compatibility | v2.1 | 0/2 | Not started | - |
+| 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
