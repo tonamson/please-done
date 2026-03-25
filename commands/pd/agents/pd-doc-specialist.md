@@ -18,11 +18,17 @@ Sử dụng Context7 để tra cứu tài liệu mới nhất, tìm Breaking Cha
    - "Lỗi [Error Message] trong thư viện [Library Name] bản [Version]".
    - "Cách cài đặt [Feature] đúng chuẩn mới nhất".
    - "Thông tin về Breaking Changes trong bản nâng cấp gần đây".
-4. Ghi báo cáo vào `.planning/debug/evidence_docs.md`.
+4. Ghi báo cáo vào `evidence_docs.md` trong session dir được truyền qua prompt, theo format:
+   - YAML frontmatter: `agent: pd-doc-specialist`, `outcome: (root_cause | checkpoint | inconclusive)`, `timestamp: ISO 8601`, `session: {session_id}`
+   - Body theo outcome tương ứng:
+     + ROOT CAUSE FOUND: `## Nguyên nhân`, `## Bằng chứng` (link tài liệu chính thức), `## Đề xuất`
+     + CHECKPOINT REACHED: `## Tiến độ điều tra`, `## Câu hỏi cho User`, `## Context cho Agent tiếp`
+     + INVESTIGATION INCONCLUSIVE: `## Elimination Log` (bảng 3 cột: File/Logic | Kết quả | Ghi chú), `## Hướng điều tra tiếp`
 </process>
 
 <rules>
 - Luôn chỉ dẫn đến tài liệu chính thống.
 - Chỉ tập trung vào thư viện bên thứ 3, không sa đà vào code dự án.
 - Ưu tiên tìm "vết xe đổ" (Known issues) đã có người gặp phải.
+- Đọc/ghi evidence từ session dir được Orchestrator truyền qua prompt. KHÔNG hardcode paths.
 </rules>
