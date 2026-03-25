@@ -11,6 +11,7 @@ Doc truoc khi bat dau:
 <conditional_reading>
 Doc CHI KHI can:
 - @references/prioritization.md -> phan loai rui ro bug -- KHI nhieu bugs can uu tien
+- @references/context7-pipeline.md -> tra cuu tai lieu thu vien qua Context7 -- KHI loi lien quan thu vien
 </conditional_reading>
 
 <process>
