@@ -220,6 +220,54 @@ function parseEntry(content) {
   };
 }
 
+// ─── validateEvidence ─────────────────────────────────────
+
+/**
+ * Kiem tra research file co section Bang chung hop le hay khong.
+ * Non-blocking: tra { valid, warnings } thay vi throw khi format sai.
+ * Chi throw khi content null/undefined/empty (loi lap trinh).
+ *
+ * Claim format: `- [text] — [source] (confidence: LEVEL)`
+ * Cho phep ca em dash (—) va double dash (--) lam source separator.
+ *
+ * @param {string} content - Noi dung research file
+ * @returns {{ valid: boolean, warnings: string[] }}
+ * @throws {Error} Khi content null/undefined/empty
+ */
+function validateEvidence(content) {
+  if (content == null || typeof content !== 'string' || content.trim() === '') {
+    throw new Error('thieu tham so content');
+  }
+
+  const warnings = [];
+
+  // Kiem tra section ## Bang chung ton tai
+  const hasSection = /^## Bang chung/m.test(content);
+  if (!hasSection) {
+    warnings.push('thieu section: ## Bang chung');
+    return { valid: false, warnings };
+  }
+
+  // Extract noi dung section (giua ## Bang chung va ## tiep theo hoac EOF)
+  const sectionMatch = content.match(/^## Bang chung\s*\n([\s\S]*?)(?=^## |\s*$)/m);
+  if (!sectionMatch || !sectionMatch[1].trim()) {
+    warnings.push('section Bang chung rong');
+    return { valid: false, warnings };
+  }
+
+  // Tim cac claims (dong bat dau bang -)
+  const claims = sectionMatch[1].match(/^- .+/gm) || [];
+
+  // Kiem tra tung claim co source separator khong
+  for (const claim of claims) {
+    if (!claim.includes('\u2014') && !claim.includes('--')) {
+      warnings.push(`claim thieu source: ${claim.slice(0, 60)}${claim.length > 60 ? '...' : ''}`);
+    }
+  }
+
+  return { valid: warnings.length === 0, warnings };
+}
+
 // ─── Exports ───────────────────────────────────────────────
 
 module.exports = {
@@ -231,4 +279,5 @@ module.exports = {
   parseEntry,
   validateConfidence,
   generateFilename,
+  validateEvidence,
 };
