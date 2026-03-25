@@ -1,129 +1,118 @@
-# Architecture: v2.1 Detective Orchestrator
+# Architecture: v3.0 Research Squad
 
-**Domain:** Tich hop dieu phoi da Agent vao workflow fix-bug hien tai -- bien quy trinh tuan tu 1-agent thanh he thong Task Force voi 5 Agent chuyen biet
-**Researched:** 2026-03-24
-**Confidence:** HIGH (phan tich toan bo codebase hien tai + tai lieu chinh thuc Claude Code sub-agents)
+**Domain:** Tich hop bo tac tu nghien cuu chong ao giac voi co che luu tru phan tach, danh so, dan chung minh bach, va audit-ready system vao framework AI coding skill hien tai
+**Researched:** 2026-03-25
+**Confidence:** HIGH (phan tich truc tiep toan bo codebase v2.1 + tai lieu chinh thuc Claude Code + patterns da chung minh tu 37 phases truoc)
 
-## Tong quan he thong hien tai (v1.5) va diem chuyen doi v2.1
+## Tong quan he thong hien tai va diem tich hop v3.0
 
 ```
-TRANG THAI HIEN TAI (v1.5):
+TRANG THAI HIEN TAI (v2.1):
 =============================
-                                 MOT AGENT DUY NHAT (sonnet)
-                                 Chay toan bo 10+ buoc tuan tu
 
-/pd:fix-bug
-   |
-   v
-commands/pd/fix-bug.md ---- model: sonnet, 10 allowed-tools
-   |
-   v
-workflows/fix-bug.md (426 dong, da gan limit 420)
-   |
-   +-- Buoc 0.5-1: Thu thap trieu chung
-   +-- Buoc 2-4:   Tim hieu tai lieu + code
-   +-- Buoc 5:     Phan tich khoa hoc (SESSION_*.md)
-   +--   5b.1:     repro-test-generator.js
-   +-- Buoc 6:     Danh gia + Cong kiem tra
-   +-- Buoc 6.5:   Logic Update (Truth)
-   +-- Buoc 7:     Bao cao loi (BUG_*.md)
-   +-- Buoc 8:     Sua code
-   +--   8a:       regression-analyzer.js
-   +-- Buoc 9:     Git commit
-   +--   9a:       debug-cleanup.js + security check
-   +-- Buoc 10:    Xac nhan
-   +--   10a:      logic-sync.js (detect + report + rules)
+Du lieu nghien cuu:
+  .planning/research/          <-- 5 files (SUMMARY, STACK, FEATURES, ARCHITECTURE, PITFALLS)
+                                   Khong co INDEX, khong phan tach internal/external
+                                   Khong co audit log, khong confidence tracking
+
+Workflow tao research:
+  new-milestone.md (Buoc 5)    <-- "Fast Parallel Research" — goi FastCode + Context7 song song
+                                   Ghi thang vao .planning/research/SUMMARY.md
+                                   KHONG co validation, KHONG co audit trail
+
+  plan.md (Buoc 3)             <-- Phase-level research vao RESEARCH.md cua phase
+                                   Doc .planning/research/SUMMARY.md lam input
+                                   KHONG verify do tin cay
+
+Agents hien co:
+  .claude/agents/              <-- 5 detective agents (janitor, detective, doc-specialist, repro, architect)
+  commands/pd/agents/          <-- 5 file tuong tu (backward compat copies)
+
+Pure function modules:
+  bin/lib/                     <-- 22 modules, tat ca pure functions
+                                   evidence-protocol.js — da co validate/parse evidence
+                                   bug-memory.js — da co createBugRecord/searchBugs/buildIndex
+                                   session-manager.js — da co session lifecycle
+                                   truths-parser.js — da co parse Truth tables
 
 
-MUC TIEU v2.1 (Detective Orchestrator):
-=========================================
-                                 ORCHESTRATOR (opus) dieu phoi
-                                 5 SUB-AGENTS chuyen biet
+MUC TIEU v3.0 (Research Squad):
+=================================
 
-/pd:fix-bug
-   |
-   v
-commands/pd/fix-bug.md ---- model: opus, them Agent tool
-   |
-   v
-workflows/fix-bug-orchestrator.md (workflow MOI)
-   |
-   +-- Pha 1: KHOI DONG
-   |     Orchestrator doc SESSION cu / thu thap trieu chung
-   |     Spawn pd-bug-janitor (haiku) -> evidence_janitor.md
-   |
-   +-- Pha 2: DIEU TRA (song song)
-   |     Spawn pd-code-detective (sonnet) + pd-doc-specialist (haiku)
-   |     -> evidence_code.md + evidence_docs.md
-   |
-   +-- Pha 3: TAI HIEN
-   |     Spawn pd-repro-engineer (sonnet) -> evidence_repro.md
-   |     (Su dung repro-test-generator.js tu v1.5)
-   |
-   +-- Pha 4: PHAN QUYET
-   |     Spawn pd-fix-architect (opus) -> evidence_architect.md
-   |     (Su dung regression-analyzer.js tu v1.5)
-   |
-   +-- Pha 5: VE DICH
-         Orchestrator tu sua code, commit, xac nhan
-         (Su dung debug-cleanup.js, logic-sync.js tu v1.5)
+Du lieu nghien cuu (CAU TRUC MOI):
+  .planning/research/
+    internal/                  <-- MOI: ket qua nghien cuu noi bo (code analysis)
+      RS-001-*.md              <-- Danh so, YAML frontmatter, confidence
+    external/                  <-- MOI: ket qua nghien cuu ben ngoai (web/docs)
+      RS-002-*.md              <-- Danh so, YAML frontmatter, sources
+    INDEX.md                   <-- MOI: Bang tong hop tat ca research entries
+    SUMMARY.md                 <-- GIU NGUYEN: tuong thich nguoc voi plan.md Buoc 3
+
+Agents moi:
+  .claude/agents/
+    pd-evidence-collector.md   <-- MOI: Thu thap bang chung tu nhieu nguon
+    pd-fact-checker.md         <-- MOI: Kiem tra do chinh xac cua claims
+
+Workflow guards:
+  workflows/plan.md            <-- SUA DOI: them Plan-Gate (kiem tra research truoc khi plan)
+  workflows/write-code.md      <-- SUA DOI: them Strategy Injection (doc research khi code)
+
+Lenh CLI:
+  commands/pd/research.md      <-- MOI: Skill file cho pd research command
+
+Pure function modules:
+  bin/lib/research-store.js    <-- MOI: CRUD cho research entries + INDEX
+  bin/lib/audit-report.js      <-- MOI: Tao audit trail, confidence tracking
+  bin/lib/fact-checker.js      <-- MOI: So sanh claims voi sources, flag contradictions
 ```
 
-## Quyet dinh kien truc then chot: Sub-agents, KHONG PHAI Agent Teams
+## Quyet dinh kien truc then chot
 
-### Tai sao chon Sub-agents
+### 1. Tai su dung pattern Sub-agents tu v2.1 — KHONG phat minh lai
 
-| Tieu chi | Sub-agents | Agent Teams |
-|----------|-----------|-------------|
-| **Tinh on dinh** | Stable, GA | Experimental, disabled mac dinh |
-| **Do phuc tap** | Agent file + spawn tu main | Team lead + shared task list + mailbox |
-| **Context control** | Ket qua tra ve main agent | Moi teammate co context doc lap |
-| **Chi phi token** | Thap hon — chi tra ket qua | Cao hon — moi teammate la 1 instance |
-| **Phu hop cho** | Task co ket qua ro rang | Task can teammates trao doi qua lai |
-| **Gioi han** | Khong spawn nested sub-agents | 1 team/session, khong resume |
+v2.1 da chung minh pattern: Orchestrator spawn sub-agents, giao tiep qua evidence files. v3.0 ap dung CUNG pattern cho research:
 
-**Ket luan:** Sub-agents la lua chon dung vi:
-1. Moi agent thuc hien 1 nhiem vu CU THE va tra ket qua ve orchestrator
-2. Khong can inter-agent communication — orchestrator tong hop tat ca
-3. On dinh (GA), khong can flag experimental
-4. Tiet kiem token vi chi ket qua summary tra ve main context
+| Yeu to | v2.1 Detective | v3.0 Research | Ghi chu |
+|--------|---------------|---------------|---------|
+| Orchestrator | fix-bug-orchestrator.md | pd research command (hoac new-milestone Buoc 5) | Entry point khac, pattern giong |
+| Sub-agents | 5 detective agents | 2 research agents | It hon, don gian hon |
+| Communication | evidence_*.md trong .planning/debug/ | RS-NNN-*.md trong .planning/research/ | Format tuong tu, location khac |
+| Protocol | evidence-protocol.js | research-store.js (mo rong) | Cung validateEvidence pattern |
+| Memory | bug-memory.js + .planning/bugs/ | research-store.js + .planning/research/INDEX.md | Cung buildIndex pattern |
 
-### Cach sub-agents hoat dong trong Claude Code
+### 2. Phan tach internal/external — 2 thu muc, 1 INDEX
+
+**Internal** (.planning/research/internal/): Ket qua tu FastCode, Grep, Read — phan tich CODE HIEN TAI cua project.
+**External** (.planning/research/external/): Ket qua tu Context7, WebSearch, WebFetch — thong tin TU BEN NGOAI.
+
+**Ly do phan tach:**
+1. Do tin cay khac nhau — internal (code analysis) = CAO mac dinh, external (web) = can verify
+2. Freshness khac nhau — internal thay doi theo code, external it thay doi
+3. Audit trail khac nhau — internal chi can file:dong, external can URL + ngay truy cap
+
+**INDEX.md** la bang tong hop DUY NHAT, lien ket den ca 2 thu muc.
+
+### 3. Evidence Collector va Fact Checker — 2 agents voi vai tro ro rang
 
 ```
-SUBAGENT LIFECYCLE:
-====================
+pd-evidence-collector (builder/sonnet):
+  - Thu thap thong tin tu NHIEU nguon
+  - Tools: Read, Glob, Grep, mcp__fastcode__code_qa, mcp__context7__*, WebSearch, WebFetch
+  - Output: RS-NNN-*.md voi metadata, sources, confidence
+  - KHONG danh gia do chinh xac — chi thu thap
 
-1. Dinh nghia: .claude/agents/pd-bug-janitor.md
-   - YAML frontmatter: name, description, tools, model
-   - Markdown body: system prompt
-
-2. Spawn: Orchestrator goi Agent tool voi task description
-   - Sub-agent nhan system prompt + task prompt
-   - KHONG nhan conversation history cua parent
-   - Chay trong context window rieng
-
-3. Thuc thi: Sub-agent lam viec doc lap
-   - Su dung tools duoc cap phep
-   - Ghi ket qua vao file (.planning/debug/evidence_*.md)
-   - KHONG the spawn sub-agents khac (gioi han 1 cap)
-
-4. Tra ket qua: Sub-agent hoan thanh
-   - Return text summary ve orchestrator
-   - Orchestrator doc evidence file de lay chi tiet
-   - Sub-agent context bi giai phong
+pd-fact-checker (scout/haiku):
+  - Kiem tra CLAIMS tu evidence-collector hoac tu user
+  - Tools: Read, Grep, mcp__context7__*, WebSearch
+  - So sanh claim voi source goc
+  - Output: Audit entry voi verdict (CONFIRMED / CONTRADICTED / UNVERIFIABLE)
+  - Chi KIEM TRA, khong thu thap moi
 ```
 
-### Gioi han ky thuat quan trong
-
-1. **Sub-agents KHONG the spawn sub-agents khac** — chi co 1 cap. Orchestrator la cap duy nhat spawn.
-2. **Sub-agents KHONG nhan conversation history** cua parent — chi nhan system prompt + task prompt.
-3. **Sub-agents load CLAUDE.md va project context** tu working directory — KHONG ke thua skills tu parent.
-4. **Model co the chi dinh per-agent** — `model: haiku`, `model: sonnet`, `model: opus`, hoac `inherit`.
-5. **Tools co the restrict per-agent** — `tools: Read, Grep, Glob` hoac `disallowedTools: Write, Edit`.
-6. **Background mode** co san (`background: true`) — sub-agent chay background, orchestrator tiep tuc.
-7. **maxTurns** gioi han so luot agent — phong agent loop vo han.
-8. **Persistent memory** co san (`memory: project`) — agent nho context qua cac phien.
+**Ly do tach 2 agent thay vi 1:**
+1. Tranh "tu xac nhan" — agent thu thap khong nen tu danh gia chinh minh
+2. Cost-effective — fact-checker dung haiku (re, nhanh) vi chi so sanh text
+3. Co the chay doc lap — user goi fact-checker rieng de verify bat ky claim nao
 
 ## Thanh phan: Moi vs Sua doi vs Khong doi
 
@@ -131,437 +120,514 @@ SUBAGENT LIFECYCLE:
 
 | # | Thanh phan | Vi tri | Loai | Muc dich |
 |---|-----------|--------|------|---------|
-| N1 | Orchestrator workflow | `workflows/fix-bug-orchestrator.md` | Workflow | Dieu phoi 5 pha, spawn sub-agents, tong hop ket qua |
-| N2 | Resource orchestration module | `bin/lib/resource-orchestrator.js` | Library (pure function) | Tier->Model mapping, heavy lock logic, downgrade rules |
-| N3 | Session manager module | `bin/lib/session-manager.js` | Library (pure function) | Parse/create/update SESSION_*.md, resume logic |
-| N4 | Evidence protocol module | `bin/lib/evidence-protocol.js` | Library (pure function) | Validate evidence format, merge evidence files |
-| N5 | Bug history module | `bin/lib/bug-history.js` | Library (pure function) | Scan .planning/bugs/, match patterns, regression alerts |
+| N1 | Research storage module | `bin/lib/research-store.js` | Library (pure function) | CRUD research entries, build INDEX.md, danh so RS-NNN |
+| N2 | Audit report module | `bin/lib/audit-report.js` | Library (pure function) | Tao audit trail, confidence scoring, source tracking |
+| N3 | Fact checker module | `bin/lib/fact-checker.js` | Library (pure function) | So sanh claims voi evidence, flag contradictions |
+| N4 | Evidence Collector agent | `.claude/agents/pd-evidence-collector.md` | Agent config | Sub-agent thu thap nghien cuu da nguon |
+| N5 | Fact Checker agent | `.claude/agents/pd-fact-checker.md` | Agent config | Sub-agent kiem tra do chinh xac |
+| N6 | Research skill | `commands/pd/research.md` | Skill file | Entry point cho lenh `pd research` |
+| N7 | Research workflow | `workflows/research.md` | Workflow | Quy trinh nghien cuu day du |
 
 ### THANH PHAN SUA DOI
 
 | # | Thanh phan | Vi tri | Thay doi cu the |
 |---|-----------|--------|----------------|
-| M1 | fix-bug skill | `commands/pd/fix-bug.md` | model: sonnet -> opus, them Agent tool, tro vao orchestrator workflow |
-| M2 | Agent configs (5 files) | `commands/pd/agents/*.md` -> `.claude/agents/*.md` | Di chuyen tu commands/pd/agents/ sang .claude/agents/, bo sung frontmatter chuan Claude Code |
-| M3 | Workflow fix-bug cu | `workflows/fix-bug.md` | Giu nguyen lam fallback khi sub-agents khong kha dung |
-| M4 | Converter snapshots | `test/snapshots/*.txt` | Tai tao sau moi thay doi workflow/skill |
+| M1 | new-milestone workflow | `workflows/new-milestone.md` | Buoc 5: goi pd research thay vi inline FastCode+Context7 |
+| M2 | plan workflow | `workflows/plan.md` | Buoc 3: them Plan-Gate kiem tra research co san truoc |
+| M3 | write-code workflow | `workflows/write-code.md` | Them Strategy Injection doc research khi code |
+| M4 | Config | `.planning/config.json` | Them research-related flags (research_guard, audit_mode) |
+| M5 | Converter snapshots | `test/snapshots/*.txt` | Tai tao sau thay doi workflows |
 
 ### KHONG SUA DOI (tai su dung truc tiep)
 
-| Thanh phan | Vi tri | Cach su dung trong v2.1 |
+| Thanh phan | Vi tri | Cach su dung trong v3.0 |
 |-----------|--------|------------------------|
-| repro-test-generator.js | `bin/lib/repro-test-generator.js` | pd-repro-engineer goi truc tiep |
-| regression-analyzer.js | `bin/lib/regression-analyzer.js` | pd-fix-architect goi truc tiep |
-| debug-cleanup.js | `bin/lib/debug-cleanup.js` | Orchestrator goi o Pha 5 (truoc commit) |
-| logic-sync.js | `bin/lib/logic-sync.js` | Orchestrator goi o Pha 5 (sau fix) |
-| truths-parser.js | `bin/lib/truths-parser.js` | pd-fix-architect goi khi kiem tra Truth |
-| generate-diagrams.js | `bin/lib/generate-diagrams.js` | Orchestrator goi khi cap nhat report |
-| report-filler.js | `bin/lib/report-filler.js` | Orchestrator goi khi cap nhat report |
-| generate-pdf-report.js | `bin/generate-pdf-report.js` | Orchestrator goi CLI khi xuat PDF |
-| plan-checker.js | `bin/lib/plan-checker.js` | Khong lien quan fix-bug |
-| base converter + 4 platform converters | `bin/lib/converters/*.js` | Tai tao snapshots, khong sua logic |
+| evidence-protocol.js | `bin/lib/evidence-protocol.js` | Pattern validate dung cho research entries |
+| bug-memory.js | `bin/lib/bug-memory.js` | Pattern buildIndex dung cho research INDEX.md |
+| resource-config.js | `bin/lib/resource-config.js` | Them 2 agents moi vao AGENT_REGISTRY |
+| truths-parser.js | `bin/lib/truths-parser.js` | parseFrontmatter cho research entries |
+| utils.js | `bin/lib/utils.js` | parseFrontmatter, assembleMd dung chung |
+| session-manager.js | `bin/lib/session-manager.js` | Pattern tham khao, khong goi truc tiep |
 
 ## Kien truc chi tiet
 
-### 1. Di chuyen Agent configs sang .claude/agents/
+### 1. Research Entry Format — RS-NNN-slug.md
+
+```markdown
+---
+id: RS-001
+type: internal          # internal | external
+topic: "NestJS module pattern"
+source_type: fastcode   # fastcode | context7 | websearch | webfetch | codebase | manual
+sources:
+  - type: fastcode
+    query: "NestJS module patterns"
+    timestamp: 2026-03-25T10:30:00Z
+  - type: codebase
+    files: ["src/app.module.ts:15", "src/auth/auth.module.ts:8"]
+confidence: CAO         # CAO | TRUNG BINH | THAP
+created: 2026-03-25T10:30:00Z
+updated: 2026-03-25T10:30:00Z
+audit_log:
+  - "2026-03-25T10:30:00Z: Tao boi pd-evidence-collector"
+  - "2026-03-25T10:35:00Z: Xac nhan boi pd-fact-checker (CONFIRMED)"
+---
+
+# RS-001: NestJS Module Pattern
+
+## Phat hien
+[Noi dung nghien cuu]
+
+## Bang chung
+- `src/app.module.ts:15` — imports pattern hien tai
+- Context7 NestJS docs: module forRoot/forFeature pattern
+
+## Ket luan
+[Khuyen nghi cu the]
+
+## Audit Trail
+| Thoi gian | Hanh dong | Agent | Ket qua |
+|-----------|----------|-------|---------|
+| 10:30 | Thu thap | pd-evidence-collector | Tao entry |
+| 10:35 | Kiem tra | pd-fact-checker | CONFIRMED |
+```
+
+### 2. INDEX.md — Bang tong hop
+
+```markdown
+# Research Index
+
+> Cap nhat: 2026-03-25T10:35:00Z
+> Tong: 15 entries (10 internal, 5 external)
+
+## Theo loai
+
+### Internal (Code Analysis)
+| ID | Topic | Confidence | File |
+|----|-------|------------|------|
+| RS-001 | NestJS module pattern | CAO | internal/RS-001-nestjs-module.md |
+| RS-003 | Utils reuse | CAO | internal/RS-003-utils-reuse.md |
+
+### External (Ecosystem)
+| ID | Topic | Confidence | Sources | File |
+|----|-------|------------|---------|------|
+| RS-002 | Zod v4 migration | TRUNG BINH | Context7 | external/RS-002-zod-v4.md |
+
+## Theo confidence
+| Level | Count | Entries |
+|-------|-------|---------|
+| CAO | 10 | RS-001, RS-003, ... |
+| TRUNG BINH | 3 | RS-002, ... |
+| THAP | 2 | RS-005, RS-012 |
+```
+
+### 3. research-store.js — Pure function module
+
+```javascript
+// Pure functions — KHONG doc file, KHONG require('fs'), KHONG side effects.
+// Content truyen qua tham so, return structured object.
+//
+// - createEntry(params) -> { id, fileName, content }
+//   Tao research entry moi voi YAML frontmatter + body
+//   Auto-increment RS-NNN tu existingEntries
+//
+// - parseEntry(content) -> { id, type, topic, sources, confidence, body, auditLog }
+//   Parse frontmatter + body thanh structured object
+//
+// - updateEntry(existingContent, updates) -> string
+//   Cap nhat entry (them audit log, doi confidence, etc)
+//
+// - buildIndex(entries) -> string
+//   Generate INDEX.md tu tat ca entries, phan theo type va confidence
+//
+// - searchEntries(entries, query) -> { matches: [{entry, relevance}] }
+//   Tim research entries theo keyword/topic
+//
+// - classifySource(sourceInfo) -> 'internal' | 'external'
+//   Auto-detect loai tu source_type field
+```
+
+**Pattern tuong tu bug-memory.js:**
+- `createEntry` ~ `createBugRecord` (auto-increment, YAML frontmatter)
+- `buildIndex` ~ `buildIndex` (bang tong hop theo nhieu chieu)
+- `searchEntries` ~ `searchBugs` (keyword matching voi scoring)
+
+### 4. audit-report.js — Pure function module
+
+```javascript
+// Pure functions — KHONG doc file, KHONG require('fs'), KHONG side effects.
+//
+// - addAuditEntry(existingLog, entry) -> string
+//   Them dong audit moi vao log (timestamp, action, agent, result)
+//
+// - calculateConfidence(sources) -> 'CAO' | 'TRUNG BINH' | 'THAP'
+//   Tu dong tinh confidence tu loai va so luong sources
+//   - Context7/FastCode/official docs = CAO
+//   - WebSearch + 1 verify source = TRUNG BINH
+//   - WebSearch only hoac training data = THAP
+//
+// - generateAuditReport(entries) -> string
+//   Tao bao cao tong hop confidence across all entries
+//   Highlight entries THAP can verify
+//
+// - validateSources(entry) -> { valid: boolean, warnings: string[] }
+//   Kiem tra sources co du metadata (URL, timestamp, query)
+```
+
+**Confidence calculation logic:**
 
 ```
-HIEN TAI (v1.5):                    SAU v2.1:
-commands/pd/agents/                  .claude/agents/
-  pd-bug-janitor.md                    pd-bug-janitor.md
-  pd-code-detective.md                 pd-code-detective.md
-  pd-doc-specialist.md                 pd-doc-specialist.md
-  pd-fix-architect.md                  pd-fix-architect.md
-  pd-repro-engineer.md                 pd-repro-engineer.md
+Source hierarchy (tu cao den thap):
+1. Context7 docs           -> weight 3
+2. FastCode code analysis  -> weight 3
+3. Official docs (WebFetch verified URL) -> weight 2
+4. WebSearch + verify      -> weight 1.5
+5. WebSearch only          -> weight 1
+6. Training data only      -> weight 0.5
+
+Tong weight >= 5  -> CAO
+Tong weight >= 2  -> TRUNG BINH
+Tong weight < 2   -> THAP
 ```
 
-**Ly do:** Claude Code chi nhan dien sub-agents tu `.claude/agents/` hoac `~/.claude/agents/`. Thu muc `commands/pd/agents/` la custom location khong duoc Claude Code tu dong load.
+### 5. fact-checker.js — Pure function module
 
-**Frontmatter can bo sung:**
+```javascript
+// Pure functions — KHONG doc file, KHONG require('fs'), KHONG side effects.
+//
+// - extractClaims(content) -> string[]
+//   Trich xuat cac claim/assertion tu research entry
+//   Nhan dien cau khang dinh (X la Y, X ho tro Z, X khong the Z)
+//
+// - compareClaim(claim, sourceContent) -> { verdict, evidence }
+//   So sanh 1 claim voi source content
+//   verdict: 'CONFIRMED' | 'CONTRADICTED' | 'UNVERIFIABLE'
+//
+// - flagContradictions(claims, sources) -> { contradictions: [{claim, source, detail}] }
+//   Tim cac mau thuan giua claims va sources
+//
+// - generateVerdict(results) -> { overall, details, recommendations }
+//   Tong hop ket qua kiem tra thanh verdict tong the
+```
+
+### 6. Agent Configs — 2 Research Agents
+
+#### pd-evidence-collector.md
 
 ```yaml
 ---
-name: pd-bug-janitor
-description: Nhan vien ve sinh boi canh - Loc log rac va trich xuat trieu chung vang. Su dung khi can loc va phan tich thong tin loi ban dau.
-tools: Read, Bash, Grep, Glob
-disallowedTools: Write, Edit
-model: haiku
-maxTurns: 15
-memory: project
+name: pd-evidence-collector
+description: Thu thap bang chung nghien cuu tu nhieu nguon — code analysis, thu vien docs, web search. Ghi ket qua co cau truc voi metadata va sources.
+tools: Read, Glob, Grep, mcp__fastcode__code_qa, mcp__context7__resolve-library-id, mcp__context7__query-docs, WebSearch, WebFetch
+model: sonnet
+maxTurns: 25
+effort: medium
 ---
 ```
 
-**Cac field moi can them cho tung agent:**
+**Tier:** builder (sonnet) — can suy luan trung binh de tong hop nhieu nguon
+**Tools:** Day du — can truy cap ca internal (FastCode, Read) va external (Context7, WebSearch)
 
-| Agent | model | tools | maxTurns | memory | background |
-|-------|-------|-------|----------|--------|-----------|
-| pd-bug-janitor | haiku | Read, Bash, Grep, Glob, AskUserQuestion | 15 | project | false |
-| pd-code-detective | sonnet | Read, Glob, Grep, mcp__fastcode__code_qa | 25 | project | false |
-| pd-doc-specialist | haiku | Read, mcp__context7__resolve-library-id, mcp__context7__query-docs | 15 | project | true |
-| pd-repro-engineer | sonnet | Read, Write, Edit, Bash | 20 | none | false |
-| pd-fix-architect | opus | Read, Write, Edit, Bash | 30 | project | false |
+#### pd-fact-checker.md
 
-### 2. Workflow Orchestrator — Luong dieu phoi 5 pha
+```yaml
+---
+name: pd-fact-checker
+description: Kiem tra do chinh xac cua claims trong research entries. So sanh voi source goc, flag mau thuan, danh gia confidence.
+tools: Read, Grep, mcp__context7__resolve-library-id, mcp__context7__query-docs, WebSearch
+model: haiku
+maxTurns: 15
+effort: low
+---
+```
+
+**Tier:** scout (haiku) — chi can so sanh text, khong can suy luan phuc tap
+**Tools:** Han che — chi doc va verify, KHONG co Write/Edit (read-only)
+
+### 7. pd research Command — Workflow
 
 ```
-fix-bug-orchestrator.md
+commands/pd/research.md
 ========================
 
-PHA 1: KHOI DONG (Orchestrator truc tiep, KHONG spawn)
----------------------------------------------------------
-1.1  Kiem tra .planning/debug/SESSION_*.md — co phien cu?
-     - Co phien tiep tuc duoc -> hien danh sach, user chon
-     - Khong -> thu thap trieu chung (5 cau hoi vang)
-1.2  Xac dinh patch version (giu logic Buoc 2 hien tai)
-1.3  Spawn pd-bug-janitor voi task:
-     "Loc va trich xuat trieu chung tu: [arguments + context]
-      Kiem tra .planning/bugs/ tim bug tuong tu.
-      Ghi ket qua vao .planning/debug/evidence_janitor.md"
-1.4  Doc evidence_janitor.md -> danh gia:
-     - Co bug tuong tu trong qua kho? -> REGRESSION ALERT
-     - Trieu chung du 5 thong tin? -> tiep Pha 2
-     - Thieu -> hoi user bo sung
+Skill file:
+  name: pd:research
+  model: sonnet
+  argument-hint: "[topic hoac URL]"
+  allowed-tools: Read, Write, Edit, Bash, Glob, Grep, Agent,
+                 mcp__fastcode__code_qa, mcp__context7__*, WebSearch, WebFetch
+
+Execution:
+  @workflows/research.md
 
 
-PHA 2: DIEU TRA (2 sub-agents SONG SONG)
--------------------------------------------
-2.1  Spawn pd-code-detective (foreground):
-     "Tim file va dong gay loi dua tren trieu chung:
-      [dan noi dung evidence_janitor.md]
-      Doc PLAN.md + CODE_REPORT cua phase lien quan.
-      Ghi ket qua vao .planning/debug/evidence_code.md"
+workflows/research.md
+======================
 
-2.2  Spawn pd-doc-specialist (background):
-     "Kiem tra thu vien lien quan: [danh sach tu package.json]
-      Tim Breaking Changes, Known Issues.
-      Ghi ket qua vao .planning/debug/evidence_docs.md"
+BUOC 1: PHAN LOAI
+  1.1  Doc $ARGUMENTS
+  1.2  Auto-detect loai:
+       - Argument la URL -> external research
+       - Argument la file path / module name -> internal research
+       - Argument la topic chung -> ca hai
+  1.3  Doc .planning/research/INDEX.md -> da co research tuong tu?
+       - Co, confidence CAO -> "Da co RS-NNN. Dung lai hay nghien cuu lai?"
+       - Co, confidence THAP -> tu dong nghien cuu lai
 
-2.3  Cho ca 2 hoan thanh -> doc evidence files
-2.4  Danh gia:
-     - ROOT CAUSE FOUND o evidence_code? -> Pha 3 (xac nhan)
-     - INCONCLUSIVE? -> Orchestrator tu dieu tra them (fallback)
-     - CHECKPOINT? -> hien cau hoi cho user
+BUOC 2: THU THAP (Spawn pd-evidence-collector)
+  2.1  Spawn pd-evidence-collector voi task:
+       "Nghien cuu [topic] tu [sources phu hop].
+        Doc .planning/CONTEXT.md de biet tech stack.
+        Ghi ket qua vao .planning/research/[internal|external]/RS-NNN-[slug].md
+        Theo format research entry chuan."
+  2.2  Doc ket qua -> validate voi research-store.js
 
+BUOC 3: KIEM TRA (Spawn pd-fact-checker — TUY CHON)
+  3.1  Confidence entry la THAP hoac TRUNG BINH?
+       - Co -> spawn pd-fact-checker
+       - CAO (Context7/FastCode) -> bo qua, da du tin cay
+  3.2  Spawn pd-fact-checker voi task:
+       "Kiem tra cac claim trong RS-NNN-[slug].md.
+        So sanh voi source goc.
+        Ghi audit entry vao file."
+  3.3  Cap nhat confidence dua tren ket qua fact-check
 
-PHA 3: TAI HIEN (1 sub-agent)
--------------------------------
-3.1  Spawn pd-repro-engineer:
-     "Tao Red Test tu:
-      [trieu chung + evidence_code.md]
-      Dung repro-test-generator.js tu bin/lib.
-      Chay test, xac nhan FAIL.
-      Ghi ket qua vao .planning/debug/evidence_repro.md"
+BUOC 4: LUU TRU
+  4.1  research-store.js: createEntry() hoac updateEntry()
+  4.2  research-store.js: buildIndex() -> cap nhat INDEX.md
+  4.3  audit-report.js: addAuditEntry()
 
-3.2  Doc evidence_repro.md:
-     - Test FAIL -> xac nhan bug, tiep Pha 4
-     - Test PASS -> bug khong tai hien duoc, hoi user
-     - LOI -> bo qua repro, tiep Pha 4 voi warning
-
-
-PHA 4: PHAN QUYET (1 sub-agent)
----------------------------------
-4.1  Spawn pd-fix-architect:
-     "Tong hop tat ca evidence:
-      [evidence_janitor + evidence_code + evidence_docs + evidence_repro]
-      Dung regression-analyzer.js phan tich anh huong.
-      Kiem tra Truth lien quan (truths-parser.js).
-      De xuat Fix Plan cu the.
-      Ghi ket qua vao .planning/debug/evidence_architect.md"
-
-4.2  Doc evidence_architect.md:
-     - ROOT CAUSE + FIX PLAN -> Cong kiem tra 3 dieu kien
-     - CHECKPOINT -> hien phuong an cho user chon
-     - Can quyet dinh user? -> hien A/B voi uu/nhuoc
-
-
-PHA 5: VE DICH (Orchestrator truc tiep, KHONG spawn)
-------------------------------------------------------
-5.1  Logic Update: Kiem tra Truth sai? -> cap nhat PLAN.md (Buoc 6.5 cu)
-5.2  Viet bao cao loi BUG_*.md (Buoc 7 cu)
-5.3  Sua code theo Fix Plan (Buoc 8 cu)
-5.4  Git commit:
-     - debug-cleanup.js: don dep debug markers
-     - matchSecurityWarnings: canh bao bao mat
-     - Commit [LOI]
-5.5  Xac nhan:
-     - logic-sync.js: detect + report update + rule suggestion
-     - Hoi user xac nhan
-     - Chua xua -> quay Pha 2 voi gia thuyet moi
+BUOC 5: BAO CAO
+  5.1  Hien tom tat cho user:
+       - Topic, confidence, key findings
+       - Sources da dung
+       - Audit trail
+  5.2  "Nghien cuu them?" -> quay Buoc 1 voi topic moi
 ```
 
-### 3. Evidence Protocol — Dinh dang bang chung thong nhat
+### 8. Workflow Guards — 3 diem tich hop
 
-```markdown
-# Evidence: [agent-name]
-> Thoi gian: [timestamp]
-> Agent: [pd-bug-janitor | pd-code-detective | pd-doc-specialist | pd-repro-engineer | pd-fix-architect]
-> Trang thai: [ROOT CAUSE FOUND | CHECKPOINT REACHED | INVESTIGATION INCONCLUSIVE]
-
-## Ket qua
-[Noi dung chinh]
-
-## Bang chung
-- File: [path:line] — [phat hien]
-
-## Danh sach da loai tru (Elimination Log)
-- [file/logic]: DA KIEM TRA — BINH THUONG vi [ly do]
-
-## Related Historical Bugs
-- BUG_[timestamp].md: [mo ta] — [tuong tu/khong lien quan]
-
-## De xuat hanh dong tiep theo
-[Cho orchestrator quyet dinh]
-```
-
-**Module evidence-protocol.js:**
-
-```javascript
-// Pure functions:
-// - validateEvidence(content) -> { valid: boolean, errors: string[] }
-// - mergeEvidences(evidenceFiles) -> { rootCause, confidence, eliminationLog, recommendations }
-// - formatForArchitect(mergedEvidence) -> string (task prompt cho pd-fix-architect)
-```
-
-### 4. Session Persistence — Vong doi file debug
+#### Guard 1: Plan-Gate (trong plan.md Buoc 3)
 
 ```
-.planning/debug/
-  SESSION_login-timeout.md        <-- Phien dieu tra (format hien tai, giu nguyen)
-  evidence_janitor.md             <-- MOI: output cua pd-bug-janitor
-  evidence_code.md                <-- MOI: output cua pd-code-detective
-  evidence_docs.md                <-- MOI: output cua pd-doc-specialist
-  evidence_repro.md               <-- MOI: output cua pd-repro-engineer
-  evidence_architect.md           <-- MOI: output cua pd-fix-architect
-  repro/
-    repro-login-timeout.test.js   <-- GIU NGUYEN: output cua repro-test-generator
+HIEN TAI (plan.md Buoc 3):
+  - Chay research inline (FastCode + Context7)
+  - Ghi RESEARCH.md cho phase
+
+THEM Plan-Gate:
+  Buoc 3.0 (TRUOC Buoc 3A):
+  1. Doc .planning/research/INDEX.md
+  2. Tim entries lien quan den phase deliverables
+  3. Co entries CAO/TRUNG BINH? -> "Da co nghien cuu: [list]. Su dung lam input."
+  4. Chi co entries THAP? -> "Nghien cuu do tin cay THAP. Chay `/pd:research [topic]` truoc?"
+  5. Khong co? -> tiep tuc Buoc 3A binh thuong (backward compatible)
 ```
 
-**Vong doi:**
-1. Pha 1: Tao/cap nhat SESSION_*.md + evidence_janitor.md
-2. Pha 2: Tao evidence_code.md + evidence_docs.md
-3. Pha 3: Tao evidence_repro.md + repro test file
-4. Pha 4: Tao evidence_architect.md
-5. Pha 5: Cap nhat SESSION (Da giai quyet) + BUG_*.md
-6. Sau xac nhan: evidence_*.md GIU LAI (cho project memory)
+**Dac diem:** NON-BLOCKING. Chi khuyen nghi, khong bat buoc. User co the bo qua.
 
-**Resume logic (session-manager.js):**
-
-```javascript
-// Pure functions:
-// - parseSession(content) -> { status, hypotheses, checkpoints, bugReport }
-// - listResumableSessions(sessionFiles) -> { resumable: [], closed: [] }
-// - canResumeFromEvidence(evidenceFiles) -> { phase, lastAgent, nextAction }
-// - createSessionFromEvidence(evidences) -> string (SESSION content moi)
-```
-
-### 5. Resource Orchestration — Tier/Model mapping
+#### Guard 2: Mandatory Suggestion (trong plan.md Buoc 4)
 
 ```
-resource-orchestrator.js
-=========================
-
-// Pure functions:
-// - mapTierToModel(tier, platform) -> { model, fallback }
-// - checkResourceSafety(activeAgents, heavyTasks) -> { canSpawn, reason }
-// - shouldDowngrade(errorContext) -> { downgrade: boolean, newConfig }
-
-BANG MAPPING:
-| Tier      | Claude Code    | Fallback       |
-|-----------|---------------|----------------|
-| scout     | haiku         | haiku          |
-| builder   | sonnet        | haiku          |
-| architect | opus          | sonnet         |
-
-QUY TAC AN TOAN:
-1. Toi da 2 sub-agents song song
-2. Heavy Lock: chi 1 tac vu nang (indexing/testing) tai 1 thoi diem
-3. Ha cap thong minh: loi tai nguyen -> giam tier
-4. Fallback: sub-agent loi -> orchestrator tu lam (v1.5 workflow)
+THEM vao plan.md Buoc 4 (thiet ke):
+  Khi chon thu vien/approach:
+  1. Check .planning/research/INDEX.md co entry lien quan
+  2. Co -> chen "Research RS-NNN goi y: [summary]" vao PLAN.md
+  3. PLAN.md co section "## Nghien cuu lien quan" -> liet ke RS-NNN IDs
 ```
 
-### 6. Bug History — Tri nho du an
+#### Guard 3: Strategy Injection (trong write-code.md)
 
 ```
-bug-history.js
-===============
-
-// Pure functions:
-// - scanBugHistory(bugFiles) -> { bugs: [{date, category, rootCause, files}] }
-// - findSimilarBugs(symptoms, bugHistory) -> { matches: [{bug, similarity, reason}] }
-// - checkRegression(currentFix, bugHistory) -> { isRegression: boolean, relatedBug }
-// - formatHistoryContext(matches) -> string (context cho pd-bug-janitor)
+THEM vao write-code.md Buoc 1 (doc context):
+  Doc .planning/research/INDEX.md:
+  1. Tim entries lien quan den task hien tai (match keywords)
+  2. Co entries CAO? -> doc entry -> ap dung patterns/warnings
+  3. Entry co "Cam bay" (pitfall)? -> hien canh bao truoc khi code
+  4. KHONG thay doi logic hien tai — chi THEM thong tin
 ```
 
-### 7. Backward Compatibility — Fallback ve v1.5
-
-```
-LOGIC FALLBACK:
-================
-
-fix-bug.md (skill file):
-  1. Kiem tra Agent tool co kha dung?
-     - CO -> @workflows/fix-bug-orchestrator.md
-     - KHONG -> @workflows/fix-bug.md (workflow cu, giu nguyen)
-
-  2. Sub-agent spawn that bai?
-     - Orchestrator tu thuc hien buoc do (downgrade ve 1-agent)
-     - Ghi warning vao SESSION: "Sub-agent [name] that bai, fallback"
-
-  3. Moi pha co timeout:
-     - Sub-agent chay qua maxTurns -> tra ket qua hien tai
-     - Orchestrator quyet dinh tiep tuc hay dung
-```
+**Dac diem:** NON-BLOCKING. Doc research nhu doc RESEARCH.md hien tai, chi them INDEX.md lookup.
 
 ## Luong du lieu chi tiet
 
 ```
-USER INPUT (mo ta loi)
+USER INPUT
     |
     v
-commands/pd/fix-bug.md
-    |  doc: .planning/rules/*.md, CONTEXT.md
+[pd research "topic"]  HOAC  [pd new-milestone (Buoc 5)]
+    |                              |
+    v                              v
+commands/pd/research.md      workflows/new-milestone.md
+    |                              |
+    v                              v
+workflows/research.md         Buoc 5: goi research workflow
+    |
+    |  BUOC 1: PHAN LOAI
+    |  +-> research-store.js: searchEntries(INDEX.md, topic)
+    |  +-> Auto-detect: internal vs external vs both
+    |
+    |  BUOC 2: THU THAP
+    |  +-> resource-config.js: getAgentConfig('pd-evidence-collector')
+    |  +-> [Spawn] pd-evidence-collector
+    |  |     +-> Internal path: FastCode + Grep + Read
+    |  |     +-> External path: Context7 + WebSearch + WebFetch
+    |  |     +-> Write RS-NNN-slug.md vao internal/ hoac external/
+    |  +-> research-store.js: parseEntry() + validate
+    |
+    |  BUOC 3: KIEM TRA (conditional)
+    |  +-> audit-report.js: calculateConfidence(sources)
+    |  +-> Confidence < CAO?
+    |  |     +-> [Spawn] pd-fact-checker
+    |  |     |     +-> fact-checker.js: extractClaims()
+    |  |     |     +-> Verify qua Context7/WebSearch
+    |  |     |     +-> fact-checker.js: compareClaim() + generateVerdict()
+    |  |     |     +-> audit-report.js: addAuditEntry()
+    |  |     +-> research-store.js: updateEntry(confidence)
+    |
+    |  BUOC 4: LUU TRU
+    |  +-> research-store.js: buildIndex(all entries) -> INDEX.md
     |
     v
-workflows/fix-bug-orchestrator.md
+OUTPUT:
+  .planning/research/internal/RS-NNN-slug.md  (hoac external/)
+  .planning/research/INDEX.md (cap nhat)
+
     |
-    |  PHA 1
-    |  +-> session-manager.js: listResumableSessions()
-    |  +-> bug-history.js: scanBugHistory(.planning/bugs/)
-    |  +-> [Spawn] pd-bug-janitor
-    |  |     +-> Grep .planning/bugs/ (knowledge recall)
-    |  |     +-> AskUserQuestion (neu thieu)
-    |  |     +-> Write evidence_janitor.md
-    |  +-> evidence-protocol.js: validateEvidence()
-    |
-    |  PHA 2
-    |  +-> resource-orchestrator.js: checkResourceSafety()
-    |  +-> [Spawn song song] pd-code-detective + pd-doc-specialist
-    |  |     +-> pd-code-detective:
-    |  |     |     Read evidence_janitor.md
-    |  |     |     mcp__fastcode__code_qa (tim files lien quan)
-    |  |     |     Grep/Read source code
-    |  |     |     Write evidence_code.md
-    |  |     +-> pd-doc-specialist:
-    |  |           Read evidence_janitor.md
-    |  |           context7 resolve + query
-    |  |           Write evidence_docs.md
-    |  +-> evidence-protocol.js: mergeEvidences()
-    |
-    |  PHA 3
-    |  +-> [Spawn] pd-repro-engineer
-    |  |     Read evidence_janitor.md + evidence_code.md
-    |  |     repro-test-generator.js (generateReproTest)
-    |  |     Bash (chay test)
-    |  |     Write evidence_repro.md
-    |
-    |  PHA 4
-    |  +-> [Spawn] pd-fix-architect
-    |  |     Read ALL evidence_*.md
-    |  |     regression-analyzer.js (analyzeFromCallChain/analyzeFromSourceFiles)
-    |  |     truths-parser.js (parseTruthsFromContent)
-    |  |     Write evidence_architect.md
-    |
-    |  PHA 5 (Orchestrator truc tiep)
-    |  +-> Cap nhat PLAN.md (logic update)
-    |  +-> Viet BUG_*.md
-    |  +-> Sua code
-    |  +-> debug-cleanup.js (scanDebugMarkers + matchSecurityWarnings)
-    |  +-> Git commit [LOI]
-    |  +-> logic-sync.js (detectLogicChanges + updateReportDiagram + suggestClaudeRules)
-    |  +-> Hoi user xac nhan
-    |
+    | (Downstream consumers)
     v
-OUTPUT: Bug da sua, evidence files, SESSION updated, BUG report
+[pd plan] -> Plan-Gate doc INDEX.md -> dung research entries
+[pd write-code] -> Strategy Injection doc entries lien quan
 ```
 
 ## Anti-Patterns can tranh
 
-### Anti-Pattern 1: Spawn sub-agent cho moi buoc nho
-**Van de:** Token overhead, latency, mat context
-**Thay the:** Orchestrator tu lam cac buoc don gian (version check, git commit, doc file)
+### Anti-Pattern 1: Fact-checker tu verify chinh minh
+**Van de:** Agent A tao claim, Agent A verify claim — vo nghia
+**Thay the:** Evidence Collector THU THAP, Fact Checker VERIFY — 2 agents tach biet
 
-### Anti-Pattern 2: Truyen qua nhieu context cho sub-agent
-**Van de:** Sub-agent co context window gioi han, truyen tat ca se bi tran
-**Thay the:** Chi truyen evidence file relevants + task description cu the
+### Anti-Pattern 2: Blocking guards
+**Van de:** Bat user phai chay research truoc moi buoc -> workflow cham, phien phuc
+**Thay the:** NON-BLOCKING guards — chi khuyen nghi, khong bat buoc. Backward compatible.
 
-### Anti-Pattern 3: Nested sub-agents
-**Van de:** Claude Code khong cho phep sub-agent spawn sub-agent khac
-**Thay the:** Tat ca sub-agents duoc spawn boi orchestrator (1 cap duy nhat)
+### Anti-Pattern 3: Luu research trong conversation context
+**Van de:** Mat khi het phien, khong audit duoc, khong share giua workflows
+**Thay the:** File-based storage voi YAML frontmatter — persist, auditable, searchable
 
-### Anti-Pattern 4: Agent Teams cho debug workflow
-**Van de:** Experimental, token-expensive, overpower cho task nay
-**Thay the:** Sub-agents voi evidence files la communication channel
+### Anti-Pattern 4: Mot file INDEX monolith
+**Van de:** INDEX.md lon dan kho doc, merge conflict
+**Thay te:** INDEX.md chi la generated view — source of truth la cac RS-NNN files rieng le. Rebuild INDEX bat ky luc nao.
 
-### Anti-Pattern 5: Thay the hoan toan workflow cu
-**Van de:** Mat backward compatibility, khong co fallback
-**Thay the:** Giu workflow cu lam fallback, tao workflow moi song song
+### Anti-Pattern 5: Research cho moi task nho
+**Van de:** Tieu hao token cho CRUD don gian
+**Thay the:** Chi research khi: thu vien moi, domain phuc tap, confidence THAP. CRUD co ban -> "Dung stack co san."
 
 ## Patterns nen theo
 
-### Pattern 1: Evidence-as-Communication
-**Gi:** Sub-agents giao tiep qua evidence files trong .planning/debug/
-**Khi nao:** Moi khi sub-agent can truyen ket qua cho agent khac
-**Vi sao:** Tranh overhead cua inter-agent messaging, persist qua phien
+### Pattern 1: Pure Function Library (nhat quan v1.0-v2.1)
+**Gi:** Logic trong bin/lib/*.js, khong doc file, content truyen qua tham so
+**Khi nao:** Moi module moi (research-store, audit-report, fact-checker)
+**Vi sao:** 22 modules hien tai deu theo pattern nay, 601+ tests chung minh hieu qua
 
-### Pattern 2: Graceful Degradation
-**Gi:** Moi buoc co fallback — sub-agent loi thi orchestrator tu lam
-**Khi nao:** Bat ky sub-agent nao co the that bai
-**Vi sao:** Workflow khong bao gio bi chan hoan toan
+### Pattern 2: Evidence-as-Communication (ke thua v2.1)
+**Gi:** Research agents giao tiep qua RS-NNN files, khong qua memory
+**Khi nao:** Evidence Collector -> RS file -> Fact Checker doc RS file
+**Vi sao:** Persist qua phien, audit-ready, searchable
 
-### Pattern 3: Pure Function Libraries
-**Gi:** Logic phuc tap nam trong bin/lib/*.js, sub-agents goi truc tiep
-**Khi nao:** Can testable, reusable logic
-**Vi sao:** Nhat quan voi kien truc v1.0-v1.5 (pattern da chung minh)
+### Pattern 3: Auto-Increment ID (ke thua bug-memory.js)
+**Gi:** RS-NNN danh so tu dong, khong reuse, khong gap
+**Khi nao:** Moi research entry moi
+**Vi sao:** Tham chieu don gian (RS-001), khong phu thuoc timestamp phuc tap
 
-### Pattern 4: Orchestrator-as-Executor
-**Gi:** Pha 5 (sua code, commit, xac nhan) do orchestrator TRUC TIEP lam
-**Khi nao:** Buoc can tuong tac voi user hoac thay doi code
-**Vi sao:** Giam spawn overhead, giu control tap trung
+### Pattern 4: YAML Frontmatter Metadata (ke thua evidence-protocol.js)
+**Gi:** Metadata co cau truc o dau file, body la markdown tu do
+**Khi nao:** Moi RS-NNN file
+**Vi sao:** parseFrontmatter() da co trong utils.js, khong can parser moi
+
+### Pattern 5: Non-Blocking Integration
+**Gi:** Workflow guards chi khuyen nghi, khong block
+**Khi nao:** Plan-Gate, Strategy Injection
+**Vi sao:** Pattern da chung minh o v1.5 (debug-cleanup, logic-sync deu non-blocking)
 
 ## Thu tu build de xuat
 
 ```
-PHASE 1: Agent Infrastructure
-  1. Di chuyen + cap nhat 5 agent configs -> .claude/agents/
-  2. Tao resource-orchestrator.js (Tier/Model mapping)
-  3. Cap nhat commands/pd/fix-bug.md (model, tools, workflow ref)
-  -> Ket qua: Sub-agents co the spawn duoc, skill file da cap nhat
+PHASE 1: Research Storage Foundation
+  1. Tao .planning/research/internal/ + external/ directories
+  2. Tao bin/lib/research-store.js (createEntry, parseEntry, updateEntry, buildIndex, searchEntries)
+  3. Tao bin/lib/audit-report.js (addAuditEntry, calculateConfidence, validateSources)
+  -> Ket qua: Co the luu tru va truy van research entries
+  -> Phu thuoc: utils.js (parseFrontmatter, assembleMd) — da co
 
-PHASE 2: Evidence & Session Protocol
-  4. Tao evidence-protocol.js (validate + merge)
-  5. Tao session-manager.js (parse + resume logic)
-  -> Ket qua: Co protocol thong nhat cho communication
+PHASE 2: Audit Report Standards
+  4. Tao bin/lib/fact-checker.js (extractClaims, compareClaim, flagContradictions, generateVerdict)
+  5. Tich hop audit trail vao research-store.js (addAuditEntry khi create/update)
+  -> Ket qua: Research entries co audit trail va confidence tracking
+  -> Phu thuoc: Phase 1 (research-store.js)
 
-PHASE 3: Bug History & Memory
-  6. Tao bug-history.js (scan + match + regression)
-  7. Cap nhat pd-bug-janitor.md voi knowledge recall logic
-  -> Ket qua: Tri nho du an hoat dong
+PHASE 3: Research Agents
+  6. Tao .claude/agents/pd-evidence-collector.md
+  7. Tao .claude/agents/pd-fact-checker.md
+  8. Cap nhat bin/lib/resource-config.js: them 2 agents vao AGENT_REGISTRY
+  -> Ket qua: Agents co the spawn, co tier mapping
+  -> Phu thuoc: Phase 1 (entry format), Phase 2 (audit format)
 
-PHASE 4: Orchestrator Workflow
-  8. Tao workflows/fix-bug-orchestrator.md (5 pha)
-  9. Tich hop fallback logic (Agent khong kha dung -> workflow cu)
-  10. Cap nhat converter snapshots
-  -> Ket qua: Workflow moi hoan chinh, backward compatible
+PHASE 4: Workflow Guards
+  9. Sua workflows/plan.md: them Plan-Gate (Buoc 3.0) + Mandatory Suggestion (Buoc 4)
+  10. Sua workflows/write-code.md: them Strategy Injection (Buoc 1)
+  11. Cap nhat .planning/config.json: them research_guard flag
+  -> Ket qua: Workflows hien co su dung research data
+  -> Phu thuoc: Phase 1 (INDEX.md, searchEntries)
+
+PHASE 5: pd research Command
+  12. Tao commands/pd/research.md (skill file)
+  13. Tao workflows/research.md (workflow day du)
+  14. Tich hop vao new-milestone.md Buoc 5 (thay the inline research)
+  15. Cap nhat converter snapshots
+  -> Ket qua: User co the chay `pd research` doc lap
+  -> Phu thuoc: Phase 1-3 (store + agents)
 
 RATIONALE THU TU:
-- Phase 1 truoc vi cac phase sau phu thuoc vao agent configs
-- Phase 2 truoc Phase 4 vi orchestrator can protocol de giao tiep
-- Phase 3 co the chay song song voi Phase 2 (doc lap)
-- Phase 4 cuoi cung vi tich hop tat ca thanh phan truoc do
+- Phase 1 truoc tat ca vi moi thu phu thuoc vao storage format
+- Phase 2 truoc Phase 3 vi agents can biet format de ghi dung
+- Phase 3 truoc Phase 5 vi workflow can agents de spawn
+- Phase 4 co the chay SONG SONG voi Phase 3 (doc lap — guards chi doc INDEX, khong can agents)
+- Phase 5 cuoi cung vi tich hop tat ca thanh phan
+```
+
+## Migration — Tuong thich nguoc voi research hien tai
+
+```
+HIEN TAI:                              SAU v3.0:
+.planning/research/                    .planning/research/
+  SUMMARY.md                             SUMMARY.md          (GIU NGUYEN)
+  STACK.md                               STACK.md            (GIU NGUYEN)
+  FEATURES.md                            FEATURES.md         (GIU NGUYEN)
+  ARCHITECTURE.md                        ARCHITECTURE.md     (GIU NGUYEN)
+  PITFALLS.md                            PITFALLS.md         (GIU NGUYEN)
+                                         INDEX.md            (MOI)
+                                         internal/           (MOI)
+                                           RS-NNN-*.md
+                                         external/           (MOI)
+                                           RS-NNN-*.md
+
+plan.md Buoc 3 van doc SUMMARY.md nhu cu -> KHONG break.
+INDEX.md la THEM VAO, khong thay the.
+5 file nghien cuu cu khong bi di chuyen hay doi ten.
 ```
 
 ## Scalability Considerations
 
-| Van de | Hien tai (1 bug) | 5 bugs/ngay | 20 bugs/ngay |
-|--------|-----------------|-------------|-------------|
-| Token cost | ~50K tokens/bug | Tier routing giam ~30% | Heavy Lock can thiet |
-| Context window | Du cho 1 orchestrator | evidence files giu nho | Compaction tu dong |
-| Session persistence | 1 SESSION file | Nhieu SESSION, resume UI | Bug history index can thiet |
-| Performance | Chap nhan | Song song 2 agents tot | Can monitor resource |
+| Van de | 10 entries | 100 entries | 1000 entries |
+|--------|-----------|-------------|-------------|
+| INDEX.md size | ~50 dong, de doc | ~500 dong, can filter | Can phan trang hoac INDEX per milestone |
+| Search speed | Instant (regex) | ~1s (regex all files) | Can inverted index hoac tag-based lookup |
+| Audit trail | Inline trong file | Inline van ok | Tach audit log rieng neu qua lon |
+| Agent cost | ~5K tokens/entry | Batch mode tiet kiem | Cache frequently-used entries |
 
 ## Sources
 
-- [Tai lieu chinh thuc Claude Code: Custom sub-agents](https://code.claude.com/docs/en/sub-agents) — HIGH confidence
-- [Tai lieu chinh thuc Claude Code: Agent teams](https://code.claude.com/docs/en/agent-teams) — HIGH confidence
-- [Claude Code Sub-Agent patterns](https://claudefa.st/blog/guide/agents/sub-agent-best-practices) — MEDIUM confidence
-- Phan tich truc tiep codebase please-done v1.5 — HIGH confidence
+- Phan tich truc tiep codebase please-done v2.1 (22 modules, 10 workflows, 7 agents) — HIGH confidence
+- Pattern evidence-protocol.js, bug-memory.js, session-manager.js — HIGH confidence (da shipped, 601+ tests)
+- Pattern non-blocking integration tu v1.5 (debug-cleanup.js, logic-sync.js) — HIGH confidence
+- Tai lieu chinh thuc Claude Code sub-agents — HIGH confidence (da verify trong v2.1 research)
+- resource-config.js AGENT_REGISTRY pattern — HIGH confidence (da hoat dong cho 5 detective agents)
