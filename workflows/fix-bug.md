@@ -343,7 +343,7 @@ Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
 <success_criteria>
 - [ ] Session duoc tao/tiep tuc dung qua session-manager.js
 - [ ] Janitor thu thap trieu chung va ghi evidence_janitor.md
-- [ ] Detective va DocSpec chay tuan tu, ket qua merge qua parallel-dispatch.js
+- [ ] Detective va DocSpec chay doc lap, ket qua merge qua parallel-dispatch.js
 - [ ] Repro Engineer tao test tai hien (hoac WARNING neu fail)
 - [ ] Architect tong hop evidence va ra 1 trong 3 phan quyet
 - [ ] Outcome routing xu ly dung ca 3 truong hop
