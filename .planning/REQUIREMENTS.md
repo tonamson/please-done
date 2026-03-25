@@ -23,7 +23,7 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 - [x] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
 - [x] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
 - [ ] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
-- [ ] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
+- [x] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
 
 ### Tri nho Du an (MEM)
 
@@ -92,7 +92,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROT-03 | Phase 30 | Complete |
 | PROT-04 | Phase 30 | Complete |
 | PROT-06 | Phase 30 | Complete |
-| PROT-08 | Phase 30 | Pending |
+| PROT-08 | Phase 30 | Complete |
 | MEM-01 | Phase 31 | Pending |
 | MEM-02 | Phase 31 | Pending |
 | MEM-03 | Phase 31 | Pending |
