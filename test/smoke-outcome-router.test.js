@@ -12,6 +12,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   buildRootCauseMenu, prepareFixNow, prepareFixPlan, prepareSelfFix, ROOT_CAUSE_CHOICES,
+  buildInconclusiveContext, MAX_INCONCLUSIVE_ROUNDS,
 } = require('../bin/lib/outcome-router');
 
 // ─── Helper ─────────────────────────────────────────────────
@@ -19,6 +20,8 @@ const {
 function makeEvidence({ agent = 'pd-fix-architect', outcome = 'root_cause', session = 'S001', body = '' } = {}) {
   return `---\nagent: ${agent}\noutcome: ${outcome}\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: ${session}\n---\n${body}`;
 }
+
+const BODY_INCONCLUSIVE = `## INVESTIGATION INCONCLUSIVE\n\n## Elimination Log\n| File | Logic | Ket qua |\n|------|-------|--------|\n| src/api.js | null check | Binh thuong |\n| src/db.js | query logic | Binh thuong |\n\n## Huong dieu tra tiep\nCan kiem tra them middleware layer.`;
 
 const BODY_ROOT_CAUSE = `## ROOT CAUSE FOUND
 
@@ -99,5 +102,91 @@ describe('prepareSelfFix', () => {
     assert.equal(result.action, 'self_fix');
     assert.equal(result.sessionUpdate.status, 'paused');
     assert.ok(result.resumeHint.includes('pd:fix-bug'));
+  });
+});
+
+// ─── MAX_INCONCLUSIVE_ROUNDS ────────────────────────────────
+
+describe('MAX_INCONCLUSIVE_ROUNDS', () => {
+  it('bang 3', () => {
+    assert.equal(MAX_INCONCLUSIVE_ROUNDS, 3);
+  });
+});
+
+// ─── buildInconclusiveContext ────────────────────────────────
+
+describe('buildInconclusiveContext', () => {
+  it('round=1 co Elimination Log -> canContinue=true, prompt chua "Vong 1/3"', () => {
+    const result = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 1,
+    });
+    assert.equal(result.canContinue, true);
+    assert.ok(result.prompt.includes('Vong 1/3'));
+    assert.ok(result.eliminationLog.includes('src/api.js'));
+  });
+
+  it('round=3 -> canContinue=true (vi <= 3)', () => {
+    const result = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 3,
+    });
+    assert.equal(result.canContinue, true);
+  });
+
+  it('round=4 -> canContinue=false, warnings co "Da vuot qua 3 vong"', () => {
+    const result = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 4,
+    });
+    assert.equal(result.canContinue, false);
+    assert.ok(result.warnings.some(w => w.includes('Da vuot qua 3 vong')));
+  });
+
+  it('prompt chua Elimination Log content va vong hien tai', () => {
+    const result = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 2,
+    });
+    assert.ok(result.prompt.includes('Elimination Log tu vong truoc'));
+    assert.ok(result.prompt.includes('src/api.js'));
+    assert.ok(result.prompt.includes('Vong 2/3'));
+  });
+
+  it('prompt chua userInputPath khi co, khong chua khi null', () => {
+    const withPath = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: '/tmp/user-info.md',
+      sessionDir: '/tmp/S001',
+      currentRound: 1,
+    });
+    assert.ok(withPath.prompt.includes('/tmp/user-info.md'));
+
+    const withoutPath = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: BODY_INCONCLUSIVE }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 1,
+    });
+    assert.ok(!withoutPath.prompt.includes('Thong tin bo sung'));
+  });
+
+  it('warning khi evidence thieu section "Elimination Log"', () => {
+    const bodyNoElim = `## INVESTIGATION INCONCLUSIVE\n\n## Huong dieu tra tiep\nCan kiem tra them.`;
+    const result = buildInconclusiveContext({
+      evidenceContent: makeEvidence({ outcome: 'inconclusive', body: bodyNoElim }),
+      userInputPath: null,
+      sessionDir: '/tmp/S001',
+      currentRound: 1,
+    });
+    assert.ok(result.warnings.some(w => w.includes('Elimination Log')));
   });
 });
