@@ -11,19 +11,19 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 
 - [ ] **ORCH-01**: Orchestrator anh xa Tier (Scout/Builder/Architect) sang model cu the (haiku/sonnet/opus) qua YAML frontmatter trong 5 agent files
 - [ ] **ORCH-02**: Orchestrator gioi han toi da 2 sub-agents chay song song tai moi thoi diem
-- [ ] **ORCH-03**: Orchestrator ap dung Heavy Lock — chi 1 tac vu nang (FastCode indexing hoac test suite) chay tai moi thoi diem
-- [ ] **ORCH-04**: Orchestrator tu dong ha cap sang tuan tu khi spawn song song that bai (timeout/error), ghi warning vao SESSION
+- [x] **ORCH-03**: Orchestrator ap dung Heavy Lock — chi 1 tac vu nang (FastCode indexing hoac test suite) chay tai moi thoi diem
+- [x] **ORCH-04**: Orchestrator tu dong ha cap sang tuan tu khi spawn song song that bai (timeout/error), ghi warning vao SESSION
 
 ### Giao thuc Tham tu (PROT)
 
 - [x] **PROT-01**: User thay danh sach phien debug danh so ID khi khoi dong, co the nhap so de tiep tuc hoac mo ta moi de tao session moi
 - [x] **PROT-02**: Moi agent tra ket qua theo 1 trong 3 outcomes chuan: ROOT CAUSE FOUND, CHECKPOINT REACHED, hoac INVESTIGATION INCONCLUSIVE
-- [ ] **PROT-03**: Khi ROOT CAUSE duoc tim thay, user duoc chon 1 trong 3: Sua ngay, Len ke hoach, hoac Tu sua
+- [x] **PROT-03**: Khi ROOT CAUSE duoc tim thay, user duoc chon 1 trong 3: Sua ngay, Len ke hoach, hoac Tu sua
 - [x] **PROT-04**: Khi agent ghi CHECKPOINT REACHED, orchestrator hien cau hoi cho user va truyen cau tra loi cho agent tiep theo
 - [x] **PROT-05**: Khi INCONCLUSIVE, agent PHAI ghi Elimination Log liet ke files/logic da kiem tra va xac nhan binh thuong
-- [ ] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
-- [ ] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
-- [ ] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
+- [x] **PROT-06**: Khi user tra loi CHECKPOINT, orchestrator spawn agent moi tiep nhan context tu evidence files (Continuation Agent)
+- [x] **PROT-07**: Evidence file tu agent truoc la input chinh thuc cua agent sau — agent khong doc lai toan bo codebase
+- [x] **PROT-08**: Code Detective va Doc Specialist chay song song vi khong phu thuoc nhau, ca 2 doc evidence_janitor.md
 
 ### Tri nho Du an (MEM)
 
@@ -35,10 +35,10 @@ Requirements for Detective Orchestrator milestone. Each maps to roadmap phases.
 ### Vong lap Thuc thi (FLOW)
 
 - [x] **FLOW-01**: Buoc 1 — Orchestrator spawn Janitor agent (scout/haiku) thu thap trieu chung va kiem tra session cu
-- [ ] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) doc lap sau khi Janitor hoan tat (tuan tu do rang buoc Claude Code Agent tool, logical parallel qua buildParallelPlan)
+- [x] **FLOW-02**: Buoc 2 — Orchestrator spawn Code Detective (builder/sonnet) va Doc Specialist (scout/haiku) doc lap sau khi Janitor hoan tat (tuan tu do rang buoc Claude Code Agent tool, logical parallel qua buildParallelPlan)
 - [x] **FLOW-03**: Buoc 3 — Orchestrator spawn Repro Engineer (builder/sonnet) tao Red Test tu evidence cua Buoc 2
 - [x] **FLOW-04**: Buoc 4 — Orchestrator spawn Fix Architect (architect/opus) tong hop tat ca evidence va ra phan quyet
-- [ ] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
+- [x] **FLOW-05**: Buoc 5 — Orchestrator truc tiep sua code, chay test, commit [LOI], tai su dung logic v1.5 (debug-cleanup, logic-sync, regression-analyzer)
 - [x] **FLOW-06**: Khi INCONCLUSIVE o Buoc 4, orchestrator quay lai Buoc 2 voi Elimination Log va thong tin moi tu user (max 3 vong)
 - [x] **FLOW-07**: User co the chay single-agent mode (v1.5 cu) khi khong co agent configs hoac truyen --single flag
 - [x] **FLOW-08**: Orchestrator an chi tiet agent spawning, chi hien ket qua cuoi cung cho user (progressive disclosure)
@@ -83,25 +83,25 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | ORCH-01 | Phase 28 | Pending |
 | ORCH-02 | Phase 28 | Pending |
-| ORCH-03 | Phase 34 (gap closure) | Pending |
-| ORCH-04 | Phase 34 (gap closure) | Pending |
+| ORCH-03 | Phase 34 (gap closure) | Complete |
+| ORCH-04 | Phase 34 (gap closure) | Complete |
 | PROT-01 | Phase 29 | Complete |
 | PROT-02 | Phase 29 | Complete |
 | PROT-05 | Phase 29 | Complete |
-| PROT-07 | Phase 34 (gap closure) | Pending |
-| PROT-03 | Phase 34 (gap closure) | Pending |
+| PROT-07 | Phase 34 (gap closure) | Complete |
+| PROT-03 | Phase 34 (gap closure) | Complete |
 | PROT-04 | Phase 30 | Complete |
-| PROT-06 | Phase 34 (gap closure) | Pending |
-| PROT-08 | Phase 34 (gap closure) | Pending |
+| PROT-06 | Phase 34 (gap closure) | Complete |
+| PROT-08 | Phase 34 (gap closure) | Complete |
 | MEM-01 | Phase 31 | Pending |
 | MEM-02 | Phase 31 | Pending |
 | MEM-03 | Phase 31 | Pending |
 | MEM-04 | Phase 31 | Pending |
 | FLOW-01 | Phase 32 | Complete |
-| FLOW-02 | Phase 34 (gap closure) | Pending |
+| FLOW-02 | Phase 34 (gap closure) | Complete |
 | FLOW-03 | Phase 32 | Complete |
 | FLOW-04 | Phase 32 | Complete |
-| FLOW-05 | Phase 34 (gap closure) | Pending |
+| FLOW-05 | Phase 34 (gap closure) | Complete |
 | FLOW-08 | Phase 32 | Complete |
 | FLOW-06 | Phase 33 | Complete |
 | FLOW-07 | Phase 33 | Complete |

@@ -109,7 +109,7 @@ Full details: `.planning/milestones/v1.5-ROADMAP.md`
 - [x] **Phase 33: Resilience & Backward Compatibility** (2 plans) (completed 2026-03-25)
   - [x] 33-01-PLAN.md — TDD buildInconclusiveContext() trong outcome-router.js
   - [ ] 33-02-PLAN.md — Workflow updates (INCONCLUSIVE loop-back, --single fallback, fix tests, snapshots)
-- [ ] **Phase 34: Fix Integration Wiring** (gap closure)
+- [x] **Phase 34: Fix Integration Wiring** (gap closure) (completed 2026-03-25)
   - Sua 4 call signature bugs, them 2 enforcement points, fix DocSpec evidence chain
 
 ## Phase Details
@@ -247,4 +247,4 @@ Plans:
 | 31. Project Memory & Regression Detection | v2.1 | 0/2 | Not started | - |
 | 32. Orchestrator Workflow | v2.1 | 2/2 | Complete | 2026-03-25 |
 | 33. Resilience & Backward Compatibility | v2.1 | 1/2 | Complete    | 2026-03-25 |
-| 34. Fix Integration Wiring | v2.1 | 0/2 | Not started | - |
+| 34. Fix Integration Wiring | v2.1 | 0/2 | Complete    | 2026-03-25 |
