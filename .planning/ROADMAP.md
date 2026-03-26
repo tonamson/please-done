@@ -128,7 +128,10 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   1. workflows/research.md goi generateIndex() sau Evidence Collector step — INDEX.md duoc tao/cap nhat moi lan chay
   2. Strategy Injection doc INDEX.md thanh cong thay vi silent fallback
   3. Fact Checker cross-validate qua INDEX.md de tim files cung topic
-Plans: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 43-01-PLAN.md — CLI script update-research-index.js va delegation generateIndex
+- [ ] 43-02-PLAN.md — Wire workflow research.md Buoc 4 va xac nhan pipeline end-to-end
 
 ### Phase 44: Wire routeQuery vao Workflow
 **Goal:** workflows/research.md su dung routeQuery() thay vi inline heuristic — dam bao 10+ file patterns duoc nhan dien
@@ -231,6 +234,6 @@ Plans:
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
-| 43. Wire INDEX.md vao Pipeline | 0/? | Pending | - |
+| 43. Wire INDEX.md vao Pipeline | 0/2 | Pending | - |
 | 44. Wire routeQuery vao Workflow | 0/? | Pending | - |
 | 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
