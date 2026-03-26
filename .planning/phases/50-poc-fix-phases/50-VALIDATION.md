@@ -17,20 +17,20 @@ created: 2026-03-26
 
 | Property | Value |
 |----------|-------|
-| **Framework** | jest 29.x |
-| **Config file** | jest.config.js |
-| **Quick run command** | `npx jest --testPathPattern="phase-50" --bail` |
-| **Full suite command** | `npx jest` |
-| **Estimated runtime** | ~45 seconds |
+| **Framework** | Node.js built-in `node:test` + `node:assert/strict` |
+| **Config file** | package.json `"test": "node --test 'test/*.test.js'"` |
+| **Quick run command** | `node --test test/smoke-gadget-chain.test.js` |
+| **Full suite command** | `node --test 'test/*.test.js'` |
+| **Estimated runtime** | ~15 seconds |
 
 ---
 
 ## Sampling Rate
 
-- **After every task commit:** Run `npx jest --testPathPattern="phase-50" --bail`
-- **After every plan wave:** Run `npx jest`
+- **After every task commit:** Run `node --test test/smoke-gadget-chain.test.js`
+- **After every plan wave:** Run `node --test 'test/*.test.js'`
 - **Before `/gsd:verify-work`:** Full suite must be green
-- **Max feedback latency:** 45 seconds
+- **Max feedback latency:** 15 seconds
 
 ---
 
@@ -38,25 +38,27 @@ created: 2026-03-26
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 50-01-01 | 01 | 1 | POC-01 | unit | `npx jest poc-generator` | ❌ W0 | ⬜ pending |
-| 50-01-02 | 01 | 1 | POC-01 | unit | `npx jest poc-generator` | ❌ W0 | ⬜ pending |
-| 50-02-01 | 02 | 1 | POC-02 | unit | `npx jest gadget-chain` | ❌ W0 | ⬜ pending |
-| 50-02-02 | 02 | 1 | POC-02 | unit | `npx jest gadget-chain` | ❌ W0 | ⬜ pending |
-| 50-03-01 | 03 | 2 | FIX-01,FIX-02 | unit | `npx jest fix-phase-generator` | ❌ W0 | ⬜ pending |
-| 50-03-02 | 03 | 2 | FIX-03 | unit | `npx jest fix-phase-generator` | ❌ W0 | ⬜ pending |
-| 50-04-01 | 04 | 3 | FIX-01 | integration | `npx jest audit-workflow` | ❌ W0 | ⬜ pending |
+| 50-01-01 | 01 | 1 | POC-02 | unit | `node --test test/smoke-gadget-chain.test.js` | No W0 | pending |
+| 50-01-02 | 01 | 1 | POC-02 | unit | `node --test test/smoke-gadget-chain.test.js` | No W0 | pending |
+| 50-01-03 | 01 | 1 | POC-02 | unit | `node --test test/smoke-gadget-chain.test.js` | No W0 | pending |
+| 50-02-01 | 02 | 2 | POC-01 | manual-only | N/A (agent template prose) | N/A | pending |
+| 50-02-02 | 02 | 2 | FIX-01 | smoke | `node --test test/smoke-agent-files.test.js` | Yes (extend) | pending |
+| 50-02-03 | 02 | 2 | FIX-02 | smoke | `node --test test/smoke-agent-files.test.js` | Yes (extend) | pending |
+| 50-02-04 | 02 | 2 | FIX-01,FIX-02 | smoke | `node --test test/smoke-resource-config.test.js` | Yes (extend) | pending |
+| 50-02-05 | 02 | 2 | FIX-03 | unit | `node --test test/smoke-session-delta.test.js` | Yes (existing) | pending |
+| 50-02-06 | 02 | 2 | POC-01,POC-02,FIX-01 | integration | manual audit --poc run | N/A | pending |
 
-*Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
+*Status: pending / green / red / flaky*
 
 ---
 
 ## Wave 0 Requirements
 
-- [ ] `tests/poc-generator.test.js` — stubs for POC-01 (POC section generation)
-- [ ] `tests/gadget-chain.test.js` — stubs for POC-02 (chain detection + severity escalation)
-- [ ] `tests/fix-phase-generator.test.js` — stubs for FIX-01, FIX-02, FIX-03 (fix phases + template + SEC-VERIFY)
+- [ ] `test/smoke-gadget-chain.test.js` — detectChains + escalateSeverity (POC-02, FIX-01)
+- [ ] Extend `test/smoke-resource-config.test.js` — pd-sec-fixer registration (FIX-01)
+- [ ] Extend `test/smoke-agent-files.test.js` — pd-sec-fixer.md + security-fix-phase.md existence (FIX-02)
 
-*Existing jest infrastructure covers test runner — only test files needed.*
+*Existing test infrastructure covers runner. Only new test file + extensions needed.*
 
 ---
 
@@ -64,18 +66,19 @@ created: 2026-03-26
 
 | Behavior | Requirement | Why Manual | Test Instructions |
 |----------|-------------|------------|-------------------|
-| pd-sec-fixer agent proposal format | FIX-01 | Agent template output varies | Run audit with --poc on test project, verify fix phases proposal displayed |
+| POC section format in evidence | POC-01 | Scanner agent prose template | Run `pd:audit --poc` on test project, verify ## POC section with 4 fields |
+| pd-sec-fixer proposal format | FIX-01 | Agent template output varies | Run full audit, verify fix phases proposal displayed |
 | SEC-VERIFY re-audit scope | FIX-03 | Requires multi-phase execution | Run fix phases then SEC-VERIFY, verify only fixed files scanned |
 
 ---
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
+- [ ] All tasks have automated verify or Wave 0 dependencies
 - [ ] Sampling continuity: no 3 consecutive tasks without automated verify
 - [ ] Wave 0 covers all MISSING references
 - [ ] No watch-mode flags
-- [ ] Feedback latency < 45s
+- [ ] Feedback latency < 15s
 - [ ] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending
