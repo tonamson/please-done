@@ -115,7 +115,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation (completed 2026-03-26)
 - [x] **Phase 43: Wire INDEX.md vao Pipeline** — Goi generateIndex() trong workflow, wire Strategy Injection va Fact Checker cross-validate (completed 2026-03-26)
 - [x] **Phase 44: Wire routeQuery vao Workflow** — Thay the inline heuristic bang routeQuery() call (completed 2026-03-26)
-- [ ] **Phase 45: AUDIT-03 Claim-Level Confidence API** — Structured API cho inline confidence tags trong research-store.js
+- [x] **Phase 45: AUDIT-03 Claim-Level Confidence API** — Structured API cho inline confidence tags trong research-store.js (completed 2026-03-26)
 
 ## Gap Closure Phases (from v3.0 Audit)
 
@@ -154,7 +154,7 @@ Plans:
   1. createEntry() nhan parameter claims voi confidence per-claim
   2. parseClaims() extract inline confidence tags tu research file content
   3. Tests cover ca file-level va claim-level confidence
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 45-01-PLAN.md — TDD parseClaims + createEntry claims rendering + validateEvidence refactor
 
@@ -240,4 +240,4 @@ Plans:
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
 | 43. Wire INDEX.md vao Pipeline | 1/2 | Complete    | 2026-03-26 |
 | 44. Wire routeQuery vao Workflow | 0/1 | Complete    | 2026-03-26 |
-| 45. AUDIT-03 Claim-Level Confidence API | 0/1 | Pending | - |
+| 45. AUDIT-03 Claim-Level Confidence API | 0/1 | Complete    | 2026-03-26 |

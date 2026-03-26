@@ -12,13 +12,13 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 - [ ] **STORE-01**: Thu muc internal/ luu ket qua phan tich codebase voi frontmatter `source: internal`, `scope: [project-name]`, `created: ISO-8601`
 - [ ] **STORE-02**: Thu muc external/ luu ket qua tra cuu web/docs voi ten `RES-[ID]-[SLUG].md`, KHONG GHI DE — moi ban la file rieng biet co so tang dan
 - [x] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
-- [ ] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
+- [x] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
 
 ### Kiem chung Chong Ao Giac (AUDIT)
 
 - [ ] **AUDIT-01**: Moi research file co YAML frontmatter bat buoc: agent, created, source (internal/external), topic, confidence (HIGH/MEDIUM/LOW)
 - [x] **AUDIT-02**: Moi research file co section `## Bang chung` voi source citation cho tung claim — claim khong co source = khong duoc ghi
-- [ ] **AUDIT-03**: Confidence 3 bac (HIGH = official docs/codebase, MEDIUM = nhieu nguon dong y, LOW = 1 nguon/khong xac minh) gan o ca cap file va cap claim
+- [x] **AUDIT-03**: Confidence 3 bac (HIGH = official docs/codebase, MEDIUM = nhieu nguon dong y, LOW = 1 nguon/khong xac minh) gan o ca cap file va cap claim
 - [x] **AUDIT-04**: AUDIT_LOG.md append-only ghi lai moi hanh dong research (timestamp, agent, action, topic, source-count, confidence)
 
 ### Tac tu Nghien cuu (AGENT)
@@ -73,10 +73,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STORE-01 | Phase 38 | Pending |
 | STORE-02 | Phase 38 | Pending |
 | STORE-03 | Phase 43 | Complete |
-| STORE-04 | Phase 44 | Pending |
+| STORE-04 | Phase 44 | Complete |
 | AUDIT-01 | Phase 38 | Pending |
 | AUDIT-02 | Phase 39 | Complete |
-| AUDIT-03 | Phase 45 | Pending |
+| AUDIT-03 | Phase 45 | Complete |
 | AUDIT-04 | Phase 39 | Complete |
 | AGENT-01 | Phase 40 | Complete |
 | AGENT-02 | Phase 40 | Complete |
