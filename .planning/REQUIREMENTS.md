@@ -11,8 +11,8 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 - [ ] **STORE-01**: Thu muc internal/ luu ket qua phan tich codebase voi frontmatter `source: internal`, `scope: [project-name]`, `created: ISO-8601`
 - [ ] **STORE-02**: Thu muc external/ luu ket qua tra cuu web/docs voi ten `RES-[ID]-[SLUG].md`, KHONG GHI DE — moi ban la file rieng biet co so tang dan
-- [x] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
-- [x] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
+- [ ] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
+- [ ] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
 
 ### Kiem chung Chong Ao Giac (AUDIT)
 
@@ -36,6 +36,10 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 ### Nang cao (EXTRA)
 
 - [ ] **EXTRA-01**: Cross-validation tu dong — Fact Checker doc ca internal/ va external/ files cung topic, phat hien xung dot, ghi vao `## Xung dot phat hien` section
+
+### Gap Closure Notes
+
+STORE-03, GUARD-03, EXTRA-01 reset ve Pending — audit xac nhan modules ton tai nhung chua wired vao pipeline.
 
 ## v3.1 Requirements
 
@@ -68,19 +72,19 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | STORE-01 | Phase 38 | Pending |
 | STORE-02 | Phase 38 | Pending |
-| STORE-03 | Phase 39 | Complete |
-| STORE-04 | Phase 42 | Complete |
+| STORE-03 | Phase 43 | Pending |
+| STORE-04 | Phase 44 | Pending |
 | AUDIT-01 | Phase 38 | Pending |
 | AUDIT-02 | Phase 39 | Complete |
-| AUDIT-03 | Phase 38 | Pending |
+| AUDIT-03 | Phase 45 | Pending |
 | AUDIT-04 | Phase 39 | Complete |
 | AGENT-01 | Phase 40 | Complete |
 | AGENT-02 | Phase 40 | Complete |
 | AGENT-03 | Phase 42 | Complete |
 | GUARD-01 | Phase 41 | Complete |
 | GUARD-02 | Phase 41 | Complete |
-| GUARD-03 | Phase 41 | Pending |
-| EXTRA-01 | Phase 42 | Pending |
+| GUARD-03 | Phase 43 | Pending |
+| EXTRA-01 | Phase 43 | Pending |
 
 **Coverage:**
 - v3.0 requirements: 15 total
@@ -89,4 +93,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after Phase 40 Plan 01*
+*Last updated: 2026-03-26 after gap closure phases 43-45 created*

@@ -113,6 +113,43 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents (1/? plans complete) (completed 2026-03-25)
 - [x] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection (completed 2026-03-25)
 - [x] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation (completed 2026-03-26)
+- [ ] **Phase 43: Wire INDEX.md vao Pipeline** — Goi generateIndex() trong workflow, wire Strategy Injection va Fact Checker cross-validate
+- [ ] **Phase 44: Wire routeQuery vao Workflow** — Thay the inline heuristic bang routeQuery() call
+- [ ] **Phase 45: AUDIT-03 Claim-Level Confidence API** — Structured API cho inline confidence tags trong research-store.js
+
+## Gap Closure Phases (from v3.0 Audit)
+
+### Phase 43: Wire INDEX.md vao Pipeline
+**Goal:** INDEX.md duoc tao tu dong trong pd:research pipeline — unblock Strategy Injection va Fact Checker cross-validate
+**Depends on:** Phase 39, Phase 42
+**Requirements:** STORE-03, GUARD-03, EXTRA-01
+**Gap Closure:** Closes P0 integration gap + broken flow "pd:research -> INDEX.md updated"
+**Success Criteria:**
+  1. workflows/research.md goi generateIndex() sau Evidence Collector step — INDEX.md duoc tao/cap nhat moi lan chay
+  2. Strategy Injection doc INDEX.md thanh cong thay vi silent fallback
+  3. Fact Checker cross-validate qua INDEX.md de tim files cung topic
+Plans: TBD
+
+### Phase 44: Wire routeQuery vao Workflow
+**Goal:** workflows/research.md su dung routeQuery() thay vi inline heuristic — dam bao 10+ file patterns duoc nhan dien
+**Depends on:** Phase 42
+**Requirements:** STORE-04
+**Gap Closure:** Closes P1 integration gap "routeQuery orphaned"
+**Success Criteria:**
+  1. workflows/research.md import va goi routeQuery() de phan loai internal/external
+  2. Tat ca 10+ regex patterns tu routeQuery duoc su dung (khong re-implement inline)
+Plans: TBD
+
+### Phase 45: AUDIT-03 Claim-Level Confidence API
+**Goal:** research-store.js co structured API cho inline confidence tags — createEntry() va parseEntry() xu ly claim-level confidence
+**Depends on:** Phase 38
+**Requirements:** AUDIT-03
+**Gap Closure:** Closes unsatisfied requirement AUDIT-03
+**Success Criteria:**
+  1. createEntry() nhan parameter claims voi confidence per-claim
+  2. parseEntry() extract inline confidence tags tu research file content
+  3. Tests cover ca file-level va claim-level confidence
+Plans: TBD
 
 ## Phase Details
 
@@ -194,3 +231,6 @@ Plans:
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
+| 43. Wire INDEX.md vao Pipeline | 0/? | Pending | - |
+| 44. Wire routeQuery vao Workflow | 0/? | Pending | - |
+| 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
