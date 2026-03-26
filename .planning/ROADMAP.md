@@ -157,7 +157,10 @@ Plans:
   3. Workflow thuc thi 9 buoc theo dung thu tu: detect -> delta -> scope -> smart selection -> dispatch -> reporter -> analyze -> fix -> save
   4. Scanners chay song song toi da 2/wave voi backpressure — wave truoc xong moi bat dau wave sau
   5. 1 scanner loi hoac timeout ghi ket qua inconclusive va khong chan cac scanner con lai
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 47-01-PLAN.md — Mo rong parallel-dispatch.js: buildScannerPlan + mergeScannerResults (TDD)
+- [ ] 47-02-PLAN.md — Tao skill pd:audit + workflow 9 buoc (6 full + 3 stub)
 
 ### Phase 48: Evidence & Smart Selection
 **Goal**: He thong chi quet nhung gi lien quan va xuat evidence chi tiet den tung ham
@@ -208,7 +211,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
-| 47. Luong Audit Cot loi | 0/? | Not started | - |
+| 47. Luong Audit Cot loi | 0/2 | Not started | - |
 | 48. Evidence & Smart Selection | 0/? | Not started | - |
 | 49. Session Delta | 0/? | Not started | - |
 | 50. POC & Fix Phases | 0/? | Not started | - |
