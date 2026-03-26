@@ -114,7 +114,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection (completed 2026-03-25)
 - [x] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation (completed 2026-03-26)
 - [x] **Phase 43: Wire INDEX.md vao Pipeline** — Goi generateIndex() trong workflow, wire Strategy Injection va Fact Checker cross-validate (completed 2026-03-26)
-- [ ] **Phase 44: Wire routeQuery vao Workflow** — Thay the inline heuristic bang routeQuery() call
+- [x] **Phase 44: Wire routeQuery vao Workflow** — Thay the inline heuristic bang routeQuery() call (completed 2026-03-26)
 - [ ] **Phase 45: AUDIT-03 Claim-Level Confidence API** — Structured API cho inline confidence tags trong research-store.js
 
 ## Gap Closure Phases (from v3.0 Audit)
@@ -141,7 +141,7 @@ Plans:
 **Success Criteria:**
   1. workflows/research.md import va goi routeQuery() de phan loai internal/external
   2. Tat ca 10+ regex patterns tu routeQuery duoc su dung (khong re-implement inline)
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
 - [ ] 44-01-PLAN.md — CLI script route-query.js, cap nhat workflow Buoc 1, regenerate snapshots
 
@@ -237,5 +237,5 @@ Plans:
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
 | 43. Wire INDEX.md vao Pipeline | 1/2 | Complete    | 2026-03-26 |
-| 44. Wire routeQuery vao Workflow | 0/1 | In Progress | - |
+| 44. Wire routeQuery vao Workflow | 0/1 | Complete    | 2026-03-26 |
 | 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
