@@ -60,6 +60,20 @@
      File xác minh: {checker_output_path}
      ```
 
+## Bước 4: Cập nhật INDEX.md
+
+Sau khi Fact Checker hoàn tất (per D-01 — chỉ gọi 1 lần cuối pipeline):
+1. Chạy:
+   ```
+   node bin/update-research-index.js
+   ```
+2. Kiểm tra output: script in số lượng entries đã index.
+3. Xác nhận `.planning/research/INDEX.md` tồn tại và có nội dung.
+
+Bước này đảm bảo:
+- Strategy Injection (trong write-code.md, plan.md) đọc INDEX.md thành công thay vì silent fallback
+- Fact Checker cross-validate ở lần chạy SAU sẽ có INDEX.md để tìm files cùng topic
+
 </process>
 
 <rules>
@@ -69,6 +83,8 @@
 - KHÔNG hỏi user giữa pipeline — chạy seamless
 - Cross-validate tự động khi Fact Checker phát hiện files cùng topic
 - Khi phát hiện xung đột: ghi nhận với evidence từ cả 2 phía, KHÔNG tự resolve
+- PHẢI chạy `node bin/update-research-index.js` SAU Fact Checker hoàn tất — INDEX.md phản ánh trạng thái đã xác minh
+- [ ] INDEX.md được tạo/cập nhật sau mỗi lần chạy pipeline
 - Mọi output PHẢI bằng tiếng Việt có dấu
 </rules>
 </content>
