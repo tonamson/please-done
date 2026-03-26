@@ -40,9 +40,49 @@ Tự động phát hiện chế độ hoạt động:
    ```
 5. Ghi `{session_dir}/01-detect.md` với nội dung: mode, output_dir, timestamp ISO
 6. Log: "Chế độ: {mode} — output sẽ ghi vào {output_dir}"
-## Bước 2: Delta-aware (STUB)
-> Phiên bản hiện tại chưa hỗ trợ delta-aware scanning. Treat toàn bộ codebase như full scan. Extension point cho Phase 49.
-Ghi `{session_dir}/02-delta.md` với: status=stub, scope=full-scan, note="Delta-aware chưa được triển khai"
+## Bước 2: Delta-aware
+Phân loại hàm từ evidence phiên cũ để chỉ quét lại những gì thay đổi.
+1. Tìm evidence cũ trong output_dir:
+   ```bash
+   ls ${OUTPUT_DIR}/evidence_sec_*.md 2>/dev/null
+   ```
+2. Nếu KHÔNG có evidence cũ nào:
+   - delta_mode = "full-scan"
+   - Log: "Không tìm thấy evidence phiên cũ — chạy full scan"
+   - Ghi `{session_dir}/02-delta.md` với: status=full-scan, reason="no prior evidence"
+   - Chuyển qua B3
+3. Nếu CÓ evidence cũ:
+   a. Với MỖI evidence file `evidence_sec_{cat}.md`:
+      - Đọc nội dung file bằng Read
+      - Parse frontmatter lấy commit_sha:
+        ```bash
+        node -e "const {parseFrontmatter}=require('./bin/lib/utils');const fm=parseFrontmatter(require('fs').readFileSync('${OUTPUT_DIR}/evidence_sec_${cat}.md','utf8'));console.log(fm.frontmatter.commit_sha||'')"
+        ```
+      - Nếu có commit_sha:
+        ```bash
+        git diff --name-only ${COMMIT_SHA}..HEAD
+        ```
+        Truyền kết quả (danh sách files) vào changedFiles
+      - Nếu KHÔNG có commit_sha (evidence cũ từ trước Phase 49):
+        Treat như full scan cho category này — classifyDelta('', [])
+   b. Gọi classifyDelta:
+      ```bash
+      node -e "
+        const {classifyDelta}=require('./bin/lib/session-delta');
+        const evidence=require('fs').readFileSync('${EVIDENCE_PATH}','utf8');
+        const changed=${CHANGED_FILES_JSON};
+        const result=classifyDelta(evidence, changed);
+        // Convert Map to object for JSON output
+        const fns=Object.fromEntries(result.functions);
+        console.log(JSON.stringify({...result, functions: fns}));
+      "
+      ```
+   c. Lưu kết quả classification vào `{session_dir}/02-delta.md`:
+      - Per category: số hàm SKIP, RE-SCAN, KNOWN-UNFIXED
+      - Tổng: delta_mode="delta", summary counts
+4. Truyền classification results cho B5:
+   - B5 dispatch scanner với bổ sung context: danh sách hàm cần scan lại (RE-SCAN) và hàm mới (NEW)
+   - Hàm SKIP và KNOWN-UNFIXED không cần quét lại — scanner nhận danh sách này để bỏ qua
 ## Bước 3: Scope / parse args
 Parse $ARGUMENTS:
 1. **path** — path cần quét, mặc định "."
@@ -55,16 +95,73 @@ Lấy danh sách 13 valid slugs bằng Bash:
 node -e "const {getAgentConfig}=require('./bin/lib/resource-config');console.log(JSON.stringify(getAgentConfig('pd-sec-scanner').categories))"
 ```
 Xác định categories_to_scan:
-- Không có flag → mặc định --full (13 categories)
-- --full → 13 categories
-- --only cat1,cat2 → validate mỗi slug có trong valid slugs. Slug không hợp lệ → warning và bỏ qua (Pitfall 6: validate slugs trước khi dispatch)
+- --full → 13 categories, SKIP Bước 4
+- --only cat1,cat2 → validate slugs + THÊM 3 base (secrets, misconfig, logging) + de-dup, SKIP Bước 4 (per D-06, D-15). Slug không hợp lệ → warning và bỏ qua
+- Không có flag → chuyển qua Bước 4 Smart Selection
 Ghi `{session_dir}/02-scope.md` với: scan_path, mode (full|only), categories list, flags (poc/auto-fix status), warnings
-## Bước 4: Smart selection (STUB)
-> Phiên bản hiện tại chưa hỗ trợ smart scanner selection. Chạy tất cả categories từ B3. Extension point cho Phase 48.
-Ghi `{session_dir}/03-selection.md` với: status=stub, selected_categories (copy từ B3), note="Smart selection chưa được triển khai"
+## Bước 4: Smart selection
+Nếu --full hoặc --only: SKIP bước này (đã có categories từ B3).
+Không có flag → chạy smart selection (toàn bộ bước này KHÔNG spawn AI — chỉ Bash/Glob/Grep):
+1. **Thu thập project context:**
+   a. Đọc package.json (nếu tồn tại) → lấy deps:
+      ```bash
+      node -e "try{const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));console.log(JSON.stringify([...Object.keys(p.dependencies||{}),...Object.keys(p.devDependencies||{})]))}catch(e){console.log('[]')}"
+      ```
+   b. Đọc requirements.txt (nếu tồn tại) → lấy Python deps:
+      ```bash
+      grep -v '^#' requirements.txt 2>/dev/null | sed 's/[>=<].*//' | tr -d ' ' || echo ""
+      ```
+   c. Glob file extensions: kiểm tra tồn tại của *.jsx, *.tsx, *.vue, *.svelte, *.php, *.ejs, *.pug, *.hbs
+   d. Grep code patterns (3-4 lệnh gom nhóm):
+      - `grep -rl "req\.\(body\|params\|query\)" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
+      - `grep -rl "child_process\|exec(\|spawn(" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
+      - `grep -rl "createHash\|createCipher\|jwt\.sign" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
+      - `grep -rl "app\.\(get\|post\|put\|delete\)(\|router\.\(get\|post\)" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
+   e. Kiểm tra lockfile: test -f package-lock.json || test -f yarn.lock || test -f pnpm-lock.yaml || test -f requirements.txt
+2. **Gọi selectScanners():**
+   ```bash
+   node -e "
+     const {selectScanners}=require('./bin/lib/smart-selection');
+     const ctx={
+       deps: $DEPS_JSON,
+       fileExtensions: $EXTENSIONS_JSON,
+       codePatterns: $CODE_PATTERNS_JSON,
+       hasLockfile: $HAS_LOCKFILE
+     };
+     console.log(JSON.stringify(selectScanners(ctx)));
+   "
+   ```
+3. **Xử lý kết quả:**
+   a. Nếu lowConfidence=false:
+      - Log: "Smart Selection: {selected.length}/{13} scanners, {skipped.length} bỏ qua"
+      - Log từng signal: "  - {signal.id}: {signal.description}"
+      - Dùng selected làm categories_to_scan
+   b. Nếu lowConfidence=true (< 2 signals — per D-05):
+      - Hiển thị prompt:
+        ```
+        Smart Selection kết quả:
+          Tín hiệu tìm được: {signals.length}/12
+          {Liệt kê từng signal}
+          Scanner sẽ chạy ({selected.length}):
+          {Liệt kê selected, đánh dấu base}
+          Scanner bỏ qua ({skipped.length}): {liệt kê skipped}
+          [1] Chạy {selected.length} scanner đã chọn
+          [2] Chạy --full (13 scanner)
+        Chọn (1/2):
+        ```
+      - Nếu user chọn 1: dùng selected
+      - Nếu user chọn 2: dùng ALL_CATEGORIES (13)
+      - Nếu không có interactive (không thể hỏi user): default chạy selected + log warning "Không thể hỏi user — chạy {selected.length} scanner đã chọn"
+4. **Ghi {session_dir}/03-selection.md** với:
+   - status: completed
+   - signals: [{id, description, categories}]
+   - selected_categories: [...]
+   - skipped_categories: [...]
+   - lowConfidence: true/false
+   - user_choice: (nếu lowConfidence=true)
 ## Bước 5: Dispatch scanners
 Đây là bước chính — dispatch scanners song song 2/wave.
-1. Lấy categories từ B3/B4
+1. Lấy categories_to_scan từ B3 (--full/--only) hoặc B4 (smart selection)
 2. Chia categories thành waves of 2 theo logic buildScannerPlan:
    ```bash
    node -e "const {buildScannerPlan}=require('./bin/lib/parallel-dispatch');const plan=buildScannerPlan(categories, 2, scanPath);console.log(JSON.stringify(plan))"
@@ -90,6 +187,34 @@ Ghi `{session_dir}/03-selection.md` với: status=stub, selected_categories (cop
    d. Ghi `{session_dir}/03-dispatch/{category}.md` cho mỗi scanner result
 7. Log sau mỗi wave: "Wave {N}/{totalWaves} hoàn tất: {completed} thành công, {failed} thất bại"
 **QUAN TRỌNG:** Đợi TẤT CẢ scanners trong wave hoàn tất rồi mới bắt đầu wave tiếp theo (backpressure per D-10). KHÔNG dispatch tất cả 13 scanners cùng lúc.
+## Bước 5b: Cập nhật evidence metadata
+Sau khi TẤT CẢ waves dispatch hoàn tất (B5 xong):
+1. Lấy commit SHA hiện tại:
+   ```bash
+   CURRENT_SHA=$(git rev-parse --short HEAD)
+   ```
+2. Với MỖI evidence file mới từ B5 (trong session_dir/03-dispatch/):
+   a. Đọc nội dung evidence file
+   b. Thêm/cập nhật `commit_sha: ${CURRENT_SHA}` vào frontmatter YAML:
+      - Nếu evidence có frontmatter (---...---): thêm trường commit_sha
+      - Nếu không có: tạo frontmatter mới với commit_sha
+   c. Gọi appendAuditHistory để thêm dòng history:
+      ```bash
+      node -e "
+        const {appendAuditHistory}=require('./bin/lib/session-delta');
+        const content=require('fs').readFileSync('${EVIDENCE_PATH}','utf8');
+        const entry={
+          date: new Date().toISOString().split('T')[0],
+          commit: '${CURRENT_SHA}',
+          verdictSummary: '${PASS_COUNT} PASS, ${FLAG_COUNT} FLAG, ${FAIL_COUNT} FAIL',
+          deltaSummary: '${NEW_COUNT} new, ${RESCAN_COUNT} re-scan, ${SKIP_COUNT} skip'
+        };
+        const updated=appendAuditHistory(content, entry);
+        require('fs').writeFileSync('${EVIDENCE_PATH}', updated);
+      "
+      ```
+   d. Copy evidence file ra output_dir (ghi đè file cũ)
+3. Log: "Evidence metadata cập nhật: commit_sha=${CURRENT_SHA}, {N} files có audit history"
 ## Bước 6: Reporter
 Spawn pd-sec-reporter agent:
 - Input: session_dir (chứa tất cả evidence files từ B5 trong 03-dispatch/)
