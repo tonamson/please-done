@@ -142,7 +142,10 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
   2. File security-rules.yaml chua day du patterns, severity, fixes, va FastCode queries cho 13 categories
   3. resource-config.js AGENT_REGISTRY chua 14 entries (13 scanner + 1 reporter) voi dung tier/model mapping
   4. Moi scanner su dung FastCode MCP tool-first (discovery bang tool truoc, AI chi phan tich ket qua)
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 46-01-PLAN.md — Tao security-rules.yaml (13 categories) va template pd-sec-scanner.md
+- [ ] 46-02-PLAN.md — Dang ky AGENT_REGISTRY (9 entries), cap nhat tests, xoa 13 files cu
 
 ### Phase 47: Luong Audit Cot loi
 **Goal**: Nguoi dung co the chay pd:audit va nhan ket qua quet bao mat end-to-end
@@ -204,7 +207,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 46. Nen tang Scanner | 0/? | Not started | - |
+| 46. Nen tang Scanner | 0/2 | Planning complete | - |
 | 47. Luong Audit Cot loi | 0/? | Not started | - |
 | 48. Evidence & Smart Selection | 0/? | Not started | - |
 | 49. Session Delta | 0/? | Not started | - |
