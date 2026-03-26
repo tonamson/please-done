@@ -23,6 +23,7 @@ const {
   appendAuditLog,
   generateIndex,
   routeQuery,
+  parseClaims,
 } = require('../bin/lib/research-store');
 
 // ─── Constants ──────────────────────────────────────────────
@@ -747,5 +748,219 @@ describe('routeQuery — edge cases (fallback external)', () => {
 
   it('whitespace only -> external', () => {
     assert.equal(routeQuery('   '), 'external');
+  });
+});
+
+// ─── parseClaims ──────────────────────────────────────────
+
+const CLAIMS_CONTENT = `---
+agent: evidence-collector
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Auth Module
+confidence: MEDIUM
+---
+# Auth Module
+
+## Bang chung
+
+- API dung JWT tokens \u2014 Source code auth.js (confidence: HIGH)
+- Session timeout 30 phut \u2014 Config docs (confidence: MEDIUM)
+- Rate limiting chua implement -- Grep ket qua (confidence: LOW)
+`;
+
+const CLAIMS_NO_CONF = `---
+agent: test
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Test
+confidence: MEDIUM
+---
+# Test
+
+## Bang chung
+
+- Claim A \u2014 SourceX
+- Claim B -- SourceY
+`;
+
+const CLAIMS_NO_SECTION = `---
+agent: test
+created: 2026-03-25T10:00:00.000Z
+source: internal
+topic: Test
+confidence: MEDIUM
+---
+# Test
+
+No bang chung section here.
+`;
+
+const CLAIMS_EMPTY_SECTION = `# Test
+## Bang chung
+
+## Ket luan
+Done.
+`;
+
+const CLAIMS_NO_SEPARATOR = `# Test
+## Bang chung
+
+- Claim khong co source separator chi tiet
+`;
+
+const CLAIMS_SOURCE_PARENS = `# Test
+## Bang chung
+
+- React hooks (v18) giup state management \u2014 React docs (v18.2) (confidence: HIGH)
+`;
+
+describe('parseClaims — extract structured claims', () => {
+  it('parseClaims(content_with_claims) tra ve 3 objects voi text, source, confidence', () => {
+    const result = parseClaims(CLAIMS_CONTENT);
+    assert.equal(result.length, 3);
+    assert.equal(result[0].text, 'API dung JWT tokens');
+    assert.equal(result[0].source, 'Source code auth.js');
+    assert.equal(result[0].confidence, 'HIGH');
+    assert.equal(result[1].text, 'Session timeout 30 phut');
+    assert.equal(result[1].source, 'Config docs');
+    assert.equal(result[1].confidence, 'MEDIUM');
+    assert.equal(result[2].text, 'Rate limiting chua implement');
+    assert.equal(result[2].source, 'Grep ket qua');
+    assert.equal(result[2].confidence, 'LOW');
+  });
+
+  it('parseClaims(content_without_confidence_tags) tra ve confidence: null', () => {
+    const result = parseClaims(CLAIMS_NO_CONF);
+    assert.equal(result.length, 2);
+    assert.equal(result[0].text, 'Claim A');
+    assert.equal(result[0].source, 'SourceX');
+    assert.equal(result[0].confidence, null);
+    assert.equal(result[1].text, 'Claim B');
+    assert.equal(result[1].source, 'SourceY');
+    assert.equal(result[1].confidence, null);
+  });
+
+  it('parseClaims(content_with_em_dash) va parseClaims(content_with_double_dash) deu parse dung', () => {
+    const result = parseClaims(CLAIMS_CONTENT);
+    // Em dash claims
+    assert.equal(result[0].source, 'Source code auth.js');
+    // Double dash claim
+    assert.equal(result[2].source, 'Grep ket qua');
+  });
+
+  it('parseClaims(content_no_bang_chung_section) tra ve []', () => {
+    const result = parseClaims(CLAIMS_NO_SECTION);
+    assert.deepStrictEqual(result, []);
+  });
+
+  it('parseClaims(content_empty_bang_chung) tra ve []', () => {
+    const result = parseClaims(CLAIMS_EMPTY_SECTION);
+    assert.deepStrictEqual(result, []);
+  });
+
+  it('parseClaims(null) tra ve []', () => {
+    assert.deepStrictEqual(parseClaims(null), []);
+  });
+
+  it('parseClaims(content_claim_no_source_separator) tra ve { text, source: null, confidence: null }', () => {
+    const result = parseClaims(CLAIMS_NO_SEPARATOR);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].text, 'Claim khong co source separator chi tiet');
+    assert.equal(result[0].source, null);
+    assert.equal(result[0].confidence, null);
+  });
+
+  it('parseClaims(content_source_with_parentheses) parse dung — khong nham voi confidence tag', () => {
+    const result = parseClaims(CLAIMS_SOURCE_PARENS);
+    assert.equal(result.length, 1);
+    assert.equal(result[0].text, 'React hooks (v18) giup state management');
+    assert.equal(result[0].source, 'React docs (v18.2)');
+    assert.equal(result[0].confidence, 'HIGH');
+  });
+});
+
+// ─── createEntry voi claims ────────────────────────────────
+
+describe('createEntry — claims rendering', () => {
+  const BASE_OPTS = {
+    agent: 'test',
+    source: 'internal',
+    topic: 'Claims Test',
+    confidence: 'HIGH',
+    created: '2026-03-25T10:00:00.000Z',
+  };
+
+  it('createEntry voi claims[] render inline confidence tags trong ## Bang chung', () => {
+    const result = createEntry({
+      ...BASE_OPTS,
+      claims: [
+        { text: 'API dung JWT tokens', source: 'Source code auth.js', confidence: 'HIGH' },
+        { text: 'Session timeout 30 phut', source: 'Config docs', confidence: 'MEDIUM' },
+      ],
+    });
+    assert.ok(result.content.includes('## Bang chung'));
+    assert.ok(result.content.includes('- API dung JWT tokens \u2014 Source code auth.js (confidence: HIGH)'));
+    assert.ok(result.content.includes('- Session timeout 30 phut \u2014 Config docs (confidence: MEDIUM)'));
+  });
+
+  it('createEntry voi body + claims => body content van con, claims duoc append', () => {
+    const result = createEntry({
+      ...BASE_OPTS,
+      body: '# Custom Content\n\nSome analysis here.\n',
+      claims: [{ text: 'Claim X', source: 'SourceX', confidence: 'LOW' }],
+    });
+    assert.ok(result.content.includes('# Custom Content'));
+    assert.ok(result.content.includes('Some analysis here.'));
+    assert.ok(result.content.includes('## Bang chung'));
+    assert.ok(result.content.includes('- Claim X \u2014 SourceX (confidence: LOW)'));
+  });
+
+  it('createEntry voi body da co ## Bang chung + claims => khong duplicate header', () => {
+    const result = createEntry({
+      ...BASE_OPTS,
+      body: '# Test\n\n## Bang chung\n\n- Existing claim \u2014 OldSource\n',
+      claims: [{ text: 'New claim', source: 'NewSource', confidence: 'HIGH' }],
+    });
+    // Chi co 1 ## Bang chung header
+    const count = (result.content.match(/## Bang chung/g) || []).length;
+    assert.equal(count, 1, 'chi duoc co 1 ## Bang chung header');
+    assert.ok(result.content.includes('- New claim \u2014 NewSource (confidence: HIGH)'));
+  });
+
+  it('createEntry KHONG co claims => backward-compatible', () => {
+    const withoutClaims = createEntry(BASE_OPTS);
+    const expected = createEntry({ ...BASE_OPTS });
+    assert.equal(withoutClaims.content, expected.content);
+  });
+
+  it('createEntry voi claims = [] => backward-compatible', () => {
+    const withEmpty = createEntry({ ...BASE_OPTS, claims: [] });
+    const withoutClaims = createEntry(BASE_OPTS);
+    assert.equal(withEmpty.content, withoutClaims.content);
+  });
+});
+
+// ─── Round-trip ─────────────────────────────────────────────
+
+describe('Round-trip: createEntry claims -> parseClaims', () => {
+  it('claims input khop voi parseClaims output', () => {
+    const inputClaims = [
+      { text: 'JWT auth', source: 'auth.js', confidence: 'HIGH' },
+      { text: 'Session 30min', source: 'config', confidence: 'MEDIUM' },
+    ];
+    const { content } = createEntry({
+      agent: 'test', source: 'internal', topic: 'RT',
+      confidence: 'HIGH', claims: inputClaims,
+      created: '2026-03-25T10:00:00.000Z',
+    });
+    const parsed = parseClaims(content);
+    assert.equal(parsed.length, 2);
+    assert.equal(parsed[0].text, 'JWT auth');
+    assert.equal(parsed[0].source, 'auth.js');
+    assert.equal(parsed[0].confidence, 'HIGH');
+    assert.equal(parsed[1].text, 'Session 30min');
+    assert.equal(parsed[1].source, 'config');
+    assert.equal(parsed[1].confidence, 'MEDIUM');
   });
 });
