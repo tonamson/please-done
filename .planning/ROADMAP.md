@@ -200,7 +200,10 @@ Plans:
   3. He thong tu dong tao fix phases decimal (N.1, N.2...) sap theo nguoc gadget chain (P0 -> P1 -> P2) trong che do milestone
   4. Moi fix phase dung template security-fix-phase.md voi evidence trich dan, huong sua cu the, tieu chi hoan thanh
   5. Phase cuoi cung [SEC-VERIFY] chay lai audit tren cac files da fix de xac nhan sua thanh cong
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 50-01-PLAN.md — TDD gadget-chain.js: detectChains + escalateSeverity + orderFixPriority + templates YAML
+- [ ] 50-02-PLAN.md — pd-sec-fixer agent + security-fix-phase template + wire POC/B6/B8
 
 ### Phase 51: Tich hop Ecosystem
 **Goal**: Pipeline audit ket noi lien mach voi workflow hien tai, nguoi dung khong can nho chay thu cong
@@ -220,5 +223,5 @@ Plans:
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
 | 49. Session Delta | 1/2 | Complete    | 2026-03-26 |
-| 50. POC & Fix Phases | 0/? | Not started | - |
+| 50. POC & Fix Phases | 0/2 | Not started | - |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
