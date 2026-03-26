@@ -132,7 +132,7 @@ function createEntry(options) {
     throw new Error('thieu tham so options');
   }
 
-  const { agent, source, topic, confidence, body, id, slug, created } = options;
+  const { agent, source, topic, confidence, body, id, slug, created, claims } = options;
 
   // Validate required fields
   if (!agent || typeof agent !== 'string') {
@@ -166,8 +166,35 @@ function createEntry(options) {
   // Build body
   const bodyContent = body || `# ${topic}\n\n## Bang chung\n\n_(Chua co bang chung)_\n`;
 
+  // Render claims neu co
+  let finalBody = bodyContent;
+  if (Array.isArray(claims) && claims.length > 0) {
+    const renderedClaims = claims.map(c => {
+      let line = `- ${c.text}`;
+      if (c.source) line += ` \u2014 ${c.source}`;
+      if (c.confidence && validateConfidence(c.confidence)) {
+        line += ` (confidence: ${c.confidence.toUpperCase()})`;
+      }
+      return line;
+    }).join('\n');
+
+    if (finalBody.includes('## Bang chung')) {
+      // Append claims vao cuoi section Bang chung hien co
+      const sectionEnd = finalBody.match(/^## Bang chung\s*\n([\s\S]*?)(?=^## |\s*$)/m);
+      if (sectionEnd) {
+        const insertPos = sectionEnd.index + sectionEnd[0].length;
+        const before = finalBody.slice(0, insertPos).trimEnd();
+        const after = finalBody.slice(insertPos);
+        finalBody = before + '\n' + renderedClaims + '\n' + after;
+      }
+    } else {
+      // Them section ## Bang chung moi
+      finalBody = finalBody.trimEnd() + '\n\n## Bang chung\n\n' + renderedClaims + '\n';
+    }
+  }
+
   // Build content
-  const content = `---\n${buildFrontmatter(fm)}\n---\n${bodyContent}`;
+  const content = `---\n${buildFrontmatter(fm)}\n---\n${finalBody}`;
 
   // Generate filename
   const filename = generateFilename({ source, topic, id, slug });
@@ -249,24 +276,64 @@ function validateEvidence(content) {
     return { valid: false, warnings };
   }
 
-  // Extract noi dung section (giua ## Bang chung va ## tiep theo hoac EOF)
-  const sectionMatch = content.match(/^## Bang chung\s*\n([\s\S]*?)(?=^## |\s*$)/m);
-  if (!sectionMatch || !sectionMatch[1].trim()) {
+  // Dung parseClaims thay vi tu parse (D-07)
+  const claims = parseClaims(content);
+  if (claims.length === 0) {
     warnings.push('section Bang chung rong');
     return { valid: false, warnings };
   }
 
-  // Tim cac claims (dong bat dau bang -)
-  const claims = sectionMatch[1].match(/^- .+/gm) || [];
-
-  // Kiem tra tung claim co source separator khong
+  // Kiem tra tung claim co source separator khong (giu nguyen logic)
   for (const claim of claims) {
-    if (!claim.includes('\u2014') && !claim.includes('--')) {
-      warnings.push(`claim thieu source: ${claim.slice(0, 60)}${claim.length > 60 ? '...' : ''}`);
+    if (claim.source === null) {
+      const truncated = claim.text.slice(0, 60) + (claim.text.length > 60 ? '...' : '');
+      warnings.push(`claim thieu source: - ${truncated}`);
     }
   }
 
   return { valid: warnings.length === 0, warnings };
+}
+
+// ─── parseClaims ──────────────────────────────────────────
+
+/**
+ * Extract structured claims tu section ## Bang chung.
+ * Moi claim co format: `- [text] — [source] (confidence: LEVEL)`
+ * Cho phep em dash (—) va double dash (--) lam source separator.
+ *
+ * @param {string} content - Noi dung research file
+ * @returns {Array<{ text: string, source: string|null, confidence: string|null }>}
+ */
+function parseClaims(content) {
+  if (content == null || typeof content !== 'string') return [];
+
+  // Extract section ## Bang chung — tat ca noi dung cho den ## tiep theo hoac EOF
+  const sectionMatch = content.match(/## Bang chung\s*\n([\s\S]*?)(?=\n## |$)/);
+  if (!sectionMatch || !sectionMatch[1].trim()) return [];
+
+  const lines = sectionMatch[1].match(/^- .+/gm) || [];
+  return lines.map(line => {
+    const text = line.slice(2).trim(); // Bo "- " prefix
+
+    // Tim source separator: em dash hoac double dash (D-06)
+    const sepMatch = text.match(/^(.+?)\s*(?:\u2014|--)\s*(.+)$/);
+    if (!sepMatch) {
+      return { text, source: null, confidence: null };
+    }
+
+    const claimText = sepMatch[1].trim();
+    let sourceText = sepMatch[2].trim();
+    let confidence = null;
+
+    // Extract confidence tag tu cuoi source (D-09: null neu khong co)
+    const confMatch = sourceText.match(/^(.*?)\s*\(confidence:\s*(HIGH|MEDIUM|LOW)\)\s*$/i);
+    if (confMatch) {
+      sourceText = confMatch[1].trim();
+      confidence = confMatch[2].toUpperCase();
+    }
+
+    return { text: claimText, source: sourceText, confidence };
+  });
 }
 
 // ─── appendAuditLog ───────────────────────────────────────
@@ -393,6 +460,7 @@ module.exports = {
   validateConfidence,
   generateFilename,
   validateEvidence,
+  parseClaims,
   appendAuditLog,
   generateIndex,
   routeQuery,
