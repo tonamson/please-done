@@ -40,7 +40,7 @@ created: 2026-03-26
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
 | 47-01-01 | 01 | 1 | BATCH-01, BATCH-02 | unit | `node --test test/smoke-parallel-dispatch.test.js` | ❌ W0 | ⬜ pending |
 | 47-02-01 | 02 | 1 | CORE-01, CORE-02, CORE-03 | content check | `grep "pd:audit" commands/pd/audit.md` | ❌ W0 | ⬜ pending |
-| 47-02-02 | 02 | 1 | CORE-02 | content check | `grep "detect" commands/pd/workflows/audit.md` | ❌ W0 | ⬜ pending |
+| 47-02-02 | 02 | 1 | CORE-02 | content check | `grep "detect" workflows/audit.md` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
