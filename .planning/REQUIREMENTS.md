@@ -12,7 +12,7 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 - [ ] **STORE-01**: Thu muc internal/ luu ket qua phan tich codebase voi frontmatter `source: internal`, `scope: [project-name]`, `created: ISO-8601`
 - [ ] **STORE-02**: Thu muc external/ luu ket qua tra cuu web/docs voi ten `RES-[ID]-[SLUG].md`, KHONG GHI DE — moi ban la file rieng biet co so tang dan
 - [x] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
-- [ ] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
+- [x] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
 
 ### Kiem chung Chong Ao Giac (AUDIT)
 
@@ -25,7 +25,7 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 - [x] **AGENT-01**: Evidence Collector (builder/sonnet) thu thap bang chung tu 2+ nguon doc lap, ghi ket qua theo format chuan vao internal/ hoac external/
 - [x] **AGENT-02**: Fact Checker (architect/opus) xac minh source con valid, phat hien claim thieu bang chung, danh dau "KHONG XAC MINH DUOC" cho confidence LOW
-- [ ] **AGENT-03**: pd research tu dong chay pipeline Evidence Collector -> Fact Checker (spawn tuan tu, output Collector la input Checker)
+- [x] **AGENT-03**: pd research tu dong chay pipeline Evidence Collector -> Fact Checker (spawn tuan tu, output Collector la input Checker)
 
 ### Bao ve Workflow (GUARD)
 
@@ -69,14 +69,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 | STORE-01 | Phase 38 | Pending |
 | STORE-02 | Phase 38 | Pending |
 | STORE-03 | Phase 39 | Complete |
-| STORE-04 | Phase 42 | Pending |
+| STORE-04 | Phase 42 | Complete |
 | AUDIT-01 | Phase 38 | Pending |
 | AUDIT-02 | Phase 39 | Complete |
 | AUDIT-03 | Phase 38 | Pending |
 | AUDIT-04 | Phase 39 | Complete |
 | AGENT-01 | Phase 40 | Complete |
 | AGENT-02 | Phase 40 | Complete |
-| AGENT-03 | Phase 42 | Pending |
+| AGENT-03 | Phase 42 | Complete |
 | GUARD-01 | Phase 41 | Complete |
 | GUARD-02 | Phase 41 | Complete |
 | GUARD-03 | Phase 41 | Pending |

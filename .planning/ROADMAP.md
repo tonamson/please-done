@@ -181,9 +181,9 @@ Plans:
   4. Skill file `pd-research.md` va workflow `research.md` duoc them vao converter pipeline voi snapshots cap nhat
 **Plans**: 3 plans
 Plans:
-- [ ] 42-01-PLAN.md — TDD routeQuery pure function trong research-store.js
-- [ ] 42-02-PLAN.md — Skill file pd:research va workflow research.md
-- [x] 42-03-PLAN.md — Converter pipeline snapshot regeneration
+- [x] 42-01-PLAN.md — TDD routeQuery pure function trong research-store.js
+- [x] 42-02-PLAN.md — Skill file pd:research va workflow research.md
+- [ ] 42-03-PLAN.md — Converter pipeline snapshot regeneration
 
 ## Progress
 
@@ -193,4 +193,4 @@ Plans:
 | 39. Tieu chuan Kiem chung & Chi muc | 1/1 | Complete    | 2026-03-25 |
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
-| 42. Lenh pd research | 1/3 | In progress | - |
+| 42. Lenh pd research | 2/3 | In Progress|  |
