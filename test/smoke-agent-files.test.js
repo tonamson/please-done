@@ -176,7 +176,8 @@ describe('Agent files body', () => {
 
 describe('Agent files consistency voi resource-config', () => {
   it('model trong agent files khop voi TIER_MAP', () => {
-    for (const [agentName, agentInfo] of Object.entries(AGENT_REGISTRY)) {
+    for (const agentName of AGENT_NAMES) {
+      const agentInfo = AGENT_REGISTRY[agentName];
       const fm = parseAgentFrontmatter(join(AGENTS_DIR, `${agentName}.md`));
       const expectedModel = TIER_MAP[agentInfo.tier].model;
       assert.equal(fm.model, expectedModel,
@@ -185,7 +186,8 @@ describe('Agent files consistency voi resource-config', () => {
   });
 
   it('tools trong agent files khop voi AGENT_REGISTRY', () => {
-    for (const [agentName, agentInfo] of Object.entries(AGENT_REGISTRY)) {
+    for (const agentName of AGENT_NAMES) {
+      const agentInfo = AGENT_REGISTRY[agentName];
       const fm = parseAgentFrontmatter(join(AGENTS_DIR, `${agentName}.md`));
       // Kiem tra moi tool trong AGENT_REGISTRY co trong agent file
       for (const tool of agentInfo.tools) {

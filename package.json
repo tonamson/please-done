@@ -60,6 +60,7 @@
     "url": "https://github.com/tonamson/please-done.git"
   },
   "devDependencies": {
-    "js-tiktoken": "^1.0.21"
+    "js-tiktoken": "^1.0.21",
+    "js-yaml": "^4.1.1"
   }
 }
