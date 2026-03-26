@@ -11,7 +11,7 @@
  * - shouldDegrade: kiem tra error co can ha cap tu parallel sang sequential khong
  */
 
-'use strict';
+"use strict";
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -20,9 +20,9 @@
  * scout = haiku (nhe, nhanh), builder = sonnet (trung binh), architect = opus (nang, chinh xac)
  */
 const TIER_MAP = {
-  scout:     { model: 'haiku',  effort: 'low',    maxTurns: 15 },
-  builder:   { model: 'sonnet', effort: 'medium', maxTurns: 25 },
-  architect: { model: 'opus',   effort: 'high',   maxTurns: 30 },
+  scout: { model: "haiku", effort: "low", maxTurns: 15 },
+  builder: { model: "sonnet", effort: "medium", maxTurns: 25 },
+  architect: { model: "opus", effort: "high", maxTurns: 30 },
 };
 
 /**
@@ -30,29 +30,71 @@ const TIER_MAP = {
  * Moi agent co 1 tier va danh sach tools duoc phep dung.
  */
 const AGENT_REGISTRY = {
-  'pd-bug-janitor':    { tier: 'scout',     tools: ['Read', 'Glob', 'Grep', 'AskUserQuestion', 'Bash'] },
-  'pd-code-detective': { tier: 'builder',   tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-  'pd-doc-specialist': { tier: 'scout',     tools: ['Read', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs'] },
-  'pd-repro-engineer': { tier: 'builder',   tools: ['Read', 'Write', 'Edit', 'Bash'] },
-  'pd-fix-architect':  { tier: 'architect',  tools: ['Read', 'Write', 'Edit', 'Bash', 'Glob', 'Grep'] },
-  'pd-evidence-collector': { tier: 'builder', tools: ['Read', 'Glob', 'Grep', 'Write', 'Bash', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs'] },
-  'pd-fact-checker':   { tier: 'architect',  tools: ['Read', 'Glob', 'Grep', 'Bash'] },
+  "pd-bug-janitor": {
+    tier: "scout",
+    tools: ["Read", "Glob", "Grep", "AskUserQuestion", "Bash"],
+  },
+  "pd-code-detective": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"],
+  },
+  "pd-doc-specialist": {
+    tier: "scout",
+    tools: [
+      "Read",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+    ],
+  },
+  "pd-repro-engineer": {
+    tier: "builder",
+    tools: ["Read", "Write", "Edit", "Bash"],
+  },
+  "pd-fix-architect": {
+    tier: "architect",
+    tools: ["Read", "Write", "Edit", "Bash", "Glob", "Grep"],
+  },
+  "pd-evidence-collector": {
+    tier: "builder",
+    tools: [
+      "Read",
+      "Glob",
+      "Grep",
+      "Write",
+      "Bash",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+    ],
+  },
+  "pd-fact-checker": {
+    tier: "architect",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
 };
 
 /**
  * Patterns nhan dien heavy tools — agent co tool match pattern nay se bi gioi han.
  * Hien tai chi co fastcode (indexing toan bo codebase).
  */
-const HEAVY_TOOL_PATTERNS = ['mcp__fastcode__'];
+const HEAVY_TOOL_PATTERNS = ["mcp__fastcode__"];
 
-/** So luong agent chay song song toi da. */
+/** So luong agent chay song song toi da (legacy — dung getAdaptiveParallelLimit() thay the). */
 const PARALLEL_LIMIT = 2;
+
+/** Gioi han cung cho adaptive parallel. */
+const PARALLEL_MIN = 2;
+const PARALLEL_MAX = 4;
+const PARALLEL_DEFAULT = 3;
 
 /** Nguong thoi gian (ms) de coi la timeout can ha cap. */
 const DEGRADATION_TIMEOUT_MS = 120_000;
 
 /** Error codes bao hieu can ha cap tu parallel sang sequential. */
-const DEGRADATION_CODES = new Set(['TIMEOUT', 'RESOURCE_EXHAUSTED', 'RATE_LIMIT']);
+const DEGRADATION_CODES = new Set([
+  "TIMEOUT",
+  "RESOURCE_EXHAUSTED",
+  "RATE_LIMIT",
+]);
 
 /** Regex match message bao hieu agent spawn that bai. */
 const AGENT_FAIL_RE = /agent.*fail/i;
@@ -67,8 +109,8 @@ const AGENT_FAIL_RE = /agent.*fail/i;
  * @throws {Error} Khi tier la null/undefined hoac khong hop le
  */
 function getModelForTier(tier) {
-  if (tier == null || typeof tier !== 'string') {
-    throw new Error('thieu tham so tier');
+  if (tier == null || typeof tier !== "string") {
+    throw new Error("thieu tham so tier");
   }
 
   const normalized = tier.toLowerCase();
@@ -92,8 +134,8 @@ function getModelForTier(tier) {
  * @throws {Error} Khi agentName la null/undefined hoac khong ton tai
  */
 function getAgentConfig(agentName) {
-  if (agentName == null || typeof agentName !== 'string') {
-    throw new Error('thieu tham so agentName');
+  if (agentName == null || typeof agentName !== "string") {
+    throw new Error("thieu tham so agentName");
   }
 
   const agent = AGENT_REGISTRY[agentName];
@@ -117,12 +159,50 @@ function getAgentConfig(agentName) {
 // ─── getParallelLimit ────────────────────────────────────────
 
 /**
- * Tra ve so luong agent chay song song toi da.
+ * Tra ve so luong agent chay song song toi da (legacy, hardcode).
  *
  * @returns {number}
  */
 function getParallelLimit() {
   return PARALLEL_LIMIT;
+}
+
+// ─── getAdaptiveParallelLimit ────────────────────────────────
+
+/**
+ * Tra ve so workers toi uu dua tren CPU/RAM thuc te cua may.
+ * Khong dung AI — chay bang os module, ket qua tuc thi.
+ *
+ * Logic:
+ * - CPU <= 4 cores HOAC RAM trong < 2GB → min (2)
+ * - CPU >= 8 cores VA RAM trong > 4GB    → max (4)
+ * - Con lai                              → default (3)
+ *
+ * @returns {{ workers: number, reason: string, cpu: number, freeMemGB: string }}
+ */
+function getAdaptiveParallelLimit() {
+  const os = require("os");
+  const cpuCount = os.cpus().length;
+  const freeMemBytes = os.freemem();
+  const freeMemGB = (freeMemBytes / 1024 ** 3).toFixed(1);
+
+  let workers = PARALLEL_DEFAULT;
+  let reason = "default";
+
+  if (cpuCount <= 4 || freeMemBytes < 2 * 1024 ** 3) {
+    workers = PARALLEL_MIN;
+    reason =
+      cpuCount <= 4
+        ? `CPU chi co ${cpuCount} cores`
+        : `RAM trong chi con ${freeMemGB}GB`;
+  } else if (cpuCount >= 8 && freeMemBytes > 4 * 1024 ** 3) {
+    workers = PARALLEL_MAX;
+    reason = `CPU ${cpuCount} cores, RAM trong ${freeMemGB}GB — du manh`;
+  } else {
+    reason = `CPU ${cpuCount} cores, RAM trong ${freeMemGB}GB — muc trung binh`;
+  }
+
+  return { workers, reason, cpu: cpuCount, freeMemGB };
 }
 
 // ─── isHeavyAgent ────────────────────────────────────────────
@@ -138,8 +218,8 @@ function isHeavyAgent(agentName) {
   const agent = AGENT_REGISTRY[agentName];
   if (!agent) return false;
 
-  return agent.tools.some(tool =>
-    HEAVY_TOOL_PATTERNS.some(pattern => tool.startsWith(pattern))
+  return agent.tools.some((tool) =>
+    HEAVY_TOOL_PATTERNS.some((pattern) => tool.startsWith(pattern)),
   );
 }
 
@@ -156,13 +236,17 @@ function isHeavyAgent(agentName) {
  * @returns {boolean} true neu can ha cap
  */
 function shouldDegrade(error) {
-  if (!error || typeof error !== 'object') return false;
+  if (!error || typeof error !== "object") return false;
 
   // Check error code
   if (error.code && DEGRADATION_CODES.has(error.code)) return true;
 
   // Check duration timeout
-  if (typeof error.duration === 'number' && error.duration > DEGRADATION_TIMEOUT_MS) return true;
+  if (
+    typeof error.duration === "number" &&
+    error.duration > DEGRADATION_TIMEOUT_MS
+  )
+    return true;
 
   // Check message pattern
   if (error.message && AGENT_FAIL_RE.test(error.message)) return true;
@@ -176,10 +260,14 @@ module.exports = {
   getModelForTier,
   getAgentConfig,
   getParallelLimit,
+  getAdaptiveParallelLimit,
   isHeavyAgent,
   shouldDegrade,
   TIER_MAP,
   AGENT_REGISTRY,
   PARALLEL_LIMIT,
+  PARALLEL_MIN,
+  PARALLEL_MAX,
+  PARALLEL_DEFAULT,
   HEAVY_TOOL_PATTERNS,
 };
