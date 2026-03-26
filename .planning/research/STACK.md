@@ -1,433 +1,258 @@
-# Stack Research: v3.0 Research Squad
+# Technology Stack: v4.0 OWASP Security Audit
 
-**Domain:** Anti-hallucination research agents voi structured storage, audit reports, workflow guards
-**Researched:** 2026-03-25
+**Project:** v4.0 OWASP Security Audit (`pd:audit`)
+**Researched:** 2026-03-26
 **Confidence:** HIGH
-**Scope:** CHI nhung thu CAN THEM cho v3.0. Stack hien tai (Node.js 18+, CommonJS, zero runtime deps, 30+ JS modules, 601+ tests, node:test runner, 5 agent definitions, evidence-protocol.js, session-manager.js, resource-config.js) da validated va KHONG re-research.
+**Scope:** CHI nhung thu CAN THEM cho v4.0. Stack hien tai (Node.js 16.7+, CommonJS, 1 devDep js-tiktoken, 22 JS modules, 13 skills, 11 workflows, 13 pd-sec-* agents, resource-config.js, parallel-dispatch.js, evidence-protocol.js, session-manager.js) da validated va KHONG re-research.
 
 ## Quyet Dinh Tong Quat
 
-**KHONG them bat ky runtime dependency nao.** v3.0 Research Squad xay dung hoan toan bang:
+**Them 1 runtime dependency: `js-yaml` ^4.1.0** (22KB, zero transitive deps). Ngoai ra, xay dung hoan toan bang mo rong modules hien co va tao modules moi theo pure function pattern.
 
-1. **Research agent definition files** (`commands/pd/agents/pd-evidence-collector.md`, `pd-fact-checker.md`) — Claude Code native subagent format, mo rong pattern tu v2.1
-2. **Workflow markdown moi** (`workflows/research.md`) — huong dan AI thu thap + xac minh evidence
-3. **Skill definition moi** (`commands/pd/research.md`) — lenh `pd research` entry point
-4. **Pure function JS modules** (`bin/lib/`) — research storage parser, audit report generator, confidence scorer
-5. **Guard reference files** (`references/guard-research.md`, `references/guard-evidence.md`) — micro-templates cho workflow enforcement
-6. **Markdown storage** (`.planning/research/internal/`, `.planning/research/external/`, `.planning/research/INDEX.md`) — structured file hierarchy
+Ly do can js-yaml:
+- `security-rules.yaml` co nested objects 3+ cap (category -> patterns -> severity -> file_globs) — `parseFrontmatter()` trong utils.js chi xu ly flat key-value va array 1 cap
+- Tu viet nested YAML parser la loi va ton thoi gian — 22KB dependency la chap nhan duoc
+- js-yaml 4.x la industry standard (25K+ npm dependents), zero transitive deps, stable API tu 2021
 
-Ly do KHONG them dependency:
-- Du an co ZERO runtime dependencies — thiet ke co chu dich (constraint tu PROJECT.md)
-- Tat ca chuc nang moi la text processing (parse markdown, validate structure, score confidence) — Node.js built-in du
-- Pattern da duoc chung minh o v2.1: evidence-protocol.js, truths-parser.js, session-manager.js deu la pure functions khong can dependency
-- Research storage = markdown files phan loai — KHONG can database
+Ly do KHONG them gi khac:
+- 13 scanner agents da ton tai (`pd-sec-*.md`) voi Grep/Glob/FastCode MCP — KHONG can them static analysis tool
+- parallel-dispatch.js + resource-config.js da co wave execution — chi can tong quat hoa
+- evidence-protocol.js + session-manager.js da co storage pattern — chi can mo rong
+- Constraint du an: "No Build Step", Node.js 16.7+, backward compatible
 
 ## Recommended Stack
 
-### Agent Definitions (MOI — 2 agents cho Research Squad)
+### Dependency Moi
 
-| Agent File | Tier/Model | Purpose | Tools |
-|------------|-----------|---------|-------|
-| `commands/pd/agents/pd-evidence-collector.md` | `builder` (sonnet) | Thu thap evidence tu codebase (internal) va documentation (external). Ghi structured research findings. | Read, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs |
-| `commands/pd/agents/pd-fact-checker.md` | `scout` (haiku) | Xac minh claims tu evidence collector. Cross-reference nhieu nguon. Gan confidence level. | Read, Glob, Grep, mcp__context7__resolve-library-id, mcp__context7__query-docs |
+| Technology | Version | Purpose | Why |
+|------------|---------|---------|-----|
+| js-yaml | ^4.1.0 | Parse `security-rules.yaml` config file | Nhe nhat trong cac YAML parser (22KB, zero transitive deps). API don gian: `yaml.load(str)` tra ve JS object. 25K+ npm dependents. Tuong thich Node.js >=14. Stable — khong co breaking change ke tu 2021. |
 
-**Tai sao chon nhu vay:**
-- **Evidence Collector = sonnet (builder)** vi can doc code, tra cuu docs, tong hop findings — can suy luan trung binh, tuong tu pd-code-detective
-- **Fact Checker = haiku (scout)** vi chi can cross-reference claims voi docs/code — don gian, nhanh, re, tuong tu pd-doc-specialist
-- **Chi 2 agents** thay vi nhieu hon vi: (1) pipeline don gian = it loi hon, (2) 2 la du cho collect -> verify, (3) giu nhat quan voi RESOURCE_LIMITS.maxConcurrentAgents = 2
+**Tai sao js-yaml thay vi yaml (eemeli)?**
+- `yaml` (eemeli) nang hon (27KB gzip) voi nhieu feature khong can (YAML 1.2 full spec, custom types, comment preservation, document streaming)
+- Du an chi can `yaml.load()` 1 file config — js-yaml du suc
+- js-yaml la dependency gian tiep qua promptfoo ecosystem nen developer da quen API
 
-**Tai sao KHONG them WebSearch/WebFetch vao agent tools:**
-- WebSearch va WebFetch la tools cua session chinh (orchestrator), KHONG phai cua subagents
-- Subagents hoat dong trong sandbox voi tool restriction — chi dung tools trong `allowed-tools`
-- Orchestrator co the thu thap web results TRUOC roi truyen noi dung vao agent qua prompt context
-- Giu agents tap trung vao codebase analysis va doc verification — khong phan tan
+**Tai sao khong mo rong parseFrontmatter()?**
+- `parseFrontmatter()` trong utils.js duoc thiet ke cho flat YAML frontmatter (key: value, key: [array])
+- `security-rules.yaml` can nested objects: `categories.sql-injection.patterns[0]` — 3+ cap
+- Mo rong parseFrontmatter() de xu ly nested = viet lai YAML parser = xau hon dung thu vien chuan
 
-### Module JS Moi Can Tao
+### Module Hien Co — Can Mo Rong
 
-| Module | File | Purpose | Pattern | Inputs/Outputs |
-|--------|------|---------|---------|----------------|
-| Research Storage | `bin/lib/research-storage.js` | Parse/validate `.planning/research/` hierarchy, tao INDEX.md, phan loai internal/external | Pure function, tuong tu session-manager.js | Input: directory listing + file contents. Output: structured index, validation warnings |
-| Audit Reporter | `bin/lib/audit-reporter.js` | Tao bao cao audit tu research findings voi metadata, evidence links, confidence scoring | Pure function, tuong tu report-filler.js | Input: research findings array. Output: formatted markdown report |
-| Confidence Scorer | `bin/lib/confidence-scorer.js` | Cham diem confidence cho tung claim dua tren so nguon, do tin cay, do moi | Pure function, tuong tu mermaid-validator.js | Input: claim object voi sources. Output: { level: HIGH/MEDIUM/LOW, reason, score } |
+| Module | File | Hien Tai | Mo Rong Cho v4.0 | Backward Compatible? |
+|--------|------|----------|-------------------|---------------------|
+| resource-config.js | `bin/lib/resource-config.js` | AGENT_REGISTRY cho 9 agents (bug 5 + research 2 + evidence 1 + fact 1) | Them 13 sec-scanner agents (tier `scout`) + 1 sec-reporter (tier `builder`) vao registry. Tong: 23 agents. | Co — them entries moi, khong sua entries cu |
+| parallel-dispatch.js | `bin/lib/parallel-dispatch.js` | `buildParallelPlan()` hardcode cho 2 agents (detective + doc-spec) | Them `buildBatchPlan(agents[], maxParallel)` — tong quat hoa cho N agents chia waves. `buildParallelPlan()` van giu nguyen cho backward compat. | Co — them function moi, khong sua function cu |
+| evidence-protocol.js | `bin/lib/evidence-protocol.js` | 3 outcome types: root_cause, checkpoint, inconclusive | Them outcome types: `vulnerability_found`, `no_issue`, `needs_manual_review`. Them `validateSecurityEvidence()` cho evidence_sec_*.md format. | Co — them types moi, khong xoa types cu |
+| session-manager.js | `bin/lib/session-manager.js` | Debug sessions S{NNN}-{slug} | Them `createSecuritySession()` voi prefix `SEC{NNN}` va `session_type: 'security'` metadata. Them `listSecuritySessions()` loc theo type. | Co — them functions moi, session_type field optional |
+| plan-checker.js | `bin/lib/plan-checker.js` | 7 checks (CHECK-01 den CHECK-07) | Them CHECK-08: Security Gate — kiem tra SECURITY_REPORT.md ton tai va khong co CRITICAL unfixed truoc khi complete-milestone. | Co — them check moi vao check registry |
 
-**Tai sao 3 modules rieng biet thay vi 1 module lon:**
-- Nhat quan voi du an: moi module 1 trach nhiem (evidence-protocol.js, truths-parser.js, session-manager.js deu nhu vay)
-- Testable doc lap: research-storage test khong phu thuoc confidence-scorer
-- Composable: audit-reporter goi confidence-scorer, research-storage cung cap data cho ca hai
+### Module Moi Can Tao
 
-### Module Hien Co Can Mo Rong
+| Module | File | Purpose | Pattern | Dependencies |
+|--------|------|---------|---------|-------------|
+| security-rules-loader.js | `bin/lib/security-rules-loader.js` | Load + validate `security-rules.yaml`, tra ve structured config. Validate schema: required fields (agent, owasp, severity), severity enum (CRITICAL/HIGH/MEDIUM/LOW/INFO). | Pure function: nhan YAML string → tra JS object + validation warnings | `js-yaml` (load), khong co dependency khac |
+| security-scanner-dispatch.js | `bin/lib/security-scanner-dispatch.js` | Smart Scanner Selection: phan tich project context (tech stack, file types) de chon scanner lien quan. Chia waves cho batch execution. | Pure function: nhan project context + rules config → tra dispatch plan (waves array) | `security-rules-loader.js`, `resource-config.js` |
+| security-delta.js | `bin/lib/security-delta.js` | Session Delta: so sanh findings phien moi vs phien cu. Phan loai: NEW / KNOWN-UNFIXED / RE-VERIFY / FIXED. | Pure function: nhan 2 arrays findings → tra delta object | Khong co dependency ngoai |
+| security-report-builder.js | `bin/lib/security-report-builder.js` | Gop 13 evidence_sec_*.md files thanh SECURITY_REPORT.md voi OWASP mapping, severity stats, remediation priority. | Pure function: nhan evidence contents map → tra markdown string | `evidence-protocol.js` |
+| security-fix-planner.js | `bin/lib/security-fix-planner.js` | Tu dong tao fix phases theo gadget chain order (che do milestone). Xac dinh dependency giua vulnerabilities. | Pure function: nhan findings + gadget chains → tra phases array | Khong co dependency ngoai |
 
-| Module | File | Thay Doi | Ly Do |
-|--------|------|---------|-------|
-| evidence-protocol.js | `bin/lib/evidence-protocol.js` | Them OUTCOME_TYPES cho research outcomes: `verified`, `unverified`, `contradicted` | Research agents can outcome types khac voi debug agents. Mo rong OUTCOME_TYPES la backward-compatible (existing types khong bi anh huong). |
-| resource-config.js | `bin/lib/resource-config.js` | Them 2 agent moi vao AGENT_REGISTRY: pd-evidence-collector (builder), pd-fact-checker (scout) | De test verify agent config nhat quan voi agent files. Pattern da co tu v2.1. |
-| plan-checker.js | `bin/lib/plan-checker.js` | Them CHECK-06: Research Gate — kiem tra plan co reference den research findings khi claim ve thu vien/pattern | Workflow Guard: Plan-Gate. Bat buoc plan phai dan chung research khi claim ve technology. |
-| utils.js | `bin/lib/utils.js` | KHONG thay doi | parseFrontmatter, assembleMd da du cho modules moi. |
-
-### Skill Definition Moi
+### Skill va Workflow Moi
 
 | File | Purpose | Pattern |
 |------|---------|---------|
-| `commands/pd/research.md` | Lenh `pd research` — entry point cho research workflow | Tuong tu commands/pd/plan.md: YAML frontmatter + guards + context + execution_context + process |
+| `commands/pd/audit.md` | Lenh `pd:audit` — entry point skill definition | Tuong tu commands/pd/research.md: YAML frontmatter + guards + 2 che do (doc lap / tich hop milestone) |
+| `workflows/audit.md` | Quy trinh audit day du: analyze context → select scanners → batch dispatch → collect evidence → build report → delta comparison | Tuong tu workflows/research.md: buoc-by-buoc instructions cho AI |
 
-### Workflow Moi
+### Config File Moi
 
-| File | Purpose | Pattern |
-|------|---------|---------|
-| `workflows/research.md` | Quy trinh research day du: detect context -> collect evidence -> verify -> store -> report | Tuong tu workflows/plan.md: buoc-by-buoc instructions cho AI |
+| File | Purpose | Format | Loaded By |
+|------|---------|--------|-----------|
+| `references/security-rules.yaml` | Dinh nghia 13 OWASP categories: agent mapping, severity defaults, Grep patterns, file globs, skip dirs | YAML (nested objects) | `security-rules-loader.js` via `js-yaml` |
 
-### Guard Reference Files Moi
+**Vi du cau truc security-rules.yaml:**
 
-| File | Purpose | Pattern |
-|------|---------|---------|
-| `references/guard-research.md` | Kiem tra `.planning/research/INDEX.md` ton tai truoc khi plan reference research | Tuong tu guard-context.md: 1-2 dong checklist |
-| `references/guard-evidence.md` | Kiem tra research finding co confidence level va source truoc khi dung trong plan | Tuong tu guard-context7.md: kiem tra tool hoat dong |
-
-### Research Storage Format (MOI — .planning/research/)
-
-```
-.planning/research/
-  INDEX.md                    # Danh muc tat ca research findings, auto-generated
-  internal/                   # Findings tu codebase hien tai
-    INT-001-auth-flow.md      # Danh so, slug, structured
-    INT-002-db-schema.md
-  external/                   # Findings tu thu vien/docs ben ngoai
-    EXT-001-nextjs-15.md
-    EXT-002-prisma-6.md
-  audits/                     # Bao cao audit tong hop
-    AUDIT-2026-03-25.md
-```
-
-**Format cho moi research finding:**
-
-```markdown
----
-id: EXT-001
-type: external
-topic: Next.js 15 App Router
-sources:
-  - url: https://nextjs.org/docs/app
-    type: official-docs
-    accessed: 2026-03-25
-  - library: nextjs
-    query: "app router migration"
-    tool: context7
-confidence: HIGH
-created: 2026-03-25
-updated: 2026-03-25
----
-
-## Phat hien chinh
-
-[Noi dung cu the, khong phai y kien]
-
-## Bang chung
-
-1. [Source 1] — [trich dan cu the]
-2. [Source 2] — [trich dan cu the]
-
-## Ap dung cho du an
-
-[Lien ket cu the den codebase hien tai]
-
-## Audit Log
-
-| Thoi gian | Agent | Hanh dong | Ket qua |
-|-----------|-------|-----------|---------|
-| 2026-03-25T10:00:00Z | pd-evidence-collector | Thu thap | 3 sources found |
-| 2026-03-25T10:01:00Z | pd-fact-checker | Xac minh | 2/3 verified -> HIGH |
+```yaml
+version: "1.0"
+categories:
+  sql-injection:
+    agent: pd-sec-sql-injection
+    owasp: ["A03"]
+    default_severity: CRITICAL
+    patterns:
+      - "\\$\\{.*\\}.*(?:SELECT|INSERT|UPDATE|DELETE)"
+      - "req\\.(body|params|query).*(?:find|where|query)"
+    file_globs: ["**/*.{js,ts,py,php,rb}"]
+    skip_dirs: ["node_modules", "vendor", "dist", ".next", "build"]
+    relevance_signals:
+      - "package.json:sequelize|knex|prisma|mongoose|pg|mysql"
+      - "*.py:sqlalchemy|django|flask"
+  xss:
+    agent: pd-sec-xss
+    owasp: ["A03", "A07"]
+    default_severity: HIGH
+    patterns:
+      - "innerHTML\\s*="
+      - "dangerouslySetInnerHTML"
+      - "v-html"
+    file_globs: ["**/*.{jsx,tsx,vue,svelte,html,ejs,hbs,pug,php}"]
+    skip_dirs: ["node_modules", "vendor", "dist"]
+    relevance_signals:
+      - "package.json:react|vue|svelte|angular"
+      - "*.php:echo|print"
+  # ... 11 categories con lai tuong tu
 ```
 
-**Tai sao format nay:**
-- **YAML frontmatter**: parseable boi parseFrontmatter() da co trong utils.js — KHONG can parser moi
-- **Danh so ID (INT-001, EXT-001)**: traceable, dan chung duoc tu PLAN.md (vd: "Theo EXT-001, Next.js 15...")
-- **Sources array**: moi claim co nguon cu the — chong hallucination core
-- **Confidence level**: HIGH/MEDIUM/LOW — score tu confidence-scorer.js
-- **Audit Log bang**: timestamp + agent + action + result — audit trail day du
-- **internal/ vs external/**: phan loai ro rang — codebase findings vs library/external findings
+### Infrastructure Hien Co — Dung Nguyen, KHONG Thay Doi
 
-**Tai sao KHONG dung JSON hoac database:**
-- Markdown: AI agents doc/ghi tu nhien, git-trackable, nguoi dung review truc tiep
-- Nhat quan voi evidence files trong `.planning/debug/` (v2.1 pattern)
-- parseFrontmatter() trong utils.js da parse duoc YAML frontmatter — zero effort
-- INDEX.md la "database" — auto-generated, grep-able, link-able
+| Component | Vai Tro Trong v4.0 | Thay Doi? |
+|-----------|---------------------|-----------|
+| FastCode MCP (`mcp__fastcode__code_qa`) | Scanner agents goi de hieu code context. Da co trong allowed-tools cua 13 pd-sec-* agents. | KHONG |
+| Context7 MCP | Khong dung truc tiep — security audit khong can tra cuu library docs. | KHONG |
+| `confidence-scorer.js` | Tinh confidence cho security findings — reuse `scoreConfidence()` hien co. | KHONG |
+| `audit-logger.js` | Ghi audit trail cho security scan sessions. | KHONG |
+| `index-generator.js` | Generate INDEX.md cho security evidence files. | KHONG |
+| Wave-based execution (resource-config.js) | `getAdaptiveParallelLimit()` da co — security waves dung cung logic. | KHONG (chi parallel-dispatch.js can mo rong) |
+| `utils.js` parseFrontmatter/buildFrontmatter | Parse agent .md files, evidence .md files — khong can thay doi. | KHONG |
 
-### INDEX.md Format
-
-```markdown
-# Research Index
-
-**Du an:** [ten du an]
-**Cap nhat:** 2026-03-25
-
-## Internal Findings
-
-| ID | Topic | Confidence | Cap nhat |
-|----|-------|------------|----------|
-| INT-001 | Auth flow architecture | HIGH | 2026-03-25 |
-| INT-002 | Database schema patterns | MEDIUM | 2026-03-25 |
-
-## External Findings
-
-| ID | Topic | Confidence | Cap nhat |
-|----|-------|------------|----------|
-| EXT-001 | Next.js 15 App Router | HIGH | 2026-03-25 |
-| EXT-002 | Prisma 6 migration | LOW | 2026-03-25 |
-
-## Audit History
-
-| Ngay | Findings | Verified | Confidence TB |
-|------|----------|----------|---------------|
-| 2026-03-25 | 4 | 3/4 | MEDIUM |
-```
-
-### Confidence Scoring Logic
+## Agent Registry Update Chi Tiet
 
 ```javascript
-// bin/lib/confidence-scorer.js — pure function, khong side effects
+// Them vao AGENT_REGISTRY trong resource-config.js
+// Tat ca 13 scanner la tier "scout" (haiku) — scan nhanh, re
+// Reporter la tier "builder" (sonnet) — can tong hop phuc tap hon
 
-/**
- * Cham diem confidence cho 1 claim.
- *
- * Quy tac:
- * - HIGH: >= 2 nguon, it nhat 1 la official-docs hoac context7
- * - MEDIUM: 1 nguon official-docs/context7, hoac >= 2 nguon web-search
- * - LOW: chi 1 nguon web-search, hoac khong co nguon xac minh
- *
- * @param {{ sources: Array<{type: string, verified: boolean}> }} claim
- * @returns {{ level: 'HIGH'|'MEDIUM'|'LOW', score: number, reason: string }}
- */
-function scoreConfidence(claim) {
-  // ...logic dua tren source types va verification status
-}
-
-// Source type priority:
-// 1. context7 (thu vien docs chinh thuc, version-aware)
-// 2. official-docs (URL docs chinh thuc)
-// 3. codebase (tim trong code hien tai)
-// 4. web-search (ket qua search — can verify)
-// 5. training-data (AI training — thap nhat, can flag)
+"pd-sec-sql-injection":      { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-xss":                { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-cmd-injection":      { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-path-traversal":     { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-secrets":            { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
+"pd-sec-auth":               { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-deserialization":    { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-misconfig":          { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
+"pd-sec-prototype-pollution":{ tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-crypto":             { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
+"pd-sec-insecure-design":    { tier: "builder", tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
+"pd-sec-vuln-deps":          { tier: "scout",   tools: ["Read", "Glob", "Grep", "Bash"] },
+"pd-sec-logging":            { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
+"pd-sec-reporter":           { tier: "builder", tools: ["Read", "Write", "Glob"] },
 ```
 
-**Tai sao rule-based thay vi LLM-as-judge:**
-- PROJECT.md constraint: "LLM-as-judge review — plan already in context, calling another LLM is circular"
-- Rule-based = deterministic, testable, reproducible
-- Source hierarchy ro rang: Context7 > official docs > codebase > web search > training data
-- Confidence = so nguon x chat luong nguon — tinh duoc bang arithmetic
+**Ghi chu:**
+- `pd-sec-insecure-design` la tier `builder` (khong phai scout) vi can suy luan ve design patterns, khong chi grep patterns
+- `pd-sec-vuln-deps` co Bash de chay `npm audit --json` (neu co)
+- `pd-sec-secrets`, `pd-sec-misconfig`, `pd-sec-crypto`, `pd-sec-logging` KHONG can FastCode vi chi dung Grep pattern matching
 
-### Workflow Guards
-
-**3 loai guard cho v3.0:**
-
-| Guard | Loai | Noi ap dung | Co che |
-|-------|------|-------------|--------|
-| **Plan-Gate** | Blocking | pd:plan workflow | CHECK-06 trong plan-checker.js: neu plan claim ve thu vien/pattern MA KHONG reference research finding -> ISSUES FOUND |
-| **Mandatory Suggestion** | Non-blocking | pd:write-code workflow | Khi write-code gap claim chua co research -> warning: "Claim '[X]' chua co research finding. Chay `pd research` de xac minh." |
-| **Strategy Injection** | Auto-inject | pd:plan workflow | Khi research findings ton tai -> tu dong inject vao plan context: "Research da xac minh: [danh sach findings]" |
-
-**Tai sao 3 loai rieng biet:**
-- **Plan-Gate (blocking)**: Plan la noi rui ro hallucination cao nhat — claim sai o plan -> code sai ca milestone. PHAI block.
-- **Mandatory Suggestion (non-blocking)**: Write-code dang chay — khong nen break flow. Warning du de AI tu dieu chinh.
-- **Strategy Injection (auto-inject)**: Research findings da xac minh -> tu dong dung, khong can nhac lai.
-
-**Implementation pattern:**
-- Plan-Gate: them CHECK-06 vao plan-checker.js (tuong tu CHECK-04 Truth coverage, CHECK-05 Logic coverage)
-- Mandatory Suggestion: them guard micro-template `references/guard-evidence.md`, inject vao write-code.md `<guards>` section
-- Strategy Injection: them `@references/research-context.md` vao plan.md `<context>` section, file nay doc `.planning/research/INDEX.md`
-
-### Core Technologies (Da Co — KHONG them moi)
-
-| Technology | Version | Purpose | Vai tro trong v3.0 |
-|------------|---------|---------|---------------------|
-| Claude Code Subagents | v2.1.32+ | Agent spawning, model routing | Evidence Collector + Fact Checker agents |
-| Node.js built-in `node:test` | Node 18+ | Test runner | Test 3 module moi |
-| Node.js built-in `fs`, `path` | Node 18+ | File I/O (chi o CLI wrappers) | Doc/ghi research files, INDEX.md |
-| Context7 MCP | - | Library docs | Evidence Collector tra cuu docs thu vien |
-| FastCode MCP | - | Code analysis | Evidence Collector phan tich codebase |
-| parseFrontmatter() | bin/lib/utils.js | YAML frontmatter parser | Parse research finding files |
-
-## Chi Tiet Ky Thuat Tung Thanh Phan
-
-### 1. Research Agent Spawning Pattern
-
-**Luong chinh:**
+## Batch Execution Pattern
 
 ```
-pd research [topic]
+Smart Selection (loai bo scanners khong lien quan)
   |
   v
-Orchestrator detect context:
-  - topic lien quan den codebase? -> internal research
-  - topic lien quan den thu vien? -> external research
-  - ca hai? -> ca hai (sequential)
+Chia waves theo getAdaptiveParallelLimit() (2-4 parallel)
   |
   v
-Buoc 1: Evidence Collector (sonnet) — Thu thap
-  -> Doc codebase (Glob, Grep, Read) cho internal
-  -> Tra cuu Context7 cho external
-  -> Ghi findings vao internal/ hoac external/
+Wave 1: [sql-injection, xss]           — 2 parallel
+Wave 2: [cmd-injection, path-traversal] — 2 parallel
+Wave 3: [secrets, auth]                 — 2 parallel
+Wave 4: [deserialization, misconfig]    — 2 parallel
+Wave 5: [prototype-pollution, crypto]   — 2 parallel
+Wave 6: [insecure-design, vuln-deps]    — 2 parallel
+Wave 7: [logging]                       — 1 (con lai)
   |
-  v
-Buoc 2: Fact Checker (haiku) — Xac minh
-  -> Doc findings tu Buoc 1
-  -> Cross-reference voi nguon khac
-  -> Gan confidence level (scoreConfidence)
-  -> Cap nhat finding file voi verification results
-  |
-  v
-Buoc 3: Orchestrator — Tong hop
-  -> Cap nhat INDEX.md
-  -> Tao audit report neu can
-  -> Hien ket qua cho user
+  v (doi tat ca waves xong)
+Wave 8: [reporter]                      — 1 (tong hop)
 ```
 
-**Tai sao 2-agent pipeline thay vi 1 agent lam tat ca:**
-- Tach biet thu thap vs xac minh = kiem soat hallucination tot hon
-- Evidence Collector co the "hallucinate" — Fact Checker la checkpoint
-- Pattern nay la co so cua chong hallucination: KHONG tin 1 nguon duy nhat
+**Toi uu hoa Smart Selection:**
+- Phan tich project files: co `.jsx/.tsx` → bat xss, co `.sql`/ORM imports → bat sql-injection
+- Dung `relevance_signals` tu security-rules.yaml
+- Co the giam tu 13 xuong 5-7 scanners cho du an cu the → tiet kiem 40-60% tokens
 
-### 2. Anti-Hallucination Enforcement
+## Nhung Thu KHONG Can Them
 
-**5 lop bao ve:**
+| Thu | Ly Do Khong Can | Dung Thay The |
+|-----|-----------------|---------------|
+| ESLint / Semgrep / CodeQL | Du an la AI agent framework, KHONG phai static analysis tool. 13 agents da dung Grep + FastCode MCP — linh hoat hon, khong can cai tool rieng. | Grep patterns trong agents + FastCode MCP |
+| tree-sitter truc tiep | FastCode MCP da wrap tree-sitter — goi qua MCP thay vi import. Giu nhat quan voi cac agent khac. | `mcp__fastcode__code_qa` |
+| Docker / sandbox | Scanner agents chi READ code (Glob/Grep/Read), khong execute untrusted code. | Khong can sandbox |
+| Database (SQLite, etc) | File-based sessions da du. So luong findings < 100/scan — khong can DB. | session-manager.js + markdown files |
+| Web UI / dashboard | Output la SECURITY_REPORT.md — AI va developer doc truc tiep. | Markdown report |
+| npm audit / Snyk API | `pd-sec-vuln-deps` agent da co — check package.json/lock files. External API them complexity. | Agent-based analysis |
+| SARIF output format | Markdown nhat quan voi toan bo codebase. AI doc markdown tot hon SARIF. | SECURITY_REPORT.md |
+| yaml (eemeli package) | Nang hon js-yaml, nhieu feature khong can. | js-yaml ^4.1.0 |
+| TypeScript | Codebase la pure JS, CommonJS. | JavaScript |
+| Bundler | Constraint du an: "No Build Step". | Pure Node.js scripts |
 
-| Lop | Co che | Implementation |
-|-----|--------|----------------|
-| 1. Source requirement | Moi claim PHAI co >= 1 source | evidence-protocol.js validation — missing source = warning |
-| 2. Confidence scoring | Tu dong cham diem dua tren source quality | confidence-scorer.js pure function |
-| 3. Fact checking agent | Agent rieng xac minh claims | pd-fact-checker.md subagent |
-| 4. Plan gate | Plan khong duoc claim khong co research | CHECK-06 trong plan-checker.js |
-| 5. Audit trail | Moi hanh dong ghi log | Audit Log table trong moi finding file |
+## Installation
 
-**Tai sao 5 lop thay vi 1:**
-- Hallucination la KHONG THE loai bo hoan toan (nghien cuu 2025 chung minh: hallucinations are structurally inevitable under existing LLM architectures)
-- Giai phap: DETECT + CONTAIN + MITIGATE — nhieu lop tang kha nang bat
-- Moi lop bat loai loi khac: missing source vs low confidence vs contradicted claim vs plan-level vs audit
-
-### 3. CHECK-06: Research Gate (Plan-Gate)
-
-```javascript
-// Them vao plan-checker.js
-
-/**
- * CHECK-06: Research Gate
- * Kiem tra plan co reference research findings khi claim ve thu vien/pattern.
- *
- * Rules:
- * - Neu plan mention ten thu vien/framework KHONG co trong package.json/tech stack
- *   MA KHONG reference research finding (INT-xxx, EXT-xxx) -> ISSUES FOUND
- * - Severity: configurable (default WARN, co the set BLOCK)
- * - Skip: neu khong co .planning/research/INDEX.md (research chua chay)
- *
- * @param {string} planContent - Noi dung PLAN.md
- * @param {string} indexContent - Noi dung INDEX.md (null neu khong co)
- * @param {object} options - { severity: 'WARN'|'BLOCK' }
- * @returns {{ status: 'PASS'|'WARN'|'BLOCK', issues: string[] }}
- */
-function checkResearchGate(planContent, indexContent, options) {
-  // ...
-}
+```bash
+# Dependency moi duy nhat
+npm install js-yaml@^4.1.0
 ```
 
-**Tai sao default WARN thay vi BLOCK:**
-- Nhat quan voi CHECK-05 (Logic Coverage) — default WARN, configurable
-- BLOCK se lam gian doan workflow khi chua chay research — can trai nghiem mem
-- Project co the opt-in BLOCK khi muon strict enforcement
+Khong co dev dependency moi. Test dung `node --test` nhu cu.
 
-## Alternatives Considered
+## Node.js Compatibility
 
-| Recommended | Alternative | Tai Sao Khong |
-|-------------|-------------|---------------|
-| Markdown files phan loai (internal/external) | SQLite FTS cho search | Binary dependency, pham constraint "no bundler". Markdown grep-able, git-trackable. So luong findings thuong < 50/du an — search O(n) du nhanh. |
-| 2 research agents (Collector + Checker) | 1 agent lam ca hai | Tach biet thu thap vs xac minh la nguyen tac co ban chong hallucination. 1 agent tu xac minh minh = khong co value. |
-| Rule-based confidence scoring | LLM-based scoring | PROJECT.md cam "LLM-as-judge". Rule-based = deterministic, testable, 0 token cost. |
-| CHECK-06 trong plan-checker.js | Guard markdown rieng | plan-checker.js da co 8 checks, them 1 check = nhat quan. Infrastructure da co (check registry, dynamic PASS table). |
-| YAML frontmatter cho research findings | JSON metadata file rieng | parseFrontmatter() da co trong utils.js. 1 file = metadata + content — don gian hon 2 files. |
-| Danh so ID (INT-001, EXT-001) | UUID hoac hash | ID ngan, doc duoc, dan chung duoc trong plan. UUID dai va khong co nghia. |
-| Audit Log bang trong finding file | Audit log file rieng | 1 file = tat ca thong tin — khong can mo nhieu file. Pattern nhat quan voi evidence files v2.1. |
-| Guard micro-templates (references/) | Inline guards trong skill files | Du an DA co pattern guard micro-templates (guard-context.md, guard-context7.md, guard-fastcode.md). Reusable across skills. |
-
-## What NOT to Use
-
-| Avoid | Tai Sao | Dung Thay The |
-|-------|---------|---------------|
-| Embedding/vector database cho research search | Them dependency lon (chromadb, faiss), overkill cho < 50 findings/du an, pham "no bundler" constraint | Grep + structured INDEX.md — du cho scale cua du an nay |
-| LLM-as-judge cho fact checking | PROJECT.md cam ro: "LLM-as-judge review — plan already in context, calling another LLM is circular" | Rule-based confidence scoring + source counting |
-| External API cho fact verification | Them network dependency, rate limit risk, cost, khong deterministic | Context7 MCP (da co, stable, version-aware) + codebase analysis |
-| Phuc tap hoa agent pipeline (3+ agents) | Them agent = them token cost, them failure points, them maintenance. 2 agents du cho collect -> verify. | 2 agents: Evidence Collector (sonnet) + Fact Checker (haiku) |
-| Real-time research updates | Research la snapshot tai 1 thoi diem, khong phai live feed. Auto-refresh se confuse workflow. | Manual trigger: `pd research [topic]`. Cap nhat khi can. |
-| BibTeX/CSL citation format | Over-engineering cho AI coding workflow. BibTeX can parser library. | Don gian: source URL + type + accessed date trong YAML frontmatter |
-
-## Stack Patterns Theo Thanh Phan
-
-**Neu can them research finding moi:**
-- Tao file trong `internal/` hoac `external/` voi danh so ID tiep theo
-- YAML frontmatter: id, type, topic, sources, confidence, created, updated
-- Body: Phat hien chinh, Bang chung, Ap dung cho du an, Audit Log
-- Chay research-storage.js de cap nhat INDEX.md
-
-**Neu can them guard moi:**
-- Tao `references/guard-[ten].md` voi 1-2 dong checklist
-- Inject vao skill file's `<guards>` section voi `@references/guard-[ten].md`
-- Guard la non-blocking (warning) tru khi explicitly set blocking
-
-**Neu can them check moi cho plan-checker:**
-- Them function `check[TenCheck]` vao plan-checker.js
-- Register vao check name mapping (dynamic PASS table tu Phase 13)
-- Default severity WARN, configurable qua options
-- Viet test truoc (TDD — nhat quan voi 154 existing plan-checker tests)
-
-**Neu can them research agent moi:**
-- Tao `commands/pd/agents/pd-[ten].md` voi YAML frontmatter
-- Them vao AGENT_REGISTRY trong resource-config.js
-- Giu tools allowlist toi thieu (principle of least privilege)
-- Chon tier phu hop: scout (haiku) cho don gian, builder (sonnet) cho phuc tap
-
-## Version Compatibility
-
-| Component | Compatible Voi | Ghi Chu |
-|-----------|----------------|---------|
-| Agent files moi | Claude Code v2.1.32+ | Cung format voi 5 agents da co tu v2.1 |
-| Module JS moi | Node.js >= 18 | Chi dung built-in APIs |
-| CHECK-06 trong plan-checker | plan-checker.js existing | Mo rong check registry, khong break existing checks |
-| Research storage format | parseFrontmatter() existing | YAML frontmatter — da duoc parse boi utils.js |
-| Guard micro-templates | Existing guard pattern | Tuong tu guard-context.md, guard-fastcode.md |
-| INDEX.md | Markdown standard | Khong can parser dac biet |
+| Feature | Required | Node 16.7+ Support |
+|---------|----------|---------------------|
+| js-yaml 4.x | Yes | Yes — pure JS, zero native addons |
+| `fs.readFileSync` | Yes (load YAML) | Yes — built-in |
+| Optional chaining `?.` | Yes (code style) | Yes — tu Node 14 |
+| `Set`, `Map` | Yes (delta comparison) | Yes — tu Node 12 |
 
 ## Platform Transpilation Impact
 
-**TUONG TU v2.1:** Research agents la Claude Code-specific. Non-Claude platforms fallback:
+**TUONG TU v2.1/v3.0:** Security agents la Claude Code-specific. Non-Claude platforms:
 
-- Agent files (`commands/pd/agents/pd-evidence-collector.md`, `pd-fact-checker.md`) KHONG can transpile
-- Research workflow (`workflows/research.md`) VAN transpile — phan agent dispatch bi skip tren platform khac
-- Pure function JS modules (`bin/lib/research-storage.js`, `audit-reporter.js`, `confidence-scorer.js`) platform-independent
-- Research storage format (`.planning/research/`) platform-independent — chi la markdown files
-- Backward compatibility: neu khong co research dir, plan workflow chay binh thuong (CHECK-06 skip khi khong co INDEX.md)
+- Agent files (`commands/pd/agents/pd-sec-*.md`) — KHONG can transpile, chi Claude Code dung
+- Audit workflow (`workflows/audit.md`) — transpile, agent dispatch section bi skip tren platform khac
+- Pure function JS modules (`bin/lib/security-*.js`) — platform-independent
+- `security-rules.yaml` — platform-independent config file
+- SECURITY_REPORT.md — platform-independent output
+- Backward compatibility: neu khong co security-rules.yaml, workflow bao loi ro rang thay vi silent fail
 
 ## Tong Ket
 
 | Metric | Gia Tri |
 |--------|---------|
-| Runtime dependency moi | 0 |
-| Agent definition files moi | 2 (evidence-collector, fact-checker) |
-| Module JS moi | 3 (research-storage, audit-reporter, confidence-scorer) |
-| Module JS mo rong | 3 (evidence-protocol, resource-config, plan-checker) |
-| Skill definition moi | 1 (commands/pd/research.md) |
-| Workflow file moi | 1 (workflows/research.md) |
-| Guard reference files moi | 2 (guard-research.md, guard-evidence.md) |
-| Storage directories moi | 3 (internal/, external/, audits/) |
-| Test files moi | 3+ (1 per module moi) |
-| Checks moi trong plan-checker | 1 (CHECK-06 Research Gate) |
+| Runtime dependency moi | 1 (js-yaml ^4.1.0, 22KB, zero transitive deps) |
+| Module JS moi | 5 (rules-loader, scanner-dispatch, delta, report-builder, fix-planner) |
+| Module JS mo rong | 5 (resource-config, parallel-dispatch, evidence-protocol, session-manager, plan-checker) |
+| Skill definition moi | 1 (commands/pd/audit.md) |
+| Workflow file moi | 1 (workflows/audit.md) |
+| Config file moi | 1 (references/security-rules.yaml) |
+| Agent files da co | 14 (13 scanners + 1 reporter — DA TON TAI, chi can wire) |
+| Checks moi trong plan-checker | 1 (CHECK-08 Security Gate) |
+
+## Confidence Assessment
+
+| Area | Confidence | Notes |
+|------|------------|-------|
+| js-yaml la lua chon dung | HIGH | 25K+ npm dependents, zero deps, stable 4.x, verified npm page |
+| Khong can static analysis tool | HIGH | 13 agents da ton tai voi Grep/FastCode MCP, codebase verified |
+| Mo rong parallel-dispatch cho N agents | MEDIUM | getAdaptiveParallelLimit() da co nhung chi test voi 2 agents — can verify voi 13 |
+| Smart Scanner Selection kha thi | HIGH | relevance_signals pattern don gian — check file existence + package.json grep |
+| Session Delta logic | HIGH | session-manager.js da co pattern, chi them comparison pure function |
+| security-rules.yaml schema | MEDIUM | De xuat — can validate khi implement, co the can dieu chinh fields |
+| CHECK-08 Security Gate | HIGH | plan-checker.js da co check registry + dynamic PASS table — them check la trivial |
 
 ## Sources
 
-- Codebase analysis: `bin/lib/evidence-protocol.js`, `bin/lib/resource-config.js`, `bin/lib/plan-checker.js`, `bin/lib/session-manager.js`, `bin/lib/utils.js` — existing patterns va APIs — HIGH confidence
-- Codebase analysis: `commands/pd/agents/pd-*.md` (5 existing agent definitions), `references/guard-*.md` (4 existing guard templates) — existing conventions — HIGH confidence
-- `.planning/PROJECT.md` — Project constraints ("No Build Step", "Node.js 16.7+", "LLM-as-judge circular", backward compatibility) — HIGH confidence
-- `.planning/research/STACK.md` (v2.1) — Previous stack research, zero-dependency pattern, agent tier system — HIGH confidence
-- [Anti-hallucination research 2025-2026](https://www.lakera.ai/blog/guide-to-hallucinations-in-large-language-models) — Hallucinations structurally inevitable, must detect+contain+mitigate — MEDIUM confidence
-- [Structured markdown for AI interpretation](https://blog.trysteakhouse.com/blog/syntax-for-citations-using-markdown-patterns-force-ai-extraction) — Headers, lists, tables create parseable "chunks" — MEDIUM confidence
-- [AI coding workflow best practices 2026](https://addyosmani.com/blog/ai-coding-workflow/) — Spec-first, review AI-written code, strong linting/testing guards — MEDIUM confidence
+- [js-yaml npm](https://www.npmjs.com/package/js-yaml) — version 4.1.0, download stats, API — HIGH confidence
+- [js-yaml GitHub](https://github.com/nodeca/js-yaml) — source code, Node.js compatibility — HIGH confidence
+- [yaml npm](https://www.npmjs.com/package/yaml) — alternative considered, size comparison — HIGH confidence
+- Codebase analysis: `bin/lib/resource-config.js` (AGENT_REGISTRY, TIER_MAP, getAdaptiveParallelLimit) — HIGH confidence
+- Codebase analysis: `bin/lib/parallel-dispatch.js` (buildParallelPlan, wave execution) — HIGH confidence
+- Codebase analysis: `bin/lib/evidence-protocol.js` (OUTCOME_TYPES, validateEvidence) — HIGH confidence
+- Codebase analysis: `bin/lib/session-manager.js` (createSession, SESSION_FOLDER_RE) — HIGH confidence
+- Codebase analysis: `bin/lib/utils.js` (parseFrontmatter — flat YAML only) — HIGH confidence
+- Codebase analysis: 13 `commands/pd/agents/pd-sec-*.md` files (da ton tai, tools va process verified) — HIGH confidence
+- Codebase analysis: `commands/pd/agents/pd-sec-reporter.md` (13 scanner mapping, evidence file naming) — HIGH confidence
+- `.planning/PROJECT.md` — v4.0 scope, constraints, key decisions — HIGH confidence
 
 ---
-*Stack research for: v3.0 Research Squad trong please-done*
-*Researched: 2026-03-25*
+*Stack research for: v4.0 OWASP Security Audit trong please-done*
+*Researched: 2026-03-26*

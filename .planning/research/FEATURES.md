@@ -1,61 +1,91 @@
-# Feature Landscape: v3.0 Research Squad
+# Feature Landscape: v4.0 OWASP Security Audit
 
-**Domain:** Anti-hallucination research agents voi structured storage, audit-ready reports, va workflow guards cho AI coding skill framework
-**Researched:** 2026-03-25
-**Confidence:** HIGH (dua tren tai lieu chinh thuc + codebase hien co + nghien cuu domain 2025-2026)
+**Domain:** Lenh `pd:audit` quet bao mat OWASP Top 10 tich hop vao AI coding skill framework
+**Researched:** 2026-03-26
+**Confidence:** HIGH (dua tren tai lieu OWASP chinh thuc + 13 scanner agents da tao + 4_AUDIT_MILESTONE.md chi tiet + research domain SAST/AI-powered scanning 2025-2026)
 
 ---
 
 ## Table Stakes
 
-Nhung features ma nguoi dung KY VONG CO khi nghe "Research Squad voi anti-hallucination". Thieu bat ky feature nao = he thong khong dang tin cay.
+Nhung features ma nguoi dung KY VONG CO khi nghe "OWASP Security Audit command". Thieu bat ky feature nao = lenh audit khong dang dung.
 
-### Danh muc A: Cau truc Luu tru Phan tach (Storage)
-
-| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
-|---------|---------------|-------------|---------|
-| **A-TS1: Thu muc internal/ cho research noi bo** | Research ve codebase hien tai (scan, plan analysis, bug history) KHONG duoc tron voi research tu web/docs ben ngoai. Nguoi dung can phan biet "dieu da biet chac" vs "dieu tra cuu duoc" | LOW | Tao `.planning/research/internal/` chua ket qua phan tich codebase, plan history, regression patterns. Moi file co frontmatter chuan: `source: internal`, `scope: [project-name]`, `created: ISO-8601`. **Phu thuoc:** Khong. Doc lap hoan toan. |
-| **A-TS2: Thu muc external/ cho research ben ngoai** | Research tu web, tai lieu thu vien, best practices, API docs can duoc tach rieng vi co confidence thap hon va can source citation | LOW | Tao `.planning/research/external/` chua ket qua tra cuu tu Context7, WebSearch, official docs. Moi file PHAI co: `source: external`, `url: [nguon]`, `retrieved: ISO-8601`, `confidence: HIGH/MEDIUM/LOW`. **Phu thuoc:** Khong. Doc lap hoan toan. |
-| **A-TS3: INDEX.md tu dong** | Khi co 5+ research files, tim kiem bang tay la bat kha thi. INDEX la manifest giup agent va nguoi dung tim nhanh | MEDIUM | Auto-generate `.planning/research/INDEX.md` moi khi file research moi duoc tao. Format: bang markdown voi cot [File, Source Type, Topic, Confidence, Created]. Tai su dung pattern tu `bin/lib/manifest.js` (SHA256 tracking da co). **Phu thuoc:** A-TS1 + A-TS2 (phai co thu muc truoc). |
-| **A-TS4: Lenh pd research voi auto-detect context** | Nguoi dung go `pd research "topic"` va he thong TU DONG biet la research noi bo (codebase) hay ngoai (web/docs) dua tren noi dung cau hoi | MEDIUM | Heuristic: neu topic chua ten file/function/module trong project -> internal routing (dung FastCode/Grep). Neu topic la ten thu vien/API/pattern -> external routing (dung Context7/WebSearch). Mixed -> chay ca 2 agents. Output ghi vao thu muc tuong ung. **Phu thuoc:** A-TS1 + A-TS2, agent infrastructure. |
-
-### Danh muc B: Tieu chuan Bao cao Chong Ao Giac (Anti-Hallucination Audit)
+### Danh muc A: Lenh pd:audit Core (Skill + Workflow)
 
 | Feature | Ly do ky vong | Do phuc tap | Ghi chu |
 |---------|---------------|-------------|---------|
-| **B-TS1: Metadata bat buoc trong moi research output** | Khong co metadata = khong biet ai tao, khi nao, tu nguon nao. Vo dung cho audit | LOW | YAML frontmatter bat buoc: `agent:`, `created:`, `source: internal/external`, `topic:`, `confidence: HIGH/MEDIUM/LOW`. Tuong tu evidence-protocol.js da co o v2.1 (parseFrontmatter da co trong utils.js). **Phu thuoc:** utils.js parseFrontmatter (da co). |
-| **B-TS2: Evidence section voi source citation** | Moi claim PHAI co bang chung kem theo. Claim khong co source = hallucination cho den khi chung minh nguoc lai | MEDIUM | Moi research file phai co section `## Bang chung` voi format: `- [Claim]: [Source URL hoac file:dong] (confidence: HIGH/MEDIUM/LOW)`. Agent KHONG DUOC ghi claim ma khong co it nhat 1 source. Validator kiem tra section nay ton tai va khong rong. **Phu thuoc:** B-TS1 (metadata de biet source type). |
-| **B-TS3: Confidence Level 3 bac** | Nguoi dung can biet muc do tin cay cua tung phan research de quyet dinh co dung hay can xac minh them | LOW | 3 bac: HIGH (Context7/official docs/codebase truc tiep), MEDIUM (nhieu nguon web dong y), LOW (1 nguon duy nhat hoac khong xac minh duoc). Gan o ca cap file (frontmatter) va cap claim (trong Evidence section). **Phu thuoc:** Khong. Convention, khong can code. |
-| **B-TS4: Audit Log append-only** | Moi hanh dong research phai duoc ghi lai de truy vet. Tuong tu git log cho research activities | MEDIUM | File `.planning/research/AUDIT_LOG.md` append-only. Moi entry: `| ISO-timestamp | agent-name | action | topic | source-count | confidence |`. Khong bao gio xoa entry cu, chi them moi. Validator canh bao neu file bi sua (kiem tra dong cu van con). **Phu thuoc:** B-TS1 (metadata cung cap data cho log entry). |
+| **A-TS1: Skill `commands/pd/audit.md`** | Diem vao duy nhat cho user — `pd:audit [path] [--full\|--only\|--poc\|--auto-fix]`. Khong co skill = khong co lenh | MEDIUM | Tao skill file voi argument parsing (path, --full, --only, --poc, --auto-fix). Model: sonnet. Allowed tools: Read, Write, Edit, Bash, Glob, Grep, SubAgent, mcp__fastcode__code_qa. Pattern giong cac skill da co (scan.md, plan.md). **Phu thuoc:** Khong. Doc lap, nhung can workflow de thuc thi. |
+| **A-TS2: Workflow `workflows/audit.md`** | Quy trinh thuc thi 9 buoc: detect context -> session delta -> scope -> smart selection -> dispatch scanners -> reporter -> analyze -> fix phases -> save. Khong co workflow = skill chi la shell rong | HIGH | 9 buoc workflow nhu mo ta trong 4_AUDIT_MILESTONE.md. Phuc tap nhat trong cac workflow da co vi ket hop: agent dispatch, wave execution, session management, va milestone integration. **Phu thuoc:** A-TS1 (skill goi workflow). |
+| **A-TS3: 2 che do tu dong: Doc lap + Tich hop milestone** | User khong can chi dinh che do — he thong tu phat hien co `.planning/CURRENT_MILESTONE.md` hay khong. Doc lap quet toan bo, milestone quet git diff scope | MEDIUM | Doc lap: evidence -> `.security/evidence/`, report -> root `SECURITY_REPORT.md`. Milestone: evidence -> `.planning/milestones/[ver]/security/`, report -> `.planning/milestones/[ver]/SECURITY_REPORT.md`. **Phu thuoc:** A-TS2 workflow logic. |
 
-### Danh muc C: Research Squad Agents
-
-| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
-|---------|---------------|-------------|---------|
-| **C-TS1: Evidence Collector agent** | Agent chuyen thu thap bang chung tu nhieu nguon (codebase, Context7, web) va ghi ket qua theo format chuan | MEDIUM | Tao `commands/pd/agents/pd-evidence-collector.md`. Tier: builder/sonnet. Allowed tools: Read, Grep, Glob, Bash, mcp__context7. Process: (1) nhan topic tu orchestrator, (2) xac dinh internal vs external, (3) thu thap tu 2+ nguon doc lap, (4) ghi vao internal/ hoac external/ voi frontmatter chuan. KHONG duoc ket luan — chi thu thap. **Phu thuoc:** A-TS1 + A-TS2 (thu muc luu tru), B-TS1 (format output). |
-| **C-TS2: Fact Checker agent** | Agent doc-lap kiem tra lai nhung gi Evidence Collector da thu thap. Phat hien mau thuan, claim khong co source, thong tin loi thoi | MEDIUM | Tao `commands/pd/agents/pd-fact-checker.md`. Tier: architect/opus (can suy luan sau). Allowed tools: Read, Grep, WebSearch, mcp__context7. Process: (1) doc research file tu Collector, (2) voi moi claim co source — xac minh source con valid, (3) voi moi claim confidence LOW — tim them source hoac danh dau "KHONG XAC MINH DUOC", (4) ghi ket qua vao `## Kiem tra Thuc te` section trong cung file hoac file rieng. **Phu thuoc:** C-TS1 (phai co output tu Collector truoc). |
-
-### Danh muc D: Workflow Guards & Enforcement
+### Danh muc B: Template Agent Dispatch (1 Template -> 13 Categories)
 
 | Feature | Ly do ky vong | Do phuc tap | Ghi chu |
 |---------|---------------|-------------|---------|
-| **D-TS1: Plan-Gate — chan plan thieu research** | Plan khong co research backing = plan dua tren gia thuyet. Plan-Gate kiem tra: co research file cho cac decision trong plan khong? | MEDIUM | Mo rong plan-checker.js (da co 8 checks). Them CHECK-06: `checkResearchBacking`. Logic: doc Key Links / References section trong PLAN.md -> kiem tra co lien ket den `.planning/research/` files khong. Severity: WARN mac dinh (configurable). **Phu thuoc:** plan-checker.js (da co), A-TS3 INDEX.md (de cross-reference). |
-| **D-TS2: Mandatory Suggestion — goi y research khi phat hien uncertainty** | Khi plan chua "chua ro", "can tim hieu", "co the" (hedging language) -> tu dong goi y chay `pd research` | LOW | Regex scan trong plan body tim hedging patterns: `/chua ro|can tim hieu|co the.*hoac|khong chac/gi`. Neu tim thay >= 2 matches -> hien warning: "Plan co N diem chua chac chan. Goi y chay `pd research [topic]` truoc khi code." Non-blocking, chi goi y. **Phu thuoc:** Khong. Doc lap, co the tich hop vao plan-checker hoac workflow. |
-| **D-TS3: Strategy Injection — tu dong truyen research context vao agent** | Khi spawn agent (write-code, fix-bug), tu dong tim va load research files lien quan vao context cua agent | MEDIUM | Khi workflow spawn agent: (1) doc INDEX.md, (2) tim research files co topic match voi task dang lam (keyword match), (3) inject noi dung vao prompt cua agent nhu `<research-context>` block. Gioi han: toi da 2 files, toi da 2000 tokens de khong phình context. **Phu thuoc:** A-TS3 INDEX.md, workflow integration points da co. |
+| **B-TS1: Template agent `pd-sec-scanner.md`** | 1 template thay vi 13 agent files rieng le. Nhan `--category` parameter, load rules tu YAML. DRY tu dau, de maintain | HIGH | Thay the 13 file pd-sec-*.md hien co (da tao nhung chua dung template pattern). Template co: discovery step (FastCode/grep), analysis step (AI), evidence write step. Cung input/output format cho moi category. **Phu thuoc:** B-TS2 (rules YAML). LUU Y: phai xoa hoac deprecate 13 agent files hien co. |
+| **B-TS2: Config `config/security-rules.yaml`** | Tap trung rules cho 13 OWASP category — patterns (regex), severity mapping, common fixes, FastCode queries. Them/sua rule chi can update 1 file | MEDIUM | 13 sections trong 1 file YAML. Moi section: id, name, owasp_category, grep_patterns[], fastcode_query, severity_map, suggested_fixes[]. Tai su dung patterns tu 13 agent files da co (da co regex chi tiet). **Phu thuoc:** Khong. Doc lap. |
+| **B-TS3: Reporter agent `pd-sec-reporter.md`** | Agent rieng biet (khong gop vao template) tong hop 13 evidence files thanh 1 SECURITY_REPORT.md voi OWASP mapping, severity ranking, hot spots, attack chains | MEDIUM | DA CO file `pd-sec-reporter.md` voi noi dung chi tiet. Can verify tuong thich voi template dispatch model moi (doc evidence theo convention moi). **Phu thuoc:** B-TS1 (evidence output format phai nhat quan). |
+| **B-TS4: Dang ky agents trong resource-config.js** | 13 scanner agents + 1 reporter CHUA co trong AGENT_REGISTRY. Khong dang ky = workflow khong dispatch duoc | LOW | Them 14 entries vao AGENT_REGISTRY trong `bin/lib/resource-config.js`. Scanner: tier scout (nhe, nhanh). Reporter: tier builder. Tools: Read, Glob, Grep, mcp__fastcode__code_qa (scanner), Read, Write, Glob (reporter). **Phu thuoc:** resource-config.js (da co). |
+
+### Danh muc C: Smart Scanner Selection
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **C-TS1: Context analysis engine** | Phan tich ngu canh du an (milestone phases, code patterns, git diff) de CHI CHON scanner lien quan. Chay scanner khong lien quan = lang phi token + khong tim thay gi | HIGH | 2 nguon tin hieu: (1) Milestone mode: ROADMAP.md phase title -> PLAN.md tasks -> git diff files. (2) Standalone: FastCode code_qa toan repo hoac grep patterns fallback. Output: danh sach category can chay. **Phu thuoc:** A-TS3 (biet mode nao), FastCode MCP (optional). |
+| **C-TS2: Bang anh xa tin hieu -> scanner** | Mapping cu the: pattern X trong code -> kich hoat scanner Y. 3 scanner luon chay (secrets, crypto, vuln-deps), 10 scanner co dieu kien | LOW | Bang anh xa da co chi tiet trong 4_AUDIT_MILESTONE.md. 12 dong tin hieu -> scanner. Vi du: `multer\|formidable\|upload` -> path-traversal + cmd-injection + xss. Co the luu trong security-rules.yaml hoac JS module rieng. **Phu thuoc:** B-TS2 (rules config). |
+| **C-TS3: Fallback logic** | Khi khong du tin hieu (< 2 matches) -> hoi user chay full. `--full` luon chay 13. `--only` chi chay user chi dinh + 3 base | LOW | 3 nhanh: (1) smart mode (default), (2) --full bypass selection, (3) --only user-specified + 3 base. Fallback khi < 2 tin hieu. **Phu thuoc:** C-TS1 (context analysis). |
+
+### Danh muc D: Batch Execution Waves
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **D-TS1: Wave-based parallel dispatch** | Xep scanner vao waves theo dependency logic — category nen tang truoc, phu thuoc sau. Toi da 2 instance song song. Pattern tuong tu v1.0 Phase 8 wave-based execution | MEDIUM | 8 waves cho full mode (13 categories). Smart mode bo wave rong. Backpressure: doi ca 2 agent trong wave xong moi bat dau wave tiep. Tai su dung pattern tu `bin/lib/parallel-dispatch.js` (buildParallelPlan, mergeParallelResults). **Phu thuoc:** B-TS1 (template dispatch), resource-config.js (agent config). |
+| **D-TS2: Failure isolation** | 1 scanner loi/timeout KHONG chan toan bo audit. Ghi nhan `inconclusive`, tiep tuc wave tiep. Reporter canh bao scanner thieu | LOW | Giong pattern da co: DocSpec critical=false trong parallel-dispatch.js. Scanner loi -> ghi warning, tiep tuc. Timeout: 120s scout, 180s builder. **Phu thuoc:** D-TS1 (wave system). |
+
+### Danh muc E: Function-Level Evidence Checklist
+
+| Feature | Ly do ky vong | Do phuc tap | Ghi chu |
+|---------|---------------|-------------|---------|
+| **E-TS1: Evidence format theo ham/endpoint** | Moi scanner PHAI xuat bang kiem tra TUNG HAM da kiem tra — khong duoc chi noi "da quet xong". Day la yeu cau cot loi de biet scanner co quet dung trong tam | MEDIUM | Format: bang voi cot File, Ham/Endpoint, Loai kiem tra, Ket qua (PASS/FLAG/FAIL), Ghi chu. Phai liet ke ca ham BI BO QUA va ly do. YAML frontmatter: agent, outcome, timestamp, session. **Phu thuoc:** B-TS1 (template agent output format). |
+| **E-TS2: SECURITY_REPORT.md tong hop** | Reporter gop N evidence files thanh 1 bang master sap theo severity. OWASP coverage table 10/10. Hot spots analysis. Remediation plan P0/P1/P2 | MEDIUM | DA CO format chi tiet trong pd-sec-reporter.md. Them: Status column (NEW/KNOWN-UNFIXED/RE-VERIFIED/FIXED), cross-check voi CODE_REPORT milestone, gadget chain section. **Phu thuoc:** B-TS3 (reporter agent), E-TS1 (evidence input format). |
 
 ---
 
 ## Differentiators
 
-Features tao LOI THE CANH TRANH. Khong bat buoc cho v3.0 launch nhung tang gia tri dang ke.
+Features tao LOI THE CANH TRANH. Khong bat buoc cho v4.0 core nhung tang gia tri dang ke. Moi feature co the defer ma khong anh huong core functionality.
+
+### Danh muc F: Session Delta (Incremental Scanning)
 
 | Feature | Gia tri | Do phuc tap | Ghi chu |
 |---------|---------|-------------|---------|
-| **E-D1: Cross-validation tu dong giua internal va external** | So sanh ket qua research noi bo (codebase analysis) voi ben ngoai (docs/web) de phat hien xung dot. Vd: code dung API deprecated ma docs moi noi API da thay doi | HIGH | Fact Checker (C-TS2) doc ca internal/ va external/ files cung topic -> tim mau thuan -> ghi vao `## Xung dot phat hien` section. Gia tri lon nhung can Fact Checker chay 2 luot. **Phu thuoc:** C-TS1 + C-TS2 (ca 2 agents), A-TS1 + A-TS2 (ca 2 thu muc). |
-| **E-D2: Research freshness tracking** | Danh dau research file "het han" khi qua N ngay (configurable, mac dinh 14 ngay). Dependencies thay doi nhanh — research 2 tuan truoc co the sai | MEDIUM | Them field `expires: ISO-8601` trong frontmatter. INDEX.md hien trang thai: FRESH (< 7 ngay), AGING (7-14 ngay), STALE (> 14 ngay). Plan-Gate canh bao khi plan reference research STALE. **Phu thuoc:** A-TS3 INDEX.md, B-TS1 metadata. |
-| **E-D3: Research diff khi cap nhat** | Khi chay lai research cho topic da co, hien thi THAY DOI so voi lan truoc thay vi ghi de. Giup phat hien dependencies da thay doi | HIGH | Truoc khi ghi file moi: doc file cu -> diff 2 versions -> ghi `## Thay doi so voi lan truoc` section. Tuong tu logic-sync.js detectLogicChanges (da co o v1.5). **Phu thuoc:** logic-sync.js pattern (tai su dung), A-TS1/A-TS2 (thu muc). |
-| **E-D4: Confidence aggregation cho plan** | Tinh confidence trung binh cua tat ca research backing 1 plan. Plan voi avg confidence LOW -> canh bao manh hon | MEDIUM | Plan-Gate (D-TS1) doc confidence tu tung research file referenced -> tinh trung binh -> hien trong PASS table: `RESEARCH-CONFIDENCE: HIGH/MEDIUM/LOW`. **Phu thuoc:** D-TS1 Plan-Gate, B-TS3 confidence levels. |
-| **E-D5: Pipeline Evidence Collector -> Fact Checker tu dong** | Thay vi chay thu cong 2 agent, `pd research` tu dong chay Collector roi Fact Checker theo pipeline | LOW | Orchestration don gian: (1) spawn Evidence Collector, (2) doi hoan tat, (3) spawn Fact Checker voi output tu buoc 1. Tuong tu pattern D-TS1->D-TS2 trong v2.1 detective workflow. **Phu thuoc:** C-TS1 + C-TS2 (ca 2 agents). |
+| **F-D1: Doc va phan loai evidence cu** | Khong scan lai cai da biet — chi verify cai da fix. Tiet kiem token dang ke khi chay audit nhieu lan. Pattern tuong tu incremental SAST cua SonarQube, Snyk | HIGH | Buoc 0 trong pipeline moi scanner: doc evidence cu -> phan loai KNOWN-UNFIXED (skip scan) / RE-VERIFY (scan lai ham da fix) / NEW (scan moi). Tim evidence cu theo path convention (milestone vs standalone). **Phu thuoc:** E-TS1 (evidence format phai parse duoc). |
+| **F-D2: Git diff scope cho RE-SCAN** | Ham da PASS nhung code doi (git diff) -> RE-SCAN. Ham da PASS va code khong doi -> SKIP giu ket qua cu. Toi uu token cho repo lon | MEDIUM | Can git integration: `git diff [base]..HEAD -- [file]`. Parse diff xac dinh ham nao bi sua. Ket hop voi F-D1 de quyet dinh SKIP vs RE-SCAN. **Phu thuoc:** F-D1 (session delta logic), git repo (optional — khong co git thi scan toan bo). |
+| **F-D3: Audit history trong evidence** | Moi evidence file giu lich su phien o cuoi: Session N, ngay, ket qua, ghi chu. Giup track tien trinh fix loi qua thoi gian | LOW | Append-only table cuoi evidence file. Reporter tong hop status column (NEW/KNOWN-UNFIXED/RE-VERIFIED/FIXED). Pattern tuong tu AUDIT_LOG tu v3.0 research squad. **Phu thuoc:** F-D1 (doc evidence cu de biet lich su). |
+
+### Danh muc G: POC / Gadget Chain Analysis
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **G-D1: POC don le (tung ham)** | Chung minh khai thac thuc su — khong chi bao "co loi". Voi moi FAIL/FLAG: input vector, payload mau, buoc tai hien (curl/script), ket qua du kien. Chi khi dung `--poc` | HIGH | Buoc 2.5a trong pipeline. AI phan tich ham da FLAG/FAIL -> tao payload + reproduction steps. Output: POC section trong evidence file. Token cost cao (AI phai hieu call chain + tao exploit), nen chi khi user yeu cau. **Phu thuoc:** E-TS1 (evidence co FAIL/FLAG findings de tao POC). |
+| **G-D2: Gadget Chain POC (lien ket loi hong)** | Chain nhieu loi nho thanh chuoi tan cong — impact thuc te lon hon tong individual severity. Vi du: IDOR -> Secret Leak -> SQLi -> Data Breach. Day la ky thuat red team that su | VERY HIGH | Buoc 2.5b: thu thap TAT CA FAIL/FLAG tu MOI category (bao gom KNOWN-UNFIXED tu phien cu) -> phan tich lien ket (output A la input B?) -> chain diagram -> combined payload. Severity danh lai: chain impact > individual. **Phu thuoc:** G-D1 (POC don le lam input), F-D1 (KNOWN-UNFIXED giu cho chain). |
+
+### Danh muc H: Tu dong tao Fix Phases (Che do Milestone)
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **H-D1: Fix phase generation theo gadget chain order** | Khi audit tim CRITICAL/WARNING trong milestone mode -> tu dong tao fix phases dang decimal (3.1, 3.2...). Sap xep theo nguoc gadget chain: fix RCE endpoint truoc, gadget source sau | HIGH | 7 muc uu tien: P0-RCE-Endpoint -> P0-Data-Breach -> P0-Auth-Bypass -> P1-Gadget-Source -> P1-Config-Hardening -> P2-Monitoring -> P2-Dependencies. Moi fix phase co frontmatter: phase, title, priority, owasp, related-evidence, gadget-chain-position. **Phu thuoc:** G-D2 (gadget chain analysis xac dinh thu tu), B-TS3 (reporter cung cap findings). |
+| **H-D2: Template `security-fix-phase.md`** | Template chuan cho fix phases tu dong tao — bao gom evidence trich dan, huong sua de xuat, tieu chi thanh cong. Giong template plan nhung chuyên cho security fix | MEDIUM | Template co: Muc tieu (files + dong can sua), Tu Evidence (trich nguyen van), Huong sua de xuat (tu scanner suggested_fixes), Tieu chi thanh cong (re-audit PASS). **Phu thuoc:** H-D1 (fix phase generation logic). |
+| **H-D3: Re-verify phase tu dong** | Phase cuoi cung luon la `[SEC-VERIFY]` — chay lai audit chi tren files da fix. Xac nhan fix thuc su khac phuc loi hong | MEDIUM | Tao 1 phase cuoi `Phase X.N — [SEC-VERIFY] Re-audit`. Logic: `pd:audit --only [categories da tim thay loi]` chi tren files da sua. Ket hop F-D1 session delta de chi RE-VERIFY. **Phu thuoc:** H-D1 (fix phases phai co truoc), F-D1 (session delta RE-VERIFY logic). |
+
+### Danh muc I: Tich hop Ecosystem
+
+| Feature | Gia tri | Do phuc tap | Ghi chu |
+|---------|---------|-------------|---------|
+| **I-D1: Security gate trong complete-milestone** | Them kiem tra: chua co SECURITY_REPORT.md -> yeu cau chay pd:audit truoc khi dong milestone. CRITICAL con -> CHAN. WARNING -> hoi user | MEDIUM | Cap nhat `workflows/complete-milestone.md`: them buoc glob `.planning/milestones/[version]/SECURITY_REPORT.md`. Khong co -> chan: "Chay /pd:audit truoc." Co + CRITICAL -> chan: "Con N loi CRITICAL." Co + chi WARNING -> hoi: "Fix/Accept." **Phu thuoc:** E-TS2 (SECURITY_REPORT.md ton tai). |
+| **I-D2: Uu tien audit trong what-next** | Them priority 7.5: tat ca phases hoan tat + chua co SECURITY_REPORT -> goi y pd:audit truoc pd:complete-milestone | LOW | Cap nhat `workflows/what-next.md` bang uu tien. Glob kiem tra SECURITY_REPORT.md ton tai. **Phu thuoc:** Khong. Doc lap. |
+| **I-D3: State machine update** | Them pd:audit vao luong trang thai — sau test, truoc complete-milestone. Nhanh phu: chay bat ky luc nao sau init | LOW | Cap nhat `references/state-machine.md`. Dieu kien tien quyet: CONTEXT.md (milestone mode) hoac khong can (standalone). **Phu thuoc:** Khong. Doc lap. |
+| **I-D4: FastCode MCP tool-first integration** | Uu tien dung FastCode tree-sitter de discovery (list functions, endpoints) TRUOC KHI AI phan tich. Giam token dang ke — tool tim, AI chi phan tich ket qua | MEDIUM | Pipeline 5 buoc: discovery (FastCode/grep) -> analysis (AI) -> POC (optional) -> evidence (write). FastCode queries mau da co cho 12/13 categories (vuln-deps dung npm audit). Fallback grep khi FastCode khong co. **Phu thuoc:** B-TS1 (template co discovery step), mcp__fastcode__code_qa (optional). |
 
 ---
 
@@ -65,54 +95,63 @@ Features KHONG NEN LAM. Moi feature co ly do muon lam va ly do khong nen.
 
 | Anti-Feature | Ly do muon co | Ly do co van de | Thay the |
 |--------------|---------------|-----------------|----------|
-| **AF-1: LLM-as-judge cho fact-checking** | Dung 1 LLM kiem tra output cua LLM khac de cross-validate | Circular reasoning: 2 LLMs co cung training data co the dong y ve cung 1 thong tin sai. PROJECT.md da ghi ro "LLM-as-judge — plan already in context, calling another LLM is circular" trong Out of Scope. Chi phi gap doi. | Fact Checker dung TOOL-based verification: Context7 tra docs, Grep kiem tra code, WebSearch tim nguon. Bang chung tu TOOLS, khong tu LLM khac. |
-| **AF-2: Embedding-based semantic search cho research files** | Tim research lien quan bang semantic similarity thay vi keyword match | Them dependency (embedding model/API), pha vo "No Build Step" constraint. So luong research files trong 1 du an nho (10-50 files) — keyword match + INDEX.md du hieu qua. Chi phi phuc tap khong tuong xung voi loi ich. | INDEX.md + Grep keyword match. Neu can chinh xac hon: them tags trong frontmatter de filter theo tag. |
-| **AF-3: Database luu research (SQLite/JSON DB)** | Query nhanh hon, structured queries, relationships giua research files | Cung ly do nhu C-AF1 o v2.1: them dependency, pha vo pure Node.js pattern. Markdown files la du cho quy mo 1 du an. Grep + INDEX.md la du nhanh cho 100+ files. | Flat file INDEX.md + frontmatter structured + Grep. Pattern da duoc chung minh hieu qua o v1.5 bug tracking (.planning/bugs/). |
-| **AF-4: Real-time research khi dang code** | Tu dong chay research ngam khi developer dang viet code de cung cap suggestions | Token cost cuc cao (research chay lien tuc). Gay nhieu ngat workflow. Nguoi dung khong ky vong AI tu research khi khong duoc yeu cau. Vi pham nguyên tac "minimum tokens and time" trong Core Value. | On-demand research: nguoi dung go `pd research` khi CAN. Strategy Injection (D-TS3) truyen research DA CO vao context — khong chay research moi. |
-| **AF-5: Blocking enforcement (research bat buoc truoc moi plan)** | Bat buoc moi plan phai co research backing, khong cho pass neu thieu | Qua nghiem ngat cho task don gian (fix typo, update version). Lam cham workflow cho 80% task khong can research. Plan-checker da co precedent: CHECK-05 mac dinh WARN khong phai BLOCK. | WARN severity mac dinh. Nguoi dung co the cau hinh BLOCK cho du an quan trong qua `.plan-checker.yml` (pattern da co tu v1.3). |
-| **AF-6: Auto-research truoc moi phase** | Tu dong chay research cho moi phase trong roadmap truoc khi bat dau | Phung phi tokens cho phases don gian (refactor, test, docs). Research chi can thiet cho phases co uncertainty cao (new tech, complex architecture). | Danh dau phases CAN research trong roadmap (flag `needs_research: true`). Chi phases do moi trigger research tu dong. |
+| **AF-1: DAST (Dynamic Application Security Testing)** | Quet runtime, tim loi ma SAST khong thay (race conditions, timing attacks, actual HTTP responses) | Can chay server — khong phai moi du an co the start len duoc tu CLI. Them dependency (server runtime, database). Pham vi vuot xa AI coding tool — day la penetration testing tool. Token cost cuc cao | SAST-only voi AI analysis (da du cho code review scope). Ghi note trong report: "Nen bo sung DAST voi ZAP/Burp Suite cho production" |
+| **AF-2: AST-based analysis thay vi regex** | Regex co false positives. AST (Abstract Syntax Tree) chinh xac hon vi hieu cau truc code thuc su | Them dependency nang (tree-sitter bindings, babel parser). Pha vo "No Build Step" constraint. FastCode MCP da cung cap tree-sitter analysis — dung MCP thay vi tu build AST parser. Regex + AI analysis du chinh xac cho scope nay | FastCode MCP code_qa cho deep analysis. Regex cho quick discovery. AI phan loai false positive trong Analysis step. 3 lop nay du chinh xac |
+| **AF-3: CVE database lookup real-time** | Mapping loi hong voi CVE IDs cu the, cung cap CVSS scores chinh xac | Can external API (NVD, OSV). Network dependency lam audit khong chay offline. `npm audit` / `pip audit` da mapping CVE san — khong can lam lai | `pd-sec-vuln-deps` chay `npm audit --json` / `pip audit` — da co CVE mapping + severity. Voi cac category khac, ghi OWASP ID thay vi CVE (chinh xac hon cho code patterns) |
+| **AF-4: Auto-fix code truc tiep (khong qua fix phase)** | Nhu GitHub Copilot Autofix / Aikido AutoFix — tu dong tao PR fix loi. Nhanh hon tao fix phase roi manual code | SAST re-scan passes vi pattern cu bien mat, khong vi code moi an toan. AI fix co the dung library function khong ton tai trong version dang chay. Fix khong qua test = nguy hiem. PROJECT.md ghi ro: "Code-level verification — plan checker only checks plan documents, not code" | Tao fix phases voi huong sua de xuat chi tiet (H-D1 + H-D2). Developer review + implement + test. An toan hon auto-fix |
+| **AF-5: Blocking enforcement — audit bat buoc moi phase** | Bat buoc audit sau moi phase thay vi chi truoc complete-milestone | Qua nghiem ngat. Phase "update README" khong can security audit. Lam cham workflow cho 70% phases khong co security-relevant code. Precedent: CHECK-05 mac dinh WARN khong BLOCK | Audit la security gate CHI truoc complete-milestone (I-D1). User co the chay pd:audit bat ky luc nao (nhanh phu trong state machine I-D3). --full khi can toan dien |
+| **AF-6: Giu 13 agent files rieng le** | Da co 13 file pd-sec-*.md voi noi dung chi tiet. Tai sao khong dung luon? | Maintain 13 files vs 1 template + 1 YAML config. Khi them scanner moi phai tao file moi. Khi sua format evidence phai sua 13 files. DRY principle bi vi pham. 4_AUDIT_MILESTONE.md da ghi ro: "Tao 13 file roi gop = lang phi cong suc" | Template `pd-sec-scanner.md` + `config/security-rules.yaml`. Chuyen regex/patterns tu 13 files hien co vao YAML. Xoa 13 files cu sau khi migrate |
 
 ---
 
 ## Feature Dependencies
 
 ```
-[A-TS1: internal/] ──┐
-                      ├──> [A-TS3: INDEX.md]
-[A-TS2: external/] ──┘        |
-                               v
-[B-TS1: Metadata] ────> [B-TS4: Audit Log]
-       |                       |
-       v                       v
-[B-TS2: Evidence section] ──> [B-TS3: Confidence Level]
-       |
-       v
-[C-TS1: Evidence Collector] ──> [C-TS2: Fact Checker]
-       |                               |
-       v                               v
-[A-TS4: pd research cmd] ────> [E-D5: Pipeline tu dong]
-                                       |
-                                       v
-                               [E-D1: Cross-validation]
+[A-TS1: Skill audit.md] ──> [A-TS2: Workflow audit.md]
+                                    |
+                                    v
+                [A-TS3: 2 che do (Doc lap + Milestone)]
+                    |                   |
+                    v                   v
+[B-TS2: security-rules.yaml] ──> [B-TS1: Template pd-sec-scanner.md]
+                                    |
+                                    v
+                        [B-TS4: Resource-config registry]
+                                    |
+                                    v
+            [C-TS1: Smart Selection] + [C-TS2: Bang anh xa]
+                        |
+                        v
+            [D-TS1: Wave-based dispatch] + [D-TS2: Failure isolation]
+                        |
+                        v
+            [E-TS1: Function-Level Evidence] ──> [E-TS2: SECURITY_REPORT.md]
+                        |                               |
+                        v                               v
+            [F-D1: Session Delta] ──> [F-D2: Git diff scope]
+                        |
+                        v
+            [G-D1: POC don le] ──> [G-D2: Gadget Chain POC]
+                                          |
+                                          v
+            [H-D1: Fix phase generation] ──> [H-D2: Template fix-phase]
+                                          |
+                                          v
+                                [H-D3: Re-verify phase]
 
-[D-TS1: Plan-Gate] ──> [E-D4: Confidence aggregation]
-       ^
-       |
-[plan-checker.js da co] ──> [D-TS2: Mandatory Suggestion]
-
-[D-TS3: Strategy Injection] <── [A-TS3: INDEX.md]
-
-[E-D2: Freshness tracking] <── [B-TS1: Metadata]
-[E-D3: Research diff] <── [logic-sync.js pattern v1.5]
+[I-D1: Security gate] <── [E-TS2: SECURITY_REPORT.md]
+[I-D2: what-next priority] (doc lap)
+[I-D3: State machine] (doc lap)
+[I-D4: FastCode integration] <── [B-TS1: Template scanner]
 ```
 
 ### Ghi chu Dependency quan trong
 
-- **A-TS1 + A-TS2 PHAI co truoc moi feature khac:** Thu muc luu tru la nen tang. Khong co thu muc = khong co cho ghi research.
-- **B-TS1 Metadata PHAI co truoc B-TS2, B-TS4, C-TS1:** Format chuan la prerequisite cho moi output/validation.
-- **C-TS1 Evidence Collector PHAI co truoc C-TS2 Fact Checker:** Fact Checker can co output de kiem tra.
-- **D-TS1 Plan-Gate co the lam doc lap:** Chi can plan-checker.js (da co) + research files (tu A-TS1/A-TS2).
-- **D-TS3 Strategy Injection can INDEX.md:** De tim research files lien quan.
+- **B-TS2 (YAML config) PHAI co truoc B-TS1 (template):** Template load rules tu YAML — khong co YAML thi template khong biet quet gi.
+- **B-TS4 (registry) PHAI co truoc D-TS1 (dispatch):** Workflow can getAgentConfig() de spawn agents.
+- **E-TS1 (evidence format) PHAI co truoc F-D1 (session delta):** Delta doc lai evidence cu — format phai parse duoc.
+- **G-D1 (POC don le) PHAI co truoc G-D2 (gadget chain):** Chain xay tren POC tung ham.
+- **I-D1 (security gate) co the lam doc lap:** Chi can kiem tra SECURITY_REPORT.md ton tai.
 
 ---
 
@@ -120,46 +159,54 @@ Features KHONG NEN LAM. Moi feature co ly do muon lam va ly do khong nen.
 
 | Feature moi | Module/File da co | Thay doi can thiet |
 |-------------|-------------------|--------------------|
-| A-TS1 + A-TS2: Thu muc luu tru | `.planning/research/` (da ton tai) | Tao sub-dirs `internal/` va `external/` |
-| A-TS3: INDEX.md | `bin/lib/manifest.js` (SHA256 pattern) | Tao `bin/lib/research-index.js` pure function moi |
-| A-TS4: pd research | `commands/pd/` (pattern da co) | Tao `commands/pd/research.md` skill moi |
-| B-TS1: Metadata | `bin/lib/utils.js` parseFrontmatter (da co) | Khong thay doi — tai su dung |
-| B-TS2: Evidence section | `bin/lib/evidence-protocol.js` (v2.1) | Mo rong hoac tao research-validator.js tuong tu |
-| B-TS4: Audit Log | Chua co | Tao `bin/lib/audit-log.js` pure function (append content) |
-| C-TS1: Evidence Collector | `commands/pd/agents/` (5 agents da co) | Tao `pd-evidence-collector.md` agent moi |
-| C-TS2: Fact Checker | `commands/pd/agents/` (5 agents da co) | Tao `pd-fact-checker.md` agent moi |
-| D-TS1: Plan-Gate | `bin/lib/plan-checker.js` (8 checks) | Them CHECK-06 checkResearchBacking |
-| D-TS2: Mandatory Suggestion | `bin/lib/plan-checker.js` | Co the tich hop nhu CHECK-07 hoac doc lap |
-| D-TS3: Strategy Injection | Workflow files (`workflows/*.md`) | Them buoc inject research context |
-| E-D3: Research diff | `bin/lib/logic-sync.js` detectLogicChanges | Tai su dung pattern, tao research-diff.js |
+| A-TS1: Skill audit | `commands/pd/scan.md` (pattern) | Tao `commands/pd/audit.md` moi |
+| A-TS2: Workflow | `workflows/scan.md`, `workflows/research.md` (pattern) | Tao `workflows/audit.md` moi |
+| B-TS1: Template scanner | 13 files `commands/pd/agents/pd-sec-*.md` (regex/patterns) | Tao 1 template moi, migrate patterns tu 13 files |
+| B-TS2: Rules YAML | Khong co | Tao `config/security-rules.yaml` moi |
+| B-TS3: Reporter | `commands/pd/agents/pd-sec-reporter.md` (DA CO) | Verify tuong thich voi template model |
+| B-TS4: Registry | `bin/lib/resource-config.js` AGENT_REGISTRY | Them 14 entries (13 scanner + 1 reporter) |
+| C-TS1: Smart selection | Khong co | Tao JS module moi `bin/lib/scanner-selector.js` |
+| D-TS1: Wave dispatch | `bin/lib/parallel-dispatch.js` (pattern) | Mo rong hoac tao `bin/lib/security-dispatch.js` |
+| E-TS1: Evidence format | `bin/lib/evidence-protocol.js` (v2.1 pattern) | Tai su dung validateEvidence, mo rong cho security format |
+| F-D1: Session delta | `bin/lib/session-manager.js` (pattern) | Tao `bin/lib/security-session.js` hoac mo rong session-manager |
+| H-D2: Fix template | `templates/management-report.md` (pattern) | Tao `templates/security-fix-phase.md` moi |
+| I-D1: Security gate | `workflows/complete-milestone.md` (Buoc 2-3) | Them buoc kiem tra SECURITY_REPORT.md |
+| I-D2: what-next | `workflows/what-next.md` (Buoc 4 bang uu tien) | Them priority 7.5 |
 
 ---
 
 ## MVP Recommendation
 
-### v3.0 Launch (Minimum Viable Research Squad)
+### v4.0 Launch (Minimum Viable Security Audit)
 
-Uu tien theo thu tu implement:
+Uu tien theo thu tu implement — chia thanh 3 nhom:
 
-1. **A-TS1 + A-TS2: Thu muc luu tru** — Nen tang, lam dau tien, LOW complexity
-2. **B-TS1: Metadata frontmatter chuan** — Convention, ap dung ngay, LOW complexity
-3. **B-TS3: Confidence Level 3 bac** — Convention, kem voi B-TS1, LOW complexity
-4. **B-TS2: Evidence section voi citations** — Format chuan cho moi output, MEDIUM complexity
-5. **C-TS1: Evidence Collector agent** — Agent dau tien, tao duoc research files, MEDIUM complexity
-6. **A-TS3: INDEX.md tu dong** — Tu dong hoa tracking, MEDIUM complexity
-7. **C-TS2: Fact Checker agent** — Agent thu 2, kiem tra output agent 1, MEDIUM complexity
-8. **B-TS4: Audit Log** — Ghi lai moi hoat dong, MEDIUM complexity
-9. **A-TS4: pd research command** — Diem vao cho nguoi dung, MEDIUM complexity
-10. **D-TS1: Plan-Gate CHECK-06** — Enforcement, lam sau cung khi da co research files de test, MEDIUM complexity
-11. **D-TS2: Mandatory Suggestion** — Non-blocking goi y, LOW complexity
-12. **D-TS3: Strategy Injection** — Auto-load research vao agent context, MEDIUM complexity
+**Nhom 1: Infrastructure (phases dau)**
+1. **B-TS2: security-rules.yaml** — Nen tang rules, lam dau tien
+2. **B-TS1: Template pd-sec-scanner.md** — 1 template thay 13 files
+3. **B-TS4: Resource-config registry** — Dang ky agents
+4. **E-TS1: Function-Level Evidence format** — Chuan output
 
-**Defer sang v3.1+:**
-- E-D1: Cross-validation (HIGH complexity, can ca 2 agents stable truoc)
-- E-D2: Freshness tracking (can kinh nghiem thuc te ve research lifecycle)
-- E-D3: Research diff (nice-to-have, can research files thuc te de test)
-- E-D4: Confidence aggregation (can Plan-Gate stable truoc)
-- E-D5: Pipeline tu dong (polish, can manual flow hoat dong tot truoc)
+**Nhom 2: Core Workflow (phases giua)**
+5. **C-TS1 + C-TS2: Smart Scanner Selection** — Toi uu token
+6. **D-TS1 + D-TS2: Wave-based dispatch** — Chay scanner
+7. **A-TS1: Skill audit.md** — Diem vao user
+8. **A-TS2: Workflow audit.md** — Quy trinh thuc thi
+9. **A-TS3: 2 che do** — Doc lap + milestone
+10. **E-TS2: SECURITY_REPORT.md** — Bao cao tong hop (reporter da co)
+11. **I-D4: FastCode integration** — Tool-first discovery
+
+**Nhom 3: Advanced Features (phases cuoi)**
+12. **F-D1 + F-D2 + F-D3: Session Delta** — Incremental scanning
+13. **G-D1: POC don le** — Chung minh khai thac (--poc)
+14. **G-D2: Gadget Chain POC** — Lien ket loi hong
+15. **H-D1 + H-D2 + H-D3: Fix phase generation** — Tu dong tao phases
+16. **I-D1 + I-D2 + I-D3: Ecosystem integration** — Security gate + what-next + state machine
+
+**Defer sang v4.1+ (neu v4.0 qua lon):**
+- G-D2: Gadget Chain POC (VERY HIGH complexity, can POC don le stable truoc)
+- H-D1: Fix phase generation (can gadget chain analysis)
+- H-D3: Re-verify phase (can session delta + fix phases)
 
 ---
 
@@ -167,59 +214,66 @@ Uu tien theo thu tu implement:
 
 | Feature | Gia tri User | Chi phi Implement | Uu tien |
 |---------|-------------|-------------------|---------|
-| A-TS1+A-TS2: Thu muc phan tach | HIGH | LOW | **P1** |
-| B-TS1: Metadata bat buoc | HIGH | LOW | **P1** |
-| B-TS3: Confidence Level | HIGH | LOW | **P1** |
-| B-TS2: Evidence + citations | HIGH | MEDIUM | **P1** |
-| C-TS1: Evidence Collector | HIGH | MEDIUM | **P1** |
-| A-TS3: INDEX.md tu dong | MEDIUM | MEDIUM | **P1** |
-| C-TS2: Fact Checker | HIGH | MEDIUM | **P1** |
-| B-TS4: Audit Log | MEDIUM | MEDIUM | **P1** |
-| A-TS4: pd research cmd | HIGH | MEDIUM | **P1** |
-| D-TS1: Plan-Gate | MEDIUM | MEDIUM | **P1** |
-| D-TS2: Mandatory Suggestion | LOW | LOW | **P1** |
-| D-TS3: Strategy Injection | MEDIUM | MEDIUM | **P1** |
-| E-D5: Pipeline tu dong | MEDIUM | LOW | **P2** |
-| E-D2: Freshness tracking | MEDIUM | MEDIUM | **P2** |
-| E-D1: Cross-validation | HIGH | HIGH | **P2** |
-| E-D3: Research diff | MEDIUM | HIGH | **P2** |
-| E-D4: Confidence aggregation | LOW | MEDIUM | **P2** |
+| B-TS2: security-rules.yaml | HIGH | MEDIUM | **P0** |
+| B-TS1: Template scanner | HIGH | HIGH | **P0** |
+| B-TS4: Resource-config | HIGH | LOW | **P0** |
+| E-TS1: Evidence format | HIGH | MEDIUM | **P0** |
+| A-TS1: Skill audit | HIGH | MEDIUM | **P0** |
+| A-TS2: Workflow audit | HIGH | HIGH | **P0** |
+| A-TS3: 2 che do | HIGH | MEDIUM | **P0** |
+| C-TS1+C-TS2: Smart selection | HIGH | HIGH | **P0** |
+| D-TS1+D-TS2: Wave dispatch | HIGH | MEDIUM | **P0** |
+| E-TS2: SECURITY_REPORT | HIGH | MEDIUM | **P0** |
+| I-D4: FastCode integration | HIGH | MEDIUM | **P0** |
+| F-D1+F-D2+F-D3: Session Delta | MEDIUM | HIGH | **P1** |
+| G-D1: POC don le | MEDIUM | HIGH | **P1** |
+| I-D1: Security gate | MEDIUM | MEDIUM | **P1** |
+| I-D2: what-next priority | LOW | LOW | **P1** |
+| I-D3: State machine | LOW | LOW | **P1** |
+| G-D2: Gadget Chain POC | HIGH | VERY HIGH | **P2** |
+| H-D1+H-D2: Fix phase gen | HIGH | HIGH | **P2** |
+| H-D3: Re-verify phase | MEDIUM | MEDIUM | **P2** |
 
 **Priority key:**
-- P1: Bat buoc cho v3.0 launch — thieu thi Research Squad khong hoat dong
-- P2: Them khi v3.0 on dinh — tang chat luong va automation
+- P0: Bat buoc cho v4.0 launch — thieu thi pd:audit khong hoat dong
+- P1: Nen co cho v4.0 — tang gia tri dang ke, co the lam song song voi P0
+- P2: Co the defer sang v4.1 — can P0+P1 stable truoc
 
 ---
 
-## Phan tich Competitor / Reference
+## Phan tich Competitive / Reference
 
-| Feature | Claude Code vanilla | Cursor | Ring (LerianStudio) | Deep Research (OpenAI) | Please-Done v3.0 |
-|---------|--------------------|---------|--------------------|----------------------|-------------------|
-| Structured research storage | Khong | Khong | Khong (skills co nhung khong phan tach) | Internal only | internal/ + external/ phan tach + INDEX.md |
-| Anti-hallucination audit | Khong | Khong | "Run command -> paste output" rule | Khong (citation nhung khong audit) | Metadata + Evidence + Confidence + Audit Log |
-| Evidence collection agent | Khong | Khong | Khong | Single agent, khong phan tach | Specialized Collector + Fact Checker pipeline |
-| Fact-checking agent | Khong | Khong | Khong | Khong rieng biet | Dedicated agent voi tool-based verification |
-| Workflow guards | Khong | Khong | 89 skills, gate system | Khong | Plan-Gate + Suggestion + Strategy Injection |
-| Confidence scoring | Khong | Khong | Khong | Khong ro rang | 3-level (HIGH/MEDIUM/LOW) o ca file va claim |
-| Source separation | Khong | Khong | Khong | Single stream | Internal vs External routing |
+| Feature | Semgrep | Snyk Code | OpenAI Aardvark | GitHub Copilot Autofix | Please-Done v4.0 |
+|---------|---------|-----------|-----------------|----------------------|-------------------|
+| OWASP Top 10 coverage | 10/10 (rules) | 10/10 (DeepCode AI) | Threat model based | Partial (SAST only) | 10/10 (13 categories) |
+| Template-based dispatch | Config rules | Internal | Multi-stage pipeline | Internal | 1 template + YAML config |
+| Smart scanner selection | Rule filtering | Auto-triage | Full repo threat model | PR-scoped | Context analysis (milestone/standalone) |
+| Incremental scanning | Diff-aware | PR-scoped | Commit-level | PR-scoped | Session Delta (function-level) |
+| POC generation | Khong | Khong | Vulnerability PoC | Khong | POC don le + Gadget Chain |
+| Auto-fix generation | Khong | Fix suggestions | Fix suggestions | PR auto-fix | Fix phases (plan-level, khong code-level) |
+| Function-level evidence | Finding-level | Finding-level | Finding-level | Finding-level | Function checklist (PASS/FLAG/FAIL per function) |
+| Milestone integration | CI/CD | CI/CD | Repo-level | PR-level | Milestone workflow (fix phases + security gate) |
 
-**Insight chinh:** Khong co AI coding tool nao ket hop: phan tach luu tru theo nguon + anti-hallucination audit trail + fact-checking agent doc lap + workflow enforcement trong 1 he thong. Ring (LerianStudio) co gate system gan nhat nhung thieu research/fact-checking. OpenAI Deep Research co citation nhung khong co audit trail hay source separation. v3.0 la lop "research integrity" tren nen tang Claude Code.
+**Insight chinh:** Please-Done v4.0 khac biet o 3 diem:
+1. **Function-Level Checklist** — khong chi liet ke findings ma liet ke TUNG HAM da kiem tra (bao gom PASS), giup biet chinh xac nhung gi DA quet va CHUA quet.
+2. **Gadget Chain Analysis** — chain nhieu loi thanh exploit chuoi, giong red team thuc te. Cac SAST tool thuong chi bao tung loi rieng le.
+3. **Milestone Integration** — tu dong tao fix phases theo gadget chain order, tich hop vao workflow planning hien co. Khong tool nao khac tao "plan to fix" — chi "suggestion to fix".
 
 ---
 
 ## Sources
 
-- [Deep Research: A Survey of Autonomous Research Agents (arXiv)](https://arxiv.org/html/2508.12752v1) — HIGH confidence, academic survey
-- [Multi-agent systems and credibility-based scoring in fact-checking (Nature)](https://www.nature.com/articles/s41598-026-41862-z) — HIGH confidence, peer-reviewed
-- [LoCal: Logical and Causal Fact-Checking with LLM-Based Multi-Agents (ACM)](https://dl.acm.org/doi/10.1145/3696410.3714748) — HIGH confidence, peer-reviewed
-- [Ring: Mandatory workflow enforcement for AI agents (GitHub)](https://github.com/LerianStudio/ring) — MEDIUM confidence, open-source reference
-- [Agentic Engineering Part 7: Dual Quality Gates](https://www.sagarmandal.com/2026/03/15/agentic-engineering-part-7-dual-quality-gates-why-validation-and-testing-must-be-separate-processes/) — MEDIUM confidence, industry blog
-- [AI Agent Guardrails: Production Guide 2026](https://authoritypartners.com/insights/ai-agent-guardrails-production-guide-for-2026/) — MEDIUM confidence, industry guide
-- [AI Audit Trail: Compliance & Accountability (Swept AI)](https://www.swept.ai/ai-audit-trail) — MEDIUM confidence, product reference
-- [Practical Hallucination Detection for AI Agents (arXiv 2026)](https://arxiv.org/pdf/2603.10060) — HIGH confidence, academic paper
-- Existing codebase: `bin/lib/evidence-protocol.js`, `bin/lib/plan-checker.js`, `bin/lib/session-manager.js`, `commands/pd/agents/` — HIGH confidence (primary source)
-- Existing FEATURES.md v2.1: `.planning/research/FEATURES.md` — HIGH confidence (pattern reference)
+- [OWASP Top 10:2021 — Official](https://owasp.org/Top10/2021/) — HIGH confidence, authoritative source
+- [OpenAI Aardvark — Agentic Security Researcher](https://openai.com/index/introducing-aardvark/) — MEDIUM confidence, competitive reference
+- [AI-Powered SAST Tools 2026 — Aikido](https://www.aikido.dev/blog/top-10-ai-powered-sast-tools-in-2025) — MEDIUM confidence, industry overview
+- [Semgrep AI Agent Trends 2026](https://semgrep.dev/blog/2025/what-a-hackathon-reveals-about-ai-agent-trends-to-expect-2026/) — MEDIUM confidence, industry trends
+- [GitLab SAST Documentation](https://docs.gitlab.com/user/application_security/sast/) — HIGH confidence, template-based scanning reference
+- [PoCo: Agentic PoC Exploit Generation](https://arxiv.org/pdf/2511.02780) — HIGH confidence, academic paper on automated POC
+- [AquilaX AI Auto-Remediation](https://aquilax.ai/blog/ai-auto-remediation-security-vulnerabilities) — MEDIUM confidence, auto-fix reference
+- [SonarQube Incremental SAST](https://www.sonarsource.com/solutions/security/sast/) — HIGH confidence, incremental scanning reference
+- Existing codebase: 13 `commands/pd/agents/pd-sec-*.md` files, `bin/lib/parallel-dispatch.js`, `bin/lib/resource-config.js`, `bin/lib/session-manager.js`, `bin/lib/evidence-protocol.js` — HIGH confidence (primary source)
+- `4_AUDIT_MILESTONE.md` — HIGH confidence (project design document, primary source)
 
 ---
-*Feature research cho: v3.0 Research Squad (please-done)*
-*Researched: 2026-03-25*
+*Feature research cho: v4.0 OWASP Security Audit (please-done)*
+*Researched: 2026-03-26*

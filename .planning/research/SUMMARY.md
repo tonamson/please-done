@@ -1,221 +1,251 @@
-# Research Summary: v3.0 Research Squad
+# Tóm tắt Nghiên cứu: v4.0 OWASP Security Audit
 
-**Project:** please-done
-**Domain:** Anti-hallucination research agents voi structured storage, audit reports, workflow guards
-**Synthesized:** 2026-03-25
-**Overall Confidence:** HIGH
-**Based on:** STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md
-
----
-
-## Executive Summary
-
-v3.0 Research Squad la he thong chong ao giac (anti-hallucination) tich hop vao framework AI coding skill hien co cua please-done. He thong bao gom 2 sub-agents chuyen biet (Evidence Collector va Fact Checker), cau truc luu tru phan tach (internal/external), va 3 workflow guards (Plan-Gate, Mandatory Suggestion, Strategy Injection). Tat ca xay dung tren nen tang zero-dependency da co — khong them bat ky runtime package nao, chi them 3 pure function JS modules moi, 2 agent definition files, 1 skill, 1 workflow, va 2 guard reference files.
-
-Cach tiep can duoc khuyen nghi: file-based markdown storage voi YAML frontmatter (parseable boi parseFrontmatter() da co trong utils.js), rule-based confidence scoring (KHONG dung LLM self-assessment), 2-agent pipeline tach biet thu thap va xac minh, va non-blocking guards (default WARN thay vi BLOCK). Day la su mo rong truc tiep tu cac pattern da chung minh cua v2.1 — evidence-protocol.js, bug-memory.js, sub-agent orchestration — ap dung cho domain research thay vi debug.
-
-Rui ro chinh la "verified hallucination" — he thong co the tao bao cao co confidence level nhung level do la LLM self-assessment, khong phai evidence-based. Giai phap bat buoc: confidence scoring PHAI la pure function rule-based (`scoreConfidence(sources)`) dem so nguon va classify chat luong nguon, khong bao gio dung cam nhan cua agent. Rui ro thu hai la circular verification — Fact Checker verify bang cung tools nhu Evidence Collector. Giai phap: phan biet ro internal verification (doc code truc tiep, HIGH confidence) vs external verification (chi xac nhan source ton tai, MEDIUM toi da).
+**Dự án:** please-done
+**Tên miền:** Tích hợp lệnh `pd:audit` — quét bảo mật OWASP Top 10 vào AI coding skill framework
+**Tổng hợp:** 2026-03-26
+**Độ tin cậy tổng thể:** HIGH
+**Dựa trên:** STACK.md, FEATURES.md, ARCHITECTURE.md, PITFALLS.md
 
 ---
 
-## Key Findings
+## Tóm tắt Điều hành
 
-### Tu STACK.md
+v4.0 xây dựng khả năng kiểm toán bảo mật OWASP Top 10 cho framework please-done thông qua lệnh `pd:audit`. Điểm mạnh cốt lõi: 13 scanner agent chuyên biệt đã **tồn tại sẵn** trong codebase, cùng với infrastructure wave-based parallel execution (parallel-dispatch.js), session management (session-manager.js), và evidence protocol (evidence-protocol.js) đã được kiểm chứng qua 45 phases trước. Công việc v4.0 là **kết nối và mở rộng**, không phải xây mới từ đầu. Dependency runtime mới duy nhất cần thêm là `js-yaml ^4.1.0` (22KB, zero transitive deps) để parse `security-rules.yaml` với cấu trúc nested objects 3+ cấp.
 
-- **Zero runtime dependency:** Tat ca chuc nang moi la text processing — Node.js built-in du, khong can them package nao. Day la constraint bat buoc tu PROJECT.md.
-- **2 agents (KHONG hon):** Evidence Collector (sonnet/builder) cho thu thap, Fact Checker (haiku/scout) cho xac minh. Giu nhat quan voi `RESOURCE_LIMITS.maxConcurrentAgents = 2`.
-- **3 modules JS moi:** `research-storage.js`, `audit-reporter.js`, `confidence-scorer.js` — tat ca pure functions, pattern tuong tu cac module v2.1.
-- **3 modules mo rong:** `evidence-protocol.js` (them outcome types), `resource-config.js` (them 2 agents moi), `plan-checker.js` (them CHECK-06 Research Gate).
-- **Storage format:** Markdown voi YAML frontmatter, danh so ID (INT-001/EXT-001), parseable boi parseFrontmatter() da co trong utils.js. KHONG dung JSON hoac database.
-- **Confidence scoring:** Rule-based — Context7/official docs cho HIGH, WebSearch + verify cho MEDIUM, chi training data cho LOW. KHONG dung LLM.
-- **WebSearch/WebFetch la tools cua orchestrator, KHONG cua subagents.**
+Cách tiếp cận được khuyến nghị: 1 template scanner thống nhất (`pd-sec-scanner.md`) thay thế 13 file agent riêng lẻ, kết hợp `config/security-rules.yaml` làm nguồn sự thật duy nhất cho OWASP category mapping, regex patterns, và stack applicability. Smart Scanner Selection loại bỏ scanners không liên quan dựa trên tech stack (giảm 40-60% token), wave-based dispatch chạy tối đa 2 scanners song song, và reporter agent tổng hợp 13 evidence files thành `SECURITY_REPORT.md`. Hai chế độ vận hành: độc lập (quét toàn bộ repo) và tích hợp milestone (quét git diff scope, tạo fix phases tự động).
 
-### Tu FEATURES.md
-
-**Must-have cho v3.0 (theo thu tu implement):**
-
-1. A-TS1 + A-TS2: Thu muc `internal/` va `external/` — nen tang, LOW complexity
-2. B-TS1: YAML frontmatter bat buoc — convention, LOW complexity
-3. B-TS3: Confidence Level 3 bac (HIGH/MEDIUM/LOW) — convention, LOW complexity
-4. B-TS2: Evidence section voi source citations — format chuan, MEDIUM complexity
-5. C-TS1: Evidence Collector agent — MEDIUM complexity
-6. A-TS3: INDEX.md tu dong — MEDIUM complexity
-7. C-TS2: Fact Checker agent — MEDIUM complexity
-8. B-TS4: Audit Log append-only — MEDIUM complexity
-9. A-TS4: `pd research` command — MEDIUM complexity
-10. D-TS1: Plan-Gate CHECK-06 — MEDIUM complexity
-11. D-TS2: Mandatory Suggestion — non-blocking, LOW complexity
-12. D-TS3: Strategy Injection — auto-load research vao agent context, MEDIUM complexity
-
-**Defer sang v3.1+:**
-- E-D1: Cross-validation internal vs external (HIGH complexity, can agents stable truoc)
-- E-D2: Freshness tracking (can real-world data)
-- E-D3: Research diff khi cap nhat (nice-to-have)
-- E-D4: Confidence aggregation cho plan
-- E-D5: Pipeline tu dong Collector → Checker
-
-**Anti-features da xac dinh (KHONG lam):**
-- LLM-as-judge cho fact-checking (circular reasoning — PROJECT.md cam ro)
-- Embedding/vector database (vi pham no-dependency constraint)
-- Blocking enforcement mac dinh (user se bypass)
-- Real-time research khi dang code (token cost + interrupt flow)
-- Auto-research truoc moi phase (phung phi tokens cho phase don gian)
-
-### Tu ARCHITECTURE.md
-
-- **Pattern tai su dung:** Sub-agent orchestration, evidence-as-communication, auto-increment ID, YAML frontmatter — tat ca ke thua truc tiep tu v2.1 detective system.
-- **5 phases build duoc khuyen nghi:** (1) Research Storage Foundation, (2) Audit Report Standards, (3) Research Agents, (4) Workflow Guards, (5) `pd research` command. Phase 4 co the song song voi Phase 3.
-- **Component mapping:**
-  - `research-store.js` ~ `bug-memory.js` (createEntry, buildIndex, searchEntries)
-  - `audit-report.js` ~ `report-filler.js` (addAuditEntry, calculateConfidence)
-  - `fact-checker.js` ~ validation modules (extractClaims, compareClaim, generateVerdict)
-- **Migration backward compatible:** 5 files cu (SUMMARY, STACK, FEATURES, ARCHITECTURE, PITFALLS) giu nguyen. INDEX.md la addition, khong replacement. plan.md Buoc 3 van doc SUMMARY.md nhu cu.
-- **Non-blocking guards la pattern du an:** `debug-cleanup.js`, `logic-sync.js` deu non-blocking tu v1.5.
-- **Thu tu build co ly do ro:** Storage truoc → Format/Scoring truoc → Agents sau → Guards song song voi Agents → Command cuoi.
-
-### Tu PITFALLS.md
-
-| # | Pitfall | Severity | Prevention chinh |
-|---|---------|----------|-----------------|
-| 1 | Confidence level la LLM self-assessment, khong calibrated | CRITICAL | Rule-based `scoreConfidence()` pure function. KHONG cho agent tu danh gia. |
-| 2 | Evidence Collector fabricate citations (URL 404, tool call hallucination) | CRITICAL | Moi claim phai co tool call tuong ung. "Source-or-skip" rule bat buoc. |
-| 3 | Fact Checker circular verification (dung cung sources nhu Evidence Collector) | HIGH | Internal = doc code truc tiep (HIGH). External = chi verify source ton tai (MEDIUM toi da). |
-| 4 | INDEX.md stale (agent tao file nhung khong cap nhat INDEX) | HIGH | INDEX la GENERATED tu `generateIndex()`. Frontmatter la source of truth. |
-| 5 | Workflow guards overblocking (false positives, user bypass) | HIGH | Default WARN. Test tren existing PLAN.md. False positive rate < 5%. |
-| 6 | Routing sai internal/external | MEDIUM | Rule-based heuristics. `--internal/--external` flags cho override. |
-| 7 | Converter pipeline thieu research files | MEDIUM | Them pd-research.md vao converter pipeline cung luc voi implementation. |
-| 8 | Research storage phình to | MEDIUM | Retention policy voi `expires:`, dedup check, archive mechanism. |
-| 9 | Audit log format khong tuong thich voi parsers | LOW | Reuse parseFrontmatter(), markdown table chuan. |
-| 10 | Context7 goi qua nhieu (rate limit) | LOW | Theo context7-pipeline.md, cache library IDs, batch queries. |
+Rủi ro chính cần kiểm soát ngay từ đầu: (1) **False positive overload** — regex pattern matching có false positive rate 30-70%, phải có secondary verification và severity filtering trước khi reporter tổng hợp; (2) **Token explosion** — 13 scanners × full codebase scan có thể tiêu thụ 150K+ tokens, Smart Scanner Selection là bắt buộc chứ không phải nice-to-have; (3) **Agent dispatch reliability** — với 13 agents, xác suất ít nhất 1 agent fail là khoảng 49%, cần validation logic và per-scanner retry sau mỗi wave.
 
 ---
 
-## Implications for Roadmap
+## Kết quả Chính
 
-### Cau truc Phase Duoc Khuyen Nghi: 5 Phases
+### Từ STACK.md
+
+- **Dependency mới duy nhất:** `js-yaml ^4.1.0` — cần thiết vì `parseFrontmatter()` trong utils.js chỉ xử lý flat YAML, trong khi `security-rules.yaml` cần nested objects 3+ cấp. js-yaml là lựa chọn tối ưu (22KB, zero transitive deps, 25K+ npm dependents, stable từ 2021).
+- **5 module JS mới:** `security-rules-loader.js`, `security-scanner-dispatch.js`, `security-delta.js`, `security-report-builder.js`, `security-fix-planner.js` — tất cả pure functions, nhất quán với pattern của 22 modules hiện có.
+- **5 module JS mở rộng:** `resource-config.js` (thêm 14 agent entries), `parallel-dispatch.js` (thêm `buildBatchPlan()` tổng quát), `evidence-protocol.js` (thêm outcome types bảo mật), `session-manager.js` (thêm security session functions), `plan-checker.js` (thêm CHECK-08 Security Gate).
+- **Không cần:** Static analysis tools (Semgrep/CodeQL), Docker/sandbox, database, SARIF output — 13 agents đã dùng Grep + FastCode MCP, đủ cho scope này.
+- **Constraint bất biến:** No Build Step, Node.js 16.7+, CommonJS, backward compatible.
+
+### Từ FEATURES.md
+
+**Bắt buộc cho v4.0 launch (P0):**
+- Skill `commands/pd/audit.md` — điểm vào duy nhất, parse flags `--poc`, `--full`, `--only`, `--auto-fix`
+- Workflow `workflows/audit.md` — orchestrator 9 bước đầy đủ
+- 2 chế độ tự động phát hiện (độc lập vs tích hợp milestone)
+- Template scanner `pd-sec-scanner.md` + `config/security-rules.yaml` (thay thế 13 files riêng lẻ)
+- Đăng ký 14 agents trong `resource-config.js`
+- Smart Scanner Selection (context analysis + mapping tín hiệu)
+- Wave-based dispatch + failure isolation
+- Function-level evidence checklist (PASS/FLAG/FAIL mỗi hàm)
+- `SECURITY_REPORT.md` tổng hợp với OWASP coverage table
+- FastCode MCP tool-first integration (discovery trước, AI phân tích sau)
+
+**Nên có cho v4.0 (P1):**
+- Session Delta — phân loại NEW / KNOWN-UNFIXED / RE-VERIFY / RESOLVED
+- Git diff scope cho RE-SCAN
+- POC đơn lẻ (chỉ khi `--poc`)
+- Security gate trong `complete-milestone` (non-blocking, chỉ cảnh báo)
+- `what-next` priority 0.5 khi có CRITICAL findings
+
+**Defer sang v4.1+ (P2):**
+- Gadget Chain POC — VERY HIGH complexity, cần POC đơn lẻ và delta stable trước
+- Auto-generate fix phases theo gadget chain order — cần gadget chain analysis stable
+- Re-verify phase tự động — cần session delta + fix phases
+
+**Anti-features đã xác nhận không làm:**
+- DAST (cần chạy server — ngoài phạm vi AI coding tool)
+- AST parser riêng (FastCode MCP đã wrap tree-sitter)
+- Auto-fix code trực tiếp (nguy hiểm nếu không qua test)
+- Bắt buộc audit sau mỗi phase (quá nghiêm ngặt — chỉ trước `complete-milestone`)
+
+### Từ ARCHITECTURE.md
+
+**Luồng dữ liệu cốt lõi:**
 
 ```
-Phase A: Storage Foundation ──> Phase B: Audit Standards ──> Phase C: Agents ──+──> Phase E: Command
-                                                                                 |
-                                                              Phase D: Guards ───+
-                                                              (song song voi C)
+pd:audit → workflows/audit.md
+  → Context analysis → Smart Scanner Selection (security-rules.yaml)
+  → Session setup (.planning/security/S{NNN}-audit-{date}/)
+  → Wave dispatch (2 scanners/wave, tối đa 7 waves)
+      → Mỗi scanner → evidence_sec_{type}.md
+  → [--delta] Session Delta comparison
+  → pd-sec-reporter → SECURITY_REPORT.md
+  → [--poc] POC Pipeline
+  → [--milestone] Fix phase generation
+```
+
+**Ranh giới component:**
+
+| Component | Trách nhiệm | Ghi chú |
+|-----------|-------------|---------|
+| `commands/pd/audit.md` (MỚI) | Skill entry point, parse flags | Pattern giống research.md |
+| `workflows/audit.md` (MỚI) | Orchestrator toàn bộ pipeline | Kết hợp write-code.md --parallel + research.md patterns |
+| `bin/lib/security-scanner.js` (MỚI) | `selectScanners()`, `buildScanWaves()`, `parseScanEvidence()`, `compareSessions()` | Pure functions |
+| `bin/lib/security-reporter.js` (MỚI) | `generateFixPhases()`, `buildGadgetChain()`, `formatSecurityGate()` | Pure functions |
+| 13 `pd-sec-*.md` agents (DA CO) | Quét 1 OWASP category, ghi evidence | Không cần tạo mới |
+| `pd-sec-reporter.md` (DA CO) | Tổng hợp evidence → SECURITY_REPORT | Không cần tạo mới |
+
+**5 patterns bắt buộc tuân theo:**
+1. **Pure Function Library** — không đọc file, không `require('fs')`, content truyền qua tham số
+2. **Wave-based Agent Dispatch** — max 2/wave, đợi cả wave hoàn thành trước khi tiếp
+3. **Agent Communication via Evidence Files** — scanner ghi riêng, reporter đọc sau (tránh race condition)
+4. **Non-blocking Workflow Integration** — security gate cảnh báo nhưng không chặn workflow
+5. **YAML Config for Scanner Routing** — không hardcode scanner list trong workflow
+
+### Từ PITFALLS.md
+
+**6 bẫy nghiêm trọng (Critical):**
+
+| # | Bẫy | Phòng ngừa chính |
+|---|-----|-----------------|
+| 1 | **False Positive Overload** — Regex FP rate 30-70%. 13 scanners × 5-10 findings = 65-130 raw results, 50% là noise | Secondary verification sau Grep (đọc context ±15 dòng), severity filtering trong reporter, whitelist `.pd-security-ignore` |
+| 2 | **Token Explosion** — 13 scanners × full codebase = 150K+ tokens. Rate limit risk khi 4 agents song song gọi tools | Smart Scanner Selection PHAI implement trước dispatch — giảm xuống 5-8 scanners thực sự liên quan |
+| 3 | **Session Delta Edge Cases** — File rename, partial fix, code move làm file:line identifier không ổn định | Finding ID dựa trên content hash (không phải file:line), function-level anchoring, git-aware rename detection |
+| 4 | **POC Safety** — POC hoạt động thật có thể gây hại nếu chạy nhầm; AI-generated POC có thể hallucinate | POC chỉ sinh code, không thực thi. Double opt-in: `--poc --chain`. Redact trong git commits |
+| 5 | **Agent Dispatch Reliability** — 13 agents, p(ít nhất 1 fail) ≈ 49% nếu mỗi agent có 5% failure rate | `validateScannerEvidence()` sau mỗi agent, per-scanner retry, critical scanner designation |
+| 6 | **Gadget Chain Accuracy** — LLM không có call graph, không có data flow analysis → chain analysis sai | Chain là ADVISORY (không phải finding). Tối đa 3 steps. Confidence = MIN(steps) × length_penalty |
+
+**4 bẫy vừa (Moderate):**
+- YAML Config Complexity — validate schema trước khi scanner đọc, fallback về defaults nếu YAML sai
+- Evidence File Sprawl — giữ tối đa N=3 sessions, `evidence_sec_*.md` không commit vào git
+- Integration Breaking — security gate OPT-IN mặc định, feature flags cho tất cả tích hợp v4.0
+- Reporter Coverage Sai — 3 trạng thái: SCANNED / FINDINGS / NOT SCANNED; không bao giờ hiện "10/10" khi có NOT SCANNED
+
+---
+
+## Gợi ý Cấu trúc Roadmap
+
+### 5 Phases được khuyến nghị
+
+```
+Phase 1: Foundation (config + libs + registry)
+    ↓
+Phase 2: Core Audit Workflow (skill + workflow bước 1-3-5)
+    ↓
+Phase 3: Evidence Parsing + Smart Selection + Function Checklist
+    ↓
+Phase 4: Advanced (Delta + POC + Fix Phases)
+    ↓ (có thể song song với Phase 4)
+Phase 5: Workflow Integration (security gate + what-next + state machine)
 ```
 
 ---
 
-#### Phase A: Research Storage Foundation
+#### Phase 1: Foundation — Config, Libs, Registry
 
-**Rationale:** Moi thu phu thuoc vao storage format va directory structure — phai co truoc tat ca.
-**Deliverable:** Thu muc `internal/`, `external/`, `research-store.js` (createEntry, parseEntry, buildIndex, searchEntries), `generateIndex()`, `audit-report.js` so bo.
-**Features:** A-TS1, A-TS2, A-TS3, B-TS1, B-TS3.
-**Pitfalls phai tranh:** Pitfall 4 (INDEX stale — implement `generateIndex()` ngay tu dau, frontmatter la source of truth, khong manually maintained).
-**Research flag:** SKIP — pattern da ro tu bug-memory.js va manifest.js.
-
----
-
-#### Phase B: Audit Report Standards
-
-**Rationale:** Agents can biet format output TRUOC KHI implement. Confidence scoring la nen tang cua toan bo he thong "chong ao giac" — phai la rules-based tu dau.
-**Deliverable:** `confidence-scorer.js` (scoreConfidence pure function), `audit-reporter.js` day du, evidence validation, standard format cho research findings.
-**Features:** B-TS2, B-TS4.
-**Pitfalls phai tranh:** Pitfall 1 (CRITICAL — implement `scoreConfidence()` truoc bau tien, KHONG cho LLM tu danh gia), Pitfall 9 (parser incompatibility — reuse parseFrontmatter()).
-**Research flag:** SKIP — rule-based scoring da duoc dinh nghia day du trong STACK.md.
+**Lý do:** Mọi thứ phụ thuộc vào YAML config và AGENT_REGISTRY — phải có trước tất cả. Smart Scanner Selection là optimization bắt buộc, không thể bake sau.
+**Deliverable:** `config/security-rules.yaml`, `bin/lib/security-rules-loader.js`, `bin/lib/security-scanner.js` với `selectScanners()` + `buildScanWaves()` (partial), cập nhật `resource-config.js` với 14 agent entries.
+**Features:** B-TS2, B-TS4, C-TS2 (bang ánh xạ tín hiệu).
+**Bẫy phải tránh:** Pitfall 7 (YAML complexity — validate schema từ đầu, fallback về defaults), Pitfall 2 (token explosion — Smart Selection là foundation layer, không phải afterthought).
+**Research flag:** BO QUA — YAML schema, AGENT_REGISTRY pattern, js-yaml đã rõ từ codebase analysis.
 
 ---
 
-#### Phase C: Research Agents
+#### Phase 2: Core Audit Workflow — Skill + Workflow
 
-**Rationale:** Agents can co storage (Phase A) va audit format (Phase B) truoc khi implement.
-**Deliverable:** `pd-evidence-collector.md`, `pd-fact-checker.md`, cap nhat `resource-config.js` voi 2 agents moi.
-**Features:** C-TS1, C-TS2.
-**Pitfalls phai tranh:** Pitfall 2 (fabricated citations — "source-or-skip" rule trong agent prompt, audit log lien ket claim voi tool calls), Pitfall 3 (circular verification — phan biet ro internal vs external protocol), Pitfall 10 (Context7 abuse — tham chieu context7-pipeline.md).
-**Research flag:** CO THE research phase neu muon xac minh tool allowlist va maxTurns toi uu cho agents.
-
----
-
-#### Phase D: Workflow Guards
-
-**Rationale:** Guards chi can INDEX.md (Phase A) va plan-checker.js (da co) — doc lap voi agents, co the chay SONG SONG voi Phase C.
-**Deliverable:** CHECK-06 trong plan-checker.js, guard micro-templates (`guard-research.md`, `guard-evidence.md`), Plan-Gate + Mandatory Suggestion + Strategy Injection trong workflow files.
-**Features:** D-TS1, D-TS2, D-TS3.
-**Pitfalls phai tranh:** Pitfall 5 (CRITICAL — default WARN, test false positive rate tren existing plans truoc release, < 5% threshold), Pitfall 12 (Plan-Gate goi plan-checker, KHONG duplicate logic).
-**Research flag:** SKIP — CHECK-05 pattern va non-blocking v1.5 da chung minh day du.
+**Lý do:** Sau khi có foundation (config + lib + registry), xây skill entry point và orchestrator workflow. Deliverable user-facing đầu tiên có thể test end-to-end.
+**Deliverable:** `commands/pd/audit.md`, `workflows/audit.md` với bước 1 (context), 2 (session setup), 3 (wave dispatch), 5 (reporter dispatch), `templates/security-report.md`, 2 chế độ (độc lập + milestone).
+**Features:** A-TS1, A-TS2, A-TS3, D-TS1, D-TS2, E-TS2, I-D4.
+**Bẫy phải tránh:** Pitfall 5 (agent dispatch reliability — `validateScannerEvidence()` và per-scanner retry PHAI có trong workflow ngay từ đầu), Pitfall 10 (reporter coverage sai — 3 trạng thái SCANNED/FINDINGS/NOT SCANNED).
+**Research flag:** BỎ QUA — pattern từ write-code.md --parallel và research.md đã chứng minh đủ.
 
 ---
 
-#### Phase E: pd research Command
+#### Phase 3: Evidence Parsing + Smart Scanner Selection + Function Checklist
 
-**Rationale:** Tich hop tat ca thanh phan thanh user-facing command. Lam sau cung khi co agents + storage + guards on dinh.
-**Deliverable:** `commands/pd/research.md`, `workflows/research.md`, cap nhat `new-milestone.md` Buoc 5, cap nhat converter snapshots.
-**Features:** A-TS4, luong tu dong tu E-D5.
-**Pitfalls phai tranh:** Pitfall 6 (routing sai — rule-based heuristics + `--internal/--external` flags bat buoc truoc auto-detect), Pitfall 7 (converter pipeline — them pd-research.md ngay khi tao skill file).
-**Research flag:** SKIP — routing heuristics da dinh nghia ro, converter pattern da co tu v2.1 agents.
-
----
-
-### Defer sang v3.1
-
-- E-D1: Cross-validation (HIGH complexity, can Phase C stable, can du lieu thuc te)
-- E-D2: Freshness tracking (can research files thuc te de calibrate policy)
-- E-D3: Research diff (can logic-sync.js pattern, nice-to-have)
-- E-D4: Confidence aggregation for plan
-- Pitfall 8 retention/archive (implement khi co du files thuc te)
+**Lý do:** Cần có evidence files thực tế (từ Phase 2) để test parser. Function-level checklist là điểm khác biệt cốt lõi so với SAST tools khác — mỗi hàm đã kiểm tra đều được liệt kê, kể cả PASS.
+**Deliverable:** `bin/lib/security-scanner.js` hoàn chỉnh (`parseScanEvidence()`, `buildFunctionChecklist()`), `bin/lib/security-reporter.js` với `formatSecurityGate()`, `bin/lib/scanner-selector.js` với full Smart Scanner Selection logic, false positive filter trong reporter.
+**Features:** C-TS1, C-TS2, C-TS3, E-TS1.
+**Bẫy phải tránh:** Pitfall 1 (false positive overload — secondary verification + severity filtering + whitelist mechanism PHAI có ở phase này, không defer).
+**Research flag:** CO THE cần research phase — Smart Scanner Selection threshold (số tín hiệu relevance đủ để kích hoạt scanner) chưa được test với real projects.
 
 ---
 
-## Confidence Assessment
+#### Phase 4: Advanced — Session Delta, POC, Fix Phases
 
-| Area | Confidence | Notes |
-|------|------------|-------|
-| Stack | HIGH | Phan tich truc tiep codebase v2.1 + PROJECT.md constraints. Zero-dependency decision la bat buoc. |
-| Features | HIGH | Academic sources (arXiv, Nature, ACM) + codebase analysis. MVP scope duoc validate tu nhieu huong. |
-| Architecture | HIGH | 601+ tests chung minh cac pattern (bug-memory, evidence-protocol, sub-agents). Moi quyet dinh co tien le trong codebase. |
-| Pitfalls | HIGH | Nghien cuu hoc thuat 2025-2026 ve LLM calibration + codebase analysis. Critical pitfalls xac minh boi nhieu nguon doc lap. |
+**Lý do:** Phụ thuộc vào `parseScanEvidence()` từ Phase 3. Nhóm tính năng advanced lại thành 1 phase vì chúng có dependency chain với nhau (delta → POC → fix phases).
+**Deliverable:** `bin/lib/security-delta.js` với `compareSessions()` (content hash-based), `bin/lib/security-fix-planner.js`, `bin/lib/security-report-builder.js`, `templates/security-fix-phase.md`, cập nhật `workflows/audit.md` bước 4 (delta), 6 (POC), 7 (milestone). **Không làm G-D2 (Gadget Chain POC)** — defer sang v4.1.
+**Features:** F-D1, F-D2, F-D3, G-D1, H-D1, H-D2.
+**Bẫy phải tránh:** Pitfall 3 (session delta edge cases — thiết kế finding content hash schema TRƯỚC khi implement delta, sai ở data model = rewrite toàn bộ), Pitfall 4 (POC safety — không bao giờ execute POC, redact trong git), Pitfall 6 (gadget chain accuracy — chain tối đa 3 steps, luôn là ADVISORY).
+**Research flag:** CO THE cần research phase — finding content hash schema cần thiết kế cẩn thận để tránh collision và handle edge cases (rename, move, partial fix).
 
-### Gaps Can Chu Y Trong Planning
+---
 
-1. **Context7 rate limits cu the:** PITFALLS.md neu risk nhung khong co so lieu cu the. Can monitor trong Phase C.
-2. **False positive rate baseline:** Khuyen nghi < 5% nhung khong co data tu codebase hien tai. Can do tren existing PLAN.md files truoc Phase D.
-3. **maxTurns va token budget cho agents:** De xuat nhung chua lock down so cu the. Can calibrate trong Phase C.
-4. **Routing heuristics accuracy:** Khuyen nghi > 80% accuracy nhung heuristics chua duoc test voi real queries. Can validate trong Phase E.
+#### Phase 5: Workflow Integration — Security Gate + What-Next + State Machine
+
+**Lý do:** Chỉ cần `formatSecurityGate()` từ Phase 3 — độc lập với Phase 4, có thể song song nếu cần. Làm sau cùng khi core stable để tránh integration breaking existing workflows.
+**Deliverable:** Cập nhật `workflows/complete-milestone.md` Bước 3.7 (non-blocking security gate), cập nhật `workflows/what-next.md` priority 0.5, cập nhật state machine, CHECK-08 trong `plan-checker.js`.
+**Features:** I-D1, I-D2, I-D3, CHECK-08.
+**Bẫy phải tránh:** Pitfall 9 (integration breaking — security gate OPT-IN mặc định, feature flags cho tất cả, smoke test `pd:plan` và `pd:complete-milestone` sau khi tích hợp), Pitfall 3 anti-pattern (CANH BAO nhưng không CHAN milestone completion).
+**Research flag:** BỎ QUA — non-blocking pattern từ Bước 3.6 (complete-milestone) đã chứng minh, plan-checker extension đã rõ.
+
+---
+
+### Defer sang v4.1
+
+- **G-D2: Gadget Chain POC** — VERY HIGH complexity, cần POC đơn lẻ và delta stable trước
+- **H-D3: Re-verify phase tự động** — cần session delta + fix phases stable
+- **Evidence retention/archive** — implement khi có đủ data thực tế để calibrate policy N sessions
+- **`pd:audit --dry-run`** — nice-to-have, implement khi có users phản hồi về token cost
+
+---
+
+## Đánh giá Độ Tin Cậy
+
+| Lĩnh vực | Độ tin cậy | Ghi chú |
+|----------|------------|---------|
+| Stack | HIGH | Phân tích trực tiếp codebase v3.0 + npm registry. Quyết định js-yaml xác minh từ nhiều nguồn. |
+| Features | HIGH | Nguồn chính từ `4_AUDIT_MILESTONE.md` (design document) + 13 agent files đã có + codebase analysis. OWASP scope từ nguồn chính thức. |
+| Architecture | HIGH | 601+ tests chứng minh các patterns. Mọi quyết định kiến trúc có tiền lệ trong codebase hiện tại. |
+| Pitfalls | HIGH | Kết hợp codebase analysis (agent failure modes, token cost đo được) + nghiên cứu học thuật 2025-2026 (OWASP FP rate, AI-generated PoC quality). |
+
+### Gaps Cần Chú Ý Trong Planning
+
+1. **Smart Scanner Selection thresholds chưa được test** — "relevance_signals" trong security-rules.yaml chưa được test với real projects. Threshold "< 2 matches → chạy full" có thể cần điều chỉnh. Validate trong Phase 3.
+2. **Finding content hash schema chưa được định nghĩa** — PITFALLS.md đề xuất `sha256(vuln_type + normalized_snippet + function_name)` nhưng "normalized" cụ thể nghĩa gì chưa rõ. Thiết kế data model trước Phase 4.
+3. **maxTurns per scanner type chưa có data** — đề xuất 10 (simple) / 20 (complex) nhưng chưa có số thực tế. Monitor trong Phase 2 với 2-3 scanners trước khi scale.
+4. **Template scanner vs 13 agent files — cần quyết định rõ** — FEATURES.md (B-TS1) đề xuất 1 template thay 13 files. ARCHITECTURE.md liệt kê 13 files "đã có, không cần tạo mới". Hai hướng tiếp cận mâu thuẫn nhau, cần thống nhất trước Phase 2.
+5. **Session directory path — cần thống nhất** — ARCHITECTURE.md đề xuất `.planning/security/S{NNN}-audit-{date}/`. PITFALLS.md đề xuất `.planning/security-sessions/` để tránh conflict với existing session pattern. Cần chọn 1 hướng.
 
 ---
 
 ## Research Flags
 
-| Phase | Flag | Ly do |
+| Phase | Flag | Lý do |
 |-------|------|-------|
-| Phase A: Storage Foundation | SKIP research | Pattern da co: bug-memory.js, manifest.js, parseFrontmatter() — khong co ambiguity |
-| Phase B: Audit Standards | SKIP research | Scoring rules dinh nghia day du trong STACK.md, khong can them |
-| Phase C: Research Agents | CO THE research | Neu muon xac minh tool allowlist agent, maxTurns toi uu, Context7 rate limits |
-| Phase D: Workflow Guards | SKIP research | CHECK-05 pattern + non-blocking v1.5 da chung minh, false positive test la du |
-| Phase E: pd research Command | SKIP research | Converter pattern co tu v2.1, routing heuristics da dinh nghia ro |
+| Phase 1: Foundation | BỎ QUA research | YAML schema, AGENT_REGISTRY pattern, js-yaml — tất cả đã rõ từ codebase |
+| Phase 2: Core Audit Workflow | BỎ QUA research | Wave dispatch pattern (write-code.md), agent pipeline (research.md) — đã chứng minh |
+| Phase 3: Evidence Parsing + Smart Selection | CO THE research | Smart Scanner Selection relevance thresholds chưa test với real projects |
+| Phase 4: Advanced (Delta + POC) | CO THE research | Finding content hash schema, delta comparison edge cases cần thiết kế cẩn thận |
+| Phase 5: Workflow Integration | BỎ QUA research | Non-blocking pattern, plan-checker extension — patterns đã rõ |
 
 ---
 
-## Sources Tong Hop
+## Nguồn Tổng Hợp
 
-### Academic / Industry (HIGH confidence)
-- [arXiv: Confidence Dichotomy — Miscalibration in LLMs (ICLR 2025)](https://www.arxiv.org/pdf/2601.07264)
-- [Amazon QA-Calibration (ICLR 2025)](https://assets.amazon.science/6d/70/c50b2eb141d3bcf1565e62b60211/qa-calibration-of-language-model-confidence-scores.pdf)
-- [arXiv: Fact-Checking with LLMs (2026)](https://www.arxiv.org/pdf/2601.02574)
-- [Deep Research Survey (arXiv 2508.12752)](https://arxiv.org/html/2508.12752v1)
-- [Multi-agent Fact-Checking (Nature)](https://www.nature.com/articles/s41598-026-41862-z)
-- [LoCal: Logical Fact-Checking (ACM)](https://dl.acm.org/doi/10.1145/3696410.3714748)
-- [Practical Hallucination Detection (arXiv 2026)](https://arxiv.org/pdf/2603.10060)
+### Nguồn OWASP / Bảo mật (HIGH confidence)
+- [OWASP Top 10:2021 — Official](https://owasp.org/Top10/2021/)
+- [PoCo: Agentic PoC Exploit Generation (arXiv 2511.02780)](https://arxiv.org/pdf/2511.02780)
+- [SonarQube Incremental SAST](https://www.sonarsource.com/solutions/security/sast/)
+- [GitLab SAST Documentation](https://docs.gitlab.com/user/application_security/sast/)
 
-### Industry Guides (MEDIUM confidence)
-- [Authority Partners: AI Guardrails Guide 2026](https://authoritypartners.com/insights/ai-agent-guardrails-production-guide-for-2026/)
-- [Oracle: File Systems vs Databases for AI Agent Memory](https://blogs.oracle.com/developers/comparing-file-systems-and-databases-for-effective-ai-agent-memory-management)
-- [AI Coding Workflow Best Practices 2026](https://addyosmani.com/blog/ai-coding-workflow/)
+### Nguồn Industry / AI Security (MEDIUM confidence)
+- [OpenAI Aardvark — Agentic Security Researcher](https://openai.com/index/introducing-aardvark/)
+- [AI-Powered SAST Tools 2026 — Aikido](https://www.aikido.dev/blog/top-10-ai-powered-sast-tools-in-2025)
+- [AquilaX AI Auto-Remediation](https://aquilax.ai/blog/ai-auto-remediation-security-vulnerabilities)
+- [Semgrep AI Agent Trends 2026](https://semgrep.dev/blog/2025/what-a-hackathon-reveals-about-ai-agent-trends-to-expect-2026/)
 
 ### Codebase (PRIMARY, HIGH confidence)
-- `bin/lib/evidence-protocol.js`, `bin/lib/bug-memory.js`, `bin/lib/plan-checker.js`, `bin/lib/session-manager.js`, `bin/lib/utils.js`
-- `commands/pd/agents/` (5 agents), `references/guard-*.md` (4 guards), `workflows/*.md` (10 workflows)
-- `.planning/PROJECT.md` — constraints bat buoc
+- 13 `commands/pd/agents/pd-sec-*.md` + `pd-sec-reporter.md` (đã tồn tại, đã verify)
+- `bin/lib/resource-config.js`, `bin/lib/parallel-dispatch.js`, `bin/lib/session-manager.js`, `bin/lib/evidence-protocol.js`
+- `workflows/write-code.md` (wave dispatch pattern), `workflows/research.md` (agent pipeline pattern)
+- `workflows/complete-milestone.md` (non-blocking pattern, Bước 3.6)
+- `.planning/PROJECT.md` + `4_AUDIT_MILESTONE.md` — constraints và design decisions chính
 
 ---
 
-*Research synthesized: 2026-03-25*
+*Nghiên cứu tổng hợp: 2026-03-26*
 *Synthesizer: gsd-research-synthesizer*
-*Ready for roadmap: yes*
+*Sẵn sàng cho roadmap: có*
