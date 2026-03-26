@@ -1,5 +1,22 @@
 # Milestones
 
+## v3.0 Research Squad (Shipped: 2026-03-26)
+
+**Phases completed:** 8 phases, 14 plans
+**Files modified:** 115 | **Net LOC:** +14,504
+**Timeline:** 2 days (2026-03-25 → 2026-03-26)
+
+**Key accomplishments:**
+
+- research-store.js — 7 pure functions (createEntry, parseEntry, validateConfidence, generateFilename, validateEvidence, parseClaims, routeQuery) cho structured research storage
+- 3 audit modules (confidence-scorer.js, audit-logger.js, index-generator.js) — rule-based confidence scoring, append-only audit log, auto-generated INDEX.md
+- 2 research agents (Evidence Collector sonnet + Fact Checker opus) voi source-or-skip protocol chong ao giac
+- 3 workflow guards — CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection tu dong load research context
+- pd:research command — auto-route internal/external, pipeline Evidence Collector → INDEX.md → Fact Checker cross-validation
+- Gap closure phases 43-45: wire INDEX.md vao pipeline, wire routeQuery vao workflow, claim-level confidence API (parseClaims + createEntry claims rendering)
+
+---
+
 ## v2.1 Detective Orchestrator (Shipped: 2026-03-25)
 
 **Phases completed:** 10 phases, 20 plans, 24 tasks

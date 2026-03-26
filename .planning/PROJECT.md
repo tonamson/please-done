@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, and an enhanced fix-bug workflow with automated investigation (reproduction tests, regression analysis, debug cleanup, security warnings, logic change detection, report synchronization, and post-mortem rule suggestions).
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, an enhanced fix-bug workflow with automated investigation, and a research squad system with structured evidence storage, anti-hallucination audit trails, and automated research pipelines (Evidence Collector → INDEX.md → Fact Checker cross-validation).
 
 ## Core Value
 
@@ -55,29 +55,20 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Project Memory & Regression Detection — Bug history recall, regression alerts — v2.1 (Phase 31)
 - ✓ Workflow Execution Loop — 5-step orchestrator integrating all agents — v2.1 (Phase 32-33)
 - ✓ Integration Wiring — call signatures, enforcement points, encoding, prose gaps — v2.1 (Phase 34-37)
+- ✓ Cấu trúc lưu trữ phân tách — internal/ + external/ + research-store.js — v3.0 (Phase 38)
+- ✓ Tiêu chuẩn báo cáo Audit — confidence-scorer.js, audit-logger.js, index-generator.js, validateEvidence — v3.0 (Phase 39)
+- ✓ Research Squad agents — Evidence Collector (sonnet) + Fact Checker (opus) — v3.0 (Phase 40)
+- ✓ Workflow Guards — CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection — v3.0 (Phase 41)
+- ✓ Lệnh pd research — auto-detect internal vs external context, pipeline tự động — v3.0 (Phase 42)
+- ✓ Wire INDEX.md vào Pipeline — generateIndex() tự động trong pd:research — v3.0 (Phase 43)
+- ✓ Wire routeQuery vào Workflow — thay thế inline heuristic — v3.0 (Phase 44)
+- ✓ Claim-Level Confidence API — parseClaims() extract + createEntry() render — v3.0 (Phase 45)
 
 ### Active
 
-<!-- Current scope: v3.0 Research Squad -->
+<!-- Next milestone scope TBD -->
 
-- [x] Cấu trúc lưu trữ phân tách — internal/ + external/ + research-store.js — v3.0 (Phase 38)
-- [x] Tiêu chuẩn báo cáo Audit — confidence-scorer.js, audit-logger.js, index-generator.js, validateEvidence — v3.0 (Phase 39)
-- [x] Research Squad agents — Evidence Collector (sonnet) + Fact Checker (opus) — v3.0 (Phase 40)
-- [x] Workflow Guards — CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection — v3.0 (Phase 41)
-- [x] Lệnh pd research — auto-detect internal vs external context, pipeline tự động — v3.0 (Phase 42)
-- [x] Wire INDEX.md vào Pipeline — generateIndex() tự động trong pd:research, unblock Strategy Injection + Fact Checker — v3.0 (Phase 43)
-- [x] AUDIT-03 Claim-Level Confidence API — parseClaims() extract + createEntry() render claim-level confidence — v3.0 (Phase 45)
-
-## Current Milestone: v3.0 Research Squad
-
-**Goal:** Tích hợp bộ tác tử nghiên cứu đa năng với cơ chế lưu trữ phân tách, đánh số, dẫn chứng minh bạch, và audit-ready system.
-
-**Target features:**
-- Cấu trúc lưu trữ phân tách (.planning/research/ — internal + external + INDEX.md)
-- Tiêu chuẩn báo cáo "Chống Ảo Giác" (Metadata, Evidence, Confidence Level, Audit Log)
-- Research Squad agents (Evidence Collector, Fact Checker trong commands/pd/agents/)
-- Workflow Guards & Enforcement (Plan-Gate, Mandatory Suggestion, Strategy Injection)
-- Lệnh `pd research` (auto-detect context, internal vs external routing)
+## Current Milestone: Planning next milestone
 
 ### Out of Scope
 
@@ -90,29 +81,12 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Shipped:** v1.5 Nang cap Skill Fix-Bug (2026-03-24), v2.1 Detective Orchestrator (2026-03-25)
-**In progress:** v3.0 Research Squad (Phase 45 complete — all gap closure phases done)
+**Shipped:** v3.0 Research Squad (2026-03-26)
+**Previous:** v2.1 Detective Orchestrator (2026-03-25), v1.5 Nang cap Skill Fix-Bug (2026-03-24)
 
-Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
-Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
-Shipped v1.2 with 448 total tests, 89 files modified, +4,611 net LOC.
-Shipped v1.3 with 154 plan-checker tests (8 checks including CHECK-05), 29 files modified, +1,033 net LOC.
-Shipped v1.4 with 526 total tests, 27 files modified, +4,839 net LOC.
-Shipped v1.5 with 601 total tests, 47 files modified, +4,366 net LOC.
+v3.0 added: Research Squad — research-store.js (7 pure functions), 3 audit modules (confidence-scorer, audit-logger, index-generator), 2 research agents (Evidence Collector + Fact Checker), 3 workflow guards (CHECK-06, CHECK-07, Strategy Injection), pd:research command with auto-routing pipeline. 8 phases, 14 plans, 115 files modified, +14,504 net LOC.
 
-v1.5 added: 7 new features in fix-bug workflow — reproduction test generation (5b.1), regression analysis (8a), debug log cleanup (9a), security warnings (9a), logic change detection (10a), Mermaid report update (10a), CLAUDE.md rule suggestion (10a). 5 new pure function modules, 75 new tests.
-
-Phase 30 complete: 3 detective interaction modules — outcome-router.js (ROOT CAUSE 3 lựa chọn), checkpoint-handler.js (CHECKPOINT flow, max 2 vòng), parallel-dispatch.js (Detective+DocSpec song song). 26 tests, 6 pure functions.
-
-Phase 42 complete: routeQuery pure function (keyword heuristic routing), pd:research skill + workflow pipeline (route → Evidence Collector → Fact Checker), 4 converter snapshots. 931 tests pass.
-
-Phase 44 complete: Wire routeQuery() vao workflow — bin/route-query.js CLI wrapper, workflows/research.md Buoc 1 goi CLI thay vi inline heuristic. 139 tests pass (87 routeQuery + 52 snapshots). STORE-04 satisfied.
-
-Phase 43 complete: Wire INDEX.md vào pipeline — CLI script bin/update-research-index.js, delegation research-store.js → index-generator.js, workflow Buoc 4 sau Fact Checker, 52 converter snapshots cập nhật. 937 tests pass.
-
-Phase 45 complete: AUDIT-03 Claim-Level Confidence API — parseClaims() extract structured claims từ ## Bang chung, createEntry() render inline confidence tags, validateEvidence() refactored để reuse parseClaims(). Round-trip verified. 101 tests pass.
-
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills, 11 workflows, 16 JS library modules.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills, 11 workflows, 22 JS library modules.
 
 ## Constraints
 
@@ -165,4 +139,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after Phase 44 complete*
+*Last updated: 2026-03-26 after v3.0 Research Squad milestone*
