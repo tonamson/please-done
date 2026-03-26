@@ -66,9 +66,36 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-<!-- Next milestone scope TBD -->
+- [ ] Lệnh `pd:audit` (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone
+- [ ] Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
+- [ ] Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
+- [ ] Smart Scanner Selection — phân tích ngữ cảnh tự chọn scanner liên quan
+- [ ] Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
+- [ ] POC pipeline (đơn lẻ + Gadget Chain) khi dùng --poc
+- [ ] Function-Level Checklist evidence format
+- [ ] Batch execution waves (tối đa 2 instance song song)
+- [ ] Tự động tạo fix phases theo gadget chain order (chế độ milestone)
+- [ ] Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
+- [ ] Template `security-fix-phase.md` cho fix phases tự động
+- [ ] FastCode MCP integration (tool-first, AI-last)
 
-## Current Milestone: Planning next milestone
+## Current Milestone: v4.0 OWASP Security Audit
+
+**Goal:** Thêm lệnh `pd:audit` quét bảo mật OWASP Top 10 với template agent dispatch, smart scanner selection, session delta, POC/gadget chain analysis, và tích hợp milestone workflow.
+
+**Target features:**
+- Lệnh `pd:audit` (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone
+- Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
+- Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
+- Smart Scanner Selection — phân tích ngữ cảnh tự chọn scanner liên quan
+- Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
+- POC pipeline (đơn lẻ + Gadget Chain) khi dùng --poc
+- Function-Level Checklist evidence format
+- Batch execution waves (tối đa 2 instance song song)
+- Tự động tạo fix phases theo gadget chain order (chế độ milestone)
+- Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
+- Template `security-fix-phase.md` cho fix phases tự động
+- FastCode MCP integration (tool-first, AI-last)
 
 ### Out of Scope
 
@@ -81,6 +108,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
+**Current:** v4.0 OWASP Security Audit (started 2026-03-26)
 **Shipped:** v3.0 Research Squad (2026-03-26)
 **Previous:** v2.1 Detective Orchestrator (2026-03-25), v1.5 Nang cap Skill Fix-Bug (2026-03-24)
 
@@ -139,4 +167,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after v3.0 Research Squad milestone*
+*Last updated: 2026-03-26 after v4.0 OWASP Security Audit milestone started*
