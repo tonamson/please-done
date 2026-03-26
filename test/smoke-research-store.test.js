@@ -614,27 +614,26 @@ describe('appendAuditLog — validation', () => {
 // ─── generateIndex ─────────────────────────────────────────
 
 describe('generateIndex — empty entries', () => {
-  it('empty array => Tong so: 0 files, khong co table', () => {
+  it('empty array => thong bao "Chua co research files"', () => {
     const result = generateIndex([]);
-    assert.ok(result.includes('0 files'));
-    assert.ok(!result.includes('| File |'));
+    assert.ok(result.includes('Chua co research files'));
+    assert.ok(result.includes('# Research Index'));
   });
 
-  it('null => Tong so: 0 files', () => {
+  it('null => thong bao "Chua co research files"', () => {
     const result = generateIndex(null);
-    assert.ok(result.includes('0 files'));
+    assert.ok(result.includes('Chua co research files'));
   });
 });
 
 describe('generateIndex — co entries', () => {
-  it('1 entry => table voi 1 row', () => {
+  it('1 entry => table voi 1 row (dung format index-generator)', () => {
     const result = generateIndex([
       { fileName: 'auth.md', source: 'internal', topic: 'Auth', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
     ]);
-    assert.ok(result.includes('| File | Source | Topic | Confidence | Created |'));
+    assert.ok(result.includes('| File | Source Type | Topic | Confidence | Created |'));
     assert.ok(result.includes('auth.md'));
     assert.ok(result.includes('internal'));
-    assert.ok(result.includes('1 files'));
   });
 
   it('nhieu entries => sorted theo created (moi nhat truoc)', () => {
@@ -651,16 +650,15 @@ describe('generateIndex — co entries', () => {
     const oldIdx = result.indexOf('old.md');
     assert.ok(newIdx < midIdx, 'new.md phai xuat hien truoc mid.md');
     assert.ok(midIdx < oldIdx, 'mid.md phai xuat hien truoc old.md');
-    assert.ok(result.includes('3 files'));
   });
 });
 
 describe('generateIndex — table header format', () => {
-  it('table header dung format: | File | Source | Topic | Confidence | Created |', () => {
+  it('table header dung format index-generator: | File | Source Type | Topic | Confidence | Created |', () => {
     const result = generateIndex([
       { fileName: 'test.md', source: 'internal', topic: 'Test', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
     ]);
-    assert.ok(result.includes('| File | Source | Topic | Confidence | Created |'));
+    assert.ok(result.includes('| File | Source Type | Topic | Confidence | Created |'));
   });
 });
 

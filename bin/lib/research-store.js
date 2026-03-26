@@ -13,6 +13,7 @@
 'use strict';
 
 const { parseFrontmatter, buildFrontmatter } = require('./utils');
+const { generateIndex: _genIndex } = require('./index-generator');
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -314,7 +315,8 @@ function appendAuditLog(existingContent, entry) {
 
 /**
  * Tao noi dung INDEX.md tu danh sach entries.
- * Sort entries theo created (moi nhat truoc).
+ * Delegate sang index-generator.js (per D-04) — 1 source of truth.
+ * Map field names cho backward compat: fileName -> filename.
  *
  * Pure function: return string, KHONG ghi file. Caller ghi file.
  *
@@ -322,27 +324,15 @@ function appendAuditLog(existingContent, entry) {
  * @returns {string} Noi dung INDEX.md dang markdown
  */
 function generateIndex(entries) {
-  const timestamp = new Date().toISOString();
-  const safeEntries = Array.isArray(entries) ? entries : [];
-
-  if (safeEntries.length === 0) {
-    return `# Research Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** 0 files\n`;
-  }
-
-  // Sort theo created descending (moi nhat truoc)
-  const sorted = [...safeEntries].sort((a, b) => {
-    return new Date(b.created).getTime() - new Date(a.created).getTime();
-  });
-
-  let md = `# Research Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** ${sorted.length} files\n\n`;
-  md += '| File | Source | Topic | Confidence | Created |\n';
-  md += '|------|--------|-------|------------|----------|\n';
-
-  for (const entry of sorted) {
-    md += `| ${entry.fileName} | ${entry.source} | ${entry.topic} | ${entry.confidence} | ${entry.created} |\n`;
-  }
-
-  return md;
+  // Map field names cho backward compat: fileName (camelCase) -> filename (lowercase)
+  const mapped = (Array.isArray(entries) ? entries : []).map(e => ({
+    filename: e.fileName || e.filename || '-',
+    source: e.source || '-',
+    topic: e.topic || '-',
+    confidence: e.confidence || '-',
+    created: e.created || '-',
+  }));
+  return _genIndex(mapped);
 }
 
 // ─── routeQuery ────────────────────────────────────────────
