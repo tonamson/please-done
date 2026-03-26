@@ -127,7 +127,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 - [x] **Phase 46: Nen tang Scanner** — Config YAML, template agent, agent registry, FastCode pattern (completed 2026-03-26)
 - [x] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch (completed 2026-03-26)
 - [x] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection (completed 2026-03-26)
-- [ ] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history
+- [x] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history (completed 2026-03-26)
 - [ ] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases
 - [ ] **Phase 51: Tich hop Ecosystem** — Security gate, what-next priority, state machine
 
@@ -187,7 +187,7 @@ Plans:
   3. Moi evidence file co audit history table append-only ghi lai ket qua qua cac phien
 **Plans**: 2 plans
 Plans:
-- [ ] 49-01-PLAN.md — TDD session-delta.js: classifyDelta + appendAuditHistory + parseAuditHistory
+- [x] 49-01-PLAN.md — TDD session-delta.js: classifyDelta + appendAuditHistory + parseAuditHistory
 - [ ] 49-02-PLAN.md — Wire B2 delta logic + B5b audit metadata vao workflow audit.md
 
 ### Phase 50: POC & Fix Phases
@@ -219,6 +219,6 @@ Plans:
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
-| 49. Session Delta | 0/2 | Not started | - |
+| 49. Session Delta | 1/2 | Complete    | 2026-03-26 |
 | 50. POC & Fix Phases | 0/? | Not started | - |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
