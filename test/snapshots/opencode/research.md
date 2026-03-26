@@ -33,9 +33,10 @@ Người dùng nhập: $ARGUMENTS
 ## Bước 1: Phân loại query
 1. Lấy topic từ $ARGUMENTS (full text user nhập).
 2. Xác định thư mục research tuyệt đối: `path.resolve('.planning/research')`.
-3. Phân loại topic thành internal hoặc external bằng cách phân tích nội dung:
-   - Nếu topic chứa tên file (.ts, .js, .md, .json...), đường dẫn (src/, ./, bin/), tên hàm/class (camelCase, PascalCase), từ khóa định nghĩa (function, class, interface, enum, hàm) -> **internal**
-   - Còn lại -> **external** (fallback an toàn)
+3. Phân loại topic:
+   ```
+   ROUTE=$(node bin/route-query.js "$TOPIC")
+   ```
 4. Hiển thị: `"Đã phân loại: [internal|external] research"`
 5. Xác định thư mục con: `{research_dir}/internal/` hoặc `{research_dir}/external/`
 ## Bước 2: Thu thập bằng chứng
