@@ -113,7 +113,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents (1/? plans complete) (completed 2026-03-25)
 - [x] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection (completed 2026-03-25)
 - [x] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation (completed 2026-03-26)
-- [ ] **Phase 43: Wire INDEX.md vao Pipeline** — Goi generateIndex() trong workflow, wire Strategy Injection va Fact Checker cross-validate
+- [x] **Phase 43: Wire INDEX.md vao Pipeline** — Goi generateIndex() trong workflow, wire Strategy Injection va Fact Checker cross-validate (completed 2026-03-26)
 - [ ] **Phase 44: Wire routeQuery vao Workflow** — Thay the inline heuristic bang routeQuery() call
 - [ ] **Phase 45: AUDIT-03 Claim-Level Confidence API** — Structured API cho inline confidence tags trong research-store.js
 
@@ -128,7 +128,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
   1. workflows/research.md goi generateIndex() sau Evidence Collector step — INDEX.md duoc tao/cap nhat moi lan chay
   2. Strategy Injection doc INDEX.md thanh cong thay vi silent fallback
   3. Fact Checker cross-validate qua INDEX.md de tim files cung topic
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 43-01-PLAN.md — CLI script update-research-index.js va delegation generateIndex
 - [ ] 43-02-PLAN.md — Wire workflow research.md Buoc 4 va xac nhan pipeline end-to-end
@@ -234,6 +234,6 @@ Plans:
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
-| 43. Wire INDEX.md vao Pipeline | 1/2 | In Progress|  |
+| 43. Wire INDEX.md vao Pipeline | 1/2 | Complete    | 2026-03-26 |
 | 44. Wire routeQuery vao Workflow | 0/? | Pending | - |
 | 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
