@@ -22,6 +22,7 @@ const {
   validateEvidence,
   appendAuditLog,
   generateIndex,
+  routeQuery,
 } = require('../bin/lib/research-store');
 
 // ─── Constants ──────────────────────────────────────────────
@@ -660,5 +661,93 @@ describe('generateIndex — table header format', () => {
       { fileName: 'test.md', source: 'internal', topic: 'Test', confidence: 'HIGH', created: '2026-03-25T10:00:00.000Z' },
     ]);
     assert.ok(result.includes('| File | Source | Topic | Confidence | Created |'));
+  });
+});
+
+// ─── routeQuery ─────────────────────────────────────────────
+
+describe('routeQuery — internal patterns', () => {
+  it('file extension .ts trong cau hoi -> internal', () => {
+    assert.equal(routeQuery('ham createUser trong user.service.ts'), 'internal');
+  });
+
+  it('PascalCase class name -> internal', () => {
+    assert.equal(routeQuery('class AuthController'), 'internal');
+  });
+
+  it('path pattern src/ -> internal', () => {
+    assert.equal(routeQuery('src/lib/utils.js'), 'internal');
+  });
+
+  it('relative path ./ -> internal', () => {
+    assert.equal(routeQuery('file ./config.json'), 'internal');
+  });
+
+  it('function keyword -> internal', () => {
+    assert.equal(routeQuery('function parseEntry'), 'internal');
+  });
+
+  it('test/ path voi .js extension -> internal', () => {
+    assert.equal(routeQuery('test/smoke-research-store.test.js'), 'internal');
+  });
+
+  it('bin/ path voi .js extension -> internal', () => {
+    assert.equal(routeQuery('bin/lib/research-store.js exports'), 'internal');
+  });
+
+  it('interface keyword -> internal', () => {
+    assert.equal(routeQuery('interface UserPayload'), 'internal');
+  });
+
+  it('enum keyword -> internal', () => {
+    assert.equal(routeQuery('enum ConfidenceLevel'), 'internal');
+  });
+
+  it('camelCase function name -> internal', () => {
+    assert.equal(routeQuery('validateConfidence hoat dong the nao'), 'internal');
+  });
+});
+
+describe('routeQuery — external patterns', () => {
+  it('thu vien React Query -> external', () => {
+    assert.equal(routeQuery('React Query caching strategy'), 'external');
+  });
+
+  it('API name Stripe -> external', () => {
+    assert.equal(routeQuery('Stripe API webhook configuration'), 'external');
+  });
+
+  it('protocol GraphQL -> external', () => {
+    assert.equal(routeQuery('GraphQL subscription protocol'), 'external');
+  });
+
+  it('external tech PostgreSQL -> external', () => {
+    assert.equal(routeQuery('cach dung PostgreSQL index'), 'external');
+  });
+
+  it('library names khong co code patterns -> external', () => {
+    assert.equal(routeQuery('so sanh Redux va Zustand'), 'external');
+  });
+});
+
+describe('routeQuery — edge cases (fallback external)', () => {
+  it('empty string -> external', () => {
+    assert.equal(routeQuery(''), 'external');
+  });
+
+  it('null -> external', () => {
+    assert.equal(routeQuery(null), 'external');
+  });
+
+  it('undefined -> external', () => {
+    assert.equal(routeQuery(undefined), 'external');
+  });
+
+  it('number 42 -> external', () => {
+    assert.equal(routeQuery(42), 'external');
+  });
+
+  it('whitespace only -> external', () => {
+    assert.equal(routeQuery('   '), 'external');
   });
 });
