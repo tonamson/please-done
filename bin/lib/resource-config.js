@@ -70,6 +70,20 @@ const AGENT_REGISTRY = {
     tier: "architect",
     tools: ["Read", "Glob", "Grep", "Bash"],
   },
+  "pd-sec-scanner": {
+    tier: "scout",
+    tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"],
+    categories: [
+      "sql-injection", "xss", "cmd-injection", "path-traversal",
+      "secrets", "auth", "deserialization", "misconfig",
+      "prototype-pollution", "crypto", "insecure-design",
+      "vuln-deps", "logging",
+    ],
+  },
+  "pd-sec-reporter": {
+    tier: "builder",
+    tools: ["Read", "Write", "Glob"],
+  },
 };
 
 /**
@@ -130,7 +144,7 @@ function getModelForTier(tier) {
  * Tra ve full config cho 1 agent, merge tu AGENT_REGISTRY va TIER_MAP.
  *
  * @param {string} agentName - Ten agent (vd: 'pd-bug-janitor')
- * @returns {{ name: string, tier: string, model: string, effort: string, maxTurns: number, tools: string[] }}
+ * @returns {{ name: string, tier: string, model: string, effort: string, maxTurns: number, tools: string[], ...extra }}
  * @throws {Error} Khi agentName la null/undefined hoac khong ton tai
  */
 function getAgentConfig(agentName) {
@@ -144,15 +158,17 @@ function getAgentConfig(agentName) {
     throw new Error(`agent khong ton tai: ${agentName}`);
   }
 
-  const tierConfig = TIER_MAP[agent.tier];
+  const { tier, tools, ...extra } = agent;
+  const tierConfig = TIER_MAP[tier];
 
   return {
     name: agentName,
-    tier: agent.tier,
+    tier,
     model: tierConfig.model,
     effort: tierConfig.effort,
     maxTurns: tierConfig.maxTurns,
-    tools: [...agent.tools],
+    tools: [...tools],
+    ...extra,
   };
 }
 

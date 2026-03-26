@@ -138,6 +138,41 @@ describe('getAgentConfig', () => {
     assert.ok(cfg.tools.includes('Bash'));
   });
 
+  it('tra ve full config cho pd-sec-scanner', () => {
+    const cfg = getAgentConfig('pd-sec-scanner');
+    assert.equal(cfg.name, 'pd-sec-scanner');
+    assert.equal(cfg.tier, 'scout');
+    assert.equal(cfg.model, 'haiku');
+    assert.equal(cfg.effort, 'low');
+    assert.equal(cfg.maxTurns, 15);
+    assert.ok(cfg.tools.includes('Read'));
+    assert.ok(cfg.tools.includes('Glob'));
+    assert.ok(cfg.tools.includes('Grep'));
+    assert.ok(cfg.tools.includes('mcp__fastcode__code_qa'));
+    // Extra field: categories
+    assert.ok(Array.isArray(cfg.categories), 'categories phai la array');
+    assert.equal(cfg.categories.length, 13);
+    assert.ok(cfg.categories.includes('sql-injection'));
+    assert.ok(cfg.categories.includes('logging'));
+  });
+
+  it('tra ve full config cho pd-sec-reporter', () => {
+    const cfg = getAgentConfig('pd-sec-reporter');
+    assert.equal(cfg.name, 'pd-sec-reporter');
+    assert.equal(cfg.tier, 'builder');
+    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.effort, 'medium');
+    assert.equal(cfg.maxTurns, 25);
+    assert.ok(cfg.tools.includes('Read'));
+    assert.ok(cfg.tools.includes('Write'));
+    assert.ok(cfg.tools.includes('Glob'));
+  });
+
+  it('getAgentConfig spread extra fields tu AGENT_REGISTRY', () => {
+    const cfg = getAgentConfig('pd-sec-scanner');
+    assert.ok('categories' in cfg, 'categories phai co trong config');
+  });
+
   it('throw khi agent null', () => {
     assert.throws(() => getAgentConfig(null), /thieu tham so/);
   });
@@ -164,6 +199,10 @@ describe('isHeavyAgent', () => {
 
   it('false cho pd-bug-janitor', () => {
     assert.equal(isHeavyAgent('pd-bug-janitor'), false);
+  });
+
+  it('true cho pd-sec-scanner (co fastcode)', () => {
+    assert.equal(isHeavyAgent('pd-sec-scanner'), true);
   });
 
   it('false cho pd-fix-architect', () => {
@@ -214,8 +253,8 @@ describe('Constants', () => {
     assert.equal(Object.keys(TIER_MAP).length, 3);
   });
 
-  it('AGENT_REGISTRY co 7 agents', () => {
-    assert.equal(Object.keys(AGENT_REGISTRY).length, 7);
+  it('AGENT_REGISTRY co 9 agents', () => {
+    assert.equal(Object.keys(AGENT_REGISTRY).length, 9);
   });
 
   it('PARALLEL_LIMIT la 2', () => {
