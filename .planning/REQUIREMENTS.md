@@ -9,9 +9,9 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Audit Core
 
-- [ ] **CORE-01**: User co the chay `pd:audit` voi tham so [path] [--full|--only|--poc|--auto-fix]
-- [ ] **CORE-02**: Workflow audit thuc thi 9 buoc: detect → delta → scope → smart selection → dispatch → reporter → analyze → fix → save
-- [ ] **CORE-03**: He thong tu phat hien che do Doc lap (khong co .planning/) hoac Tich hop milestone (co .planning/)
+- [x] **CORE-01**: User co the chay `pd:audit` voi tham so [path] [--full|--only|--poc|--auto-fix]
+- [x] **CORE-02**: Workflow audit thuc thi 9 buoc: detect → delta → scope → smart selection → dispatch → reporter → analyze → fix → save
+- [x] **CORE-03**: He thong tu phat hien che do Doc lap (khong co .planning/) hoac Tich hop milestone (co .planning/)
 
 ### Template Agent Dispatch
 
@@ -28,8 +28,8 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Batch Execution
 
-- [ ] **BATCH-01**: Wave-based parallel dispatch toi da 2 scanner song song, backpressure cho ca wave xong
-- [ ] **BATCH-02**: Failure isolation — 1 scanner loi/timeout ghi inconclusive, tiep tuc wave tiep
+- [x] **BATCH-01**: Wave-based parallel dispatch toi da 2 scanner song song, backpressure cho ca wave xong
+- [x] **BATCH-02**: Failure isolation — 1 scanner loi/timeout ghi inconclusive, tiep tuc wave tiep
 
 ### Evidence
 
@@ -84,9 +84,9 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | Phase 47 | Pending |
-| CORE-02 | Phase 47 | Pending |
-| CORE-03 | Phase 47 | Pending |
+| CORE-01 | Phase 47 | Complete |
+| CORE-02 | Phase 47 | Complete |
+| CORE-03 | Phase 47 | Complete |
 | AGENT-01 | Phase 46 | Complete |
 | AGENT-02 | Phase 46 | Complete |
 | AGENT-03 | Phase 48 | Pending |
@@ -94,8 +94,8 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 | SMART-01 | Phase 48 | Pending |
 | SMART-02 | Phase 48 | Pending |
 | SMART-03 | Phase 48 | Pending |
-| BATCH-01 | Phase 47 | Pending |
-| BATCH-02 | Phase 47 | Pending |
+| BATCH-01 | Phase 47 | Complete |
+| BATCH-02 | Phase 47 | Complete |
 | EVID-01 | Phase 48 | Pending |
 | EVID-02 | Phase 48 | Pending |
 | DELTA-01 | Phase 49 | Pending |

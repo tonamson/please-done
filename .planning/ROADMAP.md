@@ -125,7 +125,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 ### v4.0 OWASP Security Audit (Phases 46-51)
 
 - [x] **Phase 46: Nen tang Scanner** — Config YAML, template agent, agent registry, FastCode pattern (completed 2026-03-26)
-- [ ] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch
+- [x] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch (completed 2026-03-26)
 - [ ] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection
 - [ ] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history
 - [ ] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases
@@ -159,7 +159,7 @@ Plans:
   5. 1 scanner loi hoac timeout ghi ket qua inconclusive va khong chan cac scanner con lai
 **Plans**: 2 plans
 Plans:
-- [ ] 47-01-PLAN.md — Mo rong parallel-dispatch.js: buildScannerPlan + mergeScannerResults (TDD)
+- [x] 47-01-PLAN.md — Mo rong parallel-dispatch.js: buildScannerPlan + mergeScannerResults (TDD)
 - [ ] 47-02-PLAN.md — Tao skill pd:audit + workflow 9 buoc (6 full + 3 stub)
 
 ### Phase 48: Evidence & Smart Selection
@@ -211,7 +211,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
-| 47. Luong Audit Cot loi | 0/2 | Not started | - |
+| 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
 | 48. Evidence & Smart Selection | 0/? | Not started | - |
 | 49. Session Delta | 0/? | Not started | - |
 | 50. POC & Fix Phases | 0/? | Not started | - |
