@@ -146,15 +146,17 @@ Plans:
 - [ ] 44-01-PLAN.md — CLI script route-query.js, cap nhat workflow Buoc 1, regenerate snapshots
 
 ### Phase 45: AUDIT-03 Claim-Level Confidence API
-**Goal:** research-store.js co structured API cho inline confidence tags — createEntry() va parseEntry() xu ly claim-level confidence
+**Goal:** research-store.js co structured API cho inline confidence tags — parseClaims() extract va createEntry() render claim-level confidence
 **Depends on:** Phase 38
 **Requirements:** AUDIT-03
 **Gap Closure:** Closes unsatisfied requirement AUDIT-03
 **Success Criteria:**
   1. createEntry() nhan parameter claims voi confidence per-claim
-  2. parseEntry() extract inline confidence tags tu research file content
+  2. parseClaims() extract inline confidence tags tu research file content
   3. Tests cover ca file-level va claim-level confidence
-Plans: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 45-01-PLAN.md — TDD parseClaims + createEntry claims rendering + validateEvidence refactor
 
 ## Phase Details
 
@@ -238,4 +240,4 @@ Plans:
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
 | 43. Wire INDEX.md vao Pipeline | 1/2 | Complete    | 2026-03-26 |
 | 44. Wire routeQuery vao Workflow | 0/1 | Complete    | 2026-03-26 |
-| 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
+| 45. AUDIT-03 Claim-Level Confidence API | 0/1 | Pending | - |
