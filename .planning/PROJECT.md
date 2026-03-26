@@ -65,6 +65,7 @@ Every workflow step must produce the highest quality code output while consuming
 - [x] Research Squad agents — Evidence Collector (sonnet) + Fact Checker (opus) — v3.0 (Phase 40)
 - [x] Workflow Guards — CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection — v3.0 (Phase 41)
 - [x] Lệnh pd research — auto-detect internal vs external context, pipeline tự động — v3.0 (Phase 42)
+- [x] Wire INDEX.md vào Pipeline — generateIndex() tự động trong pd:research, unblock Strategy Injection + Fact Checker — v3.0 (Phase 43)
 
 ## Current Milestone: v3.0 Research Squad
 
@@ -89,7 +90,7 @@ Every workflow step must produce the highest quality code output while consuming
 ## Current State
 
 **Shipped:** v1.5 Nang cap Skill Fix-Bug (2026-03-24), v2.1 Detective Orchestrator (2026-03-25)
-**In progress:** v3.0 Research Squad (Phase 42 complete — all 5 phases done, milestone ready for audit)
+**In progress:** v3.0 Research Squad (Phase 43 complete — 6/8 gap closure phases done)
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
@@ -103,6 +104,8 @@ v1.5 added: 7 new features in fix-bug workflow — reproduction test generation 
 Phase 30 complete: 3 detective interaction modules — outcome-router.js (ROOT CAUSE 3 lựa chọn), checkpoint-handler.js (CHECKPOINT flow, max 2 vòng), parallel-dispatch.js (Detective+DocSpec song song). 26 tests, 6 pure functions.
 
 Phase 42 complete: routeQuery pure function (keyword heuristic routing), pd:research skill + workflow pipeline (route → Evidence Collector → Fact Checker), 4 converter snapshots. 931 tests pass.
+
+Phase 43 complete: Wire INDEX.md vào pipeline — CLI script bin/update-research-index.js, delegation research-store.js → index-generator.js, workflow Buoc 4 sau Fact Checker, 52 converter snapshots cập nhật. 937 tests pass.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills, 11 workflows, 16 JS library modules.
 
@@ -157,4 +160,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after Phase 42 complete*
+*Last updated: 2026-03-26 after Phase 43 complete*
