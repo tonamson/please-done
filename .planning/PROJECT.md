@@ -66,6 +66,7 @@ Every workflow step must produce the highest quality code output while consuming
 - [x] Workflow Guards — CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection — v3.0 (Phase 41)
 - [x] Lệnh pd research — auto-detect internal vs external context, pipeline tự động — v3.0 (Phase 42)
 - [x] Wire INDEX.md vào Pipeline — generateIndex() tự động trong pd:research, unblock Strategy Injection + Fact Checker — v3.0 (Phase 43)
+- [x] AUDIT-03 Claim-Level Confidence API — parseClaims() extract + createEntry() render claim-level confidence — v3.0 (Phase 45)
 
 ## Current Milestone: v3.0 Research Squad
 
@@ -90,7 +91,7 @@ Every workflow step must produce the highest quality code output while consuming
 ## Current State
 
 **Shipped:** v1.5 Nang cap Skill Fix-Bug (2026-03-24), v2.1 Detective Orchestrator (2026-03-25)
-**In progress:** v3.0 Research Squad (Phase 44 complete — 7/8 gap closure phases done)
+**In progress:** v3.0 Research Squad (Phase 45 complete — all gap closure phases done)
 
 Shipped v1.0 with 303 tests, 125 files modified, +12,706 net LOC.
 Shipped v1.1 with 140 plan checker tests, 68 files modified, +2,630 net LOC.
@@ -108,6 +109,8 @@ Phase 42 complete: routeQuery pure function (keyword heuristic routing), pd:rese
 Phase 44 complete: Wire routeQuery() vao workflow — bin/route-query.js CLI wrapper, workflows/research.md Buoc 1 goi CLI thay vi inline heuristic. 139 tests pass (87 routeQuery + 52 snapshots). STORE-04 satisfied.
 
 Phase 43 complete: Wire INDEX.md vào pipeline — CLI script bin/update-research-index.js, delegation research-store.js → index-generator.js, workflow Buoc 4 sau Fact Checker, 52 converter snapshots cập nhật. 937 tests pass.
+
+Phase 45 complete: AUDIT-03 Claim-Level Confidence API — parseClaims() extract structured claims từ ## Bang chung, createEntry() render inline confidence tags, validateEvidence() refactored để reuse parseClaims(). Round-trip verified. 101 tests pass.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills, 11 workflows, 16 JS library modules.
 
