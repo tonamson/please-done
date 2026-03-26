@@ -185,7 +185,10 @@ Plans:
   1. He thong doc evidence phien cu va phan loai chinh xac: KNOWN-UNFIXED (skip) / RE-VERIFY (scan lai) / NEW
   2. Ham da PASS + code thay doi (git diff) duoc danh dau RE-SCAN; ham PASS + code khong doi duoc SKIP
   3. Moi evidence file co audit history table append-only ghi lai ket qua qua cac phien
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 49-01-PLAN.md — TDD session-delta.js: classifyDelta + appendAuditHistory + parseAuditHistory
+- [ ] 49-02-PLAN.md — Wire B2 delta logic + B5b audit metadata vao workflow audit.md
 
 ### Phase 50: POC & Fix Phases
 **Goal**: Findings nghiem trong co bang chung khai thac cu the va fix phases tu dong theo thu tu uu tien
@@ -216,6 +219,6 @@ Plans:
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
-| 49. Session Delta | 0/? | Not started | - |
+| 49. Session Delta | 0/2 | Not started | - |
 | 50. POC & Fix Phases | 0/? | Not started | - |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
