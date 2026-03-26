@@ -234,6 +234,6 @@ Plans:
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
-| 43. Wire INDEX.md vao Pipeline | 0/2 | Pending | - |
+| 43. Wire INDEX.md vao Pipeline | 1/2 | In Progress | - |
 | 44. Wire routeQuery vao Workflow | 0/? | Pending | - |
 | 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
