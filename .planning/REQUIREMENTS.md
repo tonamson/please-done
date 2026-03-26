@@ -58,7 +58,6 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 - [ ] **WIRE-01**: Security gate trong complete-milestone: chua co SECURITY_REPORT → chan
 - [ ] **WIRE-02**: Uu tien 7.5 trong what-next: goi y pd:audit truoc complete-milestone
 - [ ] **WIRE-03**: State machine update: them pd:audit vao luong trang thai
-- [ ] **WIRE-04**: FastCode MCP tool-first: discovery bang tool truoc, AI chi phan tich ket qua
 
 ## Future Requirements
 
@@ -84,38 +83,38 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CORE-01 | TBD | Pending |
-| CORE-02 | TBD | Pending |
-| CORE-03 | TBD | Pending |
-| AGENT-01 | TBD | Pending |
-| AGENT-02 | TBD | Pending |
-| AGENT-03 | TBD | Pending |
-| AGENT-04 | TBD | Pending |
-| SMART-01 | TBD | Pending |
-| SMART-02 | TBD | Pending |
-| SMART-03 | TBD | Pending |
-| BATCH-01 | TBD | Pending |
-| BATCH-02 | TBD | Pending |
-| EVID-01 | TBD | Pending |
-| EVID-02 | TBD | Pending |
-| DELTA-01 | TBD | Pending |
-| DELTA-02 | TBD | Pending |
-| DELTA-03 | TBD | Pending |
-| POC-01 | TBD | Pending |
-| POC-02 | TBD | Pending |
-| FIX-01 | TBD | Pending |
-| FIX-02 | TBD | Pending |
-| FIX-03 | TBD | Pending |
-| WIRE-01 | TBD | Pending |
-| WIRE-02 | TBD | Pending |
-| WIRE-03 | TBD | Pending |
-| WIRE-04 | TBD | Pending |
+| CORE-01 | Phase 47 | Pending |
+| CORE-02 | Phase 47 | Pending |
+| CORE-03 | Phase 47 | Pending |
+| AGENT-01 | Phase 46 | Pending |
+| AGENT-02 | Phase 46 | Pending |
+| AGENT-03 | Phase 48 | Pending |
+| AGENT-04 | Phase 46 | Pending |
+| SMART-01 | Phase 48 | Pending |
+| SMART-02 | Phase 48 | Pending |
+| SMART-03 | Phase 48 | Pending |
+| BATCH-01 | Phase 47 | Pending |
+| BATCH-02 | Phase 47 | Pending |
+| EVID-01 | Phase 48 | Pending |
+| EVID-02 | Phase 48 | Pending |
+| DELTA-01 | Phase 49 | Pending |
+| DELTA-02 | Phase 49 | Pending |
+| DELTA-03 | Phase 49 | Pending |
+| POC-01 | Phase 50 | Pending |
+| POC-02 | Phase 50 | Pending |
+| FIX-01 | Phase 50 | Pending |
+| FIX-02 | Phase 50 | Pending |
+| FIX-03 | Phase 50 | Pending |
+| WIRE-01 | Phase 51 | Pending |
+| WIRE-02 | Phase 51 | Pending |
+| WIRE-03 | Phase 51 | Pending |
+| WIRE-04 | Phase 46 | Pending |
 
 **Coverage:**
 - v4.0 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after initial definition*
+*Last updated: 2026-03-26 after roadmap creation*
