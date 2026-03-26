@@ -126,7 +126,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 - [x] **Phase 46: Nen tang Scanner** — Config YAML, template agent, agent registry, FastCode pattern (completed 2026-03-26)
 - [x] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch (completed 2026-03-26)
-- [ ] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection
+- [x] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection (completed 2026-03-26)
 - [ ] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history
 - [ ] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases
 - [ ] **Phase 51: Tich hop Ecosystem** — Security gate, what-next priority, state machine
@@ -174,7 +174,7 @@ Plans:
   5. Reporter agent tong hop N evidence files thanh 1 SECURITY_REPORT.md voi master table sap theo severity + OWASP coverage
 **Plans**: 2 plans
 Plans:
-- [ ] 48-01-PLAN.md — TDD selectScanners() pure function + 12 signal mapping (smart-selection.js)
+- [x] 48-01-PLAN.md — TDD selectScanners() pure function + 12 signal mapping (smart-selection.js)
 - [ ] 48-02-PLAN.md — Scanner function checklist, reporter master table + hot spots, workflow B4 wiring
 
 ### Phase 49: Session Delta
@@ -215,7 +215,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
-| 48. Evidence & Smart Selection | 0/2 | Planning | - |
+| 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
 | 49. Session Delta | 0/? | Not started | - |
 | 50. POC & Fix Phases | 0/? | Not started | - |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
