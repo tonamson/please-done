@@ -17,14 +17,14 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 - [x] **AGENT-01**: Template agent `pd-sec-scanner.md` nhan --category parameter, load rules tu YAML, output evidence chuan
 - [x] **AGENT-02**: Config `security-rules.yaml` tap trung rules 13 OWASP category (patterns, severity, fixes, FastCode queries)
-- [ ] **AGENT-03**: Reporter agent `pd-sec-reporter.md` tong hop N evidence files thanh 1 SECURITY_REPORT.md
+- [x] **AGENT-03**: Reporter agent `pd-sec-reporter.md` tong hop N evidence files thanh 1 SECURITY_REPORT.md
 - [x] **AGENT-04**: 9 agents (7 cu + pd-sec-scanner + pd-sec-reporter) dang ky trong resource-config.js AGENT_REGISTRY, pd-sec-scanner co categories[13] thay 13 scanner rieng le
 
 ### Smart Scanner Selection
 
-- [ ] **SMART-01**: Context analysis engine phan tich milestone/code patterns de chon scanner lien quan
-- [ ] **SMART-02**: Bang anh xa tin hieu → scanner (12 patterns → 10 scanner co dieu kien + 3 base luon chay)
-- [ ] **SMART-03**: Fallback logic: --full chay 13, --only chay user chi dinh + 3 base, < 2 tin hieu hoi user
+- [x] **SMART-01**: Context analysis engine phan tich milestone/code patterns de chon scanner lien quan
+- [x] **SMART-02**: Bang anh xa tin hieu → scanner (12 patterns → 10 scanner co dieu kien + 3 base luon chay)
+- [x] **SMART-03**: Fallback logic: --full chay 13, --only chay user chi dinh + 3 base, < 2 tin hieu hoi user
 
 ### Batch Execution
 
@@ -33,8 +33,8 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Evidence
 
-- [ ] **EVID-01**: Moi scanner xuat bang kiem tra TUNG HAM voi PASS/FLAG/FAIL + ghi ro ham bi bo qua
-- [ ] **EVID-02**: SECURITY_REPORT.md tong hop bang master sap theo severity + OWASP coverage + hot spots
+- [x] **EVID-01**: Moi scanner xuat bang kiem tra TUNG HAM voi PASS/FLAG/FAIL + ghi ro ham bi bo qua
+- [x] **EVID-02**: SECURITY_REPORT.md tong hop bang master sap theo severity + OWASP coverage + hot spots
 
 ### Session Delta
 
@@ -89,15 +89,15 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 | CORE-03 | Phase 47 | Complete |
 | AGENT-01 | Phase 46 | Complete |
 | AGENT-02 | Phase 46 | Complete |
-| AGENT-03 | Phase 48 | Pending |
+| AGENT-03 | Phase 48 | Complete |
 | AGENT-04 | Phase 46 | Complete |
-| SMART-01 | Phase 48 | Pending |
-| SMART-02 | Phase 48 | Pending |
-| SMART-03 | Phase 48 | Pending |
+| SMART-01 | Phase 48 | Complete |
+| SMART-02 | Phase 48 | Complete |
+| SMART-03 | Phase 48 | Complete |
 | BATCH-01 | Phase 47 | Complete |
 | BATCH-02 | Phase 47 | Complete |
-| EVID-01 | Phase 48 | Pending |
-| EVID-02 | Phase 48 | Pending |
+| EVID-01 | Phase 48 | Complete |
+| EVID-02 | Phase 48 | Complete |
 | DELTA-01 | Phase 49 | Pending |
 | DELTA-02 | Phase 49 | Pending |
 | DELTA-03 | Phase 49 | Pending |
