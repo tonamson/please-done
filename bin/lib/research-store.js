@@ -345,6 +345,52 @@ function generateIndex(entries) {
   return md;
 }
 
+// ─── routeQuery ────────────────────────────────────────────
+
+/**
+ * Phan loai query thanh internal hoac external.
+ * Pure function: nhan string, return 'internal' | 'external'.
+ *
+ * Heuristic (D-02):
+ * - Internal: ten file (.ts, .js, .md...), function/class name (camelCase, PascalCase),
+ *   path patterns (src/, ./), definition keywords (ham, function, class, interface, enum)
+ * - External: ten thu vien, API, protocol — khong match internal patterns
+ * - Fallback (D-03): external (an toan hon — tra cuu docs rong hon cuc bo)
+ *
+ * @param {string} query - Cau hoi research
+ * @returns {'internal' | 'external'}
+ */
+function routeQuery(query) {
+  if (typeof query !== 'string' || !query.trim()) {
+    return 'external'; // D-03: fallback external
+  }
+
+  const q = query.trim();
+
+  // Internal patterns — nhan dien references toi codebase
+  const internalPatterns = [
+    /\.[tj]sx?(?:\s|$|,|:|'|"|\))/i,                         // .ts, .js, .tsx, .jsx extensions
+    /\.[mc]js(?:\s|$|,|:|'|"|\))/i,                          // .mjs, .cjs
+    /\.(?:py|rb|go|rs|java|dart)(?:\s|$|,|:|'|"|\))/i,       // other source extensions
+    /\.(?:md|json|yaml|yml|toml)(?:\s|$|,|:|'|"|\))/i,       // config/doc extensions
+    /(?:src|lib|bin|test|commands|workflows)\//i,              // path patterns
+    /\.\/[a-zA-Z]/,                                            // relative paths (./)
+    /(?:^|\s)(?:ham|function|class|interface|type|enum)\s+[a-zA-Z]/i, // definition keywords (VN + EN)
+    /[a-z][a-zA-Z]+\.(test|spec)\./i,                         // test file patterns
+    /(?:^|\s)[a-z]+[A-Z][a-zA-Z]*(?:\s|$|\()/,               // camelCase (validateConfidence, createUser)
+    /(?:^|\s)[A-Z][a-z]+[A-Z][a-z]+[a-zA-Z]*(?:\s|$)/,       // PascalCase (AuthController, UserPayload) — requires lowercase after 2nd uppercase
+  ];
+
+  for (const pattern of internalPatterns) {
+    if (pattern.test(q)) {
+      return 'internal';
+    }
+  }
+
+  // Default fallback — external (D-03)
+  return 'external';
+}
+
 // ─── Exports ───────────────────────────────────────────────
 
 module.exports = {
@@ -359,4 +405,5 @@ module.exports = {
   validateEvidence,
   appendAuditLog,
   generateIndex,
+  routeQuery,
 };
