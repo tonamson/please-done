@@ -124,7 +124,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 
 ### v4.0 OWASP Security Audit (Phases 46-51)
 
-- [ ] **Phase 46: Nen tang Scanner** — Config YAML, template agent, agent registry, FastCode pattern
+- [x] **Phase 46: Nen tang Scanner** — Config YAML, template agent, agent registry, FastCode pattern (completed 2026-03-26)
 - [ ] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch
 - [ ] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection
 - [ ] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history
@@ -144,7 +144,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
   4. Moi scanner su dung FastCode MCP tool-first (discovery bang tool truoc, AI chi phan tich ket qua)
 **Plans**: 2 plans
 Plans:
-- [ ] 46-01-PLAN.md — Tao security-rules.yaml (13 categories) va template pd-sec-scanner.md
+- [x] 46-01-PLAN.md — Tao security-rules.yaml (13 categories) va template pd-sec-scanner.md
 - [ ] 46-02-PLAN.md — Dang ky AGENT_REGISTRY (9 entries), cap nhat tests, xoa 13 files cu
 
 ### Phase 47: Luong Audit Cot loi
@@ -207,7 +207,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 46. Nen tang Scanner | 0/2 | Planning complete | - |
+| 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
 | 47. Luong Audit Cot loi | 0/? | Not started | - |
 | 48. Evidence & Smart Selection | 0/? | Not started | - |
 | 49. Session Delta | 0/? | Not started | - |

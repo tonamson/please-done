@@ -15,10 +15,10 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Template Agent Dispatch
 
-- [ ] **AGENT-01**: Template agent `pd-sec-scanner.md` nhan --category parameter, load rules tu YAML, output evidence chuan
-- [ ] **AGENT-02**: Config `security-rules.yaml` tap trung rules 13 OWASP category (patterns, severity, fixes, FastCode queries)
+- [x] **AGENT-01**: Template agent `pd-sec-scanner.md` nhan --category parameter, load rules tu YAML, output evidence chuan
+- [x] **AGENT-02**: Config `security-rules.yaml` tap trung rules 13 OWASP category (patterns, severity, fixes, FastCode queries)
 - [ ] **AGENT-03**: Reporter agent `pd-sec-reporter.md` tong hop N evidence files thanh 1 SECURITY_REPORT.md
-- [ ] **AGENT-04**: 14 agents (13 scanner + 1 reporter) dang ky trong resource-config.js AGENT_REGISTRY
+- [x] **AGENT-04**: 9 agents (7 cu + pd-sec-scanner + pd-sec-reporter) dang ky trong resource-config.js AGENT_REGISTRY, pd-sec-scanner co categories[13] thay 13 scanner rieng le
 
 ### Smart Scanner Selection
 
@@ -55,6 +55,7 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Tich hop Ecosystem
 
+- [x] **WIRE-04**: pd-sec-scanner su dung FastCode tool-first voi Grep fallback khi FastCode khong kha dung
 - [ ] **WIRE-01**: Security gate trong complete-milestone: chua co SECURITY_REPORT → chan
 - [ ] **WIRE-02**: Uu tien 7.5 trong what-next: goi y pd:audit truoc complete-milestone
 - [ ] **WIRE-03**: State machine update: them pd:audit vao luong trang thai
@@ -86,10 +87,10 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 | CORE-01 | Phase 47 | Pending |
 | CORE-02 | Phase 47 | Pending |
 | CORE-03 | Phase 47 | Pending |
-| AGENT-01 | Phase 46 | Pending |
-| AGENT-02 | Phase 46 | Pending |
+| AGENT-01 | Phase 46 | Complete |
+| AGENT-02 | Phase 46 | Complete |
 | AGENT-03 | Phase 48 | Pending |
-| AGENT-04 | Phase 46 | Pending |
+| AGENT-04 | Phase 46 | Complete |
 | SMART-01 | Phase 48 | Pending |
 | SMART-02 | Phase 48 | Pending |
 | SMART-03 | Phase 48 | Pending |
@@ -108,7 +109,7 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 | WIRE-01 | Phase 51 | Pending |
 | WIRE-02 | Phase 51 | Pending |
 | WIRE-03 | Phase 51 | Pending |
-| WIRE-04 | Phase 46 | Pending |
+| WIRE-04 | Phase 46 | Complete |
 
 **Coverage:**
 - v4.0 requirements: 26 total
@@ -117,4 +118,4 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ---
 *Requirements defined: 2026-03-26*
-*Last updated: 2026-03-26 after roadmap creation*
+*Last updated: 2026-03-26 after Phase 46 completion*
