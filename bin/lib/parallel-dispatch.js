@@ -98,6 +98,102 @@ function mergeParallelResults({ detectiveResult, docSpecResult }) {
   return { results, allSucceeded, warnings };
 }
 
+// ─── buildScannerPlan ────────────────────────────────────────
+
+/**
+ * Tao ke hoach dispatch scanners theo wave (D-09, D-10).
+ * Day la PURE FUNCTION — KHONG goi getAgentConfig() hay bat ky API nao.
+ * Caller truyen categories truc tiep (vd: getAgentConfig('pd-sec-scanner').categories).
+ *
+ * @param {string[]} categories - Danh sach category slugs (vd: ['xss', 'auth', ...])
+ * @param {number} [batchSize=2] - So scanner moi wave (D-10: mac dinh 2)
+ * @param {string} [scanPath='.'] - Path can quet
+ * @returns {{ waves: Array<Array<{category: string, agentName: string, outputFile: string}>>, totalWaves: number, totalScanners: number, warnings: string[] }}
+ */
+function buildScannerPlan(categories, batchSize = 2, scanPath = '.') {
+  // Kiem tra categories rong hoac khong hop le
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return {
+      waves: [],
+      totalWaves: 0,
+      totalScanners: 0,
+      warnings: ['Danh sach categories rong — khong co scanner nao de dispatch'],
+    };
+  }
+
+  // Clamp batchSize < 1 → 1
+  if (batchSize < 1) {
+    batchSize = 1;
+  }
+
+  const waves = [];
+  for (let i = 0; i < categories.length; i += batchSize) {
+    const batch = categories.slice(i, i + batchSize);
+    const wave = batch.map(cat => ({
+      category: cat,
+      agentName: 'pd-sec-scanner',
+      outputFile: `evidence_sec_${cat}.md`,
+    }));
+    waves.push(wave);
+  }
+
+  return {
+    waves,
+    totalWaves: waves.length,
+    totalScanners: categories.length,
+    warnings: [],
+  };
+}
+
+// ─── mergeScannerResults ─────────────────────────────────────
+
+/**
+ * Hop nhat ket qua tu nhieu scanner (D-11: failure isolation).
+ * Scanner fail → ghi inconclusive, khong chan cac scanner con lai.
+ *
+ * @param {Array<{category: string, evidenceContent: string|null, error?: {message: string}}>} scanResults
+ * @returns {{ results: Array<{category: string, outcome: string, valid: boolean}>, completedCount: number, failedCount: number, warnings: string[] }}
+ */
+function mergeScannerResults(scanResults) {
+  const warnings = [];
+  const results = [];
+  let completedCount = 0;
+  let failedCount = 0;
+
+  for (const item of scanResults) {
+    if (item.evidenceContent) {
+      try {
+        const validation = validateEvidence(item.evidenceContent);
+        results.push({
+          category: item.category,
+          outcome: validation.outcome,
+          valid: validation.valid,
+        });
+        if (validation.valid) {
+          completedCount++;
+        } else {
+          completedCount++;
+          if (validation.warnings.length > 0) {
+            warnings.push(...validation.warnings.map(w => `${item.category}: ${w}`));
+          }
+        }
+      } catch (err) {
+        failedCount++;
+        warnings.push(`${item.category}: validateEvidence error — ${err.message}`);
+        results.push({ category: item.category, outcome: 'inconclusive', valid: false });
+      }
+    } else {
+      // Khong co evidenceContent → treat as fail
+      failedCount++;
+      const errMsg = item.error?.message || 'Khong co ket qua';
+      warnings.push(`${item.category}: scanner that bai — ${errMsg}`);
+      results.push({ category: item.category, outcome: 'inconclusive', valid: false });
+    }
+  }
+
+  return { results, completedCount, failedCount, warnings };
+}
+
 // ─── Exports ────────────────────────────────────────────────
 
-module.exports = { buildParallelPlan, mergeParallelResults };
+module.exports = { buildParallelPlan, mergeParallelResults, buildScannerPlan, mergeScannerResults };
