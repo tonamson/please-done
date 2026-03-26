@@ -10,6 +10,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   buildParallelPlan, mergeParallelResults,
+  buildScannerPlan, mergeScannerResults,
 } = require('../bin/lib/parallel-dispatch');
 
 // ─── Helper ─────────────────────────────────────────────────
@@ -101,5 +102,112 @@ describe('mergeParallelResults', () => {
       docSpecResult: null,
     });
     assert.ok(result.warnings.length >= 2);
+  });
+});
+
+// ─── buildScannerPlan ───────────────────────────────────────
+
+describe('buildScannerPlan', () => {
+  const ALL_13 = [
+    'sql-injection', 'xss', 'cmd-injection', 'path-traversal',
+    'secrets', 'auth', 'deserialization', 'misconfig',
+    'prototype-pollution', 'crypto', 'insecure-design', 'vuln-deps', 'logging',
+  ];
+
+  it('13 categories, batchSize=2 → 7 waves (6x2 + 1x1)', () => {
+    const plan = buildScannerPlan(ALL_13, 2);
+    assert.equal(plan.totalWaves, 7);
+    assert.equal(plan.totalScanners, 13);
+    assert.equal(plan.waves.length, 7);
+    // 6 waves co 2 items, wave cuoi co 1
+    for (let i = 0; i < 6; i++) {
+      assert.equal(plan.waves[i].length, 2, `wave ${i} phai co 2 items`);
+    }
+    assert.equal(plan.waves[6].length, 1);
+  });
+
+  it('4 categories, batchSize=2 → 2 waves of 2', () => {
+    const plan = buildScannerPlan(['xss', 'auth', 'secrets', 'crypto'], 2);
+    assert.equal(plan.totalWaves, 2);
+    assert.equal(plan.waves[0].length, 2);
+    assert.equal(plan.waves[1].length, 2);
+  });
+
+  it('categories rong → waves=[], totalWaves=0, warnings co message', () => {
+    const plan = buildScannerPlan([], 2);
+    assert.deepEqual(plan.waves, []);
+    assert.equal(plan.totalWaves, 0);
+    assert.equal(plan.totalScanners, 0);
+    assert.ok(plan.warnings.some(w => w.includes('Danh sach categories rong')));
+  });
+
+  it('batchSize < 1 → clamp to 1', () => {
+    const plan = buildScannerPlan(['xss', 'auth'], 0);
+    assert.equal(plan.totalWaves, 2); // 2 categories, batch 1 → 2 waves
+    assert.equal(plan.waves[0].length, 1);
+  });
+
+  it('moi item trong wave co category, agentName, outputFile', () => {
+    const plan = buildScannerPlan(['xss', 'auth'], 2);
+    const item = plan.waves[0][0];
+    assert.equal(item.category, 'xss');
+    assert.equal(item.agentName, 'pd-sec-scanner');
+    assert.equal(item.outputFile, 'evidence_sec_xss.md');
+    // Item thu 2
+    const item2 = plan.waves[0][1];
+    assert.equal(item2.category, 'auth');
+    assert.equal(item2.outputFile, 'evidence_sec_auth.md');
+  });
+});
+
+// ─── mergeScannerResults ────────────────────────────────────
+
+describe('mergeScannerResults', () => {
+  // Helper tao evidence content hop le cho scanner
+  function makeScannerEvidence(category) {
+    return `---\nagent: pd-sec-scanner\noutcome: root_cause\ntimestamp: 2026-03-26T10:00:00Z\nsession: SCAN001\n---\n## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi ${category}.\n\n## Bằng chứng\nsrc/app.js:10\n\n## Đề xuất\nFix ${category}.`;
+  }
+
+  it('3 scanners thanh cong → completedCount=3, failedCount=0', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: makeScannerEvidence('xss') },
+      { category: 'auth', evidenceContent: makeScannerEvidence('auth') },
+      { category: 'secrets', evidenceContent: makeScannerEvidence('secrets') },
+    ]);
+    assert.equal(result.completedCount, 3);
+    assert.equal(result.failedCount, 0);
+    assert.equal(result.results.length, 3);
+  });
+
+  it('1 scanner fail (error) → outcome=inconclusive, failedCount=1', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: makeScannerEvidence('xss') },
+      { category: 'auth', evidenceContent: null, error: { message: 'timeout' } },
+    ]);
+    assert.equal(result.completedCount, 1);
+    assert.equal(result.failedCount, 1);
+    const authResult = result.results.find(r => r.category === 'auth');
+    assert.equal(authResult.outcome, 'inconclusive');
+    assert.equal(authResult.valid, false);
+    assert.ok(result.warnings.some(w => w.includes('auth')));
+  });
+
+  it('evidenceContent null → treat as fail, ghi inconclusive', () => {
+    const result = mergeScannerResults([
+      { category: 'crypto', evidenceContent: null },
+    ]);
+    assert.equal(result.failedCount, 1);
+    assert.equal(result.results[0].outcome, 'inconclusive');
+    assert.equal(result.results[0].valid, false);
+  });
+
+  it('tat ca fail → failedCount = scanResults.length', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: null, error: { message: 'crash' } },
+      { category: 'auth', evidenceContent: null },
+      { category: 'secrets', error: { message: 'oom' } },
+    ]);
+    assert.equal(result.failedCount, 3);
+    assert.equal(result.completedCount, 0);
   });
 });
