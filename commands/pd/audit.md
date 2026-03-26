@@ -57,7 +57,7 @@ Thực thi @workflows/audit.md từ đầu đến cuối. Truyền $ARGUMENTS ch
 
 **Lỗi thường gặp:**
 - FastCode MCP không kết nối → kiểm tra Docker đang chạy
-- SubAgent không khả dụng → kiểm tra allowed-tools có SubAgent
+- SubAgent không khả dụng → kiểm tra cấu hình tool cho phép SubAgent
 </output>
 
 <rules>
