@@ -1,7 +1,7 @@
 <purpose>
 Workflow 9 bước cho pd:audit. Thực thi tuần tự từ B1 đến B9.
 Input: $ARGUMENTS từ skill pd:audit.
-Tham chiếu: references/security-rules.yaml, bin/lib/parallel-dispatch.js (buildScannerPlan, mergeScannerResults), bin/lib/resource-config.js (getAgentConfig), bin/lib/smart-selection.js (selectScanners).
+Tham chiếu: references/security-rules.yaml, bin/lib/parallel-dispatch.js (buildScannerPlan, mergeScannerResults), bin/lib/resource-config.js (getAgentConfig), bin/lib/smart-selection.js (selectScanners), bin/lib/session-delta.js (classifyDelta, appendAuditHistory).
 </purpose>
 
 <process>
@@ -22,11 +22,53 @@ Tự động phát hiện chế độ hoạt động:
 5. Ghi `{session_dir}/01-detect.md` với nội dung: mode, output_dir, timestamp ISO
 6. Log: "Chế độ: {mode} — output sẽ ghi vào {output_dir}"
 
-## Bước 2: Delta-aware (STUB)
+## Bước 2: Delta-aware
 
-> Phiên bản hiện tại chưa hỗ trợ delta-aware scanning. Treat toàn bộ codebase như full scan. Extension point cho Phase 49.
+Phân loại hàm từ evidence phiên cũ để chỉ quét lại những gì thay đổi.
 
-Ghi `{session_dir}/02-delta.md` với: status=stub, scope=full-scan, note="Delta-aware chưa được triển khai"
+1. Tìm evidence cũ trong output_dir:
+   ```bash
+   ls ${OUTPUT_DIR}/evidence_sec_*.md 2>/dev/null
+   ```
+2. Nếu KHÔNG có evidence cũ nào:
+   - delta_mode = "full-scan"
+   - Log: "Không tìm thấy evidence phiên cũ — chạy full scan"
+   - Ghi `{session_dir}/02-delta.md` với: status=full-scan, reason="no prior evidence"
+   - Chuyển qua B3
+
+3. Nếu CÓ evidence cũ:
+   a. Với MỖI evidence file `evidence_sec_{cat}.md`:
+      - Đọc nội dung file bằng Read
+      - Parse frontmatter lấy commit_sha:
+        ```bash
+        node -e "const {parseFrontmatter}=require('./bin/lib/utils');const fm=parseFrontmatter(require('fs').readFileSync('${OUTPUT_DIR}/evidence_sec_${cat}.md','utf8'));console.log(fm.frontmatter.commit_sha||'')"
+        ```
+      - Nếu có commit_sha:
+        ```bash
+        git diff --name-only ${COMMIT_SHA}..HEAD
+        ```
+        Truyền kết quả (danh sách files) vào changedFiles
+      - Nếu KHÔNG có commit_sha (evidence cũ từ trước Phase 49):
+        Treat như full scan cho category này — classifyDelta('', [])
+   b. Gọi classifyDelta:
+      ```bash
+      node -e "
+        const {classifyDelta}=require('./bin/lib/session-delta');
+        const evidence=require('fs').readFileSync('${EVIDENCE_PATH}','utf8');
+        const changed=${CHANGED_FILES_JSON};
+        const result=classifyDelta(evidence, changed);
+        // Convert Map to object for JSON output
+        const fns=Object.fromEntries(result.functions);
+        console.log(JSON.stringify({...result, functions: fns}));
+      "
+      ```
+   c. Lưu kết quả classification vào `{session_dir}/02-delta.md`:
+      - Per category: số hàm SKIP, RE-SCAN, KNOWN-UNFIXED
+      - Tổng: delta_mode="delta", summary counts
+
+4. Truyền classification results cho B5:
+   - B5 dispatch scanner với bổ sung context: danh sách hàm cần scan lại (RE-SCAN) và hàm mới (NEW)
+   - Hàm SKIP và KNOWN-UNFIXED không cần quét lại — scanner nhận danh sách này để bỏ qua
 
 ## Bước 3: Scope / parse args
 
@@ -155,6 +197,39 @@ Không có flag → chạy smart selection (toàn bộ bước này KHÔNG spawn
 7. Log sau mỗi wave: "Wave {N}/{totalWaves} hoàn tất: {completed} thành công, {failed} thất bại"
 
 **QUAN TRỌNG:** Đợi TẤT CẢ scanners trong wave hoàn tất rồi mới bắt đầu wave tiếp theo (backpressure per D-10). KHÔNG dispatch tất cả 13 scanners cùng lúc.
+
+## Bước 5b: Cập nhật evidence metadata
+
+Sau khi TẤT CẢ waves dispatch hoàn tất (B5 xong):
+
+1. Lấy commit SHA hiện tại:
+   ```bash
+   CURRENT_SHA=$(git rev-parse --short HEAD)
+   ```
+
+2. Với MỖI evidence file mới từ B5 (trong session_dir/03-dispatch/):
+   a. Đọc nội dung evidence file
+   b. Thêm/cập nhật `commit_sha: ${CURRENT_SHA}` vào frontmatter YAML:
+      - Nếu evidence có frontmatter (---...---): thêm trường commit_sha
+      - Nếu không có: tạo frontmatter mới với commit_sha
+   c. Gọi appendAuditHistory để thêm dòng history:
+      ```bash
+      node -e "
+        const {appendAuditHistory}=require('./bin/lib/session-delta');
+        const content=require('fs').readFileSync('${EVIDENCE_PATH}','utf8');
+        const entry={
+          date: new Date().toISOString().split('T')[0],
+          commit: '${CURRENT_SHA}',
+          verdictSummary: '${PASS_COUNT} PASS, ${FLAG_COUNT} FLAG, ${FAIL_COUNT} FAIL',
+          deltaSummary: '${NEW_COUNT} new, ${RESCAN_COUNT} re-scan, ${SKIP_COUNT} skip'
+        };
+        const updated=appendAuditHistory(content, entry);
+        require('fs').writeFileSync('${EVIDENCE_PATH}', updated);
+      "
+      ```
+   d. Copy evidence file ra output_dir (ghi đè file cũ)
+
+3. Log: "Evidence metadata cập nhật: commit_sha=${CURRENT_SHA}, {N} files có audit history"
 
 ## Bước 6: Reporter
 
