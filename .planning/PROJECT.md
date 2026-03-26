@@ -63,16 +63,15 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Wire INDEX.md vào Pipeline — generateIndex() tự động trong pd:research — v3.0 (Phase 43)
 - ✓ Wire routeQuery vào Workflow — thay thế inline heuristic — v3.0 (Phase 44)
 - ✓ Claim-Level Confidence API — parseClaims() extract + createEntry() render — v3.0 (Phase 45)
+- ✓ Smart Scanner Selection — selectScanners() pure function, 12 signals, 3 base scanners, function checklist, reporter master table — v4.0 (Phase 48)
 
 ### Active
 
 - [ ] Lệnh `pd:audit` (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone
 - [ ] Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
 - [ ] Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
-- [ ] Smart Scanner Selection — phân tích ngữ cảnh tự chọn scanner liên quan
 - [ ] Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
 - [ ] POC pipeline (đơn lẻ + Gadget Chain) khi dùng --poc
-- [ ] Function-Level Checklist evidence format
 - [ ] Batch execution waves (tối đa 2 instance song song)
 - [ ] Tự động tạo fix phases theo gadget chain order (chế độ milestone)
 - [ ] Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
@@ -108,7 +107,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Current:** v4.0 OWASP Security Audit — Phase 47 complete, Phase 48 next
+**Current:** v4.0 OWASP Security Audit — Phase 48 complete, Phase 49 next
 **Shipped:** v3.0 Research Squad (2026-03-26)
 **Previous:** v2.1 Detective Orchestrator (2026-03-25), v1.5 Nang cap Skill Fix-Bug (2026-03-24)
 
@@ -167,4 +166,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after Phase 47 (Luong Audit Cot loi) completion*
+*Last updated: 2026-03-26 after Phase 48 (evidence-smart-selection) completion*
