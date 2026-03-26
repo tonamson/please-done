@@ -112,7 +112,7 @@ Full details: `.planning/milestones/v2.1-ROADMAP.md`
 - [x] **Phase 39: Tieu chuan Kiem chung & Chi muc** — Evidence format, audit log append-only, INDEX.md tu dong (completed 2026-03-25)
 - [x] **Phase 40: Tac tu Nghien cuu** — Evidence Collector va Fact Checker agents (1/? plans complete) (completed 2026-03-25)
 - [x] **Phase 41: Bao ve Workflow** — CHECK-06 Plan-Gate, Mandatory Suggestion, Strategy Injection (completed 2026-03-25)
-- [ ] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation
+- [x] **Phase 42: Lenh pd research** — User-facing command, pipeline tu dong, cross-validation (completed 2026-03-26)
 
 ## Phase Details
 
@@ -193,4 +193,4 @@ Plans:
 | 39. Tieu chuan Kiem chung & Chi muc | 1/1 | Complete    | 2026-03-25 |
 | 40. Tac tu Nghien cuu | 1/? | Complete    | 2026-03-25 |
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
-| 42. Lenh pd research | 2/3 | In Progress|  |
+| 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
