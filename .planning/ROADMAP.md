@@ -141,7 +141,9 @@ Plans:
 **Success Criteria:**
   1. workflows/research.md import va goi routeQuery() de phan loai internal/external
   2. Tat ca 10+ regex patterns tu routeQuery duoc su dung (khong re-implement inline)
-Plans: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 44-01-PLAN.md — CLI script route-query.js, cap nhat workflow Buoc 1, regenerate snapshots
 
 ### Phase 45: AUDIT-03 Claim-Level Confidence API
 **Goal:** research-store.js co structured API cho inline confidence tags — createEntry() va parseEntry() xu ly claim-level confidence
@@ -235,5 +237,5 @@ Plans:
 | 41. Bao ve Workflow | 0/2 | Complete    | 2026-03-25 |
 | 42. Lenh pd research | 2/3 | Complete    | 2026-03-26 |
 | 43. Wire INDEX.md vao Pipeline | 1/2 | Complete    | 2026-03-26 |
-| 44. Wire routeQuery vao Workflow | 0/? | Pending | - |
+| 44. Wire routeQuery vao Workflow | 0/1 | In Progress | - |
 | 45. AUDIT-03 Claim-Level Confidence API | 0/? | Pending | - |
