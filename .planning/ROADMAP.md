@@ -172,7 +172,10 @@ Plans:
   3. Khi duoi 2 tin hieu match, he thong hoi user xac nhan truoc khi chay
   4. Moi scanner xuat bang kiem tra TUNG HAM voi trang thai PASS/FLAG/FAIL, ghi ro ham bi bo qua
   5. Reporter agent tong hop N evidence files thanh 1 SECURITY_REPORT.md voi master table sap theo severity + OWASP coverage
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 48-01-PLAN.md — TDD selectScanners() pure function + 12 signal mapping (smart-selection.js)
+- [ ] 48-02-PLAN.md — Scanner function checklist, reporter master table + hot spots, workflow B4 wiring
 
 ### Phase 49: Session Delta
 **Goal**: Audit lan sau chi quet lai nhung gi thay doi, tiet kiem token va thoi gian
@@ -212,7 +215,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 46. Nen tang Scanner | 1/2 | Complete    | 2026-03-26 |
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
-| 48. Evidence & Smart Selection | 0/? | Not started | - |
+| 48. Evidence & Smart Selection | 0/2 | Planning | - |
 | 49. Session Delta | 0/? | Not started | - |
 | 50. POC & Fix Phases | 0/? | Not started | - |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
