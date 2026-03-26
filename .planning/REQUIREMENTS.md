@@ -11,7 +11,7 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 - [ ] **STORE-01**: Thu muc internal/ luu ket qua phan tich codebase voi frontmatter `source: internal`, `scope: [project-name]`, `created: ISO-8601`
 - [ ] **STORE-02**: Thu muc external/ luu ket qua tra cuu web/docs voi ten `RES-[ID]-[SLUG].md`, KHONG GHI DE — moi ban la file rieng biet co so tang dan
-- [ ] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
+- [x] **STORE-03**: INDEX.md duoc auto-generate tu frontmatter cua tat ca research files — bang markdown voi cot [File, Source Type, Topic, Confidence, Created]
 - [ ] **STORE-04**: Lenh `pd research` tu dong route internal vs external dua tren noi dung cau hoi (heuristic: ten file/function -> internal, ten thu vien/API -> external)
 
 ### Kiem chung Chong Ao Giac (AUDIT)
@@ -31,11 +31,11 @@ Requirements for Research Squad milestone. Each maps to roadmap phases.
 
 - [x] **GUARD-01**: CHECK-06 trong plan-checker kiem tra plan co research backing — kiem tra Key Links/References den `.planning/research/` files (severity: WARN default, configurable)
 - [x] **GUARD-02**: Mandatory Suggestion phat hien >= 2 hedging patterns (chua ro, can tim hieu, co the...hoac, khong chac) trong plan body va goi y chay `pd research`
-- [ ] **GUARD-03**: Strategy Injection tu dong load research context (max 2 files, 2000 tokens) vao agent prompts khi spawn — keyword match tu INDEX.md
+- [x] **GUARD-03**: Strategy Injection tu dong load research context (max 2 files, 2000 tokens) vao agent prompts khi spawn — keyword match tu INDEX.md
 
 ### Nang cao (EXTRA)
 
-- [ ] **EXTRA-01**: Cross-validation tu dong — Fact Checker doc ca internal/ va external/ files cung topic, phat hien xung dot, ghi vao `## Xung dot phat hien` section
+- [x] **EXTRA-01**: Cross-validation tu dong — Fact Checker doc ca internal/ va external/ files cung topic, phat hien xung dot, ghi vao `## Xung dot phat hien` section
 
 ### Gap Closure Notes
 
@@ -72,7 +72,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | STORE-01 | Phase 38 | Pending |
 | STORE-02 | Phase 38 | Pending |
-| STORE-03 | Phase 43 | Pending |
+| STORE-03 | Phase 43 | Complete |
 | STORE-04 | Phase 44 | Pending |
 | AUDIT-01 | Phase 38 | Pending |
 | AUDIT-02 | Phase 39 | Complete |
@@ -83,8 +83,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AGENT-03 | Phase 42 | Complete |
 | GUARD-01 | Phase 41 | Complete |
 | GUARD-02 | Phase 41 | Complete |
-| GUARD-03 | Phase 43 | Pending |
-| EXTRA-01 | Phase 43 | Pending |
+| GUARD-03 | Phase 43 | Complete |
+| EXTRA-01 | Phase 43 | Complete |
 
 **Coverage:**
 - v3.0 requirements: 15 total

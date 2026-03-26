@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v3.0
 milestone_name: Research Squad
-status: Milestone complete
+status: Phase complete — ready for verification
 stopped_at: Completed 43-02-PLAN.md
-last_updated: "2026-03-26T04:55:49Z"
+last_updated: "2026-03-26T04:56:38.817Z"
 progress:
   total_phases: 30
   completed_phases: 27
-  total_plans: 60
-  completed_plans: 60
+  total_plans: 62
+  completed_plans: 61
 ---
 
 # Project State
@@ -23,8 +23,8 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 
 ## Current Position
 
-Phase: 43
-Plan: 2 (complete)
+Phase: 43 (wire-index-md-pipeline) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -54,7 +54,8 @@ Plan: 2 (complete)
 | Phase 42 P02 | 90 | 2 tasks | 2 files |
 | Phase 42 P01 | 133 | 1 tasks | 2 files |
 | Phase 42 P03 | 1367 | 1 tasks | 4 files |
-| Phase 43 P02 | 57s | 2 tasks | 1 files |
+| Phase 43 P01 | 173 | 2 tasks | 4 files |
+| Phase 43 P02 | 57 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -74,6 +75,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 42]: Guard chi kiem tra chu de — guard-context.md bao phu CONTEXT.md check
 - [Phase 42]: PascalCase regex yeu cau lowercase sau uppercase thu 2 de tranh false positive voi ten thu vien (GraphQL, PostgreSQL)
 - [Phase 42]: Gemini converter output 2 dong TOML la dac diem co san, khong phai loi snapshot
+- [Phase 43]: RESEARCH_DIR env variable cho test isolation — CLI script va tests dung env override
 - [Phase 43]: Buoc 4 dat SAU Fact Checker (D-01) — INDEX.md phan anh trang thai da xac minh
 
 ### Pending Todos
@@ -86,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-26T04:55:49Z
+Last session: 2026-03-26T04:56:38.813Z
 Stopped at: Completed 43-02-PLAN.md
 Resume file: None
