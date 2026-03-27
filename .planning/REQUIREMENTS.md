@@ -10,19 +10,19 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 ### Agent Reform
 
 - [x] **AGEN-01**: 3-tier model system (Scout/Builder/Architect) replaces hardcoded model names in agent configs
-- [ ] **AGEN-02**: `pd-codebase-mapper` agent (Scout tier) quét cấu trúc codebase nhanh, cập nhật `.planning/codebase/`
-- [ ] **AGEN-03**: `pd-security-researcher` agent (Scout tier) bổ sung research security chuyên sâu
-- [ ] **AGEN-04**: `pd-feature-analyst` agent (Scout tier) phân tích tính năng
-- [ ] **AGEN-05**: `pd-research-synthesizer` agent (Architect tier) tổng hợp research từ nhiều agents
-- [ ] **AGEN-06**: `pd-planner` agent (Architect tier) chuyên plan cho PD phases
-- [ ] **AGEN-07**: `pd-regression-analyzer` agent (Builder tier) nâng từ `regression-analyzer.js` thành agent có dispatch
-- [ ] **AGEN-08**: Mỗi agent mới có smoke test trong `test/smoke-agent-files.test.js`
+- [x] **AGEN-02**: `pd-codebase-mapper` agent (Scout tier) quét cấu trúc codebase nhanh, cập nhật `.planning/codebase/`
+- [x] **AGEN-03**: `pd-security-researcher` agent (Scout tier) bổ sung research security chuyên sâu
+- [x] **AGEN-04**: `pd-feature-analyst` agent (Scout tier) phân tích tính năng
+- [x] **AGEN-05**: `pd-research-synthesizer` agent (Architect tier) tổng hợp research từ nhiều agents
+- [x] **AGEN-06**: `pd-planner` agent (Architect tier) chuyên plan cho PD phases
+- [x] **AGEN-07**: `pd-regression-analyzer` agent (Builder tier) nâng từ `regression-analyzer.js` thành agent có dispatch
+- [x] **AGEN-08**: Mỗi agent mới có smoke test trong `test/smoke-agent-files.test.js`
 - [x] **AGEN-09**: `pd-regression-analyzer` được thêm vào `AGENT_REGISTRY` trong `resource-config.js`
 
 ### Platform Mapping
 
-- [ ] **PLAT-01**: `TIER_MAP` config trong `resource-config.js` map tier→model per platform (Claude Code, Gemini CLI, Cursor/Windsurf, Copilot)
-- [ ] **PLAT-02**: Fallback tự động — nền tảng thiếu tier cao → hạ cấp xuống model cao nhất hiện có
+- [x] **PLAT-01**: `TIER_MAP` config trong `resource-config.js` map tier→model per platform (Claude Code, Gemini CLI, Cursor/Windsurf, Copilot)
+- [x] **PLAT-02**: Fallback tự động — nền tảng thiếu tier cao → hạ cấp xuống model cao nhất hiện có
 
 ### Parallel Dispatch
 
@@ -30,7 +30,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 - [ ] **PARA-02**: `isHeavyAgent()` check trước khi spawn — agent nặng giảm 1 worker
 - [ ] **PARA-03**: `PARALLEL_MIN=2` và `PARALLEL_MAX=4` được enforce
 - [ ] **PARA-04**: Backpressure — worker timeout >120s → không spawn thêm, chờ xong
-- [ ] **PARA-05**: Graceful degradation — load average > CPU count → giảm 1 worker, log cảnh báo
+- [x] **PARA-05**: Graceful degradation — load average > CPU count → giảm 1 worker, log cảnh báo
 
 ### Skill Integration
 
@@ -82,21 +82,21 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | AGEN-01 | Phase 52 | Complete |
-| AGEN-02 | Phase 53 | Pending |
-| AGEN-03 | Phase 53 | Pending |
-| AGEN-04 | Phase 53 | Pending |
-| AGEN-05 | Phase 53 | Pending |
-| AGEN-06 | Phase 53 | Pending |
-| AGEN-07 | Phase 53 | Pending |
-| AGEN-08 | Phase 53 | Pending |
+| AGEN-02 | Phase 53 | Complete |
+| AGEN-03 | Phase 53 | Complete |
+| AGEN-04 | Phase 53 | Complete |
+| AGEN-05 | Phase 53 | Complete |
+| AGEN-06 | Phase 53 | Complete |
+| AGEN-07 | Phase 53 | Complete |
+| AGEN-08 | Phase 53 | Complete |
 | AGEN-09 | Phase 52 | Complete |
-| PLAT-01 | Phase 54 | Pending |
-| PLAT-02 | Phase 54 | Pending |
+| PLAT-01 | Phase 54 | Complete |
+| PLAT-02 | Phase 54 | Complete |
 | PARA-01 | Phase 55 | Pending |
 | PARA-02 | Phase 55 | Pending |
 | PARA-03 | Phase 55 | Pending |
 | PARA-04 | Phase 55 | Pending |
-| PARA-05 | Phase 55 | Pending |
+| PARA-05 | Phase 55 | Complete |
 | SKIL-01 | Phase 56 | Pending |
 | SKIL-02 | Phase 56 | Pending |
 | SKIL-03 | Phase 56 | Pending |
