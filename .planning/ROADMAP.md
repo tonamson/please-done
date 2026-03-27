@@ -12,12 +12,19 @@
 - ✅ **v3.0 Research Squad** — Phases 38-45 (shipped 2026-03-26)
 - ✅ **v4.0 OWASP Security Audit** — Phases 46-51 (shipped 2026-03-27)
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
+- [ ] **v5.1 Agent Sync & Reference Update** — Phases 60-64 (in progress)
 
 ## Progress
 
-All 10 milestones shipped. 59 phases, 90+ plans completed.
+All 10 milestones shipped. Milestone v5.1 in progress. 59 phases, 90+ plans completed.
 
 ## Phases
+
+- [ ] **Phase 60: Agent Consolidation** - Centralize 16 agents into `commands/pd/agents/`
+- [ ] **Phase 61: Symlink Architecture** - Create relative symlinks in `.claude/agents/`
+- [ ] **Phase 62: Reference Migration** - Update test and workflow paths
+- [ ] **Phase 63: Format Standardization** - Convert security agents to new frontmatter format
+- [ ] **Phase 64: Registry & Test Validation** - Update AGENT_REGISTRY and verify
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
@@ -157,3 +164,65 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 Full details: `.planning/milestones/v5.0-ROADMAP.md`
 
 </details>
+
+## Phase Details
+
+### Phase 60: Agent Consolidation
+**Goal**: Centralize all agent definitions into `commands/pd/agents/` as the single source of truth.
+**Depends on**: Milestone v5.0
+**Requirements**: AGNT-01, AGNT-02
+**Success Criteria** (what must be TRUE):
+  1. `commands/pd/agents/` contains all 14 agents previously only in `.claude/agents/`.
+  2. `pd-sec-fixer.md` and `pd-sec-reporter.md` are present in `commands/pd/agents/`.
+  3. No agent definitions are lost during the sync.
+**Plans**: TBD
+
+### Phase 61: Symlink Architecture
+**Goal**: Use symlinks to maintain Claude Code compatibility while centralizing source files.
+**Depends on**: Phase 60
+**Requirements**: SYML-01, SYML-02
+**Success Criteria** (what must be TRUE):
+  1. `.claude/agents/` contains symlinks for all 16 agents.
+  2. Symlinks correctly resolve to the source files in `commands/pd/agents/`.
+  3. Claude Code can still load and use agents via the symlinks.
+**Plans**: TBD
+
+### Phase 62: Reference Migration
+**Goal**: Update internal system references to point to the new centralized agent directory.
+**Depends on**: Phase 61
+**Requirements**: REFR-01, REFR-02
+**Success Criteria** (what must be TRUE):
+  1. `smoke-agent-files.test.js` uses `commands/pd/agents` as its `AGENTS_DIR`.
+  2. `fix-bug.md` workflow correctly references the centralized agent directory.
+  3. System-wide searches for `.claude/agents/` (as source of truth) return zero hits in core logic.
+**Plans**: TBD
+
+### Phase 63: Format Standardization
+**Goal**: Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
+**Depends on**: Phase 62
+**Requirements**: AGNT-03
+**Success Criteria** (what must be TRUE):
+  1. `pd-sec-fixer.md` has YAML frontmatter with tier, model, and effort fields.
+  2. `pd-sec-reporter.md` has YAML frontmatter with tier, model, and effort fields.
+  3. Both security agents are parsable by the new agent registry logic.
+**Plans**: TBD
+
+### Phase 64: Registry & Test Validation
+**Goal**: Ensure the entire consolidated agent set is correctly registered and passing tests.
+**Depends on**: Phase 63
+**Requirements**: VALD-01, VALD-02, VALD-03
+**Success Criteria** (what must be TRUE):
+  1. `AGENT_REGISTRY` contains entries for all 16 agents.
+  2. `smoke-agent-files.test.js` passes for all 16 agents.
+  3. Validation tests confirm correct structure for the entire consolidated agent set.
+**Plans**: TBD
+
+## Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 60. Agent Consolidation | 0/1 | Not started | - |
+| 61. Symlink Architecture | 0/1 | Not started | - |
+| 62. Reference Migration | 0/1 | Not started | - |
+| 63. Format Standardization | 0/1 | Not started | - |
+| 64. Registry & Test Validation | 0/1 | Not started | - |

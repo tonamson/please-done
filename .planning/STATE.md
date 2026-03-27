@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v5.1
 milestone_name: Agent Sync & Reference Update
-status: v5.1 milestone started
-stopped_at: Defining requirements
-last_updated: "2026-03-27T13:40:00.000Z"
+status: v5.1 milestone in progress
+stopped_at: Phase 60 planning
+last_updated: "2026-03-27T13:45:00.000Z"
 progress:
-  total_phases: 0
+  total_phases: 5
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -19,14 +19,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-27)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Defining requirements for v5.1 Agent Sync & Reference Update
+**Current focus:** Consolidating 16 agents into `commands/pd/agents/` and updating references.
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 60: Agent Consolidation
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-27 — Milestone v5.1 started
+Status: Planning Phase 60
+Last activity: 2026-03-27 — Milestone v5.1 roadmap created
 
 ## Performance Metrics
 
@@ -59,7 +59,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-None.
+- Plan and execute Phase 60 (AGNT-01, AGNT-02)
 
 ### Blockers/Concerns
 
@@ -68,5 +68,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-27
-Stopped at: Defining requirements
-Resume file: None
+Stopped at: Phase 60 planning
+Resume file: .planning/ROADMAP.md
