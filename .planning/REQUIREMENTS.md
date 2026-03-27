@@ -9,7 +9,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 ### Agent Reform
 
-- [x] **AGEN-01**: 3-tier model system (Scout/Builder/Architect) replaces hardcoded model names in agent configs
+- [ ] **AGEN-01**: 3-tier model system (Scout/Builder/Architect) replaces hardcoded model names in agent configs
 - [x] **AGEN-02**: `pd-codebase-mapper` agent (Scout tier) quét cấu trúc codebase nhanh, cập nhật `.planning/codebase/`
 - [x] **AGEN-03**: `pd-security-researcher` agent (Scout tier) bổ sung research security chuyên sâu
 - [x] **AGEN-04**: `pd-feature-analyst` agent (Scout tier) phân tích tính năng
@@ -17,7 +17,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 - [x] **AGEN-06**: `pd-planner` agent (Architect tier) chuyên plan cho PD phases
 - [x] **AGEN-07**: `pd-regression-analyzer` agent (Builder tier) nâng từ `regression-analyzer.js` thành agent có dispatch
 - [x] **AGEN-08**: Mỗi agent mới có smoke test trong `test/smoke-agent-files.test.js`
-- [x] **AGEN-09**: `pd-regression-analyzer` được thêm vào `AGENT_REGISTRY` trong `resource-config.js`
+- [ ] **AGEN-09**: `pd-regression-analyzer` được thêm vào `AGENT_REGISTRY` trong `resource-config.js`
 
 ### Platform Mapping
 
@@ -81,7 +81,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AGEN-01 | Phase 52 | Complete |
+| AGEN-01 | Phase 59 | Pending |
 | AGEN-02 | Phase 53 | Complete |
 | AGEN-03 | Phase 53 | Complete |
 | AGEN-04 | Phase 53 | Complete |
@@ -89,11 +89,11 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | AGEN-06 | Phase 53 | Complete |
 | AGEN-07 | Phase 53 | Complete |
 | AGEN-08 | Phase 53 | Complete |
-| AGEN-09 | Phase 52 | Complete |
-| PLAT-01 | Phase 54 | Complete |
-| PLAT-02 | Phase 54 | Complete |
+| AGEN-09 | Phase 59 | Pending |
+| PLAT-01 | Phase 54, 59 | Pending |
+| PLAT-02 | Phase 54, 59 | Pending |
 | PARA-01 | Phase 55 | Complete |
-| PARA-02 | Phase 55 | Complete |
+| PARA-02 | Phase 55, 59 | Pending |
 | PARA-03 | Phase 55 | Complete |
 | PARA-04 | Phase 55 | Complete |
 | PARA-05 | Phase 55 | Complete |

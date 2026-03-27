@@ -11,7 +11,7 @@
 - ✅ **v2.1 Detective Orchestrator** — Phases 28-37 (shipped 2026-03-25)
 - ✅ **v3.0 Research Squad** — Phases 38-45 (shipped 2026-03-26)
 - ✅ **v4.0 OWASP Security Audit** — Phases 46-51 (shipped 2026-03-27)
-- 🔄 **v5.0 Repo Optimization** — Phases 52-58
+- 🔄 **v5.0 Repo Optimization** — Phases 52-59
 
 ## Phases
 
@@ -138,7 +138,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
 
-### v5.0 Repo Optimization (Phases 52-58)
+### v5.0 Repo Optimization (Phases 52-59)
 
 - [x] **Phase 52: Agent Tier System & Registry** — AGEN-01, AGEN-09 — completed 2026-03-27
   - Implement 3-tier model system (Scout/Builder/Architect) in `resource-config.js`
@@ -171,7 +171,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. Copilot inherits platform defaults
     4. Unit tests cover all platform × tier combinations
 
-- [ ] **Phase 55: Parallel Dispatch Wiring** — PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
+- [x] **Phase 55: Parallel Dispatch Wiring** — PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
   - Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`
   - Add `isHeavyAgent()` check before spawn
   - Enforce min/max workers (2-4)
@@ -221,3 +221,16 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     2. Before/after comparison shows improvement or maintains baseline
     3. At least 2 additional workflows use `conditional_reading`
     4. `promptfooconfig.yaml` configured for quality measurement
+
+- [ ] **Phase 59: Integration Wiring & Verification Gaps** — PLAT-01, PLAT-02, PARA-02, AGEN-01, AGEN-09
+  - Wire `getModelForTier(tier, platform)` vào production dispatch flow
+  - Fix `pd-sec-scanner` agent path → `.claude/agents/`
+  - Tạo VERIFICATION.md cho Phase 52 (formal verification AGEN-01, AGEN-09)
+  - Cập nhật 053-VERIFICATION.md phản ánh trạng thái hiện tại (3 gaps đã fix)
+  - **Gap Closure:** Closes integration + verification gaps from v5.0 audit
+  - Success criteria:
+    1. `getModelForTier(tier, platform)` có ít nhất 1 production caller
+    2. `pd-sec-scanner.md` tồn tại tại `.claude/agents/pd-sec-scanner.md`
+    3. Phase 52 có VERIFICATION.md xác nhận AGEN-01, AGEN-09
+    4. 053-VERIFICATION.md phản ánh đúng trạng thái hiện tại (không còn stale gaps)
+    5. All smoke tests pass
