@@ -315,14 +315,16 @@ describe('listSkillFiles', () => {
 
 // ─── Platforms ─────────────────────────────────────────────
 describe('Platforms', () => {
-  it('có đủ 5 platforms', () => {
+  it('có đủ 7 platforms', () => {
     const runtimes = getAllRuntimes();
-    assert.equal(runtimes.length, 5);
+    assert.equal(runtimes.length, 7);
     assert.ok(runtimes.includes('claude'));
     assert.ok(runtimes.includes('codex'));
     assert.ok(runtimes.includes('gemini'));
     assert.ok(runtimes.includes('opencode'));
     assert.ok(runtimes.includes('copilot'));
+    assert.ok(runtimes.includes('cursor'));
+    assert.ok(runtimes.includes('windsurf'));
   });
 
   it('mỗi platform có đủ fields', () => {
