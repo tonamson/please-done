@@ -175,7 +175,9 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `commands/pd/agents/` contains all 14 agents previously only in `.claude/agents/`.
   2. `pd-sec-fixer.md` and `pd-sec-reporter.md` are present in `commands/pd/agents/`.
   3. No agent definitions are lost during the sync.
-**Plans**: TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 60-01-PLAN.md — Copy 14 agents + verify 16 total
 
 ### Phase 61: Symlink Architecture
 **Goal**: Use symlinks to maintain Claude Code compatibility while centralizing source files.
@@ -185,7 +187,7 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `.claude/agents/` contains symlinks for all 16 agents.
   2. Symlinks correctly resolve to the source files in `commands/pd/agents/`.
   3. Claude Code can still load and use agents via the symlinks.
-**Plans**: TBD
+**Plans:** TBD
 
 ### Phase 62: Reference Migration
 **Goal**: Update internal system references to point to the new centralized agent directory.
@@ -195,7 +197,7 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `smoke-agent-files.test.js` uses `commands/pd/agents` as its `AGENTS_DIR`.
   2. `fix-bug.md` workflow correctly references the centralized agent directory.
   3. System-wide searches for `.claude/agents/` (as source of truth) return zero hits in core logic.
-**Plans**: TBD
+**Plans:** TBD
 
 ### Phase 63: Format Standardization
 **Goal**: Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
@@ -205,7 +207,7 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `pd-sec-fixer.md` has YAML frontmatter with tier, model, and effort fields.
   2. `pd-sec-reporter.md` has YAML frontmatter with tier, model, and effort fields.
   3. Both security agents are parsable by the new agent registry logic.
-**Plans**: TBD
+**Plans:** TBD
 
 ### Phase 64: Registry & Test Validation
 **Goal**: Ensure the entire consolidated agent set is correctly registered and passing tests.
@@ -215,14 +217,14 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `AGENT_REGISTRY` contains entries for all 16 agents.
   2. `smoke-agent-files.test.js` passes for all 16 agents.
   3. Validation tests confirm correct structure for the entire consolidated agent set.
-**Plans**: TBD
+**Plans:** TBD
 
 ## Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 60. Agent Consolidation | 0/1 | Not started | - |
-| 61. Symlink Architecture | 0/1 | Not started | - |
-| 62. Reference Migration | 0/1 | Not started | - |
-| 63. Format Standardization | 0/1 | Not started | - |
-| 64. Registry & Test Validation | 0/1 | Not started | - |
+| 61. Symlink Architecture | TBD | Not started | - |
+| 62. Reference Migration | TBD | Not started | - |
+| 63. Format Standardization | TBD | Not started | - |
+| 64. Registry & Test Validation | TBD | Not started | - |
