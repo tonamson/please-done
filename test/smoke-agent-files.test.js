@@ -11,6 +11,7 @@ const assert = require('node:assert/strict');
 const { readFileSync } = require('node:fs');
 const { join } = require('node:path');
 const { AGENT_REGISTRY, TIER_MAP } = require('../bin/lib/resource-config');
+const { parseFrontmatter } = require('../bin/lib/utils');
 
 // ─── Danh sach agent files ────────────────────────────────
 
@@ -295,6 +296,99 @@ describe('Agent files khong co model inherit', () => {
       assert.notEqual(fm.model, 'inherit',
         `${name} co model: inherit — phai ghi ro haiku/sonnet/opus`);
       assert.ok(fm.model, `${name} thieu model field`);
+    }
+  });
+});
+
+// ─── Test: New agent files (parseFrontmatter validation) ──
+
+const NEW_AGENT_NAMES = [
+  'pd-codebase-mapper',
+  'pd-security-researcher',
+  'pd-feature-analyst',
+  'pd-research-synthesizer',
+  'pd-planner',
+  'pd-regression-analyzer',
+];
+
+describe('New agent files (parseFrontmatter validation)', () => {
+  it('6 new agent files ton tai va co noi dung', () => {
+    for (const name of NEW_AGENT_NAMES) {
+      const filePath = join(AGENTS_DIR, `${name}.md`);
+      const content = readFileSync(filePath, 'utf8');
+      assert.ok(content.length > 0, `${name}.md phai co noi dung`);
+    }
+  });
+
+  it('frontmatter fields hop le (parseFrontmatter)', () => {
+    const validModels = ['haiku', 'sonnet', 'opus'];
+    for (const name of NEW_AGENT_NAMES) {
+      const content = readFileSync(join(AGENTS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      assert.equal(frontmatter.name, name,
+        `${name}: frontmatter.name khong khop`);
+      assert.ok(typeof frontmatter.description === 'string' && frontmatter.description.length > 0,
+        `${name}: thieu description`);
+      assert.ok(validModels.includes(frontmatter.model),
+        `${name}: model '${frontmatter.model}' khong hop le (phai la haiku/sonnet/opus)`);
+      assert.ok(typeof frontmatter.tools === 'string' && frontmatter.tools.length > 0,
+        `${name}: thieu tools field`);
+    }
+  });
+
+  it('body co objective, process, rules', () => {
+    for (const name of NEW_AGENT_NAMES) {
+      const content = readFileSync(join(AGENTS_DIR, `${name}.md`), 'utf8');
+      const { body } = parseFrontmatter(content);
+      assert.ok(body.includes('<objective>'), `${name} thieu <objective>`);
+      assert.ok(body.includes('<process>'), `${name} thieu <process>`);
+      assert.ok(body.includes('<rules>'), `${name} thieu <rules>`);
+    }
+  });
+
+  it('model khop voi TIER_MAP[tier] — khong co model: inherit', () => {
+    for (const name of NEW_AGENT_NAMES) {
+      const content = readFileSync(join(AGENTS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      // Model phai la gia tri cu the, khong phai inherit
+      assert.notEqual(frontmatter.model, 'inherit',
+        `${name}: model khong duoc la inherit`);
+      // Model phai khop voi TIER_MAP cua agent's tier trong registry
+      const agentTier = AGENT_REGISTRY[name].tier;
+      const expectedModel = TIER_MAP[agentTier].model;
+      assert.equal(frontmatter.model, expectedModel,
+        `${name}: model '${frontmatter.model}' khong khop TIER_MAP[${agentTier}].model '${expectedModel}'`);
+    }
+  });
+
+  it('bidirectional tools consistency (frontmatter <-> AGENT_REGISTRY)', () => {
+    for (const name of NEW_AGENT_NAMES) {
+      const content = readFileSync(join(AGENTS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      const fileTools = frontmatter.tools.split(',').map(t => t.trim());
+      const registryTools = AGENT_REGISTRY[name].tools;
+
+      // Registry -> file
+      for (const tool of registryTools) {
+        assert.ok(fileTools.includes(tool),
+          `${name}: registry co '${tool}' nhung file thieu (file co: ${fileTools.join(', ')})`);
+      }
+      // File -> registry
+      for (const tool of fileTools) {
+        assert.ok(registryTools.includes(tool),
+          `${name}: file co '${tool}' nhung registry thieu (registry co: ${registryTools.join(', ')})`);
+      }
+    }
+  });
+
+  it('tier consistency (AGENT_REGISTRY tier khop voi model trong file)', () => {
+    for (const name of NEW_AGENT_NAMES) {
+      const content = readFileSync(join(AGENTS_DIR, `${name}.md`), 'utf8');
+      const { frontmatter } = parseFrontmatter(content);
+      const registryTier = AGENT_REGISTRY[name].tier;
+      const expectedModel = TIER_MAP[registryTier].model;
+      assert.equal(frontmatter.model, expectedModel,
+        `${name}: tier '${registryTier}' map sang model '${expectedModel}' nhung file co '${frontmatter.model}'`);
     }
   });
 });
