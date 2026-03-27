@@ -75,7 +75,13 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-(Không có — tất cả requirements đã validated qua v4.0)
+- Agent Reform — 6 new agents (codebase-mapper, security-researcher, feature-analyst, research-synthesizer, planner, regression-analyzer) with 3-tier model system (Scout/Builder/Architect)
+- Platform-Aware Mapping — Config-driven tier→model mapping per platform with automatic fallback
+- Parallel + Resource Guard — Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`, backpressure, graceful degradation
+- Skill-Agent Integration — `pd-codebase-mapper` auto-mapping, Research Squad activation, soft-guard strategy
+- Reference Dedup — Merge `verification-patterns.md` + `plan-checker.md` → `verification.md`
+- Runtime DRY — Extract `installer-utils.js` from shared installer code
+- Token Budget — Expand `conditional_reading` pattern, benchmark before/after
 
 ### Out of Scope
 
@@ -88,13 +94,13 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Current:** v4.0 OWASP Security Audit — SHIPPED (2026-03-27)
+**Current:** v5.0 Repo Optimization — IN PROGRESS
 **Shipped:** v4.0 OWASP Security Audit (2026-03-27)
 **Previous:** v3.0 Research Squad (2026-03-26), v2.1 Detective Orchestrator (2026-03-25)
 
-v4.0 added: OWASP Security Audit — pd:audit skill + workflow 9 bước, security-rules.yaml (13 categories), pd-sec-scanner template agent, pd-sec-reporter, pd-sec-fixer, smart-selection.js (12 signals), session-delta.js (delta-aware scanning), gadget-chain.js (cross-category attack chains), security gate trong complete-milestone, ưu tiên 7.5 trong what-next. 6 phases, 14 plans, 159 files modified, +19,263 net LOC.
+v5.0 scope: Repo-wide optimization — Agent Reform (6 new agents, 3-tier model), Platform Mapping (config-driven), Parallel dispatch wiring, Skill-Agent integration, Reference dedup, Runtime DRY (installer-utils.js), Token budget expansion.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 12 workflows, 27 JS library modules.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules.
 
 ## Constraints
 
@@ -151,4 +157,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after v4.0 OWASP Security Audit milestone completion*
+*Last updated: 2026-03-27 after v5.0 Repo Optimization milestone start*
