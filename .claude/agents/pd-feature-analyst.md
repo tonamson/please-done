@@ -1,7 +1,7 @@
 ---
 name: pd-feature-analyst
 description: Phan tich vien tinh nang — Quet codebase de liet ke cac tinh nang hien co, API endpoints, va kha nang mo rong.
-tools: Read, Glob, Grep
+tools: Read, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
 model: haiku
 maxTurns: 15
 effort: low

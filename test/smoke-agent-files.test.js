@@ -170,7 +170,7 @@ describe('Agent files frontmatter', () => {
     assert.equal(fm.model, 'haiku');
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, 'low');
-    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash']);
+    assert.deepEqual(fm.tools, ['Read', 'Write', 'Glob', 'Grep', 'Bash']);
   });
 
   it('pd-security-researcher co dung frontmatter', () => {
@@ -188,7 +188,7 @@ describe('Agent files frontmatter', () => {
     assert.equal(fm.model, 'haiku');
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, 'low');
-    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep']);
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash', 'mcp__context7__resolve-library-id', 'mcp__context7__query-docs']);
   });
 
   it('pd-research-synthesizer co dung frontmatter', () => {

@@ -94,7 +94,7 @@ const AGENT_REGISTRY = {
   },
   "pd-codebase-mapper": {
     tier: "scout",
-    tools: ["Read", "Glob", "Grep", "Bash"],
+    tools: ["Read", "Write", "Glob", "Grep", "Bash"],
   },
   "pd-security-researcher": {
     tier: "scout",
@@ -102,7 +102,7 @@ const AGENT_REGISTRY = {
   },
   "pd-feature-analyst": {
     tier: "scout",
-    tools: ["Read", "Glob", "Grep"],
+    tools: ["Read", "Glob", "Grep", "Bash", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"],
   },
   "pd-research-synthesizer": {
     tier: "architect",

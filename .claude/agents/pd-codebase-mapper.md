@@ -1,7 +1,7 @@
 ---
 name: pd-codebase-mapper
 description: Quet cau truc codebase nhanh — Tao ban do tong quan cac modules, dependencies va entry points de ho tro cac agent khac.
-tools: Read, Glob, Grep, Bash
+tools: Read, Write, Glob, Grep, Bash
 model: haiku
 maxTurns: 15
 effort: low
