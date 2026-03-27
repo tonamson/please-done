@@ -54,8 +54,8 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 - [x] **TOKN-01**: Token budget per tier — Scout ≤ 4K, Builder ≤ 8K, Architect ≤ 12K prompt tokens
 - [x] **TOKN-02**: Before/after benchmark — chạy `count-tokens.js` trước và sau, ghi vào `BENCHMARK_RESULTS.md`
-- [ ] **TOKN-03**: Mở rộng `conditional_reading` pattern sang các workflows khác (ngoài `plan.md`)
-- [ ] **TOKN-04**: Eval integration — dùng `evals/` + `promptfooconfig.yaml` đo chất lượng sau giảm token
+- [x] **TOKN-03**: Mở rộng `conditional_reading` pattern sang các workflows khác (ngoài `plan.md`)
+- [x] **TOKN-04**: Eval integration — dùng `evals/` + `promptfooconfig.yaml` đo chất lượng sau giảm token
 
 ## Future Requirements
 
@@ -108,8 +108,8 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | DRYU-03 | Phase 57 | Complete |
 | TOKN-01 | Phase 58 | Complete |
 | TOKN-02 | Phase 58 | Complete |
-| TOKN-03 | Phase 58 | Pending |
-| TOKN-04 | Phase 58 | Pending |
+| TOKN-03 | Phase 58 | Complete |
+| TOKN-04 | Phase 58 | Complete |
 
 **Coverage:**
 - v1 requirements: 29 total

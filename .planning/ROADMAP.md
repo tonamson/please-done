@@ -225,7 +225,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Integrate eval pipeline
   - **Plans:** 2 plans
     - [x] 058-01-PLAN.md — TOKEN_BUDGET constant + baseline capture + BENCHMARK_RESULTS.md (TOKN-01, TOKN-02)
-    - [ ] 058-02-PLAN.md — Conditional reading expansion + eval pipeline verify (TOKN-03, TOKN-04)
+    - [x] 058-02-PLAN.md — Conditional reading expansion + eval pipeline verify (TOKN-03, TOKN-04)
   - Success criteria:
     1. Token budget documented in `BENCHMARK_RESULTS.md`
     2. Before/after comparison shows improvement or maintains baseline
