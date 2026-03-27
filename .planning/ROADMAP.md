@@ -192,7 +192,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Add `TECHNICAL_STRATEGY.md` soft-guard to `plan` workflow
   - Auto-inject strategy context into `pd-planner`
   - **Plans:** 3 plans
-    - [ ] 056-01-PLAN.md — Wire mapper vao init.md + soft-guard vao plan.md (SKIL-01, SKIL-03)
+    - [x] 056-01-PLAN.md — Wire mapper vao init.md + soft-guard vao plan.md (SKIL-01, SKIL-03)
     - [x] 056-02-PLAN.md — Them buildResearchSquadPlan() vao parallel-dispatch.js + strategy_path vao init.cjs (SKIL-02, SKIL-04)
     - [ ] 056-03-PLAN.md — Wire PD Research Squad vao new-milestone.md + strategy_path vao plan-phase.md (SKIL-02, SKIL-04)
   - Success criteria:

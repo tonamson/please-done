@@ -34,9 +34,9 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 ### Skill Integration
 
-- [ ] **SKIL-01**: `init` workflow tự động triệu hồi `pd-codebase-mapper` sau init brownfield project
+- [x] **SKIL-01**: `init` workflow tự động triệu hồi `pd-codebase-mapper` sau init brownfield project
 - [x] **SKIL-02**: Research Squad activation — Mapper + Security + Feature + Synthesizer chạy đồng thời
-- [ ] **SKIL-03**: `plan` workflow soft-guard `TECHNICAL_STRATEGY.md` — warning nếu thiếu, cho phép tiếp tục
+- [x] **SKIL-03**: `plan` workflow soft-guard `TECHNICAL_STRATEGY.md` — warning nếu thiếu, cho phép tiếp tục
 - [x] **SKIL-04**: Auto-injection — nạp `TECHNICAL_STRATEGY.md` vào `pd-planner` context nếu tồn tại
 
 ### Reference Dedup
@@ -97,9 +97,9 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | PARA-03 | Phase 55 | Complete |
 | PARA-04 | Phase 55 | Complete |
 | PARA-05 | Phase 55 | Complete |
-| SKIL-01 | Phase 56 | Pending |
+| SKIL-01 | Phase 56 | Complete |
 | SKIL-02 | Phase 56 | Complete |
-| SKIL-03 | Phase 56 | Pending |
+| SKIL-03 | Phase 56 | Complete |
 | SKIL-04 | Phase 56 | Complete |
 | DEDU-01 | Phase 57 | Pending |
 | DEDU-02 | Phase 57 | Pending |
