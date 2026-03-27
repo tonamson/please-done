@@ -10,6 +10,7 @@ const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const {
   getModelForTier, getAgentConfig, getParallelLimit,
+  getAdaptiveParallelLimit,
   isHeavyAgent, shouldDegrade, TIER_MAP, AGENT_REGISTRY,
   PARALLEL_LIMIT, HEAVY_TOOL_PATTERNS,
 } = require('../bin/lib/resource-config');
@@ -292,5 +293,27 @@ describe('Constants', () => {
 
   it('HEAVY_TOOL_PATTERNS co mcp__fastcode__', () => {
     assert.ok(HEAVY_TOOL_PATTERNS.includes('mcp__fastcode__'));
+  });
+});
+
+// ─── getAdaptiveParallelLimit — loadAvg extension ────────
+
+describe('getAdaptiveParallelLimit — loadAvg extension', () => {
+  it('return object co field loadAvg la number', () => {
+    const result = getAdaptiveParallelLimit();
+    assert.equal(typeof result.loadAvg, 'number');
+  });
+
+  it('loadAvg >= 0', () => {
+    const result = getAdaptiveParallelLimit();
+    assert.ok(result.loadAvg >= 0, `loadAvg = ${result.loadAvg} phai >= 0`);
+  });
+
+  it('van co workers, reason, cpu, freeMemGB (backward compat)', () => {
+    const result = getAdaptiveParallelLimit();
+    assert.equal(typeof result.workers, 'number');
+    assert.equal(typeof result.reason, 'string');
+    assert.equal(typeof result.cpu, 'number');
+    assert.equal(typeof result.freeMemGB, 'string');
   });
 });
