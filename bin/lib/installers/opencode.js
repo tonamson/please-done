@@ -11,6 +11,7 @@ const path = require('path');
 
 const { log, listSkillFiles } = require('../utils');
 const { convertSkill, flattenName } = require('../converters/opencode');
+const { ensureDir, savePdconfig, cleanOldFiles } = require('../installer-utils');
 
 async function install(skillsDir, targetDir, options = {}) {
   const skillsSrc = path.join(skillsDir, 'commands', 'pd');
@@ -19,13 +20,10 @@ async function install(skillsDir, targetDir, options = {}) {
   // ─── Step 1: Convert & copy skills (flat) ─────────────
   log.step(1, 3, 'Chuyển đổi skills cho OpenCode...');
 
-  fs.mkdirSync(commandDir, { recursive: true });
+  ensureDir(commandDir);
 
-  // Clean old pd-* và legacy sk-* files
-  if (fs.existsSync(commandDir)) {
-    const old = fs.readdirSync(commandDir).filter(f => (f.startsWith('pd-') || f.startsWith('sk-')) && f.endsWith('.md'));
-    for (const f of old) fs.unlinkSync(path.join(commandDir, f));
-  }
+  // Clean old pd-* va legacy sk-* files
+  cleanOldFiles(commandDir, f => (f.startsWith('pd-') || f.startsWith('sk-')) && f.endsWith('.md'));
 
   const skills = listSkillFiles(skillsSrc);
   for (const skill of skills) {
@@ -40,15 +38,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const fastcodeDir = path.join(skillsDir, 'FastCode');
   const pdconfigFile = path.join(targetDir, '.pdconfig');
-  let savedVersion = '';
-  if (fs.existsSync(pdconfigFile)) {
-    const existing = fs.readFileSync(pdconfigFile, 'utf8');
-    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
-    if (match) savedVersion = match[0];
-  }
-  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
-  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
-  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  savePdconfig(pdconfigFile, skillsDir, fastcodeDir);
   log.success(`Config saved: ${pdconfigFile}`);
 
   // ─── Step 3: Copy rules (inline vào command dir) ──────

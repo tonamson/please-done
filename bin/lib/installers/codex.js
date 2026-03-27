@@ -9,6 +9,7 @@ const path = require('path');
 
 const { log, listSkillFiles } = require('../utils');
 const { convertSkill, generateMcpToml, mergeCodexConfig, stripCodexConfig } = require('../converters/codex');
+const { ensureDir, savePdconfig, cleanOldFiles } = require('../installer-utils');
 
 async function install(skillsDir, targetDir, options = {}) {
   const skillsSrc = path.join(skillsDir, 'commands', 'pd');
@@ -21,7 +22,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const skills = listSkillFiles(skillsSrc);
 
-  // Clean old pd-* và legacy sk-* skill dirs
+  // Clean old pd-* va legacy sk-* skill dirs
   if (fs.existsSync(skillsDestDir)) {
     const existing = fs.readdirSync(skillsDestDir).filter(d => d.startsWith('pd-') || d.startsWith('sk-'));
     for (const d of existing) {
@@ -71,16 +72,7 @@ async function install(skillsDir, targetDir, options = {}) {
   log.step(3, 4, 'Lưu cấu hình .pdconfig...');
 
   const pdconfigFile = path.join(targetDir, '.pdconfig');
-  let savedVersion = '';
-  if (fs.existsSync(pdconfigFile)) {
-    const existing = fs.readFileSync(pdconfigFile, 'utf8');
-    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
-    if (match) savedVersion = match[0];
-  }
-
-  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
-  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
-  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  savePdconfig(pdconfigFile, skillsDir, fastcodeDir);
   log.success(`Config saved: ${pdconfigFile}`);
 
   // ─── Step 4: MCP config trong config.toml ─────────────
@@ -93,7 +85,7 @@ async function install(skillsDir, targetDir, options = {}) {
     existingConfig = fs.readFileSync(configToml, 'utf8');
   }
 
-  fs.mkdirSync(targetDir, { recursive: true });
+  ensureDir(targetDir);
   const mergedConfig = mergeCodexConfig(existingConfig, mcpBlock);
   fs.writeFileSync(configToml, mergedConfig, 'utf8');
   log.success('MCP config written to config.toml');
