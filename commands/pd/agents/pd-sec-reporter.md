@@ -1,11 +1,10 @@
 ---
 name: pd-sec-reporter
 description: Tong hop vien bao mat — Gop ket qua tu N scanner agent thanh bao cao bao mat tong the, phu du OWASP Top 10.
-tier: builder
-allowed-tools:
-  - Read
-  - Write
-  - Glob
+tools: Read, Write, Glob
+model: sonnet
+maxTurns: 25
+effort: medium
 ---
 
 <objective>

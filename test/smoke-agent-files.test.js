@@ -275,7 +275,7 @@ describe('Security agent files', () => {
     const path = join(PD_AGENTS_DIR, 'pd-sec-fixer.md');
     const content = readFileSync(path, 'utf8');
     assert.ok(content.includes('name: pd-sec-fixer'));
-    assert.ok(content.includes('tier: architect'));
+    assert.ok(content.includes('model: opus'));
   });
 
   it('security-fix-phase.md template ton tai va co 4 sections', () => {

@@ -1,12 +1,10 @@
 ---
 name: pd-sec-fixer
 description: Phan tich findings bao mat va tao de xuat fix phases decimal theo thu tu uu tien.
-tier: architect
-allowed-tools:
-  - Read
-  - Write
-  - Glob
-  - Grep
+tools: Read, Write, Glob, Grep
+model: opus
+maxTurns: 30
+effort: high
 ---
 
 <objective>
