@@ -83,7 +83,11 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-(None — next milestone not yet defined)
+- [ ] Consolidate 16 agents into `commands/pd/agents/` — v5.1 (Phase 60)
+- [ ] Create symlinks in `.claude/agents/` to `commands/pd/agents/` — v5.1 (Phase 61)
+- [ ] Update `smoke-agent-files.test.js` and `fix-bug.md` references — v5.1 (Phase 62)
+- [ ] Standardize legacy security agents to new frontmatter format — v5.1 (Phase 63)
+- [ ] Update `AGENT_REGISTRY` and verify with smoke tests — v5.1 (Phase 64)
 
 ### Out of Scope
 
@@ -94,9 +98,20 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
+## Current Milestone: v5.1 Agent Sync & Reference Update
+
+**Goal:** Consolidate all agent definitions into `commands/pd/agents/` as the single source of truth and update system references.
+
+**Target features:**
+- **Agent Consolidation:** Sync 14 agents from `.claude/agents/` to `commands/pd/agents/` (16 total agents).
+- **Symlink Architecture:** Use symlinks in `.claude/agents/` to maintain Claude Code compatibility while centralizing source files.
+- **Reference Migration:** Update `smoke-agent-files.test.js` and `fix-bug.md` to point to the new source of truth.
+- **Format Standardization:** Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
+- **Registry & Test Updates:** Ensure `AGENT_REGISTRY` and smoke tests cover all 16 agents with the new format.
+
 ## Current State
 
-**Current:** v5.0 Repo Optimization — SHIPPED (2026-03-27)
+**Current:** v5.1 Agent Sync & Reference Update — DEFINING (2026-03-27)
 **Shipped:** v5.0 Repo Optimization (2026-03-27), v4.0 OWASP Security Audit (2026-03-27)
 **Previous:** v3.0 Research Squad (2026-03-26), v2.1 Detective Orchestrator (2026-03-25)
 
@@ -159,4 +174,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after v5.0 Repo Optimization milestone complete*
+*Last updated: 2026-03-27 after v5.1 Agent Sync & Reference Update milestone started*
