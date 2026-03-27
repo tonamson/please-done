@@ -81,7 +81,7 @@ Every workflow step must produce the highest quality code output while consuming
 - Skill-Agent Integration — `pd-codebase-mapper` auto-mapping, Research Squad activation, soft-guard strategy
 - ✓ Reference Dedup — Merged verification-patterns.md + plan-checker.md → verification.md, zero broken refs — v5.0 (Phase 57)
 - ✓ Runtime DRY — installer-utils.js with 6 shared utilities, 4 installers DRY — v5.0 (Phase 57)
-- Token Budget — Expand `conditional_reading` pattern, benchmark before/after
+- ✓ Token Budget — TOKEN_BUDGET per tier (4K/8K/12K), baseline v5.0 (86,305 tokens), 10 workflows conditional_reading, eval pipeline verified — v5.0 (Phase 58)
 
 ### Out of Scope
 
