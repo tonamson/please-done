@@ -12,7 +12,7 @@ const {
   getModelForTier, getAgentConfig, getParallelLimit,
   getAdaptiveParallelLimit,
   isHeavyAgent, shouldDegrade, TIER_MAP, AGENT_REGISTRY,
-  PARALLEL_LIMIT, HEAVY_TOOL_PATTERNS,
+  PARALLEL_LIMIT, HEAVY_TOOL_PATTERNS, TOKEN_BUDGET,
 } = require('../bin/lib/resource-config');
 
 // ─── getModelForTier ────────────────────────────────────────
@@ -293,6 +293,32 @@ describe('Constants', () => {
 
   it('HEAVY_TOOL_PATTERNS co mcp__fastcode__', () => {
     assert.ok(HEAVY_TOOL_PATTERNS.includes('mcp__fastcode__'));
+  });
+});
+
+// ─── TOKEN_BUDGET ────────────────────────────────────────
+
+describe('TOKEN_BUDGET', () => {
+  it('moi tier co tokenBudget trong TIER_MAP', () => {
+    for (const [tier, config] of Object.entries(TIER_MAP)) {
+      assert.ok(config.tokenBudget > 0, `${tier} thieu tokenBudget`);
+    }
+  });
+
+  it('scout = 4000, builder = 8000, architect = 12000', () => {
+    assert.equal(TIER_MAP.scout.tokenBudget, 4000);
+    assert.equal(TIER_MAP.builder.tokenBudget, 8000);
+    assert.equal(TIER_MAP.architect.tokenBudget, 12000);
+  });
+
+  it('TOKEN_BUDGET export nhat quan voi TIER_MAP', () => {
+    assert.equal(TOKEN_BUDGET.scout, TIER_MAP.scout.tokenBudget);
+    assert.equal(TOKEN_BUDGET.builder, TIER_MAP.builder.tokenBudget);
+    assert.equal(TOKEN_BUDGET.architect, TIER_MAP.architect.tokenBudget);
+  });
+
+  it('TOKEN_BUDGET co dung 3 keys', () => {
+    assert.deepEqual(Object.keys(TOKEN_BUDGET).sort(), ['architect', 'builder', 'scout']);
   });
 });
 
