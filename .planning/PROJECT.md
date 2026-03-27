@@ -75,13 +75,14 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-- Agent Reform — 6 new agents (codebase-mapper, security-researcher, feature-analyst, research-synthesizer, planner, regression-analyzer) with 3-tier model system (Scout/Builder/Architect)
-- Platform-Aware Mapping — Config-driven tier→model mapping per platform with automatic fallback
-- Parallel + Resource Guard — Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`, backpressure, graceful degradation
-- Skill-Agent Integration — `pd-codebase-mapper` auto-mapping, Research Squad activation, soft-guard strategy
+- ✓ Agent Reform — 6 new agents, 3-tier model system, platform-aware getAgentConfig(name, platform) — v5.0 (Phases 52-53, 59)
+- ✓ Platform-Aware Mapping — Config-driven tier→model per 7 platforms, automatic fallback, production caller wired — v5.0 (Phases 54, 59)
+- ✓ Parallel + Resource Guard — Adaptive workers, heavy agent detection, backpressure, graceful degradation — v5.0 (Phase 55)
+- ✓ Skill-Agent Integration — pd-codebase-mapper auto-mapping, Research Squad, soft-guard strategy — v5.0 (Phase 56)
 - ✓ Reference Dedup — Merged verification-patterns.md + plan-checker.md → verification.md, zero broken refs — v5.0 (Phase 57)
 - ✓ Runtime DRY — installer-utils.js with 6 shared utilities, 4 installers DRY — v5.0 (Phase 57)
 - ✓ Token Budget — TOKEN_BUDGET per tier (4K/8K/12K), baseline v5.0 (86,305 tokens), 10 workflows conditional_reading, eval pipeline verified — v5.0 (Phase 58)
+- ✓ Integration Wiring + Verification Gaps — Platform wiring production caller, pd-sec-scanner path, Phase 52/53 verification — v5.0 (Phase 59)
 
 ### Out of Scope
 
@@ -94,11 +95,11 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Current:** v5.0 Repo Optimization — IN PROGRESS
-**Shipped:** v4.0 OWASP Security Audit (2026-03-27)
+**Current:** v5.0 Repo Optimization — SHIPPED (2026-03-27)
+**Shipped:** v5.0 Repo Optimization (2026-03-27), v4.0 OWASP Security Audit (2026-03-27)
 **Previous:** v3.0 Research Squad (2026-03-26), v2.1 Detective Orchestrator (2026-03-25)
 
-v5.0 scope: Repo-wide optimization — Agent Reform (6 new agents, 3-tier model), Platform Mapping (config-driven, 7 platforms with tier fallback — completed), Parallel dispatch wiring (adaptive workers, heavy agent detection, backpressure — completed), Skill-Agent integration, Reference dedup, Runtime DRY (installer-utils.js), Token budget expansion.
+v5.0 delivered: Agent Reform (6 new agents, 3-tier model, platform-aware dispatch), Platform Mapping (7 platforms, automatic fallback), Parallel dispatch wiring (adaptive workers, heavy agent detection, backpressure), Skill-Agent integration, Reference dedup, Runtime DRY, Token budget, Integration wiring + verification gaps closure.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules.
 
@@ -157,4 +158,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after Phase 55 Parallel Dispatch Wiring complete*
+*Last updated: 2026-03-27 after Phase 59 Integration Wiring & Verification Gaps complete — v5.0 shipped*
