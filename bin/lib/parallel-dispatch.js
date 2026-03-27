@@ -211,6 +211,84 @@ function mergeScannerResults(scanResults) {
   return { results, completedCount, failedCount, warnings, backpressure };
 }
 
+// ─── buildResearchSquadPlan ──────────────────────────────────
+
+/**
+ * Tao ke hoach spawn 3 PD research agents song song (SKIL-02).
+ * pd-codebase-mapper, pd-security-researcher, pd-feature-analyst chay dong thoi.
+ * pd-research-synthesizer chay SAU khi 3 agents hoan thanh (caller xu ly sequential).
+ *
+ * @param {string} outputDir - Path toi output directory (vd: '.planning/research')
+ * @returns {{ agents: Array<{name: string, config: object, outputFile: string, critical: boolean}>, synthesizer: {name: string, config: object, outputFile: string}, warnings: string[] }}
+ */
+function buildResearchSquadPlan(outputDir) {
+  const warnings = [];
+
+  const mapperConfig = getAgentConfig('pd-codebase-mapper');
+  const securityConfig = getAgentConfig('pd-security-researcher');
+  const featureConfig = getAgentConfig('pd-feature-analyst');
+  const synthesizerConfig = getAgentConfig('pd-research-synthesizer');
+
+  return {
+    agents: [
+      {
+        name: 'pd-codebase-mapper',
+        config: mapperConfig,
+        outputFile: 'codebase/',
+        critical: false,
+      },
+      {
+        name: 'pd-security-researcher',
+        config: securityConfig,
+        outputFile: 'evidence_security_research.md',
+        critical: false,
+      },
+      {
+        name: 'pd-feature-analyst',
+        config: featureConfig,
+        outputFile: 'evidence_features.md',
+        critical: false,
+      },
+    ],
+    synthesizer: {
+      name: 'pd-research-synthesizer',
+      config: synthesizerConfig,
+      outputFile: 'TECHNICAL_STRATEGY.md',
+    },
+    warnings,
+  };
+}
+
+// ─── mergeResearchResults ───────────────────────────────────
+
+/**
+ * Hop nhat ket qua tu 3 research agents (SKIL-02).
+ * Agent fail → ghi warning, van cho phep synthesizer chay.
+ *
+ * @param {Array<{agent: string, success: boolean, error?: {message: string}}>} researchResults
+ * @returns {{ completedCount: number, failedCount: number, canSynthesize: boolean, warnings: string[] }}
+ */
+function mergeResearchResults(researchResults) {
+  const warnings = [];
+  let completedCount = 0;
+  let failedCount = 0;
+
+  for (const item of researchResults) {
+    if (item.success) {
+      completedCount++;
+    } else {
+      failedCount++;
+      const errMsg = item.error?.message || 'Khong co ket qua';
+      warnings.push(`${item.agent}: research that bai — ${errMsg}`);
+    }
+  }
+
+  // D-08: synthesizer van chay neu co bat ky evidence nao
+  const canSynthesize = completedCount > 0;
+
+  return { completedCount, failedCount, canSynthesize, warnings };
+}
+
 // ─── Exports ────────────────────────────────────────────────
 
-module.exports = { buildParallelPlan, mergeParallelResults, buildScannerPlan, mergeScannerResults };
+module.exports = { buildParallelPlan, mergeParallelResults, buildScannerPlan, mergeScannerResults, buildResearchSquadPlan, mergeResearchResults };
