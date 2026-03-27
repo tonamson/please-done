@@ -129,7 +129,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 - [x] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection (completed 2026-03-26)
 - [x] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history (completed 2026-03-26)
 - [x] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases (completed 2026-03-27)
-- [ ] **Phase 51: Tich hop Ecosystem** — Security gate, what-next priority, state machine
+- [x] **Phase 51: Tich hop Ecosystem** — Security gate, what-next priority, state machine (completed 2026-03-27)
 
 ## Phase Details
 
@@ -215,7 +215,7 @@ Plans:
   3. State machine cap nhat: pd:audit la trang thai hop le trong luong chuyen doi milestone
 **Plans**: 1 plans
 Plans:
-- [ ] 51-01-PLAN.md — Wire 3 ecosystem touchpoints + regenerate snapshots + smoke test
+- [x] 51-01-PLAN.md — Wire 3 ecosystem touchpoints + regenerate snapshots + smoke test
 
 ## Progress
 
@@ -226,4 +226,4 @@ Plans:
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
 | 49. Session Delta | 1/2 | Complete    | 2026-03-26 |
 | 50. POC & Fix Phases | 1/2 | Complete    | 2026-03-27 |
-| 51. Tich hop Ecosystem | 0/1 | Not started | - |
+| 51. Tich hop Ecosystem | 1/1 | Complete   | 2026-03-27 |

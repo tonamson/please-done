@@ -38,27 +38,27 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 
 ### Session Delta
 
-- [ ] **DELTA-01**: Doc evidence cu, phan loai KNOWN-UNFIXED (skip) / RE-VERIFY (scan lai) / NEW
-- [ ] **DELTA-02**: Git diff scope — ham da PASS + code doi → RE-SCAN, khong doi → SKIP
-- [ ] **DELTA-03**: Audit history append-only table cuoi evidence file
+- [x] **DELTA-01**: Doc evidence cu, phan loai KNOWN-UNFIXED (skip) / RE-VERIFY (scan lai) / NEW
+- [x] **DELTA-02**: Git diff scope — ham da PASS + code doi → RE-SCAN, khong doi → SKIP
+- [x] **DELTA-03**: Audit history append-only table cuoi evidence file
 
 ### POC / Gadget Chain
 
-- [ ] **POC-01**: POC don le khi --poc: input vector, payload mau, buoc tai hien, ket qua du kien
-- [ ] **POC-02**: Gadget Chain POC lien ket FAIL/FLAG tu moi category thanh chuoi tan cong + severity danh lai
+- [x] **POC-01**: POC don le khi --poc: input vector, payload mau, buoc tai hien, ket qua du kien
+- [x] **POC-02**: Gadget Chain POC lien ket FAIL/FLAG tu moi category thanh chuoi tan cong + severity danh lai
 
 ### Fix Phases
 
-- [ ] **FIX-01**: Tu dong tao fix phases decimal (3.1, 3.2...) sap theo nguoc gadget chain (P0→P1→P2)
-- [ ] **FIX-02**: Template security-fix-phase.md voi evidence trich dan, huong sua, tieu chi hoan thanh
-- [ ] **FIX-03**: Phase cuoi [SEC-VERIFY] chay lai audit tren files da fix
+- [x] **FIX-01**: Tu dong tao fix phases decimal (3.1, 3.2...) sap theo nguoc gadget chain (P0→P1→P2)
+- [x] **FIX-02**: Template security-fix-phase.md voi evidence trich dan, huong sua, tieu chi hoan thanh
+- [x] **FIX-03**: Phase cuoi [SEC-VERIFY] chay lai audit tren files da fix
 
 ### Tich hop Ecosystem
 
 - [x] **WIRE-04**: pd-sec-scanner su dung FastCode tool-first voi Grep fallback khi FastCode khong kha dung
-- [ ] **WIRE-01**: Security gate trong complete-milestone: chua co SECURITY_REPORT → chan
-- [ ] **WIRE-02**: Uu tien 7.5 trong what-next: goi y pd:audit truoc complete-milestone
-- [ ] **WIRE-03**: State machine update: them pd:audit vao luong trang thai
+- [x] **WIRE-01**: Security gate trong complete-milestone: chua co SECURITY_REPORT → chan
+- [x] **WIRE-02**: Uu tien 7.5 trong what-next: goi y pd:audit truoc complete-milestone
+- [x] **WIRE-03**: State machine update: them pd:audit vao luong trang thai
 
 ## Future Requirements
 
@@ -98,17 +98,17 @@ Requirements for OWASP Security Audit milestone. Each maps to roadmap phases.
 | BATCH-02 | Phase 47 | Complete |
 | EVID-01 | Phase 48 | Complete |
 | EVID-02 | Phase 48 | Complete |
-| DELTA-01 | Phase 49 | Pending |
-| DELTA-02 | Phase 49 | Pending |
-| DELTA-03 | Phase 49 | Pending |
-| POC-01 | Phase 50 | Pending |
-| POC-02 | Phase 50 | Pending |
-| FIX-01 | Phase 50 | Pending |
-| FIX-02 | Phase 50 | Pending |
-| FIX-03 | Phase 50 | Pending |
-| WIRE-01 | Phase 51 | Pending |
-| WIRE-02 | Phase 51 | Pending |
-| WIRE-03 | Phase 51 | Pending |
+| DELTA-01 | Phase 49 | Complete |
+| DELTA-02 | Phase 49 | Complete |
+| DELTA-03 | Phase 49 | Complete |
+| POC-01 | Phase 50 | Complete |
+| POC-02 | Phase 50 | Complete |
+| FIX-01 | Phase 50 | Complete |
+| FIX-02 | Phase 50 | Complete |
+| FIX-03 | Phase 50 | Complete |
+| WIRE-01 | Phase 51 | Complete |
+| WIRE-02 | Phase 51 | Complete |
+| WIRE-03 | Phase 51 | Complete |
 | WIRE-04 | Phase 46 | Complete |
 
 **Coverage:**
