@@ -175,9 +175,9 @@ Full details: `.planning/milestones/v5.0-ROADMAP.md`
   1. `commands/pd/agents/` contains all 14 agents previously only in `.claude/agents/`.
   2. `pd-sec-fixer.md` and `pd-sec-reporter.md` are present in `commands/pd/agents/`.
   3. No agent definitions are lost during the sync.
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 60-01-PLAN.md — Copy 14 agents + verify 16 total
+- [x] 60-01-PLAN.md — Copy 14 agents + verify 16 total
 
 ### Phase 61: Symlink Architecture
 **Goal**: Use symlinks to maintain Claude Code compatibility while centralizing source files.
@@ -223,7 +223,7 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 60. Agent Consolidation | 0/1 | Not started | - |
+| 60. Agent Consolidation | 1/1 | Complete   | 2026-03-27 |
 | 61. Symlink Architecture | TBD | Not started | - |
 | 62. Reference Migration | TBD | Not started | - |
 | 63. Format Standardization | TBD | Not started | - |
