@@ -199,9 +199,9 @@ Plans:
   1. `smoke-agent-files.test.js` uses `commands/pd/agents` as its `AGENTS_DIR`.
   2. `fix-bug.md` workflow correctly references the centralized agent directory.
   3. System-wide searches for `.claude/agents/` (as source of truth) return zero hits in core logic.
-**Plans:** 1 plan
+**Plans:** 1/1 plans
 Plans:
-- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
+- [ ] 62-01-PLAN.md — Cập nhật agent paths trong test, workflow, snapshots
 
 ### Phase 63: Format Standardization
 **Goal**: Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
