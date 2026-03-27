@@ -1,30 +1,183 @@
-# Plan Checker Rules
+# Xac minh & Plan Checker
+
+> Tai lieu gop tu verification-patterns.md va plan-checker.md
+> Dung boi: `/pd:write-code` (Buoc 9.5), `/pd:complete-milestone` (Buoc 3.5), plan-checker.js
+
+---
+
+## Phan A: Mau xac minh — Phat hien stub & placeholder
+
+### Nguyen tac cot loi
+
+**Task hoan tat ≠ Tinh nang hoat dong.**
+
+Xac minh suy luan NGUOC tu muc tieu:
+1. Dieu gi phai DUNG? (Truths — hanh vi quan sat duoc)
+2. Thu gi phai TON TAI? (Artifacts — files that, khong phai stub)
+3. Thu gi phai KET NOI? (Key Links — lien ket giua artifacts)
+
+### 4 cap do xac minh
+
+| Cap | Kiem tra | Cach phat hien | Tu dong? |
+|-----|---------|---------------|---------|
+| 1. Ton tai | File co tren dia | `Glob` kiem tra duong dan | Yes |
+| 2. Thuc chat | Noi dung that, khong placeholder | Dong code >= nguong, khop pattern, khong stub | Yes |
+| 3. Ket noi | Import/export/goi ham dung | `Grep` kiem tra imports, exports, loi goi ham | Yes |
+| 4. Hoat dong | Chay duoc, ket qua dung | Test hoac kiem tra thu cong | Mot phan |
+
+Cap 1-3 tu dong. Cap 4 can test hoac user xac nhan.
+
+### Mau phat hien stub
+
+#### A. Stub dang comment
+```
+TODO, FIXME, XXX, HACK, PLACEHOLDER
+"implement later", "add later", "coming soon", "will be"
+"tam thoi", "se them sau", "chua trien khai"
+// ... hoac /* ... */
+```
+**Regex**: `(TODO|FIXME|XXX|HACK|PLACEHOLDER|implement later|add later|coming soon|will be|tam thoi|se them sau|chua trien khai)`
+
+#### B. Van ban placeholder trong giao dien
+```
+"placeholder", "lorem ipsum", "coming soon", "under construction"
+"sample", "example data", "test data", "dummy"
+Dau ngoac mau chua thay: [...], <...>, {...} (ngoai tru trong code hop le)
+```
+**Regex**: `(placeholder|lorem ipsum|coming soon|under construction|sample data|example data|test data|dummy data)`
+
+#### C. Trien khai rong/tam
+```javascript
+return null
+return undefined
+return {}
+return []
+() => {}                    // Arrow function rong
+throw new Error('Not implemented')
+pass                        // Python
+raise NotImplementedError   // Python
+```
+**Regex (JS/TS)**: `(return\s+(null|undefined|\{\}|\[\])\s*[;\n]|=>\s*\{\s*\}|throw new Error\(['"]Not implemented)`
+**Regex (PHP)**: `(return\s+(null|array\(\)|\[\])\s*;|throw new \\?Exception\(['"]Not implemented)`
+**Regex (Dart)**: `(return\s+(null|\[\]|\{\})\s*;|throw UnimplementedError)`
+
+#### D. Gia tri hardcoded (khi logic dong duoc ky vong)
+```javascript
+const users = [{ id: 1, name: "Test" }]
+const count = 5
+const price = "$99.99"
+return { success: true }        // Luon tra success
+return { data: [] }             // Luon tra mang rong
+```
+**Phat hien**: Kiem tra Key Links — function ky vong goi database/API nhung khong co import/loi goi → kha nang cao hardcoded.
+
+#### E. Trien khai chi co console
+```javascript
+console.log('only')             // Function chi log
+print('debug')                  // Dart/Python tuong tu
+```
+
+### Kiem tra theo loai artifact
+
+#### React/NextJS Components
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | File export function/component | — |
+| Thuc chat | JSX that (khong `<div/>` rong), >=15 dong | `return null`, `return <></>`, `return <div>Placeholder</div>` |
+| Ket noi | Import + dung props, goi API/hooks | Khong import hooks, khong fetch |
+
+#### API Routes/Controllers (NestJS/Express/NextJS)
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | File export handlers (GET/POST/...) | — |
+| Thuc chat | >=10 dong, xu ly request, response co nghia | `return { ok: true }`, `return []` khong qua DB |
+| Ket noi | Import service/repository, goi database | Khong import DB, khong truy van |
+
+#### Database Schema/Migration
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | Model/schema dinh nghia | — |
+| Thuc chat | Fields ngoai id, types dung, relationships | Chi co id field |
+| Ket noi | Migration ton tai, import o module | Khong co migration |
+
+#### Services/Logic
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | File export class/functions | — |
+| Thuc chat | Methods co logic that, >=10 dong/method | `throw new Error('Not implemented')`, hardcoded |
+| Ket noi | Duoc inject/import boi controller/component | Khong ai import |
+
+#### Solidity Contracts
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | Contract dinh nghia, ke thua dung | — |
+| Thuc chat | Functions co logic, khong chi revert | `revert("Not implemented")`, function rong |
+| Ket noi | Interface dung, events emit, modifiers ap dung | Thieu event emit, thieu modifier |
+
+#### Flutter Widgets/Controllers
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | Class ke thua dung (StatelessWidget/GetxController) | — |
+| Thuc chat | Build tra Widget tree that, >=20 dong | `return Container()`, `return SizedBox()` rong |
+| Ket noi | Controller import service, Widget dung Obx/GetBuilder | Khong reactive, hardcoded |
+
+#### WordPress Hooks/Filters
+| Cap | Kiem tra | Dau hieu stub |
+|-----|---------|----------------|
+| Ton tai | add_action/add_filter da dang ky | — |
+| Thuc chat | Callback co logic, sanitize input | Callback rong hoac chi return input |
+| Ket noi | Hook dung priority, callback ton tai | Ten function sai, hook sai |
+
+### Cot "Kiem tra tu dong" trong PLAN.md
+
+| Ky hieu | Y nghia | Vi du |
+|----------|---------|-------|
+| `exports: [X, Y]` | File phai export symbols | `exports: [GET, POST]` |
+| `contains: "text"` | File phai chua text | `contains: "model Message"` |
+| `min_lines: N` | File >= N dong thuc chat | `min_lines: 30` |
+| `imports: [X]` | File phai import modules | `imports: [PrismaService]` |
+| `calls: "pattern"` | File phai goi ham khop pattern | `calls: "prisma\\.message\\."` |
+
+PLAN.md khong chi dinh → dung kiem tra mac dinh theo loai artifact (bang tren).
+
+### Quy trinh va gap
+
+Phat hien gap:
+1. **Vong 1**: Liet ke gaps → tu sua → lint/build → xac minh lai
+2. **Vong 2**: Van gap → sua lai → xac minh lai
+3. **Sau 2 vong**: Van fail → **DUNG**, chuyen user voi chi tiet gaps
+
+Toi da 2 vong sua tu dong. Sau do user can thiep — co the can sua PLAN.md hoac thiet ke lai.
+
+---
+
+## Phan B: Plan Checker Rules
 
 > Nguon su that duy nhat cho plan-checker.js
 > Doc boi: plan-checker.js (implement), test (validate)
 
-## 1. Format Detection
+### 1. Format Detection
 
 Plan checker ho tro 2 format chinh:
 
-### v1.0 Format
+#### v1.0 Format
 - YAML frontmatter co key `must_haves:` (nested truths/artifacts)
 - Noi dung chua `<tasks>` XML tag hoac `<task` elements
 - Tasks nhung truc tiep trong PLAN.md duoi dang XML `<task>...</task>`
 - Truths nam trong frontmatter `must_haves: truths:` block
 - Dependencies nam trong frontmatter `depends_on:` field
 
-### v1.1 Format
+#### v1.1 Format
 - Truths table dang markdown: `| T1 | [mo ta] | [kiem chung] |` (v1.1) hoac `| T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] |` (v1.3)
 - Tasks tach ra file TASKS.md rieng voi summary table va detail blocks
 - Metadata task dung format `> Trang thai: ... | Effort: ...`
 - Truth mapping qua `> Truths: [T1, T2]` trong task detail
 
-### Unknown Format
+#### Unknown Format
 - Khong khop v1.0 hoac v1.1 -> tra ve 'unknown'
 - Tat ca checks -> graceful PASS (khong false positive)
 
-## 2. CHECK-01: Requirement Coverage
+### 2. CHECK-01: Requirement Coverage
 
 > Per D-01, D-09, D-10, D-11, D-12
 
@@ -45,17 +198,17 @@ Plan checker ho tro 2 format chinh:
 | Requirement ID khong co trong PLAN.md | BLOCK |
 | Phase khong co Requirements field | PASS (skip) |
 
-## 3. CHECK-02: Task Completeness
+### 3. CHECK-02: Task Completeness
 
 > Per D-02, D-05, D-06, D-07, D-08
 
-### v1.0 Format
+#### v1.0 Format
 Parse task XML elements (`<task>...</task>`). Required cho moi task:
 - `<files>` tag (non-empty) -> thieu = BLOCK
 - `<action>` hoac `<behavior>` tag (mo ta) -> thieu = BLOCK
 - `<verify>` hoac `<done>` hoac `<acceptance_criteria>` tag (tieu chi) -> thieu = BLOCK
 
-### v1.1 Format
+#### v1.1 Format
 Parse TASKS.md detail blocks (`## Task N:`):
 
 **Required metadata fields (D-05) -> thieu = BLOCK:**
@@ -78,7 +231,7 @@ Parse TASKS.md detail blocks (`## Task N:`):
 
 **Khong check:** "Ghi chu ky thuat" section (template ghi ro "Chi khi can thiet")
 
-### Khong co TASKS.md va v1.0 format
+#### Khong co TASKS.md va v1.0 format
 Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 
 **Severity:**
@@ -90,16 +243,16 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Task thieu files/action/criteria (v1.0) | BLOCK |
 | Task thieu Trang thai/Uu tien/Phu thuoc/Loai | WARN |
 
-## 4. CHECK-03: Dependency Correctness
+### 4. CHECK-03: Dependency Correctness
 
 > Per D-03
 
-### v1.0 Format
+#### v1.0 Format
 - Parse `depends_on:` tu frontmatter
 - Handle formats: `[]` (empty), `[02-01]` (bracket string), `["05-01"]` (quoted bracket string), YAML array (`- 01-01`)
 - Cho v1.0 single-plan context: graceful PASS (plan-level deps reference other plans khong available cho checker)
 
-### v1.1 Format
+#### v1.1 Format
 - Parse `Phu thuoc` column tu TASKS.md summary table + `> Phu thuoc:` metadata
 - Extract `Task N` references
 - Validate tat ca referenced tasks ton tai -> khong ton tai = BLOCK
@@ -119,16 +272,16 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Invalid task/plan reference | BLOCK |
 | v1.0 plan-level deps (single-plan context) | PASS (skip) |
 
-## 5. CHECK-04: Truth-Task Coverage (Direction 1)
+### 5. CHECK-04: Truth-Task Coverage (Direction 1)
 
 > Per D-04, D-01 (Phase 20)
 
-### v1.0 Format
+#### v1.0 Format
 - Parse truths tu frontmatter `must_haves: truths:` (nested YAML)
 - Tasks khong co explicit Truth refs trong v1.0 -> tu dong PASS
 - Follows D-10 graceful-skip principle
 
-### v1.1 Format
+#### v1.1 Format
 - Parse Truths tu PLAN.md Truths table
 - Parse task Truth refs tu `> Truths: [T1, T2]` metadata trong TASKS.md
 - Direction 1 only: Truth khong co task nao map -> BLOCK
@@ -139,19 +292,19 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Truth khong co task nao map (v1.1+) | BLOCK |
 | v1.0 format (khong co Truth-Task mapping) | PASS (skip) |
 
-## 5b. CHECK-05: Logic Coverage (Direction 2)
+### 5b. CHECK-05: Logic Coverage (Direction 2)
 
 > Per D-01, D-02, D-04, D-05, D-06 (Phase 20)
 
-### v1.0 Format
+#### v1.0 Format
 - Khong co Truth-Task mapping -> tu dong PASS
 
-### v1.1 Format
+#### v1.1 Format
 - Parse tasks tu TASKS.md
 - Direction 2: Task khong co Truth nao map -> severity configurable (default WARN per D-04)
 - Orphan tasks = technical debt, reported trong PASS table issues (per D-06)
 
-### Configuration
+#### Configuration
 - Default severity: `'warn'`
 - Override via `options.severity` parameter truyen qua `runAllChecks({ check05Severity: 'block' })`
 - Du an strict co the nang len BLOCK (per D-05)
@@ -164,7 +317,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | v1.0 format | PASS (skip) |
 | unknown format | PASS (skip) |
 
-## 6. ADV-01: Key Links Verification
+### 6. ADV-01: Key Links Verification
 
 > Per D-01, D-02, D-03, D-04, D-12 tu Phase 12
 
@@ -191,7 +344,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Khong co Key Links section | PASS (skip) |
 | v1.0/unknown format | PASS (graceful) |
 
-## 7. ADV-02: Scope Threshold Warnings
+### 7. ADV-02: Scope Threshold Warnings
 
 > Per D-05, D-06, D-13 tu Phase 12
 
@@ -216,7 +369,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | Tat ca dimensions trong threshold | PASS |
 | Unknown format | PASS (graceful) |
 
-## 8. ADV-03: Effort Classification Validation
+### 8. ADV-03: Effort Classification Validation
 
 > Per D-07, D-08, D-09, D-10, D-11, D-12 tu Phase 12
 
@@ -249,9 +402,9 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 | v1.0/unknown format | PASS (graceful) |
 | Task khong co Effort field | skip (da xu ly boi CHECK-02) |
 
-## 9. Result Format
+### 9. Result Format
 
-### Per-check result (D-13)
+#### Per-check result (D-13)
 ```json
 {
   "checkId": "CHECK-01",
@@ -266,7 +419,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 }
 ```
 
-### Combined result (D-14, D-15)
+#### Combined result (D-14, D-15)
 ```json
 {
   "overall": "pass|block|warn",
@@ -288,7 +441,7 @@ Chi check v1.0 rules (parse XML tasks tu PLAN.md)
 - `overall = 'warn'` neu co warn nhung KHONG co block
 - `overall = 'pass'` neu TAT CA checks la `'pass'`
 
-## 10. Severity Summary Table
+### 10. Severity Summary Table
 
 | Check | Dieu kien | Severity |
 |-------|-----------|----------|
