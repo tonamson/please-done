@@ -160,9 +160,11 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. test/smoke-agent-files.test.js covers all 6 new agents
     4. Existing agent tests still pass (backward compatibility)
 
-- [ ] **Phase 54: Platform Mapping & Fallback** — PLAT-01, PLAT-02
-  - Implement `TIER_MAP` per-platform config (Claude Code, Gemini CLI, Cursor/Windsurf, Copilot)
+- [ ] **Phase 54: Platform Mapping & Fallback** (1 plan) — PLAT-01, PLAT-02
+  - Implement `PLATFORM_MODEL_MAP` per-platform config (7 platforms)
   - Automatic tier downgrade when platform doesn't support higher tier
+  - **Plans:** 1 plan
+    - [ ] 54-01-PLAN.md — TDD: PLATFORM_MODEL_MAP + getModelForTier(tier, platform?) + cursor/windsurf
   - Success criteria:
     1. Each platform resolves correct model for each tier
     2. Missing tier → fallback to next lower tier
@@ -216,4 +218,3 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     2. Before/after comparison shows improvement or maintains baseline
     3. At least 2 additional workflows use `conditional_reading`
     4. `promptfooconfig.yaml` configured for quality measurement
-
