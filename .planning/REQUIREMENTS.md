@@ -9,7 +9,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 ### Agent Reform
 
-- [ ] **AGEN-01**: 3-tier model system (Scout/Builder/Architect) replaces hardcoded model names in agent configs
+- [x] **AGEN-01**: 3-tier model system (Scout/Builder/Architect) replaces hardcoded model names in agent configs
 - [ ] **AGEN-02**: `pd-codebase-mapper` agent (Scout tier) quét cấu trúc codebase nhanh, cập nhật `.planning/codebase/`
 - [ ] **AGEN-03**: `pd-security-researcher` agent (Scout tier) bổ sung research security chuyên sâu
 - [ ] **AGEN-04**: `pd-feature-analyst` agent (Scout tier) phân tích tính năng
@@ -17,7 +17,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 - [ ] **AGEN-06**: `pd-planner` agent (Architect tier) chuyên plan cho PD phases
 - [ ] **AGEN-07**: `pd-regression-analyzer` agent (Builder tier) nâng từ `regression-analyzer.js` thành agent có dispatch
 - [ ] **AGEN-08**: Mỗi agent mới có smoke test trong `test/smoke-agent-files.test.js`
-- [ ] **AGEN-09**: `pd-regression-analyzer` được thêm vào `AGENT_REGISTRY` trong `resource-config.js`
+- [x] **AGEN-09**: `pd-regression-analyzer` được thêm vào `AGENT_REGISTRY` trong `resource-config.js`
 
 ### Platform Mapping
 
@@ -81,7 +81,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AGEN-01 | Phase 52 | Pending |
+| AGEN-01 | Phase 52 | Complete |
 | AGEN-02 | Phase 53 | Pending |
 | AGEN-03 | Phase 53 | Pending |
 | AGEN-04 | Phase 53 | Pending |
@@ -89,7 +89,7 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | AGEN-06 | Phase 53 | Pending |
 | AGEN-07 | Phase 53 | Pending |
 | AGEN-08 | Phase 53 | Pending |
-| AGEN-09 | Phase 52 | Pending |
+| AGEN-09 | Phase 52 | Complete |
 | PLAT-01 | Phase 54 | Pending |
 | PLAT-02 | Phase 54 | Pending |
 | PARA-01 | Phase 55 | Pending |

@@ -140,7 +140,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 ### v5.0 Repo Optimization (Phases 52-58)
 
-- [ ] **Phase 52: Agent Tier System & Registry** — AGEN-01, AGEN-09
+- [x] **Phase 52: Agent Tier System & Registry** — AGEN-01, AGEN-09 — completed 2026-03-27
   - Implement 3-tier model system (Scout/Builder/Architect) in `resource-config.js`
   - Add `pd-regression-analyzer` to `AGENT_REGISTRY`
   - Update `TIER_MAP` with platform-specific model assignments
