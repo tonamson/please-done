@@ -11,6 +11,7 @@
 - ✅ **v2.1 Detective Orchestrator** — Phases 28-37 (shipped 2026-03-25)
 - ✅ **v3.0 Research Squad** — Phases 38-45 (shipped 2026-03-26)
 - ✅ **v4.0 OWASP Security Audit** — Phases 46-51 (shipped 2026-03-27)
+- 🔄 **v5.0 Repo Optimization** — Phases 52-58
 
 ## Phases
 
@@ -136,3 +137,83 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
+
+### v5.0 Repo Optimization (Phases 52-58)
+
+- [ ] **Phase 52: Agent Tier System & Registry** — AGEN-01, AGEN-09
+  - Implement 3-tier model system (Scout/Builder/Architect) in `resource-config.js`
+  - Add `pd-regression-analyzer` to `AGENT_REGISTRY`
+  - Update `TIER_MAP` with platform-specific model assignments
+  - Success criteria:
+    1. `TIER_MAP` exports correct models per platform per tier
+    2. `AGENT_REGISTRY` contains `pd-regression-analyzer` with correct tier
+    3. All existing smoke tests pass with updated registry
+    4. Tier resolution fallback works (missing tier → downgrade)
+
+- [ ] **Phase 53: New Agent Files** — AGEN-02, AGEN-03, AGEN-04, AGEN-05, AGEN-06, AGEN-07, AGEN-08
+  - Create 6 new agent files at `commands/pd/agents/`
+  - Each with YAML frontmatter (tier, tools, model) consistent with registry
+  - Add smoke tests for all 6 agents
+  - Success criteria:
+    1. 6 agent .md files exist with valid YAML frontmatter
+    2. Each agent's tier matches `AGENT_REGISTRY`
+    3. `test/smoke-agent-files.test.js` covers all 6 new agents
+    4. Existing agent tests still pass (backward compatibility)
+
+- [ ] **Phase 54: Platform Mapping & Fallback** — PLAT-01, PLAT-02
+  - Implement `TIER_MAP` per-platform config (Claude Code, Gemini CLI, Cursor/Windsurf, Copilot)
+  - Automatic tier downgrade when platform doesn't support higher tier
+  - Success criteria:
+    1. Each platform resolves correct model for each tier
+    2. Missing tier → fallback to next lower tier
+    3. Copilot inherits platform defaults
+    4. Unit tests cover all platform × tier combinations
+
+- [ ] **Phase 55: Parallel Dispatch Wiring** — PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
+  - Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`
+  - Add `isHeavyAgent()` check before spawn
+  - Enforce min/max workers (2-4)
+  - Implement backpressure + graceful degradation
+  - Success criteria:
+    1. `parallel-dispatch.js` calls `getAdaptiveParallelLimit()` instead of hardcode
+    2. Heavy agents detected → worker count reduced by 1
+    3. Workers stay within [2, 4] range
+    4. Timeout >120s → no new spawn until current completes
+    5. Load average > CPU count → automatic 1 worker reduction
+
+- [ ] **Phase 56: Skill-Agent Integration** — SKIL-01, SKIL-02, SKIL-03, SKIL-04
+  - Wire `pd-codebase-mapper` into `init` workflow (auto-run after brownfield init)
+  - Wire Research Squad parallel activation into `new-milestone`/`research`
+  - Add `TECHNICAL_STRATEGY.md` soft-guard to `plan` workflow
+  - Auto-inject strategy context into `pd-planner`
+  - Success criteria:
+    1. `init` suggests/runs codebase mapping after brownfield detection
+    2. Research Squad spawns 4 agents in parallel
+    3. `plan` shows warning (not block) when `TECHNICAL_STRATEGY.md` missing
+    4. Strategy auto-injected when file exists, skipped gracefully when not
+
+- [ ] **Phase 57: Reference Dedup & Runtime DRY** — DEDU-01, DEDU-02, DRYU-01, DRYU-02, DRYU-03
+  - Merge `verification-patterns.md` + `plan-checker.md` → `verification.md`
+  - Update all references across commands/workflows
+  - Extract `installer-utils.js` from shared installer code
+  - Update 4 installers to import utils
+  - Review converter config consistency
+  - Success criteria:
+    1. `verification.md` exists, old files removed
+    2. Zero broken `@references/` in any command/workflow file
+    3. `installer-utils.js` exports `ensureDir`, `validateGitRoot`, `copyWithBackup`
+    4. All 4 installers use shared utils
+    5. Converter configs have consistent key names/format
+    6. All smoke tests + snapshot tests pass
+
+- [ ] **Phase 58: Token Budget & Benchmark** — TOKN-01, TOKN-02, TOKN-03, TOKN-04
+  - Define token budgets per tier
+  - Run before/after benchmark with `count-tokens.js`
+  - Expand `conditional_reading` to more workflows
+  - Integrate eval pipeline
+  - Success criteria:
+    1. Token budget documented in `BENCHMARK_RESULTS.md`
+    2. Before/after comparison shows improvement or maintains baseline
+    3. At least 2 additional workflows use `conditional_reading`
+    4. `promptfooconfig.yaml` configured for quality measurement
+

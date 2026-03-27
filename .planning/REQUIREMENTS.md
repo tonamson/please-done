@@ -81,41 +81,41 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AGEN-01 | — | Pending |
-| AGEN-02 | — | Pending |
-| AGEN-03 | — | Pending |
-| AGEN-04 | — | Pending |
-| AGEN-05 | — | Pending |
-| AGEN-06 | — | Pending |
-| AGEN-07 | — | Pending |
-| AGEN-08 | — | Pending |
-| AGEN-09 | — | Pending |
-| PLAT-01 | — | Pending |
-| PLAT-02 | — | Pending |
-| PARA-01 | — | Pending |
-| PARA-02 | — | Pending |
-| PARA-03 | — | Pending |
-| PARA-04 | — | Pending |
-| PARA-05 | — | Pending |
-| SKIL-01 | — | Pending |
-| SKIL-02 | — | Pending |
-| SKIL-03 | — | Pending |
-| SKIL-04 | — | Pending |
-| DEDU-01 | — | Pending |
-| DEDU-02 | — | Pending |
-| DRYU-01 | — | Pending |
-| DRYU-02 | — | Pending |
-| DRYU-03 | — | Pending |
-| TOKN-01 | — | Pending |
-| TOKN-02 | — | Pending |
-| TOKN-03 | — | Pending |
-| TOKN-04 | — | Pending |
+| AGEN-01 | Phase 52 | Pending |
+| AGEN-02 | Phase 53 | Pending |
+| AGEN-03 | Phase 53 | Pending |
+| AGEN-04 | Phase 53 | Pending |
+| AGEN-05 | Phase 53 | Pending |
+| AGEN-06 | Phase 53 | Pending |
+| AGEN-07 | Phase 53 | Pending |
+| AGEN-08 | Phase 53 | Pending |
+| AGEN-09 | Phase 52 | Pending |
+| PLAT-01 | Phase 54 | Pending |
+| PLAT-02 | Phase 54 | Pending |
+| PARA-01 | Phase 55 | Pending |
+| PARA-02 | Phase 55 | Pending |
+| PARA-03 | Phase 55 | Pending |
+| PARA-04 | Phase 55 | Pending |
+| PARA-05 | Phase 55 | Pending |
+| SKIL-01 | Phase 56 | Pending |
+| SKIL-02 | Phase 56 | Pending |
+| SKIL-03 | Phase 56 | Pending |
+| SKIL-04 | Phase 56 | Pending |
+| DEDU-01 | Phase 57 | Pending |
+| DEDU-02 | Phase 57 | Pending |
+| DRYU-01 | Phase 57 | Pending |
+| DRYU-02 | Phase 57 | Pending |
+| DRYU-03 | Phase 57 | Pending |
+| TOKN-01 | Phase 58 | Pending |
+| TOKN-02 | Phase 58 | Pending |
+| TOKN-03 | Phase 58 | Pending |
+| TOKN-04 | Phase 58 | Pending |
 
 **Coverage:**
 - v1 requirements: 29 total
-- Mapped to phases: 0
-- Unmapped: 29 ⚠️ (will be mapped during roadmap creation)
+- Mapped to phases: 29
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-27*
-*Last updated: 2026-03-27 after initial definition*
+*Last updated: 2026-03-27 after roadmap creation*
