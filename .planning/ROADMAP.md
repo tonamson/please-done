@@ -22,7 +22,7 @@ All 10 milestones shipped. Milestone v5.1 in progress. 59 phases, 90+ plans comp
 
 - [ ] **Phase 60: Agent Consolidation** - Centralize 16 agents into `commands/pd/agents/`
 - [ ] **Phase 61: Symlink Architecture** - Create relative symlinks in `.claude/agents/`
-- [ ] **Phase 62: Reference Migration** - Update test and workflow paths
+- [x] **Phase 62: Reference Migration** - Update test and workflow paths
 - [ ] **Phase 63: Format Standardization** - Convert security agents to new frontmatter format
 - [ ] **Phase 64: Registry & Test Validation** - Update AGENT_REGISTRY and verify
 
@@ -201,7 +201,7 @@ Plans:
   3. System-wide searches for `.claude/agents/` (as source of truth) return zero hits in core logic.
 **Plans:** 1/1 plans
 Plans:
-- [ ] 62-01-PLAN.md — Cập nhật agent paths trong test, workflow, snapshots
+- [x] 62-01-PLAN.md — Cập nhật agent paths trong test, workflow, snapshots
 
 ### Phase 63: Format Standardization
 **Goal**: Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
