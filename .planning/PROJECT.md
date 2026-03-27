@@ -64,6 +64,7 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Wire routeQuery vào Workflow — thay thế inline heuristic — v3.0 (Phase 44)
 - ✓ Claim-Level Confidence API — parseClaims() extract + createEntry() render — v3.0 (Phase 45)
 - ✓ Smart Scanner Selection — selectScanners() pure function, 12 signals, 3 base scanners, function checklist, reporter master table — v4.0 (Phase 48)
+- ✓ POC pipeline + Gadget Chain Detection + Fix Phases Routing — gadget-chain.js (3 pure functions), 7 chain templates, pd-sec-fixer agent, security-fix-phase template, POC wired vào scanner, gadget chain wired vào reporter B6, fixer wired vào B8 — v4.0 (Phase 50)
 
 ### Active
 
@@ -71,11 +72,8 @@ Every workflow step must produce the highest quality code output while consuming
 - [ ] Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
 - [ ] Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
 - [ ] Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
-- [ ] POC pipeline (đơn lẻ + Gadget Chain) khi dùng --poc
 - [ ] Batch execution waves (tối đa 2 instance song song)
-- [ ] Tự động tạo fix phases theo gadget chain order (chế độ milestone)
 - [ ] Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
-- [ ] Template `security-fix-phase.md` cho fix phases tự động
 - [ ] FastCode MCP integration (tool-first, AI-last)
 
 ## Current Milestone: v4.0 OWASP Security Audit
@@ -107,7 +105,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Current:** v4.0 OWASP Security Audit — Phase 49 complete, Phase 50 next
+**Current:** v4.0 OWASP Security Audit — Phase 50 complete, Phase 51 next
 **Shipped:** v3.0 Research Squad (2026-03-26)
 **Previous:** v2.1 Detective Orchestrator (2026-03-25), v1.5 Nang cap Skill Fix-Bug (2026-03-24)
 
