@@ -213,7 +213,9 @@ Plans:
   1. complete-milestone chan khi chua co SECURITY_REPORT.md (security gate non-blocking canh bao)
   2. what-next goi y pd:audit voi uu tien 7.5 khi chua chay audit truoc complete-milestone
   3. State machine cap nhat: pd:audit la trang thai hop le trong luong chuyen doi milestone
-**Plans**: TBD
+**Plans**: 1 plans
+Plans:
+- [ ] 51-01-PLAN.md — Wire 3 ecosystem touchpoints + regenerate snapshots + smoke test
 
 ## Progress
 
@@ -224,4 +226,4 @@ Plans:
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
 | 49. Session Delta | 1/2 | Complete    | 2026-03-26 |
 | 50. POC & Fix Phases | 1/2 | Complete    | 2026-03-27 |
-| 51. Tich hop Ecosystem | 0/? | Not started | - |
+| 51. Tich hop Ecosystem | 0/1 | Not started | - |
