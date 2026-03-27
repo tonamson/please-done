@@ -92,6 +92,26 @@ const AGENT_REGISTRY = {
     tier: "builder",
     tools: ["Read", "Glob", "Grep", "Bash", "mcp__fastcode__code_qa"],
   },
+  "pd-codebase-mapper": {
+    tier: "scout",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
+  "pd-security-researcher": {
+    tier: "scout",
+    tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"],
+  },
+  "pd-feature-analyst": {
+    tier: "scout",
+    tools: ["Read", "Glob", "Grep"],
+  },
+  "pd-research-synthesizer": {
+    tier: "architect",
+    tools: ["Read", "Write", "Glob", "Grep", "Bash"],
+  },
+  "pd-planner": {
+    tier: "architect",
+    tools: ["Read", "Write", "Glob", "Grep", "Bash"],
+  },
 };
 
 /**

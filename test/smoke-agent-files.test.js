@@ -1,6 +1,6 @@
 /**
  * Agent Files Integration Tests
- * Kiem tra 5 agent files tai .claude/agents/ co dung format va khop voi resource-config.js.
+ * Kiem tra 13 agent files tai .claude/agents/ co dung format va khop voi resource-config.js.
  * Day la integration test (doc file tu disk), KHONG phai pure function test.
  */
 
@@ -23,6 +23,12 @@ const AGENT_NAMES = [
   'pd-fix-architect',
   'pd-evidence-collector',
   'pd-fact-checker',
+  'pd-codebase-mapper',
+  'pd-security-researcher',
+  'pd-feature-analyst',
+  'pd-research-synthesizer',
+  'pd-planner',
+  'pd-regression-analyzer',
 ];
 
 // ─── Helper: Parse YAML frontmatter ───────────────────────
@@ -81,7 +87,7 @@ function parseAgentFrontmatter(filePath) {
 // ─── Test: Agent files existence ──────────────────────────
 
 describe('Agent files existence', () => {
-  it('7 agent files ton tai tai .claude/agents/', () => {
+  it('13 agent files ton tai tai .claude/agents/', () => {
     for (const name of AGENT_NAMES) {
       const filePath = join(AGENTS_DIR, `${name}.md`);
       // readFileSync se throw neu file khong ton tai
@@ -155,6 +161,60 @@ describe('Agent files frontmatter', () => {
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, 'high');
     assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash']);
+  });
+
+  it('pd-codebase-mapper co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-codebase-mapper.md'));
+    assert.equal(fm.name, 'pd-codebase-mapper');
+    assert.equal(fm.model, 'haiku');
+    assert.equal(fm.maxTurns, 15);
+    assert.equal(fm.effort, 'low');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash']);
+  });
+
+  it('pd-security-researcher co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-security-researcher.md'));
+    assert.equal(fm.name, 'pd-security-researcher');
+    assert.equal(fm.model, 'haiku');
+    assert.equal(fm.maxTurns, 15);
+    assert.equal(fm.effort, 'low');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa']);
+  });
+
+  it('pd-feature-analyst co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-feature-analyst.md'));
+    assert.equal(fm.name, 'pd-feature-analyst');
+    assert.equal(fm.model, 'haiku');
+    assert.equal(fm.maxTurns, 15);
+    assert.equal(fm.effort, 'low');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep']);
+  });
+
+  it('pd-research-synthesizer co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-research-synthesizer.md'));
+    assert.equal(fm.name, 'pd-research-synthesizer');
+    assert.equal(fm.model, 'opus');
+    assert.equal(fm.maxTurns, 30);
+    assert.equal(fm.effort, 'high');
+    assert.deepEqual(fm.tools, ['Read', 'Write', 'Glob', 'Grep', 'Bash']);
+  });
+
+  it('pd-planner co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-planner.md'));
+    assert.equal(fm.name, 'pd-planner');
+    assert.equal(fm.model, 'opus');
+    assert.equal(fm.maxTurns, 30);
+    assert.equal(fm.effort, 'high');
+    assert.deepEqual(fm.tools, ['Read', 'Write', 'Glob', 'Grep', 'Bash']);
+  });
+
+  it('pd-regression-analyzer co dung frontmatter', () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, 'pd-regression-analyzer.md'));
+    assert.equal(fm.name, 'pd-regression-analyzer');
+    assert.equal(fm.model, 'sonnet');
+    assert.equal(fm.maxTurns, 25);
+    assert.equal(fm.effort, 'medium');
+    assert.deepEqual(fm.tools, ['Read', 'Glob', 'Grep', 'Bash', 'mcp__fastcode__code_qa']);
   });
 });
 
