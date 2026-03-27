@@ -72,9 +72,6 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Batch execution waves (tối đa 2 instance song song) — v4.0 (Phase 47)
 - ✓ Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update — v4.0 (Phase 51)
 - ✓ FastCode MCP integration (tool-first, AI-last) — v4.0 (Phase 46)
-
-### Active
-
 - ✓ Agent Reform — 6 new agents, 3-tier model system, platform-aware getAgentConfig(name, platform) — v5.0 (Phases 52-53, 59)
 - ✓ Platform-Aware Mapping — Config-driven tier→model per 7 platforms, automatic fallback, production caller wired — v5.0 (Phases 54, 59)
 - ✓ Parallel + Resource Guard — Adaptive workers, heavy agent detection, backpressure, graceful degradation — v5.0 (Phase 55)
@@ -83,6 +80,10 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Runtime DRY — installer-utils.js with 6 shared utilities, 4 installers DRY — v5.0 (Phase 57)
 - ✓ Token Budget — TOKEN_BUDGET per tier (4K/8K/12K), baseline v5.0 (86,305 tokens), 10 workflows conditional_reading, eval pipeline verified — v5.0 (Phase 58)
 - ✓ Integration Wiring + Verification Gaps — Platform wiring production caller, pd-sec-scanner path, Phase 52/53 verification — v5.0 (Phase 59)
+
+### Active
+
+(None — next milestone not yet defined)
 
 ### Out of Scope
 
@@ -158,4 +159,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after Phase 59 Integration Wiring & Verification Gaps complete — v5.0 shipped*
+*Last updated: 2026-03-27 after v5.0 Repo Optimization milestone complete*

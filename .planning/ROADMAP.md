@@ -13,6 +13,10 @@
 - ✅ **v4.0 OWASP Security Audit** — Phases 46-51 (shipped 2026-03-27)
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 
+## Progress
+
+All 10 milestones shipped. 59 phases, 90+ plans completed.
+
 ## Phases
 
 <details>
@@ -138,112 +142,18 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
 
 </details>
 
-### v5.0 Repo Optimization (Phases 52-59)
+<details>
+<summary>✅ v5.0 Repo Optimization (Phases 52-59) — SHIPPED 2026-03-27</summary>
 
-- [x] **Phase 52: Agent Tier System & Registry** — AGEN-01, AGEN-09 — completed 2026-03-27
-  - Implement 3-tier model system (Scout/Builder/Architect) in `resource-config.js`
-  - Add `pd-regression-analyzer` to `AGENT_REGISTRY`
-  - Update `TIER_MAP` with platform-specific model assignments
-  - Success criteria:
-    1. `TIER_MAP` exports correct models per platform per tier
-    2. `AGENT_REGISTRY` contains `pd-regression-analyzer` with correct tier
-    3. All existing smoke tests pass with updated registry
-    4. Tier resolution fallback works (missing tier → downgrade)
+- [x] Phase 52: Agent Tier System & Registry (1/1 plan) — completed 2026-03-27
+- [x] Phase 53: New Agent Files (2/2 plans) — completed 2026-03-27
+- [x] Phase 54: Platform Mapping & Fallback (1/1 plan) — completed 2026-03-27
+- [x] Phase 55: Parallel Dispatch Wiring (2/2 plans) — completed 2026-03-27
+- [x] Phase 56: Skill-Agent Integration (3/3 plans) — completed 2026-03-27
+- [x] Phase 57: Reference Dedup & Runtime DRY (2/2 plans) — completed 2026-03-27
+- [x] Phase 58: Token Budget & Benchmark (2/2 plans) — completed 2026-03-27
+- [x] Phase 59: Integration Wiring & Verification Gaps (2/2 plans) — completed 2026-03-27
 
-- [x] **Phase 53: New Agent Files** (2/2 plans) — AGEN-02, AGEN-03, AGEN-04, AGEN-05, AGEN-06, AGEN-07, AGEN-08 — completed 2026-03-27
-  - Create 6 new agent files at `.claude/agents/`
-  - Each with YAML frontmatter (tier, tools, model) consistent with registry
-  - Add smoke tests for all 6 agents
-  - Success criteria:
-    1. 6 agent .md files exist with valid YAML frontmatter
-    2. Each agents tier matches AGENT_REGISTRY
-    3. test/smoke-agent-files.test.js covers all 6 new agents
-    4. Existing agent tests still pass (backward compatibility)
+Full details: `.planning/milestones/v5.0-ROADMAP.md`
 
-- [x] **Phase 54: Platform Mapping & Fallback** (1 plan) — PLAT-01, PLAT-02 (completed 2026-03-27)
-  - Implement `PLATFORM_MODEL_MAP` per-platform config (7 platforms)
-  - Automatic tier downgrade when platform doesn't support higher tier
-  - **Plans:** 1 plan
-    - [ ] 54-01-PLAN.md — TDD: PLATFORM_MODEL_MAP + getModelForTier(tier, platform?) + cursor/windsurf
-  - Success criteria:
-    1. Each platform resolves correct model for each tier
-    2. Missing tier → fallback to next lower tier
-    3. Copilot inherits platform defaults
-    4. Unit tests cover all platform × tier combinations
-
-- [x] **Phase 55: Parallel Dispatch Wiring** — PARA-01, PARA-02, PARA-03, PARA-04, PARA-05
-  - Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`
-  - Add `isHeavyAgent()` check before spawn
-  - Enforce min/max workers (2-4)
-  - Implement backpressure + graceful degradation
-  - **Plans:** 2 plans
-    - [x] 055-01-PLAN.md — Mo rong getAdaptiveParallelLimit() them loadAvg check (PARA-05)
-    - [x] 055-02-PLAN.md — Wire adaptive + heavy + min/max + backpressure vao parallel-dispatch.js (PARA-01, PARA-02, PARA-03, PARA-04)
-  - Success criteria:
-    1. `parallel-dispatch.js` calls `getAdaptiveParallelLimit()` instead of hardcode
-    2. Heavy agents detected → worker count reduced by 1
-    3. Workers stay within [2, 4] range
-    4. Timeout >120s → no new spawn until current completes
-    5. Load average > CPU count → automatic 1 worker reduction
-
-- [x] **Phase 56: Skill-Agent Integration** (3/3 plans) — SKIL-01, SKIL-02, SKIL-03, SKIL-04 — completed 2026-03-27
-  - Wire `pd-codebase-mapper` into `init` workflow (auto-run after brownfield init)
-  - Wire Research Squad parallel activation into `new-milestone`/`research`
-  - Add `TECHNICAL_STRATEGY.md` soft-guard to `plan` workflow
-  - Auto-inject strategy context into `pd-planner`
-  - **Plans:** 3 plans
-    - [x] 056-01-PLAN.md — Wire mapper vao init.md + soft-guard vao plan.md (SKIL-01, SKIL-03)
-    - [x] 056-02-PLAN.md — Them buildResearchSquadPlan() vao parallel-dispatch.js + strategy_path vao init.cjs (SKIL-02, SKIL-04)
-    - [x] 056-03-PLAN.md — Wire PD Research Squad vao new-milestone.md + strategy_path vao plan-phase.md (SKIL-02, SKIL-04)
-  - Success criteria:
-    1. `init` suggests/runs codebase mapping after brownfield detection
-    2. Research Squad spawns 3 agents in parallel + synthesizer sequential
-    3. `plan` shows warning (not block) when `TECHNICAL_STRATEGY.md` missing
-    4. Strategy auto-injected when file exists, skipped gracefully when not
-
-- [x] **Phase 57: Reference Dedup & Runtime DRY** (2/2 plans) — DEDU-01, DEDU-02, DRYU-01, DRYU-02, DRYU-03 — completed 2026-03-27
-  - Merge `verification-patterns.md` + `plan-checker.md` → `verification.md`
-  - Update all references across commands/workflows
-  - Extract `installer-utils.js` from shared installer code
-  - Update 4 installers to import utils
-  - Review converter config consistency
-  - **Plans:** 2 plans
-    - [ ] 057-01-PLAN.md — Gộp verification-patterns.md + plan-checker.md, cập nhật references (DEDU-01, DEDU-02)
-    - [ ] 057-02-PLAN.md — Tạo installer-utils.js, cập nhật 4 installers, review converters (DRYU-01, DRYU-02, DRYU-03)
-  - Success criteria:
-    1. `verification.md` exists, old files removed
-    2. Zero broken `@references/` in any command/workflow file
-    3. `installer-utils.js` exports `ensureDir`, `validateGitRoot`, `copyWithBackup`
-    4. All 4 installers use shared utils
-    5. Converter configs have consistent key names/format
-    6. All smoke tests + snapshot tests pass
-
-- [x] **Phase 58: Token Budget & Benchmark** (2/2 plans) — TOKN-01, TOKN-02, TOKN-03, TOKN-04 — completed 2026-03-27
-  - Define token budgets per tier
-  - Run before/after benchmark with `count-tokens.js`
-  - Expand `conditional_reading` to more workflows
-  - Integrate eval pipeline
-  - **Plans:** 2 plans
-    - [x] 058-01-PLAN.md — TOKEN_BUDGET constant + baseline capture + BENCHMARK_RESULTS.md (TOKN-01, TOKN-02)
-    - [x] 058-02-PLAN.md — Conditional reading expansion + eval pipeline verify (TOKN-03, TOKN-04)
-  - Success criteria:
-    1. Token budget documented in `BENCHMARK_RESULTS.md`
-    2. Before/after comparison shows improvement or maintains baseline
-    3. At least 2 additional workflows use `conditional_reading`
-    4. `promptfooconfig.yaml` configured for quality measurement
-
-- [x] **Phase 59: Integration Wiring & Verification Gaps** (2/2 plans) — PLAT-01, PLAT-02, PARA-02, AGEN-01, AGEN-09 — completed 2026-03-27
-  - Wire `getModelForTier(tier, platform)` vao production dispatch flow
-  - Fix `pd-sec-scanner` agent path → `.claude/agents/`
-  - Tao VERIFICATION.md cho Phase 52 (formal verification AGEN-01, AGEN-09)
-  - Cap nhat 053-VERIFICATION.md phan anh trang thai hien tai (3 gaps da fix)
-  - **Gap Closure:** Closes integration + verification gaps from v5.0 audit
-  - **Plans:** 2 plans
-    - [x] 059-01-PLAN.md — Wire platform vao getAgentConfig() + copy pd-sec-scanner
-    - [x] 059-02-PLAN.md — Tao Phase 52 VERIFICATION.md + cap nhat 053-VERIFICATION.md
-  - Success criteria:
-    1. `getModelForTier(tier, platform)` co it nhat 1 production caller
-    2. `pd-sec-scanner.md` ton tai tai `.claude/agents/pd-sec-scanner.md`
-    3. Phase 52 co VERIFICATION.md xac nhan AGEN-01, AGEN-09
-    4. 053-VERIFICATION.md phan anh dung trang thai hien tai (khong con stale gaps)
-    5. All smoke tests pass
+</details>
