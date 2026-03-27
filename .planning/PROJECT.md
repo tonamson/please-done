@@ -79,8 +79,8 @@ Every workflow step must produce the highest quality code output while consuming
 - Platform-Aware Mapping — Config-driven tier→model mapping per platform with automatic fallback
 - Parallel + Resource Guard — Wire `getAdaptiveParallelLimit()` into `parallel-dispatch.js`, backpressure, graceful degradation
 - Skill-Agent Integration — `pd-codebase-mapper` auto-mapping, Research Squad activation, soft-guard strategy
-- Reference Dedup — Merge `verification-patterns.md` + `plan-checker.md` → `verification.md`
-- Runtime DRY — Extract `installer-utils.js` from shared installer code
+- ✓ Reference Dedup — Merged verification-patterns.md + plan-checker.md → verification.md, zero broken refs — v5.0 (Phase 57)
+- ✓ Runtime DRY — installer-utils.js with 6 shared utilities, 4 installers DRY — v5.0 (Phase 57)
 - Token Budget — Expand `conditional_reading` pattern, benchmark before/after
 
 ### Out of Scope
