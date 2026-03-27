@@ -1,12 +1,10 @@
 ---
 name: pd-sec-scanner
 description: Scanner bao mat tong hop — Quet ma nguon theo OWASP category duoc chi dinh tu security-rules.yaml.
-tier: scout
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - mcp__fastcode__code_qa
+tools: Read, Glob, Grep, mcp__fastcode__code_qa
+model: haiku
+maxTurns: 15
+effort: low
 ---
 
 <objective>
@@ -72,8 +70,7 @@ Quet ma nguon du an theo 1 OWASP category cu the, su dung rules tu `references/s
      - `## Tom tat` — Tong file da quet, so phat hien theo muc do (FAIL/FLAG/PASS).
      - `## Phat hien` — Bang: File | Dong | Muc do | Mo ta | De xuat sua.
      - `## Chi tiet` — Code snippet + giai thich cho moi FAIL/FLAG.
-     - `## Function Checklist` — Bang kiem tra tung ham voi verdict PASS/FLAG/FAIL/SKIP (per D-07, D-08). SKIP phai ghi kem ly do ngan.
-</process>
+     - `## Function Checklist` — Bang kiem tra tung ham voi verdict PASS/FLAG/FAIL/SKIP (per D-07, D-08). SKIP phai ghi ly do ngan.
 
 10. **Tao POC (neu --poc active).** Kiem tra trong prompt context co `--poc` khong.
    - Neu KHONG co --poc: bo qua buoc nay, KHONG tao POC section

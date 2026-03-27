@@ -1,12 +1,10 @@
 ---
 name: pd-repro-engineer
-description: Kỹ sư tái hiện - Viết test case tối giản để nhìn thấy lỗi.
-tier: builder
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
+description: Ky su tai hien — Viet test case toi gian de nhin thay loi (Red Test). Dung sau khi co bang chung tu Detective va DocSpec de xac nhan loi bang test that bai.
+tools: Read, Write, Edit, Bash
+model: sonnet
+maxTurns: 25
+effort: medium
 ---
 
 <objective>

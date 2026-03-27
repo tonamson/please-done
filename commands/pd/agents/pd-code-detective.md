@@ -1,12 +1,10 @@
 ---
 name: pd-code-detective
-description: Thám tử hiện trường - Truy vết nguyên nhân lỗi trong mã nguồn dự án.
-tier: builder
-allowed-tools:
-  - Read
-  - Glob
-  - Grep
-  - mcp__fastcode__code_qa
+description: Tham tu hien truong — Truy vet nguyen nhan loi trong ma nguon du an. Dung khi can phan tich code va tim diem gay loi dua tren trieu chung tu Janitor.
+tools: Read, Glob, Grep, mcp__fastcode__code_qa
+model: sonnet
+maxTurns: 25
+effort: medium
 ---
 
 <objective>
