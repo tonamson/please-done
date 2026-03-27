@@ -201,7 +201,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. `plan` shows warning (not block) when `TECHNICAL_STRATEGY.md` missing
     4. Strategy auto-injected when file exists, skipped gracefully when not
 
-- [ ] **Phase 57: Reference Dedup & Runtime DRY** — DEDU-01, DEDU-02, DRYU-01, DRYU-02, DRYU-03
+- [x] **Phase 57: Reference Dedup & Runtime DRY** (2/2 plans) — DEDU-01, DEDU-02, DRYU-01, DRYU-02, DRYU-03 — completed 2026-03-27
   - Merge `verification-patterns.md` + `plan-checker.md` → `verification.md`
   - Update all references across commands/workflows
   - Extract `installer-utils.js` from shared installer code
