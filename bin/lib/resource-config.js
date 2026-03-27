@@ -263,10 +263,11 @@ function getModelForTier(tier, platform) {
  * Tra ve full config cho 1 agent, merge tu AGENT_REGISTRY va TIER_MAP.
  *
  * @param {string} agentName - Ten agent (vd: 'pd-bug-janitor')
+ * @param {string} [platform] - Ten platform (claude, codex, gemini, ...). Optional.
  * @returns {{ name: string, tier: string, model: string, effort: string, maxTurns: number, tools: string[], ...extra }}
  * @throws {Error} Khi agentName la null/undefined hoac khong ton tai
  */
-function getAgentConfig(agentName) {
+function getAgentConfig(agentName, platform) {
   if (agentName == null || typeof agentName !== "string") {
     throw new Error("thieu tham so agentName");
   }
@@ -278,7 +279,7 @@ function getAgentConfig(agentName) {
   }
 
   const { tier, tools, ...extra } = agent;
-  const tierConfig = TIER_MAP[tier];
+  const tierConfig = getModelForTier(tier, platform);
 
   return {
     name: agentName,

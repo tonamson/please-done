@@ -22,15 +22,16 @@ const { validateEvidence } = require('./evidence-protocol');
  *
  * @param {string} sessionDir - Path toi session directory
  * @param {string} janitarEvidencePath - Path toi evidence_janitor.md
+ * @param {string} [platform] - Ten platform (claude, codex, gemini, ...). Optional.
  * @returns {{ agents: Array<{name: string, config: object, inputPath: string, outputFile: string, critical: boolean}>, warnings: string[] }}
  */
 // D-02: Detective + DocSpec giu nguyen 2 agents co dinh — 2 <= PARALLEL_MIN, khong can adaptive.
 // D-06: Detective la heavy (fastcode), DocSpec la light. Ghi chu, khong thay doi logic.
-function buildParallelPlan(sessionDir, janitarEvidencePath) {
+function buildParallelPlan(sessionDir, janitarEvidencePath, platform) {
   const warnings = [];
 
-  const detectiveConfig = getAgentConfig('pd-code-detective');
-  const docSpecConfig = getAgentConfig('pd-doc-specialist');
+  const detectiveConfig = getAgentConfig('pd-code-detective', platform);
+  const docSpecConfig = getAgentConfig('pd-doc-specialist', platform);
 
   return {
     agents: [

@@ -199,6 +199,18 @@ describe('getAgentConfig', () => {
     assert.ok(cfg.tools.includes('mcp__fastcode__code_qa'));
   });
 
+  it('getAgentConfig(name, platform) tra ve platform-specific model', () => {
+    const config = getAgentConfig('pd-code-detective', 'gemini');
+    assert.ok(config.model, 'phai co model');
+    assert.strictEqual(config.tier, 'builder');
+    // gemini builder → model phai la gemini-specific, khong phai generic 'sonnet'
+  });
+
+  it('getAgentConfig(name) khong truyen platform van tra ve generic model', () => {
+    const config = getAgentConfig('pd-code-detective');
+    assert.strictEqual(config.model, TIER_MAP.builder.model);
+  });
+
   it('throw khi agent null', () => {
     assert.throws(() => getAgentConfig(null), /thieu tham so/);
   });
