@@ -224,7 +224,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Expand `conditional_reading` to more workflows
   - Integrate eval pipeline
   - **Plans:** 2 plans
-    - [ ] 058-01-PLAN.md — TOKEN_BUDGET constant + baseline capture + BENCHMARK_RESULTS.md (TOKN-01, TOKN-02)
+    - [x] 058-01-PLAN.md — TOKEN_BUDGET constant + baseline capture + BENCHMARK_RESULTS.md (TOKN-01, TOKN-02)
     - [ ] 058-02-PLAN.md — Conditional reading expansion + eval pipeline verify (TOKN-03, TOKN-04)
   - Success criteria:
     1. Token budget documented in `BENCHMARK_RESULTS.md`

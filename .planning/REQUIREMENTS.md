@@ -41,19 +41,19 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 ### Reference Dedup
 
-- [ ] **DEDU-01**: Gộp `verification-patterns.md` + `plan-checker.md` → `verification.md`
-- [ ] **DEDU-02**: Cập nhật tất cả references đến 2 file cũ → file mới
+- [x] **DEDU-01**: Gộp `verification-patterns.md` + `plan-checker.md` → `verification.md`
+- [x] **DEDU-02**: Cập nhật tất cả references đến 2 file cũ → file mới
 
 ### Runtime DRY
 
-- [ ] **DRYU-01**: Trích `ensureDir()`, `validateGitRoot()`, `copyWithBackup()` thành `installer-utils.js`
-- [ ] **DRYU-02**: 4 platform installers import utils, giữ logic platform-specific nguyên vẹn
-- [ ] **DRYU-03**: Review 4 converter configs consistent (key names, format)
+- [x] **DRYU-01**: Trích `ensureDir()`, `validateGitRoot()`, `copyWithBackup()` thành `installer-utils.js`
+- [x] **DRYU-02**: 4 platform installers import utils, giữ logic platform-specific nguyên vẹn
+- [x] **DRYU-03**: Review 4 converter configs consistent (key names, format)
 
 ### Token Budget
 
-- [ ] **TOKN-01**: Token budget per tier — Scout ≤ 4K, Builder ≤ 8K, Architect ≤ 12K prompt tokens
-- [ ] **TOKN-02**: Before/after benchmark — chạy `count-tokens.js` trước và sau, ghi vào `BENCHMARK_RESULTS.md`
+- [x] **TOKN-01**: Token budget per tier — Scout ≤ 4K, Builder ≤ 8K, Architect ≤ 12K prompt tokens
+- [x] **TOKN-02**: Before/after benchmark — chạy `count-tokens.js` trước và sau, ghi vào `BENCHMARK_RESULTS.md`
 - [ ] **TOKN-03**: Mở rộng `conditional_reading` pattern sang các workflows khác (ngoài `plan.md`)
 - [ ] **TOKN-04**: Eval integration — dùng `evals/` + `promptfooconfig.yaml` đo chất lượng sau giảm token
 
@@ -101,13 +101,13 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | SKIL-02 | Phase 56 | Complete |
 | SKIL-03 | Phase 56 | Complete |
 | SKIL-04 | Phase 56 | Complete |
-| DEDU-01 | Phase 57 | Pending |
-| DEDU-02 | Phase 57 | Pending |
-| DRYU-01 | Phase 57 | Pending |
-| DRYU-02 | Phase 57 | Pending |
-| DRYU-03 | Phase 57 | Pending |
-| TOKN-01 | Phase 58 | Pending |
-| TOKN-02 | Phase 58 | Pending |
+| DEDU-01 | Phase 57 | Complete |
+| DEDU-02 | Phase 57 | Complete |
+| DRYU-01 | Phase 57 | Complete |
+| DRYU-02 | Phase 57 | Complete |
+| DRYU-03 | Phase 57 | Complete |
+| TOKN-01 | Phase 58 | Complete |
+| TOKN-02 | Phase 58 | Complete |
 | TOKN-03 | Phase 58 | Pending |
 | TOKN-04 | Phase 58 | Pending |
 

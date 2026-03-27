@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v5.0
 milestone_name: Repo Optimization
-status: Ready to execute
-stopped_at: Phase 58 context gathered
-last_updated: "2026-03-27T10:42:44.940Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 058-01-PLAN.md
+last_updated: "2026-03-27T11:01:51.043Z"
 progress:
   total_phases: 44
   completed_phases: 41
-  total_plans: 86
-  completed_plans: 86
+  total_plans: 88
+  completed_plans: 87
 ---
 
 # Project State
@@ -54,6 +54,7 @@ Plan: 2 of 2
 | Phase 055 P02 | 158 | 2 tasks | 2 files |
 | Phase 056 P01 | 234s | 2 tasks | 2 files |
 | Phase 057 P01 | 833 | 5 tasks | 14 files |
+| Phase 058 P01 | 214 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 057]: Gop verification-patterns.md + plan-checker.md thanh verification.md duy nhat
 - [Phase 057]: Trich 6 ham dung chung vao installer-utils.js
 - [Phase 057]: Converter configs da nhat quan - khong can thay doi
+- [Phase 058]: tokenBudget truc tiep trong TIER_MAP, TOKEN_BUDGET derived tu TIER_MAP
 
 ### Pending Todos
 
@@ -84,6 +86,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-27T10:42:44.932Z
-Stopped at: Phase 58 context gathered
-Resume file: .planning/phases/058-token-budget-benchmark/058-CONTEXT.md
+Last session: 2026-03-27T11:01:51.038Z
+Stopped at: Completed 058-01-PLAN.md
+Resume file: None
