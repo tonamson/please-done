@@ -187,7 +187,9 @@ Plans:
   1. `.claude/agents/` contains symlinks for all 16 agents.
   2. Symlinks correctly resolve to the source files in `commands/pd/agents/`.
   3. Claude Code can still load and use agents via the symlinks.
-**Plans:** TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
 
 ### Phase 62: Reference Migration
 **Goal**: Update internal system references to point to the new centralized agent directory.
@@ -197,7 +199,9 @@ Plans:
   1. `smoke-agent-files.test.js` uses `commands/pd/agents` as its `AGENTS_DIR`.
   2. `fix-bug.md` workflow correctly references the centralized agent directory.
   3. System-wide searches for `.claude/agents/` (as source of truth) return zero hits in core logic.
-**Plans:** TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
 
 ### Phase 63: Format Standardization
 **Goal**: Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
@@ -207,7 +211,9 @@ Plans:
   1. `pd-sec-fixer.md` has YAML frontmatter with tier, model, and effort fields.
   2. `pd-sec-reporter.md` has YAML frontmatter with tier, model, and effort fields.
   3. Both security agents are parsable by the new agent registry logic.
-**Plans:** TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
 
 ### Phase 64: Registry & Test Validation
 **Goal**: Ensure the entire consolidated agent set is correctly registered and passing tests.
@@ -217,7 +223,9 @@ Plans:
   1. `AGENT_REGISTRY` contains entries for all 16 agents.
   2. `smoke-agent-files.test.js` passes for all 16 agents.
   3. Validation tests confirm correct structure for the entire consolidated agent set.
-**Plans:** TBD
+**Plans:** 1 plan
+Plans:
+- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
 
 ## Progress Table
 
