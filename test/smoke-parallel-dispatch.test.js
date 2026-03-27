@@ -142,10 +142,11 @@ describe('buildScannerPlan', () => {
     assert.ok(plan.warnings.some(w => w.includes('Danh sach categories rong')));
   });
 
-  it('batchSize < 1 → clamp to 1', () => {
+  it('batchSize < 1 → clamp to PARALLEL_MIN', () => {
     const plan = buildScannerPlan(['xss', 'auth'], 0);
-    assert.equal(plan.totalWaves, 2); // 2 categories, batch 1 → 2 waves
-    assert.equal(plan.waves[0].length, 1);
+    // batchSize=0 clamp to PARALLEL_MIN=2 → 1 wave of 2
+    assert.equal(plan.totalWaves, 1);
+    assert.equal(plan.waves[0].length, 2);
   });
 
   it('moi item trong wave co category, agentName, outputFile', () => {

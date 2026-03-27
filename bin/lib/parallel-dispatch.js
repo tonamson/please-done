@@ -10,7 +10,7 @@
 
 'use strict';
 
-const { getAgentConfig } = require('./resource-config');
+const { getAgentConfig, getAdaptiveParallelLimit, isHeavyAgent, shouldDegrade, PARALLEL_MIN, PARALLEL_MAX } = require('./resource-config');
 const { validateEvidence } = require('./evidence-protocol');
 
 // ─── buildParallelPlan ──────────────────────────────────────
@@ -24,6 +24,8 @@ const { validateEvidence } = require('./evidence-protocol');
  * @param {string} janitarEvidencePath - Path toi evidence_janitor.md
  * @returns {{ agents: Array<{name: string, config: object, inputPath: string, outputFile: string, critical: boolean}>, warnings: string[] }}
  */
+// D-02: Detective + DocSpec giu nguyen 2 agents co dinh — 2 <= PARALLEL_MIN, khong can adaptive.
+// D-06: Detective la heavy (fastcode), DocSpec la light. Ghi chu, khong thay doi logic.
 function buildParallelPlan(sessionDir, janitarEvidencePath) {
   const warnings = [];
 
@@ -66,6 +68,7 @@ function buildParallelPlan(sessionDir, janitarEvidencePath) {
 function mergeParallelResults({ detectiveResult, docSpecResult }) {
   const warnings = [];
   const results = [];
+  let backpressure = false;
 
   // Xu ly Detective (critical path)
   if (detectiveResult?.evidenceContent) {
@@ -75,6 +78,10 @@ function mergeParallelResults({ detectiveResult, docSpecResult }) {
       warnings.push(...validation.warnings.map(w => `Detective: ${w}`));
     }
   } else {
+    // D-07: check shouldDegrade cho backpressure
+    if (detectiveResult?.error && shouldDegrade(detectiveResult.error)) {
+      backpressure = true;
+    }
     const errMsg = detectiveResult?.error?.message || 'Khong co ket qua';
     warnings.push(`Code Detective that bai: ${errMsg}`);
     results.push({ agent: 'pd-code-detective', outcome: null, valid: false });
@@ -88,6 +95,10 @@ function mergeParallelResults({ detectiveResult, docSpecResult }) {
       warnings.push(...validation.warnings.map(w => `DocSpec: ${w}`));
     }
   } else {
+    // D-07: check shouldDegrade cho backpressure
+    if (docSpecResult?.error && shouldDegrade(docSpecResult.error)) {
+      backpressure = true;
+    }
     const errMsg = docSpecResult?.error?.message || 'Khong co ket qua';
     warnings.push(`Doc Specialist khong tra ket qua: ${errMsg} — tiep tuc voi evidence co san`);
     results.push({ agent: 'pd-doc-specialist', outcome: null, valid: false });
@@ -95,7 +106,7 @@ function mergeParallelResults({ detectiveResult, docSpecResult }) {
 
   const allSucceeded = results.every(r => r.valid);
 
-  return { results, allSucceeded, warnings };
+  return { results, allSucceeded, warnings, backpressure };
 }
 
 // ─── buildScannerPlan ────────────────────────────────────────
@@ -110,21 +121,26 @@ function mergeParallelResults({ detectiveResult, docSpecResult }) {
  * @param {string} [scanPath='.'] - Path can quet
  * @returns {{ waves: Array<Array<{category: string, agentName: string, outputFile: string}>>, totalWaves: number, totalScanners: number, warnings: string[] }}
  */
-function buildScannerPlan(categories, batchSize = 2, scanPath = '.') {
-  // Kiem tra categories rong hoac khong hop le
+function buildScannerPlan(categories, batchSize = null, scanPath = '.') {
   if (!Array.isArray(categories) || categories.length === 0) {
     return {
-      waves: [],
-      totalWaves: 0,
-      totalScanners: 0,
+      waves: [], totalWaves: 0, totalScanners: 0,
       warnings: ['Danh sach categories rong — khong co scanner nao de dispatch'],
     };
   }
 
-  // Clamp batchSize < 1 → 1
-  if (batchSize < 1) {
-    batchSize = 1;
+  // D-01: adaptive default khi caller khong truyen batchSize
+  if (batchSize == null) {
+    batchSize = getAdaptiveParallelLimit().workers;
   }
+
+  // D-05: heavy agent check — pd-sec-scanner co mcp__fastcode__, giam 1 worker
+  if (isHeavyAgent('pd-sec-scanner') && batchSize > PARALLEL_MIN) {
+    batchSize -= 1;
+  }
+
+  // PARA-03: enforce min/max [2, 4]
+  batchSize = Math.max(PARALLEL_MIN, Math.min(PARALLEL_MAX, batchSize));
 
   const waves = [];
   for (let i = 0; i < categories.length; i += batchSize) {
@@ -137,12 +153,7 @@ function buildScannerPlan(categories, batchSize = 2, scanPath = '.') {
     waves.push(wave);
   }
 
-  return {
-    waves,
-    totalWaves: waves.length,
-    totalScanners: categories.length,
-    warnings: [],
-  };
+  return { waves, totalWaves: waves.length, totalScanners: categories.length, warnings: [] };
 }
 
 // ─── mergeScannerResults ─────────────────────────────────────
@@ -159,8 +170,14 @@ function mergeScannerResults(scanResults) {
   const results = [];
   let completedCount = 0;
   let failedCount = 0;
+  let backpressure = false;
 
   for (const item of scanResults) {
+    // D-07: check shouldDegrade cho backpressure
+    if (item.error && shouldDegrade(item.error)) {
+      backpressure = true;
+    }
+
     if (item.evidenceContent) {
       try {
         const validation = validateEvidence(item.evidenceContent);
@@ -191,7 +208,7 @@ function mergeScannerResults(scanResults) {
     }
   }
 
-  return { results, completedCount, failedCount, warnings };
+  return { results, completedCount, failedCount, warnings, backpressure };
 }
 
 // ─── Exports ────────────────────────────────────────────────
