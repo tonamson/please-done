@@ -218,7 +218,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     5. Converter configs have consistent key names/format
     6. All smoke tests + snapshot tests pass
 
-- [ ] **Phase 58: Token Budget & Benchmark** (2 plans) — TOKN-01, TOKN-02, TOKN-03, TOKN-04
+- [x] **Phase 58: Token Budget & Benchmark** (2/2 plans) — TOKN-01, TOKN-02, TOKN-03, TOKN-04 — completed 2026-03-27
   - Define token budgets per tier
   - Run before/after benchmark with `count-tokens.js`
   - Expand `conditional_reading` to more workflows
