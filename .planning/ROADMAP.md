@@ -194,7 +194,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - **Plans:** 3 plans
     - [x] 056-01-PLAN.md — Wire mapper vao init.md + soft-guard vao plan.md (SKIL-01, SKIL-03)
     - [x] 056-02-PLAN.md — Them buildResearchSquadPlan() vao parallel-dispatch.js + strategy_path vao init.cjs (SKIL-02, SKIL-04)
-    - [ ] 056-03-PLAN.md — Wire PD Research Squad vao new-milestone.md + strategy_path vao plan-phase.md (SKIL-02, SKIL-04)
+    - [x] 056-03-PLAN.md — Wire PD Research Squad vao new-milestone.md + strategy_path vao plan-phase.md (SKIL-02, SKIL-04)
   - Success criteria:
     1. `init` suggests/runs codebase mapping after brownfield detection
     2. Research Squad spawns 3 agents in parallel + synthesizer sequential
