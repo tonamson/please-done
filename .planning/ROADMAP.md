@@ -176,6 +176,9 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Add `isHeavyAgent()` check before spawn
   - Enforce min/max workers (2-4)
   - Implement backpressure + graceful degradation
+  - **Plans:** 2 plans
+    - [ ] 055-01-PLAN.md — Mo rong getAdaptiveParallelLimit() them loadAvg check (PARA-05)
+    - [ ] 055-02-PLAN.md — Wire adaptive + heavy + min/max + backpressure vao parallel-dispatch.js (PARA-01, PARA-02, PARA-03, PARA-04)
   - Success criteria:
     1. `parallel-dispatch.js` calls `getAdaptiveParallelLimit()` instead of hardcode
     2. Heavy agents detected → worker count reduced by 1
