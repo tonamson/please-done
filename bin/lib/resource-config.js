@@ -88,6 +88,10 @@ const AGENT_REGISTRY = {
     tier: "architect",
     tools: ["Read", "Write", "Glob", "Grep"],
   },
+  "pd-regression-analyzer": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash", "mcp__fastcode__code_qa"],
+  },
 };
 
 /**

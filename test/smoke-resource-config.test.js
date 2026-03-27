@@ -184,6 +184,20 @@ describe('getAgentConfig', () => {
     assert.ok(config.tools.includes('Grep'));
   });
 
+  it('tra ve full config cho pd-regression-analyzer', () => {
+    const cfg = getAgentConfig('pd-regression-analyzer');
+    assert.equal(cfg.name, 'pd-regression-analyzer');
+    assert.equal(cfg.tier, 'builder');
+    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.effort, 'medium');
+    assert.equal(cfg.maxTurns, 25);
+    assert.ok(cfg.tools.includes('Read'));
+    assert.ok(cfg.tools.includes('Glob'));
+    assert.ok(cfg.tools.includes('Grep'));
+    assert.ok(cfg.tools.includes('Bash'));
+    assert.ok(cfg.tools.includes('mcp__fastcode__code_qa'));
+  });
+
   it('throw khi agent null', () => {
     assert.throws(() => getAgentConfig(null), /thieu tham so/);
   });
@@ -218,6 +232,10 @@ describe('isHeavyAgent', () => {
 
   it('false cho pd-fix-architect', () => {
     assert.equal(isHeavyAgent('pd-fix-architect'), false);
+  });
+
+  it('true cho pd-regression-analyzer (co fastcode)', () => {
+    assert.equal(isHeavyAgent('pd-regression-analyzer'), true);
   });
 
   it('false cho agent khong ton tai', () => {
@@ -264,8 +282,8 @@ describe('Constants', () => {
     assert.equal(Object.keys(TIER_MAP).length, 3);
   });
 
-  it('AGENT_REGISTRY co 10 agents', () => {
-    assert.equal(Object.keys(AGENT_REGISTRY).length, 10);
+  it('AGENT_REGISTRY co 11 agents', () => {
+    assert.equal(Object.keys(AGENT_REGISTRY).length, 11);
   });
 
   it('PARALLEL_LIMIT la 2', () => {
