@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, an enhanced fix-bug workflow with automated investigation, and a research squad system with structured evidence storage, anti-hallucination audit trails, and automated research pipelines (Evidence Collector → INDEX.md → Fact Checker cross-validation).
+Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, an enhanced fix-bug workflow with automated investigation, a research squad system with structured evidence storage, anti-hallucination audit trails, and automated research pipelines (Evidence Collector → INDEX.md → Fact Checker cross-validation), and an OWASP security audit pipeline with smart scanner selection, session delta, POC/gadget chain analysis, and milestone-integrated security gates.
 
 ## Core Value
 
@@ -65,34 +65,17 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Claim-Level Confidence API — parseClaims() extract + createEntry() render — v3.0 (Phase 45)
 - ✓ Smart Scanner Selection — selectScanners() pure function, 12 signals, 3 base scanners, function checklist, reporter master table — v4.0 (Phase 48)
 - ✓ POC pipeline + Gadget Chain Detection + Fix Phases Routing — gadget-chain.js (3 pure functions), 7 chain templates, pd-sec-fixer agent, security-fix-phase template, POC wired vào scanner, gadget chain wired vào reporter B6, fixer wired vào B8 — v4.0 (Phase 50)
+- ✓ Lệnh pd:audit (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone — v4.0 (Phase 46-47)
+- ✓ Template agent pd-sec-scanner.md + security-rules.yaml (1 template → 13 OWASP categories) — v4.0 (Phase 46)
+- ✓ Reporter agent pd-sec-reporter.md tổng hợp SECURITY_REPORT.md — v4.0 (Phase 48)
+- ✓ Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW) — v4.0 (Phase 49)
+- ✓ Batch execution waves (tối đa 2 instance song song) — v4.0 (Phase 47)
+- ✓ Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update — v4.0 (Phase 51)
+- ✓ FastCode MCP integration (tool-first, AI-last) — v4.0 (Phase 46)
 
 ### Active
 
-- [ ] Lệnh `pd:audit` (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone
-- [ ] Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
-- [ ] Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
-- [ ] Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
-- [ ] Batch execution waves (tối đa 2 instance song song)
-- [ ] Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
-- [ ] FastCode MCP integration (tool-first, AI-last)
-
-## Current Milestone: v4.0 OWASP Security Audit
-
-**Goal:** Thêm lệnh `pd:audit` quét bảo mật OWASP Top 10 với template agent dispatch, smart scanner selection, session delta, POC/gadget chain analysis, và tích hợp milestone workflow.
-
-**Target features:**
-- Lệnh `pd:audit` (skill + workflow) với 2 chế độ: Độc lập + Tích hợp milestone
-- Template agent `pd-sec-scanner.md` + `security-rules.yaml` (1 template → 13 OWASP categories)
-- Reporter agent `pd-sec-reporter.md` tổng hợp SECURITY_REPORT.md
-- Smart Scanner Selection — phân tích ngữ cảnh tự chọn scanner liên quan
-- Session Delta — đối soát phiên cũ (KNOWN-UNFIXED / RE-VERIFY / NEW)
-- POC pipeline (đơn lẻ + Gadget Chain) khi dùng --poc
-- Function-Level Checklist evidence format
-- Batch execution waves (tối đa 2 instance song song)
-- Tự động tạo fix phases theo gadget chain order (chế độ milestone)
-- Tích hợp: security gate trong complete-milestone, what-next priority, state-machine update
-- Template `security-fix-phase.md` cho fix phases tự động
-- FastCode MCP integration (tool-first, AI-last)
+(Không có — tất cả requirements đã validated qua v4.0)
 
 ### Out of Scope
 
@@ -105,13 +88,13 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Current:** v4.0 OWASP Security Audit — Phase 50 complete, Phase 51 next
-**Shipped:** v3.0 Research Squad (2026-03-26)
-**Previous:** v2.1 Detective Orchestrator (2026-03-25), v1.5 Nang cap Skill Fix-Bug (2026-03-24)
+**Current:** v4.0 OWASP Security Audit — SHIPPED (2026-03-27)
+**Shipped:** v4.0 OWASP Security Audit (2026-03-27)
+**Previous:** v3.0 Research Squad (2026-03-26), v2.1 Detective Orchestrator (2026-03-25)
 
-v3.0 added: Research Squad — research-store.js (7 pure functions), 3 audit modules (confidence-scorer, audit-logger, index-generator), 2 research agents (Evidence Collector + Fact Checker), 3 workflow guards (CHECK-06, CHECK-07, Strategy Injection), pd:research command with auto-routing pipeline. 8 phases, 14 plans, 115 files modified, +14,504 net LOC.
+v4.0 added: OWASP Security Audit — pd:audit skill + workflow 9 bước, security-rules.yaml (13 categories), pd-sec-scanner template agent, pd-sec-reporter, pd-sec-fixer, smart-selection.js (12 signals), session-delta.js (delta-aware scanning), gadget-chain.js (cross-category attack chains), security gate trong complete-milestone, ưu tiên 7.5 trong what-next. 6 phases, 14 plans, 159 files modified, +19,263 net LOC.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills, 11 workflows, 23 JS library modules.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 12 workflows, 27 JS library modules.
 
 ## Constraints
 
@@ -145,6 +128,10 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 13 skills
 | External module for v1.5 features (D-02) | fix-bug.md at 419/420 line limit — cannot inline | ✓ Good — logic-sync.js orchestrates 3 features in 1 call |
 | Diff-based heuristics over AST (D-08) | Regex on diff sufficient for v1.5, AST deferred to v2 | ✓ Good — 4 signal types cover common cases |
 | Non-blocking for cleanup + security + logic sync | User workflow must never be blocked by optional features | ✓ Good — consistent non-blocking pattern across 9a and 10a |
+| 1 template + 1 YAML thay 13 scanner files | DRY, dễ bảo trì, mở rộng bằng YAML | ✓ Good — giảm 13 files thành 2, cùng chức năng |
+| Pure functions cho tất cả v4.0 modules | TDD, no side effects, composable | ✓ Good — smart-selection, session-delta, gadget-chain đều testable |
+| Security gate non-blocking | Không chặn workflow, chỉ cảnh báo | ✓ Good — phù hợp với triết lý "khuyến nghị, không ép buộc" |
+| Path source of truth: audit.md B9 | .planning/audit/SECURITY_REPORT.md | ✓ Good — thống nhất sau gap closure 51-02 |
 
 ## Evolution
 
@@ -164,4 +151,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-26 after Phase 49 (session-delta) completion*
+*Last updated: 2026-03-27 after v4.0 OWASP Security Audit milestone completion*
