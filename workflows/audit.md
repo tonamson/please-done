@@ -4,6 +4,12 @@ Input: $ARGUMENTS từ skill pd:audit.
 Tham chiếu: references/security-rules.yaml, bin/lib/parallel-dispatch.js (buildScannerPlan, mergeScannerResults), bin/lib/resource-config.js (getAgentConfig), bin/lib/smart-selection.js (selectScanners), bin/lib/session-delta.js (classifyDelta, appendAuditHistory).
 </purpose>
 
+<conditional_reading>
+Đọc KHI cần (phân tích mô tả task trước):
+- @references/security-checklist.md -> danh sách kiểm tra bảo mật — KHI audit liên quan kiểm tra bảo mật thủ công
+- @references/conventions.md -> quy ước commit, icons — KHI cần tạo báo cáo hoặc commit kết quả audit
+</conditional_reading>
+
 <process>
 
 ## Bước 1: Detect mode

@@ -4,6 +4,12 @@ Quét dự án, phân tích cấu trúc code, dependencies, kiến trúc, kiểm
 Ghi chú: `~/.claude/` dùng cho Claude Code. Trình cài đặt chuyển đổi sang đường dẫn phù hợp nền tảng khác.
 </purpose>
 
+<conditional_reading>
+Đọc KHI cần (phân tích mô tả task trước):
+- @references/security-checklist.md -> danh sách kiểm tra bảo mật — KHI scan phát hiện lỗ hổng bảo mật dependencies
+- @references/conventions.md -> quy ước commit, icons — KHI cần format báo cáo scan
+</conditional_reading>
+
 <process>
 
 ## Bước 1: Xác định đường dẫn
