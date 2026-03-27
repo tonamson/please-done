@@ -30,6 +30,7 @@ const AGENT_NAMES = [
   'pd-research-synthesizer',
   'pd-planner',
   'pd-regression-analyzer',
+  'pd-sec-scanner',
 ];
 
 // ─── Helper: Parse YAML frontmatter ───────────────────────
