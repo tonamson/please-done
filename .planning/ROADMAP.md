@@ -187,9 +187,9 @@ Plans:
   1. `.claude/agents/` contains symlinks for all 16 agents.
   2. Symlinks correctly resolve to the source files in `commands/pd/agents/`.
   3. Claude Code can still load and use agents via the symlinks.
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 Plans:
-- [ ] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
+- [x] 61-01-PLAN.md — Tạo 16 symlinks + 3 test thực tế
 
 ### Phase 62: Reference Migration
 **Goal**: Update internal system references to point to the new centralized agent directory.
@@ -232,7 +232,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 60. Agent Consolidation | 1/1 | Complete    | 2026-03-27 |
-| 61. Symlink Architecture | TBD | Not started | - |
+| 61. Symlink Architecture | 1/1 | Complete   | 2026-03-27 |
 | 62. Reference Migration | TBD | Not started | - |
 | 63. Format Standardization | TBD | Not started | - |
 | 64. Registry & Test Validation | TBD | Not started | - |
