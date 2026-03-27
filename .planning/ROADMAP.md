@@ -150,8 +150,8 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. All existing smoke tests pass with updated registry
     4. Tier resolution fallback works (missing tier → downgrade)
 
-- [ ] **Phase 53: New Agent Files** (1/2 plans) — AGEN-02, AGEN-03, AGEN-04, AGEN-05, AGEN-06, AGEN-07, AGEN-08
-  - Create 6 new agent files at `commands/pd/agents/`
+- [x] **Phase 53: New Agent Files** (2/2 plans) — AGEN-02, AGEN-03, AGEN-04, AGEN-05, AGEN-06, AGEN-07, AGEN-08 — completed 2026-03-27
+  - Create 6 new agent files at `.claude/agents/`
   - Each with YAML frontmatter (tier, tools, model) consistent with registry
   - Add smoke tests for all 6 agents
   - Success criteria:
