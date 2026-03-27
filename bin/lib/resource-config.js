@@ -26,6 +26,55 @@ const TIER_MAP = {
 };
 
 /**
+ * Thu tu fallback: architect → builder → scout.
+ * Khi platform thieu tier cao, tu dong ha xuong tier thap hon.
+ */
+const FALLBACK_CHAIN = ["architect", "builder", "scout"];
+
+/**
+ * Platform-specific model mapping.
+ * Keys la generic model names (haiku/sonnet/opus) de match voi TIER_MAP[tier].model.
+ * Moi platform map generic name sang model ID thuc te cua platform do.
+ */
+const PLATFORM_MODEL_MAP = {
+  claude: {
+    haiku: "claude-haiku-4-5-20251001",
+    sonnet: "claude-sonnet-4-6-20250217",
+    opus: "claude-opus-4-6-20250205",
+  },
+  codex: {
+    haiku: "gpt-5.4-mini",
+    sonnet: "gpt-5.3-codex",
+    opus: "gpt-5.4",
+  },
+  gemini: {
+    haiku: "gemini-2.5-flash",
+    sonnet: "gemini-2.5-pro",
+    // khong co opus -> fallback sang builder (gemini-2.5-pro)
+  },
+  opencode: {
+    haiku: "claude-haiku-4-5-20251001",
+    sonnet: "claude-sonnet-4-6-20250217",
+    opus: "claude-opus-4-6-20250205",
+  },
+  copilot: {
+    haiku: "claude-haiku-4-5-20251001",
+    sonnet: "claude-sonnet-4-6-20250217",
+    opus: "claude-opus-4-6-20250205",
+  },
+  cursor: {
+    haiku: "claude-haiku-4-5-20251001",
+    sonnet: "claude-sonnet-4-6-20250217",
+    opus: "claude-opus-4-6-20250205",
+  },
+  windsurf: {
+    haiku: "claude-haiku-4-5-20251001",
+    sonnet: "claude-sonnet-4-6-20250217",
+    opus: "claude-opus-4-6-20250205",
+  },
+};
+
+/**
  * Agent registry: ten agent → { tier, tools }
  * Moi agent co 1 tier va danh sach tools duoc phep dung.
  */
@@ -144,13 +193,14 @@ const AGENT_FAIL_RE = /agent.*fail/i;
 // ─── getModelForTier ─────────────────────────────────────────
 
 /**
- * Tra ve model config tu tier name.
+ * Tra ve model config tu tier name, co the resolve sang platform-specific model.
  *
  * @param {string} tier - Ten tier (scout, builder, architect). Case-insensitive.
- * @returns {{ model: string, effort: string, maxTurns: number }}
+ * @param {string} [platform] - Ten platform (claude, codex, gemini, ...). Optional.
+ * @returns {{ model: string, effort: string, maxTurns: number, fallback?: boolean, requestedTier?: string, resolvedTier?: string }}
  * @throws {Error} Khi tier la null/undefined hoac khong hop le
  */
-function getModelForTier(tier) {
+function getModelForTier(tier, platform) {
   if (tier == null || typeof tier !== "string") {
     throw new Error("thieu tham so tier");
   }
@@ -162,7 +212,37 @@ function getModelForTier(tier) {
     throw new Error(`tier khong hop le: ${tier}`);
   }
 
-  // Tra ve copy de tranh mutation
+  // Khong co platform -> tra ve generic (backward compatible)
+  if (!platform) {
+    return { ...entry };
+  }
+
+  const platformMap = PLATFORM_MODEL_MAP[platform];
+  if (!platformMap) {
+    // Platform khong biet -> tra ve generic
+    return { ...entry };
+  }
+
+  // Tim model cho tier, neu khong co thi fallback xuong tier thap hon
+  const startIdx = FALLBACK_CHAIN.indexOf(normalized);
+  for (let i = startIdx; i < FALLBACK_CHAIN.length; i++) {
+    const fallbackTier = FALLBACK_CHAIN[i];
+    const tierEntry = TIER_MAP[fallbackTier];
+    if (platformMap[tierEntry.model]) {
+      const result = {
+        ...tierEntry,
+        model: platformMap[tierEntry.model],
+      };
+      if (fallbackTier !== normalized) {
+        result.fallback = true;
+        result.requestedTier = normalized;
+        result.resolvedTier = fallbackTier;
+      }
+      return result;
+    }
+  }
+
+  // Khong nen xay ra — de phong
   return { ...entry };
 }
 
@@ -314,4 +394,6 @@ module.exports = {
   PARALLEL_MAX,
   PARALLEL_DEFAULT,
   HEAVY_TOOL_PATTERNS,
+  PLATFORM_MODEL_MAP,
+  FALLBACK_CHAIN,
 };

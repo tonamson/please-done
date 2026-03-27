@@ -36,6 +36,8 @@ const TOOL_MAP = {
     WebFetch: 'fetch',
     WebSearch: 'search_web',
   },
+  cursor: {},    // Cursor dung Claude native tool names
+  windsurf: {},  // Windsurf dung Claude native tool names
 };
 
 // ─── Platform definitions ─────────────────────────────────
@@ -90,6 +92,26 @@ const PLATFORMS = {
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.copilot,
   },
+  cursor: {
+    name: 'Cursor',
+    dirName: '.cursor',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'CURSOR_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.cursor,
+  },
+  windsurf: {
+    name: 'Windsurf',
+    dirName: '.windsurf',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'WINDSURF_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.windsurf,
+  },
 };
 
 /**
@@ -121,6 +143,10 @@ function getGlobalDir(runtime, explicitDir) {
     }
     case 'copilot':
       return path.join(home, '.copilot');
+    case 'cursor':
+      return path.join(home, '.cursor');
+    case 'windsurf':
+      return path.join(home, '.windsurf');
     default:
       return path.join(home, platform.dirName);
   }
