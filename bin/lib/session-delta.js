@@ -229,4 +229,4 @@ function parseAuditHistory(evidenceContent) {
 
 // ─── Exports ──────────────────────────────────────────────────
 
-module.exports = { classifyDelta, appendAuditHistory, parseAuditHistory, DELTA_STATUS };
+module.exports = { classifyDelta, appendAuditHistory, parseAuditHistory, parseFunctionChecklist, DELTA_STATUS };

@@ -1,0 +1,74 @@
+# gadget-chain-templates.yaml — Chain patterns pho bien cho cross-category analysis
+# Dung boi detectChains() trong bin/lib/gadget-chain.js
+# Moi chain lien ket findings tu 2+ categories thanh chuoi tan cong
+
+chains:
+  - id: sqli-data-leak
+    name: "SQL Injection -> Data Leak"
+    description: "SQLi cho phep trich xuat du lieu nhay cam tu DB"
+    links:
+      - from_cat: sql-injection
+        to_cat: secrets
+        condition: "sql-injection FAIL/FLAG + secrets FAIL/FLAG"
+    root: sql-injection
+    escalation: "+1"
+
+  - id: idor-privesc
+    name: "IDOR -> Privilege Escalation"
+    description: "Thieu kiem tra ownership cho phep truy cap tai nguyen nguoi khac"
+    links:
+      - from_cat: auth
+        to_cat: auth
+        condition: "auth FAIL/FLAG voi ca IDOR va role check"
+    root: auth
+    escalation: "+1"
+
+  - id: xss-session-hijack
+    name: "XSS -> Session Hijacking"
+    description: "XSS cho phep danh cap cookie/token phien"
+    links:
+      - from_cat: xss
+        to_cat: auth
+        condition: "xss FAIL/FLAG + auth FAIL/FLAG"
+    root: xss
+    escalation: "+1"
+
+  - id: cmd-injection-rce
+    name: "Command Injection -> RCE"
+    description: "Injection command OS dan den thuc thi ma tu xa"
+    links:
+      - from_cat: cmd-injection
+        to_cat: misconfig
+        condition: "cmd-injection FAIL/FLAG + misconfig FAIL/FLAG"
+    root: cmd-injection
+    escalation: "+1"
+
+  - id: deserialization-rce
+    name: "Deserialization -> RCE"
+    description: "Deserialization khong an toan dan den thuc thi ma tuy y"
+    links:
+      - from_cat: deserialization
+        to_cat: cmd-injection
+        condition: "deserialization FAIL/FLAG + cmd-injection FAIL/FLAG"
+    root: deserialization
+    escalation: "+1"
+
+  - id: path-traversal-data-leak
+    name: "Path Traversal -> Sensitive Data Exposure"
+    description: "Doc file tuy y dan den lo secrets/config"
+    links:
+      - from_cat: path-traversal
+        to_cat: secrets
+        condition: "path-traversal FAIL/FLAG + secrets FAIL/FLAG"
+    root: path-traversal
+    escalation: "+1"
+
+  - id: prototype-pollution-rce
+    name: "Prototype Pollution -> RCE"
+    description: "Pollution prototype dan den code execution qua gadget"
+    links:
+      - from_cat: prototype-pollution
+        to_cat: cmd-injection
+        condition: "prototype-pollution FAIL/FLAG + cmd-injection FAIL/FLAG"
+    root: prototype-pollution
+    escalation: "+1"
