@@ -54,7 +54,7 @@ Dữ liệu nhập: $ARGUMENTS
 @references/prioritization.md (optional)
 @references/ui-brand.md (optional)
 @references/security-checklist.md (optional)
-@references/verification-patterns.md (optional)
+@references/verification.md (optional)
 @templates/progress.md (optional)
 @references/context7-pipeline.md (optional)
 </execution_context>

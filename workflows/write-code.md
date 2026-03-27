@@ -13,7 +13,7 @@ Hỗ trợ 3 chế độ: mặc định (1 task → dừng), --auto (tuần tự
 - @references/prioritization.md -> thứ tự ưu tiên tasks — KHI cần sắp xếp ưu tiên
 - @references/security-checklist.md -> bảng kiểm bảo mật (Bước 6.5b) — KHI task liên quan auth, mã hóa
 - @references/ui-brand.md -> thiết kế giao diện, kế thừa patterns — KHI task tạo/sửa UI
-- @references/verification-patterns.md -> xác minh đa tầng — KHI task cần verification phức tạp
+- @references/verification.md -> xác minh đa tầng — KHI task cần verification phức tạp
 </conditional_reading>
 
 <research_injection>
@@ -159,7 +159,7 @@ Không `--parallel` → bỏ qua Bước 1.5.
 Đọc mô tả task từ TASKS.md. Xác định:
 - Task có liên quan đến bảo mật/auth? → đọc @references/security-checklist.md
 - Task tạo/sửa UI? → đọc @references/ui-brand.md
-- Task cần verification phức tạp? → đọc @references/verification-patterns.md
+- Task cần verification phức tạp? → đọc @references/verification.md
 - Task cần sắp xếp ưu tiên? → đọc @references/prioritization.md
 
 Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần (tự sửa, không cần khởi động lại).
@@ -341,7 +341,7 @@ TẤT CẢ tasks ✅:
 
 PLAN.md không có "Tiêu chí thành công" → bỏ qua 9.5.
 
-CÓ → xác minh 4 cấp (@references/verification-patterns.md):
+CÓ → xác minh 4 cấp (@references/verification.md):
 
 **Lưu**: `VERIFY_ROUND = 0`, `MAX_ROUNDS = 2`
 
@@ -353,7 +353,7 @@ CÓ → xác minh 4 cấp (@references/verification-patterns.md):
 **9.5b — Cấp 2: Kiểm tra thực chất (phát hiện stub)**
 Với mỗi artifact tồn tại:
 1. Kiểm tra tự động từ PLAN.md (nếu có cột "Kiểm tra tự động"): `exports: [X,Y]`, `contains: "text"`, `min_lines: N`, `imports: [X]`, `calls: "pattern"`
-2. Mặc định theo loại (@references/verification-patterns.md)
+2. Mặc định theo loại (@references/verification.md)
 3. Quét anti-pattern: `TODO|FIXME|PLACEHOLDER`, `return\s+(null|undefined|{}|[])`, `throw new Error('Not implemented')` → 🛑 Chặn (function cốt lõi) vs ⚠️ Cảnh báo (helper)
 
 **9.5c — Cấp 3: Kiểm tra kết nối (Key Links)**

@@ -60,7 +60,7 @@ Báo cáo xác minh tính năng sau khi phase hoàn tất code. Xác nhận PLAN
 ## Quy tắc
 
 - Trạng thái tổng: `Đạt` = tất cả ✅ | `Có gap` = ≥1 ❌ sau 2 vòng sửa | `Cần kiểm tra thủ công` = tự động đạt nhưng cần user xác nhận
-- Cột "Thực chất" = Cấp 2 xác minh (@references/verification-patterns.md)
+- Cột "Thực chất" = Cấp 2 xác minh (@references/verification.md)
 - Cột "Kết nối" = Cấp 3 xác minh
 - 🛑 Chặn = phải sửa trước khi chuyển tiếp | ⚠️ Cảnh báo = ghi nhận
 - Lưu tại: `.planning/milestones/[version]/phase-[phase]/VERIFICATION_REPORT.md`

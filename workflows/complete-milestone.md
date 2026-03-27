@@ -10,7 +10,7 @@ Kiểm tra bugs đã đóng, tạo báo cáo tổng kết, commit, tạo git tag
 Doc CHI KHI can (phan tich mo ta task truoc):
 - @references/state-machine.md -> luong trang thai, dieu kien chuyen milestone -- KHI can hieu state transitions
 - @references/ui-brand.md -> viet bao cao huong san pham -- KHI milestone co UI deliverables
-- @references/verification-patterns.md -> multi-level verification -- KHI can kiem tra phuc tap
+- @references/verification.md -> multi-level verification -- KHI can kiem tra phuc tap
 - @templates/current-milestone.md -> format CURRENT_MILESTONE.md -- KHI can cap nhat milestone state
 - @templates/state.md -> quy tac cap nhat STATE.md -- KHI can cap nhat state
 </conditional_reading>
@@ -28,7 +28,7 @@ Doc CHI KHI can (phan tich mo ta task truoc):
 Xác định từ milestone context:
 - Cần hiểu luồng state? → đọc @references/state-machine.md
 - Milestone có UI deliverables? → đọc @references/ui-brand.md
-- Cần kiểm tra phức tạp? → đọc @references/verification-patterns.md
+- Cần kiểm tra phức tạp? → đọc @references/verification.md
 
 Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
 
@@ -73,7 +73,7 @@ Với MỖI `phase-*/`:
 1. Đọc `PLAN.md` → "Tiêu chí thành công → Sự thật phải đạt"
 2. Không có section → bỏ qua, ghi: "Phase [X] không có tiêu chí (plan format cũ)"
 3. **Có VERIFICATION_REPORT.md** → `Đạt` → ✅ bỏ qua | `Có gap`/`Cần kiểm tra thủ công` → xác minh lại
-4. Chưa có hoặc cần xác minh → 4 cấp (xem @references/verification-patterns.md):
+4. Chưa có hoặc cần xác minh → 4 cấp (xem @references/verification.md):
    - Cấp 1 — Tồn tại: Glob kiểm tra artifacts
    - Cấp 2 — Thực chất: quét anti-pattern, kiểm tra "Kiểm tra tự động"
    - Cấp 3 — Kết nối: Grep import/export/gọi hàm

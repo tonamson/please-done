@@ -39,7 +39,7 @@ Người dùng nhập: $ARGUMENTS (không dùng, vì version tự động lấy 
 @references/conventions.md (required)
 @references/state-machine.md (optional)
 @references/ui-brand.md (optional)
-@references/verification-patterns.md (optional)
+@references/verification.md (optional)
 @templates/current-milestone.md (optional)
 @templates/state.md (optional)
 @templates/verification-report.md (optional)
