@@ -207,6 +207,9 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Extract `installer-utils.js` from shared installer code
   - Update 4 installers to import utils
   - Review converter config consistency
+  - **Plans:** 2 plans
+    - [ ] 057-01-PLAN.md — Gộp verification-patterns.md + plan-checker.md, cập nhật references (DEDU-01, DEDU-02)
+    - [ ] 057-02-PLAN.md — Tạo installer-utils.js, cập nhật 4 installers, review converters (DRYU-01, DRYU-02, DRYU-03)
   - Success criteria:
     1. `verification.md` exists, old files removed
     2. Zero broken `@references/` in any command/workflow file
