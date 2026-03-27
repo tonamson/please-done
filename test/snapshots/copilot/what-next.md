@@ -58,6 +58,7 @@ glob `.planning/bugs/BUG_*.md` → grep `> Trạng thái:` (Chưa xử lý/Đang
 | 5.6 | Phase cũ hoàn tất chưa test | `/pd:test` (tự phát hiện phase) |
 | 6 | Tất cả ✅, chưa test/test fail | `/pd:test` hoặc `/pd:fix-bug` |
 | 7 | Phase hoàn tất, còn phases tiếp | `/pd:plan [y.y]` |
+| 7.5 | Tất cả phases ✅ + chưa có `SECURITY_REPORT.md` | `/pd:audit` — "Chưa kiểm toán bảo mật. Chạy `/pd:audit` trước khi đóng milestone." |
 | 8 | Tất cả phases hoàn tất | `/pd:complete-milestone` |
 ## Bước 5: Hiển thị báo cáo
 ```
