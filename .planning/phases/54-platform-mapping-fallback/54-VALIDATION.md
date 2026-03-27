@@ -17,10 +17,10 @@ created: 2026-03-27
 
 | Property | Value |
 |----------|-------|
-| **Framework** | jest 29.x (via node --experimental-vm-modules) |
-| **Config file** | `jest.config.js` (if exists) or inline --testPathPattern |
-| **Quick run command** | `node --experimental-vm-modules node_modules/.bin/jest --testPathPattern platform-models` |
-| **Full suite command** | `node --experimental-vm-modules node_modules/.bin/jest` |
+| **Framework** | node:test (built-in, không cần install) |
+| **Config file** | none — node:test dùng inline test files |
+| **Quick run command** | `node --test test/platform-models.test.js` |
+| **Full suite command** | `node --test test/platform-models.test.js && node --test test/smoke-resource-config.test.js && node --test test/smoke-agent-files.test.js` |
 | **Estimated runtime** | ~5 seconds |
 
 ---
@@ -38,11 +38,8 @@ created: 2026-03-27
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 54-01-01 | 01 | 1 | PLAT-01 | unit | `jest --testPathPattern platform-models` | ❌ W0 | ⬜ pending |
-| 54-01-02 | 01 | 1 | PLAT-01 | unit | `jest --testPathPattern platform-models` | ❌ W0 | ⬜ pending |
-| 54-01-03 | 01 | 1 | PLAT-02 | unit | `jest --testPathPattern platform-models` | ❌ W0 | ⬜ pending |
-| 54-02-01 | 02 | 1 | PLAT-01 | integration | `jest --testPathPattern resource-config` | ✅ | ⬜ pending |
-| 54-02-02 | 02 | 1 | PLAT-01 | smoke | `jest --testPathPattern smoke-agent` | ✅ | ⬜ pending |
+| 54-01-T1 | 01 | 1 | PLAT-01, PLAT-02 | unit (TDD red) | `node --test test/platform-models.test.js` | ❌ W0 | ⬜ pending |
+| 54-01-T2 | 01 | 1 | PLAT-01, PLAT-02 | unit + smoke (TDD green) | `node --test test/platform-models.test.js && node --test test/smoke-resource-config.test.js && node --test test/smoke-agent-files.test.js` | ✅ (after T1) | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -52,7 +49,7 @@ created: 2026-03-27
 
 - [ ] `test/platform-models.test.js` — stubs for PLAT-01, PLAT-02 platform×tier combinations and fallback tests
 
-*Existing infrastructure (jest, resource-config.test.js, smoke-agent-files.test.js) covers integration and regression.*
+*Existing infrastructure (node:test, smoke-resource-config.test.js, smoke-agent-files.test.js) covers integration and regression.*
 
 ---
 
