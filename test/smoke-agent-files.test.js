@@ -203,6 +203,29 @@ describe('Agent files consistency voi resource-config', () => {
   });
 });
 
+// ─── Test: Security agent files (commands/pd/agents/) ─────
+
+const PD_AGENTS_DIR = join(__dirname, '..', 'commands', 'pd', 'agents');
+const TEMPLATES_DIR = join(__dirname, '..', 'templates');
+
+describe('Security agent files', () => {
+  it('pd-sec-fixer.md ton tai tai commands/pd/agents/', () => {
+    const path = join(PD_AGENTS_DIR, 'pd-sec-fixer.md');
+    const content = readFileSync(path, 'utf8');
+    assert.ok(content.includes('name: pd-sec-fixer'));
+    assert.ok(content.includes('tier: architect'));
+  });
+
+  it('security-fix-phase.md template ton tai va co 4 sections', () => {
+    const path = join(TEMPLATES_DIR, 'security-fix-phase.md');
+    const content = readFileSync(path, 'utf8');
+    assert.ok(content.includes('## Evidence goc'));
+    assert.ok(content.includes('## Gadget Chain'));
+    assert.ok(content.includes('## Huong sua'));
+    assert.ok(content.includes('## Tieu chi hoan thanh'));
+  });
+});
+
 // ─── Test: Agent files khong co model inherit ─────────────
 
 describe('Agent files khong co model inherit', () => {

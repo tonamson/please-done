@@ -84,6 +84,10 @@ const AGENT_REGISTRY = {
     tier: "builder",
     tools: ["Read", "Write", "Glob"],
   },
+  "pd-sec-fixer": {
+    tier: "architect",
+    tools: ["Read", "Write", "Glob", "Grep"],
+  },
 };
 
 /**

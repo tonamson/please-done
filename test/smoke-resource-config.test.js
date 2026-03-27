@@ -173,6 +173,17 @@ describe('getAgentConfig', () => {
     assert.ok('categories' in cfg, 'categories phai co trong config');
   });
 
+  it('pd-sec-fixer co tier architect va 4 tools', () => {
+    const config = getAgentConfig('pd-sec-fixer');
+    assert.equal(config.tier, 'architect');
+    assert.equal(config.model, 'opus');
+    assert.equal(config.tools.length, 4);
+    assert.ok(config.tools.includes('Read'));
+    assert.ok(config.tools.includes('Write'));
+    assert.ok(config.tools.includes('Glob'));
+    assert.ok(config.tools.includes('Grep'));
+  });
+
   it('throw khi agent null', () => {
     assert.throws(() => getAgentConfig(null), /thieu tham so/);
   });
@@ -253,8 +264,8 @@ describe('Constants', () => {
     assert.equal(Object.keys(TIER_MAP).length, 3);
   });
 
-  it('AGENT_REGISTRY co 9 agents', () => {
-    assert.equal(Object.keys(AGENT_REGISTRY).length, 9);
+  it('AGENT_REGISTRY co 10 agents', () => {
+    assert.equal(Object.keys(AGENT_REGISTRY).length, 10);
   });
 
   it('PARALLEL_LIMIT la 2', () => {
