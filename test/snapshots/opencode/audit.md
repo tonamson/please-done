@@ -88,7 +88,7 @@ Parse $ARGUMENTS:
 1. **path** — path cần quét, mặc định "."
 2. **--full** — chạy 13 categories
 3. **--only cat1,cat2** — chỉ chạy categories chỉ định + validate slugs
-4. **--poc** — parse nhưng báo "Chưa hỗ trợ trong phiên bản này" (per D-04)
+4. **--poc** — parse va luu poc_enabled=true. Flag nay se duoc truyen xuong B5 dispatch de scanner tao section ## POC trong evidence.
 5. **--auto-fix** — parse nhưng báo "Chưa hỗ trợ trong phiên bản này" (per D-04)
 Lấy danh sách 13 valid slugs bằng Bash:
 ```bash
@@ -177,7 +177,7 @@ Không có flag → chạy smart selection (toàn bộ bước này KHÔNG spawn
    a. Spawn tối đa 2 scanner agents SONG SONG bằng SubAgent tool:
       - Agent name: pd-sec-scanner (per D-12, lấy từ getAgentConfig)
       - Tham số truyền cho agent: `--category {slug} --path {scanPath}`
-      - Prompt cho mỗi scanner: "Quét bảo mật category {slug} tại path {scanPath}. Session dir: {session_dir}/03-dispatch/. Ghi evidence file vào session dir."
+      - Prompt cho mỗi scanner: "Quét bảo mật category {slug} tại path {scanPath}. Session dir: {session_dir}/03-dispatch/. Ghi evidence file vào session dir.{neu poc_enabled: ' --poc: Tao section ## POC cho moi finding FAIL/FLAG.'}"
       - Tier: scout / Haiku (per D-13)
       - Mỗi scanner tự đọc references/security-rules.yaml và quét theo category
    b. Đợi TẤT CẢ scanners trong wave hoàn tất (backpressure per D-10)
@@ -230,11 +230,27 @@ Dùng `scanResults` đã tích lũy từ B5 (mảng các `{category, evidenceCon
 4. Liệt kê categories inconclusive (fail/timeout)
 5. Ghi {session_dir}/04-analysis.md với: total_scanners, completed, failed, categories_with_findings, categories_clean, categories_inconclusive
 6. Log thống kê tóm tắt cho user
-## Bước 8: Fix routing (STUB)
-> Phiên bản hiện tại chưa hỗ trợ tự động tạo fix phases. Extension point cho Phase 50.
-Nếu mode = "tich-hop": ghi note "Fix phases sẽ được tạo tự động trong phiên bản sau"
-Nếu mode = "doc-lap": ghi note "Xem SECURITY_REPORT.md để biết gợi ý sửa lỗi"
-Ghi {session_dir}/05-fix-routing.md với: status=stub, note
+## Bước 8: Fix routing
+Spawn pd-sec-fixer agent de phan tich findings va tao de xuat fix phases.
+1. Lay agent config:
+   ```bash
+   node -e "const {getAgentConfig}=require('./bin/lib/resource-config');console.log(JSON.stringify(getAgentConfig('pd-sec-fixer')))"
+   ```
+2. Spawn pd-sec-fixer agent:
+   - Input: session_dir (chua SECURITY_REPORT.md va evidence files)
+   - Prompt: "Phan tich SECURITY_REPORT.md va evidence files trong {session_dir}. Tao de xuat fix phases. Mode: {mode}. Output dir: {output_dir}. Audit phase number: {current_phase_number}."
+   - Agent doc SECURITY_REPORT.md + evidence files + gadget-chain-templates.yaml
+   - Agent goi detectChains() va orderFixPriority() de sap thu tu fix
+3. Agent output:
+   - Mode "tich-hop": hien thi proposal, hoi user approve, neu approve thi ghi vao ROADMAP.md
+   - Mode "doc-lap": ghi proposal vao {session_dir}/fix-phases-proposal.md
+4. Ghi {session_dir}/05-fix-routing.md voi:
+   - status: completed
+   - mode: {mode}
+   - chains_detected: {so chain phat hien}
+   - fix_phases_proposed: {so fix phases de xuat}
+   - user_approved: {true/false} (chi mode tich hop)
+5. Neu pd-sec-fixer fail: ghi {session_dir}/05-fix-routing.md voi status=error, tiep tuc B9 (khong chan audit)
 ## Bước 9: Save report
 1. Đọc {session_dir}/SECURITY_REPORT.md (từ B6)
 2. Copy ra output_dir (từ B1):
@@ -258,10 +274,12 @@ Ghi {session_dir}/05-fix-routing.md với: status=stub, note
 <rules>
 - Mọi output PHẢI bằng tiếng Việt có dấu
 - KHÔNG sửa code của dự án — chỉ quét và báo cáo
-- Khi --poc hoặc --auto-fix được truyền: thông báo "Chưa hỗ trợ trong phiên bản này" và tiếp tục
+- Khi --poc duoc truyen: truyen flag --poc cho scanner trong B5 dispatch prompt
+- Khi --auto-fix duoc truyen: thong bao "Chua ho tro trong phien ban nay" va tiep tuc
 - Mọi output PHẢI bằng tiếng Việt có dấu
 - KHÔNG sửa code của dự án — chỉ quét và báo cáo
-- Khi --poc hoặc --auto-fix được truyền: thông báo "Chưa hỗ trợ trong phiên bản này" và tiếp tục
+- Khi --poc duoc truyen: truyen flag --poc cho scanner trong B5 dispatch prompt
+- Khi --auto-fix duoc truyen: thong bao "Chua ho tro trong phien ban nay" va tiep tuc
 - Wave trước PHẢI hoàn tất trước khi bắt đầu wave sau — tuân thủ backpressure
 - Scanner thất bại ghi inconclusive, không dừng toàn bộ audit
 </rules>

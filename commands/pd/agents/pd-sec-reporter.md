@@ -59,12 +59,36 @@ OWASP mapping:
 
 4. **Tong hop tat ca phat hien.** Gom tat ca findings tu cac evidence files thanh 1 danh sach thong nhat.
 
-5. **Phan tich cheo (cross-analysis):**
-   - Cung 1 endpoint bi nhieu loai tan cong -> danh dau "hot spot"
-   - Input validation thieu o 1 cho -> kiem tra cac cho khac dung cung input
-   - Neu 1 file bi nhieu CRITICAL -> khuyen nghi refactor toan bo
-   - Attack chain analysis: SQLi + secrets leak -> full database compromise
-   - Auth bypass + IDOR -> horizontal/vertical privilege escalation
+5. **Phan tich cheo va Gadget Chain detection (per D-05, D-06):**
+
+   a. Thu thap tat ca findings FAIL/FLAG tu cac evidence files da parse o buoc 3.5:
+      - Moi finding can co: category, file, name (ten ham), verdict, severity
+      - Chi lay FAIL va FLAG (bo qua PASS va SKIP)
+
+   b. Doc gadget chain templates:
+      ```bash
+      node -e "const yaml=require('fs').readFileSync('references/gadget-chain-templates.yaml','utf8'); console.log(yaml);"
+      ```
+
+   c. Goi detectChains():
+      ```bash
+      node -e "const {detectChains}=require('./bin/lib/gadget-chain'); const findings=$FINDINGS_JSON; const templates=$TEMPLATES_JSON; const result=detectChains(findings, templates); console.log(JSON.stringify(result));"
+      ```
+
+   d. Voi moi chain phat hien, ghi vao section ## Gadget Chains trong SECURITY_REPORT.md:
+
+      ## Gadget Chains
+
+      | # | Chain | Root | Severity | Findings |
+      |---|-------|------|----------|----------|
+      | 1 | {chain.name} | {chain.root} | {chain.escalatedSeverity} | {chain.findings.length} |
+
+      Ghi chi tiet tung chain: findings lien ket, severity escalation.
+
+   e. Van giu phan tich cheo cu (hot spot, refactor khuyen nghi) — them gadget chain vao, khong xoa logic cu:
+      - Cung 1 endpoint bi nhieu loai tan cong -> danh dau "hot spot"
+      - Input validation thieu o 1 cho -> kiem tra cac cho khac dung cung input
+      - Attack chain analysis: bo sung bang gadget chain detection tu buoc c
 
 6. **Tao ke hoach remediation uu tien:**
    - **P0 (ngay lap tuc):** Tat ca CRITICAL — RCE, data breach, authentication bypass

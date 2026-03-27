@@ -75,6 +75,30 @@ Quet ma nguon du an theo 1 OWASP category cu the, su dung rules tu `references/s
      - `## Function Checklist` — Bang kiem tra tung ham voi verdict PASS/FLAG/FAIL/SKIP (per D-07, D-08). SKIP phai ghi kem ly do ngan.
 </process>
 
+10. **Tao POC (neu --poc active).** Kiem tra trong prompt context co `--poc` khong.
+   - Neu KHONG co --poc: bo qua buoc nay, KHONG tao POC section
+   - Neu CO --poc: voi MOI finding co verdict FAIL hoac FLAG, them section ## POC vao evidence file DA ghi o buoc 9.
+
+   Format POC per finding (append vao cuoi evidence file):
+
+   ## POC
+
+   ### POC-1: {ten finding — vi du: Raw SQL noi chuoi trong getUserById}
+   **Input vector:** {mo ta diem vao — endpoint, parameter, header cu the}
+   **Payload mau:** `{payload cu the — vi du: ' OR 1=1 --}`
+   **Buoc tai hien:**
+   1. {buoc 1 — vi du: Gui GET /api/users?id=' OR 1=1 --}
+   2. {buoc 2 — vi du: Quan sat response tra ve tat ca users}
+   3. {buoc 3 — vi du: Xac nhan SQL injection thanh cong}
+   **Ket qua du kien:** {mo ta hanh vi nguy hiem — vi du: Tra ve toan bo du lieu users table}
+   **Severity:** {severity cua finding}
+
+   Luu y:
+   - POC chi mo ta bang text, KHONG tao script chay that
+   - Payload mau dua tren category patterns tu security-rules.yaml
+   - Moi finding FAIL/FLAG co 1 POC entry rieng
+</process>
+
 <rules>
 - Luon su dung tieng Viet co dau.
 - Khong duoc sua code, chi quet va bao cao.

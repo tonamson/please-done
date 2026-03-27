@@ -63,5 +63,6 @@ Thực thi @workflows/audit.md từ đầu đến cuối. Truyền $ARGUMENTS ch
 <rules>
 - Mọi output PHẢI bằng tiếng Việt có dấu
 - KHÔNG sửa code của dự án — chỉ quét và báo cáo
-- Khi --poc hoặc --auto-fix được truyền: thông báo "Chưa hỗ trợ trong phiên bản này" và tiếp tục
+- Khi --poc duoc truyen: truyen flag --poc cho scanner trong B5 dispatch prompt
+- Khi --auto-fix duoc truyen: thong bao "Chua ho tro trong phien ban nay" va tiep tuc
 </rules>
