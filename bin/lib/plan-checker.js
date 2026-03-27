@@ -7,7 +7,7 @@
  * effort classification (ADV-03).
  *
  * Tat ca functions la pure — nhan content, tra ket qua, khong doc file.
- * Rules spec: references/plan-checker.md
+ * Rules spec: references/verification.md
  */
 
 'use strict';

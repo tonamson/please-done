@@ -48,7 +48,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const rulesDir = path.join(skillsSrc, 'rules');
   const rulesDestDir = path.join(commandsDir, 'rules');
   if (fs.existsSync(rulesDir)) {
-    fs.mkdirSync(rulesDestDir, { recursive: true });
+    ensureDir(rulesDestDir);
     const entries = fs.readdirSync(rulesDir, { withFileTypes: true });
     for (const entry of entries) {
       const srcPath = path.join(rulesDir, entry.name);
@@ -67,7 +67,7 @@ async function install(skillsDir, targetDir, options = {}) {
         fs.writeFileSync(path.join(rulesDestDir, entry.name), content, 'utf8');
       } else if (entry.isDirectory()) {
         const subDestDir = path.join(rulesDestDir, entry.name);
-        fs.mkdirSync(subDestDir, { recursive: true });
+        ensureDir(subDestDir);
         // -refs/ subdirectories contain code examples — only replace paths, NOT tool names
         for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {
           let content = fs.readFileSync(path.join(srcPath, sf), 'utf8');

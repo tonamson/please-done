@@ -46,7 +46,7 @@ Người dùng nhập: {{GSD_ARGS}} (không dùng, vì version tự động lấ
 Đọc CHỈ KHI cần (phân tích mô tả task trước):
 - [SKILLS_DIR]/references/state-machine.md -- KHI task lien quan den milestone state transitions
 - [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
-- [SKILLS_DIR]/references/verification-patterns.md -- KHI task can multi-level verification (khong phai simple pass/fail)
+- [SKILLS_DIR]/references/verification.md -- KHI task can multi-level verification (khong phai simple pass/fail)
 - [SKILLS_DIR]/templates/current-milestone.md -- KHI task lien quan den milestone state management
 - [SKILLS_DIR]/templates/state.md -- KHI task lien quan den milestone state management
 - [SKILLS_DIR]/templates/verification-report.md -- KHI task can
@@ -62,7 +62,7 @@ Người dùng nhập: {{GSD_ARGS}} (không dùng, vì version tự động lấ
 Xác định từ milestone context:
 - Cần hiểu luồng state? → đọc [SKILLS_DIR]/references/state-machine.md
 - Milestone có UI deliverables? → đọc [SKILLS_DIR]/references/ui-brand.md
-- Cần kiểm tra phức tạp? → đọc [SKILLS_DIR]/references/verification-patterns.md
+- Cần kiểm tra phức tạp? → đọc [SKILLS_DIR]/references/verification.md
 Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
 ## Bước 2: Kiểm tra trạng thái
 Quét TẤT CẢ `.planning/milestones/[version]/phase-*/`:
@@ -98,7 +98,7 @@ Với MỖI `phase-*/`:
 1. Đọc `PLAN.md` → "Tiêu chí thành công → Sự thật phải đạt"
 2. Không có section → bỏ qua, ghi: "Phase [X] không có tiêu chí (plan format cũ)"
 3. **Có VERIFICATION_REPORT.md** → `Đạt` → ✅ bỏ qua | `Có gap`/`Cần kiểm tra thủ công` → xác minh lại
-4. Chưa có hoặc cần xác minh → 4 cấp (xem [SKILLS_DIR]/references/verification-patterns.md):
+4. Chưa có hoặc cần xác minh → 4 cấp (xem [SKILLS_DIR]/references/verification.md):
    - Cấp 1 — Tồn tại: Glob kiểm tra artifacts
    - Cấp 2 — Thực chất: quét anti-pattern, kiểm tra "Kiểm tra tự động"
    - Cấp 3 — Kết nối: Grep import/export/gọi hàm

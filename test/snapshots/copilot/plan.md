@@ -37,7 +37,7 @@ Dữ liệu nhập: $ARGUMENTS
 - [SKILLS_DIR]/references/questioning.md -- KHI DISCUSS mode -- can interactive user questioning
 - [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
 - [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
-- [SKILLS_DIR]/references/plan-checker.md -- KHI task can
+- [SKILLS_DIR]/references/verification.md -- KHI task can multi-level verification (khong phai simple pass/fail)
 - [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
 <research_injection>
@@ -63,6 +63,7 @@ Trước khi bắt đầu code, kiểm tra research liên quan:
 - `.planning/STATE.md` → trạng thái, bối cảnh tích lũy, vấn đề chặn
 - `.planning/scan/SCAN_REPORT.md` → hiện trạng, thư viện, patterns
 - `.planning/research/SUMMARY.md` → nghiên cứu lĩnh vực, thư viện, cạm bẫy
+- `.planning/research/TECHNICAL_STRATEGY.md` → chiến lược kỹ thuật (nếu có)
 - `.planning/docs/*.md` → chỉ đọc mục lục + sections liên quan (offset/limit)
 - `$ARGUMENTS` chỉ định phase → dùng phase đó
 - Có phases trước → đọc PLAN.md/TASKS.md nắm context đã triển khai
@@ -70,6 +71,11 @@ Chưa có roadmap → "Chạy `/pd:new-milestone` trước."
 CURRENT_MILESTONE.md không tồn tại → "Thiếu. Chạy `/pd:new-milestone`."
 Status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones hoàn tất. Chạy `/pd:new-milestone`."
 Phase không có deliverables → **DỪNG**: "Phase [x.x] chưa có deliverables. Cập nhật ROADMAP."
+**Soft-guard TECHNICAL_STRATEGY.md:**
+Kiểm tra `.planning/research/TECHNICAL_STRATEGY.md` tồn tại:
+- **CÓ** → đọc và dùng làm context chiến lược kỹ thuật
+- **KHÔNG** → hiển thị warning 1 lần: "TECHNICAL_STRATEGY.md không tồn tại. Plan sẽ thiếu chiến lược kỹ thuật. Chạy Research Squad để tạo."
+  Tiếp tục planning — KHÔNG block.
 ---
 ## Bước 1.4: Phân tích scope -- quyết định tài liệu tham khảo
 Xác định từ ROADMAP.md và user input:
@@ -182,7 +188,7 @@ Cho mỗi deliverable, thiết kế theo loại:
 ### Tầng 2 — Artifacts
 Từ mỗi Truth suy ngược: **"File/module nào PHẢI tồn tại?"**
 - Cross-check với "Files tạo/sửa" Bước 4 — file không phục vụ Truth → thừa hoặc thiếu Truth
-- Cột "Kiểm tra tự động" ([SKILLS_DIR]/references/verification-patterns.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
+- Cột "Kiểm tra tự động" ([SKILLS_DIR]/references/verification.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
 ### Tầng 3 — Key Links
 **"Artifacts kết nối thế nào? Link đứt → Truth nào fail?"**
 Controller → Service → Repository → Database | Component → API → Endpoint | Hook → Filter → Action | Contract → Interface → Event

@@ -58,7 +58,7 @@ Dữ liệu nhập: {{GSD_ARGS}}
 - [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
 - [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
 - [SKILLS_DIR]/references/security-checklist.md -- KHI task lien quan den auth, encryption, input validation, data exposure
-- [SKILLS_DIR]/references/verification-patterns.md -- KHI task can multi-level verification (khong phai simple pass/fail)
+- [SKILLS_DIR]/references/verification.md -- KHI task can multi-level verification (khong phai simple pass/fail)
 - [SKILLS_DIR]/templates/progress.md -- KHI task can
 - [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
 </conditional_reading>
@@ -179,7 +179,7 @@ Không `--parallel` → bỏ qua Bước 1.5.
 Đọc mô tả task từ TASKS.md. Xác định:
 - Task có liên quan đến bảo mật/auth? → đọc [SKILLS_DIR]/references/security-checklist.md
 - Task tạo/sửa UI? → đọc [SKILLS_DIR]/references/ui-brand.md
-- Task cần verification phức tạp? → đọc [SKILLS_DIR]/references/verification-patterns.md
+- Task cần verification phức tạp? → đọc [SKILLS_DIR]/references/verification.md
 - Task cần sắp xếp ưu tiên? → đọc [SKILLS_DIR]/references/prioritization.md
 Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần (tự sửa, không cần khởi động lại).
 ---
@@ -309,7 +309,7 @@ TẤT CẢ tasks ✅:
 - Auto-advance → STATE.md Phase + Kế hoạch đồng bộ CURRENT_MILESTONE
 ### Bước 9.5: Xác minh tính năng (tự động khi phase hoàn tất)
 PLAN.md không có "Tiêu chí thành công" → bỏ qua 9.5.
-CÓ → xác minh 4 cấp ([SKILLS_DIR]/references/verification-patterns.md):
+CÓ → xác minh 4 cấp ([SKILLS_DIR]/references/verification.md):
 **Lưu**: `VERIFY_ROUND = 0`, `MAX_ROUNDS = 2`
 **<verification_loop>** `VERIFY_ROUND += 1`
 **9.5a — Cấp 1: Kiểm tra tồn tại (Artifacts)**
@@ -317,7 +317,7 @@ CÓ → xác minh 4 cấp ([SKILLS_DIR]/references/verification-patterns.md):
 **9.5b — Cấp 2: Kiểm tra thực chất (phát hiện stub)**
 Với mỗi artifact tồn tại:
 1. Kiểm tra tự động từ PLAN.md (nếu có cột "Kiểm tra tự động"): `exports: [X,Y]`, `contains: "text"`, `min_lines: N`, `imports: [X]`, `calls: "pattern"`
-2. Mặc định theo loại ([SKILLS_DIR]/references/verification-patterns.md)
+2. Mặc định theo loại ([SKILLS_DIR]/references/verification.md)
 3. Quét anti-pattern: `TODO|FIXME|PLACEHOLDER`, `return\s+(null|undefined|{}|[])`, `throw new Error('Not implemented')` → 🛑 Chặn (function cốt lõi) vs ⚠️ Cảnh báo (helper)
 **9.5c — Cấp 3: Kiểm tra kết nối (Key Links)**
 Với mỗi Key Link (`Từ` → `Đến`): file `Từ` import/gọi `Đến`? File `Đến` export thứ `Từ` cần?

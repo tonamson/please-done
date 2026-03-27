@@ -38,7 +38,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   for (const skill of skills) {
     const skillDir = path.join(skillsDestDir, `pd-${skill.name}`);
-    fs.mkdirSync(skillDir, { recursive: true });
+    ensureDir(skillDir);
 
     const converted = convertSkill(skill.content, isGlobal, skillsDir);
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), converted, 'utf8');
@@ -59,7 +59,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
     const rulesDestDir = path.join(skillsDestDir, 'pd-rules');
-    fs.mkdirSync(rulesDestDir, { recursive: true });
+    ensureDir(rulesDestDir);
     const pathReplace = isGlobal ? '~/.copilot/' : '.github/';
     const replaceContent = (content) => {
       content = content.replace(/~\/\.claude\//g, pathReplace);
@@ -81,7 +81,7 @@ async function install(skillsDir, targetDir, options = {}) {
         fs.writeFileSync(path.join(rulesDestDir, entry.name), replaceContent(fs.readFileSync(srcPath, 'utf8')), 'utf8');
       } else if (entry.isDirectory()) {
         const subDestDir = path.join(rulesDestDir, entry.name);
-        fs.mkdirSync(subDestDir, { recursive: true });
+        ensureDir(subDestDir);
         // -refs/ subdirectories contain code examples — only replace paths, NOT tool names
         const pathOnly = (c) => c.replace(/~\/\.claude\//g, pathReplace);
         for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {

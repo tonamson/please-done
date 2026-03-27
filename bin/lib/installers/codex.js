@@ -32,7 +32,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   for (const skill of skills) {
     const skillDir = path.join(skillsDestDir, `pd-${skill.name}`);
-    fs.mkdirSync(skillDir, { recursive: true });
+    ensureDir(skillDir);
 
     const converted = convertSkill(skill.content, skill.name, skillsDir);
     fs.writeFileSync(path.join(skillDir, 'SKILL.md'), converted, 'utf8');
@@ -45,7 +45,7 @@ async function install(skillsDir, targetDir, options = {}) {
   const rulesDir = path.join(skillsSrc, 'rules');
   if (fs.existsSync(rulesDir)) {
     const rulesDestDir = path.join(skillsDestDir, 'pd-rules');
-    fs.mkdirSync(rulesDestDir, { recursive: true });
+    ensureDir(rulesDestDir);
     const entries = fs.readdirSync(rulesDir, { withFileTypes: true });
     for (const entry of entries) {
       const srcPath = path.join(rulesDir, entry.name);
@@ -56,7 +56,7 @@ async function install(skillsDir, targetDir, options = {}) {
         fs.writeFileSync(path.join(rulesDestDir, entry.name), content, 'utf8');
       } else if (entry.isDirectory()) {
         const subDestDir = path.join(rulesDestDir, entry.name);
-        fs.mkdirSync(subDestDir, { recursive: true });
+        ensureDir(subDestDir);
         for (const sf of fs.readdirSync(srcPath).filter(f => f.endsWith('.md'))) {
           let content = fs.readFileSync(path.join(srcPath, sf), 'utf8');
           content = content.replace(/~\/\.claude\//g, '~/.codex/');

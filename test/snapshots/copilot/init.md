@@ -38,7 +38,27 @@ glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (trừ node_modules, .venv, .pl
 - **KHÔNG** → `isNewProject = true`, nhảy Bước 4
 ### Bước 3a: Index dự án FastCode (CHỈ khi isNewProject = false)
 `fastcode/code_qa` (repos: absolute path): "Liệt kê modules, tech stack, database type."
-Pre-warm index — response bỏ qua. Lỗi → warning, tiếp Bước 4.
+Pre-warm index — response bỏ qua. Lỗi → warning, tiếp Bước 3b.
+### Bước 3b: Map codebase (CHỈ khi isNewProject = false)
+Kiểm tra `.planning/codebase/STRUCTURE.md` tồn tại:
+- **CÓ** → "Codebase đã được map. Bỏ qua." Nhảy Bước 4.
+- **KHÔNG** → Tạo thư mục và spawn mapper:
+```bash
+mkdir -p .planning/codebase
+```
+Spawn pd-codebase-mapper agent:
+```
+Task(prompt="
+Map codebase của dự án tại đường dẫn hiện tại.
+Tạo các file output vào .planning/codebase/:
+- STRUCTURE.md — cấu trúc thư mục
+- TECH_STACK.md — tech stack
+- ENTRY_POINTS.md — entry points
+- DEPENDENCIES.md — dependency graph
+", subagent_type="pd-codebase-mapper", model="haiku", description="Map codebase structure")
+```
+- **THÀNH CÔNG** → "Codebase mapped: .planning/codebase/"
+- **THẤT BẠI** → Warning: "Mapper thất bại. Tiếp tục không có codebase map." Tiếp tục Bước 4 — KHÔNG block init.
 ## Bước 4: Phát hiện tech stack
 ### isNewProject = false:
 Dùng glob/search/read quét nhanh:
