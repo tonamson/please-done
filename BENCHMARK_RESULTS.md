@@ -64,3 +64,13 @@
 | v5.0    | 2026-03-27 | 48    | 86,305  | Post reference dedup + runtime DRY |
 
 **Tang rong:** +1,406 tokens (+1.7%) voi 9 files moi — trung binh moi file cu giam ~580 tokens nho optimization.
+
+## Eval Pipeline Status
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| promptfooconfig.yaml | Valid | 1 provider, 62 tests |
+| evals/run.js | Verified | saveBenchmark(), compareBenchmarks() present |
+| promptfoo CLI | Fallback npx | npx promptfoo available |
+| evals/benchmarks/ | Ready | Directory exists |
+| ANTHROPIC_API_KEY | Required for live eval | Set in .env to run `npm run eval:full` |
