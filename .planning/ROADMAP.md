@@ -178,7 +178,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Implement backpressure + graceful degradation
   - **Plans:** 2 plans
     - [x] 055-01-PLAN.md — Mo rong getAdaptiveParallelLimit() them loadAvg check (PARA-05)
-    - [ ] 055-02-PLAN.md — Wire adaptive + heavy + min/max + backpressure vao parallel-dispatch.js (PARA-01, PARA-02, PARA-03, PARA-04)
+    - [x] 055-02-PLAN.md — Wire adaptive + heavy + min/max + backpressure vao parallel-dispatch.js (PARA-01, PARA-02, PARA-03, PARA-04)
   - Success criteria:
     1. `parallel-dispatch.js` calls `getAdaptiveParallelLimit()` instead of hardcode
     2. Heavy agents detected → worker count reduced by 1

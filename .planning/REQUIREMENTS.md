@@ -26,10 +26,10 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 
 ### Parallel Dispatch
 
-- [ ] **PARA-01**: `parallel-dispatch.js` gọi `getAdaptiveParallelLimit()` thay vì hardcode 2 workers
-- [ ] **PARA-02**: `isHeavyAgent()` check trước khi spawn — agent nặng giảm 1 worker
-- [ ] **PARA-03**: `PARALLEL_MIN=2` và `PARALLEL_MAX=4` được enforce
-- [ ] **PARA-04**: Backpressure — worker timeout >120s → không spawn thêm, chờ xong
+- [x] **PARA-01**: `parallel-dispatch.js` gọi `getAdaptiveParallelLimit()` thay vì hardcode 2 workers
+- [x] **PARA-02**: `isHeavyAgent()` check trước khi spawn — agent nặng giảm 1 worker
+- [x] **PARA-03**: `PARALLEL_MIN=2` và `PARALLEL_MAX=4` được enforce
+- [x] **PARA-04**: Backpressure — worker timeout >120s → không spawn thêm, chờ xong
 - [x] **PARA-05**: Graceful degradation — load average > CPU count → giảm 1 worker, log cảnh báo
 
 ### Skill Integration
@@ -92,10 +92,10 @@ Requirements for v5.0 milestone. Each maps to roadmap phases.
 | AGEN-09 | Phase 52 | Complete |
 | PLAT-01 | Phase 54 | Complete |
 | PLAT-02 | Phase 54 | Complete |
-| PARA-01 | Phase 55 | Pending |
-| PARA-02 | Phase 55 | Pending |
-| PARA-03 | Phase 55 | Pending |
-| PARA-04 | Phase 55 | Pending |
+| PARA-01 | Phase 55 | Complete |
+| PARA-02 | Phase 55 | Complete |
+| PARA-03 | Phase 55 | Complete |
+| PARA-04 | Phase 55 | Complete |
 | PARA-05 | Phase 55 | Complete |
 | SKIL-01 | Phase 56 | Pending |
 | SKIL-02 | Phase 56 | Pending |
