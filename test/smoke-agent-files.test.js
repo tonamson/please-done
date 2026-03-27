@@ -1,6 +1,6 @@
 /**
  * Agent Files Integration Tests
- * Kiem tra 13 agent files tai .claude/agents/ co dung format va khop voi resource-config.js.
+ * Kiem tra 14 agent files tai .claude/agents/ co dung format va khop voi resource-config.js.
  * Day la integration test (doc file tu disk), KHONG phai pure function test.
  */
 
@@ -89,7 +89,7 @@ function parseAgentFrontmatter(filePath) {
 // ─── Test: Agent files existence ──────────────────────────
 
 describe('Agent files existence', () => {
-  it('13 agent files ton tai tai .claude/agents/', () => {
+  it('14 agent files ton tai tai .claude/agents/', () => {
     for (const name of AGENT_NAMES) {
       const filePath = join(AGENTS_DIR, `${name}.md`);
       // readFileSync se throw neu file khong ton tai
