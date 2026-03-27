@@ -128,7 +128,7 @@ Full details: `.planning/milestones/v3.0-ROADMAP.md`
 - [x] **Phase 47: Luong Audit Cot loi** — Skill pd:audit, workflow 9 buoc, 2 che do, batch dispatch (completed 2026-03-26)
 - [x] **Phase 48: Evidence & Smart Selection** — Function-level checklist, reporter, smart scanner selection (completed 2026-03-26)
 - [x] **Phase 49: Session Delta** — Doi soat phien cu, git diff scope, audit history (completed 2026-03-26)
-- [ ] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases
+- [x] **Phase 50: POC & Fix Phases** — POC pipeline, gadget chain, tu dong tao fix phases (completed 2026-03-27)
 - [ ] **Phase 51: Tich hop Ecosystem** — Security gate, what-next priority, state machine
 
 ## Phase Details
@@ -202,7 +202,7 @@ Plans:
   5. Phase cuoi cung [SEC-VERIFY] chay lai audit tren cac files da fix de xac nhan sua thanh cong
 **Plans**: 2 plans
 Plans:
-- [ ] 50-01-PLAN.md — TDD gadget-chain.js: detectChains + escalateSeverity + orderFixPriority + templates YAML
+- [x] 50-01-PLAN.md — TDD gadget-chain.js: detectChains + escalateSeverity + orderFixPriority + templates YAML
 - [ ] 50-02-PLAN.md — pd-sec-fixer agent + security-fix-phase template + wire POC/B6/B8
 
 ### Phase 51: Tich hop Ecosystem
@@ -223,5 +223,5 @@ Plans:
 | 47. Luong Audit Cot loi | 1/2 | Complete    | 2026-03-26 |
 | 48. Evidence & Smart Selection | 1/2 | Complete    | 2026-03-26 |
 | 49. Session Delta | 1/2 | Complete    | 2026-03-26 |
-| 50. POC & Fix Phases | 0/2 | Not started | - |
+| 50. POC & Fix Phases | 1/2 | Complete    | 2026-03-27 |
 | 51. Tich hop Ecosystem | 0/? | Not started | - |
