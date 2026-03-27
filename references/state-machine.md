@@ -22,6 +22,7 @@ Chưa khởi tạo
 - `/pd:what-next` → kiểm tra tiến trình
 - `/pd:fetch-doc` → cache tài liệu
 - `/pd:update` → cập nhật skills
+- `/pd:audit` → kiểm toán bảo mật milestone
 
 ## Trạng thái phase
 
@@ -52,6 +53,7 @@ Chưa khởi tạo
 | `/pd:what-next` | — | Gợi ý `/pd:init` nếu thiếu CONTEXT.md |
 | `/pd:fetch-doc` | CONTEXT.md | "Chạy `/pd:init` trước" |
 | `/pd:update` | — | Luôn chạy được |
+| `/pd:audit` | CONTEXT.md | "Chạy `/pd:init` trước" |
 
 ## Chuyển tiếp phase (Auto-advance)
 
