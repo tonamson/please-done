@@ -61,7 +61,7 @@ Kiểm tra:
   2. **Stale?** So sánh ngày TEST_REPORT vs commit `[LỖI]` cuối (`git log --oneline --grep="\\[LỖI\\]" -1`). Commit `[LỖI]` SAU ngày report → cảnh báo: "TEST_REPORT phase [X] có thể cũ. (1) Chạy lại test (2) Bỏ qua"
 - Tasks chưa ✅ (⬜/🔄/❌/🐛) → **CHẶN**: "Còn [X] tasks chưa ✅. Chạy `/pd:write-code` hoặc `/pd:fix-bug`."
 **Cross-check ROADMAP**: đọc ROADMAP.md → phases milestone này vs phase directories thực tế. Thiếu phase → "ROADMAP có [N] phases, chỉ [M] triển khai. Phases thiếu: [...]. (1) `/pd:plan [phase]` (2) Bỏ qua (gõ 'bỏ qua')" → bỏ qua → ghi chú MILESTONE_COMPLETE.md
-**Kiểm tra bảo mật** (non-blocking): glob `.planning/milestones/[version]/SECURITY_REPORT.md`
+**Kiểm tra bảo mật** (non-blocking): glob `.planning/audit/SECURITY_REPORT.md`
 - Tồn tại → tiếp tục
 - KHÔNG tồn tại → cảnh báo: "Chưa kiểm toán bảo mật milestone này."
   - (1) Chạy `/pd:audit` ngay → sau khi xong, quay lại complete-milestone
