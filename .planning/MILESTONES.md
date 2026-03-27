@@ -1,5 +1,19 @@
 # Milestones
 
+## v5.1 Agent Sync & Reference Update (Shipped: 2026-03-27)
+
+**Phases completed:** 5 phases, 5 plans, 4 tasks
+
+**Key accomplishments:**
+
+- Gộp 14 agent definitions từ `.claude/agents/` vào `commands/pd/agents/`, tạo source of truth duy nhất với 16 agents.
+- Thay 14 file thật bằng symlinks + tạo 2 symlinks mới, tổng 16 symlinks trong `.claude/agents/` trỏ về `commands/pd/agents/`.
+- Migrated all .claude/agents/ references to commands/pd/agents/ across test, workflow, and 4 snapshot files — zero legacy references remain in core code.
+- Converted 2 security agents (pd-sec-fixer, pd-sec-reporter) từ legacy frontmatter sang format mới — tất cả 16 agents giờ dùng cùng format.
+- Thêm pd-sec-fixer và pd-sec-reporter vào AGENT_NAMES, cập nhật counts 14→16 — toàn bộ 16 agents pass smoke test.
+
+---
+
 ## v5.0 Repo Optimization (Shipped: 2026-03-27)
 
 **Phases completed:** 44 phases, 90 plans, 128 tasks
