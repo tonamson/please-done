@@ -57,11 +57,11 @@ Doc truoc khi bat dau:
 1. Parse {{GSD_ARGS}} -> kiem tra co `--single` flag khong
 2. Neu KHONG co --single:
    - Kiem tra 5 files ton tai:
-     `.claude/agents/pd-bug-janitor.md`
-     `.claude/agents/pd-code-detective.md`
-     `.claude/agents/pd-doc-specialist.md`
-     `.claude/agents/pd-repro-engineer.md`
-     `.claude/agents/pd-fix-architect.md`
+     `commands/pd/agents/pd-bug-janitor.md`
+     `commands/pd/agents/pd-code-detective.md`
+     `commands/pd/agents/pd-doc-specialist.md`
+     `commands/pd/agents/pd-repro-engineer.md`
+     `commands/pd/agents/pd-fix-architect.md`
    - Thieu bat ky file nao -> auto-fallback = true
 3. Neu --single HOAC auto-fallback:
    Hien: "--- Che do don agent: Thieu agent configs, dung che do don agent ---"
