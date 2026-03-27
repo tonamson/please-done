@@ -302,13 +302,14 @@ function getParallelLimit() {
  * - CPU >= 8 cores VA RAM trong > 4GB    → max (4)
  * - Con lai                              → default (3)
  *
- * @returns {{ workers: number, reason: string, cpu: number, freeMemGB: string }}
+ * @returns {{ workers: number, reason: string, cpu: number, freeMemGB: string, loadAvg: number }}
  */
 function getAdaptiveParallelLimit() {
   const os = require("os");
   const cpuCount = os.cpus().length;
   const freeMemBytes = os.freemem();
   const freeMemGB = (freeMemBytes / 1024 ** 3).toFixed(1);
+  const loadAvg = os.loadavg()[0];
 
   let workers = PARALLEL_DEFAULT;
   let reason = "default";
@@ -326,7 +327,13 @@ function getAdaptiveParallelLimit() {
     reason = `CPU ${cpuCount} cores, RAM trong ${freeMemGB}GB — muc trung binh`;
   }
 
-  return { workers, reason, cpu: cpuCount, freeMemGB };
+  // D-10/D-11: loadAvg degradation — giam 1 worker neu he thong qua tai
+  if (loadAvg > 0 && loadAvg > cpuCount && workers > PARALLEL_MIN) {
+    workers -= 1;
+    reason += ` + loadAvg ${loadAvg.toFixed(1)} vuot ${cpuCount} CPU`;
+  }
+
+  return { workers, reason, cpu: cpuCount, freeMemGB, loadAvg };
 }
 
 // ─── isHeavyAgent ────────────────────────────────────────────
