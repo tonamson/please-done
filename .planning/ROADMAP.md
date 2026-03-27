@@ -213,7 +213,7 @@ Plans:
   3. Both security agents are parsable by the new agent registry logic.
 **Plans:** 1 plan
 Plans:
-- [x] 63-01-PLAN.md — Convert frontmatter pd-sec-fixer + pd-sec-reporter
+- [ ] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
 
 ### Phase 64: Registry & Test Validation
 **Goal**: Ensure the entire consolidated agent set is correctly registered and passing tests.
@@ -225,7 +225,7 @@ Plans:
   3. Validation tests confirm correct structure for the entire consolidated agent set.
 **Plans:** 1 plan
 Plans:
-- [x] 63-01-PLAN.md — Convert frontmatter pd-sec-fixer + pd-sec-reporter
+- [ ] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
 
 ## Progress Table
 
