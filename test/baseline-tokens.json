@@ -1,162 +1,198 @@
 {
   "files": {
+    "commands/pd/audit.md": {
+      "tokens": 586,
+      "lines": 69
+    },
     "commands/pd/complete-milestone.md": {
-      "tokens": 683,
+      "tokens": 654,
       "lines": 80
     },
     "commands/pd/conventions.md": {
-      "tokens": 449,
+      "tokens": 428,
       "lines": 59
     },
     "commands/pd/fetch-doc.md": {
-      "tokens": 1908,
-      "lines": 153
+      "tokens": 1404,
+      "lines": 129
     },
     "commands/pd/fix-bug.md": {
-      "tokens": 754,
+      "tokens": 688,
       "lines": 81
     },
     "commands/pd/init.md": {
-      "tokens": 629,
-      "lines": 70
-    },
-    "commands/pd/new-milestone.md": {
-      "tokens": 865,
-      "lines": 93
-    },
-    "commands/pd/plan.md": {
-      "tokens": 890,
-      "lines": 93
-    },
-    "commands/pd/scan.md": {
-      "tokens": 505,
-      "lines": 66
-    },
-    "commands/pd/test.md": {
-      "tokens": 876,
-      "lines": 86
-    },
-    "commands/pd/update.md": {
-      "tokens": 1996,
-      "lines": 191
-    },
-    "commands/pd/what-next.md": {
-      "tokens": 528,
-      "lines": 63
-    },
-    "commands/pd/write-code.md": {
-      "tokens": 1104,
-      "lines": 102
-    },
-    "workflows/complete-milestone.md": {
-      "tokens": 4163,
-      "lines": 280
-    },
-    "workflows/conventions.md": {
-      "tokens": 1474,
-      "lines": 143
-    },
-    "workflows/fix-bug.md": {
-      "tokens": 6501,
-      "lines": 400
-    },
-    "workflows/init.md": {
-      "tokens": 3032,
-      "lines": 183
-    },
-    "workflows/new-milestone.md": {
-      "tokens": 6889,
-      "lines": 668
-    },
-    "workflows/plan.md": {
-      "tokens": 8709,
-      "lines": 455
-    },
-    "workflows/scan.md": {
-      "tokens": 3616,
-      "lines": 244
-    },
-    "workflows/test.md": {
-      "tokens": 4519,
-      "lines": 303
-    },
-    "workflows/what-next.md": {
-      "tokens": 2835,
-      "lines": 170
-    },
-    "workflows/write-code.md": {
-      "tokens": 9424,
-      "lines": 527
-    },
-    "references/conventions.md": {
-      "tokens": 1010,
-      "lines": 85
-    },
-    "references/prioritization.md": {
-      "tokens": 718,
-      "lines": 57
-    },
-    "references/questioning.md": {
-      "tokens": 864,
-      "lines": 68
-    },
-    "references/security-checklist.md": {
-      "tokens": 5106,
-      "lines": 297
-    },
-    "references/state-machine.md": {
-      "tokens": 1497,
-      "lines": 106
-    },
-    "references/ui-brand.md": {
-      "tokens": 2923,
-      "lines": 224
-    },
-    "references/verification.md": {
-      "tokens": 1918,
-      "lines": 151
-    },
-    "templates/current-milestone.md": {
-      "tokens": 570,
-      "lines": 51
-    },
-    "templates/plan.md": {
-      "tokens": 1893,
-      "lines": 190
-    },
-    "templates/progress.md": {
-      "tokens": 509,
-      "lines": 49
-    },
-    "templates/project.md": {
-      "tokens": 609,
-      "lines": 60
-    },
-    "templates/requirements.md": {
-      "tokens": 620,
+      "tokens": 531,
       "lines": 65
     },
+    "commands/pd/new-milestone.md": {
+      "tokens": 805,
+      "lines": 89
+    },
+    "commands/pd/plan.md": {
+      "tokens": 849,
+      "lines": 87
+    },
+    "commands/pd/research.md": {
+      "tokens": 490,
+      "lines": 70
+    },
+    "commands/pd/scan.md": {
+      "tokens": 454,
+      "lines": 63
+    },
+    "commands/pd/test.md": {
+      "tokens": 713,
+      "lines": 82
+    },
+    "commands/pd/update.md": {
+      "tokens": 1449,
+      "lines": 144
+    },
+    "commands/pd/what-next.md": {
+      "tokens": 466,
+      "lines": 60
+    },
+    "commands/pd/write-code.md": {
+      "tokens": 1025,
+      "lines": 91
+    },
+    "workflows/audit.md": {
+      "tokens": 3992,
+      "lines": 302
+    },
+    "workflows/complete-milestone.md": {
+      "tokens": 3582,
+      "lines": 273
+    },
+    "workflows/conventions.md": {
+      "tokens": 950,
+      "lines": 82
+    },
+    "workflows/fix-bug-v1.5.md": {
+      "tokens": 5821,
+      "lines": 439
+    },
+    "workflows/fix-bug.md": {
+      "tokens": 6273,
+      "lines": 409
+    },
+    "workflows/init.md": {
+      "tokens": 2241,
+      "lines": 169
+    },
+    "workflows/new-milestone.md": {
+      "tokens": 4296,
+      "lines": 405
+    },
+    "workflows/plan.md": {
+      "tokens": 7305,
+      "lines": 525
+    },
+    "workflows/research.md": {
+      "tokens": 1019,
+      "lines": 92
+    },
+    "workflows/scan.md": {
+      "tokens": 1938,
+      "lines": 103
+    },
+    "workflows/test.md": {
+      "tokens": 3503,
+      "lines": 248
+    },
+    "workflows/what-next.md": {
+      "tokens": 1505,
+      "lines": 92
+    },
+    "workflows/write-code.md": {
+      "tokens": 6970,
+      "lines": 472
+    },
+    "references/context7-pipeline.md": {
+      "tokens": 500,
+      "lines": 51
+    },
+    "references/conventions.md": {
+      "tokens": 1097,
+      "lines": 99
+    },
+    "references/mermaid-rules.md": {
+      "tokens": 1599,
+      "lines": 129
+    },
+    "references/prioritization.md": {
+      "tokens": 666,
+      "lines": 55
+    },
+    "references/questioning.md": {
+      "tokens": 738,
+      "lines": 66
+    },
+    "references/security-checklist.md": {
+      "tokens": 4355,
+      "lines": 286
+    },
+    "references/state-machine.md": {
+      "tokens": 1399,
+      "lines": 107
+    },
+    "references/ui-brand.md": {
+      "tokens": 2581,
+      "lines": 209
+    },
+    "references/verification.md": {
+      "tokens": 5538,
+      "lines": 474
+    },
+    "templates/current-milestone.md": {
+      "tokens": 430,
+      "lines": 40
+    },
+    "templates/management-report.md": {
+      "tokens": 505,
+      "lines": 63
+    },
+    "templates/plan.md": {
+      "tokens": 1743,
+      "lines": 180
+    },
+    "templates/progress.md": {
+      "tokens": 436,
+      "lines": 45
+    },
+    "templates/project.md": {
+      "tokens": 526,
+      "lines": 52
+    },
+    "templates/requirements.md": {
+      "tokens": 518,
+      "lines": 58
+    },
     "templates/research.md": {
-      "tokens": 888,
-      "lines": 77
+      "tokens": 652,
+      "lines": 65
     },
     "templates/roadmap.md": {
-      "tokens": 916,
-      "lines": 90
+      "tokens": 714,
+      "lines": 74
+    },
+    "templates/security-fix-phase.md": {
+      "tokens": 252,
+      "lines": 44
     },
     "templates/state.md": {
-      "tokens": 765,
-      "lines": 56
+      "tokens": 620,
+      "lines": 46
     },
     "templates/tasks.md": {
-      "tokens": 715,
-      "lines": 68
+      "tokens": 598,
+      "lines": 67
     },
     "templates/verification-report.md": {
-      "tokens": 1029,
-      "lines": 74
+      "tokens": 901,
+      "lines": 67
     }
   },
-  "total": 84899,
-  "capturedAt": "2026-03-22T09:04:29.670Z"
+  "total": 86305,
+  "capturedAt": "2026-03-27T10:58:15.832Z"
 }

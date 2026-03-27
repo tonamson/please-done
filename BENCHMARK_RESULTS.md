@@ -1,81 +1,66 @@
-# Benchmark — Please Done
-> Ngày: 2026-03-24
-> Node: v24.13.0
-> OS: darwin arm64
+# Benchmark Results
 
-## 1. Hiệu suất cài đặt
+**Ngay capture:** 2026-03-27
+**Tool:** `scripts/count-tokens.js` (js-tiktoken, gpt-4o encoding)
+**So sanh:** v1.0 baseline (2026-03-22) vs v5.0 post-optimization (2026-03-27)
 
-Cài vào thư mục tạm → đo thời gian + files sinh ra → gỡ → xác nhận sạch.
+## Before/After Summary
 
-| Nền tảng | Cài (ms) | Gỡ (ms) | Files | Dòng | Rò rỉ path |
-|----------|---------|---------|-------|------|-----------|
-| Codex CLI | 103 | 100 | 22 | 4,913 | ✅ 0 |
-| GitHub Copilot | 66 | 17 | 22 | 4,642 | ✅ 0 |
-| Gemini CLI | 40 | 41 | 22 | 1,248 | ✅ 0 |
-| OpenCode | 58 | 5 | 21 | 4,715 | ✅ 0 |
+| Directory     | Before (v1.0) | After (v5.0) | Delta    | Change  |
+|---------------|---------------|--------------|----------|---------|
+| commands/pd   | 11,187        | 10,542       | -645     | -5.8%   |
+| workflows     | 51,162        | 49,395       | -1,767   | -3.5%   |
+| references    | 14,036        | 18,473       | +4,437   | +31.6%  |
+| templates     | 8,514         | 7,895        | -619     | -7.3%   |
+| **TOTAL**     | **84,899**    | **86,305**   | **+1,406** | **+1.7%** |
 
-**Tổng**: 87 files, 15,518 dòng được sinh ra cho 4 nền tảng từ 1 bộ source duy nhất.
+**Ghi chu:**
+- commands/pd giam 645 tokens (-5.8%) nho toi uu noi dung cac lenh cu, du them 2 lenh moi (audit, research)
+- workflows giam 1,767 tokens (-3.5%) nho reference dedup va DRY optimization (Phase 57)
+- references tang 4,437 tokens (+31.6%) do gop verification-patterns.md + plan-checker.md thanh verification.md (5,538 tokens) va them context7-pipeline.md, mermaid-rules.md
+- templates giam 619 tokens (-7.3%) nho toi uu noi dung va cau truc
+- Files tang tu 39 len 48 (+9 files moi cho audit, research, security features)
 
-## 2. Idempotency (cài lại an toàn)
+## Per-Tier Budget Compliance
 
-Cài 2 lần liên tiếp (v1 → v2): **4/4 nền tảng** không tạo file thừa.
+| Tier      | Budget  | Workflow dien hinh                              | Token cao nhat | Trang thai |
+|-----------|---------|------------------------------------------------|----------------|------------|
+| Scout     | 4,000   | scan.md (1,938), init.md (2,241)               | 2,241          | OK         |
+| Builder   | 8,000   | fix-bug.md (6,273), test.md (3,503), write-code.md (6,970) | 6,970 | OK         |
+| Architect | 12,000  | plan.md (7,305), new-milestone.md (4,296), write-code.md (6,970) | 7,305 | OK         |
 
-## 3. Smoke tests
+**Phan tich:**
+- **Scout (<=4,000):** Ca 2 workflow chinh (scan, init) deu duoi budget. Du room ~1,759 tokens.
+- **Builder (<=8,000):** Workflow lon nhat (write-code.md 6,970) van duoi budget. Du room ~1,030 tokens. Luu y: fix-bug.md (6,273) + required_reading co the vuot khi cong references.
+- **Architect (<=12,000):** Workflow lon nhat (plan.md 7,305) du room ~4,695 tokens. Ca khi cong verification.md (5,538) van trong budget cho cac session phuc tap.
 
-| Kết quả | Số lượng |
-|---------|---------|
-| ✅ Đạt | ? |
-| ❌ Lỗi | ? |
-| ⏱ Thời gian | ?ms |
+## Token Distribution
 
-## 4. Phân tích cấu trúc workflow
+| Directory     | Files | Tokens  | % Tong |
+|---------------|-------|---------|--------|
+| commands/pd   | 14    | 10,542  | 12.2%  |
+| workflows     | 13    | 49,395  | 57.2%  |
+| references    | 9     | 18,473  | 21.4%  |
+| templates     | 12    | 7,895   | 9.1%   |
+| **TOTAL**     | **48**| **86,305** | **100%** |
 
-| Thành phần | Số lượng |
-|-----------|---------|
-| Skills (lệnh người dùng gọi) | 12 |
-| Workflows (quy trình chi tiết) | 10 |
-| Tổng bước workflow | 96 |
-| Cổng kiểm tra (DỪNG/CHẶN) | 53 |
-| Điểm khôi phục (gián đoạn) | 33 |
-| Điểm tương tác người dùng | 30 |
-| Templates (mẫu file) | 11 |
-| References (quy ước chung) | 14 |
-| Rules (quy tắc code theo stack) | 8 |
-| Tổng dòng workflow | 2,725 |
+**Nhan xet:** Workflows chiem 57.2% token — la muc tieu chinh cho bat ky toi uu nao tiep theo.
 
-## 5. Khả năng đa nền tảng
+## Top 5 Files theo Token
 
-Viết 1 lần bằng format Claude Code → trình cài đặt tự chuyển đổi cho từng nền tảng.
+| File                          | Tokens | % Tong |
+|-------------------------------|--------|--------|
+| workflows/plan.md             | 7,305  | 8.5%   |
+| workflows/write-code.md       | 6,970  | 8.1%   |
+| workflows/fix-bug.md          | 6,273  | 7.3%   |
+| workflows/fix-bug-v1.5.md     | 5,821  | 6.7%   |
+| references/verification.md    | 5,538  | 6.4%   |
 
-| Nền tảng | Lệnh gọi | Đường dẫn config | Tool mapping |
-|----------|----------|-----------------|-------------|
-| Claude Code | `/pd:init` | `~/.claude/` | giữ nguyên |
-| Codex CLI | `$pd-init` | `~/.codex/` | giữ nguyên |
-| Gemini CLI | `/pd:init` | `~/.gemini/` | 9 tools |
-| OpenCode | `/pd-init` | `~/.opencode/` | giữ nguyên |
-| GitHub Copilot | `/pd:init` | `~/.github/` | 9 tools |
+## Baseline History
 
-## 6. Luồng làm việc chính
+| Version | Ngay       | Files | Tokens  | Ghi chu                          |
+|---------|------------|-------|---------|----------------------------------|
+| v1.0    | 2026-03-22 | 39    | 84,899  | Baseline goc truoc optimization  |
+| v5.0    | 2026-03-27 | 48    | 86,305  | Post reference dedup + runtime DRY |
 
-```
-/pd:init          Khởi tạo môi trường, phát hiện tech stack
-    ↓
-/pd:scan          Quét cấu trúc dự án, báo cáo bảo mật
-    ↓
-/pd:new-milestone Lập kế hoạch chiến lược + yêu cầu + lộ trình
-    ↓
-/pd:plan          Thiết kế kỹ thuật + chia danh sách công việc
-    ↓
-/pd:write-code    AI viết code theo kế hoạch (auto/parallel)
-    ↓
-/pd:test          Kiểm thử tự động (hoặc thủ công cho frontend)
-    ↓
-/pd:fix-bug       Sửa lỗi theo phương pháp khoa học
-    ↓
-/pd:complete-milestone  Đóng phiên bản, tạo git tag, báo cáo
-```
-
-Mỗi bước có cổng kiểm tra — AI không thể bỏ qua hoặc tự ý thay đổi thiết kế đã duyệt.
-
----
-*Benchmark chạy tự động bởi `node test/benchmark.js` — 2026-03-24T14:35:17.421Z*
+**Tang rong:** +1,406 tokens (+1.7%) voi 9 files moi — trung binh moi file cu giam ~580 tokens nho optimization.
