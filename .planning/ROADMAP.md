@@ -240,7 +240,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - **Gap Closure:** Closes integration + verification gaps from v5.0 audit
   - **Plans:** 2 plans
     - [ ] 059-01-PLAN.md — Wire platform vao getAgentConfig() + copy pd-sec-scanner
-    - [ ] 059-02-PLAN.md — Tao Phase 52 VERIFICATION.md + cap nhat 053-VERIFICATION.md
+    - [x] 059-02-PLAN.md — Tao Phase 52 VERIFICATION.md + cap nhat 053-VERIFICATION.md
   - Success criteria:
     1. `getModelForTier(tier, platform)` co it nhat 1 production caller
     2. `pd-sec-scanner.md` ton tai tai `.claude/agents/pd-sec-scanner.md`
