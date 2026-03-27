@@ -9,6 +9,7 @@ const path = require('path');
 
 const { log, listSkillFiles } = require('../utils');
 const { convertSkill, generateMcpConfig } = require('../converters/gemini');
+const { ensureDir, savePdconfig, cleanLegacyDir, cleanOldFiles } = require('../installer-utils');
 
 async function install(skillsDir, targetDir, options = {}) {
   const skillsSrc = path.join(skillsDir, 'commands', 'pd');
@@ -19,23 +20,19 @@ async function install(skillsDir, targetDir, options = {}) {
   // ─── Step 1: Convert & copy skills ────────────────────
   log.step(1, 4, 'Chuyển đổi skills cho Gemini CLI...');
 
-  fs.mkdirSync(commandsDir, { recursive: true });
+  ensureDir(commandsDir);
 
-  // Cleanup thư mục cũ từ bản sk
+  // Cleanup thu muc cu tu ban sk
   const legacyDir = path.join(targetDir, 'commands', 'sk');
-  if (fs.existsSync(legacyDir)) {
-    fs.rmSync(legacyDir, { recursive: true, force: true });
-    log.success('Đã xóa thư mục skills cũ (commands/sk)');
+  if (cleanLegacyDir(legacyDir)) {
+    log.success('Da xoa thu muc skills cu (commands/sk)');
   }
 
   // Clean old files (.md from previous versions + .toml from current) + rules subdirectory
-  if (fs.existsSync(commandsDir)) {
-    const old = fs.readdirSync(commandsDir).filter(f => f.endsWith('.md') || f.endsWith('.toml'));
-    for (const f of old) fs.unlinkSync(path.join(commandsDir, f));
-    const oldRulesDir = path.join(commandsDir, 'rules');
-    if (fs.existsSync(oldRulesDir)) {
-      fs.rmSync(oldRulesDir, { recursive: true, force: true });
-    }
+  cleanOldFiles(commandsDir, f => f.endsWith('.md') || f.endsWith('.toml'));
+  const oldRulesDir = path.join(commandsDir, 'rules');
+  if (fs.existsSync(oldRulesDir)) {
+    fs.rmSync(oldRulesDir, { recursive: true, force: true });
   }
 
   const skills = listSkillFiles(skillsSrc);
@@ -86,15 +83,7 @@ async function install(skillsDir, targetDir, options = {}) {
   log.step(3, 4, 'Lưu cấu hình .pdconfig...');
 
   const pdconfigFile = path.join(commandsDir, '.pdconfig');
-  let savedVersion = '';
-  if (fs.existsSync(pdconfigFile)) {
-    const existing = fs.readFileSync(pdconfigFile, 'utf8');
-    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
-    if (match) savedVersion = match[0];
-  }
-  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
-  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
-  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  savePdconfig(pdconfigFile, skillsDir, fastcodeDir);
   log.success(`Config saved: ${pdconfigFile}`);
 
   // ─── Step 4: MCP config ──────────────────────────────

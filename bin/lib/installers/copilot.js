@@ -15,6 +15,7 @@ const {
   mergeInstructions,
   stripInstructions,
 } = require('../converters/copilot');
+const { ensureDir, savePdconfig } = require('../installer-utils');
 
 async function install(skillsDir, targetDir, options = {}) {
   const skillsSrc = path.join(skillsDir, 'commands', 'pd');
@@ -49,15 +50,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const fastcodeDir = path.join(skillsDir, 'FastCode');
   const pdconfigFile = path.join(targetDir, '.pdconfig');
-  let savedVersion = '';
-  if (fs.existsSync(pdconfigFile)) {
-    const existing = fs.readFileSync(pdconfigFile, 'utf8');
-    const match = existing.match(/^CURRENT_VERSION=(.+)$/m);
-    if (match) savedVersion = match[0];
-  }
-  let pdconfigContent = `SKILLS_DIR=${skillsDir}\nFASTCODE_DIR=${fastcodeDir}\n`;
-  if (savedVersion) pdconfigContent += `${savedVersion}\n`;
-  fs.writeFileSync(pdconfigFile, pdconfigContent, 'utf8');
+  savePdconfig(pdconfigFile, skillsDir, fastcodeDir);
   log.success(`Config saved: ${pdconfigFile}`);
 
   // ─── Step 3: Copy rules ──────────────────────────────
@@ -102,7 +95,7 @@ async function install(skillsDir, targetDir, options = {}) {
   // ─── Step 4: Merge instructions ──────────────────────
   log.step(4, 4, 'Cập nhật copilot-instructions.md...');
 
-  fs.mkdirSync(targetDir, { recursive: true });
+  ensureDir(targetDir);
 
   const skillNames = skills.map(s => s.name);
   const instructionsBlock = generateInstructions(skillNames);

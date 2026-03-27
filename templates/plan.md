@@ -144,7 +144,7 @@ Responsive: [mobile khác desktop thế nào]
 | T2 | [VD: Token hết hạn sau 1 giờ] | [VD: Bảo vệ phiên đăng nhập] | [VD: Token bị tamper, refresh token hết hạn] | [VD: JWT decode → exp = iat + 3600] |
 
 ### Sản phẩm cần có (Artifacts)
-<!-- Files/modules PHẢI tồn tại. Mỗi artifact truy vết về ≥1 Truth. Cột "Kiểm tra tự động" → @references/verification-patterns.md -->
+<!-- Files/modules PHẢI tồn tại. Mỗi artifact truy vết về ≥1 Truth. Cột "Kiểm tra tự động" → @references/verification.md -->
 | Artifact | Đường dẫn dự kiến | Phục vụ Truth | Kiểm tra tự động |
 |----------|-------------------|---------------|-----------------|
 | [VD: Auth service] | [src/auth/auth.service.ts] | T1, T2 | `exports: [login, register]`, `min_lines: 30` |

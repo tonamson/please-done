@@ -212,7 +212,7 @@ Cho mỗi deliverable, thiết kế theo loại:
 ### Tầng 2 — Artifacts
 Từ mỗi Truth suy ngược: **"File/module nào PHẢI tồn tại?"**
 - Cross-check với "Files tạo/sửa" Bước 4 — file không phục vụ Truth → thừa hoặc thiếu Truth
-- Cột "Kiểm tra tự động" (@references/verification-patterns.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
+- Cột "Kiểm tra tự động" (@references/verification.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
 
 ### Tầng 3 — Key Links
 **"Artifacts kết nối thế nào? Link đứt → Truth nào fail?"**
