@@ -191,9 +191,13 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
   - Wire Research Squad parallel activation into `new-milestone`/`research`
   - Add `TECHNICAL_STRATEGY.md` soft-guard to `plan` workflow
   - Auto-inject strategy context into `pd-planner`
+  - **Plans:** 3 plans
+    - [ ] 056-01-PLAN.md — Wire mapper vao init.md + soft-guard vao plan.md (SKIL-01, SKIL-03)
+    - [ ] 056-02-PLAN.md — Them buildResearchSquadPlan() vao parallel-dispatch.js + strategy_path vao init.cjs (SKIL-02, SKIL-04)
+    - [ ] 056-03-PLAN.md — Wire PD Research Squad vao new-milestone.md + strategy_path vao plan-phase.md (SKIL-02, SKIL-04)
   - Success criteria:
     1. `init` suggests/runs codebase mapping after brownfield detection
-    2. Research Squad spawns 4 agents in parallel
+    2. Research Squad spawns 3 agents in parallel + synthesizer sequential
     3. `plan` shows warning (not block) when `TECHNICAL_STRATEGY.md` missing
     4. Strategy auto-injected when file exists, skipped gracefully when not
 
@@ -223,14 +227,14 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     4. `promptfooconfig.yaml` configured for quality measurement
 
 - [ ] **Phase 59: Integration Wiring & Verification Gaps** — PLAT-01, PLAT-02, PARA-02, AGEN-01, AGEN-09
-  - Wire `getModelForTier(tier, platform)` vào production dispatch flow
+  - Wire `getModelForTier(tier, platform)` vao production dispatch flow
   - Fix `pd-sec-scanner` agent path → `.claude/agents/`
-  - Tạo VERIFICATION.md cho Phase 52 (formal verification AGEN-01, AGEN-09)
-  - Cập nhật 053-VERIFICATION.md phản ánh trạng thái hiện tại (3 gaps đã fix)
+  - Tao VERIFICATION.md cho Phase 52 (formal verification AGEN-01, AGEN-09)
+  - Cap nhat 053-VERIFICATION.md phan anh trang thai hien tai (3 gaps da fix)
   - **Gap Closure:** Closes integration + verification gaps from v5.0 audit
   - Success criteria:
-    1. `getModelForTier(tier, platform)` có ít nhất 1 production caller
-    2. `pd-sec-scanner.md` tồn tại tại `.claude/agents/pd-sec-scanner.md`
-    3. Phase 52 có VERIFICATION.md xác nhận AGEN-01, AGEN-09
-    4. 053-VERIFICATION.md phản ánh đúng trạng thái hiện tại (không còn stale gaps)
+    1. `getModelForTier(tier, platform)` co it nhat 1 production caller
+    2. `pd-sec-scanner.md` ton tai tai `.claude/agents/pd-sec-scanner.md`
+    3. Phase 52 co VERIFICATION.md xac nhan AGEN-01, AGEN-09
+    4. 053-VERIFICATION.md phan anh dung trang thai hien tai (khong con stale gaps)
     5. All smoke tests pass
