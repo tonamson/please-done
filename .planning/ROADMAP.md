@@ -160,7 +160,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. test/smoke-agent-files.test.js covers all 6 new agents
     4. Existing agent tests still pass (backward compatibility)
 
-- [ ] **Phase 54: Platform Mapping & Fallback** (1 plan) — PLAT-01, PLAT-02
+- [x] **Phase 54: Platform Mapping & Fallback** (1 plan) — PLAT-01, PLAT-02 (completed 2026-03-27)
   - Implement `PLATFORM_MODEL_MAP` per-platform config (7 platforms)
   - Automatic tier downgrade when platform doesn't support higher tier
   - **Plans:** 1 plan
