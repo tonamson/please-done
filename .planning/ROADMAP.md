@@ -11,7 +11,7 @@
 - ✅ **v2.1 Detective Orchestrator** — Phases 28-37 (shipped 2026-03-25)
 - ✅ **v3.0 Research Squad** — Phases 38-45 (shipped 2026-03-26)
 - ✅ **v4.0 OWASP Security Audit** — Phases 46-51 (shipped 2026-03-27)
-- 🔄 **v5.0 Repo Optimization** — Phases 52-59
+- ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 
 ## Phases
 
@@ -232,14 +232,14 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     3. At least 2 additional workflows use `conditional_reading`
     4. `promptfooconfig.yaml` configured for quality measurement
 
-- [ ] **Phase 59: Integration Wiring & Verification Gaps** — PLAT-01, PLAT-02, PARA-02, AGEN-01, AGEN-09
+- [x] **Phase 59: Integration Wiring & Verification Gaps** (2/2 plans) — PLAT-01, PLAT-02, PARA-02, AGEN-01, AGEN-09 — completed 2026-03-27
   - Wire `getModelForTier(tier, platform)` vao production dispatch flow
   - Fix `pd-sec-scanner` agent path → `.claude/agents/`
   - Tao VERIFICATION.md cho Phase 52 (formal verification AGEN-01, AGEN-09)
   - Cap nhat 053-VERIFICATION.md phan anh trang thai hien tai (3 gaps da fix)
   - **Gap Closure:** Closes integration + verification gaps from v5.0 audit
   - **Plans:** 2 plans
-    - [ ] 059-01-PLAN.md — Wire platform vao getAgentConfig() + copy pd-sec-scanner
+    - [x] 059-01-PLAN.md — Wire platform vao getAgentConfig() + copy pd-sec-scanner
     - [x] 059-02-PLAN.md — Tao Phase 52 VERIFICATION.md + cap nhat 053-VERIFICATION.md
   - Success criteria:
     1. `getModelForTier(tier, platform)` co it nhat 1 production caller
