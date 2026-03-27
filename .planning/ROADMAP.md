@@ -181,7 +181,7 @@ Full details: `.planning/milestones/v4.0-ROADMAP.md`
     4. Timeout >120s → no new spawn until current completes
     5. Load average > CPU count → automatic 1 worker reduction
 
-- [ ] **Phase 56: Skill-Agent Integration** — SKIL-01, SKIL-02, SKIL-03, SKIL-04
+- [x] **Phase 56: Skill-Agent Integration** (3/3 plans) — SKIL-01, SKIL-02, SKIL-03, SKIL-04 — completed 2026-03-27
   - Wire `pd-codebase-mapper` into `init` workflow (auto-run after brownfield init)
   - Wire Research Squad parallel activation into `new-milestone`/`research`
   - Add `TECHNICAL_STRATEGY.md` soft-guard to `plan` workflow
