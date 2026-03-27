@@ -12,6 +12,7 @@ const {
   buildParallelPlan, mergeParallelResults,
   buildScannerPlan, mergeScannerResults,
 } = require('../bin/lib/parallel-dispatch');
+const { PARALLEL_MIN, PARALLEL_MAX } = require('../bin/lib/resource-config');
 
 // ─── Helper ─────────────────────────────────────────────────
 
@@ -209,5 +210,111 @@ describe('mergeScannerResults', () => {
     ]);
     assert.equal(result.failedCount, 3);
     assert.equal(result.completedCount, 0);
+  });
+});
+
+// ─── buildScannerPlan — adaptive default (PARA-01) ───────
+
+describe('buildScannerPlan — adaptive default (PARA-01)', () => {
+  const ALL_13 = [
+    'sql-injection', 'xss', 'cmd-injection', 'path-traversal',
+    'secrets', 'auth', 'deserialization', 'misconfig',
+    'prototype-pollution', 'crypto', 'insecure-design', 'vuln-deps', 'logging',
+  ];
+
+  it('khong truyen batchSize → dung adaptive (khong hardcode 2)', () => {
+    const plan = buildScannerPlan(ALL_13);
+    // Adaptive workers phu thuoc may, nhung totalScanners luon = 13
+    assert.equal(plan.totalScanners, 13);
+    // batchSize phai trong [PARALLEL_MIN, PARALLEL_MAX]
+    const inferredBatch = plan.waves[0].length;
+    assert.ok(inferredBatch >= PARALLEL_MIN, `batch ${inferredBatch} >= ${PARALLEL_MIN}`);
+    assert.ok(inferredBatch <= PARALLEL_MAX, `batch ${inferredBatch} <= ${PARALLEL_MAX}`);
+  });
+
+  it('truyen batchSize explicit → van dung gia tri do', () => {
+    const plan = buildScannerPlan(ALL_13, 3);
+    // Explicit 3, nhung heavy agent co the giam xuong 2
+    const inferredBatch = plan.waves[0].length;
+    assert.ok(inferredBatch >= PARALLEL_MIN);
+    assert.ok(inferredBatch <= 3);
+  });
+});
+
+// ─── buildScannerPlan — heavy agent check (PARA-02) ──────
+
+describe('buildScannerPlan — heavy agent check (PARA-02)', () => {
+  it('pd-sec-scanner la heavy (co mcp__fastcode__) → batch giam so voi adaptive', () => {
+    // pd-sec-scanner co tool mcp__fastcode__code_qa → isHeavyAgent = true
+    // Khi adaptive = N va N > PARALLEL_MIN → batch = N - 1
+    const plan = buildScannerPlan(['xss', 'auth', 'secrets', 'crypto']);
+    const batchSize = plan.waves[0].length;
+    assert.ok(batchSize >= PARALLEL_MIN, `batch ${batchSize} >= PARALLEL_MIN`);
+    assert.ok(batchSize <= PARALLEL_MAX, `batch ${batchSize} <= PARALLEL_MAX`);
+  });
+});
+
+// ─── buildScannerPlan — min/max enforce (PARA-03) ────────
+
+describe('buildScannerPlan — min/max enforce (PARA-03)', () => {
+  it('batchSize khong bao gio duoi PARALLEL_MIN', () => {
+    const plan = buildScannerPlan(['xss', 'auth']);
+    assert.ok(plan.waves[0].length >= PARALLEL_MIN || plan.totalScanners < PARALLEL_MIN);
+  });
+
+  it('batchSize khong bao gio vuot PARALLEL_MAX', () => {
+    const plan = buildScannerPlan(['xss', 'auth', 'secrets', 'crypto', 'cmd-injection'], 10);
+    // Even explicit 10 should be clamped to PARALLEL_MAX
+    assert.ok(plan.waves[0].length <= PARALLEL_MAX, `batch ${plan.waves[0].length} <= ${PARALLEL_MAX}`);
+  });
+});
+
+// ─── mergeScannerResults — backpressure (PARA-04) ────────
+
+describe('mergeScannerResults — backpressure (PARA-04)', () => {
+  function makeScannerEvidence(category) {
+    return `---\nagent: pd-sec-scanner\noutcome: root_cause\ntimestamp: 2026-03-26T10:00:00Z\nsession: SCAN001\n---\n## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi ${category}.\n\n## Bằng chứng\nsrc/app.js:10\n\n## Đề xuất\nFix ${category}.`;
+  }
+
+  it('tra ve backpressure=false khi khong co degradation error', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: makeScannerEvidence('xss') },
+    ]);
+    assert.equal(result.backpressure, false);
+  });
+
+  it('tra ve backpressure=true khi co TIMEOUT error', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: null, error: { code: 'TIMEOUT' } },
+    ]);
+    assert.equal(result.backpressure, true);
+  });
+
+  it('tra ve backpressure=true khi co duration > 120000ms', () => {
+    const result = mergeScannerResults([
+      { category: 'xss', evidenceContent: null, error: { duration: 150000 } },
+    ]);
+    assert.equal(result.backpressure, true);
+  });
+});
+
+// ─── mergeParallelResults — backpressure (PARA-04) ───────
+
+describe('mergeParallelResults — backpressure (PARA-04)', () => {
+  it('tra ve backpressure=false khi khong co degradation error', () => {
+    const detectiveEvidence = `---\nagent: pd-code-detective\noutcome: root_cause\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: S001\n---\n## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi o dong 42.\n\n## Bằng chứng\nsrc/api.js:42\n\n## Đề xuất\nSua dong 42.`;
+    const result = mergeParallelResults({
+      detectiveResult: { evidenceContent: detectiveEvidence },
+      docSpecResult: { evidenceContent: null, error: { message: 'simple error' } },
+    });
+    assert.equal(result.backpressure, false);
+  });
+
+  it('tra ve backpressure=true khi co RESOURCE_EXHAUSTED error', () => {
+    const result = mergeParallelResults({
+      detectiveResult: { error: { code: 'RESOURCE_EXHAUSTED' } },
+      docSpecResult: { error: { message: 'ok' } },
+    });
+    assert.equal(result.backpressure, true);
   });
 });
