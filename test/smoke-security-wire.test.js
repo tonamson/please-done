@@ -20,6 +20,11 @@ describe('Security wire integration', () => {
       'Security gate phai non-blocking');
   });
 
+  it('WIRE-01b: complete-milestone check dung path .planning/audit/', () => {
+    assert.ok(completeMilestone.includes('.planning/audit/SECURITY_REPORT.md'),
+      'Security gate phai check .planning/audit/SECURITY_REPORT.md (khop voi audit.md B9 output)');
+  });
+
   it('WIRE-02: what-next co uu tien 7.5', () => {
     assert.ok(whatNext.includes('7.5'), 'Thieu uu tien 7.5');
     assert.ok(whatNext.includes('pd:audit'), 'Thieu goi y pd:audit');
