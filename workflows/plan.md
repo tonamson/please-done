@@ -44,6 +44,7 @@ Trước khi bắt đầu code, kiểm tra research liên quan:
 - `.planning/STATE.md` → trạng thái, bối cảnh tích lũy, vấn đề chặn
 - `.planning/scan/SCAN_REPORT.md` → hiện trạng, thư viện, patterns
 - `.planning/research/SUMMARY.md` → nghiên cứu lĩnh vực, thư viện, cạm bẫy
+- `.planning/research/TECHNICAL_STRATEGY.md` → chiến lược kỹ thuật (nếu có)
 - `.planning/docs/*.md` → chỉ đọc mục lục + sections liên quan (offset/limit)
 - `$ARGUMENTS` chỉ định phase → dùng phase đó
 - Có phases trước → đọc PLAN.md/TASKS.md nắm context đã triển khai
@@ -52,6 +53,12 @@ Chưa có roadmap → "Chạy `/pd:new-milestone` trước."
 CURRENT_MILESTONE.md không tồn tại → "Thiếu. Chạy `/pd:new-milestone`."
 Status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones hoàn tất. Chạy `/pd:new-milestone`."
 Phase không có deliverables → **DỪNG**: "Phase [x.x] chưa có deliverables. Cập nhật ROADMAP."
+
+**Soft-guard TECHNICAL_STRATEGY.md:**
+Kiểm tra `.planning/research/TECHNICAL_STRATEGY.md` tồn tại:
+- **CÓ** → đọc và dùng làm context chiến lược kỹ thuật
+- **KHÔNG** → hiển thị warning 1 lần: "TECHNICAL_STRATEGY.md không tồn tại. Plan sẽ thiếu chiến lược kỹ thuật. Chạy Research Squad để tạo."
+  Tiếp tục planning — KHÔNG block.
 
 ---
 
