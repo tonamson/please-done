@@ -381,7 +381,7 @@ describe('Repo integrity -- conditional context loading', () => {
 
     assert.ok(!requiredReading.includes('security-checklist'), 'security-checklist in required_reading');
     assert.ok(!requiredReading.includes('ui-brand'), 'ui-brand in required_reading');
-    assert.ok(!requiredReading.includes('verification-patterns'), 'verification-patterns in required_reading');
+    assert.ok(!requiredReading.includes('references/verification.md'), 'verification in required_reading');
 
     const conditionalReading = extractXmlSection(inlined, 'conditional_reading') || '';
     assert.ok(conditionalReading.includes('security-checklist'), 'security-checklist missing from conditional_reading');

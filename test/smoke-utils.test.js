@@ -249,8 +249,8 @@ describe('inlineWorkflow -- conditional_reading', () => {
       'optional ref security-checklist found in required_reading');
     assert.ok(!requiredReading.includes('ui-brand'),
       'optional ref ui-brand found in required_reading');
-    assert.ok(!requiredReading.includes('verification-patterns'),
-      'optional ref verification-patterns found in required_reading');
+    assert.ok(!requiredReading.includes('references/verification.md'),
+      'optional ref verification found in required_reading');
     assert.ok(!requiredReading.includes('prioritization'),
       'optional ref prioritization found in required_reading');
   });
@@ -266,8 +266,8 @@ describe('inlineWorkflow -- conditional_reading', () => {
       'security-checklist missing from conditional_reading');
     assert.ok(conditionalReading.includes('ui-brand'),
       'ui-brand missing from conditional_reading');
-    assert.ok(conditionalReading.includes('verification-patterns'),
-      'verification-patterns missing from conditional_reading');
+    assert.ok(conditionalReading.includes('verification'),
+      'verification missing from conditional_reading');
     assert.ok(conditionalReading.includes('prioritization'),
       'prioritization missing from conditional_reading');
     // Check loading conditions are present

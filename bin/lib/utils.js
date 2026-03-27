@@ -251,7 +251,7 @@ function inlineGuardRefs(body, skillsDir) {
 const CONDITIONAL_LOADING_MAP = {
   'references/security-checklist.md': 'KHI task lien quan den auth, encryption, input validation, data exposure',
   'references/ui-brand.md': 'KHI task tao/sua UI components hoac man hinh user-facing',
-  'references/verification-patterns.md': 'KHI task can multi-level verification (khong phai simple pass/fail)',
+  'references/verification.md': 'KHI task can multi-level verification (khong phai simple pass/fail)',
   'references/state-machine.md': 'KHI task lien quan den milestone state transitions',
   'references/questioning.md': 'KHI DISCUSS mode -- can interactive user questioning',
   'references/prioritization.md': 'KHI task ordering/ranking nhieu tasks hoac triage',
