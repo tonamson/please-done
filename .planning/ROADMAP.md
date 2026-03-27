@@ -24,7 +24,7 @@ All 10 milestones shipped. Milestone v5.1 in progress. 59 phases, 90+ plans comp
 - [ ] **Phase 61: Symlink Architecture** - Create relative symlinks in `.claude/agents/`
 - [x] **Phase 62: Reference Migration** - Update test and workflow paths
 - [x] **Phase 63: Format Standardization** - Convert security agents to new frontmatter format
-- [ ] **Phase 64: Registry & Test Validation** - Update AGENT_REGISTRY and verify
+- [x] **Phase 64: Registry & Test Validation** - Update AGENT_REGISTRY and verify
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
@@ -213,7 +213,7 @@ Plans:
   3. Both security agents are parsable by the new agent registry logic.
 **Plans:** 1 plan
 Plans:
-- [ ] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
+- [x] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
 
 ### Phase 64: Registry & Test Validation
 **Goal**: Ensure the entire consolidated agent set is correctly registered and passing tests.
@@ -225,7 +225,7 @@ Plans:
   3. Validation tests confirm correct structure for the entire consolidated agent set.
 **Plans:** 1 plan
 Plans:
-- [ ] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
+- [x] 64-01-PLAN.md — Thêm 2 agents vào AGENT_NAMES + cập nhật counts
 
 ## Progress Table
 
