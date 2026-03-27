@@ -1,6 +1,6 @@
 /**
  * Agent Files Integration Tests
- * Kiem tra 14 agent files tai commands/pd/agents/ co dung format va khop voi resource-config.js.
+ * Kiem tra 16 agent files tai commands/pd/agents/ co dung format va khop voi resource-config.js.
  * Day la integration test (doc file tu disk), KHONG phai pure function test.
  */
 
@@ -31,6 +31,8 @@ const AGENT_NAMES = [
   'pd-planner',
   'pd-regression-analyzer',
   'pd-sec-scanner',
+  'pd-sec-fixer',
+  'pd-sec-reporter',
 ];
 
 // ─── Helper: Parse YAML frontmatter ───────────────────────
@@ -89,7 +91,7 @@ function parseAgentFrontmatter(filePath) {
 // ─── Test: Agent files existence ──────────────────────────
 
 describe('Agent files existence', () => {
-  it('14 agent files ton tai tai commands/pd/agents/', () => {
+  it('16 agent files ton tai tai commands/pd/agents/', () => {
     for (const name of AGENT_NAMES) {
       const filePath = join(AGENTS_DIR, `${name}.md`);
       // readFileSync se throw neu file khong ton tai
