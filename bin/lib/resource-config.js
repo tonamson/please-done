@@ -16,13 +16,24 @@
 // ─── Constants ────────────────────────────────────────────
 
 /**
- * Tier mapping: ten tier → { model, effort, maxTurns }
+ * Tier mapping: ten tier → { model, effort, maxTurns, tokenBudget }
  * scout = haiku (nhe, nhanh), builder = sonnet (trung binh), architect = opus (nang, chinh xac)
+ * tokenBudget: gioi han token toi da cho workflow cua tier do
  */
 const TIER_MAP = {
-  scout: { model: "haiku", effort: "low", maxTurns: 15 },
-  builder: { model: "sonnet", effort: "medium", maxTurns: 25 },
-  architect: { model: "opus", effort: "high", maxTurns: 30 },
+  scout: { model: "haiku", effort: "low", maxTurns: 15, tokenBudget: 4000 },
+  builder: { model: "sonnet", effort: "medium", maxTurns: 25, tokenBudget: 8000 },
+  architect: { model: "opus", effort: "high", maxTurns: 30, tokenBudget: 12000 },
+};
+
+/**
+ * Token budget per tier — derived tu TIER_MAP de dam bao nhat quan.
+ * Dung cho enforcement va benchmark comparison.
+ */
+const TOKEN_BUDGET = {
+  scout: TIER_MAP.scout.tokenBudget,
+  builder: TIER_MAP.builder.tokenBudget,
+  architect: TIER_MAP.architect.tokenBudget,
 };
 
 /**
@@ -403,4 +414,5 @@ module.exports = {
   HEAVY_TOOL_PATTERNS,
   PLATFORM_MODEL_MAP,
   FALLBACK_CHAIN,
+  TOKEN_BUDGET,
 };
