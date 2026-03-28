@@ -215,13 +215,19 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 2. Step numbering follows English convention (Step X instead of Bước X)
 3. No structural or behavioral changes — only language
 
-**Plan 01 — 7 smaller workflows:**
-- Task 1: Translate init.md, scan.md, conventions.md, what-next.md
-- Task 2: Translate research.md, complete-milestone.md, test.md
+**Plans:** 2 plans
 
-**Plan 02 — 6 larger workflows:**
-- Task 1: Translate write-code.md, fix-bug.md
-- Task 2: Translate fix-bug-v1.5.md, plan.md, new-milestone.md, audit.md
+Plans:
+- [ ] 66-01-PLAN.md — Translate 7 smaller workflows + update test assertions
+- [ ] 66-02-PLAN.md — Translate 6 larger workflows + finalize test assertions
+
+**Plan 01 — 7 smaller workflows + test updates:**
+- Task 1: Translate init, scan, conventions, what-next, research, complete-milestone, test
+- Task 2: Update smoke-integrity.test.js assertions that break from Plan 01 translations
+
+**Plan 02 — 6 larger workflows + test finalization:**
+- Task 1: Translate write-code, fix-bug, fix-bug-v1.5, plan, new-milestone, audit
+- Task 2: Finalize smoke-integrity.test.js assertions for all translated workflows
 
 ---
 
