@@ -1,6 +1,6 @@
-# security-rules.yaml — Nguồn sự thật duy nhất cho 13 OWASP scanner categories
-# Migrate từ 13 file pd-sec-*.md riêng lẻ thành 1 file YAML tập trung.
-# Mỗi category chứa: owasp, severity, evidence_file, patterns[], fixes[], fastcode_queries[]
+# security-rules.yaml — Single source of truth for 13 OWASP scanner categories
+# Migrated from 13 separate pd-sec-*.md files into 1 centralized YAML file.
+# Each category contains: owasp, severity, evidence_file, patterns[], fixes[], fastcode_queries[]
 
 sql-injection:
   owasp: "A03:2021 Injection"
@@ -8,28 +8,28 @@ sql-injection:
   evidence_file: evidence_sec_sqli.md
   patterns:
     - regex: 'query\(.*\+'
-      description: "Raw SQL nối chuỗi bằng toán tử +"
+      description: "Raw SQL string concatenation using + operator"
       stack: [js, ts, php, py]
     - regex: 'query\(.*\$\{'
-      description: "Template literal trong SQL query"
+      description: "Template literal in SQL query"
       stack: [js, ts]
     - regex: '"SELECT.*" \+'
-      description: "Câu SELECT nối chuỗi với dấu +"
+      description: "SELECT statement concatenated with + operator"
       stack: [js, ts, php, py]
     - regex: "'SELECT.*' \\+"
-      description: "Câu SELECT (dấu nháy đơn) nối chuỗi"
+      description: "SELECT (single quotes) string concatenation"
       stack: [js, ts, php, py]
     - regex: '`SELECT.*\$\{'
-      description: "Template literal chứa SELECT"
+      description: "Template literal containing SELECT"
       stack: [js, ts]
     - regex: '`INSERT.*\$\{'
-      description: "Template literal chứa INSERT"
+      description: "Template literal containing INSERT"
       stack: [js, ts]
     - regex: '`UPDATE.*\$\{'
-      description: "Template literal chứa UPDATE"
+      description: "Template literal containing UPDATE"
       stack: [js, ts]
     - regex: '`DELETE.*\$\{'
-      description: "Template literal chứa DELETE"
+      description: "Template literal containing DELETE"
       stack: [js, ts]
     - regex: 'sequelize\.query\('
       description: "Sequelize raw query mode"
@@ -47,60 +47,60 @@ sql-injection:
       description: "SQLAlchemy textual query"
       stack: [py]
     - regex: 'connection\.query\(.*req\.(body|params|query)'
-      description: "User input đi thẳng vào connection.query()"
+      description: "User input passed directly into connection.query()"
       stack: [js, ts]
     - regex: '\$wpdb->(query|get_row|get_results|get_var)\('
-      description: "WordPress wpdb query không có prepare"
+      description: "WordPress wpdb query without prepare"
       stack: [php]
     - regex: '\$where'
-      description: "MongoDB $where — JavaScript execution trong query"
+      description: "MongoDB $where — JavaScript execution in query"
       stack: [js, ts]
     - regex: '\.(find|findOne|updateOne|deleteOne)\(.*req\.(body|params|query)'
-      description: "User input trực tiếp vào MongoDB query"
+      description: "User input directly into MongoDB query"
       stack: [js, ts]
     - regex: '\$gt|\$gte|\$lt|\$lte|\$ne|\$in|\$regex'
-      description: "MongoDB operator injection qua JSON body"
+      description: "MongoDB operator injection via JSON body"
       stack: [js, ts]
     - regex: 'collection\.aggregate\(.*req\.body'
       description: "MongoDB pipeline injection"
       stack: [js, ts]
     - regex: 'knex\.raw\(.*\$\{'
-      description: "Template literal trong Knex raw query"
+      description: "Template literal in Knex raw query"
       stack: [js, ts]
     - regex: '\.whereRaw\(.*\+'
-      description: "Knex whereRaw với nối chuỗi"
+      description: "Knex whereRaw with string concatenation"
       stack: [js, ts]
     - regex: '\.orderByRaw\(.*req\.'
       description: "Knex orderByRaw injection"
       stack: [js, ts]
     - regex: 'cursor\.execute\(f[''"]'
-      description: "Python f-string trong cursor.execute"
+      description: "Python f-string in cursor.execute"
       stack: [py]
     - regex: 'cursor\.execute\(.*\.format\('
-      description: "Python str.format trong SQL"
+      description: "Python str.format in SQL"
       stack: [py]
     - regex: 'cursor\.execute\(.*%.*%'
-      description: "Python old-style format trong SQL"
+      description: "Python old-style format in SQL"
       stack: [py]
   fixes:
-    - pattern: "Raw SQL nối chuỗi"
-      fix: "Dùng parameterized query hoặc prepared statement thay vì nối chuỗi"
+    - pattern: "Raw SQL string concatenation"
+      fix: "Use parameterized query or prepared statement instead of string concatenation"
     - pattern: "ORM raw mode"
-      fix: "Dùng ORM query builder (TypeORM .where(), Prisma .findMany(), Sequelize .findAll())"
+      fix: "Use ORM query builder (TypeORM .where(), Prisma .findMany(), Sequelize .findAll())"
     - pattern: "WordPress wpdb"
-      fix: "Dùng $wpdb->prepare() với placeholder %s, %d"
+      fix: "Use $wpdb->prepare() with placeholder %s, %d"
     - pattern: "MongoDB injection"
-      fix: "Validate input type trước khi truyền vào query, dùng mongoose schema validation"
+      fix: "Validate input type before passing to query, use mongoose schema validation"
     - pattern: "Knex raw"
-      fix: "Dùng Knex query builder thay vì .raw(), hoặc dùng bindings: knex.raw('? = ?', [val1, val2])"
+      fix: "Use Knex query builder instead of .raw(), or use bindings: knex.raw('? = ?', [val1, val2])"
     - pattern: "Python f-string SQL"
-      fix: "Dùng parameterized query: cursor.execute('SELECT * FROM t WHERE id = %s', (id,))"
+      fix: "Use parameterized query: cursor.execute('SELECT * FROM t WHERE id = %s', (id,))"
     - pattern: "Second-order SQLi"
-      fix: "Parameterize cả query dùng dữ liệu từ DB — dữ liệu DB không đáng tin nếu user có thể insert"
+      fix: "Parameterize queries using data from DB as well — DB data is not trustworthy if users can insert"
   fastcode_queries:
-    - "Biến nào trong dự án được truyền trực tiếp vào SQL query mà không qua parameterize?"
-    - "Liệt kê tất cả nơi import/sử dụng raw query trong dự án"
-    - "Tìm tất cả endpoint nhận user input và truyền vào database query"
+    - "Which variables in the project are passed directly into SQL queries without parameterization?"
+    - "List all places that import/use raw queries in the project"
+    - "Find all endpoints that receive user input and pass to database queries"
 
 xss:
   owasp: "A03:2021 Injection"
@@ -108,115 +108,115 @@ xss:
   evidence_file: evidence_sec_xss.md
   patterns:
     - regex: 'innerHTML\s*='
-      description: "Gán innerHTML trực tiếp — DOM XSS vector"
+      description: "Direct innerHTML assignment — DOM XSS vector"
       stack: [js, ts, jsx, tsx]
     - regex: 'outerHTML\s*='
-      description: "Gán outerHTML trực tiếp"
+      description: "Direct outerHTML assignment"
       stack: [js, ts]
     - regex: 'document\.write\('
-      description: "document.write — ghi HTML không qua encode"
+      description: "document.write — writes HTML without encoding"
       stack: [js, ts]
     - regex: 'document\.writeln\('
-      description: "document.writeln — ghi HTML không qua encode"
+      description: "document.writeln — writes HTML without encoding"
       stack: [js, ts]
     - regex: '\.insertAdjacentHTML\('
-      description: "insertAdjacentHTML — chèn HTML thô"
+      description: "insertAdjacentHTML — inserts raw HTML"
       stack: [js, ts]
     - regex: 'dangerouslySetInnerHTML'
-      description: "React dangerouslySetInnerHTML — bypass auto-escape"
+      description: "React dangerouslySetInnerHTML — bypasses auto-escape"
       stack: [jsx, tsx]
     - regex: 'v-html'
-      description: "Vue v-html — render HTML thô"
+      description: "Vue v-html — renders raw HTML"
       stack: [vue]
     - regex: '\[innerHTML\]'
       description: "Angular innerHTML binding"
       stack: [ts]
     - regex: '\{@html'
-      description: "Svelte @html — render HTML thô"
+      description: "Svelte @html — renders raw HTML"
       stack: [svelte]
     - regex: '\|safe'
-      description: "Jinja2 |safe filter — bỏ qua auto-escape"
+      description: "Jinja2 |safe filter — bypasses auto-escape"
       stack: [py]
     - regex: '!!'
       description: "Pug raw output (!!)"
       stack: [pug]
     - regex: 'eval\('
-      description: "eval() — thực thi mã JavaScript tùy ý"
+      description: "eval() — executes arbitrary JavaScript code"
       stack: [js, ts]
     - regex: 'new Function\('
-      description: "new Function() — tạo hàm từ chuỗi"
+      description: "new Function() — creates function from string"
       stack: [js, ts]
     - regex: 'location\.(href|assign|replace)\s*=.*\+'
-      description: "Gán location với nối chuỗi — open redirect / XSS"
+      description: "Location assignment with concatenation — open redirect / XSS"
       stack: [js, ts]
     - regex: 'window\.open\(.*\+'
-      description: "window.open với nối chuỗi"
+      description: "window.open with concatenation"
       stack: [js, ts]
     - regex: 'res\.(send|end|write)\(.*req\.(body|params|query|headers)'
-      description: "Server phản hồi trực tiếp user input — Reflected XSS"
+      description: "Server responds directly with user input — Reflected XSS"
       stack: [js, ts]
     - regex: 'echo\s+\$_(GET|POST|REQUEST|COOKIE)'
-      description: "PHP echo user input không qua htmlspecialchars"
+      description: "PHP echo user input without htmlspecialchars"
       stack: [php]
     - regex: '\<%=.*req\.(body|params|query)'
-      description: "EJS output user input không escape"
+      description: "EJS output user input without escaping"
       stack: [ejs]
     - regex: 'req\.(body|params|query)\['
-      description: "User input đi thẳng vào render/response"
+      description: "User input goes directly into render/response"
       stack: [js, ts]
     - regex: '\$_(GET|POST|REQUEST)'
-      description: "PHP superglobal không qua sanitize_text_field/wp_kses/esc_html"
+      description: "PHP superglobal without sanitize_text_field/wp_kses/esc_html"
       stack: [php]
     - regex: 'href\s*=.*req\.(body|params|query)'
-      description: "User input trong href — javascript: protocol injection"
+      description: "User input in href — javascript: protocol injection"
       stack: [js, ts, php]
     - regex: 'src\s*=.*req\.(body|params|query)'
-      description: "User input trong src"
+      description: "User input in src"
       stack: [js, ts, php]
     - regex: 'action\s*=.*req\.(body|params|query)'
-      description: "User input trong form action"
+      description: "User input in form action"
       stack: [js, ts, php]
     - regex: 'window\.location\s*=.*\+'
-      description: "Open Redirect có thể chain với XSS"
+      description: "Open Redirect can chain with XSS"
       stack: [js, ts]
     - regex: '<a.*href.*\$\{'
-      description: "Template literal trong href"
+      description: "Template literal in href"
       stack: [js, ts]
     - regex: 'addEventListener\([''"]message[''"]'
-      description: "postMessage listener thiếu origin check"
+      description: "postMessage listener missing origin check"
       stack: [js, ts]
     - regex: 'postMessage\(.*,\s*[''"]\*[''"]\)'
-      description: "postMessage gửi tới mọi origin"
+      description: "postMessage sent to all origins"
       stack: [js, ts]
     - regex: 'event\.data'
-      description: "event.data đưa vào innerHTML/eval — DOM XSS qua postMessage"
+      description: "event.data into innerHTML/eval — DOM XSS via postMessage"
       stack: [js, ts]
     - regex: 'style\s*=.*req\.(body|params|query)'
-      description: "User input trong inline style — CSS injection"
+      description: "User input in inline style — CSS injection"
       stack: [js, ts, php]
     - regex: 'expression\('
-      description: "CSS expression() — thực thi JS qua CSS (IE legacy)"
+      description: "CSS expression() — executes JS via CSS (IE legacy)"
       stack: [css]
     - regex: 'url\(.*\$\{'
-      description: "CSS url() với user input — data exfiltration"
+      description: "CSS url() with user input — data exfiltration"
       stack: [js, ts, css]
   fixes:
     - pattern: "DOM XSS (innerHTML, document.write)"
-      fix: "Dùng textContent thay vì innerHTML, hoặc DOMPurify.sanitize() trước khi gán"
+      fix: "Use textContent instead of innerHTML, or DOMPurify.sanitize() before assignment"
     - pattern: "React dangerouslySetInnerHTML"
-      fix: "Dùng DOMPurify.sanitize() trước khi truyền vào dangerouslySetInnerHTML"
+      fix: "Use DOMPurify.sanitize() before passing to dangerouslySetInnerHTML"
     - pattern: "Server-side reflected XSS"
-      fix: "Encode output bằng framework auto-escape hoặc encode functions (esc_html, htmlspecialchars)"
+      fix: "Encode output using framework auto-escape or encode functions (esc_html, htmlspecialchars)"
     - pattern: "javascript: protocol"
-      fix: "Validate URL scheme — chỉ cho phép http:// và https://"
+      fix: "Validate URL scheme — only allow http:// and https://"
     - pattern: "postMessage XSS"
-      fix: "Kiểm tra event.origin trước khi xử lý message"
+      fix: "Check event.origin before processing message"
     - pattern: "CSS injection"
-      fix: "Sanitize CSS values, không cho user input vào inline style"
+      fix: "Sanitize CSS values, do not allow user input in inline style"
   fastcode_queries:
-    - "Biến nào được truyền vào innerHTML hoặc dangerouslySetInnerHTML?"
-    - "Liệt kê tất cả nơi user input được render ra HTML không qua encode"
-    - "Tìm tất cả postMessage listener và kiểm tra origin validation"
+    - "Which variables are passed into innerHTML or dangerouslySetInnerHTML?"
+    - "List all places where user input is rendered to HTML without encoding"
+    - "Find all postMessage listeners and check for origin validation"
 
 cmd-injection:
   owasp: "A03:2021 Injection"
@@ -230,22 +230,22 @@ cmd-injection:
       description: "ES import child_process"
       stack: [js, ts]
     - regex: 'exec\('
-      description: "exec() — shell mode, nguy hiểm nhất"
+      description: "exec() — shell mode, most dangerous"
       stack: [js, ts, php]
     - regex: 'execSync\('
-      description: "execSync() — shell mode đồng bộ"
+      description: "execSync() — synchronous shell mode"
       stack: [js, ts]
     - regex: 'spawn\(.*shell:\s*true'
-      description: "spawn với shell mode bật"
+      description: "spawn with shell mode enabled"
       stack: [js, ts]
     - regex: 'spawn\(.*\$\{'
-      description: "Template literal trong spawn args"
+      description: "Template literal in spawn args"
       stack: [js, ts]
     - regex: 'exec\(.*\$\{'
-      description: "Template literal trong exec command"
+      description: "Template literal in exec command"
       stack: [js, ts]
     - regex: 'exec\(.*\+'
-      description: "Nối chuỗi trong exec command"
+      description: "String concatenation in exec command"
       stack: [js, ts]
     - regex: 'shell_exec\('
       description: "PHP shell_exec()"
@@ -269,10 +269,10 @@ cmd-injection:
       description: "Python os.popen()"
       stack: [py]
     - regex: 'subprocess\.(call|run|Popen)\(.*shell\s*=\s*True'
-      description: "Python subprocess với shell=True"
+      description: "Python subprocess with shell=True"
       stack: [py]
     - regex: 'subprocess\.(call|run|Popen)\(.*f[''"]'
-      description: "Python subprocess với f-string"
+      description: "Python subprocess with f-string"
       stack: [py]
     - regex: 'commands\.getoutput\('
       description: "Python commands.getoutput() (deprecated)"
@@ -299,7 +299,7 @@ cmd-injection:
       description: "ffmpeg argument injection"
       stack: [js, ts, py]
     - regex: 'curl.*\$\{'
-      description: "curl argument injection (có thể chứa -o, --output)"
+      description: "curl argument injection (may contain -o, --output)"
       stack: [js, ts, py, rb]
     - regex: 'tar.*\$\{'
       description: "tar argument injection (--checkpoint-action)"
@@ -308,41 +308,41 @@ cmd-injection:
       description: "rsync argument injection (-e)"
       stack: [js, ts, py, rb]
     - regex: 'process\.env\[.*req\.'
-      description: "User input gán environment variable"
+      description: "User input assigned to environment variable"
       stack: [js, ts]
     - regex: 'os\.environ\[.*request\.'
-      description: "Python user input gán env variable"
+      description: "Python user input assigned to env variable"
       stack: [py]
     - regex: 'putenv\(.*\$_(GET|POST)'
-      description: "PHP user input gán env variable"
+      description: "PHP user input assigned to env variable"
       stack: [php]
     - regex: '\+\s*req\.(body|params|query)'
-      description: "Nối chuỗi user input vào command"
+      description: "String concatenation of user input into command"
       stack: [js, ts]
     - regex: '\+\s*request\.(form|args|json)'
-      description: "Python nối chuỗi user input vào command"
+      description: "Python string concatenation of user input into command"
       stack: [py]
     - regex: '\|\s*\$\{'
-      description: "Pipe chain với template literal"
+      description: "Pipe chain with template literal"
       stack: [js, ts]
     - regex: '\|\s*"\s*\+'
-      description: "Pipe chain với nối chuỗi"
+      description: "Pipe chain with string concatenation"
       stack: [js, ts, py]
   fixes:
     - pattern: "exec() / shell mode"
-      fix: "Thay exec() bằng execFile() hoặc spawn() (không shell) — truyền arguments dạng mảng"
-    - pattern: "User input trong command"
-      fix: "Dùng allowlist cho giá trị hợp lệ, không truyền raw user input vào shell"
+      fix: "Replace exec() with execFile() or spawn() (no shell) — pass arguments as array"
+    - pattern: "User input in command"
+      fix: "Use allowlist for valid values, do not pass raw user input to shell"
     - pattern: "Argument injection"
-      fix: "Validate arguments, dùng -- để kết thúc options, escape shell metacharacters"
+      fix: "Validate arguments, use -- to terminate options, escape shell metacharacters"
     - pattern: "Environment variable injection"
-      fix: "Không cho user input gán env variable, dùng whitelist"
+      fix: "Do not allow user input to set env variables, use whitelist"
     - pattern: "PHP shell functions"
-      fix: "Dùng escapeshellarg() và escapeshellcmd() cho arguments, hoặc tránh shell functions"
+      fix: "Use escapeshellarg() and escapeshellcmd() for arguments, or avoid shell functions"
   fastcode_queries:
-    - "Liệt kê tất cả nơi gọi child_process hoặc exec/spawn trong dự án"
-    - "Biến truyền vào exec() có nguồn gốc từ user input không?"
-    - "Tìm tất cả nơi chạy shell command với user-controlled arguments"
+    - "List all places calling child_process or exec/spawn in the project"
+    - "Are variables passed to exec() derived from user input?"
+    - "Find all places running shell commands with user-controlled arguments"
 
 path-traversal:
   owasp: "A10:2021 SSRF"
@@ -350,58 +350,58 @@ path-traversal:
   evidence_file: evidence_sec_pathtr.md
   patterns:
     - regex: 'fs\.(readFile|writeFile|readFileSync|writeFileSync|createReadStream|createWriteStream|unlink|rmdir|mkdir|access|stat)\(.*req\.(body|params|query)'
-      description: "Node.js file operation với user input"
+      description: "Node.js file operation with user input"
       stack: [js, ts]
     - regex: 'path\.join\(.*req\.(body|params|query)'
-      description: "path.join với user input — thiếu prefix validation"
+      description: "path.join with user input — missing prefix validation"
       stack: [js, ts]
     - regex: 'path\.resolve\(.*req\.(body|params|query)'
-      description: "path.resolve với user input — cần kiểm tra startsWith()"
+      description: "path.resolve with user input — needs startsWith() check"
       stack: [js, ts]
     - regex: 'res\.(sendFile|download)\(.*req\.(body|params|query)'
-      description: "Express sendFile/download với user input"
+      description: "Express sendFile/download with user input"
       stack: [js, ts]
     - regex: '(include|require|include_once|require_once)\s*\(?\s*\$_(GET|POST|REQUEST)'
-      description: "PHP include/require với user input — LFI/RFI"
+      description: "PHP include/require with user input — LFI/RFI"
       stack: [php]
     - regex: 'file_get_contents\(.*\$_(GET|POST|REQUEST)'
-      description: "PHP file_get_contents với user input"
+      description: "PHP file_get_contents with user input"
       stack: [php]
     - regex: 'fopen\(.*\$_(GET|POST|REQUEST)'
-      description: "PHP fopen với user input"
+      description: "PHP fopen with user input"
       stack: [php]
     - regex: 'readfile\(.*\$_(GET|POST|REQUEST)'
-      description: "PHP readfile với user input"
+      description: "PHP readfile with user input"
       stack: [php]
     - regex: 'move_uploaded_file\(.*\$_(GET|POST|REQUEST)'
-      description: "PHP move_uploaded_file destination từ user"
+      description: "PHP move_uploaded_file destination from user"
       stack: [php]
     - regex: 'open\(.*request\.(form|args|json|files)'
-      description: "Python open() với user input"
+      description: "Python open() with user input"
       stack: [py]
     - regex: 'send_file\(.*request\.(form|args|json)'
-      description: "Flask send_file với user input"
+      description: "Flask send_file with user input"
       stack: [py]
     - regex: 'os\.path\.join\(.*request\.(form|args|json)'
-      description: "Python os.path.join với user input"
+      description: "Python os.path.join with user input"
       stack: [py]
     - regex: '\.\./'
-      description: "Pattern duyệt thư mục cha (../)"
+      description: "Parent directory traversal pattern (../)"
       stack: [js, ts, php, py, rb]
     - regex: '\.\.\\'
-      description: "Pattern duyệt thư mục cha Windows (..\\)"
+      description: "Parent directory traversal pattern Windows (..\\)"
       stack: [js, ts, php, py]
     - regex: 'decodeURIComponent'
-      description: "decodeURIComponent trước kiểm tra — double encoding bypass"
+      description: "decodeURIComponent before validation — double encoding bypass"
       stack: [js, ts]
     - regex: 'fetch\(.*req\.(body|params|query)'
-      description: "SSRF — fetch URL từ user input"
+      description: "SSRF — fetch URL from user input"
       stack: [js, ts]
     - regex: 'axios\.(get|post)\(.*req\.(body|params|query)'
-      description: "SSRF — axios request URL từ user input"
+      description: "SSRF — axios request URL from user input"
       stack: [js, ts]
     - regex: 'http\.get\(.*req\.(body|params|query)'
-      description: "SSRF — http.get URL từ user input"
+      description: "SSRF — http.get URL from user input"
       stack: [js, ts]
     - regex: '169\.254\.169\.254'
       description: "Cloud metadata SSRF target (AWS)"
@@ -410,32 +410,32 @@ path-traversal:
       description: "Cloud metadata SSRF target (GCP)"
       stack: [js, ts, py, php, rb, go]
     - regex: 'tar\.extract\('
-      description: "Zip Slip — extract archive từ user upload"
+      description: "Zip Slip — extract archive from user upload"
       stack: [js, ts, py]
     - regex: 'zipfile\.extractall\('
-      description: "Python Zip Slip — extractall không validate member paths"
+      description: "Python Zip Slip — extractall without validating member paths"
       stack: [py]
     - regex: 'AdmZip\('
-      description: "Node.js AdmZip — kiểm tra entry names cho ../"
+      description: "Node.js AdmZip — check entry names for ../"
       stack: [js, ts]
     - regex: 'fs\.readlink|os\.readlink'
-      description: "Symlink escape — follow symlink ra ngoài allowed directory"
+      description: "Symlink escape — follow symlink outside allowed directory"
       stack: [js, ts, py]
   fixes:
     - pattern: "Path traversal"
-      fix: "Dùng path.resolve(base, input) rồi kiểm tra resolvedPath.startsWith(base) — KHÔNG dùng path.join"
+      fix: "Use path.resolve(base, input) then check resolvedPath.startsWith(base) — DO NOT use path.join"
     - pattern: "SSRF"
-      fix: "Validate URL scheme (chỉ http/https), block internal IPs (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x)"
+      fix: "Validate URL scheme (http/https only), block internal IPs (10.x, 172.16-31.x, 192.168.x, 127.x, 169.254.x)"
     - pattern: "Zip Slip"
-      fix: "Validate entry.name không chứa ../ trước khi extract, dùng path.resolve + startsWith check"
+      fix: "Validate entry.name does not contain ../ before extraction, use path.resolve + startsWith check"
     - pattern: "PHP LFI/RFI"
-      fix: "Dùng whitelist file names, không cho user input vào include/require"
+      fix: "Use whitelist for file names, do not allow user input in include/require"
     - pattern: "Double encoding"
-      fix: "Decode trước rồi mới validate, kiểm tra cả %2e%2e%2f"
+      fix: "Decode first then validate, also check %2e%2e%2f"
   fastcode_queries:
-    - "Tìm tất cả nơi user input được dùng để xây dựng file path"
-    - "Liệt kê tất cả endpoint có sendFile, download, hoặc đọc file theo tham số"
-    - "Tìm tất cả nơi fetch/axios/http.get nhận URL từ user input"
+    - "Find all places where user input is used to construct file paths"
+    - "List all endpoints that use sendFile, download, or read files by parameter"
+    - "Find all places where fetch/axios/http.get receives URL from user input"
 
 secrets:
   owasp: "A02:2021 Cryptographic Failures"
@@ -470,34 +470,34 @@ secrets:
       description: "Hardcoded JWT token"
       stack: [js, ts, py, php, rb, go, java]
     - regex: '-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----'
-      description: "Private key trong source code"
+      description: "Private key in source code"
       stack: [js, ts, py, php, rb, go, java]
     - regex: '-----BEGIN PGP PRIVATE KEY BLOCK-----'
-      description: "PGP private key trong source code"
+      description: "PGP private key in source code"
       stack: [js, ts, py, php, rb, go, java]
     - regex: '(mongodb|mysql|postgres|postgresql|redis|amqp|mssql)://[^/\s''"]{10,}'
-      description: "Connection string chứa credentials"
+      description: "Connection string containing credentials"
       stack: [js, ts, py, php, rb, go, java]
     - regex: '(DATABASE_URL|REDIS_URL|MONGO_URI)\s*=\s*[''"](?!process\.env)'
       description: "Hardcode database/redis/mongo URL"
       stack: [js, ts, py, php]
     - regex: 'console\.(log|info|warn|error|debug)\(.*password'
-      description: "Log chứa password"
+      description: "Log containing password"
       stack: [js, ts]
     - regex: 'console\.(log|info|warn|error|debug)\(.*token'
-      description: "Log chứa token"
+      description: "Log containing token"
       stack: [js, ts]
     - regex: 'console\.(log|info|warn|error|debug)\(.*secret'
-      description: "Log chứa secret"
+      description: "Log containing secret"
       stack: [js, ts]
     - regex: 'console\.(log|info|warn|error|debug)\(.*req\.body\)'
-      description: "Log toàn bộ request body — có thể chứa thông tin nhạy cảm"
+      description: "Log entire request body — may contain sensitive information"
       stack: [js, ts]
     - regex: 'res\.(json|send)\(.*err\.(stack|message)'
-      description: "Stack trace trả về client"
+      description: "Stack trace returned to client"
       stack: [js, ts]
     - regex: 'res\.(json|send)\(.*error\.stack'
-      description: "Error stack trả về client"
+      description: "Error stack returned to client"
       stack: [js, ts]
     - regex: 'showStack:\s*true'
       description: "Express error handler expose stack"
@@ -507,21 +507,21 @@ secrets:
       stack: [py]
   fixes:
     - pattern: "Hardcoded credentials"
-      fix: "Chuyển sang environment variables (process.env, os.environ), dùng .env file (không commit)"
+      fix: "Move to environment variables (process.env, os.environ), use .env file (do not commit)"
     - pattern: "API keys"
-      fix: "Rotate key ngay lập tức, chuyển sang env vars, thêm .env vào .gitignore"
+      fix: "Rotate key immediately, move to env vars, add .env to .gitignore"
     - pattern: "Private keys"
-      fix: "Xóa khỏi repo, rotate key, dùng secrets manager (AWS Secrets Manager, HashiCorp Vault)"
+      fix: "Remove from repo, rotate key, use secrets manager (AWS Secrets Manager, HashiCorp Vault)"
     - pattern: "Connection strings"
-      fix: "Dùng env vars cho connection strings, không commit .env"
+      fix: "Use env vars for connection strings, do not commit .env"
     - pattern: "Logging sensitive data"
-      fix: "Redact sensitive fields trước khi log, dùng structured logging với field filtering"
+      fix: "Redact sensitive fields before logging, use structured logging with field filtering"
     - pattern: "Stack trace exposure"
-      fix: "Custom error handler trả generic message cho client, log chi tiết server-side"
+      fix: "Custom error handler returns generic message to client, logs details server-side"
   fastcode_queries:
-    - "Tìm tất cả nơi hardcode password, API key, hoặc secret trong dự án"
-    - "Liệt kê tất cả nơi log chứa thông tin nhạy cảm (password, token, secret)"
-    - "Kiểm tra .env file có bị commit vào repo không"
+    - "Find all places with hardcoded passwords, API keys, or secrets in the project"
+    - "List all places where logs contain sensitive information (password, token, secret)"
+    - "Check if .env files are committed to the repo"
 
 auth:
   owasp: "A01:2021 Broken Access Control"
@@ -529,76 +529,76 @@ auth:
   evidence_file: evidence_sec_auth.md
   patterns:
     - regex: 'req\.params\.(id|userId|orderId|fileId)'
-      description: "IDOR — route handler dùng ID từ params, cần kiểm tra ownership"
+      description: "IDOR — route handler uses ID from params, needs ownership check"
       stack: [js, ts]
     - regex: 'findOne\(.*req\.params|findById\(.*req\.params'
-      description: "IDOR — truy vấn DB không kiểm tra ownership"
+      description: "IDOR — DB query without ownership check"
       stack: [js, ts]
     - regex: '@Param\([''"]id[''"]\)'
-      description: "NestJS IDOR — controller nhận ID không có guard"
+      description: "NestJS IDOR — controller receives ID without guard"
       stack: [ts]
     - regex: '\$_GET\[.id.\]|\$_POST\[.id.\]'
-      description: "PHP IDOR — truy vấn với user-supplied ID"
+      description: "PHP IDOR — query with user-supplied ID"
       stack: [php]
     - regex: '\.create\(req\.body\)|\.update\(.*req\.body\)'
-      description: "Mass Assignment — truyền toàn bộ req.body vào ORM"
+      description: "Mass Assignment — passing entire req.body to ORM"
       stack: [js, ts]
     - regex: 'Object\.assign\(.*req\.body\)'
-      description: "Mass Assignment — Object.assign với req.body"
+      description: "Mass Assignment — Object.assign with req.body"
       stack: [js, ts]
     - regex: '\{\.\.\.req\.body\}'
       description: "Mass Assignment — spread req.body"
       stack: [js, ts]
     - regex: 'new\s+\w+\(req\.body\)'
-      description: "Mass Assignment — constructor nhận toàn bộ body"
+      description: "Mass Assignment — constructor receives entire body"
       stack: [js, ts]
     - regex: 'wp_update_user\(.*\$_POST'
-      description: "WordPress mass assignment — cập nhật user từ raw POST"
+      description: "WordPress mass assignment — updating user from raw POST"
       stack: [php]
     - regex: 'app\.(get|post|put|patch|delete)\('
-      description: "Route handler — kiểm tra có auth middleware không"
+      description: "Route handler — check for auth middleware"
       stack: [js, ts]
     - regex: 'router\.(get|post|put|delete)\('
-      description: "Router handler — kiểm tra có auth middleware không"
+      description: "Router handler — check for auth middleware"
       stack: [js, ts]
     - regex: 'jwt\.decode\('
-      description: "JWT decode thay vì verify — không xác thực signature"
+      description: "JWT decode instead of verify — does not validate signature"
       stack: [js, ts, py]
     - regex: 'algorithms:\s*\[[''"]none[''"]\]'
-      description: "JWT cho phép algorithm none — bypass xác thực"
+      description: "JWT allows algorithm none — bypasses authentication"
       stack: [js, ts]
     - regex: 'jwt\.sign\(.*expiresIn.*[''"]30d[''"]'
-      description: "JWT token hết hạn quá dài (>24h)"
+      description: "JWT token expiration too long (>24h)"
       stack: [js, ts]
     - regex: 'cors\(\{.*origin:\s*true'
-      description: "CORS mở toàn bộ origin"
+      description: "CORS open to all origins"
       stack: [js, ts]
     - regex: 'origin:\s*[''"]?\*[''"]?'
       description: "CORS wildcard origin"
       stack: [js, ts]
     - regex: 'req\.body\.role|req\.body\.isAdmin'
-      description: "Privilege escalation — user tự set role/admin"
+      description: "Privilege escalation — user self-sets role/admin"
       stack: [js, ts]
     - regex: 'update_user_meta\(.*\$_POST\[.role.\]'
-      description: "WordPress privilege escalation — user tự đổi role"
+      description: "WordPress privilege escalation — user self-changes role"
       stack: [php]
   fixes:
     - pattern: "IDOR"
-      fix: "Kiểm tra ownership: req.user.id === resource.owner trước khi trả data"
+      fix: "Check ownership: req.user.id === resource.owner before returning data"
     - pattern: "Mass Assignment"
-      fix: "Whitelist fields cho phép: const { name, email } = req.body — KHÔNG dùng toàn bộ body"
-    - pattern: "Thiếu auth middleware"
-      fix: "Thêm auth middleware vào route: app.get('/api/resource', authMiddleware, handler)"
+      fix: "Whitelist allowed fields: const { name, email } = req.body — DO NOT use entire body"
+    - pattern: "Missing auth middleware"
+      fix: "Add auth middleware to route: app.get('/api/resource', authMiddleware, handler)"
     - pattern: "JWT misconfiguration"
-      fix: "Dùng jwt.verify() thay vì decode(), chỉ định algorithms: ['HS256'], expiresIn ≤ 24h"
+      fix: "Use jwt.verify() instead of decode(), specify algorithms: ['HS256'], expiresIn ≤ 24h"
     - pattern: "CSRF"
-      fix: "Thêm CSRF token vào mutation routes, set SameSite=Strict trên cookie"
+      fix: "Add CSRF token to mutation routes, set SameSite=Strict on cookie"
     - pattern: "Privilege escalation"
-      fix: "Không cho client set role — role chỉ được gán server-side bởi admin"
+      fix: "Do not allow client to set role — role should only be assigned server-side by admin"
   fastcode_queries:
-    - "Liệt kê tất cả route handlers và middleware tương ứng"
-    - "Route nào có kiểm tra quyền sở hữu (ownership) trước khi trả data?"
-    - "Model nào có whitelist/blacklist fields cho create/update?"
+    - "List all route handlers and their corresponding middleware"
+    - "Which routes check ownership before returning data?"
+    - "Which models have whitelist/blacklist fields for create/update?"
 
 deserialization:
   owasp: "A08:2021 Software and Data Integrity"
@@ -606,7 +606,7 @@ deserialization:
   evidence_file: evidence_sec_deser.md
   patterns:
     - regex: 'node-serialize|serialize-javascript'
-      description: "Thư viện có RCE payload công khai"
+      description: "Library with publicly known RCE payload"
       stack: [js, ts]
     - regex: '\.unserialize\('
       description: "node-serialize unserialize — RCE vector"
@@ -615,16 +615,16 @@ deserialization:
       description: "YAML unsafe load (pre v4)"
       stack: [js, ts]
     - regex: 'yaml\.load\('
-      description: "YAML load không an toàn (cần SafeLoader hoặc safe_load)"
+      description: "YAML unsafe load (needs SafeLoader or safe_load)"
       stack: [js, ts, py, rb]
     - regex: 'vm\.runInNewContext\(|vm\.runInContext\('
-      description: "VM sandbox — có thể bị escape"
+      description: "VM sandbox — can be escaped"
       stack: [js, ts]
     - regex: 'unserialize\('
-      description: "PHP unserialize — nguy hiểm với untrusted input"
+      description: "PHP unserialize — dangerous with untrusted input"
       stack: [php]
     - regex: 'unserialize\(.*\$_(GET|POST|REQUEST|COOKIE)'
-      description: "PHP unserialize trực tiếp từ user input — RCE"
+      description: "PHP unserialize directly from user input — RCE"
       stack: [php]
     - regex: 'unserialize\(.*base64_decode'
       description: "PHP unserialize payload obfuscated"
@@ -633,16 +633,16 @@ deserialization:
       description: "WordPress unserialize wrapper"
       stack: [php]
     - regex: 'pickle\.loads?\('
-      description: "Python pickle — RCE confirmed, không có safe mode"
+      description: "Python pickle — RCE confirmed, no safe mode"
       stack: [py]
     - regex: 'cPickle\.loads?\('
-      description: "Python cPickle — cùng lỗ hổng với pickle"
+      description: "Python cPickle — same vulnerability as pickle"
       stack: [py]
     - regex: 'yaml\.unsafe_load\(|yaml\.full_load\('
       description: "Python YAML explicitly unsafe"
       stack: [py]
     - regex: 'shelve\.open\('
-      description: "Python shelve — dùng pickle internally"
+      description: "Python shelve — uses pickle internally"
       stack: [py]
     - regex: 'marshal\.loads?\('
       description: "Python marshal — arbitrary code execution"
@@ -651,13 +651,13 @@ deserialization:
       description: "Python jsonpickle — unsafe by design"
       stack: [py]
     - regex: 'Marshal\.load\(|Marshal\.restore\('
-      description: "Ruby Marshal — RCE nếu input untrusted"
+      description: "Ruby Marshal — RCE if input is untrusted"
       stack: [rb]
     - regex: 'YAML\.load\('
-      description: "Ruby YAML.load — Psych YAML RCE (dùng safe_load thay)"
+      description: "Ruby YAML.load — Psych YAML RCE (use safe_load instead)"
       stack: [rb]
     - regex: 'ObjectInputStream'
-      description: "Java native deserialization — RCE vector phổ biến nhất"
+      description: "Java native deserialization — most common RCE vector"
       stack: [java]
     - regex: 'readObject\(\)|readUnshared\(\)'
       description: "Java deserialize method"
@@ -666,19 +666,19 @@ deserialization:
       description: "Java XML-based deserialization"
       stack: [java]
     - regex: 'XStream\.fromXML\('
-      description: "XStream — mặc định unsafe"
+      description: "XStream — unsafe by default"
       stack: [java]
     - regex: 'render_template_string\('
-      description: "SSTI — Flask/Jinja2 user input làm template"
+      description: "SSTI — Flask/Jinja2 user input as template"
       stack: [py]
     - regex: 'Template\(.*request\.(form|args|json)'
-      description: "SSTI — Jinja2 user input tạo template"
+      description: "SSTI — Jinja2 user input creates template"
       stack: [py]
     - regex: 'Twig.*createTemplate\('
       description: "SSTI — Twig user template"
       stack: [php]
     - regex: 'ejs\.render\(.*req\.'
-      description: "SSTI — EJS user input vào template"
+      description: "SSTI — EJS user input into template"
       stack: [js, ts]
     - regex: 'Handlebars\.compile\(.*req\.'
       description: "SSTI — Handlebars user template"
@@ -687,31 +687,31 @@ deserialization:
       description: "SSTI — Pug user template"
       stack: [js, ts]
     - regex: 'libxml_disable_entity_loader\(false\)'
-      description: "XXE — PHP explicitly enable external entities"
+      description: "XXE — PHP explicitly enables external entities"
       stack: [php]
     - regex: 'simplexml_load_string\(.*\$_(GET|POST)'
-      description: "XXE — PHP XML từ user input"
+      description: "XXE — PHP XML from user input"
       stack: [php]
     - regex: 'lxml\.etree\.parse\('
-      description: "XXE — Python lxml (cần resolve_entities=False)"
+      description: "XXE — Python lxml (needs resolve_entities=False)"
       stack: [py]
   fixes:
     - pattern: "Node.js deserialization"
-      fix: "Không dùng node-serialize. Dùng JSON.parse() cho data, yaml.safeLoad/load với SAFE_SCHEMA"
+      fix: "Do not use node-serialize. Use JSON.parse() for data, yaml.safeLoad/load with SAFE_SCHEMA"
     - pattern: "PHP unserialize"
-      fix: "Dùng json_decode() thay vì unserialize(). Nếu bắt buộc, dùng allowed_classes option"
+      fix: "Use json_decode() instead of unserialize(). If necessary, use allowed_classes option"
     - pattern: "Python pickle"
-      fix: "Dùng JSON thay vì pickle cho untrusted data. Nếu cần serialize phức tạp, dùng marshmallow"
+      fix: "Use JSON instead of pickle for untrusted data. If complex serialization needed, use marshmallow"
     - pattern: "SSTI"
-      fix: "Không dùng render_template_string với user input. Dùng render_template với file template cố định"
+      fix: "Do not use render_template_string with user input. Use render_template with fixed template files"
     - pattern: "XXE"
       fix: "Disable external entities: libxml_disable_entity_loader(true), lxml resolve_entities=False"
     - pattern: "Ruby deserialization"
-      fix: "Dùng YAML.safe_load thay vì YAML.load, JSON.parse thay vì Marshal.load"
+      fix: "Use YAML.safe_load instead of YAML.load, JSON.parse instead of Marshal.load"
   fastcode_queries:
-    - "Dữ liệu truyền vào pickle.loads()/unserialize() đến từ đâu?"
-    - "Liệt kê tất cả nơi dùng unserialize/pickle/Marshal trong dự án"
-    - "Tìm tất cả nơi render template từ user input (render_template_string, Handlebars.compile)"
+    - "Where does data passed to pickle.loads()/unserialize() come from?"
+    - "List all places using unserialize/pickle/Marshal in the project"
+    - "Find all places rendering templates from user input (render_template_string, Handlebars.compile)"
 
 misconfig:
   owasp: "A05:2021 Security Misconfiguration"
@@ -719,58 +719,58 @@ misconfig:
   evidence_file: evidence_sec_misconfig.md
   patterns:
     - regex: 'cors\(\)'
-      description: "CORS không có options — cho phép tất cả origin"
+      description: "CORS without options — allows all origins"
       stack: [js, ts]
     - regex: 'Access-Control-Allow-Origin.*\*'
       description: "CORS header wildcard"
       stack: [js, ts, php, py]
     - regex: 'credentials:\s*true'
-      description: "CORS credentials true — kiểm tra kết hợp origin"
+      description: "CORS credentials true — check origin combination"
       stack: [js, ts]
     - regex: 'origin:.*req\.(headers\.origin|get\(.origin.\))'
-      description: "CORS reflect origin — bypass CORS"
+      description: "CORS reflect origin — bypasses CORS"
       stack: [js, ts]
     - regex: 'debug:\s*true'
-      description: "Debug mode bật — kiểm tra production config"
+      description: "Debug mode enabled — check production config"
       stack: [js, ts, py]
     - regex: 'DEBUG\s*=\s*True'
-      description: "Django/Flask debug mode bật"
+      description: "Django/Flask debug mode enabled"
       stack: [py]
     - regex: 'stackTrace:\s*true|stack:\s*true'
-      description: "Stack trace trong response"
+      description: "Stack trace in response"
       stack: [js, ts]
     - regex: 'NODE_ENV.*development'
-      description: "NODE_ENV development trong production code"
+      description: "NODE_ENV development in production code"
       stack: [js, ts]
     - regex: 'WP_DEBUG.*true'
-      description: "WordPress debug mode bật"
+      description: "WordPress debug mode enabled"
       stack: [php]
     - regex: 'display_errors.*On'
-      description: "PHP display_errors bật"
+      description: "PHP display_errors enabled"
       stack: [php]
     - regex: 'error_reporting.*E_ALL'
       description: "PHP error_reporting E_ALL"
       stack: [php]
     - regex: 'cookie.*secure:\s*false'
-      description: "Cookie truyền qua HTTP (không HTTPS)"
+      description: "Cookie transmitted over HTTP (not HTTPS)"
       stack: [js, ts]
     - regex: 'new RegExp\(.*req\.(body|params|query)'
-      description: "ReDoS — regex injection từ user input"
+      description: "ReDoS — regex injection from user input"
       stack: [js, ts]
     - regex: 'new RegExp\(.*\$_(GET|POST|REQUEST)'
-      description: "PHP ReDoS — regex injection từ user input"
+      description: "PHP ReDoS — regex injection from user input"
       stack: [php]
     - regex: 're\.compile\(.*request\.(form|args)'
-      description: "Python ReDoS — regex injection từ user input"
+      description: "Python ReDoS — regex injection from user input"
       stack: [py]
     - regex: 'USER root'
-      description: "Dockerfile container chạy root"
+      description: "Dockerfile container running as root"
       stack: [dockerfile]
     - regex: '--privileged'
       description: "Docker privileged mode"
       stack: [yaml, yml]
     - regex: 'EXPOSE 22'
-      description: "SSH trong container"
+      description: "SSH in container"
       stack: [dockerfile]
     - regex: 'rejectUnauthorized:\s*false'
       description: "Disable TLS verification"
@@ -786,23 +786,23 @@ misconfig:
       stack: [go]
   fixes:
     - pattern: "CORS misconfiguration"
-      fix: "Chỉ định origin cụ thể, không dùng wildcard. Nếu cần credentials, phải whitelist origin"
+      fix: "Specify exact origins, do not use wildcard. If credentials needed, must whitelist origins"
     - pattern: "Debug mode"
-      fix: "Tắt debug mode trong production: DEBUG=False, NODE_ENV=production"
-    - pattern: "Thiếu security headers"
-      fix: "Dùng helmet (Express), set CSP, X-Frame-Options, HSTS, X-Content-Type-Options"
+      fix: "Disable debug mode in production: DEBUG=False, NODE_ENV=production"
+    - pattern: "Missing security headers"
+      fix: "Use helmet (Express), set CSP, X-Frame-Options, HSTS, X-Content-Type-Options"
     - pattern: "Cookie misconfiguration"
       fix: "Set cookie: secure=true, httpOnly=true, sameSite='strict'"
     - pattern: "ReDoS"
-      fix: "Không tạo RegExp từ user input. Nếu cần, dùng RE2 (linear-time regex engine)"
+      fix: "Do not create RegExp from user input. If needed, use RE2 (linear-time regex engine)"
     - pattern: "TLS disabled"
-      fix: "Không bao giờ disable TLS verification trong production"
+      fix: "Never disable TLS verification in production"
     - pattern: "Docker security"
-      fix: "Dùng USER non-root trong Dockerfile, không dùng --privileged"
+      fix: "Use non-root USER in Dockerfile, do not use --privileged"
   fastcode_queries:
-    - "Dự án dùng helmet hoặc security headers middleware nào?"
-    - "Liệt kê tất cả login/auth endpoints và middleware tương ứng"
-    - "Tìm tất cả nơi cấu hình CORS trong dự án"
+    - "Does the project use helmet or any security headers middleware?"
+    - "List all login/auth endpoints and their corresponding middleware"
+    - "Find all CORS configurations in the project"
 
 prototype-pollution:
   owasp: "A03:2021 Injection"
@@ -810,57 +810,57 @@ prototype-pollution:
   evidence_file: evidence_sec_pollution.md
   patterns:
     - regex: 'Object\.assign\(.*req\.(body|params|query)'
-      description: "Object.assign với user input — shallow merge nguy hiểm"
+      description: "Object.assign with user input — dangerous shallow merge"
       stack: [js, ts]
     - regex: '\{\.\.\.req\.(body|query|params)\}'
-      description: "Spread operator từ user input"
+      description: "Spread operator from user input"
       stack: [js, ts]
     - regex: '\.merge\(.*req\.(body|query|params)'
-      description: "lodash/underscore merge với user input"
+      description: "lodash/underscore merge with user input"
       stack: [js, ts]
     - regex: '\.defaultsDeep\(.*req\.(body|query|params)'
-      description: "lodash defaultsDeep với user input (CVE-2019-10744)"
+      description: "lodash defaultsDeep with user input (CVE-2019-10744)"
       stack: [js, ts]
     - regex: '\.extend\(.*req\.(body|query|params)'
-      description: "jQuery/underscore extend với user input"
+      description: "jQuery/underscore extend with user input"
       stack: [js, ts]
     - regex: 'deepMerge\(.*req\.|deepClone\(.*req\.|deepAssign\(.*req\.'
-      description: "Custom deep merge/clone với user input"
+      description: "Custom deep merge/clone with user input"
       stack: [js, ts]
     - regex: 'function.*merge.*\('
-      description: "Custom merge function — kiểm tra key filtering"
+      description: "Custom merge function — check key filtering"
       stack: [js, ts]
     - regex: 'function.*deep(Copy|Clone|Merge|Assign)'
-      description: "Custom deep function — kiểm tra __proto__/constructor filtering"
+      description: "Custom deep function — check __proto__/constructor filtering"
       stack: [js, ts]
     - regex: '\[req\.(body|params|query)\['
-      description: "Dynamic property access với user-controlled key"
+      description: "Dynamic property access with user-controlled key"
       stack: [js, ts]
     - regex: '__proto__'
       description: "__proto__ — prototype pollution payload"
       stack: [js, ts]
     - regex: '__proto__\.outputFunctionName'
-      description: "EJS RCE gadget qua prototype pollution"
+      description: "EJS RCE gadget via prototype pollution"
       stack: [js, ts]
     - regex: '__proto__\.client|__proto__\.escapeFunction'
-      description: "Pug RCE gadget qua prototype pollution"
+      description: "Pug RCE gadget via prototype pollution"
       stack: [js, ts]
     - regex: '__proto__\.allowProtoMethodsByDefault'
       description: "Handlebars method invocation gadget"
       stack: [js, ts]
   fixes:
-    - pattern: "Deep merge từ user input"
-      fix: "Dùng Object.create(null) làm target, hoặc filter keys: key !== '__proto__' && key !== 'constructor' && key !== 'prototype'"
+    - pattern: "Deep merge from user input"
+      fix: "Use Object.create(null) as target, or filter keys: key !== '__proto__' && key !== 'constructor' && key !== 'prototype'"
     - pattern: "Dynamic property access"
-      fix: "Dùng Map thay vì plain object cho user-controlled keys"
-    - pattern: "Thư viện CVE"
+      fix: "Use Map instead of plain object for user-controlled keys"
+    - pattern: "Library CVE"
       fix: "Upgrade lodash ≥ 4.17.21, minimist ≥ 1.2.6, qs ≥ 6.10.3"
     - pattern: "Gadget chain"
-      fix: "Upgrade template engine, dùng Object.freeze(Object.prototype) nếu cần"
+      fix: "Upgrade template engine, use Object.freeze(Object.prototype) if needed"
   fastcode_queries:
-    - "Tìm tất cả nơi merge/assign object với user input"
-    - "Liệt kê tất cả custom deep merge/clone functions trong dự án"
-    - "Kiểm tra dự án có dùng template engine nào có gadget chain không?"
+    - "Find all places merging/assigning objects with user input"
+    - "List all custom deep merge/clone functions in the project"
+    - "Check if the project uses any template engine with known gadget chains"
 
 crypto:
   owasp: "A02:2021 Cryptographic Failures"
@@ -868,7 +868,7 @@ crypto:
   evidence_file: evidence_sec_crypto.md
   patterns:
     - regex: 'createHash\([''"]md5[''"]\)'
-      description: "MD5 hash — thuật toán yếu, collision-prone"
+      description: "MD5 hash — weak algorithm, collision-prone"
       stack: [js, ts]
     - regex: 'createHash\([''"]sha1[''"]\)'
       description: "SHA1 hash — collision-prone"
@@ -895,19 +895,19 @@ crypto:
       description: "Ruby MD5 hash"
       stack: [rb]
     - regex: 'createHash\(.*\)\.update\(.*password'
-      description: "Hash password bằng SHA/MD5 — phải dùng bcrypt/argon2"
+      description: "Hashing password with SHA/MD5 — must use bcrypt/argon2"
       stack: [js, ts]
     - regex: 'hashlib\.\w+\(.*password'
-      description: "Python hash password không dùng bcrypt"
+      description: "Python hashing password without bcrypt"
       stack: [py]
     - regex: 'md5\(\$.*password\)'
       description: "PHP md5 password"
       stack: [php]
     - regex: 'sha256\(.*password'
-      description: "SHA256 cho password — quá nhanh, dễ brute-force"
+      description: "SHA256 for password — too fast, easy to brute-force"
       stack: [js, ts, py, php]
     - regex: 'Math\.random\(\)'
-      description: "JS Math.random() — không cryptographic"
+      description: "JS Math.random() — not cryptographic"
       stack: [js, ts]
     - regex: 'random\.random\(\)|random\.randint\('
       description: "Python non-crypto random"
@@ -916,13 +916,13 @@ crypto:
       description: "PHP non-crypto random"
       stack: [php]
     - regex: 'java\.util\.Random'
-      description: "Java non-crypto Random (cần SecureRandom)"
+      description: "Java non-crypto Random (needs SecureRandom)"
       stack: [java]
     - regex: 'createCipheriv\([''"]des[''"]\)'
       description: "DES — 56-bit, broken"
       stack: [js, ts]
     - regex: 'createCipheriv\([''"]des-ede3[''"]\)'
-      description: "3DES — deprecated, chậm"
+      description: "3DES — deprecated, slow"
       stack: [js, ts]
     - regex: 'createCipheriv\([''"]rc4[''"]\)'
       description: "RC4 — broken"
@@ -931,16 +931,16 @@ crypto:
       description: "AES-ECB — no IV, pattern leaking"
       stack: [js, ts]
     - regex: 'localStorage\.setItem\(.*token'
-      description: "Token lưu localStorage — XSS có thể đánh cắp"
+      description: "Token stored in localStorage — XSS can steal it"
       stack: [js, ts]
     - regex: 'localStorage\.setItem\(.*password'
-      description: "Password lưu localStorage"
+      description: "Password stored in localStorage"
       stack: [js, ts]
     - regex: 'rejectUnauthorized:\s*false'
       description: "Disable TLS verification — MITM attack"
       stack: [js, ts]
     - regex: 'verify\s*=\s*False'
-      description: "Python requests verify=False — disable SSL"
+      description: "Python requests verify=False — disables SSL"
       stack: [py]
     - regex: 'ssl\.PROTOCOL_TLSv1\b'
       description: "Python TLS 1.0 — deprecated"
@@ -949,23 +949,23 @@ crypto:
       description: "SSLv3 — POODLE attack"
       stack: [js, ts, py, php, java]
     - regex: 'Buffer\.alloc\(16\)'
-      description: "Zero IV — kiểm tra nếu dùng trước createCipheriv"
+      description: "Zero IV — check if used before createCipheriv"
       stack: [js, ts]
   fixes:
-    - pattern: "Thuật toán hash yếu"
-      fix: "Dùng SHA-256/SHA-3 cho checksum. Cho password: bcrypt (cost ≥ 10), argon2id, scrypt, PBKDF2 (iterations ≥ 100000)"
-    - pattern: "PRNG yếu"
-      fix: "Dùng crypto.randomBytes (Node.js), os.urandom (Python), SecureRandom (Java) cho token/OTP/session"
-    - pattern: "Mã hóa yếu"
-      fix: "Dùng AES-256-GCM hoặc ChaCha20-Poly1305. Không dùng DES/RC4/ECB"
+    - pattern: "Weak hash algorithm"
+      fix: "Use SHA-256/SHA-3 for checksums. For passwords: bcrypt (cost ≥ 10), argon2id, scrypt, PBKDF2 (iterations ≥ 100000)"
+    - pattern: "Weak PRNG"
+      fix: "Use crypto.randomBytes (Node.js), os.urandom (Python), SecureRandom (Java) for token/OTP/session"
+    - pattern: "Weak encryption"
+      fix: "Use AES-256-GCM or ChaCha20-Poly1305. Do not use DES/RC4/ECB"
     - pattern: "TLS disabled"
-      fix: "Không bao giờ disable TLS verification trong production. Dùng TLS 1.2+ với cipher suite mạnh"
-    - pattern: "IV/Nonce tĩnh"
-      fix: "Luôn tạo IV/nonce ngẫu nhiên bằng crypto.randomBytes() cho mỗi lần mã hóa"
+      fix: "Never disable TLS verification in production. Use TLS 1.2+ with strong cipher suites"
+    - pattern: "Static IV/Nonce"
+      fix: "Always generate random IV/nonce using crypto.randomBytes() for each encryption"
   fastcode_queries:
-    - "Biến nào được hash tại file có phải là password/token không?"
-    - "Math.random() trong dự án được dùng cho mục đích an ninh không?"
-    - "Tìm tất cả nơi dùng crypto/hash functions và mục đích sử dụng"
+    - "Are variables being hashed in files passwords/tokens?"
+    - "Is Math.random() in the project used for security purposes?"
+    - "Find all places using crypto/hash functions and their purposes"
 
 insecure-design:
   owasp: "A04:2021 Insecure Design"
@@ -973,65 +973,65 @@ insecure-design:
   evidence_file: evidence_sec_design.md
   patterns:
     - regex: 'if\s*\(.*balance.*[><=]'
-      description: "Check-then-act trên balance — race condition tiềm năng"
+      description: "Check-then-act on balance — potential race condition"
       stack: [js, ts, py, php, java, go]
     - regex: 'if\s*\(.*stock.*[><=]'
-      description: "Kiểm tra tồn kho — race condition giữa 2 request"
+      description: "Inventory check — race condition between 2 requests"
       stack: [js, ts, py, php, java, go]
     - regex: 'if\s*\(.*count.*<'
-      description: "Kiểm tra limit rồi tăng — race condition"
+      description: "Limit check then increment — race condition"
       stack: [js, ts, py, php, java, go]
     - regex: 'fs\.existsSync\(.*\)'
-      description: "TOCTOU — kiểm tra file tồn tại trước khi thao tác"
+      description: "TOCTOU — checking file exists before operation"
       stack: [js, ts]
     - regex: 'os\.path\.exists\('
-      description: "Python TOCTOU — kiểm tra file tồn tại rồi open"
+      description: "Python TOCTOU — checking file exists then opening"
       stack: [py]
     - regex: 'applyCoupon|applyDiscount|useVoucher'
-      description: "Coupon/discount — kiểm tra có validate đã dùng chưa"
+      description: "Coupon/discount — check if validated as already used"
       stack: [js, ts, py, php, java]
     - regex: 'price|amount|total'
-      description: "Giá/tổng — kiểm tra lấy từ req.body hay tính server-side"
+      description: "Price/total — check if taken from req.body or calculated server-side"
       stack: [js, ts, py, php, java]
     - regex: 'POST.*/login|signin'
-      description: "Login endpoint — cần rate limiting"
+      description: "Login endpoint — needs rate limiting"
       stack: [js, ts, py, php, java]
     - regex: 'POST.*/register|signup'
-      description: "Register endpoint — cần rate limiting"
+      description: "Register endpoint — needs rate limiting"
       stack: [js, ts, py, php, java]
     - regex: 'POST.*/forgot-password|reset-password'
-      description: "Password reset — cần rate limiting"
+      description: "Password reset — needs rate limiting"
       stack: [js, ts, py, php, java]
     - regex: 'POST.*/otp|verify|2fa'
       description: "OTP verification — brute-force 6 digits = 1M attempts"
       stack: [js, ts, py, php, java]
     - regex: 'POST.*/transfer|withdraw|payment'
-      description: "Financial transaction — cần rate limiting và transaction"
+      description: "Financial transaction — needs rate limiting and transaction"
       stack: [js, ts, py, php, java]
     - regex: 'maxFileSize|limits|fileSize|MAX_FILE_SIZE'
-      description: "Upload limit — kiểm tra có giới hạn không"
+      description: "Upload limit — check if limit exists"
       stack: [js, ts, py, php, java]
     - regex: 'sendMail|sendSms|sendNotification'
-      description: "Gửi email/SMS — cần rate limiting để tránh abuse"
+      description: "Sending email/SMS — needs rate limiting to prevent abuse"
       stack: [js, ts, py, php, java]
     - regex: 'status\s*=\s*[''"]'
-      description: "Direct status assignment — kiểm tra state machine validation"
+      description: "Direct status assignment — check state machine validation"
       stack: [js, ts, py, php, java]
   fixes:
     - pattern: "Race condition"
-      fix: "Dùng database transaction + SELECT FOR UPDATE, hoặc distributed lock (Redis/Redlock)"
+      fix: "Use database transaction + SELECT FOR UPDATE, or distributed lock (Redis/Redlock)"
     - pattern: "Business logic bypass"
-      fix: "Tính giá/tổng server-side từ database, validate trạng thái trước khi chuyển đổi"
-    - pattern: "Thiếu rate limiting"
-      fix: "Thêm rate limiter (express-rate-limit, @nestjs/throttler) vào endpoints nhạy cảm"
+      fix: "Calculate price/total server-side from database, validate state before transition"
+    - pattern: "Missing rate limiting"
+      fix: "Add rate limiter (express-rate-limit, @nestjs/throttler) to sensitive endpoints"
     - pattern: "Missing abuse case"
-      fix: "Giới hạn upload size, bulk operations, pagination, email sending frequency"
+      fix: "Limit upload size, bulk operations, pagination, email sending frequency"
     - pattern: "State transition"
-      fix: "Dùng state machine pattern, enum cho states, validate previous state trước khi chuyển"
+      fix: "Use state machine pattern, enum for states, validate previous state before transition"
   fastcode_queries:
-    - "Endpoint nào có rate limiting middleware?"
-    - "Function nào có sử dụng database transaction?"
-    - "Giá trị price/amount/total có được tính lại server-side hay lấy từ client?"
+    - "Which endpoints have rate limiting middleware?"
+    - "Which functions use database transactions?"
+    - "Is price/amount/total recalculated server-side or taken from client?"
 
 vuln-deps:
   owasp: "A06:2021 Vulnerable Components"
@@ -1045,7 +1045,7 @@ vuln-deps:
       description: "minimist < 1.2.6 — Prototype Pollution"
       stack: [js, ts]
     - regex: '"express":\s*"[<^~]?[0-3]\.'
-      description: "express < 4.x — nhiều CVE"
+      description: "express < 4.x — multiple CVEs"
       stack: [js, ts]
     - regex: '"jsonwebtoken":\s*"[<^~]?[0-7]\.'
       description: "jsonwebtoken < 8.x — algorithm confusion"
@@ -1063,7 +1063,7 @@ vuln-deps:
       description: "serialize-javascript — XSS"
       stack: [js, ts]
     - regex: '"node-serialize"'
-      description: "node-serialize — RCE by design, bất kỳ version"
+      description: "node-serialize — RCE by design, any version"
       stack: [js, ts]
     - regex: '"merge":\s*"[<^~]?[01]\.'
       description: "merge — Prototype Pollution"
@@ -1078,21 +1078,21 @@ vuln-deps:
       description: "PyYAML — CVE-2020-1747"
       stack: [py]
     - regex: 'deprecated'
-      description: "Package deprecated trong lockfile"
+      description: "Package deprecated in lockfile"
       stack: [js, ts, py, php, rb]
   fixes:
     - pattern: "Known CVE packages"
-      fix: "Chạy npm audit fix / pip install --upgrade [package] để cập nhật lên phiên bản an toàn"
+      fix: "Run npm audit fix / pip install --upgrade [package] to update to safe version"
     - pattern: "Dependency confusion"
-      fix: "Đặt private: true trong package.json, dùng scoped packages (@org/), cấu hình registry chính xác"
+      fix: "Set private: true in package.json, use scoped packages (@org/), configure registry correctly"
     - pattern: "Lockfile integrity"
-      fix: "Chạy npm ci (không npm install) trong CI/CD, kiểm tra integrity field trong lockfile"
+      fix: "Run npm ci (not npm install) in CI/CD, check integrity field in lockfile"
     - pattern: "EOL runtime"
       fix: "Upgrade Node.js ≥ 18, Python ≥ 3.9"
   fastcode_queries:
-    - "Liệt kê tất cả dependencies và phiên bản trong dự án"
-    - "Kiểm tra package.json/requirements.txt có dependency nào deprecated không"
-    - "Tìm tất cả nơi import package có CVE đã biết"
+    - "List all dependencies and their versions in the project"
+    - "Check if package.json/requirements.txt has any deprecated dependencies"
+    - "Find all imports of packages with known CVEs"
 
 logging:
   owasp: "A09:2021 Security Logging Failures"
@@ -1100,68 +1100,68 @@ logging:
   evidence_file: evidence_sec_logging.md
   patterns:
     - regex: 'login|signin|authenticate'
-      description: "Login handler — PHẢI có audit log"
+      description: "Login handler — MUST have audit log"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'logout|signout'
-      description: "Logout handler — PHẢI log session termination"
+      description: "Logout handler — MUST log session termination"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'register|signup|createUser'
-      description: "Register handler — PHẢI log new account creation"
+      description: "Register handler — MUST log new account creation"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'changePassword|resetPassword|forgotPassword'
-      description: "Password change handler — PHẢI log password events"
+      description: "Password change handler — MUST log password events"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'deleteUser|deleteAccount|deactivate'
-      description: "Delete account handler — PHẢI log account deletion"
+      description: "Delete account handler — MUST log account deletion"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'role|permission|grant|revoke|admin'
-      description: "Privilege change handler — PHẢI log privilege changes"
+      description: "Privilege change handler — MUST log privilege changes"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'payment|charge|refund|transfer|withdraw'
-      description: "Financial transaction handler — PHẢI log transactions"
+      description: "Financial transaction handler — MUST log transactions"
       stack: [js, ts, py, php, java, go, rb]
     - regex: 'console\.log\(.*\+.*req\.(body|params|query|headers)'
-      description: "Log injection — user input nối vào log"
+      description: "Log injection — user input concatenated into log"
       stack: [js, ts]
     - regex: 'logger\.\w+\(.*\$\{.*req\.'
-      description: "Log injection — template literal với user input trong log"
+      description: "Log injection — template literal with user input in log"
       stack: [js, ts]
     - regex: 'console\.log\(.*password'
-      description: "PII trong log — password"
+      description: "PII in log — password"
       stack: [js, ts]
     - regex: 'console\.log\(.*token'
-      description: "PII trong log — token"
+      description: "PII in log — token"
       stack: [js, ts]
     - regex: 'console\.log\(.*secret'
-      description: "PII trong log — secret"
+      description: "PII in log — secret"
       stack: [js, ts]
     - regex: 'console\.log\(.*credit.?card'
-      description: "PII trong log — credit card"
+      description: "PII in log — credit card"
       stack: [js, ts]
     - regex: 'console\.log\(.*req\.body\)'
-      description: "Dump toàn bộ request body vào log — PII leak"
+      description: "Dump entire request body to log — PII leak"
       stack: [js, ts]
     - regex: 'logger\.\w+\(.*req\.headers\)'
-      description: "Dump headers vào log — chứa Authorization"
+      description: "Dump headers to log — contains Authorization"
       stack: [js, ts]
     - regex: 'console\.log\(.*err\.stack\)'
-      description: "Stack trace trong log — expose internal paths"
+      description: "Stack trace in log — exposes internal paths"
       stack: [js, ts]
     - regex: 'printStackTrace\(\)'
       description: "Java stack trace exposure"
       stack: [java]
   fixes:
-    - pattern: "Thiếu audit log"
-      fix: "Thêm structured log cho security events: who (user), what (action), when (timestamp), where (IP), outcome (success/fail)"
+    - pattern: "Missing audit log"
+      fix: "Add structured log for security events: who (user), what (action), when (timestamp), where (IP), outcome (success/fail)"
     - pattern: "Log injection"
-      fix: "Dùng structured logging (JSON format) thay vì string concatenation, encode/escape user input trước khi log"
-    - pattern: "PII trong log"
-      fix: "Redact/mask sensitive fields trước khi log, dùng field-level filtering"
-    - pattern: "Thiếu monitoring"
-      fix: "Kết nối với SIEM/alert system, set alert cho 5+ login failures từ cùng IP"
+      fix: "Use structured logging (JSON format) instead of string concatenation, encode/escape user input before logging"
+    - pattern: "PII in log"
+      fix: "Redact/mask sensitive fields before logging, use field-level filtering"
+    - pattern: "Missing monitoring"
+      fix: "Connect to SIEM/alert system, set alert for 5+ login failures from same IP"
     - pattern: "Log tampering"
-      fix: "Dùng centralized logging (ELK, CloudWatch), log rotation, không ghi log trong webroot"
+      fix: "Use centralized logging (ELK, CloudWatch), log rotation, do not write logs in webroot"
   fastcode_queries:
-    - "Tìm tất cả auth/login handlers và kiểm tra có log statement không"
-    - "Liệt kê tất cả nơi log chứa thông tin nhạy cảm"
-    - "Dự án dùng logging framework nào?"
+    - "Find all auth/login handlers and check for log statements"
+    - "List all places where logs contain sensitive information"
+    - "Which logging framework does the project use?"

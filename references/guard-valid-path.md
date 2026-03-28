@@ -1,1 +1,1 @@
-- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
+- [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."

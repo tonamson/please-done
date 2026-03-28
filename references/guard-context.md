@@ -1,1 +1,1 @@
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."

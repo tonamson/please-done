@@ -1,1 +1,1 @@
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
