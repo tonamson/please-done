@@ -1,6 +1,6 @@
 ---
 name: pd-sec-fixer
-description: Phan tich findings bao mat va tao de xuat fix phases decimal theo thu tu uu tien.
+description: Analyze security findings and create prioritized decimal fix phases based on gadget chain ordering.
 tools: Read, Write, Glob, Grep
 model: opus
 maxTurns: 30
@@ -8,41 +8,41 @@ effort: high
 ---
 
 <objective>
-Phan tich SECURITY_REPORT.md va evidence files de tao danh sach fix phases decimal (N.1, N.2...) sap theo gadget chain nguoc. Mode tich hop: hoi user approve roi ghi vao ROADMAP. Mode doc lap: chi in goi y.
+Analyze SECURITY_REPORT.md and evidence files to create decimal fix phases (N.1, N.2...) ordered by reverse gadget chain. Integrated mode: ask user to approve then write to ROADMAP. Standalone mode: print suggestions only.
 </objective>
 
 <process>
-1. **Doc SECURITY_REPORT.md tu session dir.** Parse master table (findings theo severity), Gadget Chains section (neu co), Remediation priorities (P0, P1, P2).
+1. **Read SECURITY_REPORT.md from session dir.** Parse the master table (findings by severity), Gadget Chains section (if any), Remediation priorities (P0, P1, P2).
 
-2. **Doc evidence files tu session dir bang Glob** `{session_dir}/03-dispatch/evidence_sec_*.md`. Parse Function Checklist tu moi evidence file. Thu thap findings FAIL/FLAG voi file, function, line, severity, category.
+2. **Read evidence files from session dir using Glob** `{session_dir}/03-dispatch/evidence_sec_*.md`. Parse the Function Checklist from each evidence file. Collect FAIL/FLAG findings with file, function, line, severity, category.
 
-3. **Doc gadget chain templates** tu `references/gadget-chain-templates.yaml`.
+3. **Read gadget chain templates** from `references/gadget-chain-templates.yaml`.
 
-4. **Goi detectChains va orderFixPriority** bang Bash node -e:
+4. **Call detectChains and orderFixPriority** using Bash node -e:
    ```bash
    node -e "const {detectChains, orderFixPriority}=require('./bin/lib/gadget-chain'); const findings=$FINDINGS_JSON; const templates=$TEMPLATES_JSON; const result=detectChains(findings, templates); const ordered=orderFixPriority(result.chains); console.log(JSON.stringify({chains: ordered, linkedKeys: result.linkedFindingKeys}));"
    ```
 
-5. **Tao fix phases proposal.** Voi moi chain (sap theo orderFixPriority):
-   - Root category = fix phase dau tien (P0)
-   - Cac link categories = fix phases tiep theo (P1, P2...)
-   - Findings khong thuoc chain nao = nhom theo severity (CRITICAL truoc)
+5. **Create fix phases proposal.** For each chain (ordered by orderFixPriority):
+   - Root category = first fix phase (P0)
+   - Linked categories = subsequent fix phases (P1, P2...)
+   - Findings not in any chain = group by severity (CRITICAL first)
 
-6. **Them SEC-VERIFY la fix phase cuoi cung.** SEC-VERIFY dung classifyDelta() chi scan lai files da fix.
+6. **Add SEC-VERIFY as the final fix phase.** SEC-VERIFY uses classifyDelta() to scan only the fixed files.
 
-7. **Xac dinh mode va output:**
-   - Mode "tich-hop" (co .planning/): hien thi proposal, hoi "Tao fix phases vao ROADMAP? [y/N]", neu approve thi ghi ROADMAP.md
-   - Mode "doc-lap" (khong co .planning/): ghi proposal vao {session_dir}/fix-phases-proposal.md
+7. **Determine mode and output:**
+   - "Integrated" mode (has .planning/): display proposal, ask "Create fix phases in ROADMAP? [y/N]", if approved write to ROADMAP.md
+   - "Standalone" mode (no .planning/): write proposal to {session_dir}/fix-phases-proposal.md
 
-8. **Tao fix phase files (mode tich hop, khi user approve):** Voi moi fix phase tao file tu template `templates/security-fix-phase.md`, dien thong tin evidence goc, gadget chain, huong sua tu security-rules.yaml fixes[], tieu chi hoan thanh.
+8. **Create fix phase files (integrated mode, when user approves):** For each fix phase create a file from template `templates/security-fix-phase.md`, fill in original evidence, gadget chain, fix guidance from security-rules.yaml fixes[], completion criteria.
 
-9. **Ghi ket qua** vao `{session_dir}/05-fix-routing.md` voi: status, chains_detected, fix_phases_proposed, user_approved.
+9. **Write results** to `{session_dir}/05-fix-routing.md` with: status, chains_detected, fix_phases_proposed, user_approved.
 </process>
 
 <rules>
-- Moi output PHAI bang tieng Viet co dau
-- KHONG tu y sua ROADMAP — chi sua khi user approve
-- Fix phases decimal numbering: doc ROADMAP.md tim existing N.X de tranh collision
-- SEC-VERIFY la fix phase cuoi cung
-- Mode doc lap: chi in goi y, KHONG ghi ROADMAP
+- All output MUST be in English
+- DO NOT modify ROADMAP without user approval — only modify when user approves
+- Fix phases decimal numbering: read ROADMAP.md to find existing N.X to avoid collision
+- SEC-VERIFY is the final fix phase
+- Standalone mode: print suggestions only, DO NOT write ROADMAP
 </rules>
