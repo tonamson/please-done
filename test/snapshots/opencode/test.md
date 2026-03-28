@@ -1,5 +1,5 @@
 ---
-description: Viết test + kiểm thử (NestJS/WordPress/Solidity/Flutter/Frontend), xác nhận với user, báo cáo lỗi
+description: Write tests + run verification (NestJS/WordPress/Solidity/Flutter/Frontend), confirm with the user, and report failures
 tools:
   - Read
   - Write
@@ -13,27 +13,27 @@ tools:
   - mcp__context7__query-docs
 ---
 <objective>
-Viết test theo stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). Frontend-only: danh sách kiểm thử thủ công + xác nhận.
-Test với dữ liệu cụ thể, chạy kiểm thử, để người dùng xác nhận rồi commit.
-**Sau khi xong:** `/pd-write-code`, `/pd-fix-bug`, hoặc `/pd-complete-milestone`
+Write tests based on the stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). For frontend-only work: provide a manual test checklist plus confirmation.
+Test with concrete data, run the tests, get user confirmation, then commit.
+**After completion:** `/pd-write-code`, `/pd-fix-bug`, or `/pd-complete-milestone`
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
-- [ ] Task number hợp lệ hoặc có cờ `--all` -> "Cung cấp số task hoặc dùng `--all`."
+- [ ] Valid task number or `--all` flag provided -> "Provide a task number or use `--all`."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
-- [ ] Có ít nhất 1 task ở trạng thái `done` -> "Chưa có task nào hoàn thành. Chạy `/pd-write-code` trước."
+- [ ] At least one task is in `done` state -> "No completed tasks yet. Run `/pd-write-code` first."
 </guards>
 <context>
-Người dùng nhập: $ARGUMENTS
-- Task number -> test riêng task đó (phải done)
-- `--all` -> regression toàn bộ phases
-- Không có gì -> test tất cả tasks done trong phase hiện tại
-Đọc thêm:
-- `.planning/rules/general.md` -> quy tắc chung
-- `.planning/rules/{nestjs,wordpress,solidity,flutter}.md` -> Build & Lint (CHỈ nếu tồn tại)
+User input: $ARGUMENTS
+- Task number -> test only that task (it must already be done)
+- `--all` -> full regression across all phases
+- No input -> test all done tasks in the current phase
+Additional reads:
+- `.planning/rules/general.md` -> general rules
+- `.planning/rules/{nestjs,wordpress,solidity,flutter}.md` -> build & lint rules (ONLY if they exist)
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -219,25 +219,25 @@ Kết quả: X/Y đạt"
 ```
 </process>
 <output>
-**Tạo/Cập nhật:**
-- File test theo từng stack (Jest, PHPUnit, Hardhat, `flutter_test`)
-- Danh sách kiểm thử thủ công cho frontend-only
-- Cập nhật `TASKS.md`
-**Bước tiếp theo:** `/pd-write-code`, `/pd-fix-bug`, hoặc `/pd-complete-milestone`
-**Thành công khi:**
-- File test đã được tạo và chạy thành công
-- Người dùng xác nhận kết quả
-- Phần test đã được commit
-**Lỗi thường gặp:**
-- Test fail -> đọc lỗi, sửa test hoặc code rồi chạy lại
-- Không tìm thấy test framework -> kiểm tra `package.json` và cấu hình
-- MCP không kết nối -> kiểm tra Docker và cấu hình
+**Create/Update:**
+- Test files for each stack (Jest, PHPUnit, Hardhat, `flutter_test`)
+- Manual test checklist for frontend-only work
+- Update `TASKS.md`
+**Next step:** `/pd-write-code`, `/pd-fix-bug`, or `/pd-complete-milestone`
+**Success when:**
+- Test files were created and run successfully
+- The user confirmed the result
+- The testing work was committed
+**Common errors:**
+- Tests fail -> read the failure, fix the test or the code, then run again
+- Test framework not found -> check `package.json` and the configuration
+- MCP is not connected -> check Docker and configuration
 </output>
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- Test PHẢI dùng dữ liệu đầu vào cụ thể, không dùng mock chung chung
-- PHẢI chạy test và xác nhận pass trước khi commit
-- PHẢI yêu cầu người dùng xác nhận trước khi hoàn tất
+- All output MUST be in English.
+- Tests MUST use concrete input data, not vague generic mocks.
+- You MUST run the tests and confirm they pass before committing.
+- You MUST ask the user for confirmation before finishing.
 - Tuân thủ `.planning/rules/` (chung + theo stack).
 - PHẢI viết test files vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart`. KHÔNG chỉ CURL.
 - Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG.

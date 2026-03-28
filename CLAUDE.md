@@ -1,2 +1,2 @@
-### Quy ước ngôn ngữ dự án
-- Dùng tiếng việt toàn bộ, có dấu chuẩn
+### Project Language Convention
+- Use English throughout, with standard grammar and spelling

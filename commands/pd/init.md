@@ -1,8 +1,8 @@
 ---
 name: pd:init
-description: Khởi tạo môi trường làm việc, kiểm tra MCP FastCode, tạo ngữ cảnh gọn cho các skill sau
+description: Initialize the workspace, verify FastCode MCP, and create compact context for later skills
 model: haiku
-argument-hint: "[path dự án, mặc định thư mục hiện tại]"
+argument-hint: "[project path, defaults to current directory]"
 allowed-tools:
   - Read
   - Write
@@ -15,22 +15,22 @@ allowed-tools:
 ---
 
 <objective>
-Skill chạy đầu tiên. Kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo `CONTEXT.md` và sao chép các rule phù hợp.
+First skill to run. Verify FastCode MCP (REQUIRED), index the project, detect the tech stack, create `CONTEXT.md`, and copy the relevant rules.
 </objective>
 
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 
 @references/guard-valid-path.md
 @references/guard-fastcode.md
 </guards>
 
 <context>
-Người dùng nhập: $ARGUMENTS (đường dẫn dự án, mặc định là thư mục hiện tại)
+User input: $ARGUMENTS (project path, defaults to the current directory)
 
-Mẫu quy tắc: `.pdconfig` -> `SKILLS_DIR` -> các file tại `[SKILLS_DIR]/commands/pd/rules/`:
-- `general.md` -- luôn sao chép
-- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- sao chép nếu phát hiện stack tương ứng
+Rule templates: `.pdconfig` -> `SKILLS_DIR` -> files at `[SKILLS_DIR]/commands/pd/rules/`:
+- `general.md` -- always copy
+- `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- copy when the corresponding stack is detected
 </context>
 
 <execution_context>
@@ -38,27 +38,27 @@ Mẫu quy tắc: `.pdconfig` -> `SKILLS_DIR` -> các file tại `[SKILLS_DIR]/co
 </execution_context>
 
 <process>
-Thực thi @workflows/init.md từ đầu đến cuối.
+Execute @workflows/init.md from start to finish.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `.planning/CONTEXT.md` -- ngữ cảnh dự án
-- `.planning/rules/*.md` -- quy tắc theo framework tương ứng
+**Create/Update:**
+- `.planning/CONTEXT.md` -- project context
+- `.planning/rules/*.md` -- framework-specific rules
 
-**Bước tiếp theo:** `/pd:scan` hoặc `/pd:plan`
+**Next step:** `/pd:scan` or `/pd:plan`
 
-**Thành công khi:**
-- `CONTEXT.md` có đầy đủ thông tin về tech stack
-- FastCode MCP xác nhận đã kết nối
+**Success when:**
+- `CONTEXT.md` contains complete tech stack information
+- FastCode MCP confirms it is connected
 
-**Lỗi thường gặp:**
-- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
-- Không phát hiện được tech stack -> người dùng bổ sung thủ công
+**Common errors:**
+- FastCode MCP is not connected -> check that Docker is running
+- The tech stack cannot be detected -> the user supplies it manually
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- PHẢI xác nhận FastCode MCP đã kết nối trước khi thực hiện bất kỳ bước nào
-- KHÔNG được thay đổi file ngoài `.planning/`
+- All output MUST be in English
+- You MUST confirm FastCode MCP is connected before taking any action
+- DO NOT change files outside `.planning/`
 </rules>

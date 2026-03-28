@@ -1,6 +1,6 @@
 ---
 name: pd:audit
-description: Quét bảo mật OWASP — dispatch 13 scanner song song và tổng hợp báo cáo
+description: OWASP security audit - dispatch 13 scanners in parallel and consolidate the report
 model: opus
 argument-hint: "[path] [--full|--only cat1,cat2|--poc|--auto-fix]"
 allowed-tools:
@@ -15,25 +15,25 @@ allowed-tools:
 ---
 
 <objective>
-Quét bảo mật toàn diện dựa trên OWASP Top 10. Dispatch 13 scanner song song (2/wave), tổng hợp báo cáo, phân tích chéo.
+Run a comprehensive security audit based on the OWASP Top 10. Dispatch 13 scanners in parallel (2 per wave), consolidate the report, and perform cross-analysis.
 </objective>
 
 <guards>
-Tự động phát hiện chế độ hoạt động TRƯỚC khi chạy guards:
+Automatically detect the operating mode BEFORE running guards:
 
-1. Kiểm tra `.planning/PROJECT.md` tồn tại (dùng Bash: `test -f .planning/PROJECT.md`)
-2. Tồn tại → mode = "tich-hop": chạy đầy đủ 3 guards bên dưới
-3. Không tồn tại → mode = "doc-lap": bỏ qua guard-context, chỉ chạy 2 guards còn lại (guard-valid-path, guard-fastcode)
+1. Check whether `.planning/PROJECT.md` exists (use Bash: `test -f .planning/PROJECT.md`)
+2. Exists -> mode = "integrated": run all 3 guards below
+3. Missing -> mode = "standalone": skip guard-context and run only the remaining 2 guards (guard-valid-path, guard-fastcode)
 
-Dừng và hướng dẫn người dùng nếu bất kỳ guard nào thất bại:
+Stop and instruct the user if any guard fails:
 
-@references/guard-context.md (chỉ chế độ tích hợp)
+@references/guard-context.md (integrated mode only)
 @references/guard-valid-path.md
 @references/guard-fastcode.md
 </guards>
 
 <context>
-Người dùng nhập: $ARGUMENTS
+User input: $ARGUMENTS
 </context>
 
 <execution_context>
@@ -41,28 +41,28 @@ Người dùng nhập: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi @workflows/audit.md từ đầu đến cuối. Truyền $ARGUMENTS cho workflow.
+Execute @workflows/audit.md from start to finish. Pass $ARGUMENTS to the workflow.
 </process>
 
 <output>
-**Tạo:**
-- SECURITY_REPORT.md (vị trí tùy mode: doc-lap → ./, tich-hop → .planning/audit/)
-- Evidence files trong temp dir
+**Create:**
+- SECURITY_REPORT.md (location depends on mode: standalone -> `./`, integrated -> `.planning/audit/`)
+- Evidence files in a temp directory
 
-**Bước tiếp theo:** Đọc SECURITY_REPORT.md để xem kết quả
+**Next step:** Read SECURITY_REPORT.md to review the results
 
-**Thành công khi:**
-- Tất cả scanners đã dispatch và trả kết quả (hoặc inconclusive)
-- SECURITY_REPORT.md đã tạo tại đúng vị trí
+**Success when:**
+- All scanners were dispatched and returned a result (or inconclusive)
+- SECURITY_REPORT.md was created in the correct location
 
-**Lỗi thường gặp:**
-- FastCode MCP không kết nối → kiểm tra Docker đang chạy
-- SubAgent không khả dụng → kiểm tra cấu hình tool cho phép SubAgent
+**Common errors:**
+- FastCode MCP is not connected -> check that Docker is running
+- SubAgent is unavailable -> check tool configuration for SubAgent access
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- KHÔNG sửa code của dự án — chỉ quét và báo cáo
-- Khi --poc duoc truyen: truyen flag --poc cho scanner trong B5 dispatch prompt
-- Khi --auto-fix duoc truyen: thong bao "Chua ho tro trong phien ban nay" va tiep tuc
+- All output MUST be in English.
+- DO NOT modify project code - only scan and report.
+- When `--poc` is passed: pass the `--poc` flag to the scanner in the B5 dispatch prompt.
+- When `--auto-fix` is passed: report "Not supported in this version yet" and continue.
 </rules>

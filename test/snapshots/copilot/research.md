@@ -1,18 +1,18 @@
 ---
 name: pd:research
-description: Nghiên cứu tự động — phân loại internal/external, thu thập bằng chứng, xác minh và cross-validate
+description: Automated research - classify internal vs external, collect evidence, verify, and cross-validate
 ---
 <objective>
-Nghiên cứu 1 chủ đề tự động: phân loại internal/external, chạy pipeline Evidence Collector -> Fact Checker, cross-validate khi có cả 2 loại. Sau khi xong: Hiển thị tóm tắt kết quả.
-**Sau khi xong:** `/pd:what-next`
+Research a single topic automatically: classify it as internal/external, run the Evidence Collector -> Fact Checker pipeline, and cross-validate when both types exist. After completion: display a summary of the results.
+**After completion:** `/pd:what-next`
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd:init` truoc."
-- [ ] Có chủ đề nghiên cứu được cung cấp -> "Hãy cung cấp chủ đề cần nghiên cứu."
-</guards>
+- [ ] A research topic was provided -> "Please provide a topic to research."
+      </guards>
 <context>
-Người dùng nhập: $ARGUMENTS
+User input: $ARGUMENTS
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -79,25 +79,25 @@ Bước này đảm bảo:
 - Fact Checker cross-validate ở lần chạy SAU sẽ có INDEX.md để tìm files cùng topic
 </process>
 <output>
-**Tạo/Cập nhật:**
-- Research file trong `.planning/research/internal/` hoặc `external/`
-- Verification file từ Fact Checker
-- `INDEX.md` cập nhật
-- `AUDIT_LOG.md` cập nhật
-**Bước tiếp theo:** `/pd:what-next`
-**Thành công khi:**
-- Research file có frontmatter đầy đủ
-- Fact Checker đã xác minh
-- Tóm tắt hiển thị cho user
-**Lỗi thường gặp:**
-- Không phân loại được chủ đề -> mặc định external
-- Evidence Collector không tìm được nguồn -> tiếp tục với confidence LOW
-- MCP không kết nối -> kiểm tra cấu hình
-</output>
+**Create/Update:**
+- Research file in `.planning/research/internal/` or `external/`
+- Verification file from Fact Checker
+- `INDEX.md` updated
+- `AUDIT_LOG.md` updated
+**Next step:** `/pd:what-next`
+**Success when:**
+- The research file has complete frontmatter
+- Fact Checker has verified the findings
+- A summary is shown to the user
+**Common errors:**
+- The topic cannot be classified -> default to external
+- Evidence Collector cannot find sources -> continue with confidence LOW
+- MCP is not connected -> check configuration
+  </output>
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- PHẢI chạy pipeline đầy đủ: route -> collect -> verify
-- KHÔNG skip Fact Checker khi Collector fail — chạy với confidence LOW
+- All output MUST be in English
+- You MUST run the full pipeline: route -> collect -> verify
+- DO NOT skip Fact Checker when Collector fails - run it with confidence LOW
 - CHỈ orchestrator spawn agents — agents KHÔNG spawn agents khác
 - PHẢI truyền absolute paths khi spawn agents
 - KHÔNG block khi Evidence Collector fail — tiếp tục với Fact Checker
@@ -108,4 +108,3 @@ Bước này đảm bảo:
 - [ ] INDEX.md được tạo/cập nhật sau mỗi lần chạy pipeline
 - Mọi output PHẢI bằng tiếng Việt có dấu
 </rules>
-</output>

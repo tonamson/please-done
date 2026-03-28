@@ -1,5 +1,5 @@
 ---
-description: Tìm và sửa lỗi theo phương pháp khoa học, tìm hiểu, báo cáo, sửa code, commit [LỖI] và xác nhận cho đến khi thành công
+description: Find and fix bugs using a scientific method, investigate, report, patch the code, create a [BUG] commit, and confirm until resolved
 tools:
   - Read
   - Write
@@ -13,24 +13,24 @@ tools:
   - mcp__context7__query-docs
 ---
 <objective>
-Sửa lỗi theo quy trình rõ ràng: triệu chứng -> phân loại rủi ro -> giả thuyết -> kiểm chứng -> cổng kiểm tra -> sửa -> xác nhận.
-Lưu trạng thái điều tra vào `.planning/debug/` để có thể phục hồi khi mất phiên.
-Lặp lại cho đến khi người dùng xác nhận. Tạo patch version cho milestone đã hoàn tất.
-**Sau khi xong:** `/pd-what-next`
+Fix bugs through a clear process: symptom -> risk classification -> hypothesis -> verification -> gate check -> fix -> confirmation.
+Store the investigation state in `.planning/debug/` so it can be resumed after session loss.
+Repeat until the user confirms success. Create a patch version for completed milestones.
+**After completion:** `/pd-what-next`
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
-- [ ] Có mô tả lỗi được cung cấp -> "Hãy cung cấp mô tả lỗi hoặc tên phiên điều tra."
+- [ ] A bug description was provided -> "Please provide a bug description or investigation session name."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
 </guards>
 <context>
-Người dùng nhập: $ARGUMENTS
-Đọc thêm:
-- `.planning/rules/general.md` -> quy tắc chung
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo loại lỗi (CHỈ nếu tồn tại)
+User input: $ARGUMENTS
+Additional reads:
+- `.planning/rules/general.md` -> general rules
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> rules for the bug type (ONLY if they exist)
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -348,26 +348,26 @@ Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
    ```
 </process>
 <output>
-**Tạo/Cập nhật:**
-- Source code đã sửa lỗi
-- `.planning/debug/` -- trạng thái phiên điều tra
-- Cập nhật `TASKS.md` nếu liên quan
-**Bước tiếp theo:** `/pd-what-next`
-**Thành công khi:**
-- Người dùng xác nhận đã sửa thành công
-- Các test liên quan chạy thành công nếu có
-- Commit `[LỖI]` đã được tạo
-**Lỗi thường gặp:**
-- Không tái hiện được lỗi -> yêu cầu người dùng cung cấp thêm thông tin
-- Lỗi nằm ở dependency -> cập nhật package, kiểm tra phiên bản
-- MCP không kết nối -> kiểm tra Docker và cấu hình
+**Create/Update:**
+- Fixed source code
+- `.planning/debug/` -- investigation session state
+- Update `TASKS.md` if relevant
+**Next step:** `/pd-what-next`
+**Success when:**
+- The user confirms the bug is fixed
+- Related tests pass if they exist
+- A `[BUG]` commit was created
+**Common errors:**
+- The bug cannot be reproduced -> ask the user for more information
+- The issue is in a dependency -> update the package and verify the version
+- MCP is not connected -> check Docker and configuration
 </output>
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- PHẢI lưu trạng thái điều tra vào `.planning/debug/` để phục hồi
-- PHẢI qua cổng kiểm tra (gate check) trước khi sửa code
-- PHẢI lặp lại vòng lặp cho đến khi người dùng xác nhận thành công
-- KHÔNG được sửa code không liên quan đến lỗi
+- All output MUST be in English.
+- You MUST store investigation state in `.planning/debug/` for recovery.
+- You MUST pass the gate check before changing code.
+- You MUST repeat the loop until the user confirms success.
+- You MUST NOT change code unrelated to the bug.
 - Tuan thu `.planning/rules/` (general + stack-specific)
 - CAM doc/hien thi file nhay cam (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
 - PHAI spawn agents theo dung thu tu: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix

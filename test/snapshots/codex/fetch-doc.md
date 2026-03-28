@@ -1,6 +1,6 @@
 ---
 name: pd-fetch-doc
-description: Tải tài liệu từ URL theo phiên bản thư viện hiện tại, lưu cục bộ để tra cứu nhanh
+description: Download documentation from a URL using the current library version, and cache it locally for fast lookup
 ---
 <codex_skill_adapter>
 ## Cách gọi skill này
@@ -22,96 +22,96 @@ Khi user gọi `$pd-fetch-doc {{args}}`, thực hiện toàn bộ instructions b
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Tải tài liệu từ URL thành file markdown cục bộ kèm phiên bản và mục lục theo từng phần. Cache đúng phiên bản để các skill sau chỉ cần đọc mục lục rồi mở đúng section cần thiết.
+Download documentation from a URL into a local markdown file with version metadata and a section index. Cache the exact version so later skills can read the index first, then open only the required section.
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
-- [ ] URL hợp lệ (có giao thức `http` hoặc `https`) -> "URL không hợp lệ. Kiểm tra lại."
-- [ ] WebFetch khả dụng -> "WebFetch không khả dụng. Kiểm tra cài đặt MCP."
-</guards>
+- [ ] URL is valid (has `http` or `https`) -> "Invalid URL. Check it again."
+- [ ] WebFetch is available -> "WebFetch is unavailable. Check the MCP setup."
+      </guards>
 <context>
-Người dùng nhập: {{GSD_ARGS}}
-Ví dụ: `$pd-fetch-doc https://docs.nestjs.com/guards [nestjs-guards]`
+User input: {{GSD_ARGS}}
+Example: `$pd-fetch-doc https://docs.nestjs.com/guards [nestjs-guards]`
 </context>
 <execution_context>
-Không có -- skill này xử lý trực tiếp, không dùng workflow riêng.
+None -- this skill is handled directly and does not use a separate workflow.
 <!-- Audit 2026-03-23: Intentional -- self-contained skill without workflow (lightweight/utility pattern). See Phase 14 Audit I1. -->
 </execution_context>
 <process>
-## Bước 1: Kiểm tra đầu vào, tên file và phiên bản
-- `.planning/CONTEXT.md` -> CÓ nhưng thiếu `docs/` -> `mkdir -p .planning/docs` | CHƯA CÓ -> DỪNG: chạy `$pd-init`
-- URL không hợp lệ -> hỏi user
-- **Tên file từ URL:** path segments cuối (bỏ query/hash), prepend domain keyword
+## Step 1: Validate input, filename, and version
+- `.planning/CONTEXT.md` exists but `docs/` is missing -> `mkdir -p .planning/docs` | if missing -> STOP: run `$pd-init`
+- Invalid URL -> ask the user
+- **Filename from URL:** last path segments (drop query/hash), prepend a domain keyword
   - `docs.nestjs.com/guards` -> `nestjs-guards` | `ant.design/components/table` -> `antd-table`
-  - User cung cấp tên tùy chỉnh -> dùng tên đó
-- **Phiên bản thư viện:**
-  1. Trích xuất tên từ URL
-  2. Grep tên trong `**/package.json` (bỏ node_modules) -> lấy version
-  3. Nhiều kết quả -> ưu tiên exact match
-  4. Nhiều version khác nhau -> hỏi user chọn hoặc dùng package.json gần nhất
-  5. Không tìm thấy -> hỏi user hoặc ghi `latest`
-  - Heuristic: URL NestJS/backend -> `package.json` của backend (Glob `**/nest-cli.json`) | URL NextJS/React -> `package.json` của frontend (Glob `**/next.config.*`)
-## Bước 2: Kiểm tra tài liệu đã tồn tại
-`.planning/docs/[tên].md`:
-- CÓ + phiên bản GIỐNG + URL GIỐNG -> hỏi có tải lại không
-- CÓ + version GIỐNG + URL KHÁC -> hỏi: đặt tên khác hay ghi đè?
-- CÓ + version KHÁC -> "Version thay đổi", fetch lại
-- CHƯA CÓ -> tiếp tục
-## Bước 3: Tải trang chính
-WebFetch URL -> trích xuất nội dung + internal links cùng domain (chỉ kỹ thuật, bỏ blog/changelog)
+  - If the user provides a custom name -> use it
+- **Library version:**
+  1. Extract the package name from the URL
+  2. Grep for that name in `**/package.json` (excluding node_modules) -> get the version
+  3. Multiple results -> prefer exact match
+  4. Multiple different versions -> ask the user to choose or use the nearest package.json
+  5. Not found -> ask the user or store `latest`
+  - Heuristic: NestJS/backend URL -> backend `package.json` (Glob `**/nest-cli.json`) | NextJS/React URL -> frontend `package.json` (Glob `**/next.config.*`)
+## Step 2: Check whether the doc already exists
+`.planning/docs/[name].md`:
+- EXISTS + SAME version + SAME URL -> ask whether to refresh
+- EXISTS + SAME version + DIFFERENT URL -> ask: use a new name or overwrite?
+- EXISTS + DIFFERENT version -> "Version changed", fetch again
+- MISSING -> continue
+## Step 3: Fetch the main page
+WebFetch the URL -> extract content + internal links on the same domain (technical pages only, skip blog/changelog)
 **HTTP errors:**
-- 429 -> đợi 5s, thử lại (tối đa 2 lần)
+- 429 -> wait 5s, retry (max 2 times)
 - 301/302 -> follow redirect
-- 401/403 -> DỪNG: "Trang yêu cầu đăng nhập"
-- Timeout >30s -> thông báo không phản hồi
-- 404/500/trống -> thử lại 1 lần
-- Vẫn lỗi -> DỪNG: "Không thể tải [URL]."
-**SPA detection:** nội dung < 500 ký tự -> cảnh báo: "Trang dùng JS rendering. Thử Context7 MCP."
-## Bước 4: Tải các trang liên quan
-Từ các liên kết ở Bước 3:
-- Lọc trang kỹ thuật (API, config, examples, getting started)
-- Xếp hạng tối đa 10 trang -> tải 5 trang đầu (nhiều WebFetch trong cùng 1 block)
-- Trang lỗi -> bỏ qua + warning, tiếp tục
-## Bước 5: Lưu file với mục lục
-Tạo `.planning/docs/[tên].md`:
+- 401/403 -> STOP: "This page requires login"
+- Timeout >30s -> report that the page is not responding
+- 404/500/empty -> retry once
+- Still failing -> STOP: "Could not fetch [URL]."
+**SPA detection:** content < 500 chars -> warn: "This page uses JS rendering. Try Context7 MCP."
+## Step 4: Fetch related pages
+From the links found in Step 3:
+- Filter technical pages (API, config, examples, getting started)
+- Rank up to 10 pages -> fetch the top 5 pages (multiple WebFetch calls in one block)
+- Failed pages -> skip with warning, continue
+## Step 5: Save file with index
+Create `.planning/docs/[name].md`:
 ```markdown
-# Tài liệu [Tên thư viện]
-> Nguồn: [URL gốc]
-> Phiên bản: [x.x.x] (từ package.json)
-> Ngày tải: [DD_MM_YYYY]
-> Số trang: [N]
-## Mục lục nhanh
-| # | Section | Từ khóa | Dòng |
-|---|---------|---------|------|
-| 1 | Guards Overview | guard, canActivate | 20 |
+# [Library Name] Documentation
+> Source: [original URL]
+> Version: [x.x.x] (from package.json)
+> Fetched: [DD_MM_YYYY]
+> Pages: [N]
+## Quick Index
+| #   | Section         | Keywords           | Line |
+| --- | --------------- | ------------------ | ---- |
+| 1   | Guards Overview | guard, canActivate | 20   |
 ---
-## Section 1: [Tên]
-> Nguồn: [URL]
-[Nội dung giữ nguyên ngôn ngữ gốc]
+## Section 1: [Title]
+> Source: [URL]
+> [Content kept in its original language]
 ```
-> Số dòng tham khảo. Khi đọc, search heading text thay vì dựa line number.
-## Bước 6: Thông báo
-- Số trang thành công, đường dẫn, version
-- "Khi upgrade thư viện, chạy lại `$pd-fetch-doc` để cập nhật"
-</process>
+> Line numbers are approximate. When reading, search by heading text instead of relying on line numbers.
+## Step 6: Notify
+- Number of successful pages, file path, version
+- "When the library is upgraded, run `$pd-fetch-doc` again to refresh it"
+  </process>
 <output>
-**Tạo/Cập nhật:**
-- `.planning/docs/[tên].md` -- tài liệu đã cache kèm phiên bản và mục lục
-**Bước tiếp theo:** `$pd-plan` hoặc `$pd-write-code`
-**Thành công khi:**
-- Tài liệu được tạo với đúng phiên bản từ `package.json`
-- Mục lục có từ khóa và số dòng cho mỗi section
-- Nội dung giữ nguyên ngôn ngữ gốc và ví dụ code
-**Lỗi thường gặp:**
-- WebFetch không khả dụng -> kiểm tra MCP
-- URL trả về `401/403` -> không thể tải tự động
-- Trang là SPA -> thử Context7 MCP
-</output>
+**Create/Update:**
+- `.planning/docs/[name].md` -- cached documentation with version metadata and index
+**Next step:** `$pd-plan` or `$pd-write-code`
+**Success when:**
+- Documentation is created with the correct version from `package.json`
+- The quick index contains keywords and line numbers for each section
+- Content preserves the original language and code examples
+**Common errors:**
+- WebFetch is unavailable -> check MCP
+- URL returns `401/403` -> cannot fetch automatically
+- The page is an SPA -> try Context7 MCP
+  </output>
 <rules>
-- Heading và ghi chú: TIẾNG VIỆT CÓ DẤU | Nội dung tài liệu: giữ nguyên bản gốc
-- PHẢI ghi phiên bản từ `package.json` và kiểm tra tài liệu đã tồn tại trước khi tải
-- PHẢI có mục lục nhanh với từ khóa và số dòng
-- Tối đa 10 trang, chỉ tải trang kỹ thuật cùng domain
-- Giữ nguyên ví dụ code
+- Headings and notes: English | documentation content: keep the original language
+- You MUST record the version from `package.json` and check whether the doc already exists before fetching
+- You MUST include a quick index with keywords and line numbers
+- Maximum 10 pages, and fetch only technical pages on the same domain
+- Preserve code examples exactly
 </rules>

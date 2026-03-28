@@ -241,26 +241,26 @@ describe('Repo integrity — canonical skill structure', () => {
     }
   });
 
-  it('moi skill co output section voi cac phan bat buoc', () => {
+  it('each skill has output section with mandatory parts', () => {
     const skills = listSkillFiles(COMMANDS_DIR);
 
     for (const skill of skills) {
       const { body } = parseFrontmatter(skill.content);
       const output = extractXmlSection(body, 'output');
 
-      assert.ok(output !== null, `${skill.name}: thieu <output> section`);
+      assert.ok(output !== null, `${skill.name}: missing <output> section`);
 
-      // Must contain at least 2 of 3 subsection markers (Vietnamese with or without diacritics)
+      // Must contain at least 2 of 3 subsection markers (English or Vietnamese)
       const markers = [
-        /Tao\/Cap nhat|T\u1ea1o\/C\u1eadp nh\u1eadt/.test(output),
-        /Buoc tiep theo|B\u01b0\u1edbc ti\u1ebfp theo/.test(output),
-        /Thanh cong khi|Th\u00e0nh c\u00f4ng khi/.test(output),
+        /Create\/Update|Create:|Update:|Tao\/Cap nhat|T\u1ea1o\/C\u1eadp nh\u1eadt/.test(output),
+        /Next step|Buoc tiep theo|B\u01b0\u1edbc ti\u1ebfp theo/.test(output),
+        /Success when|Thanh cong khi|Th\u00e0nh c\u00f4ng khi/.test(output),
       ];
       const markerCount = markers.filter(Boolean).length;
 
       assert.ok(
         markerCount >= 2,
-        `${skill.name}: <output> section can it nhat 2/3 phan (Tao/Cap nhat, Buoc tiep theo, Thanh cong khi) — chi co ${markerCount}`
+        `${skill.name}: <output> section needs at least 2/3 parts (Create/Update, Next step, Success when) — only has ${markerCount}`
       );
     }
   });

@@ -1,6 +1,6 @@
 ---
 name: pd-plan
-description: Lập kế hoạch kỹ thuật + chia danh sách công việc cho milestone hiện tại
+description: Technical planning + task breakdown for the current milestone
 ---
 <codex_skill_adapter>
 ## Cách gọi skill này
@@ -22,26 +22,26 @@ Khi user gọi `$pd-plan {{args}}`, thực hiện toàn bộ instructions bên d
 - Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
 </codex_skill_adapter>
 <objective>
-Nghiên cứu dự án, thiết kế giải pháp kỹ thuật và phân chia công việc cụ thể.
-`--auto` (mặc định): AI tự quyết định toàn bộ | `--discuss`: thảo luận tương tác, người dùng chọn phương án.
+Research the project, design the technical solution, and break the work into concrete tasks.
+`--auto` (default): AI decides everything | `--discuss`: interactive discussion where the user chooses the approach.
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
-- [ ] `.planning/ROADMAP.md` tồn tại -> "Chạy `$pd-new-milestone` trước."
-- [ ] `.planning/CURRENT_MILESTONE.md` tồn tại -> "Thiếu CURRENT_MILESTONE.md. Chạy `$pd-new-milestone` để tạo."
+- [ ] `.planning/ROADMAP.md` exists -> "Run `$pd-new-milestone` first."
+- [ ] `.planning/CURRENT_MILESTONE.md` exists -> "CURRENT_MILESTONE.md is missing. Run `$pd-new-milestone` to create it."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 - [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
 - [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
 </guards>
 <context>
-Dữ liệu nhập: {{GSD_ARGS}}
-- `--discuss` -> Chế độ thảo luận | mặc định/`--auto` -> Chế độ tự động | cả hai -> ưu tiên thảo luận.
-- Phần còn lại = thông tin giai đoạn (phase)/kết quả bàn giao (deliverable).
-Đọc thêm:
-- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc dự án.
-- `.planning/rules/general.md` -> quy tắc chung.
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo công nghệ (CHỈ nếu tồn tại).
+User input: {{GSD_ARGS}}
+- `--discuss` -> discussion mode | default/`--auto` -> automatic mode | if both are provided -> discussion takes priority.
+- Remaining input = phase/deliverable information.
+Additional reads:
+- `.planning/PROJECT.md` -> project vision and constraints.
+- `.planning/rules/general.md` -> general rules.
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> technology-specific rules (ONLY if they exist).
 </context>
 <required_reading>
 Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
@@ -421,25 +421,25 @@ In tóm tắt plan + tasks.
   ```
 </process>
 <output>
-**Tạo/Cập nhật:**
+**Create/Update:**
 - `.planning/milestones/[version]/phase-[phase]/RESEARCH.md`
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md`
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md`
-**Bước tiếp theo:** `$pd-write-code`
-**Thành công khi:**
-- Kế hoạch bao phủ tất cả yêu cầu của giai đoạn.
-- Các công việc (tasks) đủ cụ thể để thực hiện.
-- Phần nghiên cứu cung cấp đủ bối cảnh cho việc triển khai.
-**Lỗi thường gặp:**
-- FastCode MCP không kết nối -> kiểm tra dịch vụ đang chạy.
-- Thiếu `ROADMAP.md` -> chạy `$pd-new-milestone` trước.
-- Giai đoạn không tồn tại trong `ROADMAP` -> kiểm tra lại số thứ tự phase.
+**Next step:** `$pd-write-code`
+**Success when:**
+- The plan covers all requirements for the phase.
+- The tasks are specific enough to execute.
+- The research section provides enough context for implementation.
+**Common errors:**
+- FastCode MCP is not connected -> check that the service is running.
+- Missing `ROADMAP.md` -> run `$pd-new-milestone` first.
+- The phase does not exist in `ROADMAP` -> check the phase number.
 </output>
 <rules>
-- Mọi kết quả đầu ra PHẢI bằng tiếng Việt có dấu.
-- Tuân thủ chế độ `--auto`/`--discuss`: `auto` không hỏi, `discuss` liệt kê lựa chọn cho người dùng.
-- KHÔNG viết mã nguồn trong bước lập kế hoạch, chỉ thiết kế và phân chia công việc.
-- Phần nghiên cứu PHẢI kiểm tra thư viện hiện có trước khi đề xuất thêm thành phần phụ thuộc (dependency) mới.
+- All output MUST be in English.
+- Follow the `--auto`/`--discuss` mode strictly: `auto` does not ask questions, `discuss` lists options for the user.
+- DO NOT write source code during the planning step, only design and task breakdown.
+- The research section MUST check existing libraries before proposing any new dependency.
 - Tuân thủ `.planning/rules/` (ngôn ngữ, ngày tháng, version, icon, bảo mật)
 - Tái sử dụng code/thư viện có sẵn
 - Task backend + frontend TÁCH RIÊNG, ghi Loại + dependency. Frontend-only → độc lập

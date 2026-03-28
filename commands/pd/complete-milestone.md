@@ -1,8 +1,8 @@
 ---
 name: pd:complete-milestone
-description: Hoàn tất milestone, commit, tạo git tag, báo cáo tổng kết
+description: Complete the milestone, commit, create a git tag, and generate a completion report
 model: sonnet
-argument-hint: "(không cần tham số)"
+argument-hint: "(no arguments needed)"
 allowed-tools:
   - Read
   - Write
@@ -14,24 +14,24 @@ allowed-tools:
 ---
 
 <objective>
-Kiểm tra các lỗi đã đóng, tạo báo cáo tổng kết, commit, tạo git tag, cập nhật theo dõi và chuyển sang milestone tiếp theo.
-Chỉ cho phép hoàn tất khi tất cả công việc đã hoàn thành và mọi lỗi đã được xử lý.
+Check closed issues, generate a completion report, commit, create a git tag, update tracking files, and move to the next milestone.
+Only allow completion when all work is finished and every bug has been handled.
 </objective>
 
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 
 @references/guard-context.md
-- [ ] Tất cả task trong milestone có trạng thái hoàn thành -> "Còn task chưa xong. Hãy hoàn thành trước khi đóng milestone."
-- [ ] Không còn lỗi mở chưa được xử lý -> "Còn lỗi chưa xử lý. Chạy `/pd:fix-bug` để sửa trước."
+- [ ] All milestone tasks are complete -> "There are unfinished tasks. Complete them before closing the milestone."
+- [ ] No unresolved open bugs remain -> "There are still unresolved bugs. Run `/pd:fix-bug` first."
 </guards>
 
 <context>
-Người dùng nhập: $ARGUMENTS (không dùng, vì version tự động lấy từ CURRENT_MILESTONE.md)
+User input: $ARGUMENTS (not used, because the version is taken automatically from CURRENT_MILESTONE.md)
 
-Đọc thêm:
-- `.planning/PROJECT.md` -> cập nhật lịch sử milestones
-- `.planning/rules/general.md` -> ngôn ngữ, ngày tháng, định dạng version/commit
+Additional reads:
+- `.planning/PROJECT.md` -> update milestone history
+- `.planning/rules/general.md` -> language, dates, version format, commit format
 </context>
 
 <execution_context>
@@ -46,34 +46,34 @@ Người dùng nhập: $ARGUMENTS (không dùng, vì version tự động lấy 
 </execution_context>
 
 <process>
-Thực thi @workflows/complete-milestone.md từ đầu đến cuối.
+Execute @workflows/complete-milestone.md from start to finish.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- Báo cáo tổng kết milestone
-- Git tag cho phiên bản
-- `.planning/PROJECT.md` -- cập nhật lịch sử milestone
-- `.planning/STATE.md` -- đặt lại cho milestone tiếp theo
-- `.planning/CURRENT_MILESTONE.md` -- đánh dấu hoàn thành
+**Create/Update:**
+- Milestone completion report
+- Git tag for the version
+- `.planning/PROJECT.md` -- update milestone history
+- `.planning/STATE.md` -- reset for the next milestone
+- `.planning/CURRENT_MILESTONE.md` -- mark completed
 
-**Bước tiếp theo:** `/pd:scan` hoặc `/pd:new-milestone`
+**Next step:** `/pd:scan` or `/pd:new-milestone`
 
-**Thành công khi:**
-- Tất cả task đã hoàn thành, không còn lỗi mở
-- Git tag đúng phiên bản
-- PROJECT.md đã cập nhật kết quả milestone
+**Success when:**
+- All tasks are complete and no open bugs remain
+- The git tag matches the version
+- PROJECT.md records the milestone outcome
 
-**Lỗi thường gặp:**
-- Còn task chưa xong -> hoàn thành trước
-- Git conflict -> giải quyết thủ công
-- Còn lỗi mở -> chạy `/pd:fix-bug` trước
+**Common errors:**
+- Unfinished tasks remain -> complete them first
+- Git conflict -> resolve manually
+- Open bugs remain -> run `/pd:fix-bug` first
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- KHÔNG đóng milestone nếu còn task chưa hoàn thành
-- KHÔNG đóng milestone nếu còn lỗi mở
-- PHẢI tạo git tag sau khi commit thành công
-- PHẢI hỏi người dùng xác nhận trước khi đóng milestone
+- All output MUST be in English.
+- DO NOT close the milestone if any task is unfinished.
+- DO NOT close the milestone if any open bug remains.
+- You MUST create the git tag after the commit succeeds.
+- You MUST ask the user for confirmation before closing the milestone.
 </rules>

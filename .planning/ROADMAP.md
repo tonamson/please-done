@@ -175,7 +175,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 
 ### v6.0 Vietnamese → English Migration (Phases 65-70)
 
-- [ ] Phase 65: Skills + Config Foundation (2 plans)
+- [x] Phase 65: Skills + Config Foundation (2 plans) (completed 2026-03-28)
 - [ ] Phase 66: Workflow Translation (2 plans)
 - [ ] Phase 67: Agents + Rules + References (2 plans)
 - [ ] Phase 68: Templates + Docs + Root Files (2 plans)

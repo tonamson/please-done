@@ -9,8 +9,8 @@ Requirements for full Vietnamese-to-English migration. Each maps to roadmap phas
 
 ### Translation
 
-- [ ] **TRANS-01**: Translate 14 skill files (commands/pd/*.md) from Vietnamese to English
-- [ ] **TRANS-02**: Update CLAUDE.md language convention from Vietnamese to English
+- [x] **TRANS-01**: Translate 14 skill files (commands/pd/*.md) from Vietnamese to English
+- [x] **TRANS-02**: Update CLAUDE.md language convention from Vietnamese to English
 - [ ] **TRANS-03**: Translate 13 workflow files (workflows/*.md) from Vietnamese to English
 - [ ] **TRANS-04**: Translate 8 agent files with Vietnamese content to English
 - [ ] **TRANS-05**: Translate 8 rules files to English
@@ -23,7 +23,7 @@ Requirements for full Vietnamese-to-English migration. Each maps to roadmap phas
 
 ### Synchronization
 
-- [ ] **SYNC-01**: Regenerate 56 snapshot files after skill translation
+- [x] **SYNC-01**: Regenerate 56 snapshot files after skill translation
 - [ ] **SYNC-02**: Update test assertion strings to match new English JS output
 
 ### Verification

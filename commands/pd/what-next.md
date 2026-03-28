@@ -1,8 +1,8 @@
 ---
 name: pd:what-next
-description: Kiểm tra tiến trình dự án, gợi ý lệnh tiếp theo khi quên hoặc bị gián đoạn
+description: Check project progress and suggest the next command when work is interrupted or forgotten
 model: haiku
-argument-hint: "(không cần tham số)"
+argument-hint: "(no arguments needed)"
 allowed-tools:
   - Read
   - Glob
@@ -11,19 +11,19 @@ allowed-tools:
 ---
 
 <objective>
-Quét `.planning/` để xác định công việc còn dở và bước tiếp theo, rồi hiển thị tiến trình cùng lệnh gợi ý.
-CHỈ ĐỌC, KHÔNG sửa file, KHÔNG gọi FastCode MCP.
+Scan `.planning/` to determine unfinished work and the next logical step, then display progress with a suggested command.
+READ ONLY. DO NOT edit files. DO NOT call FastCode MCP.
 </objective>
 
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 
-- [ ] Thư mục `.planning/` tồn tại -> "Chưa khởi tạo dự án. Chạy `/pd:init` trước."
-</guards>
+- [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `/pd:init` first."
+      </guards>
 
 <context>
-Người dùng nhập: $ARGUMENTS (không có tham số)
-KHÔNG cần rule hay FastCode MCP -- chỉ đọc các file planning.
+User input: $ARGUMENTS (no arguments)
+No rules or FastCode MCP needed - only read planning files.
 </context>
 
 <execution_context>
@@ -33,27 +33,29 @@ KHÔNG cần rule hay FastCode MCP -- chỉ đọc các file planning.
 </execution_context>
 
 <process>
-Thực thi @workflows/what-next.md từ đầu đến cuối.
+Execute @workflows/what-next.md from start to finish.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- Không tạo hoặc sửa file nào, chỉ đọc
+**Create/Update:**
+- No files are created or modified, read-only only
 
-**Bước tiếp theo:** Lệnh gợi ý dựa trên trạng thái thực tế
+**Next step:** Suggested command based on the actual state
 
-**Thành công khi:**
-- Hiển thị tiến trình rõ ràng
-- Gợi ý đúng lệnh dựa trên trạng thái hiện tại
+**Success when:**
 
-**Lỗi thường gặp:**
-- `.planning/` không tồn tại -> chạy `/pd:init`
-- `STATE.md` thiếu hoặc hỏng -> chạy `/pd:new-milestone` để tạo lại
-</output>
+- Progress is displayed clearly
+- The suggested command matches the real current state
+
+**Common errors:**
+
+- `.planning/` does not exist -> run `/pd:init`
+- `STATE.md` is missing or broken -> run `/pd:new-milestone` to recreate it
+  </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- CHỈ ĐỌC, KHÔNG sửa bất kỳ file nào
-- KHÔNG gọi FastCode MCP hoặc Context7 MCP
-- Lệnh gợi ý PHẢI dựa trên trạng thái thực tế, không đoán
+- All output MUST be in English
+- READ ONLY. DO NOT edit any files
+- DO NOT call FastCode MCP or Context7 MCP
+- The suggested command MUST be based on the actual current state, never guessed
 </rules>

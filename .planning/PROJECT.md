@@ -89,8 +89,8 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-- [ ] Translate 14 skill files + CLAUDE.md to English — v6.0 (Phase 65)
-- [ ] Regenerate 56 snapshots after skill translation — v6.0 (Phase 65)
+- ✓ Translate 14 skill files + CLAUDE.md to English — v6.0 (Phase 65)
+- ✓ Regenerate 56 snapshots after skill translation — v6.0 (Phase 65)
 - [ ] Translate 13 workflow files to English — v6.0 (Phase 66)
 - [ ] Translate agents, rules, references to English — v6.0 (Phase 67)
 - [ ] Translate templates, docs, root MD files to English — v6.0 (Phase 68)

@@ -1,6 +1,6 @@
 ---
 name: pd:write-code
-description: Viết code theo task đã plan trong TASKS.md, lint, build, commit và báo cáo (yêu cầu có PLAN.md + TASKS.md trước)
+description: Write code for tasks already planned in TASKS.md, lint, build, commit, and report back (requires PLAN.md + TASKS.md first)
 model: sonnet
 argument-hint: "[task number] [--auto | --parallel]"
 allowed-tools:
@@ -19,33 +19,33 @@ allowed-tools:
 <!-- Audit 2026-03-23: Intentional -- Agent tool required for --parallel mode multi-agent execution. See Phase 14 Audit I4. -->
 
 <objective>
-Viết mã nguồn (code) theo các công việc (tasks) trong `PLAN.md` và `TASKS.md`, tuân thủ `.planning/rules/`, chạy kiểm tra lỗi cú pháp (lint) + biên dịch (build) rồi commit.
+Write source code according to the tasks in `PLAN.md` and `TASKS.md`, follow `.planning/rules/`, run lint + build, then commit.
 
-**Chế độ:** Mặc định thực hiện 1 task -> dừng hỏi | `--auto`: thực hiện tất cả tuần tự | `--parallel`: thực hiện song song theo đợt (waves) bằng đa tác tử.
-**Khôi phục:** Tự động phát hiện tiến trình qua `PROGRESS.md` + trạng thái tệp tin/git -> tiếp tục từ điểm bị dừng.
-**Sau khi xong:** Chạy `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`.
+**Modes:** By default, execute one task then stop and ask | `--auto`: execute all tasks sequentially | `--parallel`: execute in waves using multiple agents.
+**Recovery:** Automatically detect progress from `PROGRESS.md` + file/git state and continue from the interruption point.
+**After completion:** Run `/pd:test`, `/pd:plan [next phase]`, or `/pd:complete-milestone`.
 </objective>
 
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 
 @references/guard-context.md
-- [ ] Số thứ tự task hợp lệ hoặc có cờ `--auto`/`--parallel` -> "Cung cấp số task hoặc cờ chế độ."
-- [ ] `PLAN.md` và `TASKS.md` tồn tại cho giai đoạn (phase) hiện tại -> "Chạy `/pd:plan` trước để tạo kế hoạch."
+- [ ] Valid task number or `--auto`/`--parallel` flag provided -> "Provide a task number or a mode flag."
+- [ ] `PLAN.md` and `TASKS.md` exist for the current phase -> "Run `/pd:plan` first to create the plan."
 @references/guard-fastcode.md
 @references/guard-context7.md
 </guards>
 
 <context>
-Dữ liệu nhập: $ARGUMENTS
-- Số thứ tự task (VD: `3`) -> thực hiện task cụ thể.
-- `--auto` -> thực hiện tuần tự | `--parallel` -> thực hiện song song | Kết hợp: `3 --auto`.
-- Không có gì -> chọn task tiếp theo ⬜, xong 1 task thì DỪNG để hỏi ý kiến người dùng.
+User input: $ARGUMENTS
+- Task number (e.g. `3`) -> execute that specific task.
+- `--auto` -> execute sequentially | `--parallel` -> execute in parallel | Combination example: `3 --auto`.
+- No input -> choose the next unchecked task, and after finishing one task, STOP to ask the user.
 
-Đọc thêm:
-- `.planning/PROJECT.md` -> tầm nhìn, ràng buộc dự án.
-- `.planning/rules/general.md` -> quy tắc chung (luôn đọc).
-- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> theo công nghệ (CHỈ nếu tồn tại).
+Additional reads:
+- `.planning/PROJECT.md` -> project vision and constraints.
+- `.planning/rules/general.md` -> general rules (always read).
+- `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> technology-specific rules (ONLY if they exist).
 </context>
 
 <execution_context>
@@ -60,31 +60,31 @@ Dữ liệu nhập: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực hiện quy trình @workflows/write-code.md từ đầu đến cuối. Logic chọn task, viết mã, kiểm tra lỗi, bảo mật, commit và cập nhật trạng thái nằm trong quy trình này.
+Execute @workflows/write-code.md from start to finish. Task selection, coding, validation, security checks, commits, and status updates are defined inside that workflow.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- Mã nguồn và các tệp kiểm thử theo task.
-- Cập nhật `TASKS.md` và `PROGRESS.md`.
+**Create/Update:**
+- Source code and test files for the task.
+- Update `TASKS.md` and `PROGRESS.md`.
 
-**Bước tiếp theo:** `/pd:test`, `/pd:plan [phase tiếp]`, hoặc `/pd:complete-milestone`.
+**Next step:** `/pd:test`, `/pd:plan [next phase]`, or `/pd:complete-milestone`.
 
-**Thành công khi:**
-- Mã nguồn đã viết xong, lint và build đều vượt qua (pass).
-- Công việc được đánh dấu hoàn thành trong `TASKS.md`.
-- Commit có thông điệp (message) rõ ràng.
+**Success when:**
+- The code is complete and both lint and build pass.
+- The task is marked complete in `TASKS.md`.
+- A clear commit message was created.
 
-**Lỗi thường gặp:**
-- Lỗi lint hoặc build -> đọc thông báo lỗi, sửa mã rồi chạy lại.
-- Công việc chưa rõ ràng -> hỏi người dùng qua `AskUserQuestion`.
-- MCP không kết nối -> kiểm tra dịch vụ và cấu hình.
+**Common errors:**
+- Lint or build fails -> read the error, fix the code, then run again.
+- The task is unclear -> ask the user via `AskUserQuestion`.
+- MCP is not connected -> check the service and configuration.
 </output>
 
 <rules>
-- Mọi kết quả đầu ra PHẢI bằng tiếng Việt có dấu.
-- PHẢI đọc và tuân thủ quy tắc trong `.planning/rules/` trước khi viết mã.
-- PHẢI chạy lint và build sau khi viết mã.
-- PHẢI commit sau khi hoàn thành mỗi task.
-- KHÔNG được thay đổi mã nguồn ngoài phạm vi của task đang thực hiện.
+- All output MUST be in English.
+- You MUST read and follow the rules in `.planning/rules/` before writing code.
+- You MUST run lint and build after writing code.
+- You MUST commit after finishing each task.
+- You MUST NOT change source code outside the scope of the current task.
 </rules>

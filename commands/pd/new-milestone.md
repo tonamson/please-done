@@ -1,8 +1,8 @@
 ---
 name: pd:new-milestone
-description: Lập kế hoạch chiến lược dự án, tạo lộ trình với milestones rõ ràng
+description: Strategic project planning with a clear roadmap and milestones
 model: opus
-argument-hint: "[tên milestone, VD: 'v1.1 Thông báo'] [--reset-phase-numbers]"
+argument-hint: "[milestone name, e.g. 'v1.1 Notifications'] [--reset-phase-numbers]"
 allowed-tools:
   - Read
   - Write
@@ -17,27 +17,27 @@ allowed-tools:
 ---
 
 <objective>
-Khởi tạo milestone mới: kiểm tra -> cập nhật dự án -> hỏi -> nghiên cứu (tùy chọn) -> yêu cầu -> lộ trình -> duyệt.
+Initialize a new milestone: check -> update the project -> ask questions -> research (optional) -> requirements -> roadmap -> approval.
 </objective>
 
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 
 @references/guard-context.md
-- [ ] `.planning/rules/general.md` tồn tại -> "Thiếu rules. Chạy `/pd:init` để tạo lại."
-- [ ] Có tên milestone được cung cấp, hoặc sẽ hỏi người dùng nếu chưa có
+- [ ] `.planning/rules/general.md` exists -> "Rules are missing. Run `/pd:init` to recreate them."
+- [ ] A milestone name is provided, or the user will be asked if it is missing
 @references/guard-context7.md
-- [ ] WebSearch khả dụng khi cần nghiên cứu -> "WebSearch khong kha dung. Kiem tra ket noi mang."
+- [ ] WebSearch is available when research is needed -> "WebSearch is unavailable. Check the network connection."
 </guards>
 
 <context>
-Tên milestone: $ARGUMENTS (tùy chọn -- hỏi nếu không có)
-- `--reset-phase-numbers` -> đánh số phase từ 1
-- Phần còn lại = tên/mô tả milestone
+Milestone name: $ARGUMENTS (optional -- ask if missing)
+- `--reset-phase-numbers` -> renumber phases starting from 1
+- Remaining input = milestone name/description
 
-Đọc thêm:
-- `.planning/PROJECT.md` -> lịch sử milestones
-- `.planning/rules/general.md` -> ngôn ngữ, ngày tháng, quy cách
+Additional reads:
+- `.planning/PROJECT.md` -> milestone history
+- `.planning/rules/general.md` -> language, dates, conventions
 </context>
 
 <execution_context>
@@ -55,34 +55,34 @@ Tên milestone: $ARGUMENTS (tùy chọn -- hỏi nếu không có)
 </execution_context>
 
 <process>
-Thực thi @workflows/new-milestone.md từ đầu đến cuối.
+Execute @workflows/new-milestone.md from start to finish.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `.planning/PROJECT.md` -- tầm nhìn và lịch sử milestone
-- `.planning/REQUIREMENTS.md` -- yêu cầu có mã định danh và bảng theo dõi
-- `.planning/ROADMAP.md` -- lộ trình các phase
-- `.planning/STATE.md` -- trạng thái làm việc, được đặt lại
-- `.planning/CURRENT_MILESTONE.md` -- theo dõi milestone đang chạy
-- `.planning/research/` -- tài liệu nghiên cứu nếu cần cho tính năng mới
+**Create/Update:**
+- `.planning/PROJECT.md` -- project vision and milestone history
+- `.planning/REQUIREMENTS.md` -- requirements with IDs and tracking table
+- `.planning/ROADMAP.md` -- phase roadmap
+- `.planning/STATE.md` -- reset working state
+- `.planning/CURRENT_MILESTONE.md` -- track the active milestone
+- `.planning/research/` -- research material if needed for new features
 
-**Bước tiếp theo:** `/pd:plan`
+**Next step:** `/pd:plan`
 
-**Thành công khi:**
-- `ROADMAP.md` có đầy đủ phase với mô tả rõ ràng
-- `REQUIREMENTS.md` có mã định danh cho từng yêu cầu
-- `STATE.md` được khởi tạo cho milestone mới
+**Success when:**
+- `ROADMAP.md` contains all phases with clear descriptions
+- `REQUIREMENTS.md` contains IDs for each requirement
+- `STATE.md` is initialized for the new milestone
 
-**Lỗi thường gặp:**
-- Thiếu `CONTEXT.md` -> chạy `/pd:init` trước
-- Thiếu rules -> chạy `/pd:init` để tạo lại
-- Tên milestone bị trùng -> đổi tên hoặc dùng version khác
+**Common errors:**
+- Missing `CONTEXT.md` -> run `/pd:init` first
+- Missing rules -> run `/pd:init` to recreate them
+- Duplicate milestone name -> rename it or use a different version
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- PHẢI hỏi người dùng duyệt requirements trước khi tạo roadmap
-- PHẢI hỏi người dùng duyệt roadmap trước khi commit
-- Nghiên cứu chỉ bắt buộc cho tính năng mới, có thể bỏ qua với milestone refactor hoặc bugfix
+- All output MUST be in English.
+- You MUST ask the user to approve the requirements before creating the roadmap.
+- You MUST ask the user to approve the roadmap before committing.
+- Research is required only for new features, and may be skipped for refactor or bugfix milestones.
 </rules>

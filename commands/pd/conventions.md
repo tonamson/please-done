@@ -1,8 +1,8 @@
 ---
 name: pd:conventions
-description: "Phân tích dự án và tạo CLAUDE.md chứa quy ước code riêng (phong cách code, đặt tên, patterns)"
+description: "Analyze the project and create CLAUDE.md with project-specific coding conventions (style, naming, patterns)"
 model: sonnet
-argument-hint: "(không cần tham số)"
+argument-hint: "(no arguments needed)"
 allowed-tools:
   - Read
   - Write
@@ -14,17 +14,17 @@ allowed-tools:
 ---
 
 <objective>
-Phân tích dự án, phát hiện quy ước code, hỏi ưu tiên của người dùng, rồi tạo hoặc cập nhật `CLAUDE.md`.
+Analyze the project, detect coding conventions, ask about user preferences, then create or update `CLAUDE.md`.
 </objective>
 
 <guards>
-Không có điều kiện tiên quyết nghiêm ngặt. Skill này có thể chạy bất kỳ lúc nào.
+There are no strict prerequisites. This skill can be run at any time.
 
-- [ ] Thư mục dự án có source code -> "Thư mục trống hoặc không có source code để phân tích."
+- [ ] The project directory contains source code -> "The directory is empty or contains no source code to analyze."
 </guards>
 
 <context>
-Người dùng nhập: $ARGUMENTS
+User input: $ARGUMENTS
 </context>
 
 <execution_context>
@@ -33,26 +33,26 @@ Người dùng nhập: $ARGUMENTS
 </execution_context>
 
 <process>
-Thực thi @workflows/conventions.md từ đầu đến cuối.
+Execute @workflows/conventions.md from start to finish.
 </process>
 
 <output>
-**Tạo/Cập nhật:**
-- `CLAUDE.md` -- quy ước code của dự án
+**Create/Update:**
+- `CLAUDE.md` -- project coding conventions
 
-**Bước tiếp theo:** `/pd:plan` hoặc `/pd:write-code`
+**Next step:** `/pd:plan` or `/pd:write-code`
 
-**Thành công khi:**
-- `CLAUDE.md` bao gồm quy ước đặt tên, phong cách code và pattern đang dùng
-- Người dùng xác nhận nội dung
+**Success when:**
+- `CLAUDE.md` includes naming conventions, coding style, and active patterns
+- The user confirms the content
 
-**Lỗi thường gặp:**
-- Dự án không có source code -> không thể phân tích
-- Người dùng không đồng ý -> cho phép chỉnh sửa thủ công
+**Common errors:**
+- The project has no source code -> it cannot be analyzed
+- The user disagrees -> allow manual editing
 </output>
 
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- PHẢI hỏi người dùng về ưu tiên cá nhân trước khi tạo `CLAUDE.md`
-- `CLAUDE.md` PHẢI phản ánh thực tế code hiện tại, không áp đặt quy ước mới
+- All output MUST be in English
+- You MUST ask the user about personal preferences before creating `CLAUDE.md`
+- `CLAUDE.md` MUST reflect the current codebase reality and must not impose new conventions
 </rules>

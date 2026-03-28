@@ -1,5 +1,5 @@
 ---
-description: Quét toàn bộ dự án, phân tích cấu trúc, thư viện, bảo mật và tạo báo cáo
+description: Scan the entire project, analyze structure, libraries, security, and generate a report
 tools:
   - Read
   - Write
@@ -10,17 +10,17 @@ tools:
   - mcp__fastcode__code_qa
 ---
 <objective>
-Quét dự án: phân tích cấu trúc code, dependency, kiến trúc và bảo mật để tạo báo cáo.
+Scan the project: analyze code structure, dependencies, architecture, and security to produce a report.
 </objective>
 <guards>
-Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
 - [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
 - [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
 </guards>
 <context>
-Người dùng nhập: $ARGUMENTS
-Đọc `.planning/CONTEXT.md` (từ /pd-init). KHÔNG cần rules -- chỉ quét + báo cáo.
+User input: $ARGUMENTS
+Read `.planning/CONTEXT.md` (from /pd-init). No rules are needed here - only scanning and reporting.
 </context>
 <process>
 ## Bước 1: Xác định đường dẫn
@@ -87,22 +87,22 @@ Viết `.planning/scan/SCAN_REPORT.md`:
 Tóm tắt kết quả. Nếu CONTEXT.md/rules cập nhật → thông báo rõ.
 </process>
 <output>
-**Tạo/Cập nhật:**
-- Báo cáo phân tích dự án trên màn hình
-- Cập nhật `.planning/CONTEXT.md`
-**Bước tiếp theo:** `/pd-plan` hoặc `/pd-new-milestone`
-**Thành công khi:**
-- Phân tích đầy đủ cấu trúc, dependency và kiến trúc
-- Có báo cáo bảo mật nếu phát hiện vấn đề
-- `CONTEXT.md` đã được cập nhật
-**Lỗi thường gặp:**
-- FastCode MCP không kết nối -> kiểm tra Docker đang chạy
-- Dự án quá lớn -> giới hạn phạm vi quét theo thư mục
+**Create/Update:**
+- Project analysis report on screen
+- Update `.planning/CONTEXT.md`
+**Next step:** `/pd-plan` or `/pd-new-milestone`
+**Success when:**
+- Structure, dependencies, and architecture are fully analyzed
+- A security report is included if issues are detected
+- `CONTEXT.md` has been updated
+**Common errors:**
+- FastCode MCP is not connected -> check that Docker is running
+- The project is too large -> limit the scan scope by directory
 </output>
 <rules>
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- Chỉ đọc và phân tích, KHÔNG được thay đổi source code của dự án
-- Báo cáo phải bao gồm: cấu trúc, dependency, kiến trúc và bảo mật
+- All output MUST be in English
+- Only read and analyze, DO NOT change project source code
+- The report must include: structure, dependencies, architecture, and security
 - Tuân thủ `.planning/rules/general.md` (ngôn ngữ, ngày tháng, bảo mật)
 - Không sửa code, chỉ quét và báo cáo
 - Project mới → scan report tối giản, KHÔNG gọi FastCode, KHÔNG npm audit
