@@ -238,18 +238,26 @@ Plans:
 **Requirements:** TRANS-04, TRANS-05, TRANS-06
 
 **Success criteria:**
-1. All 8 agent files with Vietnamese content translated
+1. All 16 agent files translated (expanded from roadmap's 8 — 11 have non-diacritical Vietnamese)
 2. All 8 rules files translated
 3. All 15 reference files (.md + .yaml) translated
-4. No broken cross-references
+4. Test assertions updated for translated guard/pipeline content
+5. No broken cross-references
 
-**Plan 01 — Agents + Rules:**
-- Task 1: Translate 8 agent files (pd-bug-janitor, pd-code-detective, pd-doc-specialist, pd-fact-checker, pd-fix-architect, pd-repro-engineer, pd-sec-reporter, pd-sec-scanner)
-- Task 2: Translate 8 rules files (general.md, nestjs.md, nextjs.md, wordpress.md, flutter.md, solidity.md, solidity-refs/templates.md, solidity-refs/audit-checklist.md)
+**Plans:** 2 plans
 
-**Plan 02 — References:**
+Plans:
+- [ ] 67-01-PLAN.md — Translate 16 agent files + 8 rules files
+- [ ] 67-02-PLAN.md — Translate 15 reference files + update test assertions
+
+**Plan 01 — Agents + Rules (Wave 1):**
+- Task 1: Translate 16 agent files (all in commands/pd/agents/)
+- Task 2: Translate 8 rules files (general, nestjs, nextjs, wordpress, flutter, solidity, solidity-refs/audit-checklist, solidity-refs/templates)
+
+**Plan 02 — References + Test Updates (Wave 1):**
 - Task 1: Translate 9 reference .md files (conventions, context7-pipeline, prioritization, questioning, security-checklist, state-machine, ui-brand, verification, mermaid-rules)
-- Task 2: Translate 2 reference .yaml files (security-rules.yaml, gadget-chain-templates.yaml) + 4 guard files
+- Task 2: Translate 2 .yaml files (security-rules.yaml, gadget-chain-templates.yaml) + 4 guard files
+- Task 3: Update test assertions for guard content regex + translate Vietnamese test strings
 
 ---
 
