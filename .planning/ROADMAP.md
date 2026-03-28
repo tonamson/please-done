@@ -244,10 +244,10 @@ Plans:
 4. Test assertions updated for translated guard/pipeline content
 5. No broken cross-references
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 67-01-PLAN.md — Translate 16 agent files + 8 rules files
+- [x] 67-01-PLAN.md — Translate 16 agent files + 8 rules files
 - [ ] 67-02-PLAN.md — Translate 15 reference files + update test assertions
 
 **Plan 01 — Agents + Rules (Wave 1):**
