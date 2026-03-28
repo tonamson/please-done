@@ -179,7 +179,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 - [x] Phase 66: Workflow Translation (2 plans) (completed 2026-03-28)
 - [x] Phase 67: Agents + Rules + References (2 plans) (completed 2026-03-28)
 - [x] Phase 68: Templates + Docs + Root Files (2 plans) (completed 2026-03-28)
-- [ ] Phase 69: JS Source Code + Tests (3 plans)
+- [x] Phase 69: JS Source Code + Tests (3 plans)
 - [ ] Phase 70: Final Verification + Cleanup (1 plan)
 
 #### Phase 65: Skills + Config Foundation
@@ -299,9 +299,9 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 69-01-PLAN.md — Translate 15 bin/lib/ core + remaining modules
-- [ ] 69-02-PLAN.md — Translate install.js + 5 installers + 9 non-diacritical lib files
-- [ ] 69-03-PLAN.md — Update 14 test files + run full test suite
+- [x] 69-01-PLAN.md — Translate 15 bin/lib/ core + remaining modules
+- [x] 69-02-PLAN.md — Translate install.js + 5 installers + 9 non-diacritical lib files
+- [x] 69-03-PLAN.md — Update 14 test files + run full test suite
 
 **Success criteria:**
 1. Zero Vietnamese in 33 bin/ JS source files (JSDoc, comments, string literals)
