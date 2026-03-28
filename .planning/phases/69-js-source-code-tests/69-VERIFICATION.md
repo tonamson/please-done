@@ -1,24 +1,27 @@
 # Phase 69 — Verification Report
 
 ## Phase Goal
+
 Translate Vietnamese in JS source code (comments, JSDoc, string literals) and synchronize test assertions to match new English output.
 
 ## Requirements Verified
 
 ### TRANS-10: JS Source Translation
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| Zero Vietnamese diacritics in 33 bin/ JS files | **PASS** | `grep -rcP '[Vietnamese chars]' bin/` → 0 matches |
-| Zero Vietnamese diacritics in 14 test files | **PASS** | `grep -rcP '[Vietnamese chars]' test/` → 0 matches |
-| Non-diacritical Vietnamese translated | **PASS** | All error messages, section headings, labels verified English |
-| Code logic unchanged | **PASS** | Only comments, JSDoc, string literals changed; no algorithmic changes |
+
+| Criterion                                      | Status   | Evidence                                                              |
+| ---------------------------------------------- | -------- | --------------------------------------------------------------------- |
+| Zero Vietnamese diacritics in 33 bin/ JS files | **PASS** | `grep -rcP '[Vietnamese chars]' bin/` → 0 matches                     |
+| Zero Vietnamese diacritics in 14 test files    | **PASS** | `grep -rcP '[Vietnamese chars]' test/` → 0 matches                    |
+| Non-diacritical Vietnamese translated          | **PASS** | All error messages, section headings, labels verified English         |
+| Code logic unchanged                           | **PASS** | Only comments, JSDoc, string literals changed; no algorithmic changes |
 
 ### SYNC-02: Test Assertion Sync
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| Test assertions match English output | **PASS** | 9 test files synced, all verified passing individually |
-| Plan-checker regex updated | **PASS** | 12 Vietnamese regex → English patterns in plan-checker.js |
-| Plan-checker test helpers updated | **PASS** | `makeTasksV11()` + `makePlanV11()` generate English plan content |
+
+| Criterion                            | Status   | Evidence                                                         |
+| ------------------------------------ | -------- | ---------------------------------------------------------------- |
+| Test assertions match English output | **PASS** | 9 test files synced, all verified passing individually           |
+| Plan-checker regex updated           | **PASS** | 12 Vietnamese regex → English patterns in plan-checker.js        |
+| Plan-checker test helpers updated    | **PASS** | `makeTasksV11()` + `makePlanV11()` generate English plan content |
 
 ## Success Criteria
 
@@ -47,6 +50,7 @@ Translate Vietnamese in JS source code (comments, JSDoc, string literals) and sy
    - Snapshot tests: 56/56 pass (54 files regenerated)
 
 ## Commits
+
 ```
 c51de9e translate(69-01): translate 7 core bin/lib modules to English
 4603e30 translate(69-01): translate 8 remaining bin/lib modules to English
