@@ -1,13 +1,13 @@
 /**
- * Regression Analyzer — Phân tích module phụ thuộc qua call chain.
+ * Regression Analyzer — Analyze module dependencies via call chain.
  *
- * Pure function: nhận dependency data, trả về danh sách files bị ảnh hưởng.
- * KHÔNG đọc file — tất cả content được truyền qua tham số.
- * KHÔNG gọi MCP — chỉ parse text đã có sẵn.
+ * Pure function: receives dependency data, returns list of affected files.
+ * Does NOT read files — all content is passed via parameters.
+ * Does NOT call MCP — only parses pre-existing text.
  *
- * Có 2 mode:
- * 1. FastCode mode: nhận callChainText từ MCP kết quả, parse và filter
- * 2. BFS fallback: nhận sourceFiles array, parse import/require, tìm phụ thuộc
+ * Has 2 modes:
+ * 1. FastCode mode: receives callChainText from MCP result, parse and filter
+ * 2. BFS fallback: receives sourceFiles array, parse import/require, find dependencies
  */
 
 'use strict';
@@ -18,25 +18,25 @@ const MAX_DEPTH = 2;     // D-04: 1-2 levels
 // ─── Mode 1: FastCode Call Chain ────────────────────────
 
 /**
- * Parse FastCode call chain response và trả về danh sách files bị ảnh hưởng.
+ * Parse FastCode call chain response and return list of affected files.
  *
  * @param {object} params
- * @param {string} params.callChainText - Text response từ FastCode
- * @param {string} params.targetFile - File bị lỗi
- * @param {string} [params.targetFunction] - Function bị lỗi
+ * @param {string} params.callChainText - Text response from FastCode
+ * @param {string} params.targetFile - File with the bug
+ * @param {string} [params.targetFunction] - Function with the bug
  * @returns {{ affectedFiles: Array<{path: string, reason: string, depth: number}>, totalFound: number }}
  */
 function analyzeFromCallChain(params) {
   if (!params || !params.callChainText) {
-    throw new Error('Thiếu tham số bắt buộc: callChainText');
+    throw new Error('Missing required parameter: callChainText');
   }
   if (!params.targetFile) {
-    throw new Error('Thiếu tham số bắt buộc: targetFile');
+    throw new Error('Missing required parameter: targetFile');
   }
 
   const { callChainText } = params;
 
-  // Parse mỗi dòng theo regex: - {path}:{line} → {function}() [depth {n}]
+  // Parse each line with regex: - {path}:{line} → {function}() [depth {n}]
   const callerRegex = /^\s*-\s*(.+?):(\d+)\s*.*?\s+(\w+)\(\)\s*\[depth\s+(\d+)\]/gm;
   const allCallers = [];
   let match;
@@ -50,22 +50,22 @@ function analyzeFromCallChain(params) {
     allCallers.push({ path: filePath, line, func: funcName, depth });
   }
 
-  // Filter: chỉ giữ depth <= MAX_DEPTH
+  // Filter: only keep depth <= MAX_DEPTH
   const filtered = allCallers.filter(c => c.depth <= MAX_DEPTH);
 
   // Sort: by depth ascending
   filtered.sort((a, b) => a.depth - b.depth);
 
-  // totalFound = số callers sau filter (trước khi cap)
+  // totalFound = number of callers after filter (before cap)
   const totalFound = filtered.length;
 
-  // Cap: lấy MAX_AFFECTED items đầu tiên
+  // Cap: take first MAX_AFFECTED items
   const capped = filtered.slice(0, MAX_AFFECTED);
 
-  // Map sang output format
+  // Map to output format
   const affectedFiles = capped.map(c => ({
     path: c.path,
-    reason: `gọi ${c.func} từ dòng ${c.line}`,
+    reason: `calls ${c.func} from line ${c.line}`,
     depth: c.depth,
   }));
 
@@ -75,7 +75,7 @@ function analyzeFromCallChain(params) {
 // ─── Mode 2: BFS Fallback ───────────────────────────────
 
 /**
- * Lấy basename không extension từ file path.
+ * Get basename without extension from file path.
  * @param {string} filePath
  * @returns {string}
  */
@@ -86,10 +86,10 @@ function getBasename(filePath) {
 }
 
 /**
- * Kiểm tra xem một import path có reference tới target file không.
- * So sánh bằng basename (không extension).
- * @param {string} importPath - Đường dẫn import
- * @param {string} targetBasename - Basename của target file
+ * Check if an import path references the target file.
+ * Compares by basename (without extension).
+ * @param {string} importPath - Import path
+ * @param {string} targetBasename - Basename of target file
  * @returns {boolean}
  */
 function importMatchesTarget(importPath, targetBasename) {
@@ -98,7 +98,7 @@ function importMatchesTarget(importPath, targetBasename) {
 }
 
 /**
- * Kiểm tra file có phải test file không.
+ * Check if file is a test file.
  * @param {string} filePath
  * @returns {boolean}
  */
@@ -107,20 +107,20 @@ function isTestFile(filePath) {
 }
 
 /**
- * Parse import/require từ source files và trả về danh sách files bị ảnh hưởng (BFS).
+ * Parse import/require from source files and return list of affected files (BFS).
  *
  * @param {object} params
  * @param {Array<{path: string, content: string}>} params.sourceFiles - Source files content
- * @param {string} params.targetFile - File bị lỗi
- * @param {string} [params.targetFunction] - Function bị lỗi
+ * @param {string} params.targetFile - File with the bug
+ * @param {string} [params.targetFunction] - Function with the bug
  * @returns {{ affectedFiles: Array<{path: string, reason: string, depth: number}>, totalFound: number }}
  */
 function analyzeFromSourceFiles(params) {
   if (!params || !params.sourceFiles) {
-    throw new Error('Thiếu tham số bắt buộc: sourceFiles');
+    throw new Error('Missing required parameter: sourceFiles');
   }
   if (!params.targetFile) {
-    throw new Error('Thiếu tham số bắt buộc: targetFile');
+    throw new Error('Missing required parameter: targetFile');
   }
 
   const { sourceFiles, targetFile } = params;
@@ -131,13 +131,13 @@ function analyzeFromSourceFiles(params) {
 
   const targetBasename = getBasename(targetFile);
 
-  // Regex: tìm require('...') hoặc import ... from '...'
+  // Regex: find require('...') or import ... from '...'
   const importRegex = /(?:require\s*\(\s*['"]([^'"]+)['"]\s*\)|from\s+['"]([^'"]+)['"])/g;
 
   /**
-   * Tìm tất cả files import một target basename cụ thể.
-   * @param {string} searchBasename - basename cần tìm
-   * @param {Set<string>} excludePaths - paths đã tìm thấy, bỏ qua
+   * Find all files that import a specific target basename.
+   * @param {string} searchBasename - basename to search for
+   * @param {Set<string>} excludePaths - paths already found, skip
    * @returns {Array<{path: string, importedFrom: string}>}
    */
   function findImporters(searchBasename, excludePaths) {
@@ -155,7 +155,7 @@ function analyzeFromSourceFiles(params) {
         const importPath = m[1] || m[2];
         if (importMatchesTarget(importPath, searchBasename)) {
           importers.push({ path: file.path, importedFrom: importPath });
-          break; // chỉ cần phát hiện 1 lần import là đủ
+          break; // only need to detect 1 import
         }
       }
     }
@@ -166,18 +166,18 @@ function analyzeFromSourceFiles(params) {
   const allAffected = [];
   const visitedPaths = new Set();
 
-  // Level 1: Tìm files import targetFile trực tiếp
+  // Level 1: Find files that directly import targetFile
   const level1 = findImporters(targetBasename, visitedPaths);
   for (const item of level1) {
     visitedPaths.add(item.path);
     allAffected.push({
       path: item.path,
-      reason: `import ${targetFile} trực tiếp`,
+      reason: `directly imports ${targetFile}`,
       depth: 1,
     });
   }
 
-  // Level 2: Files tìm được ở level 1 → scan các file khác import những files đó
+  // Level 2: Files found at level 1 → scan other files that import those
   for (const level1File of level1) {
     const level1Basename = getBasename(level1File.path);
     const level2 = findImporters(level1Basename, visitedPaths);
@@ -185,7 +185,7 @@ function analyzeFromSourceFiles(params) {
       visitedPaths.add(item.path);
       allAffected.push({
         path: item.path,
-        reason: `import ${level1File.path} — gián tiếp phụ thuộc`,
+        reason: `imports ${level1File.path} — indirect dependency`,
         depth: 2,
       });
     }

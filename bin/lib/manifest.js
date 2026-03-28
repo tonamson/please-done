@@ -1,5 +1,5 @@
-// Manifest tracking — SHA256 hash files đã install.
-// Detect file user đã modify, backup trước khi re-install.
+// Manifest tracking — SHA256 hash of installed files.
+// Detect files user has modified, backup before re-install.
 
 'use strict';
 
@@ -11,7 +11,7 @@ const MANIFEST_NAME = 'pd-file-manifest.json';
 const PATCHES_DIR = 'pd-local-patches';
 
 /**
- * Quét recursive tất cả files trong dir, trả về { relativePath: sha256 }
+ * Recursively scan all files in dir, return { relativePath: sha256 }
  */
 function generateManifest(dir, baseDir) {
   baseDir = baseDir || dir;
@@ -24,7 +24,7 @@ function generateManifest(dir, baseDir) {
     const fullPath = path.join(dir, entry.name);
     const relPath = path.relative(baseDir, fullPath);
 
-    // Resolve symlinks — stat thật để biết file hay directory
+    // Resolve symlinks — stat real target to determine file or directory
     let stat;
     try {
       stat = fs.statSync(fullPath);
@@ -44,7 +44,7 @@ function generateManifest(dir, baseDir) {
 }
 
 /**
- * Ghi manifest sau khi install xong.
+ * Write manifest after install completes.
  */
 function writeManifest(configDir, version, installedDirs) {
   const manifestPath = path.join(configDir, MANIFEST_NAME);
@@ -67,7 +67,7 @@ function writeManifest(configDir, version, installedDirs) {
 
   fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n', 'utf8');
 
-  // Xóa manifest cũ từ bản sk nếu tồn tại
+  // Remove legacy manifest from old sk version if it exists
   const legacyManifest = path.join(configDir, 'sk-file-manifest.json');
   if (fs.existsSync(legacyManifest)) {
     try { fs.unlinkSync(legacyManifest); } catch (err) {
@@ -79,11 +79,11 @@ function writeManifest(configDir, version, installedDirs) {
 }
 
 /**
- * Đọc manifest hiện tại.
+ * Read current manifest.
  */
 function readManifest(configDir) {
   const manifestPath = path.join(configDir, MANIFEST_NAME);
-  // Fallback: đọc manifest cũ từ bản sk nếu manifest mới chưa có
+  // Fallback: read legacy manifest from old sk version if new manifest doesn't exist
   const legacyPath = path.join(configDir, 'sk-file-manifest.json');
 
   for (const mp of [manifestPath, legacyPath]) {
@@ -100,8 +100,8 @@ function readManifest(configDir) {
 }
 
 /**
- * So sánh files hiện tại với manifest → tìm files user đã modify.
- * Trả về array of { relPath, status: 'modified'|'deleted'|'added' }
+ * Compare current files with manifest → find files user has modified.
+ * Returns array of { relPath, status: 'modified'|'deleted'|'added' }
  */
 function detectChanges(configDir) {
   const manifest = readManifest(configDir);
@@ -126,8 +126,8 @@ function detectChanges(configDir) {
 }
 
 /**
- * Backup files user đã modify trước khi re-install.
- * Trả về số files đã backup.
+ * Backup files user has modified before re-install.
+ * Returns number of files backed up.
  */
 function saveLocalPatches(configDir) {
   const changes = detectChanges(configDir);
@@ -164,7 +164,7 @@ function saveLocalPatches(configDir) {
 }
 
 /**
- * Thông báo patches đã backup.
+ * Report backed up patches.
  */
 function reportLocalPatches(configDir) {
   const patchesDir = path.join(configDir, PATCHES_DIR);
@@ -175,11 +175,11 @@ function reportLocalPatches(configDir) {
   try {
     const meta = JSON.parse(fs.readFileSync(metaFile, 'utf8'));
     if (meta.files && meta.files.length > 0) {
-      log.warn(`${meta.files.length} file(s) đã được backup vì có thay đổi local:`);
+      log.warn(`${meta.files.length} file(s) backed up due to local changes:`);
       for (const f of meta.files) {
         log.info(`    ${f}`);
       }
-      log.info(`  Backup tại: ${patchesDir}`);
+      log.info(`  Backup at: ${patchesDir}`);
     }
   } catch (err) {
     log.warn(`Failed to read backup metadata: ${metaFile} (${err.message})`);
@@ -187,7 +187,7 @@ function reportLocalPatches(configDir) {
 }
 
 /**
- * Scan files đã install tìm leaked paths (VD: ~/.claude/ còn sót trong non-Claude platform).
+ * Scan installed files for leaked paths (e.g., ~/.claude/ remaining in non-Claude platform).
  */
 function scanLeakedPaths(configDir, searchPattern) {
   const leaked = [];

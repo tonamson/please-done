@@ -1,49 +1,49 @@
 // Converter: Claude Code -> Codex CLI
 //
-// Codex dung "skills" thay vi slash commands.
-// Moi skill nam trong thu muc rieng: skills/pd-[name]/SKILL.md
-// Goi bang prefix $: $pd-init, $pd-write-code
-// MCP config trong config.toml dang TOML.
+// Codex uses "skills" instead of slash commands.
+// Each skill lives in its own directory: skills/pd-[name]/SKILL.md
+// Invoked with $ prefix: $pd-init, $pd-write-code
+// MCP config in config.toml using TOML format.
 
 'use strict';
 
 const { convertSkill: baseConvert } = require('./base');
 
 /**
- * Tao XML adapter header — day Codex cach map khai niem Claude -> Codex.
+ * Generate XML adapter header — teaches Codex how to map Claude concepts to Codex.
  */
 function generateSkillAdapter(skillName) {
   return `<codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: \`$pd-${skillName}\`
-Khi user gọi \`$pd-${skillName} {{args}}\`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes \`$pd-${skillName} {{args}}\`, execute all instructions below.
 
 ## Tool mapping
-- \`AskUserQuestion\` → \`request_user_input\`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- \`Task()\` → \`spawn_agent()\`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: \`wait(agent_ids)\`
-  - Kết thúc agent: \`close_agent()\`
+- \`AskUserQuestion\` → \`request_user_input\`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- \`Task()\` → \`spawn_agent()\`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: \`wait(agent_ids)\`
+  - End agent: \`close_agent()\`
 
-## Fallback tương thích
-- Nếu \`request_user_input\` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng \`request_user_input\`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
+## Compatibility fallback
+- If \`request_user_input\` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use \`request_user_input\`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 
-## Quy ước
-- \`$ARGUMENTS\` chính là \`{{GSD_ARGS}}\` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang \`~/.codex/\`
-- Các MCP tools (\`mcp__*\`) hoạt động tự động qua config.toml
-- Đọc \`~/.codex/.pdconfig\` (cat ~/.codex/.pdconfig) → lấy \`SKILLS_DIR\`
-- Các tham chiếu \`[SKILLS_DIR]/templates/*\`, \`[SKILLS_DIR]/references/*\` → đọc từ thư mục source tương ứng
+## Conventions
+- \`$ARGUMENTS\` is equivalent to \`{{GSD_ARGS}}\` — user input when invoking the skill
+- All config paths have been converted to \`~/.codex/\`
+- MCP tools (\`mcp__*\`) work automatically via config.toml
+- Read \`~/.codex/.pdconfig\` (cat ~/.codex/.pdconfig) → get \`SKILLS_DIR\`
+- References to \`[SKILLS_DIR]/templates/*\`, \`[SKILLS_DIR]/references/*\` → read from the corresponding source directory
 </codex_skill_adapter>
 
 `;
 }
 
 /**
- * Convert noi dung skill tu Claude format sang Codex format.
- * @param {string} content — noi dung command file goc
- * @param {string} skillName — ten skill (VD: 'plan', 'write-code')
- * @param {string} [skillsDir] — duong dan repo goc (de doc workflow files)
+ * Convert skill content from Claude format to Codex format.
+ * @param {string} content — original command file content
+ * @param {string} skillName — skill name (e.g., 'plan', 'write-code')
+ * @param {string} [skillsDir] — source repo path (to read workflow files)
  */
 function convertSkill(content, skillName, skillsDir) {
   return baseConvert(content, {
@@ -64,7 +64,7 @@ function convertSkill(content, skillName, skillsDir) {
 }
 
 /**
- * Generate TOML config block cho MCP servers.
+ * Generate TOML config block for MCP servers.
  */
 function generateMcpToml(fastcodeDir) {
   return `
@@ -86,23 +86,23 @@ enabled = true
 }
 
 /**
- * Merge MCP config vao file config.toml hien co.
- * Idempotent — neu da co marker thi thay the, khong duplicate.
+ * Merge MCP config into existing config.toml.
+ * Idempotent — if markers already exist, replace content; no duplicates.
  */
 function mergeCodexConfig(existingContent, mcpBlock) {
   const startMarker = '# [PD_SKILLS_MCP_START]';
   const endMarker = '# [PD_SKILLS_MCP_END]';
-  // Fallback: tim marker cu tu ban sk -> xoa khi upgrade
+  // Fallback: find legacy markers from sk version -> remove on upgrade
   const legacyStart = '# [SK_SKILLS_MCP_START]';
   const legacyEnd = '# [SK_SKILLS_MCP_END]';
 
-  // Thu marker moi truoc
+  // Try new markers first
   for (const [sm, em] of [[startMarker, endMarker], [legacyStart, legacyEnd]]) {
     if (existingContent.includes(sm)) {
       const startIdx = existingContent.indexOf(sm);
       const endIdx = existingContent.indexOf(em);
       if (endIdx > startIdx) {
-        // Giu lai markers de idempotent — lan merge sau van tim duoc
+        // Keep markers for idempotency — next merge can still find them
         const inner = mcpBlock.trim().split('\n').slice(2, -1).join('\n');
         return existingContent.slice(0, startIdx) +
           startMarker + '\n' + inner + '\n' + endMarker +
@@ -116,11 +116,11 @@ function mergeCodexConfig(existingContent, mcpBlock) {
 }
 
 /**
- * Strip skills MCP sections khoi config.toml (uninstall).
+ * Strip skills MCP sections from config.toml (uninstall).
  */
 function stripCodexConfig(content) {
   const startMarker = '# \u2500\u2500\u2500 Skills MCP Servers';
-  // Tim end marker moi hoac cu
+  // Find new or legacy end marker
   let endMarker = '# [PD_SKILLS_MCP_END]';
   if (!content.includes(endMarker)) endMarker = '# [SK_SKILLS_MCP_END]';
 

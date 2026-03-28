@@ -1,16 +1,16 @@
 /**
- * Evidence Protocol Module — Validate, parse, constants cho evidence files.
+ * Evidence Protocol Module — Validate, parse, constants for evidence files.
  *
- * Chuan hoa 3 outcome types (ROOT CAUSE FOUND, CHECKPOINT REACHED, INVESTIGATION INCONCLUSIVE)
- * voi validation non-blocking.
+ * Standardizes 3 outcome types (ROOT CAUSE FOUND, CHECKPOINT REACHED, INVESTIGATION INCONCLUSIVE)
+ * with non-blocking validation.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Content truyen qua tham so, return structured object.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Content passed via parameters, returns structured object.
  *
- * - validateEvidence: validate evidence content, tra warnings (non-blocking)
- * - parseEvidence: parse frontmatter + body thanh structured object
- * - getRequiredSections: tra ve danh sach required sections cho outcome type
- * - OUTCOME_TYPES: constant 3 outcome types voi label va requiredSections
+ * - validateEvidence: validate evidence content, returns warnings (non-blocking)
+ * - parseEvidence: parse frontmatter + body into structured object
+ * - getRequiredSections: return list of required sections for outcome type
+ * - OUTCOME_TYPES: constant 3 outcome types with label and requiredSections
  */
 
 'use strict';
@@ -20,36 +20,36 @@ const { parseFrontmatter } = require('./utils');
 // ─── Constants ────────────────────────────────────────────
 
 /**
- * 3 outcome types chuan cho evidence files.
- * Moi outcome co label (hien thi) va requiredSections (kiem tra validation).
+ * 3 standard outcome types for evidence files.
+ * Each outcome has a label (display) and requiredSections (validation check).
  *
- * - root_cause: Da tim duoc nguyen nhan (D-07)
- * - checkpoint: Can hoi them user (D-08)
- * - inconclusive: Chua ket luan duoc (D-09)
+ * - root_cause: Root cause found (D-07)
+ * - checkpoint: Need to ask user more (D-08)
+ * - inconclusive: Cannot conclude yet (D-09)
  */
 const OUTCOME_TYPES = {
-  root_cause:   { label: 'ROOT CAUSE FOUND',          requiredSections: ['Nguyên nhân', 'Bằng chứng', 'Đề xuất'] },
-  checkpoint:   { label: 'CHECKPOINT REACHED',         requiredSections: ['Tiến độ điều tra', 'Câu hỏi cho User', 'Context cho Agent tiếp'] },
-  inconclusive: { label: 'INVESTIGATION INCONCLUSIVE', requiredSections: ['Elimination Log', 'Hướng điều tra tiếp'] },
+  root_cause:   { label: 'ROOT CAUSE FOUND',          requiredSections: ['Root Cause', 'Evidence', 'Suggestion'] },
+  checkpoint:   { label: 'CHECKPOINT REACHED',         requiredSections: ['Investigation Progress', 'Questions for User', 'Context for Next Agent'] },
+  inconclusive: { label: 'INVESTIGATION INCONCLUSIVE', requiredSections: ['Elimination Log', 'Next Investigation Direction'] },
 };
 
 // ─── getRequiredSections ────────────────────────────────────
 
 /**
- * Tra ve danh sach required sections cho outcome type.
+ * Return list of required sections for an outcome type.
  *
- * @param {string} outcomeType - Ten outcome (root_cause, checkpoint, inconclusive)
- * @returns {string[]} Copy cua mang requiredSections
- * @throws {Error} Khi outcomeType null/undefined hoac khong hop le
+ * @param {string} outcomeType - Outcome name (root_cause, checkpoint, inconclusive)
+ * @returns {string[]} Copy of requiredSections array
+ * @throws {Error} When outcomeType is null/undefined or invalid
  */
 function getRequiredSections(outcomeType) {
   if (outcomeType == null || typeof outcomeType !== 'string') {
-    throw new Error('thieu tham so outcomeType');
+    throw new Error('missing parameter: outcomeType');
   }
 
   const entry = OUTCOME_TYPES[outcomeType];
   if (!entry) {
-    throw new Error(`outcome khong hop le: ${outcomeType}`);
+    throw new Error(`invalid outcome: ${outcomeType}`);
   }
 
   return [...entry.requiredSections];
@@ -58,16 +58,16 @@ function getRequiredSections(outcomeType) {
 // ─── validateEvidence ───────────────────────────────────────
 
 /**
- * Validate evidence content. Non-blocking: tra warnings thay vi throw khi format sai.
- * Chi throw khi content null/undefined/empty (loi lap trinh, khong phai loi format).
+ * Validate evidence content. Non-blocking: returns warnings instead of throwing on bad format.
+ * Only throws when content is null/undefined/empty (programming error, not format error).
  *
- * @param {string} content - Noi dung evidence file (frontmatter + body)
+ * @param {string} content - Evidence file content (frontmatter + body)
  * @returns {{ valid: boolean, outcome: string|null, agent: string|null, warnings: string[] }}
- * @throws {Error} Khi content null/undefined/empty
+ * @throws {Error} When content is null/undefined/empty
  */
 function validateEvidence(content) {
   if (content == null || typeof content !== 'string' || content.trim() === '') {
-    throw new Error('thieu tham so content');
+    throw new Error('missing parameter: content');
   }
 
   const warnings = [];
@@ -76,30 +76,30 @@ function validateEvidence(content) {
   const outcome = frontmatter.outcome || null;
   const agent = frontmatter.agent || null;
 
-  // Kiem tra outcome co hop le
+  // Check if outcome is valid
   if (!outcome || !OUTCOME_TYPES[outcome]) {
-    warnings.push('outcome khong hop le');
+    warnings.push('invalid outcome');
     return { valid: false, outcome: null, agent, warnings };
   }
 
-  // Kiem tra required sections
+  // Check required sections
   const required = OUTCOME_TYPES[outcome].requiredSections;
   for (const section of required) {
     const sectionRegex = new RegExp(`^## ${escapeRegex(section)}`, 'm');
     if (!sectionRegex.test(body)) {
-      warnings.push(`thieu section: ## ${section}`);
+      warnings.push(`missing section: ## ${section}`);
     }
   }
 
-  // Dac biet voi inconclusive: kiem tra Elimination Log co bang du lieu (D-10, Pitfall 5)
+  // Special check for inconclusive: verify Elimination Log has data table (D-10, Pitfall 5)
   if (outcome === 'inconclusive' && warnings.length === 0) {
     const elimLogMatch = body.match(/^## Elimination Log\s*\n([\s\S]*?)(?=^## |\Z)/m);
     if (elimLogMatch) {
       const elimSection = elimLogMatch[1];
-      // Kiem tra co it nhat 3 dong chua | (header + separator + 1 data row)
+      // Check for at least 3 lines containing | (header + separator + 1 data row)
       const pipeLines = elimSection.split('\n').filter(line => line.includes('|'));
       if (pipeLines.length < 3) {
-        warnings.push('Elimination Log thieu bang du lieu');
+        warnings.push('Elimination Log missing data table');
       }
     }
   }
@@ -111,15 +111,15 @@ function validateEvidence(content) {
 // ─── parseEvidence ──────────────────────────────────────────
 
 /**
- * Parse evidence content thanh structured object.
+ * Parse evidence content into structured object.
  *
- * @param {string} content - Noi dung evidence file
+ * @param {string} content - Evidence file content
  * @returns {{ agent: string|null, outcome: string|null, timestamp: string|null, session: string|null, body: string, sections: object }}
- * @throws {Error} Khi content null/undefined
+ * @throws {Error} When content is null/undefined
  */
 function parseEvidence(content) {
   if (content == null || typeof content !== 'string') {
-    throw new Error('thieu tham so content');
+    throw new Error('missing parameter: content');
   }
 
   const { frontmatter, body } = parseFrontmatter(content);
@@ -129,7 +129,7 @@ function parseEvidence(content) {
   const timestamp = frontmatter.timestamp || null;
   const session = frontmatter.session || null;
 
-  // Extract sections tu body: moi ## Heading tao 1 key
+  // Extract sections from body: each ## Heading creates 1 key
   const sections = {};
   const sectionRegex = /^## (.+)$/gm;
   const headings = [];
@@ -154,7 +154,7 @@ function parseEvidence(content) {
 // ─── Helpers ────────────────────────────────────────────────
 
 /**
- * Escape regex special characters trong string.
+ * Escape regex special characters in string.
  * @param {string} str
  * @returns {string}
  */

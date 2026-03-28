@@ -1,12 +1,12 @@
 /**
- * Plan Checker Module — 8 checks (5 core + 3 advanced) cho PLAN.md + TASKS.md
+ * Plan Checker Module — 8 checks (5 core + 3 advanced) for PLAN.md + TASKS.md
  *
- * Kiem tra: requirement coverage (CHECK-01), task completeness (CHECK-02),
+ * Checks: requirement coverage (CHECK-01), task completeness (CHECK-02),
  * dependency correctness (CHECK-03), Truth-Task coverage (CHECK-04),
  * logic coverage (CHECK-05), key links (ADV-01), scope sanity (ADV-02),
  * effort classification (ADV-03).
  *
- * Tat ca functions la pure — nhan content, tra ket qua, khong doc file.
+ * All functions are pure — receive content, return results, no file reads.
  * Rules spec: references/verification.md
  */
 
@@ -17,15 +17,15 @@ const { parseFrontmatter, extractXmlSection } = require('./utils');
 // ─── Helpers ────────────────────────────────────────────
 
 /**
- * Escape regex special chars de requirement IDs nhu CHECK-01 match literal.
+ * Escape regex special chars so requirement IDs like CHECK-01 match literally.
  */
 function escapeRegex(str) {
   return str.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
 }
 
 /**
- * Parse requirements tu parseFrontmatter output.
- * Handle: undefined, Array, '[]', '[REQ-01, REQ-02]', '"REQ-01"'
+ * Parse requirements from parseFrontmatter output.
+ * Handles: undefined, Array, '[]', '[REQ-01, REQ-02]', '"REQ-01"'
  */
 function parseRequirements(frontmatterObj) {
   const val = frontmatterObj.requirements;
@@ -43,8 +43,8 @@ function parseRequirements(frontmatterObj) {
 }
 
 /**
- * Parse depends_on tu parseFrontmatter output.
- * Handle: undefined, Array, '[]', '[02-01]', '["05-01"]'
+ * Parse depends_on from parseFrontmatter output.
+ * Handles: undefined, Array, '[]', '[02-01]', '["05-01"]'
  */
 function parseDependsOn(frontmatterObj) {
   const val = frontmatterObj.depends_on || frontmatterObj['depends_on'];
@@ -61,8 +61,8 @@ function parseDependsOn(frontmatterObj) {
 }
 
 /**
- * Parse truths tu raw frontmatter string (bypass parseFrontmatter vi no flatten nested keys).
- * Extract tu must_haves: truths: block.
+ * Parse truths from raw frontmatter string (bypasses parseFrontmatter since it flattens nested keys).
+ * Extracts from must_haves: truths: block.
  */
 function parseMustHavesTruths(rawFrontmatterString) {
   if (!rawFrontmatterString) return [];
@@ -77,7 +77,7 @@ function parseMustHavesTruths(rawFrontmatterString) {
 }
 
 /**
- * Extract task XML blocks tu v1.0 PLAN.md content.
+ * Extract task XML blocks from v1.0 PLAN.md content.
  */
 function parseTasksV10(planContent) {
   const tasks = [];
@@ -118,9 +118,9 @@ function parseTasksV10(planContent) {
 }
 
 /**
- * Parse Truths table tu v1.1/v1.3 PLAN.md.
- * v1.1 format: | T1 | [mo ta] | [kiem chung] |           (3 columns)
- * v1.3 format: | T1 | [mo ta] | [gia tri] | [bien] | [kiem chung] | (5 columns)
+ * Parse Truths table from v1.1/v1.3 PLAN.md.
+ * v1.1 format: | T1 | [description] | [verification] |           (3 columns)
+ * v1.3 format: | T1 | [description] | [value] | [variable] | [verification] | (5 columns)
  * Returns: [{ id, description }] — only id and description needed downstream.
  */
 function parseTruthsV11(planContent) {
@@ -139,8 +139,8 @@ function parseTruthsV11(planContent) {
 }
 
 /**
- * Parse task detail blocks tu v1.1 TASKS.md.
- * Split theo ## Task N: heading pattern.
+ * Parse task detail blocks from v1.1 TASKS.md.
+ * Split by ## Task N: heading pattern.
  */
 function parseTaskDetailBlocksV11(tasksContent) {
   if (!tasksContent) return [];
@@ -187,26 +187,26 @@ function parseTaskDetailBlocksV11(tasksContent) {
 }
 
 /**
- * Parse Truth refs tu string nhu "[T1, T2]" hoac "T1, T2".
+ * Parse Truth refs from string like "[T1, T2]" or "T1, T2".
  */
 function parseTruthRefs(truthsStr) {
   return [...truthsStr.matchAll(/T(\d+)/g)].map(m => `T${m[1]}`);
 }
 
 /**
- * Check TASKS.md summary table co cot Truths hay khong.
+ * Check if TASKS.md summary table has a Truths column.
  */
 function parseSummaryTableV11(tasksContent) {
   if (!tasksContent) return false;
-  // Tim header row cua summary table
+  // Find header row of summary table
   const headerMatch = tasksContent.match(/\|[^|]*#[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*Truths[^|]*\|/i);
   return !!headerMatch;
 }
 
 /**
- * Kahn's algorithm cho cycle detection.
- * Input: array node IDs + array {from, to} edges.
- * from phu thuoc vao to (to phai hoan thanh truoc from).
+ * Kahn's algorithm for cycle detection.
+ * Input: array of node IDs + array of {from, to} edges.
+ * "from" depends on "to" (to must complete before from).
  */
 function detectCycles(nodes, edges) {
   const inDegree = {};
@@ -244,7 +244,7 @@ function detectCycles(nodes, edges) {
 }
 
 /**
- * Tim invalid task references trong edges.
+ * Find invalid task references in edges.
  */
 function findInvalidRefs(taskIds, edges) {
   const validIds = new Set(taskIds);
@@ -252,9 +252,9 @@ function findInvalidRefs(taskIds, edges) {
   for (const { from, to, raw } of edges) {
     if (!validIds.has(to)) {
       invalid.push({
-        message: `Task ${from} phu thuoc "${raw || to}" khong ton tai`,
+        message: `Task ${from} depends on "${raw || to}" which does not exist`,
         location: `TASKS.md Task ${from}`,
-        fixHint: `Sua phu thuoc thanh mot trong: ${taskIds.join(', ')}`
+        fixHint: `Fix dependency to one of: ${taskIds.join(', ')}`
       });
     }
   }
@@ -262,8 +262,8 @@ function findInvalidRefs(taskIds, edges) {
 }
 
 /**
- * Parse task dependencies tu v1.1 TASKS.md.
- * Extract "Task N" references tu Phu thuoc column va metadata.
+ * Parse task dependencies from v1.1 TASKS.md.
+ * Extract "Task N" references from Phu thuoc column and metadata.
  */
 function parseTaskDepsV11(tasksContent) {
   if (!tasksContent) return { nodes: [], edges: [] };
@@ -303,22 +303,22 @@ function parseTaskDepsV11(tasksContent) {
 // ─── ADV helpers ────────────────────────────────────────
 
 /**
- * Strip parenthetical suffixes tu Key Link paths.
- * VD: "workflows/plan.md (Step 8.1)" -> "workflows/plan.md"
+ * Strip parenthetical suffixes from Key Link paths.
+ * E.g., "workflows/plan.md (Step 8.1)" -> "workflows/plan.md"
  */
 function normalizeKeyLinkPath(rawPath) {
   return rawPath.replace(/\s*\(.*?\)\s*$/, '').trim();
 }
 
 /**
- * Parse Key Links table tu v1.1 PLAN.md body.
- * Tim section heading "Lien ket then chot" (co/khong co diacritics).
- * Tra ve array of { from, to, description }.
+ * Parse Key Links table from v1.1 PLAN.md body.
+ * Find section heading "Lien ket then chot" (with/without diacritics).
+ * Returns array of { from, to, description }.
  */
 function parseKeyLinksV11(planContent) {
   if (!planContent) return [];
 
-  // Tim Key Links section (handle diacritics)
+  // Find Key Links section (handle diacritics)
   const sectionMatch = planContent.match(
     /###\s*Li[eê]n\s*k[eế]t\s*then\s*ch[oố]t[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i
   );
@@ -340,7 +340,7 @@ function parseKeyLinksV11(planContent) {
 }
 
 /**
- * Count files tu comma/newline-separated string.
+ * Count files from comma/newline-separated string.
  */
 function countFilesInString(filesStr) {
   if (!filesStr) return 0;
@@ -367,14 +367,14 @@ function detectMultiDomain(filesStr) {
 }
 
 /**
- * Compute actual effort tu 4 signals (D-08).
- * Lay signal cao nhat (conservative).
+ * Compute actual effort from 4 signals (D-08).
+ * Takes the highest signal (conservative).
  */
 function computeActualEffort(task, tasksContent) {
   const fileCount = countFilesInString(task.files);
   const truthCount = task.truths ? task.truths.length : 0;
 
-  // Count dependencies tu tasksContent
+  // Count dependencies from tasksContent
   let depCount = 0;
   if (tasksContent) {
     const taskSection = tasksContent.match(
@@ -410,9 +410,9 @@ function computeActualEffort(task, tasksContent) {
 
 /**
  * Detect plan format version.
- * v1.0: YAML frontmatter voi must_haves hoac <tasks> XML
- * v1.1: Markdown voi Truths table (| T1 | ... |)
- * unknown: khong khop
+ * v1.0: YAML frontmatter with must_haves or <tasks> XML
+ * v1.1: Markdown with Truths table (| T1 | ... |)
+ * unknown: no match
  */
 function detectPlanFormat(planContent) {
   if (!planContent) return 'unknown';
@@ -439,7 +439,7 @@ function detectPlanFormat(planContent) {
 
 /**
  * CHECK-01: Requirement Coverage
- * Moi requirement ID phai xuat hien literal trong planContent.
+ * Each requirement ID must appear literally in planContent.
  */
 function checkRequirementCoverage(planContent, requirementIds) {
   const result = { checkId: 'CHECK-01', status: 'pass', issues: [] };
@@ -452,9 +452,9 @@ function checkRequirementCoverage(planContent, requirementIds) {
     const regex = new RegExp(escapeRegex(reqId));
     if (!regex.test(planContent)) {
       result.issues.push({
-        message: `Requirement ${reqId} khong xuat hien trong PLAN.md`,
+        message: `Requirement ${reqId} does not appear in PLAN.md`,
         location: 'PLAN.md',
-        fixHint: `Them ${reqId} vao objectives, truths, hoac task descriptions`
+        fixHint: `Add ${reqId} to objectives, truths, or task descriptions`
       });
     }
   }
@@ -465,7 +465,7 @@ function checkRequirementCoverage(planContent, requirementIds) {
 
 /**
  * CHECK-02: Task Completeness
- * Kiem tra moi task co du required fields.
+ * Check that each task has all required fields.
  */
 function checkTaskCompleteness(planContent, tasksContent) {
   const result = { checkId: 'CHECK-02', status: 'pass', issues: [] };
@@ -481,23 +481,23 @@ function checkTaskCompleteness(planContent, tasksContent) {
     for (const task of tasks) {
       if (!task.hasFiles) {
         result.issues.push({
-          message: `Task ${task.id} "${task.name}" thieu <files> tag`,
+          message: `Task ${task.id} "${task.name}" missing <files> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Them <files> tag voi danh sach files can tao/sua'
+          fixHint: 'Add <files> tag with list of files to create/modify'
         });
       }
       if (!task.hasDescription) {
         result.issues.push({
-          message: `Task ${task.id} "${task.name}" thieu <action> hoac <behavior> tag`,
+          message: `Task ${task.id} "${task.name}" missing <action> or <behavior> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Them <action> hoac <behavior> tag mo ta cong viec'
+          fixHint: 'Add <action> or <behavior> tag describing the work'
         });
       }
       if (!task.hasCriteria) {
         result.issues.push({
-          message: `Task ${task.id} "${task.name}" thieu <verify>/<done>/<acceptance_criteria> tag`,
+          message: `Task ${task.id} "${task.name}" missing <verify>/<done>/<acceptance_criteria> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Them <verify>, <done>, hoac <acceptance_criteria> tag'
+          fixHint: 'Add <verify>, <done>, or <acceptance_criteria> tag'
         });
       }
     }
@@ -505,9 +505,9 @@ function checkTaskCompleteness(planContent, tasksContent) {
     // Check summary table has Truths column
     if (!parseSummaryTableV11(tasksContent)) {
       result.issues.push({
-        message: 'Bang tong quan thieu cot Truths',
+        message: 'Summary table missing Truths column',
         location: 'TASKS.md summary table',
-        fixHint: 'Them cot Truths vao bang tong quan'
+        fixHint: 'Add Truths column to summary table'
       });
     }
 
@@ -517,39 +517,39 @@ function checkTaskCompleteness(planContent, tasksContent) {
       // Required metadata (BLOCK)
       if (!task.effort) {
         result.issues.push({
-          message: `Task ${task.id} thieu truong Effort trong metadata`,
+          message: `Task ${task.id} missing Effort field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them Effort: simple|standard|complex vao metadata line'
+          fixHint: 'Add Effort: simple|standard|complex to metadata line'
         });
       }
       if (!task.files) {
         result.issues.push({
-          message: `Task ${task.id} thieu truong Files trong metadata`,
+          message: `Task ${task.id} missing Files field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them > Files: [danh sach files] vao metadata'
+          fixHint: 'Add > Files: [file list] to metadata'
         });
       }
       if (task.truths.length === 0) {
         result.issues.push({
-          message: `Task ${task.id} thieu truong Truths trong metadata`,
+          message: `Task ${task.id} missing Truths field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them > Truths: [T1, T2] vao metadata'
+          fixHint: 'Add > Truths: [T1, T2] to metadata'
         });
       }
 
       // Required sections (BLOCK)
       if (!task.hasDescription) {
         result.issues.push({
-          message: `Task ${task.id} thieu section "Mo ta" hoac section rong`,
+          message: `Task ${task.id} missing "Mo ta" section or section is empty`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them ### Mo ta voi noi dung mo ta cong viec'
+          fixHint: 'Add ### Mo ta with description content'
         });
       }
       if (!task.hasCriteria) {
         result.issues.push({
-          message: `Task ${task.id} thieu section "Tieu chi chap nhan"`,
+          message: `Task ${task.id} missing "Tieu chi chap nhan" section`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them ### Tieu chi chap nhan voi danh sach tieu chi'
+          fixHint: 'Add ### Tieu chi chap nhan with acceptance criteria list'
         });
       }
     }
@@ -559,30 +559,30 @@ function checkTaskCompleteness(planContent, tasksContent) {
     for (const task of tasks) {
       if (!task.hasStatus) {
         warnIssues.push({
-          message: `Task ${task.id} thieu truong Trang thai (warn)`,
+          message: `Task ${task.id} missing Trang thai field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them Trang thai: vao metadata line'
+          fixHint: 'Add Trang thai: to metadata line'
         });
       }
       if (!task.hasPriority) {
         warnIssues.push({
-          message: `Task ${task.id} thieu truong Uu tien (warn)`,
+          message: `Task ${task.id} missing Uu tien field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them Uu tien: vao metadata line'
+          fixHint: 'Add Uu tien: to metadata line'
         });
       }
       if (!task.hasDependency) {
         warnIssues.push({
-          message: `Task ${task.id} thieu truong Phu thuoc (warn)`,
+          message: `Task ${task.id} missing Phu thuoc field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them Phu thuoc: vao metadata line'
+          fixHint: 'Add Phu thuoc: to metadata line'
         });
       }
       if (!task.hasType) {
         warnIssues.push({
-          message: `Task ${task.id} thieu truong Loai (warn)`,
+          message: `Task ${task.id} missing Loai field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Them Loai: vao metadata line'
+          fixHint: 'Add Loai: to metadata line'
         });
       }
     }
@@ -603,7 +603,7 @@ function checkTaskCompleteness(planContent, tasksContent) {
 
 /**
  * CHECK-03: Dependency Correctness
- * Phat hien circular dependencies va invalid references.
+ * Detect circular dependencies and invalid references.
  */
 function checkDependencyCorrectness(planContent, tasksContent) {
   const result = { checkId: 'CHECK-03', status: 'pass', issues: [] };
@@ -632,9 +632,9 @@ function checkDependencyCorrectness(planContent, tasksContent) {
     const cycleResult = detectCycles(nodes, validEdges);
     if (cycleResult.hasCycle) {
       result.issues.push({
-        message: `Phat hien circular dependency giua: ${cycleResult.nodesInCycle.map(n => `Task ${n}`).join(', ')}`,
+        message: `Circular dependency detected among: ${cycleResult.nodesInCycle.map(n => `Task ${n}`).join(', ')}`,
         location: 'TASKS.md dependencies',
-        fixHint: 'Loai bo dependency vong tron de tasks co the thuc hien tuan tu'
+        fixHint: 'Remove circular dependency so tasks can be executed sequentially'
       });
     }
   }
@@ -644,14 +644,14 @@ function checkDependencyCorrectness(planContent, tasksContent) {
 }
 
 /**
- * CHECK-04: Truth-Task Coverage (Direction 1 only: moi Truth phai co task)
+ * CHECK-04: Truth-Task Coverage (Direction 1 only: each Truth must have a task)
  * Direction 2 (Task without Truth) moved to CHECK-05 checkLogicCoverage.
  */
 function checkTruthTaskCoverage(planContent, tasksContent) {
   const result = { checkId: 'CHECK-04', status: 'pass', issues: [] };
   const format = detectPlanFormat(planContent);
 
-  // v1.0 / unknown: graceful PASS (khong co Truth-Task mapping)
+  // v1.0 / unknown: graceful PASS (no Truth-Task mapping)
   if (format === 'v1.0' || format === 'unknown') {
     return result;
   }
@@ -677,9 +677,9 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
   for (const truth of truths) {
     if (!coveredTruths.has(truth.id)) {
       blockIssues.push({
-        message: `Truth ${truth.id} "${truth.description}" khong co task nao map`,
+        message: `Truth ${truth.id} "${truth.description}" has no task mapped to it`,
         location: `PLAN.md Truths table`,
-        fixHint: `Them ${truth.id} vao Truths metadata cua mot task trong TASKS.md`
+        fixHint: `Add ${truth.id} to the Truths metadata of a task in TASKS.md`
       });
     }
   }
@@ -692,7 +692,7 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
 
 /**
  * CHECK-05: Logic Coverage (Direction 2)
- * Task khong co Truth nao map = technical debt.
+ * Task with no Truth mapped = technical debt.
  * Default severity: WARN (per D-04). Configurable via options.severity (per D-05).
  */
 function checkLogicCoverage(planContent, tasksContent, options = {}) {
@@ -708,9 +708,9 @@ function checkLogicCoverage(planContent, tasksContent, options = {}) {
   for (const task of tasks) {
     if (task.truths.length === 0) {
       result.issues.push({
-        message: `Task ${task.id} khong co Truth nao map — technical debt`,
+        message: `Task ${task.id} has no Truth mapped — technical debt`,
         location: `TASKS.md Task ${task.id}`,
-        fixHint: `Them > Truths: [TX] vao metadata cua Task ${task.id}`
+        fixHint: `Add > Truths: [TX] to metadata of Task ${task.id}`
       });
     }
   }
@@ -721,27 +721,27 @@ function checkLogicCoverage(planContent, tasksContent, options = {}) {
 
 /**
  * CHECK-06: Research Backing
- * Kiem tra plan co reference den research files khong.
- * Chi check khi co research files trong project (hasResearchFiles).
+ * Check if plan references research files.
+ * Only checks when research files exist in project (hasResearchFiles).
  * Default severity: WARN. Configurable via options.severity.
  */
 function checkResearchBacking(planContent, options = {}) {
   const severity = options.severity || 'warn';
   const result = { checkId: 'CHECK-06', status: 'pass', issues: [] };
 
-  // Khong co research files -> PASS (khong co gi de check)
+  // No research files -> PASS (nothing to check)
   if (!options.hasResearchFiles) return result;
 
   // Severity off -> PASS
   if (severity === 'off') return result;
 
-  // Kiem tra plan co reference den .planning/research/
+  // Check if plan references .planning/research/
   const hasRef = /\.planning\/research\//.test(planContent);
   if (!hasRef) {
     result.issues.push({
-      message: 'Plan khong co reference den research files',
+      message: 'Plan has no reference to research files',
       location: 'PLAN.md',
-      fixHint: 'Chay pd research de thu thap bang chung, sau do them Key Links den .planning/research/ files'
+      fixHint: 'Run pd research to gather evidence, then add Key Links to .planning/research/ files'
     });
   }
 
@@ -751,8 +751,8 @@ function checkResearchBacking(planContent, options = {}) {
 
 /**
  * CHECK-07: Hedging Language
- * Phat hien ngon ngu mo ho (chua ro, can tim hieu, co the...hoac, khong chac).
- * Goi y chay pd research khi phat hien >= 2 hedging patterns.
+ * Detect ambiguous language (chua ro, can tim hieu, co the...hoac, khong chac).
+ * Suggests running pd research when >= 2 hedging patterns found.
  * Default severity: WARN. Configurable via options.severity.
  */
 function checkHedgingLanguage(planContent, options = {}) {
@@ -763,15 +763,15 @@ function checkHedgingLanguage(planContent, options = {}) {
   // Severity off -> PASS
   if (severity === 'off') return result;
 
-  // planContent rong/null -> PASS
+  // Empty/null planContent -> PASS
   if (!planContent) return result;
 
   const matches = planContent.match(HEDGING_PATTERNS) || [];
   if (matches.length >= 2) {
     result.issues.push({
-      message: `Plan co ${matches.length} hedging patterns (${matches.slice(0, 3).join(', ')}${matches.length > 3 ? '...' : ''}) — chay pd research de lam ro`,
+      message: `Plan has ${matches.length} hedging patterns (${matches.slice(0, 3).join(', ')}${matches.length > 3 ? '...' : ''}) — run pd research to clarify`,
       location: 'PLAN.md',
-      fixHint: 'Chay pd research de thu thap bang chung thay the ngon ngu mo ho'
+      fixHint: 'Run pd research to gather evidence replacing ambiguous language'
     });
   }
 
@@ -781,8 +781,8 @@ function checkHedgingLanguage(planContent, options = {}) {
 
 /**
  * ADV-01: Key Links Verification
- * Key Links trong PLAN.md phai duoc phan anh trong task Files.
- * Ca 2 dau (from + to) phai co task touch, va it nhat 1 task phai touch ca 2 dau cung luc.
+ * Key Links in PLAN.md must be reflected in task Files.
+ * Both ends (from + to) must have a task touching them, and at least 1 task must touch both ends.
  * Per D-01, D-02, D-03, D-04, D-12.
  */
 function checkKeyLinks(planContent, tasksContent) {
@@ -843,23 +843,23 @@ function checkKeyLinks(planContent, tasksContent) {
 
     if (tasksWithFrom.length === 0) {
       result.issues.push({
-        message: `Key Link "from" path "${link.from}" khong co task nao trong Files`,
+        message: `Key Link "from" path "${link.from}" has no task in Files`,
         location: 'PLAN.md Key Links',
-        fixHint: `Them "${fromNorm}" vao Files cua mot task`
+        fixHint: `Add "${fromNorm}" to Files of a task`
       });
     }
     if (tasksWithTo.length === 0) {
       result.issues.push({
-        message: `Key Link "to" path "${link.to}" khong co task nao trong Files`,
+        message: `Key Link "to" path "${link.to}" has no task in Files`,
         location: 'PLAN.md Key Links',
-        fixHint: `Them "${toNorm}" vao Files cua mot task`
+        fixHint: `Add "${toNorm}" to Files of a task`
       });
     }
     if (tasksWithFrom.length > 0 && tasksWithTo.length > 0 && !taskWithBoth) {
       result.issues.push({
-        message: `Key Link "${link.from}" -> "${link.to}": khong co task nao touch ca 2 dau cung luc`,
+        message: `Key Link "${link.from}" -> "${link.to}": no task touches both ends simultaneously`,
         location: 'PLAN.md Key Links',
-        fixHint: `Dam bao it nhat 1 task co ca "${fromNorm}" va "${toNorm}" trong Files`
+        fixHint: `Ensure at least 1 task has both "${fromNorm}" and "${toNorm}" in Files`
       });
     }
   }
@@ -870,7 +870,7 @@ function checkKeyLinks(planContent, tasksContent) {
 
 /**
  * ADV-02: Scope Threshold Warnings
- * Canh bao khi plan vuot scope thresholds hop ly tren 4 dimensions.
+ * Warn when plan exceeds reasonable scope thresholds across 4 dimensions.
  * Per D-05, D-06, D-13.
  */
 function checkScopeThresholds(planContent, tasksContent) {
@@ -922,9 +922,9 @@ function checkScopeThresholds(planContent, tasksContent) {
   // Check 4 dimensions (D-05)
   if (taskCount > 6) {
     result.issues.push({
-      message: `Plan co ${taskCount} tasks (threshold: 6)`,
+      message: `Plan has ${taskCount} tasks (threshold: 6)`,
       location: 'PLAN.md/TASKS.md',
-      fixHint: 'Chia plan thanh nhieu plans nho hon'
+      fixHint: 'Split plan into multiple smaller plans'
     });
   }
 
@@ -933,9 +933,9 @@ function checkScopeThresholds(planContent, tasksContent) {
     const fc = countFilesInString(tf.files);
     if (fc > 7) {
       result.issues.push({
-        message: `Task ${tf.id} co ${fc} files (threshold: 7)`,
+        message: `Task ${tf.id} has ${fc} files (threshold: 7)`,
         location: `TASKS.md Task ${tf.id}`,
-        fixHint: 'Chia task thanh nhieu tasks nho hon'
+        fixHint: 'Split task into multiple smaller tasks'
       });
     }
   }
@@ -949,18 +949,18 @@ function checkScopeThresholds(planContent, tasksContent) {
   }
   if (allFiles.size > 25) {
     result.issues.push({
-      message: `Plan co ${allFiles.size} unique files (threshold: 25)`,
+      message: `Plan has ${allFiles.size} unique files (threshold: 25)`,
       location: 'PLAN.md/TASKS.md',
-      fixHint: 'Chia plan thanh nhieu plans nho hon'
+      fixHint: 'Split plan into multiple smaller plans'
     });
   }
 
   // Truths per plan > 6
   if (truthCount > 6) {
     result.issues.push({
-      message: `Plan co ${truthCount} Truths (threshold: 6)`,
+      message: `Plan has ${truthCount} Truths (threshold: 6)`,
       location: 'PLAN.md',
-      fixHint: 'Giam so Truths hoac chia plan'
+      fixHint: 'Reduce number of Truths or split plan'
     });
   }
 
@@ -970,8 +970,8 @@ function checkScopeThresholds(planContent, tasksContent) {
 
 /**
  * ADV-03: Effort Classification Validation
- * Effort classification phai khop voi scope thuc te cua task.
- * Canh bao mismatch ca 2 chieu (underestimate va overestimate).
+ * Effort classification must match actual task scope.
+ * Warns on mismatch in both directions (underestimate and overestimate).
  * Per D-07, D-08, D-09, D-10, D-11, D-12.
  */
 function checkEffortClassification(planContent, tasksContent) {
@@ -994,9 +994,9 @@ function checkEffortClassification(planContent, tasksContent) {
     if (labeled !== actualEffort) {
       const direction = levels[labeled] < levels[actualEffort] ? 'underestimate' : 'overestimate';
       result.issues.push({
-        message: `Task ${task.id} effort "${labeled}" co the la ${direction} (signals cho thay "${actualEffort}")`,
+        message: `Task ${task.id} effort "${labeled}" may be ${direction} (signals suggest "${actualEffort}")`,
         location: `TASKS.md Task ${task.id}`,
-        fixHint: `Xem xet doi Effort thanh "${actualEffort}" hoac giu nguyen neu co ly do`
+        fixHint: `Consider changing Effort to "${actualEffort}" or keep if justified`
       });
     }
   }
@@ -1006,10 +1006,10 @@ function checkEffortClassification(planContent, tasksContent) {
 }
 
 /**
- * Chay tat ca 10 checks va aggregate ket qua.
- * overall = 'block' neu bat ky check nao block,
- * 'warn' neu co warn nhung khong block,
- * 'pass' neu tat ca pass.
+ * Run all 10 checks and aggregate results.
+ * overall = 'block' if any check blocks,
+ * 'warn' if any warns but none block,
+ * 'pass' if all pass.
  */
 function runAllChecks({ planContent, tasksContent, requirementIds, check05Severity, check06Options, check07Severity }) {
   const checks = [

@@ -1,12 +1,12 @@
 /**
- * Confidence Scorer Module — Tinh confidence rule-based cho research files.
+ * Confidence Scorer Module — Calculate rule-based confidence for research files.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * KHONG dung LLM tu danh gia — chi dung rule-based logic.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Does NOT use LLM self-evaluation — only rule-based logic.
  *
- * - scoreConfidence: tinh confidence level tu danh sach sources
- * - classifySource: phan loai chat luong 1 source
- * - validateEvidence: kiem tra research body co bang chung day du
+ * - scoreConfidence: calculate confidence level from list of sources
+ * - classifySource: classify quality of a single source
+ * - validateEvidence: check if research body has sufficient evidence
  */
 
 'use strict';
@@ -14,17 +14,17 @@
 // ─── Constants ────────────────────────────────────────────
 
 /**
- * Source types duoc xem la chat luong cao (HIGH confidence).
+ * Source types considered high quality (HIGH confidence).
  */
 const HIGH_QUALITY_TYPES = ['official-docs', 'codebase', 'verified-api'];
 
 /**
- * Source types duoc xem la chat luong trung binh.
+ * Source types considered medium quality.
  */
 const MEDIUM_QUALITY_TYPES = ['blog', 'stackoverflow', 'github-issue', 'community-docs'];
 
 /**
- * Map tu source type sang quality level.
+ * Map from source type to quality level.
  */
 const SOURCE_QUALITY_MAP = {
   'official-docs': 'high',
@@ -39,12 +39,12 @@ const SOURCE_QUALITY_MAP = {
 // ─── classifySource ───────────────────────────────────────
 
 /**
- * Phan loai chat luong cua 1 source.
+ * Classify the quality of a single source.
  *
- * @param {object} source - Source can phan loai
- * @param {string} source.type - Loai source (vd: 'official-docs', 'blog')
- * @param {string} [source.url] - URL cua source
- * @param {string} [source.description] - Mo ta source
+ * @param {object} source - Source to classify
+ * @param {string} source.type - Source type (e.g., 'official-docs', 'blog')
+ * @param {string} [source.url] - Source URL
+ * @param {string} [source.description] - Source description
  * @returns {{ quality: string, category: string }}
  */
 function classifySource(source) {
@@ -75,14 +75,14 @@ function classifySource(source) {
 // ─── scoreConfidence ──────────────────────────────────────
 
 /**
- * Tinh confidence level tu danh sach sources.
+ * Calculate confidence level from list of sources.
  *
  * Rules:
- * - HIGH: co >= 1 source loai 'official-docs', 'codebase', hoac 'verified-api'
- * - MEDIUM: co >= 2 sources (bat ky loai nao)
- * - LOW: chi co 0-1 source va khong co source chat luong cao
+ * - HIGH: has >= 1 source of type 'official-docs', 'codebase', or 'verified-api'
+ * - MEDIUM: has >= 2 sources (any type)
+ * - LOW: only 0-1 sources and no high-quality source
  *
- * @param {Array<object>} sources - Danh sach sources
+ * @param {Array<object>} sources - List of sources
  * @returns {string} 'HIGH' | 'MEDIUM' | 'LOW'
  */
 function scoreConfidence(sources) {
@@ -90,7 +90,7 @@ function scoreConfidence(sources) {
     return 'LOW';
   }
 
-  // Kiem tra co source chat luong cao khong
+  // Check for high-quality sources
   const hasHighQuality = sources.some(s => {
     const { quality } = classifySource(s);
     return quality === 'high';
@@ -100,7 +100,7 @@ function scoreConfidence(sources) {
     return 'HIGH';
   }
 
-  // >= 2 sources dong y -> MEDIUM
+  // >= 2 sources agree -> MEDIUM
   if (sources.length >= 2) {
     return 'MEDIUM';
   }
@@ -111,15 +111,15 @@ function scoreConfidence(sources) {
 // ─── validateEvidence ─────────────────────────────────────
 
 /**
- * Kiem tra research body co section "## Bang chung" va co citations.
+ * Check if research body has an "## Evidence" section with citations.
  *
- * Citation pattern: dong bat dau voi "- " va chua "[" (markdown link)
- * hoac dong bat dau voi "- Source:" hoac "- Nguon:"
+ * Citation pattern: line starting with "- " and containing "[" (markdown link)
+ * or line starting with "- Source:" or "- Nguon:"
  *
- * Claim pattern: dong bat dau voi "- " trong section Bang chung
- * ma KHONG phai citation header.
+ * Claim pattern: line starting with "- " in the Evidence section
+ * that is NOT a citation header.
  *
- * @param {string} body - Noi dung body cua research file (khong gom frontmatter)
+ * @param {string} body - Research file body content (excluding frontmatter)
  * @returns {{ valid: boolean, claimCount: number, citedCount: number, uncitedCount: number }}
  */
 function validateEvidence(body) {
@@ -127,8 +127,8 @@ function validateEvidence(body) {
     return { valid: false, claimCount: 0, citedCount: 0, uncitedCount: 0 };
   }
 
-  // Tim section "## Bang chung"
-  const sectionMatch = body.match(/## Bang chung\s*\n([\s\S]*?)(?=\n## |\n---\s*$|$)/);
+  // Find section "## Evidence" (backward compat: also match "## Bang chung")
+  const sectionMatch = body.match(/## (?:Evidence|Bang chung)\s*\n([\s\S]*?)(?=\n## |\n---\s*$|$)/);
 
   if (!sectionMatch) {
     return { valid: false, claimCount: 0, citedCount: 0, uncitedCount: 0 };
@@ -136,11 +136,11 @@ function validateEvidence(body) {
 
   const sectionContent = sectionMatch[1].trim();
 
-  if (!sectionContent || sectionContent === '_(Chua co bang chung)_') {
+  if (!sectionContent || sectionContent === '_(No evidence yet)_' || sectionContent === '_(Chua co bang chung)_') {
     return { valid: false, claimCount: 0, citedCount: 0, uncitedCount: 0 };
   }
 
-  // Parse claims va citations
+  // Parse claims and citations
   const lines = sectionContent.split('\n');
   let claimCount = 0;
   let citedCount = 0;
@@ -149,13 +149,13 @@ function validateEvidence(body) {
     const trimmed = line.trim();
     if (!trimmed) continue;
 
-    // Claim lines: bat dau voi "- " hoac "1. " (numbered list)
+    // Claim lines: start with "- " or "1. " (numbered list)
     const isListItem = /^[-*]\s+/.test(trimmed) || /^\d+\.\s+/.test(trimmed);
     if (!isListItem) continue;
 
     claimCount++;
 
-    // Citation check: co link markdown [text](url) hoac "Source:" hoac "Nguon:"
+    // Citation check: has markdown link [text](url) or "Source:" or "Nguon:"
     const hasCitation = /\[.*?\]\(.*?\)/.test(trimmed) ||
       /source:/i.test(trimmed) ||
       /nguon:/i.test(trimmed);

@@ -1,7 +1,7 @@
 /**
- * Platform registry — cấu hình cho từng AI coding runtime.
- * Mỗi platform có: tên thư mục config, prefix gọi skill, tool name mapping,
- * cách resolve global config dir, và cách format MCP config.
+ * Platform registry — configuration for each AI coding runtime.
+ * Each platform has: config directory name, skill invocation prefix, tool name mapping,
+ * method to resolve global config dir, and MCP config format.
  */
 
 'use strict';
@@ -36,8 +36,8 @@ const TOOL_MAP = {
     WebFetch: 'fetch',
     WebSearch: 'search_web',
   },
-  cursor: {},    // Cursor dung Claude native tool names
-  windsurf: {},  // Windsurf dung Claude native tool names
+  cursor: {},    // Cursor uses Claude native tool names
+  windsurf: {},  // Windsurf uses Claude native tool names
 };
 
 // ─── Platform definitions ─────────────────────────────────
@@ -115,8 +115,8 @@ const PLATFORMS = {
 };
 
 /**
- * Resolve global config directory cho từng platform.
- * Ưu tiên: --config-dir flag > env var > default path
+ * Resolve global config directory for each platform.
+ * Priority: --config-dir flag > env var > default path
  */
 function getGlobalDir(runtime, explicitDir) {
   if (explicitDir) return path.resolve(explicitDir);
@@ -153,7 +153,7 @@ function getGlobalDir(runtime, explicitDir) {
 }
 
 /**
- * Resolve local config directory (trong project hiện tại).
+ * Resolve local config directory (in the current project).
  */
 function getLocalDir(runtime, projectDir) {
   const platform = PLATFORMS[runtime];
@@ -162,8 +162,8 @@ function getLocalDir(runtime, projectDir) {
 }
 
 /**
- * Convert command reference trong content body.
- * VD: /pd:init → $pd-init (Codex), /pd-init (OpenCode)
+ * Convert command references in content body.
+ * E.g., /pd:init → $pd-init (Codex), /pd-init (OpenCode)
  */
 function convertCommandRef(runtime, content) {
   const platform = PLATFORMS[runtime];
@@ -176,7 +176,7 @@ function convertCommandRef(runtime, content) {
 }
 
 /**
- * Lấy danh sách tất cả runtime names.
+ * Get list of all runtime names.
  */
 function getAllRuntimes() {
   return Object.keys(PLATFORMS);

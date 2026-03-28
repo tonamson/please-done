@@ -1,8 +1,8 @@
 /**
- * Installer utilities — ham dung chung cho tat ca platform installers.
+ * Installer utilities — shared functions for all platform installers.
  *
- * Trich xuat tu shared patterns trong claude.js, codex.js, gemini.js,
- * opencode.js, copilot.js de giam trung lap code.
+ * Extracted from shared patterns in claude.js, codex.js, gemini.js,
+ * opencode.js, copilot.js to reduce code duplication.
  */
 
 'use strict';
@@ -11,24 +11,24 @@ const fs = require('fs');
 const path = require('path');
 
 /**
- * Tao thu muc neu chua ton tai (recursive).
- * Tuong duong fs.mkdirSync(dir, { recursive: true }) nhung co kiem tra.
+ * Create directory if it does not exist (recursive).
+ * Equivalent to fs.mkdirSync(dir, { recursive: true }) but with validation.
  *
- * @param {string} dir — duong dan thu muc can tao
+ * @param {string} dir — directory path to create
  * @returns {void}
  */
 function ensureDir(dir) {
   if (!dir || typeof dir !== 'string') {
-    throw new Error('ensureDir: dir phai la string khong rong');
+    throw new Error('ensureDir: dir must be a non-empty string');
   }
   fs.mkdirSync(dir, { recursive: true });
 }
 
 /**
- * Kiem tra duong dan hien tai co phai git root khong.
- * Tra ve true neu la git repo root (co thu muc .git).
+ * Check if the current path is a git root.
+ * Returns true if the path is a git repo root (has .git directory).
  *
- * @param {string} dir — duong dan can kiem tra
+ * @param {string} dir — path to check
  * @returns {boolean}
  */
 function validateGitRoot(dir) {
@@ -44,12 +44,12 @@ function validateGitRoot(dir) {
 }
 
 /**
- * Copy file voi backup — neu file dich da ton tai, tao ban .bak truoc khi ghi de.
+ * Copy file with backup — if destination file already exists, create a .bak backup before overwriting.
  *
- * @param {string} src — duong dan file nguon
- * @param {string} dest — duong dan file dich
+ * @param {string} src — source file path
+ * @param {string} dest — destination file path
  * @param {object} [options]
- * @param {boolean} [options.backup=true] — co tao backup hay khong
+ * @param {boolean} [options.backup=true] — whether to create backup
  * @returns {{ backed_up: boolean, copied: boolean }}
  */
 function copyWithBackup(src, dest, options = {}) {
@@ -57,14 +57,14 @@ function copyWithBackup(src, dest, options = {}) {
   let backed_up = false;
 
   if (!fs.existsSync(src)) {
-    throw new Error(`copyWithBackup: file nguon khong ton tai: ${src}`);
+    throw new Error(`copyWithBackup: source file does not exist: ${src}`);
   }
 
-  // Tao thu muc dich neu chua co
+  // Create destination directory if needed
   const destDir = path.dirname(dest);
   ensureDir(destDir);
 
-  // Backup file cu neu co
+  // Backup existing file if present
   if (backup && fs.existsSync(dest)) {
     const backupPath = `${dest}.bak`;
     fs.copyFileSync(dest, backupPath);
@@ -76,14 +76,14 @@ function copyWithBackup(src, dest, options = {}) {
 }
 
 /**
- * Doc va luu .pdconfig — pattern dung chung giua tat ca installers.
- * Giu lai CURRENT_VERSION tu file cu neu co.
+ * Read and save .pdconfig — shared pattern across all installers.
+ * Preserves CURRENT_VERSION from existing file if present.
  *
- * @param {string} configPath — duong dan .pdconfig
- * @param {string} skillsDir — duong dan goc skills
- * @param {string} fastcodeDir — duong dan FastCode
+ * @param {string} configPath — .pdconfig file path
+ * @param {string} skillsDir — skills root path
+ * @param {string} fastcodeDir — FastCode path
  * @param {object} [options]
- * @param {string} [options.version] — version de ghi moi
+ * @param {string} [options.version] — version to write
  * @returns {void}
  */
 function savePdconfig(configPath, skillsDir, fastcodeDir, options = {}) {
@@ -105,10 +105,10 @@ function savePdconfig(configPath, skillsDir, fastcodeDir, options = {}) {
 }
 
 /**
- * Xoa thu muc legacy (tu ban cu dung ten 'sk' thay vi 'pd').
+ * Remove legacy directory (from older version using 'sk' name instead of 'pd').
  *
- * @param {string} legacyDir — duong dan thu muc legacy can xoa
- * @returns {boolean} — true neu da xoa
+ * @param {string} legacyDir — legacy directory path to remove
+ * @returns {boolean} — true if removed
  */
 function cleanLegacyDir(legacyDir) {
   if (fs.existsSync(legacyDir)) {
@@ -119,11 +119,11 @@ function cleanLegacyDir(legacyDir) {
 }
 
 /**
- * Xoa cac file cu theo pattern (dung truoc khi copy/symlink moi).
+ * Remove old files by pattern (used before copying/symlinking new files).
  *
- * @param {string} dir — thu muc chua files
+ * @param {string} dir — directory containing files
  * @param {function} filter — (filename) => boolean
- * @returns {number} — so files da xoa
+ * @returns {number} — number of files removed
  */
 function cleanOldFiles(dir, filter) {
   if (!fs.existsSync(dir)) return 0;
@@ -136,7 +136,7 @@ function cleanOldFiles(dir, filter) {
       fs.unlinkSync(fp);
       count++;
     } catch {
-      /* file khong ton tai hoac da bi xoa */
+      /* file does not exist or already removed */
     }
   }
   return count;
