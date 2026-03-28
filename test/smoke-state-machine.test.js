@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-// ─── Helpers: đọc / ghi / parse planning files ─────────────
+// ─── Helpers: read / write / parse planning files ───────────
 
 function mkp(base, ...segments) {
   const dir = path.join(base, ...segments);
@@ -257,14 +257,14 @@ Simple todo management application.
 | Version | Name | Date | Summary |
 `);
 
-  // Tạo REQUIREMENTS.md
+  // Create REQUIREMENTS.md
   const reqLines = phases.flatMap((p, i) =>
-    p.requirements.map(r => `| ${r} | Phase ${version}.${i + 1} | Chờ triển khai |`)
+    p.requirements.map(r => `| ${r} | Phase ${version}.${i + 1} | Pending |`)
   );
-  writeFile(root, '.planning/REQUIREMENTS.md', `# Yêu cầu
-## Bảng theo dõi
-| Yêu cầu | Phase | Trạng thái |
-|----------|-------|------------|
+  writeFile(root, '.planning/REQUIREMENTS.md', `# Requirements
+## Tracking Table
+| Requirement | Phase | Status |
+|-------------|-------|--------|
 ${reqLines.join('\n')}
 `);
 
@@ -332,20 +332,20 @@ Technical design description...
 
   // TASKS.md
   const taskRows = tasks.map((t, i) =>
-    `| ${i + 1} | ${t.name} | ${t.type} | ⬜ | ${t.dep || 'Không'} |`
+    `| ${i + 1} | ${t.name} | ${t.type} | ⬜ | ${t.dep || 'None'} |`
   ).join('\n');
   const taskDetails = tasks.map((t, i) => `
 ### Task ${i + 1}: ${t.name}
-> Loại: ${t.type} | Trạng thái: ⬜ | Phụ thuộc: ${t.dep || 'Không'}
+> Type: ${t.type} | Status: ⬜ | Depends: ${t.dep || 'None'}
 > Files: ${(t.files || []).join(', ')}
 
-${t.description || 'Mô tả task.'}
+${t.description || 'Task description.'}
 `).join('\n');
 
-  writeFile(root, `${phaseDir}/TASKS.md`, `# Danh sách công việc — Phase ${phase}
-## Tổng quan
-| # | Tên | Loại | Trạng thái | Phụ thuộc |
-|---|-----|------|-----------|-----------|
+  writeFile(root, `${phaseDir}/TASKS.md`, `# Task List — Phase ${phase}
+## Overview
+| # | Name | Type | Status | Depends |
+|---|------|------|--------|---------|
 ${taskRows}
 
 ${taskDetails}
@@ -390,45 +390,45 @@ ${taskDetails}
     roadmap.replace('Status: ⬜', 'Status: 🔄'));
 }
 
-/** Mô phỏng /pd:write-code hoàn tất 1 task */
+/** Simulate /pd:write-code completing 1 task */
 function simWriteCodeTask(root, version, phaseNum, taskNum) {
   const phase = `${version}.${phaseNum}`;
   const phaseDir = `.planning/milestones/${version}/phase-${phase}`;
   let tasks = readFile(root, `${phaseDir}/TASKS.md`);
 
-  // Đánh dấu task đang làm → hoàn tất
-  // Thay ⬜ → ✅ cho task cụ thể (cả bảng tổng quan + detail)
+  // Mark task in progress → complete
+  // Replace ⬜ → ✅ for specific task (both overview table + detail)
   let count = 0;
   tasks = tasks.replace(/⬜/g, (match) => {
     count++;
-    return count === 1 ? '✅' : match; // chỉ thay cái đầu tiên
+    return count === 1 ? '✅' : match; // only replace the first one
   });
-  // Cũng thay trong detail block
-  const detailRegex = new RegExp(`(### Task ${taskNum}:[\\s\\S]*?Trạng thái: )⬜`);
+  // Also replace in detail block
+  const detailRegex = new RegExp(`(### Task ${taskNum}:[\\s\\S]*?Status: )⬜`);
   tasks = tasks.replace(detailRegex, '$1✅');
   writeFile(root, `${phaseDir}/TASKS.md`, tasks);
 
-  // Tạo CODE_REPORT
+  // Create CODE_REPORT
   writeFile(root, `${phaseDir}/reports/CODE_REPORT_TASK_${taskNum}.md`,
-    `# Báo cáo code - Task ${taskNum}
-> Ngày: 21_03_2026 15:00 | Build: Thành công
+    `# Code Report - Task ${taskNum}
+> Date: 21_03_2026 15:00 | Build: Successful
 
-## Files đã tạo/sửa
-| Hành động | File | Mô tả |
-|-----------|------|-------|
-| Tạo | src/task${taskNum}.ts | Triển khai task ${taskNum} |
+## Files Created/Modified
+| Action | File | Description |
+|--------|------|-------------|
+| Created | src/task${taskNum}.ts | Implement task ${taskNum} |
 
-## Review bảo mật
-> Ngữ cảnh: PUBLIC | Dữ liệu: TRUNG BÌNH | Auth: JWT
+## Security Review
+> Context: PUBLIC | Data: MEDIUM | Auth: JWT
 `);
 }
 
-/** Mô phỏng phase hoàn tất (auto-advance logic) */
+/** Simulate phase complete (auto-advance logic) */
 function simPhaseComplete(root, version, phaseNum) {
   const phase = `${version}.${phaseNum}`;
   const nextPhase = `${version}.${phaseNum + 1}`;
 
-  // Cập nhật ROADMAP deliverables
+  // Update ROADMAP deliverables
   let roadmap = readFile(root, '.planning/ROADMAP.md');
   const phaseRegex = new RegExp(`(#### Phase ${phase.replace('.', '\\.')}:[\\s\\S]*?)(?=####|$)`);
   const phaseBlock = roadmap.match(phaseRegex);
@@ -438,14 +438,14 @@ function simPhaseComplete(root, version, phaseNum) {
     writeFile(root, '.planning/ROADMAP.md', roadmap);
   }
 
-  // Cập nhật STATE.md — phase hoàn tất
+  // Update STATE.md — phase complete
   let state = readFile(root, '.planning/STATE.md');
   state = state.replace(
-    /- Hoạt động cuối:\s*.+/,
-    `- Hoạt động cuối: 21_03_2026 — Phase ${phase} hoàn tất`
+    /- Last activity:\s*.+/,
+    `- Last activity: 21_03_2026 — Phase ${phase} complete`
   );
 
-  // Auto-advance: kiểm tra phase tiếp có TASKS.md chưa
+  // Auto-advance: check if next phase has TASKS.md
   const nextPhaseDir = `.planning/milestones/${version}/phase-${nextPhase}`;
   const nextHasTasks = fileExists(root, `${nextPhaseDir}/TASKS.md`);
 
@@ -454,16 +454,16 @@ function simPhaseComplete(root, version, phaseNum) {
     const cm = readFile(root, '.planning/CURRENT_MILESTONE.md');
     writeFile(root, '.planning/CURRENT_MILESTONE.md',
       cm.replace(/phase: .+/, `phase: ${nextPhase}`));
-    // Đồng bộ STATE.md Phase
+    // Sync STATE.md Phase
     state = state
       .replace(/- Phase:\s*.+/, `- Phase: ${nextPhase}`)
-      .replace(/- Kế hoạch:\s*.+/, '- Kế hoạch: Kế hoạch hoàn tất, sẵn sàng code');
+      .replace(/- Plan:\s*.+/, '- Plan: Plan complete, ready to code');
   }
 
   writeFile(root, '.planning/STATE.md', state);
 }
 
-/** Mô phỏng /pd:test tạo TEST_REPORT */
+/** Simulate /pd:test creating TEST_REPORT */
 function simTest(root, version, phaseNum, results) {
   const phase = `${version}.${phaseNum}`;
   const phaseDir = `.planning/milestones/${version}/phase-${phase}`;
@@ -471,65 +471,65 @@ function simTest(root, version, phaseNum, results) {
     `| ${r.name} | ${r.input} | ${r.expected} | ${r.actual} | ${r.pass ? '✅' : '❌'} |`
   ).join('\n');
 
-  writeFile(root, `${phaseDir}/TEST_REPORT.md`, `# Báo cáo kiểm thử
-> Ngày: 21_03_2026 16:00
+  writeFile(root, `${phaseDir}/TEST_REPORT.md`, `# Test Report
+> Date: 21_03_2026 16:00
 > Milestone: v${version}
-> Tổng: ${results.length} tests | ✅ ${results.filter(r => r.pass).length} đạt | ❌ ${results.filter(r => !r.pass).length} lỗi
+> Total: ${results.length} tests | ✅ ${results.filter(r => r.pass).length} passed | ❌ ${results.filter(r => !r.pass).length} failed
 
-## Kết quả Jest
-| Test case | Đầu vào | Kỳ vọng | Thực tế | KQ |
-|-----------|---------|---------|---------|-----|
+## Jest Results
+| Test case | Input | Expected | Actual | Result |
+|-----------|-------|----------|--------|--------|
 ${rows}
 `);
 }
 
-/** Mô phỏng /pd:fix-bug tạo BUG report */
+/** Simulate /pd:fix-bug creating BUG report */
 function simBugReport(root, version, patchVersion, description, status) {
   const ts = `21_03_2026_${String(16 + Math.floor(Math.random() * 8)).padStart(2, '0')}_${String(Math.floor(Math.random() * 60)).padStart(2, '0')}_00`;
-  writeFile(root, `.planning/bugs/BUG_${ts}.md`, `# Báo cáo lỗi
-> Ngày: ${ts.replace(/_/g, ' ')} | Mức độ: Cao
-> Trạng thái: ${status} | Chức năng: ${description} | Task: 1
-> Patch version: ${patchVersion} | Lần sửa: 1
+  writeFile(root, `.planning/bugs/BUG_${ts}.md`, `# Bug Report
+> Date: ${ts.replace(/_/g, ' ')} | Severity: High
+> Status: ${status} | Feature: ${description} | Task: 1
+> Patch version: ${patchVersion} | Fix attempt: 1
 `);
   return `BUG_${ts}.md`;
 }
 
-/** Mô phỏng /pd:complete-milestone */
+/** Simulate /pd:complete-milestone */
 function simCompleteMilestone(root, version, name) {
   writeFile(root, `.planning/milestones/${version}/MILESTONE_COMPLETE.md`,
-    `# Hoàn tất Milestone
-> Phiên bản: v${version} | Tên: ${name} | Ngày: 21_03_2026
+    `# Milestone Complete
+> Version: v${version} | Name: ${name} | Date: 21_03_2026
 `);
   // ROADMAP → ✅
   let roadmap = readFile(root, '.planning/ROADMAP.md');
   writeFile(root, '.planning/ROADMAP.md',
-    roadmap.replace('Trạng thái: 🔄', 'Trạng thái: ✅'));
+    roadmap.replace('Status: 🔄', 'Status: ✅'));
 
   // STATE.md
   let state = readFile(root, '.planning/STATE.md');
-  state = state.replace(/- Trạng thái:\s*.+/, `- Trạng thái: Milestone v${version} hoàn tất`);
+  state = state.replace(/- Status:\s*.+/, `- Status: Milestone v${version} complete`);
   writeFile(root, '.planning/STATE.md', state);
 }
 
-/** Mô phỏng PROGRESS.md cho crash recovery */
+/** Simulate PROGRESS.md for crash recovery */
 function simProgress(root, version, phaseNum, taskNum, stage) {
   const phase = `${version}.${phaseNum}`;
   writeFile(root,
     `.planning/milestones/${version}/phase-${phase}/PROGRESS.md`,
-    `# Tiến trình thực thi
-> Cập nhật: 21_03_2026 15:30
+    `# Execution Progress
+> Updated: 21_03_2026 15:30
 > Task: ${taskNum} — Task ${taskNum}
-> Giai đoạn: ${stage}
+> Stage: ${stage}
 
-## Các bước
-- [x] Chọn task
-- [x] Đọc context + nghiên cứu
-- [${stage === 'Viết code' || stage === 'Lint/Build' ? 'x' : ' '}] Viết code
+## Steps
+- [x] Select task
+- [x] Read context + research
+- [${stage === 'Writing code' || stage === 'Lint/Build' ? 'x' : ' '}] Write code
 - [${stage === 'Lint/Build' ? 'x' : ' '}] Lint + Build
-- [ ] Tạo báo cáo
+- [ ] Create report
 - [ ] Commit
 
-## Files đã viết
+## Files Written
 - src/task${taskNum}.ts
 `);
 }
@@ -546,71 +546,71 @@ describe('State Machine — Full lifecycle', () => {
     fs.rmSync(root, { recursive: true, force: true });
   });
 
-  it('Kịch bản 1: Happy path — init → scan → new-milestone → plan → write-code → test → complete', () => {
+  it('Scenario 1: Happy path — init → scan → new-milestone → plan → write-code → test → complete', () => {
     // ── init ──
     simInit(root);
-    assert.ok(fileExists(root, '.planning/CONTEXT.md'), 'thiếu CONTEXT.md');
-    assert.ok(fileExists(root, '.planning/rules/general.md'), 'thiếu general.md');
-    assert.ok(fileExists(root, '.planning/rules/nestjs.md'), 'thiếu nestjs.md');
+    assert.ok(fileExists(root, '.planning/CONTEXT.md'), 'missing CONTEXT.md');
+    assert.ok(fileExists(root, '.planning/rules/general.md'), 'missing general.md');
+    assert.ok(fileExists(root, '.planning/rules/nestjs.md'), 'missing nestjs.md');
 
     // ── scan ──
     simScan(root);
-    assert.ok(fileExists(root, '.planning/scan/SCAN_REPORT.md'), 'thiếu SCAN_REPORT');
+    assert.ok(fileExists(root, '.planning/scan/SCAN_REPORT.md'), 'missing SCAN_REPORT');
 
     // ── new-milestone ──
     simNewMilestone(root, '1.0', 'MVP Todo', [
-      { name: 'API cơ bản', requirements: ['AUTH-01', 'TODO-01'], deliverables: ['CRUD API', 'Auth JWT'] },
-      { name: 'Frontend', requirements: ['UI-01'], deliverables: ['Trang chính', 'Trang login'] },
+      { name: 'Basic API', requirements: ['AUTH-01', 'TODO-01'], deliverables: ['CRUD API', 'Auth JWT'] },
+      { name: 'Frontend', requirements: ['UI-01'], deliverables: ['Home page', 'Login page'] },
     ]);
-    assert.ok(fileExists(root, '.planning/CURRENT_MILESTONE.md'), 'thiếu CURRENT_MILESTONE');
-    assert.ok(fileExists(root, '.planning/ROADMAP.md'), 'thiếu ROADMAP');
-    assert.ok(fileExists(root, '.planning/STATE.md'), 'thiếu STATE');
+    assert.ok(fileExists(root, '.planning/CURRENT_MILESTONE.md'), 'missing CURRENT_MILESTONE');
+    assert.ok(fileExists(root, '.planning/ROADMAP.md'), 'missing ROADMAP');
+    assert.ok(fileExists(root, '.planning/STATE.md'), 'missing STATE');
 
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
     assert.equal(cm.version, '1.0');
     assert.equal(cm.phase, '1.0.1');
-    assert.equal(cm.status, 'Chưa bắt đầu');
+    assert.equal(cm.status, 'Not started');
 
     // ── plan phase 1.1 ──
     simPlan(root, '1.0', 1, [
-      { name: 'Tạo entity User', type: 'Backend', files: ['src/user.entity.ts'] },
-      { name: 'Tạo auth module', type: 'Backend', dep: 'Task 1', files: ['src/auth.module.ts'] },
-      { name: 'Tạo todo CRUD', type: 'Backend', dep: 'Task 1', files: ['src/todo.controller.ts'] },
+      { name: 'Create User entity', type: 'Backend', files: ['src/user.entity.ts'] },
+      { name: 'Create auth module', type: 'Backend', dep: 'Task 1', files: ['src/auth.module.ts'] },
+      { name: 'Create todo CRUD', type: 'Backend', dep: 'Task 1', files: ['src/todo.controller.ts'] },
     ]);
-    assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/PLAN.md'), 'thiếu PLAN.md');
-    assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md'), 'thiếu TASKS.md');
+    assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/PLAN.md'), 'missing PLAN.md');
+    assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md'), 'missing TASKS.md');
 
     const cm2 = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm2.status, 'Đang thực hiện', 'status phải chuyển Đang thực hiện');
+    assert.equal(cm2.status, 'In progress', 'status must change to In progress');
     assert.equal(cm2.phase, '1.0.1');
 
     const state = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(state.phase, '1.0.1', 'STATE phase phải đồng bộ');
-    assert.equal(state.plan, 'Kế hoạch hoàn tất, sẵn sàng code');
+    assert.equal(state.phase, '1.0.1', 'STATE phase must be in sync');
+    assert.equal(state.plan, 'Plan complete, ready to code');
 
     // ── write-code 3 tasks ──
     for (let i = 1; i <= 3; i++) simWriteCodeTask(root, '1.0', 1, i);
     const tasksContent = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const counts = countTaskStatus(tasksContent);
-    assert.equal(counts.done, 6, 'phải có 6 ✅ (3 bảng + 3 detail)'); // 3 in table + 3 in detail
-    assert.equal(counts.pending, 0, 'không còn ⬜');
+    assert.equal(counts.done, 6, 'must have 6 ✅ (3 table + 3 detail)'); // 3 in table + 3 in detail
+    assert.equal(counts.pending, 0, 'no ⬜ remaining');
 
-    // Phase hoàn tất (không auto-advance vì 1.0.2 chưa plan)
+    // Phase complete (no auto-advance since 1.0.2 not planned)
     simPhaseComplete(root, '1.0', 1);
     const cm3 = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm3.phase, '1.0.1', 'không auto-advance khi phase tiếp chưa plan');
+    assert.equal(cm3.phase, '1.0.1', 'no auto-advance when next phase not planned');
 
     // ── test phase 1.1 ──
     simTest(root, '1.0', 1, [
-      { name: 'Tạo user', input: 'valid data', expected: '201', actual: '201', pass: true },
+      { name: 'Create user', input: 'valid data', expected: '201', actual: '201', pass: true },
       { name: 'Login', input: 'valid creds', expected: 'JWT token', actual: 'JWT token', pass: true },
     ]);
     assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/TEST_REPORT.md'));
 
     // ── plan + write-code phase 1.2 ──
     simPlan(root, '1.0', 2, [
-      { name: 'Trang chính', type: 'Frontend', files: ['src/pages/home.tsx'] },
-      { name: 'Trang login', type: 'Frontend', files: ['src/pages/login.tsx'] },
+      { name: 'Home page', type: 'Frontend', files: ['src/pages/home.tsx'] },
+      { name: 'Login page', type: 'Frontend', files: ['src/pages/login.tsx'] },
     ]);
     for (let i = 1; i <= 2; i++) simWriteCodeTask(root, '1.0', 2, i);
     simPhaseComplete(root, '1.0', 2);
@@ -623,10 +623,10 @@ describe('State Machine — Full lifecycle', () => {
     assert.ok(fileExists(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md'));
 
     const roadmap = readFile(root, '.planning/ROADMAP.md');
-    assert.match(roadmap, /Trạng thái: ✅/, 'ROADMAP phải đánh ✅');
+    assert.match(roadmap, /Status: ✅/, 'ROADMAP must show ✅');
 
     const finalState = parseState(readFile(root, '.planning/STATE.md'));
-    assert.match(finalState.status, /hoàn tất/i, 'STATE phải ghi hoàn tất');
+    assert.match(finalState.status, /complete/i, 'STATE must show complete');
   });
 });
 
@@ -643,34 +643,34 @@ describe('State Machine — Auto-advance', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 2: Auto-advance khi phase tiếp ĐÃ plan', () => {
-    // Plan cả 2 phases trước
+  it('Scenario 2: Auto-advance when next phase is already planned', () => {
+    // Plan both phases upfront
     simPlan(root, '1.0', 1, [{ name: 'Task A', type: 'Backend' }]);
     simPlan(root, '1.0', 2, [{ name: 'Task B', type: 'Backend' }]);
 
-    // Hoàn tất phase 1
+    // Complete phase 1
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
 
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm.phase, '1.0.2', 'phải auto-advance sang phase 1.0.2');
+    assert.equal(cm.phase, '1.0.2', 'must auto-advance to phase 1.0.2');
   });
 
-  it('Kịch bản 2b: STATE.md đồng bộ sau auto-advance', () => {
+  it('Scenario 2b: STATE.md in sync after auto-advance', () => {
     const state = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(state.phase, '1.0.2', 'STATE phase phải đồng bộ với CURRENT_MILESTONE');
-    assert.equal(state.plan, 'Kế hoạch hoàn tất, sẵn sàng code');
+    assert.equal(state.phase, '1.0.2', 'STATE phase must be in sync with CURRENT_MILESTONE');
+    assert.equal(state.plan, 'Plan complete, ready to code');
   });
 
-  it('Kịch bản 2c: ROADMAP deliverables phase cũ được check', () => {
+  it('Scenario 2c: ROADMAP deliverables for old phase are checked', () => {
     const roadmap = readFile(root, '.planning/ROADMAP.md');
     const phaseABlock = roadmap.match(/Phase 1\.0\.1[\s\S]*?(?=####|$)/);
-    assert.ok(phaseABlock, 'phải tìm thấy Phase 1.0.1 block');
-    assert.match(phaseABlock[0], /\[x\]/, 'deliverables phase 1.0.1 phải checked');
+    assert.ok(phaseABlock, 'must find Phase 1.0.1 block');
+    assert.match(phaseABlock[0], /\[x\]/, 'phase 1.0.1 deliverables must be checked');
   });
 });
 
-describe('State Machine — Test phát hiện phase chưa test sau auto-advance', () => {
+describe('State Machine — Detect untested phase after auto-advance', () => {
   let root;
 
   before(() => {
@@ -680,7 +680,7 @@ describe('State Machine — Test phát hiện phase chưa test sau auto-advance'
       { name: 'P1', requirements: ['R-01'], deliverables: ['D1'] },
       { name: 'P2', requirements: ['R-02'], deliverables: ['D2'] },
     ]);
-    // Plan cả 2, hoàn tất P1, auto-advance sang P2 — KHÔNG chạy test
+    // Plan both, complete P1, auto-advance to P2 — DO NOT run test
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
     simPlan(root, '1.0', 2, [{ name: 'T2', type: 'Backend' }]);
     simWriteCodeTask(root, '1.0', 1, 1);
@@ -688,25 +688,25 @@ describe('State Machine — Test phát hiện phase chưa test sau auto-advance'
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 3: CURRENT_MILESTONE ở phase 2 nhưng phase 1 chưa test', () => {
+  it('Scenario 3: CURRENT_MILESTONE at phase 2 but phase 1 untested', () => {
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm.phase, '1.0.2', 'đã auto-advance');
+    assert.equal(cm.phase, '1.0.2', 'already auto-advanced');
 
-    // Phase 1.0.1: tất cả tasks ✅ nhưng không có TEST_REPORT
+    // Phase 1.0.1: all tasks ✅ but no TEST_REPORT
     const tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const counts = countTaskStatus(tasks);
-    assert.ok(counts.done > 0, 'phase 1.0.1 phải có task ✅');
+    assert.ok(counts.done > 0, 'phase 1.0.1 must have tasks ✅');
     assert.ok(!fileExists(root, '.planning/milestones/1.0/phase-1.0.1/TEST_REPORT.md'),
-      'phase 1.0.1 KHÔNG có TEST_REPORT');
+      'phase 1.0.1 must NOT have TEST_REPORT');
 
-    // Phase 1.0.2: chưa có task ✅
+    // Phase 1.0.2: no tasks ✅ yet
     const tasks2 = readFile(root, '.planning/milestones/1.0/phase-1.0.2/TASKS.md');
     const counts2 = countTaskStatus(tasks2);
-    assert.equal(counts2.done, 0, 'phase 1.0.2 chưa có task ✅');
+    assert.equal(counts2.done, 0, 'phase 1.0.2 has no tasks ✅ yet');
   });
 
-  it('Kịch bản 3b: Logic phát hiện phase chưa test', () => {
-    // Giả lập logic /pd:test: scan tất cả phases tìm phase hoàn tất chưa test
+  it('Scenario 3b: Logic to detect untested phase', () => {
+    // Simulate /pd:test logic: scan all phases to find completed but untested ones
     const version = '1.0';
     const milestonesDir = path.join(root, '.planning', 'milestones', version);
     const phases = fs.readdirSync(milestonesDir)
@@ -723,12 +723,12 @@ describe('State Machine — Test phát hiện phase chưa test sau auto-advance'
       return allDone && !fs.existsSync(testPath);
     });
 
-    assert.equal(untestedPhases.length, 1, 'phải tìm thấy đúng 1 phase chưa test');
-    assert.equal(untestedPhases[0], 'phase-1.0.1', 'phase chưa test phải là 1.0.1');
+    assert.equal(untestedPhases.length, 1, 'must find exactly 1 untested phase');
+    assert.equal(untestedPhases[0], 'phase-1.0.1', 'untested phase must be 1.0.1');
   });
 });
 
-describe('State Machine — Pre-plan (plan phase sau khi phase hiện tại đang code)', () => {
+describe('State Machine — Pre-plan (plan next phase while current phase is coding)', () => {
   let root;
 
   before(() => {
@@ -745,25 +745,25 @@ describe('State Machine — Pre-plan (plan phase sau khi phase hiện tại đan
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 4: Pre-plan KHÔNG desync STATE.md với CURRENT_MILESTONE', () => {
-    // Bắt đầu code phase 1 (task 1 đang 🔄)
-    // Tình huống: user plan phase 2 khi phase 1 đang code
+  it('Scenario 4: Pre-plan does NOT desync STATE.md with CURRENT_MILESTONE', () => {
+    // Start coding phase 1 (task 1 is 🔄)
+    // Situation: user plans phase 2 while phase 1 is being coded
     const cmBefore = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cmBefore.phase, '1.0.1', 'phase hiện tại phải là 1.0.1');
+    assert.equal(cmBefore.phase, '1.0.1', 'current phase must be 1.0.1');
 
     const stateBefore = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(stateBefore.phase, '1.0.1', 'STATE phase phải là 1.0.1');
+    assert.equal(stateBefore.phase, '1.0.1', 'STATE phase must be 1.0.1');
 
     // Pre-plan phase 2
     simPlan(root, '1.0', 2, [{ name: 'T3', type: 'Frontend' }]);
 
-    // CURRENT_MILESTONE KHÔNG đổi (phase 1 đang code)
+    // CURRENT_MILESTONE must NOT change (phase 1 is being coded)
     const cmAfter = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cmAfter.phase, '1.0.1', 'CURRENT_MILESTONE không được advance khi phase 1 đang code');
+    assert.equal(cmAfter.phase, '1.0.1', 'CURRENT_MILESTONE must not advance while phase 1 is coding');
 
-    // STATE.md Phase cũng KHÔNG đổi (tránh desync)
+    // STATE.md Phase must also NOT change (avoid desync)
     const stateAfter = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(stateAfter.phase, '1.0.1', 'STATE phase phải giữ 1.0.1 — không desync');
+    assert.equal(stateAfter.phase, '1.0.1', 'STATE phase must stay 1.0.1 — no desync');
   });
 });
 
@@ -782,38 +782,38 @@ describe('State Machine — Crash recovery (PROGRESS.md)', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 5a: PROGRESS.md tồn tại + task 🔄 → xác định điểm khôi phục', () => {
-    // Simulate: task đang 🔄 và PROGRESS.md ở giai đoạn "Viết code"
+  it('Scenario 5a: PROGRESS.md exists + task 🔄 → identify recovery point', () => {
+    // Simulate: task is 🔄 and PROGRESS.md at stage "Writing code"
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     tasks = tasks.replace('⬜', '🔄');
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
-    simProgress(root, '1.0', 1, 1, 'Viết code');
+    simProgress(root, '1.0', 1, 1, 'Writing code');
 
     assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/PROGRESS.md'));
 
     const progress = readFile(root, '.planning/milestones/1.0/phase-1.0.1/PROGRESS.md');
-    assert.match(progress, /Giai đoạn: Viết code/);
+    assert.match(progress, /Stage: Writing code/);
     assert.match(progress, /src\/task1\.ts/);
 
-    // Logic khôi phục: có files + chưa lint → nhảy Bước 5
-    assert.match(progress, /\[x\] Viết code/);
+    // Recovery logic: has files + not yet linted → jump to Step 5
+    assert.match(progress, /\[x\] Write code/);
     assert.match(progress, /\[ \] Lint \+ Build/);
   });
 
-  it('Kịch bản 5b: Task ✅ + PROGRESS.md tồn tại → crash giữa commit và cleanup', () => {
-    // Reset: task hoàn tất nhưng PROGRESS.md chưa xóa
+  it('Scenario 5b: Task ✅ + PROGRESS.md exists → crash between commit and cleanup', () => {
+    // Reset: task complete but PROGRESS.md not yet deleted
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     tasks = tasks.replace('🔄', '✅');
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
 
-    // PROGRESS.md vẫn tồn tại → crash giữa commit và rm PROGRESS.md
+    // PROGRESS.md still exists → crash between commit and rm PROGRESS.md
     assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/PROGRESS.md'),
-      'PROGRESS.md phải tồn tại (crash case)');
+      'PROGRESS.md must exist (crash case)');
 
-    // Logic: Task ✅ + PROGRESS → chỉ cần xóa PROGRESS.md
+    // Logic: Task ✅ + PROGRESS → just need to delete PROGRESS.md
     const taskContent = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const counts = countTaskStatus(taskContent);
-    assert.ok(counts.done > 0, 'task phải ✅');
+    assert.ok(counts.done > 0, 'task must be ✅');
 
     // Cleanup
     fs.unlinkSync(path.join(root, '.planning/milestones/1.0/phase-1.0.1/PROGRESS.md'));
@@ -836,35 +836,35 @@ describe('State Machine — TEST_REPORT staleness', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 6: TEST_REPORT trước fix-bug → stale', () => {
-    // Test tạo TEST_REPORT ngày 15
+  it('Scenario 6: TEST_REPORT before fix-bug → stale', () => {
+    // Test creates TEST_REPORT on day 15
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TEST_REPORT.md',
-      `# Báo cáo kiểm thử
-> Ngày: 15_03_2026 10:00
-> Tổng: 1 tests | ✅ 1 đạt | ❌ 0 lỗi
+      `# Test Report
+> Date: 15_03_2026 10:00
+> Total: 1 tests | ✅ 1 passed | ❌ 0 failed
 `);
 
-    // fix-bug sửa code sau đó — bug report ngày 18
-    simBugReport(root, '1.0', '1.0.1', 'Login timeout', 'Đã giải quyết');
+    // fix-bug modifies code afterwards — bug report on day 18
+    simBugReport(root, '1.0', '1.0.1', 'Login timeout', 'Resolved');
 
-    // Logic phát hiện stale: so sánh ngày
+    // Staleness detection logic: compare dates
     const testReport = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TEST_REPORT.md');
-    const testDateMatch = testReport.match(/Ngày:\s*(\d{2}_\d{2}_\d{4})/);
+    const testDateMatch = testReport.match(/Date:\s*(\d{2}_\d{2}_\d{4})/);
     const testDate = testDateMatch ? testDateMatch[1] : '';
 
     // Bug reports
     const bugDir = path.join(root, '.planning', 'bugs');
     const bugFiles = fs.readdirSync(bugDir).filter(f => f.startsWith('BUG_'));
-    assert.ok(bugFiles.length > 0, 'phải có bug report');
+    assert.ok(bugFiles.length > 0, 'must have bug report');
 
     const bugContent = readFile(root, `.planning/bugs/${bugFiles[0]}`);
-    const bugResolved = bugContent.includes('Đã giải quyết');
-    assert.ok(bugResolved, 'bug phải đã giải quyết');
+    const bugResolved = bugContent.includes('Resolved');
+    assert.ok(bugResolved, 'bug must be resolved');
 
     // Stale check: bug resolved AFTER test date
-    assert.equal(testDate, '15_03_2026', 'test date phải là 15_03_2026');
+    assert.equal(testDate, '15_03_2026', 'test date must be 15_03_2026');
     // Bug date is 21_03_2026 (from simBugReport) > 15_03_2026 → STALE
-    assert.ok(true, 'TEST_REPORT stale — cần chạy lại /pd:test');
+    assert.ok(true, 'TEST_REPORT stale — need to re-run /pd:test');
   });
 });
 
@@ -874,7 +874,7 @@ describe('State Machine — Cross-version fix-bug', () => {
   before(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-crossver-'));
     simInit(root);
-    // Milestone v1.0 đã hoàn tất
+    // Milestone v1.0 already complete
     simNewMilestone(root, '1.0', 'V1', [
       { name: 'P1', requirements: ['R-01'], deliverables: ['D1'] },
     ]);
@@ -886,33 +886,33 @@ describe('State Machine — Cross-version fix-bug', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 7: Patch version tăng dần cho bugs cùng milestone', () => {
-    // Bug 1 trong v1.0
-    simBugReport(root, '1.0', '1.0.1', 'Bug 1', 'Đã giải quyết');
-    // Bug 2 trong v1.0
-    simBugReport(root, '1.0', '1.0.2', 'Bug 2', 'Chưa xử lý');
+  it('Scenario 7: Patch version increments for bugs in same milestone', () => {
+    // Bug 1 in v1.0
+    simBugReport(root, '1.0', '1.0.1', 'Bug 1', 'Resolved');
+    // Bug 2 in v1.0
+    simBugReport(root, '1.0', '1.0.2', 'Bug 2', 'Unresolved');
 
     const bugDir = path.join(root, '.planning', 'bugs');
     const bugFiles = fs.readdirSync(bugDir).filter(f => f.startsWith('BUG_'));
     const contents = bugFiles.map(f => readFile(root, `.planning/bugs/${f}`));
     const versions = extractPatchVersions(contents);
 
-    assert.ok(versions.includes('1.0.1'), 'phải có patch 1.0.1');
-    assert.ok(versions.includes('1.0.2'), 'phải có patch 1.0.2');
+    assert.ok(versions.includes('1.0.1'), 'must have patch 1.0.1');
+    assert.ok(versions.includes('1.0.2'), 'must have patch 1.0.2');
   });
 
-  it('Kịch bản 7b: Bug mở chặn complete-milestone', () => {
+  it('Scenario 7b: Open bug blocks complete-milestone', () => {
     const bugDir = path.join(root, '.planning', 'bugs');
     const bugFiles = fs.readdirSync(bugDir).filter(f => f.startsWith('BUG_'));
     const openBugs = bugFiles.filter(f => {
       const content = readFile(root, `.planning/bugs/${f}`);
-      return content.includes('Chưa xử lý') || content.includes('Đang sửa');
+      return content.includes('Unresolved') || content.includes('Fixing');
     });
-    assert.ok(openBugs.length > 0, 'phải có bug mở → chặn complete-milestone');
+    assert.ok(openBugs.length > 0, 'must have open bug → blocks complete-milestone');
   });
 });
 
-describe('State Machine — Không auto-advance khi phase tiếp chưa plan', () => {
+describe('State Machine — No auto-advance when next phase not planned', () => {
   let root;
 
   before(() => {
@@ -922,20 +922,20 @@ describe('State Machine — Không auto-advance khi phase tiếp chưa plan', ()
       { name: 'P1', requirements: ['R-01'], deliverables: ['D1'] },
       { name: 'P2', requirements: ['R-02'], deliverables: ['D2'] },
     ]);
-    // CHỈ plan phase 1, KHÔNG plan phase 2
+    // ONLY plan phase 1, DO NOT plan phase 2
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 8: CURRENT_MILESTONE giữ phase 1 khi phase 2 chưa plan', () => {
+  it('Scenario 8: CURRENT_MILESTONE stays at phase 1 when phase 2 not planned', () => {
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm.phase, '1.0.1', 'không được advance sang 1.0.2');
+    assert.equal(cm.phase, '1.0.1', 'must not advance to 1.0.2');
   });
 });
 
-describe('State Machine — STATE.md "Đang code" lifecycle', () => {
+describe('State Machine — STATE.md "Coding" lifecycle', () => {
   let root;
 
   before(() => {
@@ -948,27 +948,27 @@ describe('State Machine — STATE.md "Đang code" lifecycle', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 9: STATE lifecycle: sẵn sàng code → Đang code → hoàn tất', () => {
-    // Sau plan: sẵn sàng code
+  it('Scenario 9: STATE lifecycle: ready to code → Coding → complete', () => {
+    // After plan: ready to code
     let state = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(state.plan, 'Kế hoạch hoàn tất, sẵn sàng code');
+    assert.equal(state.plan, 'Plan complete, ready to code');
 
-    // Khi bắt đầu code (task đầu tiên 🔄) → Đang code
+    // When starting code (first task 🔄) → Coding
     let stateContent = readFile(root, '.planning/STATE.md');
     stateContent = stateContent.replace(
-      /- Kế hoạch:\s*.+/,
-      '- Kế hoạch: Đang code'
+      /- Plan:\s*.+/,
+      '- Plan: Coding'
     );
     writeFile(root, '.planning/STATE.md', stateContent);
 
     state = parseState(readFile(root, '.planning/STATE.md'));
-    assert.equal(state.plan, 'Đang code');
+    assert.equal(state.plan, 'Coding');
 
-    // Hoàn tất phase
+    // Phase complete
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
     state = parseState(readFile(root, '.planning/STATE.md'));
-    assert.match(state.lastActivity, /Phase 1\.0\.1 hoàn tất/);
+    assert.match(state.lastActivity, /Phase 1\.0\.1 complete/);
   });
 });
 
@@ -982,7 +982,7 @@ describe('State Machine — complete-milestone cross-checks', () => {
       { name: 'P1', requirements: ['R-01'], deliverables: ['D1'] },
       { name: 'P2', requirements: ['R-02'], deliverables: ['D2'] },
     ]);
-    // CHỈ plan + hoàn tất phase 1, phase 2 chưa plan
+    // ONLY plan + complete phase 1, phase 2 not planned
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
@@ -990,36 +990,36 @@ describe('State Machine — complete-milestone cross-checks', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 10a: Phát hiện phase chưa triển khai trong ROADMAP', () => {
+  it('Scenario 10a: Detect unimplemented phase in ROADMAP', () => {
     const roadmap = readFile(root, '.planning/ROADMAP.md');
-    // Phase 1.0.2 có trong ROADMAP nhưng chưa có thư mục
-    assert.match(roadmap, /Phase 1\.0\.2/, 'ROADMAP phải có phase 1.0.2');
+    // Phase 1.0.2 is in ROADMAP but has no directory
+    assert.match(roadmap, /Phase 1\.0\.2/, 'ROADMAP must have phase 1.0.2');
     assert.ok(!fileExists(root, '.planning/milestones/1.0/phase-1.0.2/TASKS.md'),
-      'phase 1.0.2 chưa plan');
+      'phase 1.0.2 not planned');
   });
 
-  it('Kịch bản 10b: CODE_REPORT cross-check — mỗi task ✅ phải có report', () => {
+  it('Scenario 10b: CODE_REPORT cross-check — each task ✅ must have report', () => {
     const tasksContent = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const taskNumbers = [...tasksContent.matchAll(/### Task (\d+)/g)].map(m => m[1]);
 
     for (const num of taskNumbers) {
       const hasReport = fileExists(root,
         `.planning/milestones/1.0/phase-1.0.1/reports/CODE_REPORT_TASK_${num}.md`);
-      assert.ok(hasReport, `thiếu CODE_REPORT cho task ${num}`);
+      assert.ok(hasReport, `missing CODE_REPORT for task ${num}`);
     }
   });
 
-  it('Kịch bản 10c: MILESTONE_COMPLETE.md chặn complete-milestone lần 2', () => {
-    // Giả sử đã complete
+  it('Scenario 10c: MILESTONE_COMPLETE.md blocks second complete-milestone', () => {
+    // Assume already completed
     writeFile(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md',
-      '# Hoàn tất Milestone\n> Phiên bản: v1.0');
+      '# Milestone Complete\n> Version: v1.0');
 
     assert.ok(fileExists(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md'),
-      'MILESTONE_COMPLETE.md tồn tại → chặn complete lần 2');
+      'MILESTONE_COMPLETE.md exists → blocks second complete');
   });
 });
 
-describe('State Machine — Plan commit bảo vệ kế hoạch', () => {
+describe('State Machine — Plan commit protects plan files', () => {
   let root;
 
   before(() => {
@@ -1031,13 +1031,13 @@ describe('State Machine — Plan commit bảo vệ kế hoạch', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 11: Sau plan, PLAN.md + TASKS.md + tracking files đều tồn tại', () => {
+  it('Scenario 11: After plan, PLAN.md + TASKS.md + tracking files all exist', () => {
     simPlan(root, '1.0', 1, [
       { name: 'T1', type: 'Backend' },
       { name: 'T2', type: 'Frontend' },
     ]);
 
-    // Tất cả files cần commit phải tồn tại
+    // All files needed for commit must exist
     const files = [
       '.planning/milestones/1.0/phase-1.0.1/PLAN.md',
       '.planning/milestones/1.0/phase-1.0.1/TASKS.md',
@@ -1046,15 +1046,15 @@ describe('State Machine — Plan commit bảo vệ kế hoạch', () => {
       '.planning/ROADMAP.md',
     ];
     for (const f of files) {
-      assert.ok(fileExists(root, f), `thiếu ${f} — commit Bước 8.5 sẽ fail`);
+      assert.ok(fileExists(root, f), `missing ${f} — Step 8.5 commit will fail`);
     }
   });
 
-  it('Kịch bản 11b: PLAN.md cũng có trong write-code commit list', () => {
-    // Verify PLAN.md content tồn tại và có nội dung
+  it('Scenario 11b: PLAN.md also in write-code commit list', () => {
+    // Verify PLAN.md content exists and has content
     const plan = readFile(root, '.planning/milestones/1.0/phase-1.0.1/PLAN.md');
-    assert.match(plan, /Kế hoạch kỹ thuật/, 'PLAN.md phải có nội dung');
-    assert.ok(plan.length > 50, 'PLAN.md không được rỗng');
+    assert.match(plan, /Technical Plan/, 'PLAN.md must have content');
+    assert.ok(plan.length > 50, 'PLAN.md must not be empty');
   });
 });
 
@@ -1064,7 +1064,7 @@ describe('State Machine — Multi-milestone cycle', () => {
   before(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-multi-'));
     simInit(root);
-    // Tạo milestone v1.0 với 1 phase
+    // Create milestone v1.0 with 1 phase
     simNewMilestone(root, '1.0', 'V1 MVP', [
       { name: 'Core', requirements: ['R-01'], deliverables: ['API'] },
     ]);
@@ -1076,28 +1076,28 @@ describe('State Machine — Multi-milestone cycle', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 12a: Milestone v1.0 hoàn tất → ROADMAP ✅', () => {
+  it('Scenario 12a: Milestone v1.0 complete → ROADMAP ✅', () => {
     const roadmap = readFile(root, '.planning/ROADMAP.md');
-    assert.match(roadmap, /Trạng thái: ✅/);
+    assert.match(roadmap, /Status: ✅/);
   });
 
-  it('Kịch bản 12b: Tạo milestone v2.0 sau khi v1.0 hoàn tất', () => {
-    // Giả lập new-milestone cho v2.0 (append, không ghi đè)
+  it('Scenario 12b: Create milestone v2.0 after v1.0 complete', () => {
+    // Simulate new-milestone for v2.0 (append, do not overwrite)
     let roadmap = readFile(root, '.planning/ROADMAP.md');
     roadmap += `
-### Milestone v2.0: V2 Nâng cấp
-Trạng thái: ⬜
+### Milestone v2.0: V2 Upgrade
+Status: ⬜
 
-#### Phase 2.0.1: Nâng cấp API
-- [ ] Thêm pagination
+#### Phase 2.0.1: API Upgrade
+- [ ] Add pagination
 `;
     writeFile(root, '.planning/ROADMAP.md', roadmap);
 
-    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Milestone hiện tại
-- milestone: V2 Nâng cấp
+    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Current Milestone
+- milestone: V2 Upgrade
 - version: 2.0
 - phase: 2.0.1
-- status: Chưa bắt đầu
+- status: Not started
 `);
 
     mkp(root, '.planning', 'milestones', '2.0');
@@ -1106,29 +1106,29 @@ Trạng thái: ⬜
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
     assert.equal(cm.version, '2.0');
     assert.equal(cm.phase, '2.0.1');
-    assert.equal(cm.status, 'Chưa bắt đầu');
+    assert.equal(cm.status, 'Not started');
 
-    // v1.0 files vẫn tồn tại
+    // v1.0 files still exist
     assert.ok(fileExists(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md'),
-      'v1.0 files phải giữ nguyên');
+      'v1.0 files must be preserved');
   });
 
-  it('Kịch bản 12c: STATE.md bối cảnh tích lũy giữ lại qua milestones', () => {
+  it('Scenario 12c: STATE.md accumulated context preserved across milestones', () => {
     let state = readFile(root, '.planning/STATE.md');
-    // Thêm bối cảnh tích lũy (giả lập new-milestone giữ lại)
+    // Add accumulated context (simulate new-milestone preserving it)
     state = state.replace(
-      /## Bối cảnh tích lũy[\s\S]*?(?=##|$)/,
-      `## Bối cảnh tích lũy\n- v1.0: Dùng JWT + PostgreSQL, pattern service-controller đã ổn định.\n\n`
+      /## Accumulated Context[\s\S]*?(?=##|$)/,
+      `## Accumulated Context\n- v1.0: Used JWT + PostgreSQL, service-controller pattern stable.\n\n`
     );
     writeFile(root, '.planning/STATE.md', state);
 
     const updated = readFile(root, '.planning/STATE.md');
-    assert.match(updated, /JWT \+ PostgreSQL/, 'bối cảnh tích lũy phải giữ lại');
+    assert.match(updated, /JWT \+ PostgreSQL/, 'accumulated context must be preserved');
   });
 });
 
 // ═══════════════════════════════════════════════════════════════
-// BỔ SUNG: Task selection, dependencies, version filtering, v.v.
+// ADDITIONAL: Task selection, dependencies, version filtering, etc.
 // ═══════════════════════════════════════════════════════════════
 
 describe('Task Selection — Dependency logic', () => {
@@ -1136,96 +1136,96 @@ describe('Task Selection — Dependency logic', () => {
   before(() => { root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-deps-')); });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 13a: Task không phụ thuộc → sẵn sàng ngay', () => {
+  it('Scenario 13a: Task with no dependency → ready immediately', () => {
     const tasks = `### Task 1: Create entity
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Không
+> Type: Backend | Status: ⬜ | Depends: None
 `;
     assert.equal(findReadyTask(tasks), 1);
   });
 
-  it('Kịch bản 13b: Task phụ thuộc task ✅ → sẵn sàng', () => {
+  it('Scenario 13b: Task depends on ✅ task → ready', () => {
     const tasks = `### Task 1: Create entity
-> Loại: Backend | Trạng thái: ✅ | Phụ thuộc: Không
+> Type: Backend | Status: ✅ | Depends: None
 
 ### Task 2: Create service
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 1
+> Type: Backend | Status: ⬜ | Depends: Task 1
 `;
     assert.equal(findReadyTask(tasks), 2);
   });
 
-  it('Kịch bản 13c: Task phụ thuộc task ⬜ → KHÔNG sẵn sàng', () => {
+  it('Scenario 13c: Task depends on ⬜ task → NOT ready', () => {
     const tasks = `### Task 1: Create entity
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Không
+> Type: Backend | Status: ⬜ | Depends: None
 
 ### Task 2: Create service
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 1
+> Type: Backend | Status: ⬜ | Depends: Task 1
 `;
-    // Task 1 sẵn sàng (không dep), task 2 chờ task 1
+    // Task 1 is ready (no dep), task 2 waits for task 1
     assert.equal(findReadyTask(tasks), 1);
   });
 
-  it('Kịch bản 13d: Tất cả tasks blocked → trả null', () => {
+  it('Scenario 13d: All tasks blocked → returns null', () => {
     const tasks = `### Task 1: Module A
-> Loại: Backend | Trạng thái: ❌ | Phụ thuộc: Không
+> Type: Backend | Status: ❌ | Depends: None
 
 ### Task 2: Module B
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 1
+> Type: Backend | Status: ⬜ | Depends: Task 1
 `;
-    // Task 1 blocked (❌), task 2 phụ thuộc task 1 (không ✅) → null
+    // Task 1 blocked (❌), task 2 depends on task 1 (not ✅) → null
     assert.equal(findReadyTask(tasks), null);
   });
 
-  it('Kịch bản 13e: Circular dependency → phát hiện', () => {
+  it('Scenario 13e: Circular dependency → detected', () => {
     const tasks = `### Task 1: Module A
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 2
+> Type: Backend | Status: ⬜ | Depends: Task 2
 
 ### Task 2: Module B
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 1
+> Type: Backend | Status: ⬜ | Depends: Task 1
 `;
-    assert.ok(hasCircularDependency(tasks), 'phải phát hiện circular dependency');
+    assert.ok(hasCircularDependency(tasks), 'must detect circular dependency');
   });
 
-  it('Kịch bản 13f: Không circular → trả false', () => {
+  it('Scenario 13f: No circular → returns false', () => {
     const tasks = `### Task 1: Module A
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Không
+> Type: Backend | Status: ⬜ | Depends: None
 
 ### Task 2: Module B
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 1
+> Type: Backend | Status: ⬜ | Depends: Task 1
 
 ### Task 3: Module C
-> Loại: Backend | Trạng thái: ⬜ | Phụ thuộc: Task 2
+> Type: Backend | Status: ⬜ | Depends: Task 2
 `;
-    assert.ok(!hasCircularDependency(tasks), 'chuỗi A→B→C không phải circular');
+    assert.ok(!hasCircularDependency(tasks), 'chain A→B→C is not circular');
   });
 });
 
 describe('Version filtering — Bug matching logic', () => {
-  it('Kịch bản 14a: Patch 1.0.1 thuộc milestone 1.0', () => {
+  it('Scenario 14a: Patch 1.0.1 belongs to milestone 1.0', () => {
     assert.ok(bugBelongsToVersion('1.0.1', '1.0'));
   });
 
-  it('Kịch bản 14b: Patch 1.0 (2 số) thuộc milestone 1.0', () => {
+  it('Scenario 14b: Patch 1.0 (2 digits) belongs to milestone 1.0', () => {
     assert.ok(bugBelongsToVersion('1.0', '1.0'));
   });
 
-  it('Kịch bản 14c: Patch 1.0.10 (double-digit) thuộc milestone 1.0', () => {
+  it('Scenario 14c: Patch 1.0.10 (double-digit) belongs to milestone 1.0', () => {
     assert.ok(bugBelongsToVersion('1.0.10', '1.0'));
   });
 
-  it('Kịch bản 14d: Patch 1.1 KHÔNG thuộc milestone 1.0', () => {
+  it('Scenario 14d: Patch 1.1 does NOT belong to milestone 1.0', () => {
     assert.ok(!bugBelongsToVersion('1.1', '1.0'));
   });
 
-  it('Kịch bản 14e: Patch 1.10 KHÔNG thuộc milestone 1.1 (semver trap)', () => {
-    assert.ok(!bugBelongsToVersion('1.10', '1.1'), '1.10 ≠ 1.1 — phải so sánh semver');
+  it('Scenario 14e: Patch 1.10 does NOT belong to milestone 1.1 (semver trap)', () => {
+    assert.ok(!bugBelongsToVersion('1.10', '1.1'), '1.10 ≠ 1.1 — must compare semver');
   });
 
-  it('Kịch bản 14f: Patch 1.0.2 KHÔNG thuộc milestone 1.1', () => {
+  it('Scenario 14f: Patch 1.0.2 does NOT belong to milestone 1.1', () => {
     assert.ok(!bugBelongsToVersion('1.0.2', '1.1'));
   });
 
-  it('Kịch bản 14g: Patch 10.0 KHÔNG thuộc milestone 1.0 (substring trap)', () => {
-    assert.ok(!bugBelongsToVersion('10.0', '1.0'), '10.0 ≠ 1.0 — phải word boundary');
+  it('Scenario 14g: Patch 10.0 does NOT belong to milestone 1.0 (substring trap)', () => {
+    assert.ok(!bugBelongsToVersion('10.0', '1.0'), '10.0 ≠ 1.0 — must use word boundary');
   });
 });
 
@@ -1246,44 +1246,44 @@ describe('Test → 🐛 marking — Partial test failure', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 15a: Test fail → CHỈ task bị fail đổi 🐛, task pass giữ ✅', () => {
-    // Giả lập: test task 1 pass, task 2 fail
+  it('Scenario 15a: Test fail → ONLY failed task changes to 🐛, passing task stays ✅', () => {
+    // Simulate: test task 1 passes, task 2 fails
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
 
-    // Task 2 fail → đổi ✅ → 🐛 (chỉ task 2)
+    // Task 2 fails → change ✅ → 🐛 (only task 2)
     tasks = tasks.replace(
-      /(### Task 2:[^\n]*\n> Loại: \S+ \| Trạng thái: )✅/,
+      /(### Task 2:[^\n]*\n> Type: \S+ \| Status: )✅/,
       '$1🐛'
     );
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
 
     const counts = countTaskStatus(readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md'));
-    assert.ok(counts.done > 0, 'task 1 vẫn ✅');
-    assert.ok(counts.bug > 0, 'task 2 phải 🐛');
+    assert.ok(counts.done > 0, 'task 1 still ✅');
+    assert.ok(counts.bug > 0, 'task 2 must be 🐛');
   });
 
-  it('Kịch bản 15b: Task 🐛 chặn complete-milestone', () => {
+  it('Scenario 15b: Task 🐛 blocks complete-milestone', () => {
     const tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const counts = countTaskStatus(tasks);
     const allDone = counts.pending === 0 && counts.inProgress === 0 &&
                     counts.blocked === 0 && counts.bug === 0;
-    assert.ok(!allDone, 'có task 🐛 → KHÔNG cho complete-milestone');
+    assert.ok(!allDone, 'has task 🐛 → must NOT allow complete-milestone');
   });
 
-  it('Kịch bản 15c: fix-bug sửa xong → 🐛 → ✅', () => {
+  it('Scenario 15c: fix-bug resolves → 🐛 → ✅', () => {
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     tasks = tasks.replace(
-      /(### Task 2:[^\n]*\n> Loại: \S+ \| Trạng thái: )🐛/,
+      /(### Task 2:[^\n]*\n> Type: \S+ \| Status: )🐛/,
       '$1✅'
     );
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
 
     const counts = countTaskStatus(readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md'));
-    assert.equal(counts.bug, 0, 'không còn 🐛');
+    assert.equal(counts.bug, 0, 'no more 🐛');
   });
 });
 
-describe('Re-plan — Ghi đè phase có tasks ✅', () => {
+describe('Re-plan — Overwrite phase with ✅ tasks', () => {
   let root;
   before(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-replan-'));
@@ -1299,14 +1299,14 @@ describe('Re-plan — Ghi đè phase có tasks ✅', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 16a: Phát hiện tasks ✅ trước khi ghi đè', () => {
+  it('Scenario 16a: Detect ✅ tasks before overwrite', () => {
     const tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     const counts = countTaskStatus(tasks);
-    assert.ok(counts.done > 0, 'phải phát hiện task ✅ → cảnh báo user trước khi ghi đè');
+    assert.ok(counts.done > 0, 'must detect task ✅ → warn user before overwrite');
   });
 
-  it('Kịch bản 16b: Ghi đè → ROADMAP deliverables reset về [ ]', () => {
-    // Giả lập phase đã hoàn tất 1 phần → deliverables checked
+  it('Scenario 16b: Overwrite → ROADMAP deliverables reset to [ ]', () => {
+    // Simulate phase partially complete → deliverables checked
     let roadmap = readFile(root, '.planning/ROADMAP.md');
     roadmap = roadmap.replace('- [ ] API users', '- [x] API users');
     writeFile(root, '.planning/ROADMAP.md', roadmap);
@@ -1317,25 +1317,25 @@ describe('Re-plan — Ghi đè phase có tasks ✅', () => {
     writeFile(root, '.planning/ROADMAP.md', roadmap);
 
     const deliverables = countDeliverables(readFile(root, '.planning/ROADMAP.md'));
-    assert.equal(deliverables.checked, 0, 'sau re-plan, deliverables phải reset về [ ]');
-    assert.ok(deliverables.unchecked > 0, 'phải có deliverables unchecked');
+    assert.equal(deliverables.checked, 0, 'after re-plan, deliverables must reset to [ ]');
+    assert.ok(deliverables.unchecked > 0, 'must have unchecked deliverables');
   });
 
-  it('Kịch bản 16c: CODE_REPORT cũ trở thành orphan sau re-plan', () => {
-    // Task 1 cũ có CODE_REPORT
+  it('Scenario 16c: Old CODE_REPORT becomes orphan after re-plan', () => {
+    // Old task 1 has CODE_REPORT
     assert.ok(fileExists(root, '.planning/milestones/1.0/phase-1.0.1/reports/CODE_REPORT_TASK_1.md'),
-      'CODE_REPORT cũ tồn tại');
+      'old CODE_REPORT exists');
 
-    // Re-plan tạo tasks mới (task 1 mới ≠ task 1 cũ)
+    // Re-plan creates new tasks (new task 1 ≠ old task 1)
     simPlan(root, '1.0', 1, [
-      { name: 'T1 new (khác hoàn toàn)', type: 'Frontend' },
+      { name: 'T1 new (completely different)', type: 'Frontend' },
       { name: 'T2 new', type: 'Frontend' },
     ]);
 
-    // CODE_REPORT_TASK_1.md vẫn tồn tại nhưng nội dung mô tả task CŨ
+    // CODE_REPORT_TASK_1.md still exists but describes OLD task
     const report = readFile(root, '.planning/milestones/1.0/phase-1.0.1/reports/CODE_REPORT_TASK_1.md');
-    assert.match(report, /task 1/, 'CODE_REPORT cũ vẫn tồn tại — orphaned');
-    // Task 1 mới (Frontend) ≠ task 1 cũ (Backend) → report không khớp
+    assert.match(report, /task 1/, 'old CODE_REPORT still exists — orphaned');
+    // New task 1 (Frontend) ≠ old task 1 (Backend) → report mismatch
   });
 });
 
@@ -1350,23 +1350,23 @@ describe('What-next — Priority logic', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 17a: Bug mở → Ưu tiên 1 (cao nhất)', () => {
+  it('Scenario 17a: Open bug → Priority 1 (highest)', () => {
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
-    simBugReport(root, '1.0', '1.0.1', 'Login fail', 'Chưa xử lý');
+    simBugReport(root, '1.0', '1.0.1', 'Login fail', 'Unresolved');
     const result = determineWhatNextPriority(root, '1.0', '1.0.1');
-    assert.equal(result.priority, 1, 'bug mở phải ưu tiên 1');
+    assert.equal(result.priority, 1, 'open bug must be priority 1');
     assert.equal(result.action, '/pd:fix-bug');
   });
 
-  it('Kịch bản 17b: Task 🔄 (đang code) → Ưu tiên 2', () => {
-    // Đóng bug trước
+  it('Scenario 17b: Task 🔄 (coding) → Priority 2', () => {
+    // Close bug first
     const bugDir = path.join(root, '.planning', 'bugs');
     for (const f of fs.readdirSync(bugDir)) {
       let c = readFile(root, `.planning/bugs/${f}`);
-      c = c.replace('Chưa xử lý', 'Đã giải quyết');
+      c = c.replace('Unresolved', 'Resolved');
       writeFile(root, `.planning/bugs/${f}`, c);
     }
-    // Task đang 🔄
+    // Task is 🔄
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     tasks = tasks.replace('⬜', '🔄');
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
@@ -1375,7 +1375,7 @@ describe('What-next — Priority logic', () => {
     assert.equal(result.priority, 2);
   });
 
-  it('Kịch bản 17c: Task ⬜ → Ưu tiên 4', () => {
+  it('Scenario 17c: Task ⬜ → Priority 4', () => {
     let tasks = readFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md');
     tasks = tasks.replace('🔄', '⬜');
     writeFile(root, '.planning/milestones/1.0/phase-1.0.1/TASKS.md', tasks);
@@ -1384,23 +1384,23 @@ describe('What-next — Priority logic', () => {
     assert.equal(result.priority, 4);
   });
 
-  it('Kịch bản 17d: Tất cả ✅ + chưa test → gợi ý /pd:test', () => {
-    // Đóng bugs mở còn sót từ test 17a
+  it('Scenario 17d: All ✅ + not tested → suggest /pd:test', () => {
+    // Close remaining open bugs from test 17a
     const bugDir = path.join(root, '.planning', 'bugs');
     for (const f of fs.readdirSync(bugDir)) {
       let c = readFile(root, `.planning/bugs/${f}`);
-      c = c.replace(/Chưa xử lý|Đang sửa/g, 'Đã giải quyết');
+      c = c.replace(/Unresolved|Fixing/g, 'Resolved');
       writeFile(root, `.planning/bugs/${f}`, c);
     }
     simWriteCodeTask(root, '1.0', 1, 1);
     const result = determineWhatNextPriority(root, '1.0', '1.0.1');
-    // Priority 5.5 hoặc 6 đều gợi ý /pd:test (5.5 = phase cũ chưa test, 6 = phase hiện tại chưa test)
-    assert.ok(result.priority <= 6, 'phải gợi ý test');
+    // Priority 5.5 or 6 both suggest /pd:test (5.5 = old phase untested, 6 = current phase untested)
+    assert.ok(result.priority <= 6, 'must suggest test');
     assert.equal(result.action, '/pd:test');
   });
 });
 
-describe('What-next — Ưu tiên 5.5 (phase cũ chưa test)', () => {
+describe('What-next — Priority 5.5 (old phase untested)', () => {
   let root;
   before(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-wn55-'));
@@ -1409,20 +1409,20 @@ describe('What-next — Ưu tiên 5.5 (phase cũ chưa test)', () => {
       { name: 'P1', requirements: ['R-01'], deliverables: ['D1'] },
       { name: 'P2', requirements: ['R-02'], deliverables: ['D2'] },
     ]);
-    // Phase 1.0.1 hoàn tất chưa test
+    // Phase 1.0.1 complete but untested
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
-    // Phase 1.0.2 đã plan, tất cả tasks ✅ (đang ở phase này)
+    // Phase 1.0.2 planned, all tasks ✅ (currently at this phase)
     simPlan(root, '1.0', 2, [{ name: 'T2', type: 'Frontend' }]);
     simWriteCodeTask(root, '1.0', 2, 1);
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 17e: Phase cũ chưa test (auto-advance) → Ưu tiên 5.5', () => {
-    // Phase 1.0.2: tất cả ✅, nhưng what-next nên phát hiện 1.0.1 chưa test trước
+  it('Scenario 17e: Old phase untested (auto-advance) → Priority 5.5', () => {
+    // Phase 1.0.2: all ✅, but what-next should detect 1.0.1 untested first
     const result = determineWhatNextPriority(root, '1.0', '1.0.2');
-    assert.equal(result.priority, 5.5, 'phase cũ chưa test → ưu tiên 5.5');
+    assert.equal(result.priority, 5.5, 'old phase untested → priority 5.5');
     assert.equal(result.detail, 'phase-1.0.1');
   });
 });
@@ -1435,65 +1435,65 @@ describe('SESSION lifecycle — fix-bug', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 18a: SESSION tạo với trạng thái Đang điều tra', () => {
-    writeFile(root, '.planning/debug/SESSION_login-fail.md', `# Phiên điều tra: login-fail
-> Bắt đầu: 21_03_2026 10:00 | Trạng thái: Đang điều tra
-> Phân loại: 🟡 Lỗi logic
+  it('Scenario 18a: SESSION created with Investigating status', () => {
+    writeFile(root, '.planning/debug/SESSION_login-fail.md', `# Investigation Session: login-fail
+> Started: 21_03_2026 10:00 | Status: Investigating
+> Classification: 🟡 Logic error
 
-## Triệu chứng
-- **Mong đợi:** Đăng nhập thành công
-- **Thực tế:** Lỗi 401
+## Symptoms
+- **Expected:** Login succeeds
+- **Actual:** Error 401
 
-## Giả thuyết
-### GT1: JWT secret sai
-- **Kết quả:** ⏳ Chưa kiểm tra
+## Hypotheses
+### H1: JWT secret wrong
+- **Result:** ⏳ Not yet checked
 `);
     const session = readFile(root, '.planning/debug/SESSION_login-fail.md');
-    assert.match(session, /Trạng thái: Đang điều tra/);
-    assert.match(session, /GT1/);
+    assert.match(session, /Status: Investigating/);
+    assert.match(session, /H1/);
   });
 
-  it('Kịch bản 18b: SESSION chuyển Điểm dừng khi cần user xác minh', () => {
+  it('Scenario 18b: SESSION transitions to Checkpoint when user verification needed', () => {
     let session = readFile(root, '.planning/debug/SESSION_login-fail.md');
-    session = session.replace('Trạng thái: Đang điều tra', 'Trạng thái: Điểm dừng');
+    session = session.replace('Status: Investigating', 'Status: Checkpoint');
     session += `
-## Điểm dừng 1
-> Loại: cần-thêm-thông-tin
-> Câu hỏi: JWT secret trong production có đúng không?
-> Trả lời: —
+## Checkpoint 1
+> Type: needs-more-info
+> Question: Is the JWT secret in production correct?
+> Answer: —
 `;
     writeFile(root, '.planning/debug/SESSION_login-fail.md', session);
-    assert.match(readFile(root, '.planning/debug/SESSION_login-fail.md'), /Điểm dừng/);
+    assert.match(readFile(root, '.planning/debug/SESSION_login-fail.md'), /Checkpoint/);
   });
 
-  it('Kịch bản 18c: SESSION chuyển Đã giải quyết sau fix', () => {
+  it('Scenario 18c: SESSION transitions to Resolved after fix', () => {
     let session = readFile(root, '.planning/debug/SESSION_login-fail.md');
     session = session
-      .replace('Trạng thái: Điểm dừng', 'Trạng thái: Đã giải quyết')
-      .replace('⏳ Chưa kiểm tra', '✅ Đúng');
+      .replace('Status: Checkpoint', 'Status: Resolved')
+      .replace('⏳ Not yet checked', '✅ Correct');
     writeFile(root, '.planning/debug/SESSION_login-fail.md', session);
-    assert.match(readFile(root, '.planning/debug/SESSION_login-fail.md'), /Đã giải quyết/);
+    assert.match(readFile(root, '.planning/debug/SESSION_login-fail.md'), /Resolved/);
   });
 
-  it('Kịch bản 18d: Nhiều sessions — chỉ liệt kê sessions có thể tiếp tục', () => {
+  it('Scenario 18d: Multiple sessions — only list resumable sessions', () => {
     writeFile(root, '.planning/debug/SESSION_cart-empty.md',
-      `# Phiên điều tra: cart-empty\n> Bắt đầu: 21_03_2026 11:00 | Trạng thái: Tạm dừng\n`);
+      `# Investigation Session: cart-empty\n> Started: 21_03_2026 11:00 | Status: Paused\n`);
     writeFile(root, '.planning/debug/SESSION_old-bug.md',
-      `# Phiên điều tra: old-bug\n> Bắt đầu: 20_03_2026 09:00 | Trạng thái: Đã giải quyết\n`);
+      `# Investigation Session: old-bug\n> Started: 20_03_2026 09:00 | Status: Resolved\n`);
 
     const debugDir = path.join(root, '.planning', 'debug');
     const sessions = fs.readdirSync(debugDir).filter(f => f.startsWith('SESSION_'));
     const resumable = sessions.filter(f => {
       const c = fs.readFileSync(path.join(debugDir, f), 'utf8');
-      return /Trạng thái: (Đang điều tra|Điểm dừng|Chờ quyết định|Tạm dừng)/.test(c);
+      return /Status: (Investigating|Checkpoint|Awaiting decision|Paused)/.test(c);
     });
-    // login-fail = Đã giải quyết, cart-empty = Tạm dừng, old-bug = Đã giải quyết
-    assert.equal(resumable.length, 1, 'chỉ cart-empty có thể tiếp tục');
+    // login-fail = Resolved, cart-empty = Paused, old-bug = Resolved
+    assert.equal(resumable.length, 1, 'only cart-empty can be resumed');
     assert.match(resumable[0], /cart-empty/);
   });
 });
 
-describe('Bug fix — Lần sửa tăng dần', () => {
+describe('Bug fix — Fix attempt increments', () => {
   let root;
   before(() => {
     root = fs.mkdtempSync(path.join(os.tmpdir(), 'pd-sm-fixattempt-'));
@@ -1501,28 +1501,28 @@ describe('Bug fix — Lần sửa tăng dần', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 19: Lần sửa 1→2→3 + cảnh báo sau 3 lần', () => {
+  it('Scenario 19: Fix attempt 1→2→3 + warning after 3 attempts', () => {
     const bugFile = '.planning/bugs/BUG_21_03_2026_10_00_00.md';
-    writeFile(root, bugFile, `# Báo cáo lỗi
-> Trạng thái: Đang sửa | Chức năng: Login | Task: 1
-> Patch version: 1.0.1 | Lần sửa: 1
+    writeFile(root, bugFile, `# Bug Report
+> Status: Fixing | Feature: Login | Task: 1
+> Patch version: 1.0.1 | Fix attempt: 1
 `);
 
-    // Lần 2
+    // Attempt 2
     let bug = readFile(root, bugFile);
-    bug = bug.replace('Lần sửa: 1', 'Lần sửa: 2');
+    bug = bug.replace('Fix attempt: 1', 'Fix attempt: 2');
     writeFile(root, bugFile, bug);
 
-    // Lần 3
+    // Attempt 3
     bug = readFile(root, bugFile);
-    bug = bug.replace('Lần sửa: 2', 'Lần sửa: 3');
+    bug = bug.replace('Fix attempt: 2', 'Fix attempt: 3');
     writeFile(root, bugFile, bug);
 
     const content = readFile(root, bugFile);
-    const attempt = content.match(/Lần sửa: (\d+)/);
+    const attempt = content.match(/Fix attempt: (\d+)/);
     assert.equal(attempt[1], '3');
-    // Sau 3 lần → workflow gợi ý thay đổi cách tiếp cận
-    assert.ok(parseInt(attempt[1]) >= 3, 'đã 3+ lần → cần cảnh báo');
+    // After 3 attempts → workflow suggests changing approach
+    assert.ok(parseInt(attempt[1]) >= 3, '3+ attempts → needs warning');
   });
 });
 
@@ -1536,7 +1536,7 @@ describe('Skipped phases — complete-milestone handling', () => {
       { name: 'P2', requirements: ['R-02'], deliverables: ['D2'] },
       { name: 'P3', requirements: ['R-03'], deliverables: ['D3'] },
     ]);
-    // CHỈ plan + hoàn tất P1 và P3, BỎ QUA P2
+    // ONLY plan + complete P1 and P3, SKIP P2
     simPlan(root, '1.0', 1, [{ name: 'T1', type: 'Backend' }]);
     simWriteCodeTask(root, '1.0', 1, 1);
     simPhaseComplete(root, '1.0', 1);
@@ -1549,28 +1549,28 @@ describe('Skipped phases — complete-milestone handling', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 20a: Phát hiện phase bị skip trong ROADMAP', () => {
+  it('Scenario 20a: Detect skipped phase in ROADMAP', () => {
     const roadmap = readFile(root, '.planning/ROADMAP.md');
-    // ROADMAP có 3 phases, nhưng chỉ 2 có thư mục
+    // ROADMAP has 3 phases, but only 2 have directories
     const allPhases = ['1.0.1', '1.0.2', '1.0.3'];
     const implemented = allPhases.filter(p =>
       fileExists(root, `.planning/milestones/1.0/phase-${p}/TASKS.md`)
     );
     const skipped = allPhases.filter(p => !implemented.includes(p));
 
-    assert.deepEqual(skipped, ['1.0.2'], 'phase 1.0.2 phải là phase bị skip');
-    assert.equal(implemented.length, 2, 'chỉ 2 phases triển khai');
+    assert.deepEqual(skipped, ['1.0.2'], 'phase 1.0.2 must be the skipped phase');
+    assert.equal(implemented.length, 2, 'only 2 phases implemented');
   });
 
-  it('Kịch bản 20b: Complete-milestone ghi chú phases bỏ qua', () => {
-    // Giả lập user chọn "bỏ qua"
+  it('Scenario 20b: Complete-milestone notes skipped phases', () => {
+    // Simulate user choosing "skip"
     simCompleteMilestone(root, '1.0', 'Skip Test');
     let report = readFile(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md');
-    report += '\n## Phases bỏ qua\n- Phase 1.0.2: bỏ qua theo yêu cầu user\n';
+    report += '\n## Skipped Phases\n- Phase 1.0.2: skipped per user request\n';
     writeFile(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md', report);
 
     assert.match(readFile(root, '.planning/milestones/1.0/MILESTONE_COMPLETE.md'),
-      /Phase 1\.0\.2.*bỏ qua/);
+      /Phase 1\.0\.2.*skipped/);
   });
 });
 
@@ -1585,49 +1585,49 @@ describe('DISCUSS_STATE.md — Plan --discuss lifecycle', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 21a: DISCUSS_STATE.md tạo khi bắt đầu --discuss', () => {
+  it('Scenario 21a: DISCUSS_STATE.md created when --discuss starts', () => {
     const phaseDir = '.planning/milestones/1.0/phase-1.0.1';
     mkp(root, phaseDir);
-    writeFile(root, `${phaseDir}/DISCUSS_STATE.md`, `# Trạng thái thảo luận
-> Phase: 1.0.1 | Bắt đầu: 21_03_2026 10:00 | Trạng thái: Đang thảo luận
+    writeFile(root, `${phaseDir}/DISCUSS_STATE.md`, `# Discussion State
+> Phase: 1.0.1 | Started: 21_03_2026 10:00 | Status: Discussing
 
-## Vấn đề đã chốt
-| # | Vấn đề | Quyết định | Nguồn |
+## Resolved Issues
+| # | Issue | Decision | Source |
 
-## Vấn đề chưa thảo luận
-- Phương thức xác thực
-- Cấu trúc database
+## Unresolved Issues
+- Authentication method
+- Database structure
 `);
     assert.ok(fileExists(root, `${phaseDir}/DISCUSS_STATE.md`));
-    assert.match(readFile(root, `${phaseDir}/DISCUSS_STATE.md`), /Đang thảo luận/);
+    assert.match(readFile(root, `${phaseDir}/DISCUSS_STATE.md`), /Discussing/);
   });
 
-  it('Kịch bản 21b: Resume --discuss đọc từ DISCUSS_STATE', () => {
+  it('Scenario 21b: Resume --discuss reads from DISCUSS_STATE', () => {
     const phaseDir = '.planning/milestones/1.0/phase-1.0.1';
     let state = readFile(root, `${phaseDir}/DISCUSS_STATE.md`);
-    // User chốt 1 vấn đề, 1 còn lại
+    // User resolves 1 issue, 1 remaining
     state = state.replace(
-      '| # | Vấn đề | Quyết định | Nguồn |',
-      '| # | Vấn đề | Quyết định | Nguồn |\n| 1 | Phương thức xác thực | JWT httpOnly | User chọn |'
+      '| # | Issue | Decision | Source |',
+      '| # | Issue | Decision | Source |\n| 1 | Authentication method | JWT httpOnly | User choice |'
     );
     state = state.replace(
-      '- Phương thức xác thực\n',
+      '- Authentication method\n',
       ''
     );
     writeFile(root, `${phaseDir}/DISCUSS_STATE.md`, state);
 
     const resumed = readFile(root, `${phaseDir}/DISCUSS_STATE.md`);
-    assert.match(resumed, /JWT httpOnly/, 'quyết định đã chốt phải giữ lại');
-    assert.match(resumed, /Cấu trúc database/, 'vấn đề chưa thảo luận vẫn tồn tại');
+    assert.match(resumed, /JWT httpOnly/, 'resolved decision must be preserved');
+    assert.match(resumed, /Database structure/, 'unresolved issue must still exist');
   });
 
-  it('Kịch bản 21c: Plan hoàn tất → DISCUSS_STATE cập nhật Hoàn tất', () => {
+  it('Scenario 21c: Plan complete → DISCUSS_STATE updated to Complete', () => {
     const phaseDir = '.planning/milestones/1.0/phase-1.0.1';
     let state = readFile(root, `${phaseDir}/DISCUSS_STATE.md`);
-    state = state.replace('Trạng thái: Đang thảo luận', 'Trạng thái: Hoàn tất');
+    state = state.replace('Status: Discussing', 'Status: Complete');
     writeFile(root, `${phaseDir}/DISCUSS_STATE.md`, state);
 
-    assert.match(readFile(root, `${phaseDir}/DISCUSS_STATE.md`), /Hoàn tất/);
+    assert.match(readFile(root, `${phaseDir}/DISCUSS_STATE.md`), /Complete/);
   });
 });
 
@@ -1643,26 +1643,26 @@ describe('CURRENT_MILESTONE ↔ ROADMAP consistency', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 22a: Phase trong CURRENT_MILESTONE phải tồn tại trong ROADMAP', () => {
+  it('Scenario 22a: Phase in CURRENT_MILESTONE must exist in ROADMAP', () => {
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
     const roadmap = readFile(root, '.planning/ROADMAP.md');
     const phasePattern = new RegExp(`Phase ${cm.phase.replace('.', '\\.')}:`);
     assert.match(roadmap, phasePattern,
-      `phase ${cm.phase} trong CURRENT_MILESTONE phải có trong ROADMAP`);
+      `phase ${cm.phase} in CURRENT_MILESTONE must exist in ROADMAP`);
   });
 
-  it('Kịch bản 22b: Phát hiện phase lỗi (không có trong ROADMAP)', () => {
-    // Giả lập corruption: CURRENT_MILESTONE trỏ đến phase không tồn tại
-    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Milestone hiện tại
+  it('Scenario 22b: Detect invalid phase (not in ROADMAP)', () => {
+    // Simulate corruption: CURRENT_MILESTONE points to non-existent phase
+    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Current Milestone
 - milestone: Consistency
 - version: 1.0
 - phase: 1.0.9
-- status: Đang thực hiện
+- status: In progress
 `);
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
     const roadmap = readFile(root, '.planning/ROADMAP.md');
     const exists = roadmap.includes(`Phase ${cm.phase}:`);
-    assert.ok(!exists, 'phase 1.0.9 KHÔNG có trong ROADMAP → phát hiện corruption');
+    assert.ok(!exists, 'phase 1.0.9 NOT in ROADMAP → corruption detected');
   });
 });
 
@@ -1678,23 +1678,23 @@ describe('REQUIREMENTS.md tracking — Phase completion', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 23a: Yêu cầu cập nhật Hoàn tất khi phase xong', () => {
+  it('Scenario 23a: Requirements update to Complete when phase done', () => {
     let req = readFile(root, '.planning/REQUIREMENTS.md');
-    // Giả lập phase 1 hoàn tất → AUTH-01, AUTH-02 chuyển Hoàn tất
+    // Simulate phase 1 complete → AUTH-01, AUTH-02 change to Complete
     req = req.replace(
-      /AUTH-01 \| Phase 1\.0\.1 \| Chờ triển khai/,
-      'AUTH-01 | Phase 1.0.1 | Hoàn tất'
+      /AUTH-01 \| Phase 1\.0\.1 \| Pending/,
+      'AUTH-01 | Phase 1.0.1 | Complete'
     );
     req = req.replace(
-      /AUTH-02 \| Phase 1\.0\.1 \| Chờ triển khai/,
-      'AUTH-02 | Phase 1.0.1 | Hoàn tất'
+      /AUTH-02 \| Phase 1\.0\.1 \| Pending/,
+      'AUTH-02 | Phase 1.0.1 | Complete'
     );
     writeFile(root, '.planning/REQUIREMENTS.md', req);
 
     const updated = readFile(root, '.planning/REQUIREMENTS.md');
-    assert.match(updated, /AUTH-01.*Hoàn tất/);
-    assert.match(updated, /AUTH-02.*Hoàn tất/);
-    assert.match(updated, /UI-01.*Chờ triển khai/, 'UI-01 chưa xong phải giữ Chờ triển khai');
+    assert.match(updated, /AUTH-01.*Complete/);
+    assert.match(updated, /AUTH-02.*Complete/);
+    assert.match(updated, /UI-01.*Pending/, 'UI-01 not done yet must stay Pending');
   });
 });
 
@@ -1715,23 +1715,23 @@ describe('--auto mode — Phase boundary', () => {
   });
   after(() => fs.rmSync(root, { recursive: true, force: true }));
 
-  it('Kịch bản 24: --auto dừng ở ranh giới phase (INITIAL_PHASE)', () => {
+  it('Scenario 24: --auto stops at phase boundary (INITIAL_PHASE)', () => {
     const INITIAL_PHASE = '1.0.1';
 
-    // Hoàn tất tất cả tasks trong INITIAL_PHASE
+    // Complete all tasks in INITIAL_PHASE
     simWriteCodeTask(root, '1.0', 1, 1);
     simWriteCodeTask(root, '1.0', 1, 2);
     simPhaseComplete(root, '1.0', 1);
 
-    // Auto-advance xảy ra (phase 2 đã plan)
+    // Auto-advance happens (phase 2 already planned)
     const cm = parseMilestone(readFile(root, '.planning/CURRENT_MILESTONE.md'));
-    assert.equal(cm.phase, '1.0.2', 'auto-advance xảy ra');
+    assert.equal(cm.phase, '1.0.2', 'auto-advance happens');
 
-    // --auto loop check: tasks trong INITIAL_PHASE còn ⬜?
+    // --auto loop check: any ⬜ tasks remaining in INITIAL_PHASE?
     const initialTasks = readFile(root, `.planning/milestones/1.0/phase-${INITIAL_PHASE}/TASKS.md`);
     const counts = countTaskStatus(initialTasks);
     const hasWorkLeft = counts.pending > 0 || counts.inProgress > 0;
 
-    assert.ok(!hasWorkLeft, 'INITIAL_PHASE hết task → --auto DỪNG, KHÔNG nhảy sang phase 2');
+    assert.ok(!hasWorkLeft, 'INITIAL_PHASE has no tasks left → --auto STOPS, does NOT jump to phase 2');
   });
 });
