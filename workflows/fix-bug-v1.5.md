@@ -1,438 +1,438 @@
 <purpose>
-Tìm và sửa lỗi theo phương pháp khoa học: thu thập triệu chứng → phân loại rủi ro → giả thuyết → kiểm chứng → cổng kiểm tra → sửa → xác nhận.
-Lưu trạng thái điều tra (.planning/debug/) để tiếp tục khi hội thoại bị mất. Lặp đến khi user xác nhận. Tạo patch version cho milestone đã hoàn tất.
+Find and fix bugs using the scientific method: collect symptoms → risk classification → hypothesis → verification → gate check → fix → confirm.
+Save investigation state (.planning/debug/) to resume when conversation is lost. Loop until user confirms. Create patch version for completed milestones.
 </purpose>
 
 <required_reading>
-Đọc trước khi bắt đầu:
-- @references/conventions.md → version matching, patch version, biểu tượng, commit prefixes
+Read before starting:
+- @references/conventions.md → version matching, patch version, icons, commit prefixes
 </required_reading>
 
 <conditional_reading>
-Doc CHI KHI can:
-- @references/prioritization.md -> phan loai rui ro bug -- KHI nhieu bugs can uu tien
+Read ONLY WHEN needed:
+- @references/prioritization.md -> bug risk classification — WHEN multiple bugs need prioritization
 </conditional_reading>
 
 <process>
 
-## Bước 0.5: Phân tích bug -- quyết định tài liệu tham khảo
-- Nhiều bugs cần ưu tiên? → đọc @references/prioritization.md
-Nếu chỉ có 1 bug → BỎ QUA.
+## Step 0.5: Analyze bug — determine reference documents
+- Multiple bugs need prioritization? → read @references/prioritization.md
+If only 1 bug → SKIP.
 
-## Bước 1: Kiểm tra phiên điều tra + thu thập triệu chứng
+## Step 1: Check investigation session + collect symptoms
 
-`git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT`
+`git rev-parse --git-dir 2>/dev/null` → store `HAS_GIT`
 `mkdir -p .planning/debug`
 
-### 1a. Kiểm tra phiên điều tra đang mở
-Glob `.planning/debug/SESSION_*.md` → Grep `> Trạng thái:` → lọc **có thể tiếp tục**:
-- `Đang điều tra`, `Điểm dừng`, `Chờ quyết định`, `Tạm dừng`
+### 1a. Check for open investigation sessions
+Glob `.planning/debug/SESSION_*.md` → Grep `> Status:` → filter **resumable**:
+- `Investigating`, `Checkpoint`, `Awaiting decision`, `Paused`
 
-Trạng thái **KHÔNG tự liệt kê** (chỉ mở khi user nêu rõ):
-- `Đã tìm nguyên nhân`, `Đã giải quyết`, `Chưa kết luận` (→ nhảy **Bước 5c** với thông tin mới)
+Statuses **NOT self-listed** (only open when user explicitly mentions):
+- `Root cause found`, `Resolved`, `Inconclusive` (→ jump **Step 5c** with new information)
 
-- Có phiên tiếp tục được VÀ không có $ARGUMENTS → liệt kê (trạng thái + giả thuyết + việc tiếp):
-  - `Đang điều tra` / `Tạm dừng` → **Bước 5c**
-  - `Điểm dừng` → hiển thị câu hỏi, chờ trả lời → **Bước 5c**
-  - `Chờ quyết định` → hiển thị phương án, chờ chọn → **Bước 6b** rồi **6c**
-- Có $ARGUMENTS → tiếp tục thu thập mới
+- Has resumable session AND no $ARGUMENTS → list (status + hypothesis + next action):
+  - `Investigating` / `Paused` → **Step 5c**
+  - `Checkpoint` → display question, wait for answer → **Step 5c**
+  - `Awaiting decision` → display options, wait for selection → **Step 6b** then **6c**
+- Has $ARGUMENTS → continue collecting new symptoms
 
-Có báo cáo lỗi mở (`.planning/bugs/BUG_*.md` → Grep `Trạng thái: (Chưa xử lý|Đang sửa)`):
-- Liệt kê → user chọn → đọc báo cáo → điền triệu chứng → nhảy Bước 3
+Has open bug report (`.planning/bugs/BUG_*.md` → Grep `Status: (Unresolved|Fixing)`):
+- List → user selects → read report → fill in symptoms → jump Step 3
 
-### 1b. Thu thập triệu chứng (lỗi mới)
-Thu đủ 5 thông tin — từ $ARGUMENTS hoặc hỏi:
-1. **Mong đợi** — Lẽ ra thế nào?
-2. **Thực tế** — Xảy ra gì?
-3. **Thông báo lỗi** — Log/error cụ thể?
-4. **Dòng thời gian** — Khi nào? Trước đó bình thường? Thay đổi gần đây?
-5. **Tái hiện** — Làm gì để lỗi xảy ra lại?
+### 1b. Collect symptoms (new bug)
+Collect 5 pieces of information — from $ARGUMENTS or ask:
+1. **Expected** — What should have happened?
+2. **Actual** — What happened instead?
+3. **Error message** — Specific log/error?
+4. **Timeline** — When? Was it working before? Recent changes?
+5. **Reproduction** — Steps to reproduce?
 
-$ARGUMENTS đủ → KHÔNG hỏi thêm, tự trích xuất.
-Thiếu (#2, #5) → hỏi bổ sung.
-Hỏi kèm gợi ý đáp án phổ biến + cho phép tự nhập.
-Sau 5 triệu chứng vẫn thiếu context → linh hoạt hỏi thêm (route, payload, log...).
+$ARGUMENTS sufficient → DO NOT ask more, extract directly.
+Missing (#2, #5) → ask for additional info.
+Ask with common answer suggestions + allow custom input.
+After 5 symptoms still missing context → flexibly ask more (route, payload, log...).
 
-## Bước 2: Xác định patch version
+## Step 2: Determine patch version
 
-Xem @references/conventions.md → 'Patch version'.
+See @references/conventions.md → 'Patch version'.
 
-- `.planning/CURRENT_MILESTONE.md` → version hiện tại
-- Không tồn tại → hỏi user version, bỏ qua logic so sánh
-- So sánh version lỗi với hiện tại:
+- `.planning/CURRENT_MILESTONE.md` → current version
+- Does not exist → ask user for version, skip comparison logic
+- Compare bug version with current:
 
-| Trường hợp | Patch version |
-|-----------|---------------|
-| Lỗi version CŨ (milestone hoàn tất) | Glob bugs/ → Grep patch version → tìm cao nhất → +1 hoặc `[version-gốc].1` |
-| Lỗi version HIỆN TẠI | `[version].0` hoặc tìm cao nhất → +1 |
+| Case | Patch version |
+|------|--------------|
+| Bug in OLD version (milestone completed) | Glob bugs/ → Grep patch version → find highest → +1 or `[base-version].1` |
+| Bug in CURRENT version | `[version].0` or find highest → +1 |
 
-- User không chỉ rõ version → hỏi
-- `.planning/milestones/[version-gốc]/` không tồn tại → "Kiểm tra version." → **DỪNG**
+- User does not specify version → ask
+- `.planning/milestones/[base-version]/` does not exist → "Check version." → **STOP**
 
-## Bước 3: Đọc tài liệu kỹ thuật (CHỈ PHẦN LIÊN QUAN)
-Dùng **version gốc** (KHÔNG dùng patch version):
+## Step 3: Read technical documentation (ONLY RELEVANT PARTS)
+Use **base version** (NOT patch version):
 
-**Tìm phase liên quan TRƯỚC:**
-1. Grep chức năng lỗi trong `.planning/milestones/[version-gốc]/phase-*/PLAN.md`
-2. CHỈ đọc PLAN.md + CODE_REPORT của phase(s) liên quan
-3. Grep không khớp → mở rộng tìm tất cả PLAN.md
+**Find related phase FIRST:**
+1. Grep the buggy feature in `.planning/milestones/[base-version]/phase-*/PLAN.md`
+2. ONLY read PLAN.md + CODE_REPORT of related phase(s)
+3. Grep no match → expand search to all PLAN.md files
 
-- PLAN.md → thiết kế, API, database
-- CODE_REPORT → files đã tạo, quyết định kỹ thuật
-- `.planning/rules/` → quy ước code
+- PLAN.md → design, API, database
+- CODE_REPORT → files created, technical decisions
+- `.planning/rules/` → code conventions
 
-## Bước 4: Tìm hiểu files liên quan
+## Step 4: Investigate related files
 `mcp__fastcode__code_qa`:
-1. Files liên quan [chức năng lỗi]?
-2. Backend: luồng controller → service → database?
+1. Files related to [buggy feature]?
+2. Backend: controller → service → database flow?
 3. Frontend: components, stores, API calls?
 
-FastCode lỗi → Grep/Read. Cảnh báo: "FastCode không khả dụng."
+FastCode error → Grep/Read. Warning: "FastCode unavailable."
 
-**Lỗi liên quan thư viện** → Thực hiện theo @references/context7-pipeline.md
+**Library-related bug** → Follow @references/context7-pipeline.md
 
-## Bước 5: Phân tích theo phương pháp khoa học
+## Step 5: Analyze using the scientific method
 
-### 5a. Tạo/cập nhật phiên điều tra
-`.planning/debug/SESSION_[tên-tắt].md`
-**Tên-tắt**: viết thường, gạch ngang, tối đa 30 ký tự (VD: `login-timeout`, `cart-empty`)
+### 5a. Create/update investigation session
+`.planning/debug/SESSION_[short-name].md`
+**Short-name**: lowercase, hyphenated, max 30 characters (e.g.: `login-timeout`, `cart-empty`)
 
 ```markdown
-# Phiên điều tra: [tên-tắt]
-> Bắt đầu: [DD_MM_YYYY HH:MM] | Trạng thái: Đang điều tra
-> Phân loại: [🟢/🟡/🟠/🔴/🔵 — xem Bước 6a]
-> Báo cáo lỗi: BUG_[timestamp].md (liên kết sau Bước 7)
+# Investigation session: [short-name]
+> Started: [DD_MM_YYYY HH:MM] | Status: Investigating
+> Classification: [🟢/🟡/🟠/🔴/🔵 — see Step 6a]
+> Bug report: BUG_[timestamp].md (linked after Step 7)
 
-## Triệu chứng
-- **Mong đợi:** [...]
-- **Thực tế:** [...]
-- **Thông báo lỗi:** [...]
-- **Dòng thời gian:** [...]
-- **Tái hiện:** [...]
+## Symptoms
+- **Expected:** [...]
+- **Actual:** [...]
+- **Error message:** [...]
+- **Timeline:** [...]
+- **Reproduction:** [...]
 
-## Tái hiện tối giản (nếu cần)
-## Giả thuyết
-### GT1: [mô tả]
-- **Kiểm tra bằng:** [...]
-- **Bằng chứng:** [...]
-- **Kết quả:** ✅ Đúng / ❌ Sai / ⏳ Chưa kiểm tra
+## Minimal reproduction (if needed)
+## Hypotheses
+### H1: [description]
+- **Test by:** [...]
+- **Evidence:** [...]
+- **Result:** ✅ Correct / ❌ Wrong / ⏳ Not yet tested
 
-## Files đã kiểm tra
-- `[file:dòng]`: [phát hiện]
+## Files examined
+- `[file:line]`: [finding]
 
-## Kết luận
+## Conclusion
 ```
 
-### 5b. Tái hiện tối giản (cho lỗi khó)
-**Khi cần:** bước tái hiện không rõ, lúc có lúc không, hoặc 5+ bước.
-Tìm đường ngắn nhất → loại yếu tố nhiễu → ghi SESSION → dùng làm cơ sở giả thuyết.
-Lỗi rõ ràng (thông báo chỉ thẳng file/dòng) → bỏ qua.
+### 5b. Minimal reproduction (for difficult bugs)
+**When needed:** reproduction steps unclear, intermittent, or 5+ steps.
+Find shortest path → eliminate noise factors → record in SESSION → use as basis for hypotheses.
+Obvious error (message points directly to file/line) → skip.
 
-### 5b.1: Tạo Reproduction Test (SAU giả thuyết, TRƯỚC fix)
+### 5b.1: Create Reproduction Test (AFTER hypothesis, BEFORE fix)
 
-**CHỈ KHI** có đủ triệu chứng (Bước 1b) VÀ file lỗi đã xác định (Bước 4).
+**ONLY WHEN** symptoms are sufficient (Step 1b) AND buggy file identified (Step 4).
 
 1. `mkdir -p .planning/debug/repro`
-2. Gọi `generateReproTest()` từ `bin/lib/repro-test-generator.js`:
-   - Input: `{ symptoms }` (từ Bước 1b), `bugTitle` (từ SESSION tên-tắt), `filePath` (từ Bước 4), `functionName` (nếu có)
-   - **Lỗi → DỪNG.** Báo: "Không tạo được reproduction test: [lỗi]"
-3. Ghi file `.planning/debug/repro/[testFileName]`
-4. Ghi SESSION: `Reproduction test: .planning/debug/repro/[testFileName]`
+2. Call `generateReproTest()` from `bin/lib/repro-test-generator.js`:
+   - Input: `{ symptoms }` (from Step 1b), `bugTitle` (from SESSION short-name), `filePath` (from Step 4), `functionName` (if available)
+   - **Error → STOP.** Report: "Could not create reproduction test: [error]"
+3. Write file `.planning/debug/repro/[testFileName]`
+4. Record in SESSION: `Reproduction test: .planning/debug/repro/[testFileName]`
 
-### 5c. Hình thành + kiểm chứng giả thuyết
+### 5c. Form + verify hypotheses
 
-CONTEXT.md → stack → đọc `.planning/rules/[stack].md` → truy vết luồng:
-Khong xac dinh duoc stack tu CONTEXT.md → dung luong truy vet generic: entry point → handler → business logic → data layer → response. Ghi note: "Stack khong xac dinh, dung luong generic."
+CONTEXT.md → stack → read `.planning/rules/[stack].md` → trace flow:
+Cannot determine stack from CONTEXT.md → use generic trace flow: entry point → handler → business logic → data layer → response. Note: "Stack unidentified, using generic flow."
 
-| Stack | Luồng |
-|-------|-------|
+| Stack | Flow |
+|-------|------|
 | NestJS | request → controller → service → database → response |
-| NextJS | page/component → store → API call → hiển thị |
+| NextJS | page/component → store → API call → display |
 | WordPress | hook/action → callback → $wpdb → output |
 | Solidity | function → require → state change → external → events |
 | Flutter | View (Obx) → Logic (GetxController) → Repository → API → Response |
-| Generic/Khac | entry point → handler → business logic → data layer → response |
+| Generic/Other | entry point → handler → business logic → data layer → response |
 
-**Quy trình:**
-1. Triệu chứng + truy vết → 1-3 giả thuyết
-2. Mỗi GT: xác định cách kiểm tra → thu thập bằng chứng → ✅ Đúng (nguyên nhân gốc) / ❌ Sai (loại, ghi lý do)
-3. Cập nhật SESSION sau mỗi GT
-4. Tất cả sai → mở rộng phạm vi, giả thuyết mới
+**Process:**
+1. Symptoms + trace → 1-3 hypotheses
+2. Each hypothesis: determine how to test → gather evidence → ✅ Correct (root cause) / ❌ Wrong (eliminate, record reason)
+3. Update SESSION after each hypothesis
+4. All wrong → expand scope, new hypotheses
 
-**Điểm dừng** (cần user xác minh):
-- SESSION: `> Trạng thái: Điểm dừng`
-- Thêm section `## Điểm dừng [N]` (Loại, Câu hỏi, Trả lời)
-- User trả lời → cập nhật → `Đang điều tra` → tiếp tục
+**Checkpoint** (needs user verification):
+- SESSION: `> Status: Checkpoint`
+- Add section `## Checkpoint [N]` (Type, Question, Answer)
+- User answers → update → `Investigating` → continue
 
-**Chung:** tìm file + dòng gây lỗi, giải thích tại sao, đánh giá ảnh hưởng.
+**General:** find file + line causing the bug, explain why, assess impact.
 
-## Bước 6: Đánh giá kết quả điều tra
+## Step 6: Evaluate investigation results
 
-### 6a. Phân loại rủi ro
-Phân loại theo @references/prioritization.md → 'Phân loại rủi ro bug'. Cập nhật SESSION.
-Ảnh hưởng: format báo cáo (Bước 7), mức kiểm thử (Bước 8), chiến lược commit (Bước 9).
+### 6a. Risk classification
+Classify per @references/prioritization.md → 'Bug risk classification'. Update SESSION.
+Impact: report format (Step 7), test level (Step 8), commit strategy (Step 9).
 
-### 6a.1. Effort routing cho fix-bug
+### 6a.1. Effort routing for fix-bug
 
-fix-bug luon chay voi sonnet (theo skill file `commands/pd/fix-bug.md` line 4: `model: sonnet`). Effort routing khong ap dung cho fix-bug -- agent da duoc spawn voi model co dinh truoc khi workflow chay.
+fix-bug always runs with sonnet (per skill file `commands/pd/fix-bug.md` line 4: `model: sonnet`). Effort routing does not apply to fix-bug — the agent is already spawned with a fixed model before the workflow runs.
 
-### 6b. Đánh giá kết quả
+### 6b. Evaluate results
 
-**✅ Tìm được nguyên nhân, cách sửa rõ** → SESSION `Đã tìm nguyên nhân` + điền Kết luận → Bước 6c
+**✅ Root cause found, fix is clear** → SESSION `Root cause found` + fill Conclusion → Step 6c
 
-**⚠️ Tìm được nhưng CẦN USER QUYẾT ĐỊNH** (di chuyển dữ liệu, logic auth/thanh toán/contract, phá API cũ, nhiều cách sửa):
-- SESSION `Chờ quyết định`
-- Trình bày: nguyên nhân + phương án A/B (ưu/nhược)
-- User chọn → Bước 6c
+**⚠️ Found but NEEDS USER DECISION** (data migration, auth/payment/contract logic, breaking old API, multiple fix options):
+- SESSION `Awaiting decision`
+- Present: root cause + option A/B (pros/cons)
+- User selects → Step 6c
 
-**❌ Không tìm được** → SESSION `Chưa kết luận`:
-- Báo: "[N] giả thuyết đã kiểm tra, chưa xác định nguyên nhân."
-- Gợi ý: (1) Bổ sung thông tin, (2) Mở rộng phạm vi, (3) Thêm log tạm
-- User bổ sung → cập nhật SESSION → **Bước 5c**
-- User dừng → SESSION `Tạm dừng`
-- KHÔNG tạo BUG_*.md khi chưa tìm nguyên nhân
+**❌ Not found** → SESSION `Inconclusive`:
+- Report: "[N] hypotheses tested, root cause not identified."
+- Suggest: (1) Provide more information, (2) Expand scope, (3) Add temporary logs
+- User provides more → update SESSION → **Step 5c**
+- User stops → SESSION `Paused`
+- DO NOT create BUG_*.md when root cause not found
 
-### 6c. Cổng kiểm tra trước khi sửa
-**3 điều kiện BẮT BUỘC:**
-1. Đã tái hiện HOẶC bằng chứng thay thế đủ mạnh (log rõ ràng, lỗi logic hiển nhiên, dấu vết chỉ thẳng dòng)
-2. Đã xác định file + logic cụ thể
-3. Đã có kế hoạch kiểm tra sau sửa
+### 6c. Gate check before fixing
+**3 REQUIRED conditions:**
+1. Reproduced OR sufficiently strong alternative evidence (clear logs, obvious logic error, trace points directly to line)
+2. Specific file + logic identified
+3. Post-fix testing plan in place
 
-Thiếu điều kiện → quay Bước 5b/5c. Đủ → Bước 6.5 (nếu logic bug) hoặc Bước 7.
+Missing condition → go back to Step 5b/5c. All met → Step 6.5 (if logic bug) or Step 7.
 
-## Bước 6.5: Logic Update — cập nhật Truth khi bug do logic sai
+## Step 6.5: Logic Update — update Truth when bug is caused by wrong logic
 
-**Phân loại:** Nguyên nhân bug (từ Bước 6b) liên quan đến business logic / Truth trong PLAN.md?
-- Typo, off-by-one, import thiếu, lỗi cú pháp → KHÔNG phải logic bug → **skip 6.5, tới Bước 7**
-- Logic tính toán sai, điều kiện nghiệp vụ sai, edge case thiếu, giá trị ngưỡng sai → **logic bug → tiếp tục 6.5**
+**Classification:** Root cause (from Step 6b) related to business logic / Truth in PLAN.md?
+- Typo, off-by-one, missing import, syntax error → NOT a logic bug → **skip 6.5, go to Step 7**
+- Wrong calculation logic, wrong business condition, missing edge case, wrong threshold value → **logic bug → continue 6.5**
 
-### 6.5a. Tìm PLAN.md liên quan
-Dùng cùng strategy Bước 3: Grep `.planning/milestones/[version-gốc]/phase-*/PLAN.md` → tìm bảng Truths 5 cột.
-Không tìm thấy PLAN.md → ghi vào BUG report: "Không có PLAN.md để cập nhật Truth". Skip 6.5, tới Bước 7.
+### 6.5a. Find related PLAN.md
+Use same strategy as Step 3: Grep `.planning/milestones/[base-version]/phase-*/PLAN.md` → find 5-column Truths table.
+No PLAN.md found → record in BUG report: "No PLAN.md to update Truth". Skip 6.5, go to Step 7.
 
-### 6.5b. Xác định Truth cần sửa
-- CHỈ sửa Truth hiện có, KHÔNG thêm Truth mới
-- CHỈ sửa cột liên quan (Sự thật, Trường hợp biên, Cách kiểm chứng — hoặc nhiều cột)
-- Logic thiếu hoàn toàn → ghi Deferred, KHÔNG thêm Truth mới
+### 6.5b. Identify Truth to fix
+- ONLY modify existing Truths, DO NOT add new Truths
+- ONLY modify relevant columns (Truth, Edge cases, How to verify — or multiple columns)
+- Logic completely missing → record Deferred, DO NOT add new Truth
 
-### 6.5c. Xác nhận với user
+### 6.5c. Confirm with user
 
 ```
-Bug này do Truth sai — cần cập nhật PLAN.md:
+This bug is caused by a wrong Truth — need to update PLAN.md:
 
-| Truth | Hiện tại | Sửa thành |
+| Truth | Current | Change to |
 |-------|---------|-----------|
-| T[x] | [giá trị cũ] | [giá trị mới] |
+| T[x] | [old value] | [new value] |
 
-Đồng ý sửa PLAN.md? (Y/n)
+Agree to update PLAN.md? (Y/n)
 ```
 
-- User đồng ý → 6.5d
-- User bác ("không phải logic bug") → skip 6.5, ghi SESSION: "User bác phân loại logic bug" → Bước 7
+- User agrees → 6.5d
+- User rejects ("not a logic bug") → skip 6.5, record in SESSION: "User rejected logic bug classification" → Step 7
 
-### 6.5d. Cập nhật PLAN.md + commit
-- Sửa bảng Truths trong PLAN.md (CHỈ PLAN.md, KHÔNG sửa TASKS.md)
-- Giá trị cũ ghi trong BUG report "Phân tích nguyên nhân"
-- Commit riêng:
+### 6.5d. Update PLAN.md + commit
+- Fix Truths table in PLAN.md (ONLY PLAN.md, DO NOT modify TASKS.md)
+- Old value recorded in BUG report "Root cause analysis"
+- Separate commit:
   ```
   git add [PLAN.md path]
-  git commit -m "[LỖI] Cập nhật Truth [TX]: [tóm tắt thay đổi]"
+  git commit -m "[BUG] Update Truth [TX]: [change summary]"
   ```
-- Tiếp tục Bước 7
+- Continue to Step 7
 
-## Bước 7: Viết báo cáo lỗi
+## Step 7: Write bug report
 `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 
 ```markdown
-# Báo cáo lỗi
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: Nghiêm trọng/Cao/Trung bình/Nhẹ
-> Trạng thái: Đang sửa | Chức năng: [Tên] | Task: [N] (nếu biết)
-> Patch version: [x.x.x] | Lần sửa: 1
-> Phân loại: [🟢/🟡/🟠/🔴/🔵 tên loại]
-> Phiên điều tra: SESSION_[tên-tắt].md
+# Bug report
+> Date: [DD_MM_YYYY HH:MM:SS] | Severity: Critical/High/Medium/Low
+> Status: Fixing | Feature: [Name] | Task: [N] (if known)
+> Patch version: [x.x.x] | Fix attempt: 1
+> Classification: [🟢/🟡/🟠/🔴/🔵 classification name]
+> Investigation session: SESSION_[short-name].md
 
-## Mô tả lỗi
-## Triệu chứng
-- **Mong đợi:** | **Thực tế:** | **Dòng thời gian:**
-## Bước tái hiện
-1. → 2. → Lỗi
+## Bug description
+## Symptoms
+- **Expected:** | **Actual:** | **Timeline:**
+## Reproduction steps
+1. → 2. → Error
 
-## Phân tích nguyên nhân
-### Giả thuyết đã kiểm tra:
-- GT1: [mô tả] → ❌ Loại bỏ vì [lý do]
-- GT2: [mô tả] → ✅ **Nguyên nhân gốc**
+## Root cause analysis
+### Hypotheses tested:
+- H1: [description] → ❌ Eliminated because [reason]
+- H2: [description] → ✅ **Root cause**
 
-### [Phần code/thay đổi — TÙY phân loại]:
-🟢🟡🟠🔴 Lỗi code → Code TRƯỚC/SAU (file, code gốc → nguyên nhân, code sửa)
-🔵 Hạ tầng/cấu hình → Tóm tắt (file, giá trị cũ → mới, lý do)
+### [Code/change section — DEPENDS ON classification]:
+🟢🟡🟠🔴 Code bug → Code BEFORE/AFTER (file, original code → cause, fixed code)
+🔵 Infrastructure/config → Summary (file, old value → new, reason)
 
-## Logic Changes (nếu có)
-| Truth ID | Thay đổi | Lý do |
-|----------|---------|-------|
+## Logic Changes (if any)
+| Truth ID | Change | Reason |
+|----------|--------|--------|
 
-## Ảnh hưởng
-## Kế hoạch kiểm tra
-## Xác nhận
-- [ ] Đã áp dụng bản sửa
-- [ ] User xác nhận đúng
-- [ ] Không phát sinh lỗi mới
+## Impact
+## Testing plan
+## Confirmation
+- [ ] Fix applied
+- [ ] User confirmed correct
+- [ ] No new bugs introduced
 ```
 
-Cập nhật liên kết trong SESSION file.
+Update link in SESSION file.
 
-## Bước 8: Sửa code
+## Step 8: Fix code
 
-### 8a: Phân tích Regression (TRƯỚC khi sửa)
+### 8a: Regression analysis (BEFORE fixing)
 
-**CHỈ KHI** đã xác định file lỗi (Bước 4).
+**ONLY WHEN** buggy file identified (Step 4).
 
-1. Thử FastCode `code_qa` hỏi: "Liệt kê các files import hoặc gọi [function] trong [targetFile]"
-   - Thành công → gọi `analyzeFromCallChain()` từ `bin/lib/regression-analyzer.js`:
+1. Try FastCode `code_qa` asking: "List files that import or call [function] in [targetFile]"
+   - Success → call `analyzeFromCallChain()` from `bin/lib/regression-analyzer.js`:
      Input: `{ callChainText, targetFile, targetFunction }`
-   - FastCode lỗi → đọc source files quanh targetFile → gọi `analyzeFromSourceFiles()`:
+   - FastCode error → read source files around targetFile → call `analyzeFromSourceFiles()`:
      Input: `{ sourceFiles: [{path, content}], targetFile, targetFunction }`
-   - **Lỗi → DỪNG.** Báo: "Không phân tích được regression: [lỗi]"
-2. Kết quả `affectedFiles` (tối đa 5) → ghi vào BUG report section "Ảnh hưởng"
-3. Ghi SESSION: `Regression: [số] files bị ảnh hưởng`
+   - **Error → STOP.** Report: "Could not analyze regression: [error]"
+2. Result `affectedFiles` (max 5) → record in BUG report "Impact" section
+3. Record in SESSION: `Regression: [count] affected files`
 
-- Áp dụng bản sửa, tuân thủ `.planning/rules/`
-- Cập nhật JSDoc nếu logic thay đổi (tiếng Việt)
-- Lint + build đúng thư mục (xem rules/[stack].md → **Build & Lint**)
+- Apply fix, follow `.planning/rules/`
+- Update JSDoc if logic changes (Vietnamese with diacritics)
+- Lint + build in correct directory (see rules/[stack].md → **Build & Lint**)
 
-**Kiểm thử theo phân loại:**
+**Testing by classification:**
 
-| Phân loại | Yêu cầu |
-|-----------|---------|
-| 🟢 Sửa nhanh | lint + build qua đủ |
-| 🟡 Lỗi logic | PHẢI thêm/cập nhật test |
-| 🟠 Lỗi dữ liệu | sao lưu trước, kiểm tra toàn vẹn sau |
-| 🔴 Bảo mật | test BẮT BUỘC + xác nhận user trước áp dụng |
-| 🔵 Hạ tầng | kiểm tra cấu hình đúng môi trường |
+| Classification | Requirements |
+|---------------|-------------|
+| 🟢 Quick fix | lint + build pass is sufficient |
+| 🟡 Logic bug | MUST add/update tests |
+| 🟠 Data bug | backup first, verify integrity after |
+| 🔴 Security | tests REQUIRED + user confirmation before applying |
+| 🔵 Infrastructure | verify config in correct environment |
 
-## Bước 9: Git commit (CHỈ HAS_GIT = true)
+## Step 9: Git commit (ONLY HAS_GIT = true)
 
-### 9a: Dọn dẹp debug log + Cảnh báo bảo mật (TRƯỚC commit)
+### 9a: Debug log cleanup + Security warnings (BEFORE commit)
 
 **1. Debug cleanup:**
-`git diff --cached --name-only` → Read nội dung từng staged file → gọi `scanDebugMarkers(stagedFiles)` từ `bin/lib/debug-cleanup.js`
-- Input: `[{path, content}]` từ staged files
-- Kết quả rỗng → bỏ qua, không hiện gì (D-06)
-- Có kết quả → hiện danh sách group theo file (D-04):
+`git diff --cached --name-only` → Read content of each staged file → call `scanDebugMarkers(stagedFiles)` from `bin/lib/debug-cleanup.js`
+- Input: `[{path, content}]` from staged files
+- Empty result → skip, show nothing (D-06)
+- Has results → display list grouped by file (D-04):
   ```
-  [PD-DEBUG] Tìm thấy debug markers:
+  [PD-DEBUG] Found debug markers:
     src/app.js:
-      Dòng 15: console.log('[PD-DEBUG] giá trị x:', x)
-      Dòng 42: // [PD-DEBUG] tạm thời
+      Line 15: console.log('[PD-DEBUG] value x:', x)
+      Line 42: // [PD-DEBUG] temporary
     src/utils.js:
-      Dòng 8: logger.info('[PD-DEBUG] check')
-  Xóa tất cả debug markers? (Y/n)
+      Line 8: logger.info('[PD-DEBUG] check')
+  Remove all debug markers? (Y/n)
   ```
-- User chọn Y → dùng Edit tool xóa từng dòng có marker → `git add` lại files đã sửa
-- User chọn n → hiện: "⚠️ Debug markers vẫn còn trong commit" → tiếp tục (D-07, non-blocking)
+- User selects Y → use Edit tool to remove each line with marker → `git add` modified files again
+- User selects n → display: "⚠️ Debug markers still present in commit" → continue (D-07, non-blocking)
 
 **2. Security check:**
-`.planning/scan/SCAN_REPORT.md` tồn tại VÀ mtime < 7 ngày?
-- Không → bỏ qua, không hiện gì (D-08)
-- Có → Read nội dung → gọi `matchSecurityWarnings(reportContent, filePaths)` từ `bin/lib/debug-cleanup.js`
-  - Kết quả rỗng → bỏ qua
-  - Có cảnh báo (tối đa 3, D-09) → hiện non-blocking (D-10):
+`.planning/scan/SCAN_REPORT.md` exists AND mtime < 7 days?
+- No → skip, show nothing (D-08)
+- Yes → Read content → call `matchSecurityWarnings(reportContent, filePaths)` from `bin/lib/debug-cleanup.js`
+  - Empty result → skip
+  - Has warnings (max 3, D-09) → display non-blocking (D-10):
     ```
-    ⚠️ Cảnh báo bảo mật liên quan:
+    ⚠️ Related security warnings:
     - src/auth.js: [high] SQL injection risk in query builder
     - src/api.js: [moderate] Missing input validation
     ```
-  - Tiếp tục commit (non-blocking)
+  - Continue with commit (non-blocking)
 
 ### 9b: Git commit
 
-**Commit theo phân loại:**
-- 🟢🟡🔵: sửa code + báo cáo + phiên điều tra trong 1 commit
-- 🟠: commit riêng cho migration/sửa dữ liệu, commit riêng sửa code
-- 🔴: commit riêng, KHÔNG gộp thay đổi không liên quan
+**Commit by classification:**
+- 🟢🟡🔵: code fix + report + investigation session in 1 commit
+- 🟠: separate commit for migration/data fix, separate commit for code fix
+- 🔴: separate commit, DO NOT bundle unrelated changes
 
 ```
-git add [files sửa] .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md
-git commit -m "[LỖI] Khắc phục [tóm tắt]
+git add [fixed files] .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md
+git commit -m "[BUG] Fix [summary]
 
-Phân loại: [🟢/🟡/🟠/🔴/🔵]
-Nguyên nhân: [...]
-Files: [file]: [thay đổi]"
+Classification: [🟢/🟡/🟠/🔴/🔵]
+Root cause: [...]
+Files: [file]: [change]"
 ```
 
-## Bước 10: Yêu cầu xác nhận
-> "Đã sửa [mô tả]. Vui lòng kiểm tra và xác nhận."
+## Step 10: Request confirmation
+> "Fixed [description]. Please check and confirm."
 
-### User xác nhận ĐÃ SỬA:
-- Báo cáo: Trạng thái → Đã giải quyết, tick checklist
-- Phiên điều tra: `Đã giải quyết`
-- TASKS.md: dùng version GỐC (KHÔNG version hiện tại) → Glob `.planning/milestones/[version-gốc]/phase-*/TASKS.md` → Grep task → 🐛 → ✅ CẢ HAI nơi (bảng + detail)
+### User confirms FIXED:
+- Report: Status → Resolved, tick checklist
+- Investigation session: `Resolved`
+- TASKS.md: use BASE version (NOT current version) → Glob `.planning/milestones/[base-version]/phase-*/TASKS.md` → Grep task → 🐛 → ✅ BOTH places (table + detail)
 - HAS_GIT:
 ```
 git add .planning/bugs/BUG_[...].md .planning/debug/SESSION_[...].md .planning/milestones/[...]/TASKS.md
-git commit -m '[LỖI] Xác nhận đã khắc phục [tóm tắt]'
+git commit -m '[BUG] Confirmed fix [summary]'
 ```
 
-### 10a. Đồng bộ logic và báo cáo (non-blocking)
+### 10a. Sync logic and reports (non-blocking)
 
-> Toàn bộ bước này là non-blocking — lỗi chỉ tạo warning, KHÔNG chặn workflow.
+> This entire step is non-blocking — errors only create warnings, DO NOT block workflow.
 
 **1. Logic detection (LOGIC-01):**
-`git diff HEAD~1` → gọi `detectLogicChanges(diffText)` từ `bin/lib/logic-sync.js`
-- Ghi BUG report: "Thay đổi logic: CÓ/KHÔNG" + signals (nếu có)
+`git diff HEAD~1` → call `detectLogicChanges(diffText)` from `bin/lib/logic-sync.js`
+- Record in BUG report: "Logic changes: YES/NO" + signals (if any)
 
-**2. Report update (RPT-01) — CHỈ KHI hasLogicChange = CÓ:**
-Glob `.planning/reports/*.md` + `.planning/milestones/*/` → file mới nhất theo mtime
-- Không có report → warning: "Không tìm thấy report để cập nhật"
-- Có → gọi `updateReportDiagram({reportContent, planContents})` → ghi file
-- Hỏi: "Cập nhật lại PDF? (Y/n)" → Y: `node bin/generate-pdf-report.js [path]`
+**2. Report update (RPT-01) — ONLY WHEN hasLogicChange = YES:**
+Glob `.planning/reports/*.md` + `.planning/milestones/*/` → newest file by mtime
+- No report → warning: "No report found to update"
+- Found → call `updateReportDiagram({reportContent, planContents})` → write file
+- Ask: "Update PDF? (Y/n)" → Y: `node bin/generate-pdf-report.js [path]`
 
 **3. Rule suggestion (PM-01):**
-Đọc SESSION + BUG report + CLAUDE.md → gọi `suggestClaudeRules({sessionContent, bugReportContent, claudeContent})`
-- Có đề xuất → hiện: "[Đề xuất rule] ..." → hỏi "Thêm vào CLAUDE.md? (Y/n)"
-- Y → append rules vào cuối CLAUDE.md → `git add CLAUDE.md && git commit -m '[LỖI] Thêm rule từ post-mortem'`
+Read SESSION + BUG report + CLAUDE.md → call `suggestClaudeRules({sessionContent, bugReportContent, claudeContent})`
+- Has suggestions → display: "[Rule suggestion] ..." → ask "Add to CLAUDE.md? (Y/n)"
+- Y → append rules to end of CLAUDE.md → `git add CLAUDE.md && git commit -m '[BUG] Add rule from post-mortem'`
 
-### User báo CHƯA SỬA:
-- Thu thập thêm (triệu chứng mới?)
-- Báo cáo: tăng "Lần sửa", thêm section "Lần sửa [N]"
-- Phiên điều tra: giả thuyết mới, bằng chứng mới
-- Quay **Bước 5c** — giả thuyết mới từ bằng chứng mới
-- Mỗi lần sửa commit [LỖI]
-- 3+ lần → gợi ý: phân tích lại, thay đổi cách tiếp cận, thêm log tạm
-- **TIẾP TỤC cho đến khi user xác nhận**
+### User reports NOT FIXED:
+- Collect more info (new symptoms?)
+- Report: increment "Fix attempt", add section "Fix attempt [N]"
+- Investigation session: new hypotheses, new evidence
+- Return to **Step 5c** — new hypotheses from new evidence
+- Each fix attempt committed with [BUG]
+- 3+ attempts → suggest: re-analyze, change approach, add temporary logs
+- **CONTINUE until user confirms**
 
 </process>
 
 <rules>
-- Tuân thủ `.planning/rules/` (general + stack-specific)
-- CẤM đọc/hiển thị file nhạy cảm (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
-- PHẢI đọc PLAN.md + CODE_REPORT trước khi sửa (CHỈ phase liên quan)
-- PHẢI tìm hiểu trước khi sửa — KHÔNG đoán mò
-- PHẢI hình thành giả thuyết trước khi sửa — KHÔNG sửa mò
-- PHẢI qua cổng kiểm tra (tái hiện/bằng chứng + file/logic cụ thể + kế hoạch kiểm tra) trước khi sửa
-- PHẢI phân loại rủi ro → quyết định kiểm thử + commit strategy
-- PHẢI viết báo cáo lỗi: code TRƯỚC/SAU (lỗi code) hoặc tóm tắt (hạ tầng)
-- PHẢI duy trì phiên điều tra (.planning/debug/) — cập nhật sau mỗi bước
-- KHÔNG tạo BUG_*.md khi chưa qua cổng kiểm tra
-- KHÔNG tự đóng lỗi — PHẢI chờ user xác nhận
-- KHÔNG giới hạn lần sửa — lặp đến khi xác nhận
-- Mỗi lần sửa: commit riêng [LỖI]
-- Patch version tăng dần: 1.0 → 1.0.1 → 1.0.2
-- Sửa ảnh hưởng chức năng khác → THÔNG BÁO user
-- 🔴 bảo mật: PHẢI có user đồng ý trước áp dụng
-- ⚠️ đánh đổi: PHẢI trình bày phương án + ưu/nhược, chờ chọn
-- FastCode lỗi → Grep/Read, KHÔNG DỪNG
-- Tiếp tục phiên → đọc SESSION TRƯỚC, không bắt đầu lại
+- Follow `.planning/rules/` (general + stack-specific)
+- FORBIDDEN to read/display sensitive files (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
+- MUST read PLAN.md + CODE_REPORT before fixing (ONLY related phase)
+- MUST investigate before fixing — DO NOT guess
+- MUST form hypotheses before fixing — DO NOT fix blindly
+- MUST pass gate check (reproduction/evidence + specific file/logic + post-fix testing plan) before fixing
+- MUST classify risk → determines testing + commit strategy
+- MUST write bug report: code BEFORE/AFTER (code bug) or summary (infrastructure)
+- MUST maintain investigation session (.planning/debug/) — update after each step
+- DO NOT create BUG_*.md before passing gate check
+- DO NOT self-close bugs — MUST wait for user confirmation
+- DO NOT limit fix attempts — loop until confirmed
+- Each fix attempt: separate commit [BUG]
+- Patch version increments: 1.0 → 1.0.1 → 1.0.2
+- Fix affects other features → NOTIFY user
+- 🔴 security: MUST have user approval before applying
+- ⚠️ trade-offs: MUST present options + pros/cons, wait for selection
+- FastCode error → Grep/Read, DO NOT STOP
+- Resuming session → read SESSION FIRST, do not start over
 </rules>
 
 <success_criteria>
-- [ ] Triệu chứng đủ 5 thông tin
-- [ ] Tài liệu kỹ thuật đã đọc (PLAN.md + CODE_REPORT phase liên quan)
-- [ ] Tìm hiểu xong trước khi sửa
-- [ ] Phân loại rủi ro đã xác định
-- [ ] Giả thuyết hình thành và kiểm chứng có hệ thống
-- [ ] Cổng kiểm tra đạt 3 điều kiện
-- [ ] Phiên điều tra tạo + cập nhật xuyên suốt
-- [ ] Báo cáo lỗi đúng format
-- [ ] Kiểm thử + build qua theo phân loại
-- [ ] User xác nhận thành công
+- [ ] Symptoms collected (5 pieces of information)
+- [ ] Technical documentation read (PLAN.md + CODE_REPORT of related phase)
+- [ ] Investigation completed before fixing
+- [ ] Risk classification determined
+- [ ] Hypotheses formed and verified systematically
+- [ ] Gate check passed (3 conditions)
+- [ ] Investigation session created + updated throughout
+- [ ] Bug report in correct format
+- [ ] Tests + build pass per classification
+- [ ] User confirmed fix was successful
 </success_criteria>

@@ -1,355 +1,355 @@
 <purpose>
-Lập kế hoạch kỹ thuật + chia danh sách công việc cho milestone hiện tại.
-Research dự án, thiết kế giải pháp, chia tasks. Tạo PLAN.md và TASKS.md.
-Hỗ trợ 2 chế độ:
-- `--auto` (mặc định): Claude tự quyết định toàn bộ
-- `--discuss`: Thảo luận tương tác — Claude liệt kê vấn đề, user chọn, Claude đưa options
+Create technical plan + break down task list for current milestone.
+Research project, design solution, split tasks. Create PLAN.md and TASKS.md.
+Supports 2 modes:
+- `--auto` (default): the agent decides everything autonomously
+- `--discuss`: Interactive discussion — the agent lists issues, user selects, the agent provides options
 </purpose>
 
 <required_reading>
-Đọc trước khi bắt đầu:
+Read before starting:
 - @templates/plan.md, @templates/tasks.md
 - @references/conventions.md → icons, version, commit
 </required_reading>
 
 <conditional_reading>
-Đọc KHI cần (phân tích mô tả task trước):
-- @references/questioning.md -> cách hỏi người dùng (DISCUSS) — KHI chế độ DISCUSS
-- @references/prioritization.md -> thứ tự ưu tiên tasks — KHI cần sắp xếp ưu tiên
-- @references/ui-brand.md -> thiết kế giao diện, kế thừa patterns — KHI phase liên quan UI
+Read WHEN needed (analyze task description first):
+- @references/questioning.md -> how to ask the user (DISCUSS) — WHEN in DISCUSS mode
+- @references/prioritization.md -> task priority ordering — WHEN tasks need prioritization
+- @references/ui-brand.md -> UI design, pattern inheritance — WHEN phase involves UI
 </conditional_reading>
 
 <research_injection>
-## Tự động tải research context
-Trước khi bắt đầu code, kiểm tra research liên quan:
-1. Đọc `.planning/research/INDEX.md` — nếu không tồn tại, bỏ qua toàn bộ bước này
-2. Tìm entries có topic match với task hiện tại (keyword match tên task, tên file, tên module)
-3. Đọc tối đa 2 entries match (ưu tiên HIGH confidence trước)
-4. Mỗi file đọc tối đa 2000 ký tự đầu tiên
-5. Wrap nội dung trong block:
+## Auto-load research context
+Before starting code, check for related research:
+1. Read `.planning/research/INDEX.md` — if not found, skip this entire step
+2. Find entries with topic matching current task (keyword match task name, file name, module name)
+3. Read up to 2 matching entries (prioritize HIGH confidence first)
+4. Read up to 2000 characters from each file
+5. Wrap content in block:
    <research-context>
-   [nội dung research file 1]
-   [nội dung research file 2]
+   [research file 1 content]
+   [research file 2 content]
    </research-context>
-6. Không có INDEX.md hoặc không match -> bỏ qua, tiếp tục bình thường (KHÔNG báo lỗi)
+6. No INDEX.md or no match -> skip, continue normally (DO NOT report error)
 </research_injection>
 
 <process>
 
-## Bước 1: Đọc context
-- `.planning/PROJECT.md` → tầm nhìn, đối tượng, ràng buộc
+## Step 1: Read context
+- `.planning/PROJECT.md` → vision, audience, constraints
 - `.planning/ROADMAP.md`
 - `.planning/CURRENT_MILESTONE.md` → version + phase
-- `.planning/REQUIREMENTS.md` → yêu cầu với mã, bảng theo dõi
-- `.planning/STATE.md` → trạng thái, bối cảnh tích lũy, vấn đề chặn
-- `.planning/scan/SCAN_REPORT.md` → hiện trạng, thư viện, patterns
-- `.planning/research/SUMMARY.md` → nghiên cứu lĩnh vực, thư viện, cạm bẫy
-- `.planning/research/TECHNICAL_STRATEGY.md` → chiến lược kỹ thuật (nếu có)
-- `.planning/docs/*.md` → chỉ đọc mục lục + sections liên quan (offset/limit)
-- `$ARGUMENTS` chỉ định phase → dùng phase đó
-- Có phases trước → đọc PLAN.md/TASKS.md nắm context đã triển khai
+- `.planning/REQUIREMENTS.md` → requirements with codes, tracking table
+- `.planning/STATE.md` → status, accumulated context, blocking issues
+- `.planning/scan/SCAN_REPORT.md` → current state, libraries, patterns
+- `.planning/research/SUMMARY.md` → domain research, libraries, pitfalls
+- `.planning/research/TECHNICAL_STRATEGY.md` → technical strategy (if exists)
+- `.planning/docs/*.md` → only table of contents + relevant sections (offset/limit)
+- `$ARGUMENTS` specifies phase → use that phase
+- Has previous phases → read PLAN.md/TASKS.md to understand implemented context
 
-Chưa có roadmap → "Chạy `/pd:new-milestone` trước."
-CURRENT_MILESTONE.md không tồn tại → "Thiếu. Chạy `/pd:new-milestone`."
-Status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones hoàn tất. Chạy `/pd:new-milestone`."
-Phase không có deliverables → **DỪNG**: "Phase [x.x] chưa có deliverables. Cập nhật ROADMAP."
+No roadmap → "Run `/pd:new-milestone` first."
+CURRENT_MILESTONE.md does not exist → "Missing. Run `/pd:new-milestone`."
+Status = `Completed all` → **STOP**: "All milestones completed. Run `/pd:new-milestone`."
+Phase has no deliverables → **STOP**: "Phase [x.x] has no deliverables. Update ROADMAP."
 
 **Soft-guard TECHNICAL_STRATEGY.md:**
-Kiểm tra `.planning/research/TECHNICAL_STRATEGY.md` tồn tại:
-- **CÓ** → đọc và dùng làm context chiến lược kỹ thuật
-- **KHÔNG** → hiển thị warning 1 lần: "TECHNICAL_STRATEGY.md không tồn tại. Plan sẽ thiếu chiến lược kỹ thuật. Chạy Research Squad để tạo."
-  Tiếp tục planning — KHÔNG block.
+Check `.planning/research/TECHNICAL_STRATEGY.md` exists:
+- **YES** → read and use as technical strategy context
+- **NO** → display warning once: "TECHNICAL_STRATEGY.md does not exist. Plan will lack technical strategy. Run Research Squad to create."
+  Continue planning — DO NOT block.
 
 ---
 
-## Bước 1.4: Phân tích scope -- quyết định tài liệu tham khảo
-Xác định từ ROADMAP.md và user input:
-- Chế độ DISCUSS? → đọc @references/questioning.md
-- Phase liên quan đến UI? → đọc @references/ui-brand.md
-- Nhiều tasks cần sắp xếp ưu tiên? → đọc @references/prioritization.md
+## Step 1.4: Analyze scope — determine reference documents
+Determine from ROADMAP.md and user input:
+- DISCUSS mode? → read @references/questioning.md
+- Phase involves UI? → read @references/ui-brand.md
+- Many tasks need prioritization? → read @references/prioritization.md
 
-Nếu không rõ → BỎ QUA. Nếu phát hiện cần giữa chừng → đọc khi cần.
-
----
-
-## Bước 1.5: Kiểm tra phase đã tồn tại
-
-TASKS.md đã tồn tại:
-- CÓ tasks ✅/🔄 → **CẢNH BÁO**: "Phase [x.x] đã có plan với tiến trình ([N1] ✅, [N2] 🔄)."
-  Options: (1) Lên kế hoạch lại (ghi đè), (2) Chuyển phase chưa plan [liệt kê], (3) Hủy
-  - Không còn phase chưa plan → chỉ option 1 + 3
-  - "Lên kế hoạch lại" → reset ROADMAP deliverables `[x]` → `[ ]`
-  - "Chuyển" → cập nhật biến phase → quay lại 1.5
-
-- KHÔNG có tasks hoàn thành (tất cả ⬜):
-  - **CÓ PLAN.md + TASKS.md hoàn chỉnh**: "Plan đã tồn tại ([N] tasks, chưa bắt đầu)."
-    Options: (1) Giữ nguyên — chỉ cập nhật tracking → nhảy Bước 8, (2) Lên kế hoạch lại, (3) Hủy
-  - **CHỈ PLAN.md, KHÔNG TASKS.md**: "PLAN.md có nhưng thiếu TASKS.md."
-    Options: (1) Tạo TASKS.md từ PLAN.md → nhảy Bước 7 → 8, (2) Lên kế hoạch lại
-  - **Không có hoặc PLAN.md chưa hoàn chỉnh** → cho phép ghi đè
+If unclear → SKIP. If discovered mid-way → read when needed.
 
 ---
 
-## Bước 2: Tạo thư mục
+## Step 1.5: Check if phase already exists
+
+TASKS.md already exists:
+- HAS tasks ✅/🔄 → **WARNING**: "Phase [x.x] already has a plan with progress ([N1] ✅, [N2] 🔄)."
+  Options: (1) Re-plan (overwrite), (2) Switch to unplanned phase [list], (3) Cancel
+  - No unplanned phases remaining → only options 1 + 3
+  - "Re-plan" → reset ROADMAP deliverables `[x]` → `[ ]`
+  - "Switch" → update phase variable → go back to 1.5
+
+- NO completed tasks (all ⬜):
+  - **HAS complete PLAN.md + TASKS.md**: "Plan already exists ([N] tasks, not started)."
+    Options: (1) Keep as-is — only update tracking → jump Step 8, (2) Re-plan, (3) Cancel
+  - **ONLY PLAN.md, NO TASKS.md**: "PLAN.md exists but TASKS.md is missing."
+    Options: (1) Create TASKS.md from PLAN.md → jump Step 7 → 8, (2) Re-plan
+  - **None or incomplete PLAN.md** → allow overwrite
+
+---
+
+## Step 2: Create directory
 - `.planning/milestones/[version]/phase-[phase]/`
 - `.planning/milestones/[version]/phase-[phase]/reports/`
 
 ---
 
-## Bước 3: Research dự án
+## Step 3: Research project
 
 > Output: `.planning/milestones/[version]/phase-[phase]/RESEARCH.md` (@templates/research.md)
-> RESEARCH.md đã tồn tại → deliverables khớp? Khớp → hỏi dùng lại/làm lại. Không khớp → ghi đè.
+> RESEARCH.md already exists → deliverables match? Match → ask reuse/redo. No match → overwrite.
 
-### 3A: Research code hiện có
+### 3A: Research existing code
 
-#### Nếu project đã có code:
-Dùng `mcp__fastcode__code_qa` (repos: đường dẫn dự án từ CONTEXT.md) kết hợp Grep/Read:
+#### If project already has code:
+Use `mcp__fastcode__code_qa` (repos: project path from CONTEXT.md) combined with Grep/Read:
 
-1. **Code tái sử dụng**: "Liệt kê utility functions, helpers, shared services có thể tái sử dụng."
-2. **Backend patterns** (nếu có): "Patterns controllers, services, DTOs, entities, response format đang dùng."
-3. **Database schema** (nếu có): "Database schema hiện tại: entities, fields, relationships."
-4. **Frontend patterns** (nếu có): "Patterns components, stores, API calls, pages đang dùng."
+1. **Reusable code**: "List utility functions, helpers, shared services that can be reused."
+2. **Backend patterns** (if applicable): "Patterns for controllers, services, DTOs, entities, response format in use."
+3. **Database schema** (if applicable): "Current database schema: entities, fields, relationships."
+4. **Frontend patterns** (if applicable): "Patterns for components, stores, API calls, pages in use."
 
-Dùng FastCode cho câu hỏi broad, Grep/Read verify chi tiết cụ thể.
-FastCode lỗi → Grep/Read fallback. Warning: "FastCode lỗi — chạy `/pd:init` kiểm tra."
-FastCode trả rỗng tất cả → cảnh báo: "Nên chạy `/pd:scan`." Tiếp tục với context hạn chế.
+Use FastCode for broad questions, Grep/Read to verify specific details.
+FastCode error → Grep/Read fallback. Warning: "FastCode error — run `/pd:init` to check."
+FastCode returns empty for all → warn: "Should run `/pd:scan`." Continue with limited context.
 
-#### Nếu project mới (chưa có code):
-Skip FastCode. RESEARCH.md: "Project mới — chưa có code."
+#### If new project (no code yet):
+Skip FastCode. RESEARCH.md: "New project — no existing code."
 
-### 3B: Research hệ sinh thái
+### 3B: Research ecosystem
 
-> LUÔN chạy nếu thư viện mới hoặc domain phức tạp. BỎ QUA nếu CRUD cơ bản → "Phase dùng stack có sẵn."
+> ALWAYS run if new libraries or complex domain. SKIP if basic CRUD → "Phase uses existing stack."
 
-**Context7** (ưu tiên — CAO): Thực hiện theo @references/context7-pipeline.md
+**Context7** (priority — HIGH): Follow @references/context7-pipeline.md
 
-**Phân tích hệ sinh thái:**
-1. **Thư viện đề xuất**: tên, version, mục đích, lý do, alternatives loại
-2. **Không nên tự code**: vấn đề trông đơn giản nhưng có thư viện sẵn, edge cases tự code
-3. **Cạm bẫy**: lỗi phổ biến, hậu quả, cách phòng, dấu hiệu sớm
-4. **Xu hướng mới**: thư viện lỗi thời, thay thế, ảnh hưởng
+**Ecosystem analysis:**
+1. **Recommended libraries**: name, version, purpose, reason, rejected alternatives
+2. **Should not self-code**: problems that look simple but have existing libraries, edge cases in self-coding
+3. **Pitfalls**: common errors, consequences, prevention, early warning signs
+4. **New trends**: outdated libraries, replacements, impact
 
-**Độ tin cậy:** Context7/FastCode/docs = CAO | WebSearch + verify = TB | Claude chưa verify = THẤP `[cần verify]`
+**Confidence level:** Context7/FastCode/docs = HIGH | WebSearch + verify = MEDIUM | the agent unverified = LOW `[needs verification]`
 
-### 3C: Lưu RESEARCH.md
-Theo @templates/research.md. CHỈ sections có dữ liệu. Ngắn gọn — tham khảo nhanh. KHÔNG hỏi lại thông tin trong SCAN_REPORT.
-
----
-
-## Bước 3.5: Thảo luận tính năng (CHỈ DISCUSS)
-> Bỏ qua nếu AUTO.
-
-**Lưu trạng thái**: tạo DISCUSS_STATE.md trước khi bắt đầu. Cập nhật SAU MỖI quyết định. Phiên bị ngắt → đọc file khôi phục.
-
-### 3.5.1: Liệt kê vấn đề cần thảo luận
-Phân tích deliverable → xác định vấn đề có nhiều cách triển khai hợp lệ:
-- Phạm vi tính năng, cách xác thực, dữ liệu lưu trữ, luồng thao tác user
-- Tích hợp bên ngoài, phân quyền, hiệu suất/bộ nhớ đệm, xử lý lỗi
-- Chỉ liệt kê vấn đề THỰC SỰ có nhiều lựa chọn — KHÔNG liệt kê đã rõ từ ROADMAP/CONTEXT
-
-- KHÔNG có vấn đề → "Không cần thảo luận — tự quyết định." → Bước 4
-- Hiển thị `AskUserQuestion`: 1 vấn đề → single select. 2-4 → multiSelect. 5+ → hỏi phạm vi trước, chia nhóm ≤4
-
-### 3.5.2: Thảo luận từng vấn đề
-Với MỖI vấn đề đã chọn:
-1. Tiêu đề + bối cảnh (viết cho người KHÔNG phải dev)
-2. AskUserQuestion single select: option đầu = recommend "(Đề xuất)", tối đa 4 + Other
-   - Description viết kết quả/hệ quả, KHÔNG thuật ngữ kỹ thuật trần
-   - "Other" → chờ mô tả → xác nhận. `back` = vấn đề trước, `cancel` = giữ chốt + Claude quyết phần còn lại → 3.5.3
-
-### 3.5.3: Tổng hợp quyết định
-Bảng (Vấn đề | Quyết định | Nguồn: User/Claude). 3 lựa chọn:
-- **Tiếp tục thiết kế** → Bước 4
-- **Thảo luận thêm** → 3.5.4
-- **Thay đổi quyết định** → multiSelect vấn đề muốn đổi → 3.5.2 → 3.5.3
-
-### 3.5.4: Thảo luận mở rộng
-Vấn đề MỚI (không trùng 3.5.1 + các vòng trước): phát sinh từ quyết định, tầng sâu hơn, user tự đề xuất.
-- Có → multiSelect → 3.5.2 → 3.5.3
-- Không → hỏi user tự đề xuất. Không → Bước 4
-- **Vòng lặp 3.5.3 ↔ 3.5.4** đến khi "Tiếp tục thiết kế" hoặc hết vấn đề
+### 3C: Save RESEARCH.md
+Per @templates/research.md. ONLY sections with data. Concise — quick reference. DO NOT re-ask info in SCAN_REPORT.
 
 ---
 
-## Bước 4: Thiết kế kỹ thuật
+## Step 3.5: Discuss features (ONLY DISCUSS)
+> Skip if AUTO.
 
-Cho mỗi deliverable, thiết kế theo loại:
-- Đọc RESEARCH.md vừa tạo Bước 3 → dùng làm nền tảng:
-  - **Thư viện đề xuất** → chọn thư viện
-  - **Không nên tự code** → tránh implement lại cái đã có
-  - **Cạm bẫy** → thiết kế phòng ngừa, ghi "Lưu ý kỹ thuật"
-  - **Code tái sử dụng** → tham chiếu thay vì viết mới
-- **DISCUSS**: PHẢI tuân thủ quyết định đã chốt Bước 3.5 — KHÔNG thay đổi/bỏ qua
-- **AUTO**: tự quyết định, ưu tiên phương án đơn giản, hiệu quả nhất
+**Save state**: create DISCUSS_STATE.md before starting. Update AFTER EACH decision. Session interrupted → read file to recover.
 
-**Thiết kế theo stack** (đọc rules, tra Context7):
+### 3.5.1: List issues to discuss
+Analyze deliverables → identify issues with multiple valid implementation approaches:
+- Feature scope, validation approach, data storage, user interaction flow
+- External integrations, permissions, performance/caching, error handling
+- Only list issues that TRULY have multiple valid choices — DO NOT list what's already clear from ROADMAP/CONTEXT
+
+- NO issues → "Nothing needs discussion — deciding autonomously." → Step 4
+- Display `AskUserQuestion`: 1 issue → single select. 2-4 → multiSelect. 5+ → ask scope first, group ≤4
+
+### 3.5.2: Discuss each issue
+For EACH selected issue:
+1. Title + context (written for non-developers)
+2. AskUserQuestion single select: first option = recommended "(Recommended)", max 4 + Other
+   - Description shows outcomes/consequences, NO raw technical jargon
+   - "Other" → wait for description → confirm. `back` = previous issue, `cancel` = keep finalized + the agent decides remainder → 3.5.3
+
+### 3.5.3: Summarize decisions
+Table (Issue | Decision | Source: User/Agent). 3 choices:
+- **Continue to design** → Step 4
+- **Discuss more** → 3.5.4
+- **Change decision** → multiSelect issues to change → 3.5.2 → 3.5.3
+
+### 3.5.4: Extended discussion
+NEW issues (not duplicating 3.5.1 + previous rounds): arising from decisions, deeper layers, user-proposed.
+- Found → multiSelect → 3.5.2 → 3.5.3
+- None → ask user to propose. None → Step 4
+- **Loop 3.5.3 ↔ 3.5.4** until "Continue to design" or no more issues
+
+---
+
+## Step 4: Technical design
+
+For each deliverable, design by type:
+- Read RESEARCH.md just created in Step 3 → use as foundation:
+  - **Recommended libraries** → select libraries
+  - **Should not self-code** → avoid re-implementing what exists
+  - **Pitfalls** → design prevention measures, record "Technical notes"
+  - **Reusable code** → reference instead of writing new
+- **DISCUSS**: MUST follow decisions finalized in Step 3.5 — DO NOT change/ignore
+- **AUTO**: decide autonomously, prioritize simplest, most effective approach
+
+**Design by stack** (read rules, check Context7):
 - **Backend**: API endpoints, database entities/relations + migration, DTOs, guards
 - **Frontend**: pages/routes, components, stores, API integration
 - **WordPress**: plugin/theme, hooks, custom tables, REST API
 - **Solidity**: contracts, functions + modifiers, events, token interactions, signatures
 - **Flutter**: modules (Logic+State+View+Binding), navigation, design tokens, data layer
-- **Chung**: files tạo/sửa, thư viện cần thêm
+- **General**: files to create/modify, libraries to add
 
 **UI/UX (@references/ui-brand.md):**
-- **Lớp 2 — Design Continuity** (đã có UI): kiểm tra 6 câu hỏi kế thừa → tìm component/flow tương tự → tái sử dụng → PLAN.md `### UI — Kế thừa patterns` + `### UI — Pattern mới`
-- **Lớp 3 — UX Gaps** (feature mới): 7 khía cạnh bắt buộc (Entry point, Main CTA, Empty/Loading/Error/Permission state, Responsive) + phức tạp (Cognitive load, Flow, Phá pattern, Onboarding, Undo) → PLAN.md `### UX States`
+- **Layer 2 — Design Continuity** (existing UI): check 6 inheritance questions → find similar component/flow → reuse → PLAN.md `### UI — Inherited patterns` + `### UI — New patterns`
+- **Layer 3 — UX Gaps** (new feature): 7 required aspects (Entry point, Main CTA, Empty/Loading/Error/Permission state, Responsive) + complex (Cognitive load, Flow, Pattern breaking, Onboarding, Undo) → PLAN.md `### UX States`
 
 ---
 
-## Bước 4.3: Suy luận Goal-backward — Tiêu chí thành công
+## Step 4.3: Goal-backward reasoning — Success criteria
 
-> LUÔN thực hiện (AUTO + DISCUSS). Suy luận NGƯỢC từ mục tiêu phase.
+> ALWAYS performed (AUTO + DISCUSS). Reason BACKWARDS from phase goal.
 
-### Tầng 1 — Truths
-Đọc mục tiêu (ROADMAP deliverables) + thiết kế (Bước 4). Hỏi: **"Khi phase hoàn tất, điều gì phải TRUE?"**
-- Viết khẳng định kiểm chứng được ("User có thể X" — KHÔNG "Triển khai X")
-- Mỗi Truth có **5 cột**: `| # | Sự thật | Giá trị nghiệp vụ | Trường hợp biên | Cách kiểm chứng |`
-  - **Giá trị nghiệp vụ**: tại sao logic tồn tại từ góc nhìn business (VD: "Đảm bảo bảo mật tài khoản")
-  - **Trường hợp biên**: danh sách ngắn edge cases, cách nhau bằng dấu phẩy (VD: "Password sai 5 lần, email trống")
-- Bao phủ happy path + edge cases. Tối thiểu 2, tối đa 7
+### Tier 1 — Truths
+Read goal (ROADMAP deliverables) + design (Step 4). Ask: **"When this phase is complete, what must be TRUE?"**
+- Write verifiable assertions ("User can X" — NOT "Implement X")
+- Each Truth has **5 columns**: `| # | Truth | Business value | Edge cases | How to verify |`
+  - **Business value**: why this logic exists from a business perspective (e.g.: "Ensures account security")
+  - **Edge cases**: short list of edge cases, comma-separated (e.g.: "Wrong password 5 times, empty email")
+- Cover happy path + edge cases. Minimum 2, maximum 7
 
-### Tầng 2 — Artifacts
-Từ mỗi Truth suy ngược: **"File/module nào PHẢI tồn tại?"**
-- Cross-check với "Files tạo/sửa" Bước 4 — file không phục vụ Truth → thừa hoặc thiếu Truth
-- Cột "Kiểm tra tự động" (@references/verification.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
+### Tier 2 — Artifacts
+From each Truth reason backwards: **"What file/module MUST exist?"**
+- Cross-check with "Files to create/modify" from Step 4 — file that doesn't serve any Truth → redundant or missing Truth
+- "Automated check" column (@references/verification.md): `exports`, `min_lines`, `contains`, `imports`, `calls`
 
-### Tầng 3 — Key Links
-**"Artifacts kết nối thế nào? Link đứt → Truth nào fail?"**
+### Tier 3 — Key Links
+**"How do artifacts connect? If a link breaks → which Truth fails?"**
 Controller → Service → Repository → Database | Component → API → Endpoint | Hook → Filter → Action | Contract → Interface → Event
 
-### Phân tích gap (bắt buộc)
-1. Truth → Task coverage: mỗi Truth ≥1 task?
-2. Artifact → Thiết kế coverage: mỗi artifact trong thiết kế?
-3. Key Link → Dependency coverage: liên kết phản ánh đúng dependency?
-Gap → bổ sung thiết kế/files/task.
+### Gap analysis (required)
+1. Truth → Task coverage: each Truth ≥1 task?
+2. Artifact → Design coverage: each artifact in the design?
+3. Key Link → Dependency coverage: links correctly reflect dependencies?
+Gap → supplement design/files/tasks.
 
-Ghi vào PLAN.md "Tiêu chí thành công" (@templates/plan.md).
-
----
-
-## Bước 4.5: Ghi nhận quyết định thiết kế
-
-> **Thực hiện khi** Claude tự đưa ra ≥1 quyết định mà user KHÔNG thảo luận:
-> - AUTO → LUÔN thực hiện
-> - DISCUSS skip-all → thực hiện
-> - DISCUSS cancel → thực hiện cho vấn đề CHƯA thảo luận
-> - DISCUSS chọn một số (skip phần còn lại) → thực hiện cho vấn đề KHÔNG chọn
-> - DISCUSS thảo luận TẤT CẢ → **bỏ qua**
-> - DISCUSS 0 vấn đề cần quyết định → **bỏ qua**
-
-Sau thiết kế (Bước 4), Claude PHẢI review lại:
-1. Xác định vấn đề có nhiều cách triển khai hợp lệ
-2. Mỗi vấn đề ghi: Phương án chọn, Lý do, Alternatives đã loại
-3. Lưu bảng "Quyết định thiết kế" trong PLAN.md
-
-**Mục đích**: developer review quyết định Claude tự đưa ra, phát hiện sớm lỗi business logic TRƯỚC khi code.
+Record in PLAN.md "Success criteria" (@templates/plan.md).
 
 ---
 
-## Bước 5: Chia công việc
+## Step 4.5: Record design decisions
 
-CONTEXT.md → Tech Stack → Backend, Frontend, hoặc cả hai. Xem @references/prioritization.md.
+> **Perform when** the agent independently makes ≥1 decision that user DID NOT discuss:
+> - AUTO → ALWAYS perform
+> - DISCUSS skip-all → perform
+> - DISCUSS cancel → perform for issues NOT discussed
+> - DISCUSS selected some (skipped rest) → perform for issues NOT selected
+> - DISCUSS discussed ALL → **skip**
+> - DISCUSS 0 issues needing decisions → **skip**
 
-Nguyên tắc:
-1. **Entity/Model trước** → Service → Controller → DTO (Backend)
-2. **Backend + Frontend**: Backend API trước → Frontend consume sau (khi frontend cần data từ API mới)
-3. **Frontend-only** (UI, SEO, layout): KHÔNG cần chờ backend, làm độc lập
-4. **Core logic trước** → Validation sau
-5. **Module mới** = 1 task riêng
-6. Mỗi task: atomic, tối đa 5-7 files, tiêu chí chấp nhận rõ ràng
-7. Ghi rõ **Loại**: `Backend` | `Frontend` | `Fullstack` | `[Stack khác]`
-8. **Truths truy vết** (goal-backward): mỗi task PHẢI ghi Truth phục vụ (`T1, T2`). Cross-check: mỗi Truth ≥1 task phủ. Thiếu → thêm task hoặc mở rộng task hiện có
-9. **Stack khác** (Chrome extension, CLI...): thứ tự theo đặc thù (config/manifest → core logic → UI)
-10. **Dependency chính xác** cho parallel execution: ghi task number cụ thể (`Task A`). Phân biệt:
-   - **Phụ thuộc code**: task B import/dùng function task A → ghi `Task A`
-   - **Phụ thuộc design**: dùng response shape từ PLAN.md (không cần code thực) → ghi `Không` (parallel-safe)
-   - **Phụ thuộc file**: sửa chung file → ghi `Task A (shared file)`
-11. **Effort level** (TOKN-04): mỗi task PHẢI có `Effort:` trong metadata. Mặc định: `standard`.
-12. **`> Files:` bắt buộc** (PARA-03): plan có >= 3 tasks → planner PHẢI ghi đầy đủ `> Files:` field cho mỗi task. Dựa trên Ghi chú kỹ thuật + mô tả task. Không cần chính xác 100% — heuristic đủ cho conflict detection. Thiếu `> Files:` → parallel mode không thể phân tích conflict → kém hiệu quả. Ghi CẢ files tạo mới VÀ files sửa
+After design (Step 4), the agent MUST review:
+1. Identify issues with multiple valid implementation approaches
+2. For each issue record: Chosen approach, Reason, Rejected alternatives
+3. Save "Design decisions" table in PLAN.md
 
-### Phân loại effort cho task
-
-| Tín hiệu | simple | standard | complex |
-|----------|--------|----------|---------|
-| Files sửa/tạo | 1-2 | 3-4 | 5+ |
-| Số Truths | 1 | 2-3 | 4+ |
-| Phụ thuộc | 0 | 1-2 | 3+ |
-| Đa domain | không | không | có |
-
-Ví dụ:
-- simple: đổi tên biến, thêm import, sửa typo, cập nhật config
-- standard: tạo component mới, API endpoint, bộ unit test
-- complex: refactor nhiều file, quyết định kiến trúc, tích hợp
-
-Planner CÓ THỂ override guidelines dựa trên hiểu biết context.
+**Purpose**: developer reviews decisions the agent made independently, catch business logic errors early BEFORE coding.
 
 ---
 
-## Bước 6: Tạo PLAN.md
-Viết PLAN.md theo mẫu @templates/plan.md tại `.planning/milestones/[version]/phase-[phase]/PLAN.md`.
+## Step 5: Break down tasks
 
-**Lưu ý:**
-- **CHỈ tạo sections có dữ liệu** — bỏ sections không liên quan stack (VD: bỏ API Endpoints nếu không có backend, bỏ Database nếu không có DB)
-- **Section "Quyết định thiết kế"**: LUÔN tạo ở CẢ HAI chế độ:
-  - **AUTO thuần** (hoặc DISCUSS skip-all) → bảng mở rộng (Lý do + Alternatives)
-  - **DISCUSS thuần** (user thảo luận TẤT CẢ) → bảng gốc (cột Nguồn)
-  - **DISCUSS hybrid** → bảng gốc + ghi chú Lý do/Alternatives cho vấn đề Claude quyết
-  - Không có quyết định → "Tất cả đã xác định rõ từ ROADMAP/CONTEXT."
+CONTEXT.md → Tech Stack → Backend, Frontend, or both. See @references/prioritization.md.
+
+Principles:
+1. **Entity/Model first** → Service → Controller → DTO (Backend)
+2. **Backend + Frontend**: Backend API first → Frontend consumes after (when frontend needs data from new API)
+3. **Frontend-only** (UI, SEO, layout): DO NOT wait for backend, work independently
+4. **Core logic first** → Validation after
+5. **New module** = 1 separate task
+6. Each task: atomic, max 5-7 files, clear acceptance criteria
+7. Record **Type**: `Backend` | `Frontend` | `Fullstack` | `[Other stack]`
+8. **Truths traceability** (goal-backward): each task MUST record Truths it serves (`T1, T2`). Cross-check: each Truth ≥1 task covers it. Missing → add task or expand existing task
+9. **Other stacks** (Chrome extension, CLI...): order by specifics (config/manifest → core logic → UI)
+10. **Accurate dependencies** for parallel execution: record specific task numbers (`Task A`). Distinguish:
+   - **Code dependency**: task B imports/uses function from task A → record `Task A`
+   - **Design dependency**: uses response shape from PLAN.md (no actual code needed) → record `None` (parallel-safe)
+   - **File dependency**: modifies shared file → record `Task A (shared file)`
+11. **Effort level** (TOKN-04): each task MUST have `Effort:` in metadata. Default: `standard`.
+12. **`> Files:` required** (PARA-03): plan has >= 3 tasks → planner MUST record complete `> Files:` field for each task. Based on Technical notes + task description. Does not need to be 100% accurate — heuristic is sufficient for conflict detection. Missing `> Files:` → parallel mode cannot analyze conflicts → reduced efficiency. Record BOTH new files AND modified files
+
+### Effort classification for task
+
+| Signal | simple | standard | complex |
+|--------|--------|----------|---------|
+| Files modified/created | 1-2 | 3-4 | 5+ |
+| Number of Truths | 1 | 2-3 | 4+ |
+| Dependencies | 0 | 1-2 | 3+ |
+| Multi-domain | no | no | yes |
+
+Examples:
+- simple: rename variable, add import, fix typo, update config
+- standard: create new component, API endpoint, unit test suite
+- complex: refactor multiple files, architecture decision, integration
+
+Planner CAN override guidelines based on contextual understanding.
 
 ---
 
-## Bước 7: Tạo TASKS.md
-Theo @templates/tasks.md. Sắp xếp theo @references/prioritization.md + quy tắc Bước 5.
+## Step 6: Create PLAN.md
+Write PLAN.md per template @templates/plan.md at `.planning/milestones/[version]/phase-[phase]/PLAN.md`.
+
+**Notes:**
+- **ONLY create sections with data** — skip sections unrelated to stack (e.g.: skip API Endpoints if no backend, skip Database if no DB)
+- **"Design decisions" section**: ALWAYS create in BOTH modes:
+  - **Pure AUTO** (or DISCUSS skip-all) → expanded table (Reason + Alternatives)
+  - **Pure DISCUSS** (user discussed ALL) → original table (Source column)
+  - **DISCUSS hybrid** → original table + Reason/Alternatives notes for the agent's decisions
+  - No decisions → "All items clearly defined from ROADMAP/CONTEXT."
 
 ---
 
-## Bước 8: Cập nhật tracking
+## Step 7: Create TASKS.md
+Per @templates/tasks.md. Sort per @references/prioritization.md + Step 5 rules.
+
+---
+
+## Step 8: Update tracking
 
 **CURRENT_MILESTONE.md** (@templates/current-milestone.md):
-- CHỈ cập nhật `phase` nếu: phase hiện tại chưa plan, hoặc đã hoàn tất
-- KHÔNG cập nhật nếu phase đang thực hiện (user pre-plan phase sau)
-- Cập nhật `status` → `Đang thực hiện` (nếu `Chưa bắt đầu`)
+- ONLY update `phase` if: current phase not yet planned, or already completed
+- DO NOT update if phase is in progress (user pre-planning next phase)
+- Update `status` → `In progress` (if `Not started`)
 
 **STATE.md** (@templates/state.md):
-- `Hoạt động cuối: [DD_MM_YYYY] — Lên kế hoạch phase [x.x] hoàn tất`
-- CHỈ cập nhật Phase + Kế hoạch nếu CURRENT_MILESTONE phase cũng đổi (tránh desync)
+- `Last activity: [DD_MM_YYYY] — Planning phase [x.x] completed`
+- ONLY update Phase + Plan if CURRENT_MILESTONE phase also changes (avoid desync)
 
 **ROADMAP.md:** milestone `⬜` → `🔄`
 
 ---
 
-## Bước 8.1: Kiểm tra plan
+## Step 8.1: Check plan
 
-> Plan checker tự động — chạy sau tracking update (Bước 8), trước git commit (Bước 8.5).
-> CLI: `bin/plan-check.js` (Phase 16). Step này KHÔNG tạo code mới — chỉ chạy CLI và xử lý kết quả.
+> Automated plan checker — runs after tracking update (Step 8), before git commit (Step 8.5).
+> CLI: `bin/plan-check.js` (Phase 16). This step DOES NOT create new code — only runs CLI and handles results.
 
-### A. Chạy plan checker
+### A. Run plan checker
 
-Chạy plan checker từ terminal:
+Run plan checker from terminal:
 ```
 node bin/plan-check.js <plan-dir>
 ```
-Trong đó `<plan-dir>` = `.planning/milestones/[version]/phase-[phase]/` (thư mục chứa PLAN.md + TASKS.md đã tạo Bước 6-7).
+Where `<plan-dir>` = `.planning/milestones/[version]/phase-[phase]/` (directory containing PLAN.md + TASKS.md created in Steps 6-7).
 
-Đọc JSON output. Nếu overall = "block" → sửa trước khi tiếp tục. Nếu "warn" → xem xét, có thể chấp nhận.
+Read JSON output. If overall = "block" → fix before continuing. If "warn" → review, may accept.
 
-### B. Kết quả PASS (D-01)
+### B. PASS result (D-01)
 
-Khi `result.overall === 'pass'` — hiển thị summary table rồi tiếp tục Bước 8.5:
+When `result.overall === 'pass'` — display summary table then continue to Step 8.5:
 
 ```markdown
-### Kiểm tra plan
+### Plan check
 
-| Check | Kết quả |
-|-------|---------|
-<!-- Iterate qua result.checks array, mỗi check 1 dòng: -->
-| {check.checkId}: {tên mô tả} | PASS |
+| Check | Result |
+|-------|--------|
+<!-- Iterate through result.checks array, each check on 1 line: -->
+| {check.checkId}: {descriptive name} | PASS |
 
-**Kết quả: PASS** — Plan đạt chất lượng, tiếp tục commit.
+**Result: PASS** — Plan meets quality standards, continue to commit.
 ```
 
-Check name mapping (dùng cho PASS table và ISSUES FOUND headers):
+Check name mapping (used for PASS table and ISSUES FOUND headers):
 - CHECK-01 = Requirement Coverage
 - CHECK-02 = Task Completeness
 - CHECK-03 = Dependency Correctness
@@ -359,52 +359,52 @@ Check name mapping (dùng cho PASS table và ISSUES FOUND headers):
 - ADV-02 = Scope Thresholds
 - ADV-03 = Effort Classification
 
-**Quan trọng:** Iterate qua `result.checks` array — KHÔNG hardcode tên check. Khi có check mới, chỉ cần thêm vào mapping trên.
+**Important:** Iterate through `result.checks` array — DO NOT hardcode check names. When new checks are added, only need to add to mapping above.
 
-### C. Kết quả ISSUES FOUND (D-02, D-03, D-04)
+### C. ISSUES FOUND result (D-02, D-03, D-04)
 
-Khi `result.overall === 'block'` hoặc `result.overall === 'warn'` — hiển thị report:
+When `result.overall === 'block'` or `result.overall === 'warn'` — display report:
 
 ```markdown
-### Kiểm tra plan
+### Plan check
 
-**Kết quả: ISSUES FOUND**
+**Result: ISSUES FOUND**
 
 #### CHECK-01: Requirement Coverage — BLOCK
-- [issue.message cho từng issue]
+- [issue.message for each issue]
 
 #### CHECK-02: Task Completeness — PASS
 
 #### ADV-02: Scope Thresholds — WARN
-- [issue.message cho từng issue]
+- [issue.message for each issue]
 ```
 
-Quy tắc:
-- **Nhóm theo check**: mỗi check có issues → header + danh sách issues. Check PASS → hiển thị 1 dòng: `#### {checkId}: {Tên} — PASS` (D-02)
-- **Chỉ hiển thị `issue.message`** — KHÔNG hiển thị `issue.fixHint` (fixHint dùng nội bộ khi Claude auto-fix) (D-03)
-- **Tối đa 10 issues** hiển thị. Nếu tổng issues > 10, hiển thị 10 đầu tiên rồi ghi `+ [N] issues khác` ở cuối (D-04)
+Rules:
+- **Group by check**: each check with issues → header + issue list. Check PASS → display 1 line: `#### {checkId}: {Name} — PASS` (D-02)
+- **Only display `issue.message`** — DO NOT display `issue.fixHint` (fixHint is used internally when the agent auto-fixes) (D-03)
+- **Max 10 issues** displayed. If total issues > 10, display first 10 then add `+ [N] more issues` at the end (D-04)
 
-### D. Lựa chọn của user (D-07, D-08)
+### D. User choices (D-07, D-08)
 
-**Trước khi hiển thị lựa chọn**, kiểm tra cảnh báo tích lũy (D-13):
-- Đọc STATE.md section "Bối cảnh tích lũy", đếm entries khớp pattern `[Phase * Plan Check]: Plan * proceed with * warnings` trong milestone hiện tại
-- Nếu >= 3 entries:
+**Before displaying choices**, check accumulated warnings (D-13):
+- Read STATE.md section "Accumulated context", count entries matching pattern `[Phase * Plan Check]: Plan * proceed with * warnings` in current milestone
+- If >= 3 entries:
   ```markdown
-  > Lưu ý: [N] plans gần đây đều có warnings được proceed. Review lại chất lượng plan nếu cần.
+  > Note: [N] recent plans all had warnings that were proceeded. Review plan quality if needed.
   ```
-  Đây là thông tin — KHÔNG block hoặc thay đổi options.
+  This is informational — DO NOT block or change options.
 
-Sau khi hiển thị ISSUES FOUND report, **LUÔN hỏi user** — kể cả khi chỉ có WARN (D-07):
+After displaying ISSUES FOUND report, **ALWAYS ask user** — even if only WARN (D-07):
 ```
 AskUserQuestion({
   questions: [{
-    question: "Plan có issues. Bạn muốn xử lý thế nào?",
-    header: "Kiểm tra plan",
+    question: "Plan has issues. How would you like to handle them?",
+    header: "Plan check",
     multiSelect: false,
     options: [
-      { label: "Fix (Đề xuất)", description: "Claude tự động sửa issues và kiểm tra lại" },
-      { label: "Proceed with warnings", description: "Bỏ qua issues, tiếp tục commit" },
-      { label: "Cancel", description: "Giữ plan trên disk, ghi note vào STATE.md" }
+      { label: "Fix (Recommended)", description: "The agent auto-fixes issues and re-checks" },
+      { label: "Proceed with warnings", description: "Ignore issues, continue to commit" },
+      { label: "Cancel", description: "Keep plan on disk, record note in STATE.md" }
     ]
   }]
 })
@@ -412,58 +412,58 @@ AskUserQuestion({
 
 ### E. Fix path (D-05, D-06)
 
-Khi user chọn "Fix":
-1. Claude đọc tất cả issues (bao gồm `fixHint` từ result) và tự sửa trực tiếp vào PLAN.md và/hoặc TASKS.md (D-05)
-2. Sau khi sửa, re-run `node bin/plan-check.js <plan-dir>` với nội dung đã cập nhật (D-06)
-3. Nếu pass → hiển thị PASS report (mục B) → tiếp tục Bước 8.5
-4. Nếu vẫn có issues → hiển thị ISSUES FOUND report (mục C) → hỏi user lại (mục D)
-5. **Tối đa 3 lần re-run**. Sau lần fix thứ 3 vẫn fail → gợi ý Cancel (Claude discretion)
+When user selects "Fix":
+1. The agent reads all issues (including `fixHint` from result) and fixes directly in PLAN.md and/or TASKS.md (D-05)
+2. After fixing, re-run `node bin/plan-check.js <plan-dir>` with updated content (D-06)
+3. If pass → display PASS report (section B) → continue to Step 8.5
+4. If still has issues → display ISSUES FOUND report (section C) → ask user again (section D)
+5. **Max 3 re-runs**. After 3rd fix still fails → suggest Cancel (the agent's discretion)
 
-### F. Proceed path — chỉ WARN (D-12)
+### F. Proceed path — WARN only (D-12)
 
-Khi user chọn "Proceed with warnings" và `result.overall === 'warn'` (không có BLOCK):
-1. Ghi acknowledged warnings vào STATE.md section "Bối cảnh tích lũy" > Quyết định:
-   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] warnings acknowledged: [danh sách check + tóm tắt issue]`
-2. Tiếp tục Bước 8.5
+When user selects "Proceed with warnings" and `result.overall === 'warn'` (no BLOCK):
+1. Record acknowledged warnings in STATE.md "Accumulated context" > Decisions:
+   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] warnings acknowledged: [list of checks + issue summary]`
+2. Continue to Step 8.5
 
-### G. Proceed path — có BLOCK (D-09, D-10)
+### G. Proceed path — has BLOCK (D-09, D-10)
 
-Khi user chọn "Proceed with warnings" và result chứa BLOCK issues:
-1. Hiển thị xác nhận riêng (D-09):
+When user selects "Proceed with warnings" and result contains BLOCK issues:
+1. Display separate confirmation (D-09):
 ```
 AskUserQuestion({
   questions: [{
-    question: "Plan có BLOCK issues. Xác nhận force proceed?",
-    header: "Cảnh báo: BLOCK issues",
+    question: "Plan has BLOCK issues. Confirm force proceed?",
+    header: "Warning: BLOCK issues",
     multiSelect: false,
     options: [
-      { label: "Force proceed", description: "Bỏ qua BLOCK issues — sẽ ghi audit vào STATE.md" },
-      { label: "Quay lại (Đề xuất)", description: "Chọn lại: Fix hoặc Cancel" }
+      { label: "Force proceed", description: "Ignore BLOCK issues — will record audit in STATE.md" },
+      { label: "Go back (Recommended)", description: "Choose again: Fix or Cancel" }
     ]
   }]
 })
 ```
-2. "Quay lại" → quay về lựa chọn mục D
-3. "Force proceed" → ghi BLOCK audit vào STATE.md "Bối cảnh tích lũy" > Quyết định (D-10):
-   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] BLOCK overrides: [danh sách check + tóm tắt issue]`
-4. Nếu có cả WARN → ghi thêm WARN acknowledgments (D-12)
-5. Tiếp tục Bước 8.5
+2. "Go back" → return to choices in section D
+3. "Force proceed" → record BLOCK audit in STATE.md "Accumulated context" > Decisions (D-10):
+   `- [Phase [N] Plan Check]: Plan [phase]-[plan] proceed with [count] BLOCK overrides: [list of checks + issue summary]`
+4. If also has WARN → additionally record WARN acknowledgments (D-12)
+5. Continue to Step 8.5
 
 ### H. Cancel path (D-11)
 
-Khi user chọn "Cancel":
-1. Giữ PLAN.md + TASKS.md trên disk — KHÔNG xóa (D-11)
-2. Ghi cancel note vào STATE.md "Bối cảnh tích lũy" > Quyết định:
+When user selects "Cancel":
+1. Keep PLAN.md + TASKS.md on disk — DO NOT delete (D-11)
+2. Record cancel note in STATE.md "Accumulated context" > Decisions:
    `- [Phase [N] Plan Check]: Plan [phase]-[plan] cancelled — [count] BLOCK issues, [count] WARN issues found`
-3. **DỪNG workflow** — KHÔNG tiếp tục Bước 8.5 hoặc Bước 9
+3. **STOP workflow** — DO NOT continue to Step 8.5 or Step 9
 
-### I. Re-plan (Claude discretion)
+### I. Re-plan (the agent's discretion)
 
-Bước 8.1 chạy giống nhau bất kể plan được tạo mới hay load từ disk qua Bước 1.5 "Giữ nguyên". Checker là idempotent. Nếu plan giữ nguyên và đã kiểm tra trước đó, kết quả sẽ giống. Không cần xử lý đặc biệt.
+Step 8.1 runs the same whether plan was newly created or loaded from disk via Step 1.5 "Keep as-is". The checker is idempotent. If plan is kept and was previously checked, results will be the same. No special handling needed.
 
 ---
 
-## Bước 8.5: Git commit (CHỈ nếu có git)
+## Step 8.5: Git commit (ONLY if git available)
 
 ```bash
 git add .planning/milestones/[version]/phase-[phase]/RESEARCH.md 2>/dev/null
@@ -472,53 +472,53 @@ git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/DISCUSS_STATE.md 2>/dev/null
 git add .planning/CURRENT_MILESTONE.md .planning/ROADMAP.md
 git add .planning/STATE.md 2>/dev/null
-git commit -m "docs: kế hoạch phase [x.x] — [mục tiêu ngắn gọn]
+git commit -m "docs: plan phase [x.x] — [short objective]
 
-Tasks: [N] tasks | Loại: [Backend/Frontend/Fullstack]"
+Tasks: [N] tasks | Type: [Backend/Frontend/Fullstack]"
 ```
 
 ---
 
-## Bước 9: Thông báo
-In tóm tắt plan + tasks.
-- **Goal-backward**: bảng Truths + coverage. Truth chưa phủ → cảnh báo
-- Phase vừa plan KHÁC phase hiện tại → ghi rõ: "Plan cho phase [y.y] (chưa active)."
-- AUTO/DISCUSS skip/hybrid (có quyết định Claude tự đưa ra):
+## Step 9: Notification
+Print plan + tasks summary.
+- **Goal-backward**: Truths table + coverage. Truth not covered → warning
+- Phase just planned IS DIFFERENT from current phase → clarify: "Plan for phase [y.y] (not active)."
+- AUTO/DISCUSS skip/hybrid (has decisions the agent made independently):
   ```
-  ### Claude đã tự quyết định [N] vấn đề:
-  | # | Vấn đề | Phương án | Lý do tóm tắt |
-  Chi tiết trong PLAN.md → "Quyết định thiết kế".
-  ⚠️ Review trước khi viết code. Cần thay đổi → `/pd:plan --discuss`.
+  ### The agent independently decided [N] issues:
+  | # | Issue | Approach | Brief reason |
+  Details in PLAN.md → "Design decisions".
+  ⚠️ Review before coding. Need changes → `/pd:plan --discuss`.
   ```
 
 </process>
 
 <rules>
-- Tuân thủ `.planning/rules/` (ngôn ngữ, ngày tháng, version, icon, bảo mật)
-- Tái sử dụng code/thư viện có sẵn
-- Task backend + frontend TÁCH RIÊNG, ghi Loại + dependency. Frontend-only → độc lập
-- Docs/: chỉ mục lục + sections liên quan, KHÔNG toàn bộ
-- KHÔNG hỏi FastCode thông tin đã có trong SCAN_REPORT. FastCode lỗi → Grep/Read, warning
-- RESEARCH.md LUÔN tạo (dù ngắn). Đã tồn tại + user "Dùng lại" → skip Bước 3
-- Hệ sinh thái: BỎ QUA nếu CRUD cơ bản
-- Độ tin cậy nguồn: Context7/FastCode/docs = CAO, WebSearch+verify = TB, Claude = THẤP
-- AUTO: KHÔNG hỏi user thiết kế — tự quyết tất cả
-- DISCUSS: AskUserQuestion cho mọi lựa chọn. Không khả dụng → văn bản thường (KHÔNG gõ A/B/C)
-- DISCUSS: PHẢI chờ user trả lời — KHÔNG tự chọn thay
-- DISCUSS: Skip-all → chuyển AUTO. Cancel → GIỮ chốt + Claude quyết phần còn lại → 3.5.3
-- DISCUSS: "Other" → luôn cho phép tự mô tả. "back"/"cancel" navigation
-- DISCUSS: Thiết kế PHẢI phản ánh đúng quyết định user — vi phạm = lỗi
-- DISCUSS: 3.5.3 ↔ 3.5.4 vòng lặp đến khi "Tiếp tục" hoặc hết vấn đề. "Thảo luận thêm" → vấn đề MỚI chỉ
-- DISCUSS: Ngôn ngữ options đơn giản — viết cho người không phải dev
+- Follow `.planning/rules/` (language, date format, version, icons, security)
+- Reuse existing code/libraries
+- Backend + frontend tasks SEPARATE, record Type + dependency. Frontend-only → independent
+- Docs/: only table of contents + relevant sections, NOT the whole thing
+- DO NOT ask FastCode for info already in SCAN_REPORT. FastCode error → Grep/Read, warning
+- RESEARCH.md ALWAYS created (even if short). Already exists + user "Reuse" → skip Step 3
+- Ecosystem: SKIP if basic CRUD
+- Source confidence: Context7/FastCode/docs = HIGH, WebSearch+verify = MEDIUM, the agent = LOW
+- AUTO: DO NOT ask user about design — decide everything autonomously
+- DISCUSS: AskUserQuestion for every choice. Not available → plain text (DO NOT type A/B/C)
+- DISCUSS: MUST wait for user to answer — DO NOT choose on their behalf
+- DISCUSS: Skip-all → switch to AUTO. Cancel → KEEP finalized + the agent decides remainder → 3.5.3
+- DISCUSS: "Other" → always allow custom description. "back"/"cancel" navigation
+- DISCUSS: Design MUST accurately reflect user's decisions — violation = error
+- DISCUSS: 3.5.3 ↔ 3.5.4 loops until "Continue to design" or no more issues. "Discuss more" → NEW issues only
+- DISCUSS: Options language simple — written for non-developers
 
-**Goal-backward (Bước 4.3):**
-- LUÔN thực hiện — KHÔNG bỏ qua
-- Truths 5 cột (Sự thật + Giá trị nghiệp vụ + Trường hợp biên + Cách kiểm chứng). 2-7 Truths/phase
-- Mỗi Truth có cách kiểm chứng. Mỗi task ≥1 Truth, mỗi Truth ≥1 task
-- "Tiêu chí thành công" BẮT BUỘC trong PLAN.md — nhất quán với ROADMAP
+**Goal-backward (Step 4.3):**
+- ALWAYS performed — DO NOT skip
+- Truths with 5 columns (Truth + Business value + Edge cases + How to verify). 2-7 Truths/phase
+- Each Truth has verification method. Each task ≥1 Truth, each Truth ≥1 task
+- "Success criteria" REQUIRED in PLAN.md — consistent with ROADMAP
 
-**Khôi phục:**
-- PLAN.md + TASKS.md tồn tại (tất cả ⬜) → PHẢI hỏi user giữ/làm lại
-- CHỈ PLAN.md → cho phép tạo TASKS.md từ PLAN.md hiện có
-- Giữ nguyên → nhảy Bước 8 cập nhật tracking
+**Recovery:**
+- PLAN.md + TASKS.md exist (all ⬜) → MUST ask user to keep/redo
+- ONLY PLAN.md → allow creating TASKS.md from existing PLAN.md
+- Keep as-is → jump to Step 8 for tracking update
 </rules>
