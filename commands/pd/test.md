@@ -2,7 +2,7 @@
 name: pd:test
 description: Write tests + run verification (NestJS/WordPress/Solidity/Flutter/Frontend), confirm with the user, and report failures
 model: sonnet
-argument-hint: "[task number | --all]"
+argument-hint: "[task number | --all | --standalone [path] [--all]]"
 allowed-tools:
   - Read
   - Write
@@ -21,10 +21,20 @@ Write tests based on the stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). For 
 Test with concrete data, run the tests, get user confirmation, then commit.
 
 **After completion:** `/pd:write-code`, `/pd:fix-bug`, or `/pd:complete-milestone`
+
+**Standalone mode** (`--standalone`): Test any module or file without requiring `/pd:init`, milestone, plan, or `/pd:write-code`. Auto-detects tech stack. Creates standalone report in `.planning/reports/`.
 </objective>
 
 <guards>
 Stop and instruct the user if any of the following conditions fail:
+
+**If `--standalone` flag is present (standalone mode):**
+
+- [ ] Valid path provided OR `--all` flag used OR prompt user → "Provide a target path or use `--standalone --all`."
+- FastCode MCP: check connection → if unavailable, warn "⚠️ FastCode unavailable — using Grep/Read fallback" and CONTINUE (do not stop).
+- Context7 MCP: check connection → if unavailable, warn "⚠️ Context7 unavailable — skipping library docs lookup" and CONTINUE (do not stop).
+
+**Otherwise (standard mode — default):**
 
 @references/guard-context.md
 - [ ] Valid task number or `--all` flag provided -> "Provide a task number or use `--all`."
@@ -42,6 +52,13 @@ User input: $ARGUMENTS
 Additional reads:
 - `.planning/rules/general.md` -> general rules
 - `.planning/rules/{nestjs,wordpress,solidity,flutter}.md` -> build & lint rules (ONLY if they exist)
+
+Standalone mode additional context:
+
+- `--standalone [path]` → test only the specified file or directory (recursive scan)
+- `--standalone --all` → test all project source files
+- `--standalone` alone (no path, no --all) → prompt user for target
+- No `.planning/CONTEXT.md` required — auto-detect tech stack from file markers
 </context>
 
 <execution_context>
@@ -71,6 +88,12 @@ Execute @workflows/test.md from start to finish.
 - Tests fail -> read the failure, fix the test or the code, then run again
 - Test framework not found -> check `package.json` and the configuration
 - MCP is not connected -> check Docker and configuration
+
+**Standalone mode output:**
+
+- `STANDALONE_TEST_REPORT_[YYYYMMDD_HHMMSS].md` in `.planning/reports/`
+- Bug reports with `Patch version: standalone` in `.planning/bugs/`
+- **Next step:** Fix bugs manually or re-test with `/pd:test --standalone`
 </output>
 
 <rules>
