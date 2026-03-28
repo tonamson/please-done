@@ -1,13 +1,13 @@
 /**
- * Research Store Module — Tao va parse research files.
+ * Research Store Module — Create and parse research files.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Content truyen qua tham so, return structured object.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Content passed via parameters, returns structured object.
  *
- * - createEntry: tao markdown content voi frontmatter chuan
+ * - createEntry: create markdown content with standard frontmatter
  * - parseEntry: parse research file content, validate required fields
- * - validateConfidence: kiem tra confidence hop le (HIGH/MEDIUM/LOW)
- * - generateFilename: tao ten file theo source type (internal/external)
+ * - validateConfidence: check if confidence is valid (HIGH/MEDIUM/LOW)
+ * - generateFilename: create filename by source type (internal/external)
  */
 
 'use strict';
@@ -18,10 +18,10 @@ const { generateIndex: _genIndex } = require('./index-generator');
 // ─── Constants ────────────────────────────────────────────
 
 /**
- * 3 bac confidence chuan cho research files.
+ * 3 standard confidence levels for research files.
  * - HIGH: Official docs, codebase analysis, verified sources
- * - MEDIUM: Nhieu nguon dong y, community consensus
- * - LOW: 1 nguon duy nhat, khong xac minh duoc
+ * - MEDIUM: Multiple sources agree, community consensus
+ * - LOW: Single source only, unverifiable
  */
 const CONFIDENCE_LEVELS = {
   HIGH: 'HIGH',
@@ -30,32 +30,32 @@ const CONFIDENCE_LEVELS = {
 };
 
 /**
- * Mo ta tieu chi cho tung bac confidence.
+ * Description of criteria for each confidence level.
  */
 const CONFIDENCE_CRITERIA = {
   HIGH: 'Official docs, codebase, verified sources',
-  MEDIUM: 'Nhieu nguon dong y, community consensus',
-  LOW: '1 nguon duy nhat hoac khong xac minh duoc',
+  MEDIUM: 'Multiple sources agree, community consensus',
+  LOW: 'Single source only or unverifiable',
 };
 
 /**
- * Danh sach truong bat buoc trong frontmatter research file.
- * Theo AUDIT-01: agent, created, source, topic, confidence.
+ * List of required fields in research file frontmatter.
+ * Per AUDIT-01: agent, created, source, topic, confidence.
  */
 const REQUIRED_FIELDS = ['agent', 'created', 'source', 'topic', 'confidence'];
 
 /**
- * Source types hop le.
+ * Valid source types.
  */
 const SOURCE_TYPES = ['internal', 'external'];
 
 // ─── validateConfidence ────────────────────────────────────
 
 /**
- * Kiem tra confidence level co hop le khong.
+ * Check if confidence level is valid.
  *
- * @param {string} level - Confidence level can kiem tra
- * @returns {boolean} true neu hop le (HIGH/MEDIUM/LOW)
+ * @param {string} level - Confidence level to check
+ * @returns {boolean} true if valid (HIGH/MEDIUM/LOW)
  */
 function validateConfidence(level) {
   if (level == null || typeof level !== 'string') return false;
@@ -65,31 +65,31 @@ function validateConfidence(level) {
 // ─── generateFilename ──────────────────────────────────────
 
 /**
- * Tao ten file research theo source type.
+ * Create research filename by source type.
  *
- * - internal: `[slug].md` (slugified tu topic)
- * - external: `RES-[ID]-[SLUG].md` (id bat buoc)
+ * - internal: `[slug].md` (slugified from topic)
+ * - external: `RES-[ID]-[SLUG].md` (id required)
  *
  * @param {object} options
- * @param {string} options.source - 'internal' hoac 'external'
- * @param {string} options.topic - Chu de research
- * @param {number} [options.id] - So thu tu (bat buoc cho external)
- * @param {string} [options.slug] - Custom slug (neu khong co, tu dong tao tu topic)
- * @returns {string} Ten file
- * @throws {Error} Khi thieu tham so bat buoc
+ * @param {string} options.source - 'internal' or 'external'
+ * @param {string} options.topic - Research topic
+ * @param {number} [options.id] - Sequence number (required for external)
+ * @param {string} [options.slug] - Custom slug (if not provided, auto-generated from topic)
+ * @returns {string} Filename
+ * @throws {Error} When required parameters are missing
  */
 function generateFilename(options) {
   if (!options || !options.source || !options.topic) {
-    throw new Error('thieu tham so bat buoc: source, topic');
+    throw new Error('missing required parameters: source, topic');
   }
 
   const { source, topic, id, slug } = options;
 
   if (!SOURCE_TYPES.includes(source)) {
-    throw new Error(`source khong hop le: ${source}. Chi chap nhan: ${SOURCE_TYPES.join(', ')}`);
+    throw new Error(`invalid source: ${source}. Accepted values: ${SOURCE_TYPES.join(', ')}`);
   }
 
-  // Tao slug tu topic hoac dung custom slug
+  // Create slug from topic or use custom slug
   const finalSlug = slug || topic
     .toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '')
@@ -100,7 +100,7 @@ function generateFilename(options) {
 
   if (source === 'external') {
     if (id == null || typeof id !== 'number' || id < 1) {
-      throw new Error('external source yeu cau id (so nguyen duong)');
+      throw new Error('external source requires id (positive integer)');
     }
     const paddedId = String(id).padStart(3, '0');
     return `RES-${paddedId}-${finalSlug}.md`;
@@ -113,45 +113,45 @@ function generateFilename(options) {
 // ─── createEntry ───────────────────────────────────────────
 
 /**
- * Tao markdown content cho research file voi frontmatter chuan.
+ * Create markdown content for research file with standard frontmatter.
  *
  * @param {object} options
- * @param {string} options.agent - Ten agent tao file (vd: 'evidence-collector')
- * @param {string} options.source - 'internal' hoac 'external'
- * @param {string} options.topic - Chu de research
+ * @param {string} options.agent - Agent name that created file (e.g., 'evidence-collector')
+ * @param {string} options.source - 'internal' or 'external'
+ * @param {string} options.topic - Research topic
  * @param {string} options.confidence - HIGH/MEDIUM/LOW
- * @param {string} [options.body] - Noi dung body (mac dinh rong)
- * @param {number} [options.id] - So thu tu (bat buoc cho external)
- * @param {string} [options.slug] - Custom slug cho filename
- * @param {string} [options.created] - ISO-8601 timestamp (mac dinh: now)
+ * @param {string} [options.body] - Body content (default empty)
+ * @param {number} [options.id] - Sequence number (required for external)
+ * @param {string} [options.slug] - Custom slug for filename
+ * @param {string} [options.created] - ISO-8601 timestamp (default: now)
  * @returns {{ content: string, filename: string }}
- * @throws {Error} Khi thieu truong bat buoc hoac gia tri khong hop le
+ * @throws {Error} When required fields are missing or values are invalid
  */
 function createEntry(options) {
   if (!options) {
-    throw new Error('thieu tham so options');
+    throw new Error('missing options parameter');
   }
 
   const { agent, source, topic, confidence, body, id, slug, created, claims } = options;
 
   // Validate required fields
   if (!agent || typeof agent !== 'string') {
-    throw new Error('thieu truong bat buoc: agent');
+    throw new Error('missing required field: agent');
   }
   if (!source || typeof source !== 'string') {
-    throw new Error('thieu truong bat buoc: source');
+    throw new Error('missing required field: source');
   }
   if (!SOURCE_TYPES.includes(source)) {
-    throw new Error(`source khong hop le: ${source}. Chi chap nhan: ${SOURCE_TYPES.join(', ')}`);
+    throw new Error(`invalid source: ${source}. Accepted values: ${SOURCE_TYPES.join(', ')}`);
   }
   if (!topic || typeof topic !== 'string') {
-    throw new Error('thieu truong bat buoc: topic');
+    throw new Error('missing required field: topic');
   }
   if (!confidence || typeof confidence !== 'string') {
-    throw new Error('thieu truong bat buoc: confidence');
+    throw new Error('missing required field: confidence');
   }
   if (!validateConfidence(confidence)) {
-    throw new Error(`confidence khong hop le: ${confidence}. Chi chap nhan: HIGH, MEDIUM, LOW`);
+    throw new Error(`invalid confidence: ${confidence}. Accepted values: HIGH, MEDIUM, LOW`);
   }
 
   // Build frontmatter
@@ -164,9 +164,9 @@ function createEntry(options) {
   };
 
   // Build body
-  const bodyContent = body || `# ${topic}\n\n## Bang chung\n\n_(Chua co bang chung)_\n`;
+  const bodyContent = body || `# ${topic}\n\n## Evidence\n\n_(No evidence yet)_\n`;
 
-  // Render claims neu co
+  // Render claims if present
   let finalBody = bodyContent;
   if (Array.isArray(claims) && claims.length > 0) {
     const renderedClaims = claims.map(c => {
@@ -178,9 +178,9 @@ function createEntry(options) {
       return line;
     }).join('\n');
 
-    if (finalBody.includes('## Bang chung')) {
-      // Append claims vao cuoi section Bang chung hien co
-      const sectionEnd = finalBody.match(/^## Bang chung\s*\n([\s\S]*?)(?=^## |\s*$)/m);
+    if (finalBody.includes('## Evidence')) {
+      // Append claims to end of existing Evidence section
+      const sectionEnd = finalBody.match(/^## Evidence\s*\n([\s\S]*?)(?=^## |\s*$)/m);
       if (sectionEnd) {
         const insertPos = sectionEnd.index + sectionEnd[0].length;
         const before = finalBody.slice(0, insertPos).trimEnd();
@@ -188,8 +188,8 @@ function createEntry(options) {
         finalBody = before + '\n' + renderedClaims + '\n' + after;
       }
     } else {
-      // Them section ## Bang chung moi
-      finalBody = finalBody.trimEnd() + '\n\n## Bang chung\n\n' + renderedClaims + '\n';
+      // Add new ## Evidence section
+      finalBody = finalBody.trimEnd() + '\n\n## Evidence\n\n' + renderedClaims + '\n';
     }
   }
 
@@ -207,7 +207,7 @@ function createEntry(options) {
 /**
  * Parse research file content, validate required fields.
  *
- * @param {string} content - Noi dung markdown cua research file
+ * @param {string} content - Markdown content of research file
  * @returns {{ frontmatter: object, body: string, valid: boolean, errors: string[] }}
  */
 function parseEntry(content) {
@@ -216,7 +216,7 @@ function parseEntry(content) {
       frontmatter: {},
       body: '',
       valid: false,
-      errors: ['content khong hop le hoac rong'],
+      errors: ['content is invalid or empty'],
     };
   }
 
@@ -226,18 +226,18 @@ function parseEntry(content) {
   // Validate required fields
   for (const field of REQUIRED_FIELDS) {
     if (!frontmatter[field]) {
-      errors.push(`thieu truong bat buoc: ${field}`);
+      errors.push(`missing required field: ${field}`);
     }
   }
 
   // Validate confidence level
   if (frontmatter.confidence && !validateConfidence(frontmatter.confidence)) {
-    errors.push(`confidence khong hop le: ${frontmatter.confidence}`);
+    errors.push(`invalid confidence: ${frontmatter.confidence}`);
   }
 
   // Validate source type
   if (frontmatter.source && !SOURCE_TYPES.includes(frontmatter.source)) {
-    errors.push(`source khong hop le: ${frontmatter.source}`);
+    errors.push(`invalid source: ${frontmatter.source}`);
   }
 
   return {
@@ -251,43 +251,43 @@ function parseEntry(content) {
 // ─── validateEvidence ─────────────────────────────────────
 
 /**
- * Kiem tra research file co section Bang chung hop le hay khong.
- * Non-blocking: tra { valid, warnings } thay vi throw khi format sai.
- * Chi throw khi content null/undefined/empty (loi lap trinh).
+ * Check if research file has a valid Evidence section.
+ * Non-blocking: returns { valid, warnings } instead of throwing on bad format.
+ * Only throws when content is null/undefined/empty (programming error).
  *
  * Claim format: `- [text] — [source] (confidence: LEVEL)`
- * Cho phep ca em dash (—) va double dash (--) lam source separator.
+ * Allows both em dash (—) and double dash (--) as source separator.
  *
- * @param {string} content - Noi dung research file
+ * @param {string} content - Research file content
  * @returns {{ valid: boolean, warnings: string[] }}
- * @throws {Error} Khi content null/undefined/empty
+ * @throws {Error} When content is null/undefined/empty
  */
 function validateEvidence(content) {
   if (content == null || typeof content !== 'string' || content.trim() === '') {
-    throw new Error('thieu tham so content');
+    throw new Error('missing content parameter');
   }
 
   const warnings = [];
 
-  // Kiem tra section ## Bang chung ton tai
-  const hasSection = /^## Bang chung/m.test(content);
+  // Check if ## Evidence section exists
+  const hasSection = /^## Evidence/m.test(content);
   if (!hasSection) {
-    warnings.push('thieu section: ## Bang chung');
+    warnings.push('missing section: ## Evidence');
     return { valid: false, warnings };
   }
 
-  // Dung parseClaims thay vi tu parse (D-07)
+  // Use parseClaims instead of manual parsing (D-07)
   const claims = parseClaims(content);
   if (claims.length === 0) {
-    warnings.push('section Bang chung rong');
+    warnings.push('Evidence section is empty');
     return { valid: false, warnings };
   }
 
-  // Kiem tra tung claim co source separator khong (giu nguyen logic)
+  // Check if each claim has a source separator (preserve logic)
   for (const claim of claims) {
     if (claim.source === null) {
       const truncated = claim.text.slice(0, 60) + (claim.text.length > 60 ? '...' : '');
-      warnings.push(`claim thieu source: - ${truncated}`);
+      warnings.push(`claim missing source: - ${truncated}`);
     }
   }
 
@@ -297,25 +297,25 @@ function validateEvidence(content) {
 // ─── parseClaims ──────────────────────────────────────────
 
 /**
- * Extract structured claims tu section ## Bang chung.
- * Moi claim co format: `- [text] — [source] (confidence: LEVEL)`
- * Cho phep em dash (—) va double dash (--) lam source separator.
+ * Extract structured claims from ## Evidence section.
+ * Each claim has format: `- [text] — [source] (confidence: LEVEL)`
+ * Allows em dash (—) and double dash (--) as source separator.
  *
- * @param {string} content - Noi dung research file
+ * @param {string} content - Research file content
  * @returns {Array<{ text: string, source: string|null, confidence: string|null }>}
  */
 function parseClaims(content) {
   if (content == null || typeof content !== 'string') return [];
 
-  // Extract section ## Bang chung — tat ca noi dung cho den ## tiep theo hoac EOF
-  const sectionMatch = content.match(/## Bang chung\s*\n([\s\S]*?)(?=\n## |$)/);
+  // Extract ## Evidence section — all content until next ## or EOF
+  const sectionMatch = content.match(/## Evidence\s*\n([\s\S]*?)(?=\n## |$)/);
   if (!sectionMatch || !sectionMatch[1].trim()) return [];
 
   const lines = sectionMatch[1].match(/^- .+/gm) || [];
   return lines.map(line => {
-    const text = line.slice(2).trim(); // Bo "- " prefix
+    const text = line.slice(2).trim(); // Remove "- " prefix
 
-    // Tim source separator: em dash hoac double dash (D-06)
+    // Find source separator: em dash or double dash (D-06)
     const sepMatch = text.match(/^(.+?)\s*(?:\u2014|--)\s*(.+)$/);
     if (!sepMatch) {
       return { text, source: null, confidence: null };
@@ -325,7 +325,7 @@ function parseClaims(content) {
     let sourceText = sepMatch[2].trim();
     let confidence = null;
 
-    // Extract confidence tag tu cuoi source (D-09: null neu khong co)
+    // Extract confidence tag from end of source (D-09: null if not present)
     const confMatch = sourceText.match(/^(.*?)\s*\(confidence:\s*(HIGH|MEDIUM|LOW)\)\s*$/i);
     if (confMatch) {
       sourceText = confMatch[1].trim();
@@ -339,38 +339,38 @@ function parseClaims(content) {
 // ─── appendAuditLog ───────────────────────────────────────
 
 /**
- * Tao hoac cap nhat noi dung AUDIT_LOG.md.
- * Neu existingContent rong/null/khong co header => tao header truoc.
- * Append 1 row moi voi timestamp hien tai.
+ * Create or update AUDIT_LOG.md content.
+ * If existingContent is empty/null/has no header => create header first.
+ * Appends 1 new row with current timestamp.
  *
- * Pure function: return string, KHONG ghi file. Caller ghi file.
+ * Pure function: returns string, does NOT write file. Caller writes file.
  *
- * @param {string|null} existingContent - Noi dung hien tai cua AUDIT_LOG.md (hoac null/rong)
- * @param {object} entry - Thong tin audit
- * @param {string} entry.agent - Ten agent (vd: 'collector', 'verifier')
- * @param {string} entry.action - Hanh dong (vd: 'collect', 'verify', 'index')
- * @param {string} entry.topic - Chu de research
- * @param {number} entry.sourceCount - So luong sources
+ * @param {string|null} existingContent - Current AUDIT_LOG.md content (or null/empty)
+ * @param {object} entry - Audit info
+ * @param {string} entry.agent - Agent name (e.g., 'collector', 'verifier')
+ * @param {string} entry.action - Action (e.g., 'collect', 'verify', 'index')
+ * @param {string} entry.topic - Research topic
+ * @param {number} entry.sourceCount - Number of sources
  * @param {string} entry.confidence - Confidence level (HIGH/MEDIUM/LOW)
- * @returns {string} Noi dung AUDIT_LOG.md da cap nhat
- * @throws {Error} Khi thieu entry
+ * @returns {string} Updated AUDIT_LOG.md content
+ * @throws {Error} When entry is missing
  */
 const AUDIT_HEADER = '| Timestamp | Agent | Action | Topic | Sources | Confidence |';
 const AUDIT_SEPARATOR = '|-----------|-------|--------|-------|---------|------------|';
 
 function appendAuditLog(existingContent, entry) {
   if (entry == null) {
-    throw new Error('thieu tham so entry');
+    throw new Error('missing entry parameter');
   }
 
   let content = (existingContent || '').trim();
 
-  // Tao header neu chua co
+  // Create header if not present
   if (!content || !content.includes(AUDIT_HEADER)) {
     content = `# Audit Log\n\n${AUDIT_HEADER}\n${AUDIT_SEPARATOR}`;
   }
 
-  // Append row moi
+  // Append new row
   const timestamp = new Date().toISOString();
   const row = `| ${timestamp} | ${entry.agent} | ${entry.action} | ${entry.topic} | ${entry.sourceCount} | ${entry.confidence} |`;
   content += `\n${row}`;
@@ -381,17 +381,17 @@ function appendAuditLog(existingContent, entry) {
 // ─── generateIndex ────────────────────────────────────────
 
 /**
- * Tao noi dung INDEX.md tu danh sach entries.
- * Delegate sang index-generator.js (per D-04) — 1 source of truth.
- * Map field names cho backward compat: fileName -> filename.
+ * Create INDEX.md content from list of entries.
+ * Delegates to index-generator.js (per D-04) — single source of truth.
+ * Maps field names for backward compat: fileName -> filename.
  *
- * Pure function: return string, KHONG ghi file. Caller ghi file.
+ * Pure function: returns string, does NOT write file. Caller writes file.
  *
- * @param {Array|null} entries - Mang { fileName, source, topic, confidence, created }
- * @returns {string} Noi dung INDEX.md dang markdown
+ * @param {Array|null} entries - Array of { fileName, source, topic, confidence, created }
+ * @returns {string} INDEX.md content as markdown
  */
 function generateIndex(entries) {
-  // Map field names cho backward compat: fileName (camelCase) -> filename (lowercase)
+  // Map field names for backward compat: fileName (camelCase) -> filename (lowercase)
   const mapped = (Array.isArray(entries) ? entries : []).map(e => ({
     filename: e.fileName || e.filename || '-',
     source: e.source || '-',
@@ -405,16 +405,16 @@ function generateIndex(entries) {
 // ─── routeQuery ────────────────────────────────────────────
 
 /**
- * Phan loai query thanh internal hoac external.
- * Pure function: nhan string, return 'internal' | 'external'.
+ * Classify query as internal or external.
+ * Pure function: receives string, returns 'internal' | 'external'.
  *
  * Heuristic (D-02):
- * - Internal: ten file (.ts, .js, .md...), function/class name (camelCase, PascalCase),
+ * - Internal: file names (.ts, .js, .md...), function/class names (camelCase, PascalCase),
  *   path patterns (src/, ./), definition keywords (ham, function, class, interface, enum)
- * - External: ten thu vien, API, protocol — khong match internal patterns
- * - Fallback (D-03): external (an toan hon — tra cuu docs rong hon cuc bo)
+ * - External: library names, APIs, protocols — does not match internal patterns
+ * - Fallback (D-03): external (safer — broader docs lookup than local)
  *
- * @param {string} query - Cau hoi research
+ * @param {string} query - Research query
  * @returns {'internal' | 'external'}
  */
 function routeQuery(query) {
@@ -424,7 +424,7 @@ function routeQuery(query) {
 
   const q = query.trim();
 
-  // Internal patterns — nhan dien references toi codebase
+  // Internal patterns — identify references to codebase
   const internalPatterns = [
     /\.[tj]sx?(?:\s|$|,|:|'|"|\))/i,                         // .ts, .js, .tsx, .jsx extensions
     /\.[mc]js(?:\s|$|,|:|'|"|\))/i,                          // .mjs, .cjs

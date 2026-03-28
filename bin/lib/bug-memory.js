@@ -1,12 +1,12 @@
 /**
- * Bug Memory Module — Luu tru, tim kiem, va index hoa lich su bug.
+ * Bug Memory Module — Store, search, and index bug history.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Content truyen qua tham so, return structured object.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Content passed via parameters, returns structured object.
  *
- * - createBugRecord: tao bug record moi voi YAML frontmatter
- * - searchBugs: tim bug tuong tu bang 3-field scoring
- * - buildIndex: generate INDEX.md voi bang theo File, Function, Keyword, All Bugs
+ * - createBugRecord: create new bug record with YAML frontmatter
+ * - searchBugs: find similar bugs using 3-field scoring
+ * - buildIndex: generate INDEX.md with tables by File, Function, Keyword, All Bugs
  */
 
 'use strict';
@@ -16,28 +16,28 @@ const { parseFrontmatter, assembleMd } = require('./utils');
 // ─── createBugRecord ────────────────────────────────────
 
 /**
- * Tao bug record moi tu thong tin bug.
+ * Create new bug record from bug information.
  *
  * @param {object} params
- * @param {Array<{number: number}>} [params.existingBugs=[]] - Bugs hien co
- * @param {string} params.file - File bi loi (bat buoc)
- * @param {string} [params.functionName=''] - Ten ham bi loi
- * @param {string} [params.errorMessage=''] - Thong bao loi
+ * @param {Array<{number: number}>} [params.existingBugs=[]] - Existing bugs
+ * @param {string} params.file - File with the bug (required)
+ * @param {string} [params.functionName=''] - Function name with the bug
+ * @param {string} [params.errorMessage=''] - Error message
  * @param {string} [params.sessionId=''] - Session ID
- * @param {string} params.rootCause - Nguyen nhan goc (bat buoc)
- * @param {string} [params.fix=''] - Cach fix
+ * @param {string} params.rootCause - Root cause (required)
+ * @param {string} [params.fix=''] - Fix description
  * @returns {{ id: string, fileName: string, content: string, number: number }}
- * @throws {Error} Khi thieu file hoac rootCause
+ * @throws {Error} When file or rootCause is missing
  */
 function createBugRecord({ existingBugs = [], file, functionName, errorMessage, sessionId, rootCause, fix } = {}) {
   if (!file || typeof file !== 'string' || file.trim() === '') {
-    throw new Error('thieu tham so file');
+    throw new Error('missing parameter: file');
   }
   if (!rootCause || typeof rootCause !== 'string' || rootCause.trim() === '') {
-    throw new Error('thieu tham so rootCause');
+    throw new Error('missing parameter: rootCause');
   }
 
-  // Tim so tiep theo — max+1, khong reuse
+  // Find next number — max+1, no reuse
   let num = 1;
   if (existingBugs && existingBugs.length > 0) {
     const maxNum = Math.max(...existingBugs.map(b => b.number));
@@ -59,7 +59,7 @@ function createBugRecord({ existingBugs = [], file, functionName, errorMessage, 
     status: 'resolved',
   };
 
-  const body = `\nNguyen nhan: ${rootCause.trim()}\nFix: ${fix ? fix.trim() : ''}\n`;
+  const body = `\nRoot cause: ${rootCause.trim()}\nFix: ${fix ? fix.trim() : ''}\n`;
 
   const content = assembleMd(frontmatter, body);
 
@@ -69,13 +69,13 @@ function createBugRecord({ existingBugs = [], file, functionName, errorMessage, 
 // ─── searchBugs ─────────────────────────────────────────
 
 /**
- * Tim bug tuong tu bang 3-field scoring: file, function, error_message.
+ * Find similar bugs using 3-field scoring: file, function, error_message.
  *
  * @param {object} params
- * @param {Array} [params.bugRecords=[]] - Danh sach bug records (co frontmatter)
- * @param {string} [params.file=''] - File can tim
- * @param {string} [params.functionName=''] - Function can tim
- * @param {string} [params.errorMessage=''] - Error message can tim
+ * @param {Array} [params.bugRecords=[]] - Bug record list (with frontmatter)
+ * @param {string} [params.file=''] - File to search
+ * @param {string} [params.functionName=''] - Function to search
+ * @param {string} [params.errorMessage=''] - Error message to search
  * @returns {{ matches: Array<{id, score, file, function, error_message}>, warnings: string[] }}
  */
 function searchBugs({ bugRecords = [], file, functionName, errorMessage } = {}) {
@@ -86,22 +86,22 @@ function searchBugs({ bugRecords = [], file, functionName, errorMessage } = {}) 
   const searchFunc = (functionName || '').trim().toLowerCase();
   const searchError = (errorMessage || '').trim().toLowerCase();
 
-  // Guard: tat ca tieu chi deu rong
+  // Guard: all search criteria are empty
   if (!searchFile && !searchFunc && !searchError) {
-    return { matches: [], warnings: ['thieu tat ca tieu chi tim kiem'] };
+    return { matches: [], warnings: ['all search criteria are empty'] };
   }
 
   for (const record of bugRecords) {
-    // Kiem tra frontmatter
+    // Check frontmatter
     if (!record.frontmatter) {
-      warnings.push('bug record khong co frontmatter');
+      warnings.push('bug record has no frontmatter');
       continue;
     }
 
     const fm = record.frontmatter;
     let score = 0;
 
-    // File path: case-insensitive substring CA 2 CHIEU
+    // File path: case-insensitive substring BOTH DIRECTIONS
     if (searchFile) {
       const bugFile = (fm.file || '').toLowerCase();
       if (bugFile && (bugFile.includes(searchFile) || searchFile.includes(bugFile))) {
@@ -117,7 +117,7 @@ function searchBugs({ bugRecords = [], file, functionName, errorMessage } = {}) 
       }
     }
 
-    // Error message: case-insensitive substring CA 2 CHIEU
+    // Error message: case-insensitive substring BOTH DIRECTIONS
     if (searchError) {
       const bugError = (fm.error_message || '').toLowerCase();
       if (bugError && (bugError.includes(searchError) || searchError.includes(bugError))) {
@@ -145,9 +145,9 @@ function searchBugs({ bugRecords = [], file, functionName, errorMessage } = {}) 
 // ─── buildIndex ─────────────────────────────────────────
 
 /**
- * Generate INDEX.md tu danh sach bug records.
+ * Generate INDEX.md from bug record list.
  *
- * @param {Array} bugRecords - Danh sach bug records (co frontmatter)
+ * @param {Array} bugRecords - Bug record list (with frontmatter)
  * @returns {string} Markdown string
  */
 function buildIndex(bugRecords) {
@@ -155,14 +155,14 @@ function buildIndex(bugRecords) {
   const count = bugRecords.length;
 
   if (count === 0) {
-    return `# Bug Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** 0 bugs\n`;
+    return `# Bug Index\n\n**Updated:** ${timestamp}\n**Total:** 0 bugs\n`;
   }
 
   // Group by file
   const byFile = {};
   // Group by function
   const byFunc = {};
-  // Collect keywords tu error_message
+  // Collect keywords from error_message
   const byKeyword = {};
 
   for (const record of bugRecords) {
@@ -180,9 +180,9 @@ function buildIndex(bugRecords) {
     if (!byFunc[func]) byFunc[func] = [];
     byFunc[func].push(id);
 
-    // Extract keywords tu error message
+    // Extract keywords from error message
     if (errorMsg) {
-      // Lay keyword chinh: truoc dau ':' hoac toan bo neu khong co ':'
+      // Get main keyword: before ':' or entire message if no ':'
       const keyword = errorMsg.includes(':') ? errorMsg.split(':')[0].trim() : errorMsg.trim();
       if (keyword) {
         if (!byKeyword[keyword]) byKeyword[keyword] = [];
@@ -191,34 +191,34 @@ function buildIndex(bugRecords) {
     }
   }
 
-  let md = `# Bug Index\n\n**Cap nhat:** ${timestamp}\n**Tong so:** ${count} bugs\n`;
+  let md = `# Bug Index\n\n**Updated:** ${timestamp}\n**Total:** ${count} bugs\n`;
 
-  // Section: Theo File
-  md += '\n## Theo File\n\n';
+  // Section: By File
+  md += '\n## By File\n\n';
   md += '| File | Bug IDs | Count |\n';
   md += '|------|---------|-------|\n';
   for (const [file, ids] of Object.entries(byFile)) {
     md += `| ${file} | ${ids.join(', ')} | ${ids.length} |\n`;
   }
 
-  // Section: Theo Function
-  md += '\n## Theo Function\n\n';
+  // Section: By Function
+  md += '\n## By Function\n\n';
   md += '| Function | Bug IDs | Count |\n';
   md += '|----------|---------|-------|\n';
   for (const [func, ids] of Object.entries(byFunc)) {
     md += `| ${func} | ${ids.join(', ')} | ${ids.length} |\n`;
   }
 
-  // Section: Theo Keyword
-  md += '\n## Theo Keyword (Error Message)\n\n';
+  // Section: By Keyword (Error Message)
+  md += '\n## By Keyword (Error Message)\n\n';
   md += '| Keyword | Bug IDs | Count |\n';
   md += '|---------|---------|-------|\n';
   for (const [kw, ids] of Object.entries(byKeyword)) {
     md += `| ${kw} | ${ids.join(', ')} | ${ids.length} |\n`;
   }
 
-  // Section: Tat ca Bugs
-  md += '\n## Tat ca Bugs\n\n';
+  // Section: All Bugs
+  md += '\n## All Bugs\n\n';
   md += '| ID | File | Function | Error | Status | Session | Resolved |\n';
   md += '|----|------|----------|-------|--------|---------|----------|\n';
   for (const record of bugRecords) {

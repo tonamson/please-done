@@ -1,6 +1,6 @@
 /**
- * Tiện ích chung cho installer — parse frontmatter, hash files,
- * copy với path replacement, và terminal colors.
+ * Common utilities for installer — parse frontmatter, hash files,
+ * copy with path replacement, and terminal colors.
  */
 
 'use strict';
@@ -44,8 +44,8 @@ const log = {
 // ─── Frontmatter parser ───────────────────────────────────
 
 /**
- * Parse YAML frontmatter từ markdown content.
- * Trả về { frontmatter: object, body: string, raw: string }
+ * Parse YAML frontmatter from markdown content.
+ * Returns { frontmatter: object, body: string, raw: string }
  */
 function parseFrontmatter(content) {
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
@@ -102,7 +102,7 @@ function parseFrontmatter(content) {
 }
 
 /**
- * Rebuild YAML frontmatter từ object.
+ * Rebuild YAML frontmatter from object.
  */
 function buildFrontmatter(fm) {
   const lines = [];
@@ -120,7 +120,7 @@ function buildFrontmatter(fm) {
 }
 
 /**
- * Combine frontmatter + body thành markdown hoàn chỉnh.
+ * Combine frontmatter + body into complete markdown.
  */
 function assembleMd(frontmatter, body) {
   const fm = buildFrontmatter(frontmatter);
@@ -130,7 +130,7 @@ function assembleMd(frontmatter, body) {
 // ─── File utilities ───────────────────────────────────────
 
 /**
- * SHA256 hash cho nội dung file.
+ * SHA256 hash for file content.
  */
 function fileHash(filePath) {
   const content = fs.readFileSync(filePath);
@@ -138,8 +138,8 @@ function fileHash(filePath) {
 }
 
 /**
- * Đọc danh sách skill files từ source directory.
- * Trả về array of { name, filePath, content }
+ * Read list of skill files from source directory.
+ * Returns array of { name, filePath, content }
  */
 function listSkillFiles(skillsDir) {
   const files = fs.readdirSync(skillsDir)
@@ -153,7 +153,7 @@ function listSkillFiles(skillsDir) {
 }
 
 /**
- * Kiểm tra command có tồn tại trong PATH.
+ * Check if command exists in PATH.
  */
 function commandExists(cmd) {
   const { execSync } = require('child_process');
@@ -166,7 +166,7 @@ function commandExists(cmd) {
 }
 
 /**
- * Chạy shell command, trả về stdout.
+ * Run shell command, return stdout.
  */
 function exec(cmd, options = {}) {
   const { execSync } = require('child_process');
@@ -199,8 +199,8 @@ function isWSL() {
 // ─── Workflow inlining ─────────────────────────────────
 
 /**
- * Extract nội dung bên trong 1 XML tag từ string.
- * Trả về nội dung trim hoặc null nếu không tìm thấy.
+ * Extract content inside an XML tag from string.
+ * Returns trimmed content or null if not found.
  */
 function extractXmlSection(content, tagName) {
   const regex = new RegExp(`<${tagName}>([\\s\\S]*?)<\\/${tagName}>`);
@@ -209,8 +209,8 @@ function extractXmlSection(content, tagName) {
 }
 
 /**
- * Trích xuất các tham chiếu @templates/... và @references/... từ text.
- * Trả về array unique theo thứ tự xuất hiện.
+ * Extract @templates/... and @references/... references from text.
+ * Returns unique array in order of appearance.
  */
 function extractReadingRefs(content) {
   const refs = [];
@@ -228,9 +228,9 @@ function extractReadingRefs(content) {
 }
 
 /**
- * Thay thế @references/guard-*.md bằng nội dung file tương ứng.
- * Chỉ match các dòng standalone @references/guard-*.md (không match refs khác).
- * Nếu file không tồn tại, giữ nguyên dòng gốc.
+ * Replace @references/guard-*.md with corresponding file content.
+ * Only matches standalone @references/guard-*.md lines (does not match other refs).
+ * If file does not exist, keeps original line.
  */
 function inlineGuardRefs(body, skillsDir) {
   return body.replace(
@@ -244,19 +244,19 @@ function inlineGuardRefs(body, skillsDir) {
 }
 
 /**
- * Loading conditions cho optional references.
+ * Loading conditions for optional references.
  * Key = ref path (e.g., 'references/security-checklist.md')
- * Value = Vietnamese loading condition string
+ * Value = loading condition string
  */
 const CONDITIONAL_LOADING_MAP = {
-  'references/security-checklist.md': 'KHI task lien quan den auth, encryption, input validation, data exposure',
-  'references/ui-brand.md': 'KHI task tao/sua UI components hoac man hinh user-facing',
-  'references/verification.md': 'KHI task can multi-level verification (khong phai simple pass/fail)',
-  'references/state-machine.md': 'KHI task lien quan den milestone state transitions',
-  'references/questioning.md': 'KHI DISCUSS mode -- can interactive user questioning',
-  'references/prioritization.md': 'KHI task ordering/ranking nhieu tasks hoac triage',
-  'templates/current-milestone.md': 'KHI task lien quan den milestone state management',
-  'templates/state.md': 'KHI task lien quan den milestone state management',
+  'references/security-checklist.md': 'WHEN task relates to auth, encryption, input validation, data exposure',
+  'references/ui-brand.md': 'WHEN task creates/modifies UI components or user-facing screens',
+  'references/verification.md': 'WHEN task needs multi-level verification (not simple pass/fail)',
+  'references/state-machine.md': 'WHEN task relates to milestone state transitions',
+  'references/questioning.md': 'WHEN DISCUSS mode -- needs interactive user questioning',
+  'references/prioritization.md': 'WHEN task ordering/ranking multiple tasks or triage',
+  'templates/current-milestone.md': 'WHEN task relates to milestone state management',
+  'templates/state.md': 'WHEN task relates to milestone state management',
 };
 
 /**
@@ -288,20 +288,20 @@ function classifyRefs(executionContext) {
 }
 
 /**
- * Inline nội dung workflow vào body của command.
- * Nếu command tham chiếu @workflows/X.md, đọc file workflow và:
- * - Thay <execution_context> bằng <required_reading> từ workflow (only required refs)
- * - Append <conditional_reading> cho optional refs (file paths + loading conditions)
- * - Thay <process> mỏng bằng <process> đầy đủ từ workflow
- * - Merge <rules> từ command + workflow
+ * Inline workflow content into command body.
+ * If command references @workflows/X.md, read workflow file and:
+ * - Replace <execution_context> with <required_reading> from workflow (only required refs)
+ * - Append <conditional_reading> for optional refs (file paths + loading conditions)
+ * - Replace thin <process> with full <process> from workflow
+ * - Merge <rules> from command + workflow
  *
- * Dùng đường dẫn gốc Claude (~/.claude/) — converter sẽ replace paths sau.
+ * Uses original Claude path (~/.claude/) — converter will replace paths later.
  */
 function inlineWorkflow(body, skillsDir) {
   // Expand guard references (independent of workflow presence)
   body = inlineGuardRefs(body, skillsDir);
 
-  // Tìm tham chiếu @workflows/X.md
+  // Find @workflows/X.md reference
   const workflowMatch = body.match(/@workflows\/([a-z0-9_-]+\.md)/);
   if (!workflowMatch) return body;
 
@@ -311,7 +311,7 @@ function inlineWorkflow(body, skillsDir) {
 
   const workflowContent = fs.readFileSync(workflowPath, 'utf8');
 
-  // Extract sections từ workflow
+  // Extract sections from workflow
   const wfProcess = extractXmlSection(workflowContent, 'process');
   const wfRules = extractXmlSection(workflowContent, 'rules');
   const wfRequiredReading = extractXmlSection(workflowContent, 'required_reading');
@@ -321,14 +321,14 @@ function inlineWorkflow(body, skillsDir) {
   const { required: cmdRequired, optional: cmdOptional } = classifyRefs(executionContext);
   const optionalSet = new Set(cmdOptional);
 
-  // 1. Thay <execution_context> bằng <required_reading> từ workflow (only required refs)
+  // 1. Replace <execution_context> with <required_reading> from workflow (only required refs)
   if (wfRequiredReading) {
     let reading = wfRequiredReading;
-    // Transform @templates/ và @references/ thành [SKILLS_DIR]-based paths
+    // Transform @templates/ and @references/ into [SKILLS_DIR]-based paths
     reading = reading.replace(/@templates\//g, '[SKILLS_DIR]/templates/');
     reading = reading.replace(/@references\//g, '[SKILLS_DIR]/references/');
-    // Bỏ dòng chung "Đọc tất cả files được tham chiếu..."
-    reading = reading.replace(/Đọc tất cả files được tham chiếu trong execution_context.*?:\n?/g, '');
+    // Remove generic "Read all referenced files..." line
+    reading = reading.replace(/Read all referenced files in execution_context.*?:\n?/g, '');
 
     // Filter out optional refs from required_reading
     const filteredReading = reading.split('\n')
@@ -356,17 +356,17 @@ function inlineWorkflow(body, skillsDir) {
 
     body = body.replace(
       /<execution_context>[\s\S]*?<\/execution_context>/,
-      `<required_reading>\nĐọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:\n(Claude Code: cat ~/.claude/commands/pd/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)\n${requiredSection}\n</required_reading>`
+      `<required_reading>\nRead .pdconfig → get SKILLS_DIR, then read the following files before starting:\n(Claude Code: cat ~/.claude/commands/pd/.pdconfig — other platforms: converter auto-converts paths)\n${requiredSection}\n</required_reading>`
     );
 
     // Build <conditional_reading> for optional refs
     if (cmdOptional.length > 0) {
       const conditionalLines = cmdOptional.map(ref => {
-        const condition = CONDITIONAL_LOADING_MAP[ref] || 'KHI task can';
+        const condition = CONDITIONAL_LOADING_MAP[ref] || 'WHEN task needs it';
         return `- [SKILLS_DIR]/${ref} -- ${condition}`;
       });
 
-      const conditionalBlock = `\n<conditional_reading>\nĐọc CHỈ KHI cần (phân tích mô tả task trước):\n${conditionalLines.join('\n')}\n</conditional_reading>`;
+      const conditionalBlock = `\n<conditional_reading>\nRead ONLY WHEN needed (analyze task description first):\n${conditionalLines.join('\n')}\n</conditional_reading>`;
 
       body = body.replace(
         '</required_reading>',
@@ -377,10 +377,10 @@ function inlineWorkflow(body, skillsDir) {
     body = body.replace(/<execution_context>[\s\S]*?<\/execution_context>\n?/, '');
   }
 
-  // 1b. Inject <research_injection> từ workflow (sau conditional_reading, trước process)
+  // 1b. Inject <research_injection> from workflow (after conditional_reading, before process)
   if (wfResearchInjection) {
     const researchBlock = `\n<research_injection>\n${wfResearchInjection}\n</research_injection>`;
-    // Chèn sau </conditional_reading> nếu có, nếu không thì sau </required_reading>
+    // Insert after </conditional_reading> if present, otherwise after </required_reading>
     if (body.includes('</conditional_reading>')) {
       body = body.replace('</conditional_reading>', '</conditional_reading>' + researchBlock);
     } else if (body.includes('</required_reading>')) {
@@ -388,7 +388,7 @@ function inlineWorkflow(body, skillsDir) {
     }
   }
 
-  // 2. Thay <process> mỏng bằng <process> đầy đủ từ workflow
+  // 2. Replace thin <process> with full <process> from workflow
   if (wfProcess) {
     let processContent = wfProcess;
     processContent = processContent.replace(/@templates\//g, '[SKILLS_DIR]/templates/');

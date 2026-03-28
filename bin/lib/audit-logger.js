@@ -1,13 +1,13 @@
 /**
- * Audit Logger Module — Format va quan ly AUDIT_LOG.md append-only.
+ * Audit Logger Module — Format and manage AUDIT_LOG.md append-only.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Content truyen qua tham so, return string.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Content passed via parameters, returns string.
  *
- * - createAuditLog: tao AUDIT_LOG.md moi voi header
- * - formatLogEntry: format 1 dong audit log (table row)
- * - parseAuditLog: parse AUDIT_LOG.md content thanh entries
- * - appendLogEntry: append 1 entry vao cuoi log (append-only)
+ * - createAuditLog: create new AUDIT_LOG.md with header
+ * - formatLogEntry: format 1 audit log row (table row)
+ * - parseAuditLog: parse AUDIT_LOG.md content into entries
+ * - appendLogEntry: append 1 entry to end of log (append-only)
  */
 
 'use strict';
@@ -31,37 +31,37 @@ const VALID_ACTIONS = [
 // ─── createAuditLog ───────────────────────────────────────
 
 /**
- * Tao AUDIT_LOG.md moi voi header va bang rong.
+ * Create new AUDIT_LOG.md with header and empty table.
  *
- * @returns {string} Noi dung AUDIT_LOG.md
+ * @returns {string} AUDIT_LOG.md content
  */
 function createAuditLog() {
-  return `${AUDIT_LOG_TITLE}\n\nGhi lai moi hanh dong research. Append-only — KHONG sua hoac xoa entries cu.\n\n${TABLE_HEADER}\n${TABLE_SEPARATOR}\n`;
+  return `${AUDIT_LOG_TITLE}\n\nRecords all research actions. Append-only — do NOT edit or delete old entries.\n\n${TABLE_HEADER}\n${TABLE_SEPARATOR}\n`;
 }
 
 // ─── formatLogEntry ───────────────────────────────────────
 
 /**
- * Format 1 dong audit log thanh markdown table row.
+ * Format 1 audit log entry into a markdown table row.
  *
  * @param {object} entry
  * @param {string} entry.timestamp - ISO-8601 timestamp
- * @param {string} entry.agent - Ten agent thuc hien
- * @param {string} entry.action - Hanh dong (create, update, verify, cross-validate, archive)
- * @param {string} entry.topic - Chu de research
- * @param {number} [entry.sourceCount] - So nguon (mac dinh 0)
- * @param {string} [entry.confidence] - Confidence level (HIGH/MEDIUM/LOW, mac dinh '-')
+ * @param {string} entry.agent - Agent name that performed the action
+ * @param {string} entry.action - Action (create, update, verify, cross-validate, archive)
+ * @param {string} entry.topic - Research topic
+ * @param {number} [entry.sourceCount] - Number of sources (default 0)
+ * @param {string} [entry.confidence] - Confidence level (HIGH/MEDIUM/LOW, default '-')
  * @returns {string} Markdown table row
- * @throws {Error} Khi thieu truong bat buoc
+ * @throws {Error} When required fields are missing
  */
 function formatLogEntry(entry) {
   if (!entry || typeof entry !== 'object') {
-    throw new Error('entry khong hop le');
+    throw new Error('invalid entry');
   }
 
   for (const field of REQUIRED_ENTRY_FIELDS) {
     if (!entry[field] || typeof entry[field] !== 'string') {
-      throw new Error(`thieu truong bat buoc: ${field}`);
+      throw new Error(`missing required field: ${field}`);
     }
   }
 
@@ -80,9 +80,9 @@ function formatLogEntry(entry) {
 // ─── parseAuditLog ────────────────────────────────────────
 
 /**
- * Parse AUDIT_LOG.md content thanh structured data.
+ * Parse AUDIT_LOG.md content into structured data.
  *
- * @param {string} content - Noi dung AUDIT_LOG.md
+ * @param {string} content - AUDIT_LOG.md content
  * @returns {{ entries: Array<object>, header: string }}
  */
 function parseAuditLog(content) {
@@ -138,12 +138,12 @@ function parseAuditLog(content) {
 // ─── appendLogEntry ───────────────────────────────────────
 
 /**
- * Append 1 entry vao cuoi AUDIT_LOG.md.
- * Append-only: KHONG sua hoac xoa entries cu.
- * Neu content rong, tao log moi truoc.
+ * Append 1 entry to end of AUDIT_LOG.md.
+ * Append-only: does NOT edit or delete old entries.
+ * If content is empty, creates new log first.
  *
- * @param {string} existingContent - Noi dung AUDIT_LOG.md hien tai (co the rong)
- * @param {object} newEntry - Entry moi can them
+ * @param {string} existingContent - Current AUDIT_LOG.md content (may be empty)
+ * @param {object} newEntry - New entry to add
  * @returns {string} Updated content
  */
 function appendLogEntry(existingContent, newEntry) {
@@ -153,7 +153,7 @@ function appendLogEntry(existingContent, newEntry) {
     return createAuditLog() + row + '\n';
   }
 
-  // Dam bao co newline truoc row moi
+  // Ensure newline before new row
   const trimmed = existingContent.trimEnd();
   return trimmed + '\n' + row + '\n';
 }

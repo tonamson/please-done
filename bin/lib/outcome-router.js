@@ -1,18 +1,18 @@
 /**
- * Outcome Router Module — Dinh tuyen hanh dong theo ROOT CAUSE outcome (PROT-03).
+ * Outcome Router Module — Route actions based on ROOT CAUSE outcome (PROT-03).
  *
- * Khi agent tim duoc nguyen nhan loi, user duoc hien 3 lua chon:
- * "Sua ngay", "Len ke hoach", "Tu sua".
- * Module nay cung cap pure functions de orchestrator (Phase 32) goi.
+ * When the agent finds the root cause, the user is shown 3 choices:
+ * "Fix now", "Create plan", "Self fix".
+ * This module provides pure functions for the orchestrator (Phase 32) to call.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Content truyen qua tham so, return structured object voi warnings array.
+ * Pure functions: does NOT read files, does NOT require('fs'), NO side effects.
+ * Content passed via parameters, returns structured object with warnings array.
  *
- * - buildRootCauseMenu: tao menu 3 lua chon tu evidence root_cause
- * - prepareFixNow: tao action descriptor cho "Sua ngay"
- * - prepareFixPlan: tao FIX-PLAN.md content cho "Len ke hoach"
- * - prepareSelfFix: tao session update cho "Tu sua"
- * - ROOT_CAUSE_CHOICES: constant 3 lua chon
+ * - buildRootCauseMenu: create 3-choice menu from evidence root_cause
+ * - prepareFixNow: create action descriptor for "Fix now"
+ * - prepareFixPlan: create FIX-PLAN.md content for "Create plan"
+ * - prepareSelfFix: create session update for "Self fix"
+ * - ROOT_CAUSE_CHOICES: constant 3 choices
  */
 
 'use strict';
@@ -22,24 +22,24 @@ const { assembleMd } = require('./utils');
 
 // ─── Constants ────────────────────────────────────────────
 
-/** Gioi han so vong INCONCLUSIVE loop-back (FLOW-06). */
+/** Limit for INCONCLUSIVE loop-back rounds (FLOW-06). */
 const MAX_INCONCLUSIVE_ROUNDS = 3;
 
 /**
- * 3 lua chon khi ROOT CAUSE duoc tim thay (D-01).
+ * 3 choices when ROOT CAUSE is found (D-01).
  */
 const ROOT_CAUSE_CHOICES = [
-  { key: 'fix_now',  label: 'Sua ngay' },
-  { key: 'fix_plan', label: 'Len ke hoach' },
-  { key: 'self_fix', label: 'Tu sua' },
+  { key: 'fix_now',  label: 'Fix now' },
+  { key: 'fix_plan', label: 'Create plan' },
+  { key: 'self_fix', label: 'Self fix' },
 ];
 
 // ─── buildRootCauseMenu ──────────────────────────────────
 
 /**
- * Tao menu 3 lua chon tu evidence root_cause.
+ * Create 3-choice menu from evidence root_cause.
  *
- * @param {string} evidenceContent - Noi dung evidence file (frontmatter + body)
+ * @param {string} evidenceContent - Evidence file content (frontmatter + body)
  * @returns {{ question: string, choices: Array<{key: string, label: string}>, summary: string, warnings: string[] }}
  */
 function buildRootCauseMenu(evidenceContent) {
@@ -50,12 +50,12 @@ function buildRootCauseMenu(evidenceContent) {
       question: '',
       choices: [],
       summary: '',
-      warnings: [`outcome khong phai root_cause: ${parsed.outcome}`],
+      warnings: [`outcome is not root_cause: ${parsed.outcome}`],
     };
   }
 
-  const rootCause = parsed.sections['Nguyên nhân'] || 'Khong co mo ta';
-  const question = `Da tim thay nguyen nhan:\n${rootCause}\n\nBan muon lam gi?`;
+  const rootCause = parsed.sections['Root Cause'] || 'No description available';
+  const question = `Root cause found:\n${rootCause}\n\nWhat would you like to do?`;
   const summary = rootCause.split('\n')[0].slice(0, 120);
 
   return {
@@ -69,25 +69,25 @@ function buildRootCauseMenu(evidenceContent) {
 // ─── prepareFixNow ───────────────────────────────────────
 
 /**
- * Tao action descriptor cho "Sua ngay" (D-02).
- * Orchestrator truc tiep sua code, tai su dung logic v1.5.
- * KHONG tra agentName — orchestrator truc tiep sua code.
+ * Create action descriptor for "Fix now" (D-02).
+ * Orchestrator directly fixes code, reusing v1.5 logic.
+ * Does NOT return agentName — orchestrator directly fixes code.
  *
- * @param {string} evidenceContent - Noi dung evidence file
+ * @param {string} evidenceContent - Evidence file content
  * @returns {{ action: string, reusableModules: string[], evidence: string, suggestion: string, commitPrefix: string, warnings: string[] }}
  */
 function prepareFixNow(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const evidence = parsed.sections['Bằng chứng'] || '';
-  const suggestion = parsed.sections['Đề xuất'] || '';
+  const evidence = parsed.sections['Evidence'] || '';
+  const suggestion = parsed.sections['Suggestion'] || '';
 
   return {
     action: 'fix_now',
     reusableModules: ['debug-cleanup', 'logic-sync', 'regression-analyzer'],
     evidence,
     suggestion,
-    commitPrefix: '[LOI]',
+    commitPrefix: '[BUG]',
     warnings: [],
   };
 }
@@ -95,19 +95,19 @@ function prepareFixNow(evidenceContent) {
 // ─── prepareFixPlan ──────────────────────────────────────
 
 /**
- * Tao FIX-PLAN.md content cho "Len ke hoach" (D-03).
- * planPath la relative to session dir (Pitfall 4).
+ * Create FIX-PLAN.md content for "Create plan" (D-03).
+ * planPath is relative to session dir (Pitfall 4).
  *
- * @param {string} evidenceContent - Noi dung evidence file
- * @param {string} sessionDir - Duong dan session directory
+ * @param {string} evidenceContent - Evidence file content
+ * @param {string} sessionDir - Session directory path
  * @returns {{ action: string, planContent: string, planPath: string, warnings: string[] }}
  */
 function prepareFixPlan(evidenceContent, sessionDir) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Nguyên nhân'] || '';
-  const evidence = parsed.sections['Bằng chứng'] || '';
-  const suggestion = parsed.sections['Đề xuất'] || '';
+  const rootCause = parsed.sections['Root Cause'] || '';
+  const evidence = parsed.sections['Evidence'] || '';
+  const suggestion = parsed.sections['Suggestion'] || '';
 
   const frontmatter = {
     type: 'fix-plan',
@@ -115,7 +115,7 @@ function prepareFixPlan(evidenceContent, sessionDir) {
     created: new Date().toISOString(),
   };
 
-  const body = `\n# FIX-PLAN\n\n## Nguyên nhân\n${rootCause}\n\n## Files can sua\n${evidence}\n\n## Test can viet\n- [ ] Test tai hien loi\n- [ ] Test sau khi sua\n\n## Đề xuất\n${suggestion}\n\n## Risk Assessment\n- [ ] Anh huong modules khac?\n- [ ] Can cap nhat docs?\n`;
+  const body = `\n# FIX-PLAN\n\n## Root Cause\n${rootCause}\n\n## Files to modify\n${evidence}\n\n## Tests to write\n- [ ] Test to reproduce the bug\n- [ ] Test after fix\n\n## Suggestion\n${suggestion}\n\n## Risk Assessment\n- [ ] Affects other modules?\n- [ ] Needs docs update?\n`;
 
   const planContent = assembleMd(frontmatter, body);
 
@@ -130,24 +130,24 @@ function prepareFixPlan(evidenceContent, sessionDir) {
 // ─── prepareSelfFix ──────────────────────────────────────
 
 /**
- * Tao session update cho "Tu sua" (D-04).
- * Cap nhat SESSION.md status=paused, hien root cause summary + danh sach files.
+ * Create session update for "Self fix" (D-04).
+ * Updates SESSION.md status=paused, shows root cause summary + file list.
  *
- * @param {string} evidenceContent - Noi dung evidence file
+ * @param {string} evidenceContent - Evidence file content
  * @returns {{ action: string, sessionUpdate: {status: string}, summary: string, filesForReview: string, resumeHint: string, warnings: string[] }}
  */
 function prepareSelfFix(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Nguyên nhân'] || '';
-  const evidence = parsed.sections['Bằng chứng'] || '';
+  const rootCause = parsed.sections['Root Cause'] || '';
+  const evidence = parsed.sections['Evidence'] || '';
 
   return {
     action: 'self_fix',
     sessionUpdate: { status: 'paused' },
     summary: rootCause.split('\n')[0].slice(0, 200),
     filesForReview: evidence,
-    resumeHint: 'Chay lai pd:fix-bug de verify sau khi sua.',
+    resumeHint: 'Run pd:fix-bug again to verify after fixing.',
     warnings: [],
   };
 }
@@ -155,17 +155,17 @@ function prepareSelfFix(evidenceContent) {
 // ─── buildInconclusiveContext ────────────────────────────
 
 /**
- * Tao context cho Buoc 2 agents khi INCONCLUSIVE loop-back (FLOW-06).
- * Trich xuat Elimination Log tu evidence_architect.md, tao prompt cho vong tiep theo.
+ * Create context for Step 2 agents when INCONCLUSIVE loop-back (FLOW-06).
+ * Extracts Elimination Log from evidence_architect.md, creates prompt for next round.
  *
- * Pattern: giong buildContinuationContext() cua checkpoint-handler.js.
- * Pure function — KHONG import fs. Content truyen qua tham so.
+ * Pattern: similar to buildContinuationContext() in checkpoint-handler.js.
+ * Pure function — does NOT import fs. Content passed via parameters.
  *
  * @param {object} params
- * @param {string} params.evidenceContent - Noi dung evidence file (frontmatter + body)
- * @param {string|null} params.userInputPath - Duong dan file thong tin bo sung tu user
- * @param {string} params.sessionDir - Thu muc session
- * @param {number} params.currentRound - Vong hien tai (1-based)
+ * @param {string} params.evidenceContent - Evidence file content (frontmatter + body)
+ * @param {string|null} params.userInputPath - Path to additional user info file
+ * @param {string} params.sessionDir - Session directory
+ * @param {number} params.currentRound - Current round (1-based)
  * @returns {{ prompt: string, eliminationLog: string, round: number, canContinue: boolean, warnings: string[] }}
  */
 function buildInconclusiveContext({ evidenceContent, userInputPath, sessionDir, currentRound }) {
@@ -173,24 +173,24 @@ function buildInconclusiveContext({ evidenceContent, userInputPath, sessionDir, 
   const canContinue = currentRound <= MAX_INCONCLUSIVE_ROUNDS;
 
   if (!canContinue) {
-    warnings.push(`Da vuot qua ${MAX_INCONCLUSIVE_ROUNDS} vong dieu tra — can nguoi xem xet`);
+    warnings.push(`Exceeded ${MAX_INCONCLUSIVE_ROUNDS} investigation rounds — needs human review`);
   }
 
   const parsed = parseEvidence(evidenceContent);
   const eliminationLog = parsed.sections['Elimination Log'] || '';
 
   if (!eliminationLog) {
-    warnings.push('Evidence thieu Elimination Log section');
+    warnings.push('Evidence missing Elimination Log section');
   }
 
   const promptParts = [
-    `INCONCLUSIVE LOOP-BACK — Vong ${currentRound}/${MAX_INCONCLUSIVE_ROUNDS}`,
+    `INCONCLUSIVE LOOP-BACK — Round ${currentRound}/${MAX_INCONCLUSIVE_ROUNDS}`,
     `Session dir: ${sessionDir}`,
-    `Elimination Log tu vong truoc:\n${eliminationLog}`,
+    `Elimination Log from previous round:\n${eliminationLog}`,
   ];
 
   if (userInputPath) {
-    promptParts.push(`Thong tin bo sung tu user: ${userInputPath}`);
+    promptParts.push(`Additional info from user: ${userInputPath}`);
   }
 
   const prompt = promptParts.join('\n');
