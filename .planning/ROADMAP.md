@@ -14,10 +14,11 @@
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 - ✅ **v5.1 Agent Sync & Reference Update** — Phases 60-64 (shipped 2026-03-27)
 - ✅ **v6.0 Vietnamese → English Migration** — Phases 65-70 (shipped 2026-03-29)
+- 🔄 **v7.0 Standalone Test Mode** — Phases 71-73
 
 ## Progress
 
-12 milestones shipped. 70 phases, 107 plans completed.
+12 milestones shipped. 70 phases, 107 plans completed. v7.0 in progress.
 
 ## Phases
 
@@ -186,3 +187,68 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 </details>
+
+### v7.0 Standalone Test Mode (Phases 71-73)
+
+- [ ] Phase 71: Core Standalone Flow (2 plans)
+- [ ] Phase 72: System Integration Sync (1 plan)
+- [ ] Phase 73: Verification & Edge Cases (1 plan)
+
+#### Phase 71: Core Standalone Flow
+
+**Goal:** Add `--standalone` mode to `pd:test` skill and workflow — the main feature.
+
+**Requirements:** TEST-01, TEST-02, TEST-03, GUARD-01, GUARD-02, GUARD-03, REPORT-01, REPORT-02, RECOV-01
+
+**Success criteria:**
+1. `pd:test --standalone [path]` runs standalone flow (Steps S1–S8) without requiring milestone/plan/write-code
+2. `pd:test --standalone --all` scans all source and tests everything
+3. Standard flow (`pd:test 1`, `pd:test --all`) remains 100% unchanged
+4. Guards are conditional — standard flow keeps hard guards, standalone uses soft warnings
+5. Auto-detect stack when CONTEXT.md is missing
+6. Creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
+7. Standalone bugs use `Patch version: standalone`
+8. Recovery detects interrupted sessions and offers resume/rewrite
+
+**Plan 01 — Update test.md skill file:**
+- Task 1: Update frontmatter (argument-hint), objective, guards (conditional), context, output sections
+
+**Plan 02 — Update test.md workflow:**
+- Task 1: Add Step 0 (route by mode) before Step 1
+- Task 2: Add standalone flow Steps S1–S8 after standard flow
+- Task 3: Verify standard flow Steps 1–10 are NOT modified
+
+---
+
+#### Phase 72: System Integration Sync
+
+**Goal:** Update cross-referenced files so the rest of the system recognizes standalone mode.
+
+**Requirements:** SYNC-01, SYNC-02, SYNC-03
+
+**Success criteria:**
+1. `state-machine.md` has standalone prerequisites row + side branch entry
+2. `what-next.md` detects standalone test reports and shows standalone bugs separately
+3. `complete-milestone.md` skips standalone bugs during milestone completion
+
+**Plan 01 — Sync 3 reference/workflow files:**
+- Task 1: Update `state-machine.md` — add prerequisites row + side branch
+- Task 2: Update `what-next.md` — add sub-step 8 (standalone reports), standalone bug handling, Priority 5.7
+- Task 3: Update `complete-milestone.md` — add 1 line to skip standalone bugs
+
+---
+
+#### Phase 73: Verification & Edge Cases
+
+**Goal:** Verify both flows work correctly end-to-end with all edge cases covered.
+
+**Requirements:** All (cross-cutting verification)
+
+**Success criteria:**
+1. Standard flow: `pd:test 1` with ✅ task works, `pd:test` without ✅ task still blocks
+2. Standalone flow: `pd:test --standalone [path]` creates report, handles no-code error
+3. No CONTEXT.md + has code → auto-detect stack, warn
+4. FastCode/Context7 errors → soft fallback (no block)
+5. `what-next` shows standalone reports + bugs
+6. `complete-milestone` skips standalone bugs
+7. All existing tests still pass (smoke-integrity, snapshots)

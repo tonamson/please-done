@@ -53,15 +53,15 @@ Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases
 
 | REQ-ID | Phase | Status |
 | --- | --- | --- |
-| TEST-01 | — | — |
-| TEST-02 | — | — |
-| TEST-03 | — | — |
-| GUARD-01 | — | — |
-| GUARD-02 | — | — |
-| GUARD-03 | — | — |
-| REPORT-01 | — | — |
-| REPORT-02 | — | — |
-| SYNC-01 | — | — |
-| SYNC-02 | — | — |
-| SYNC-03 | — | — |
-| RECOV-01 | — | — |
+| TEST-01 | 71 | — |
+| TEST-02 | 71 | — |
+| TEST-03 | 71 | — |
+| GUARD-01 | 71 | — |
+| GUARD-02 | 71 | — |
+| GUARD-03 | 71 | — |
+| REPORT-01 | 71 | — |
+| REPORT-02 | 71 | — |
+| SYNC-01 | 72 | — |
+| SYNC-02 | 72 | — |
+| SYNC-03 | 72 | — |
+| RECOV-01 | 71 | — |
