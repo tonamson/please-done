@@ -1,7 +1,7 @@
 /**
  * Checkpoint Handler Module Tests
- * Kiem tra extractCheckpointQuestion, buildContinuationContext, MAX_CONTINUATION_ROUNDS.
- * Pure function module: khong co I/O, chi xu ly checkpoint va continuation context.
+ * Tests extractCheckpointQuestion, buildContinuationContext, MAX_CONTINUATION_ROUNDS.
+ * Pure function module: no I/O, only processes checkpoint and continuation context.
  */
 
 'use strict';
@@ -18,12 +18,12 @@ function makeEvidence({ agent = 'pd-code-detective', outcome = 'checkpoint', ses
   return `---\nagent: ${agent}\noutcome: ${outcome}\ntimestamp: 2026-03-24T10:00:00+07:00\nsession: ${session}\n---\n${body}`;
 }
 
-const BODY_CHECKPOINT = `## CHECKPOINT REACHED\n\n## Tiến độ điều tra\nDa kiem tra 3/5 files nghi ngo.\n\n## Câu hỏi cho User\nBan co thay doi gi o src/config.js gan day khong?\n\n## Context cho Agent tiếp\nDa loai tru src/api.js va src/utils.js. Con lai src/config.js, src/routes.js, src/middleware.js.`;
+const BODY_CHECKPOINT = `## CHECKPOINT REACHED\n\n## Investigation Progress\nChecked 3/5 suspect files.\n\n## Question for User\nDid you make any changes to src/config.js recently?\n\n## Context for Next Agent\nEliminated src/api.js and src/utils.js. Remaining: src/config.js, src/routes.js, src/middleware.js.`;
 
 // ─── MAX_CONTINUATION_ROUNDS ────────────────────────────────
 
 describe('MAX_CONTINUATION_ROUNDS', () => {
-  it('bang 2', () => {
+  it('equals 2', () => {
     assert.equal(MAX_CONTINUATION_ROUNDS, 2);
   });
 });
@@ -31,23 +31,23 @@ describe('MAX_CONTINUATION_ROUNDS', () => {
 // ─── extractCheckpointQuestion ──────────────────────────────
 
 describe('extractCheckpointQuestion', () => {
-  it('trich xuat cau hoi tu evidence checkpoint', () => {
+  it('extracts question from checkpoint evidence', () => {
     const result = extractCheckpointQuestion(makeEvidence({ body: BODY_CHECKPOINT }));
-    assert.ok(result.question.includes('src/config.js gan day'));
+    assert.ok(result.question.includes('src/config.js recently'));
   });
 
-  it('tra ve agentName tu frontmatter', () => {
+  it('returns agentName from frontmatter', () => {
     const result = extractCheckpointQuestion(makeEvidence({ body: BODY_CHECKPOINT }));
     assert.equal(result.agentName, 'pd-code-detective');
   });
 
-  it('tra ve context cho agent tiep', () => {
+  it('returns context for next agent', () => {
     const result = extractCheckpointQuestion(makeEvidence({ body: BODY_CHECKPOINT }));
-    assert.ok(result.context.includes('Da loai tru'));
+    assert.ok(result.context.includes('Eliminated'));
   });
 
-  it('tra ve question rong khi outcome khong phai checkpoint', () => {
-    const result = extractCheckpointQuestion(makeEvidence({ outcome: 'root_cause', body: '## ROOT CAUSE FOUND\n\n## Nguyên nhân\nLoi.\n\n## Bằng chứng\nFile.\n\n## Đề xuất\nSua.' }));
+  it('returns empty question when outcome is not checkpoint', () => {
+    const result = extractCheckpointQuestion(makeEvidence({ outcome: 'root_cause', body: '## ROOT CAUSE FOUND\n\n## Root Cause\nBug.\n\n## Evidence\nFile.\n\n## Suggestion\nFix.' }));
     assert.equal(result.question, '');
     assert.ok(result.warnings.length > 0);
   });
@@ -56,25 +56,25 @@ describe('extractCheckpointQuestion', () => {
 // ─── buildContinuationContext ───────────────────────────────
 
 describe('buildContinuationContext', () => {
-  it('tra ve prompt voi 4 thanh phan khi round=1', () => {
+  it('returns prompt with 4 components when round=1', () => {
     const result = buildContinuationContext({
       evidencePath: '/path/evidence_code.md',
-      userAnswer: 'Co, toi sua config hom qua',
+      userAnswer: 'Yes, I changed config yesterday',
       sessionDir: '/tmp/S001-test',
       currentRound: 1,
       agentName: 'pd-code-detective',
     });
     assert.ok(result.prompt.includes('evidence_code.md'));
-    assert.ok(result.prompt.includes('Co, toi sua config hom qua'));
+    assert.ok(result.prompt.includes('Yes, I changed config yesterday'));
     assert.ok(result.prompt.includes('/tmp/S001-test'));
     assert.ok(result.prompt.includes('1/2'));
     assert.equal(result.canContinue, true);
   });
 
-  it('canContinue=true khi round=2', () => {
+  it('canContinue=true when round=2', () => {
     const result = buildContinuationContext({
       evidencePath: '/path/evidence_code.md',
-      userAnswer: 'Khong',
+      userAnswer: 'No',
       sessionDir: '/tmp/S001-test',
       currentRound: 2,
       agentName: 'pd-code-detective',
@@ -82,20 +82,20 @@ describe('buildContinuationContext', () => {
     assert.equal(result.canContinue, true);
   });
 
-  it('canContinue=false khi round=3 va co warning', () => {
+  it('canContinue=false when round=3 and has warning', () => {
     const result = buildContinuationContext({
       evidencePath: '/path/evidence_code.md',
-      userAnswer: 'Khong biet',
+      userAnswer: 'Not sure',
       sessionDir: '/tmp/S001-test',
       currentRound: 3,
       agentName: 'pd-code-detective',
     });
     assert.equal(result.canContinue, false);
     assert.ok(result.warnings.length > 0);
-    assert.ok(result.warnings[0].includes('nguoi xem xet'));
+    assert.ok(result.warnings[0].includes('manual review needed'));
   });
 
-  it('tra ve agentName dung', () => {
+  it('returns correct agentName', () => {
     const result = buildContinuationContext({
       evidencePath: '/path/evidence_code.md',
       userAnswer: 'Test',

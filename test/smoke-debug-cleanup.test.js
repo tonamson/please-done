@@ -1,8 +1,8 @@
 /**
  * Debug Cleanup Module Tests
- * Kiem tra scanDebugMarkers va matchSecurityWarnings — 2 pure functions
- * cho don dep debug log va lien ket canh bao bao mat.
- * Pure functions: nhan content, tra ket qua, KHONG doc file.
+ * Tests scanDebugMarkers and matchSecurityWarnings — 2 pure functions
+ * for cleaning up debug logs and linking security warnings.
+ * Pure functions: receive content, return result, do NOT read files.
  */
 
 'use strict';
@@ -16,23 +16,23 @@ const { scanDebugMarkers, matchSecurityWarnings } = require('../bin/lib/debug-cl
 // ─── Helpers ──────────────────────────────────────────────
 
 /**
- * Tao staged file object cho test scanDebugMarkers.
+ * Create staged file object for testing scanDebugMarkers.
  */
 function makeFile(path, content) {
   return { path, content };
 }
 
 /**
- * Tao report content co section "Canh bao bao mat".
+ * Create report content with a "Security Warnings" section.
  */
-function makeReport(warnings = [], { diacritics = false } = {}) {
-  const heading = diacritics ? '## Cảnh báo bảo mật' : '## Canh bao bao mat';
-  let content = '# SCAN REPORT\n\n## Tong quan\nTong 5 files.\n\n';
+function makeReport(warnings = [], { singular = false } = {}) {
+  const heading = singular ? '## Security Warning' : '## Security Warnings';
+  let content = '# SCAN REPORT\n\n## Overview\nTotal 5 files.\n\n';
   content += `${heading}\n`;
   for (const w of warnings) {
     content += `- ${w}\n`;
   }
-  content += '\n## Ket luan\nHoan thanh.\n';
+  content += '\n## Conclusion\nComplete.\n';
   return content;
 }
 
@@ -41,7 +41,7 @@ function makeReport(warnings = [], { diacritics = false } = {}) {
 // ═══════════════════════════════════════════════════════════
 
 describe('scanDebugMarkers — happy path', () => {
-  it('tra 2 entries khi staged file co 2 dong chua [PD-DEBUG]', () => {
+  it('returns 2 entries when staged file has 2 lines containing [PD-DEBUG]', () => {
     const files = [makeFile('src/app.js', 'line1\n// [PD-DEBUG] test log\nline3\n// [PD-DEBUG] another debug')];
     const result = scanDebugMarkers(files);
     assert.equal(result.length, 2);
@@ -52,19 +52,19 @@ describe('scanDebugMarkers — happy path', () => {
     assert.equal(result[1].text, '// [PD-DEBUG] another debug');
   });
 
-  it('tra mang rong khi khong co marker [PD-DEBUG]', () => {
+  it('returns empty array when no [PD-DEBUG] marker found', () => {
     const files = [makeFile('src/app.js', 'const x = 1;\nconsole.log(x);\n')];
     const result = scanDebugMarkers(files);
     assert.deepStrictEqual(result, []);
   });
 
-  it('KHONG match [DEBUG], PD-DEBUG, [PD-INFO] — chi match [PD-DEBUG]', () => {
+  it('does NOT match [DEBUG], PD-DEBUG, [PD-INFO] — only matches [PD-DEBUG]', () => {
     const files = [makeFile('src/app.js', '// [DEBUG] something\n// PD-DEBUG no brackets\n// [PD-INFO] info log')];
     const result = scanDebugMarkers(files);
     assert.deepStrictEqual(result, []);
   });
 
-  it('tra entries tu 2 files khi 3 files chi 2 co marker', () => {
+  it('returns entries from 2 files when 3 files but only 2 have markers', () => {
     const files = [
       makeFile('src/a.js', '// clean code'),
       makeFile('src/b.js', '// [PD-DEBUG] b debug'),
@@ -80,12 +80,12 @@ describe('scanDebugMarkers — happy path', () => {
 });
 
 describe('scanDebugMarkers — edge cases', () => {
-  it('tra mang rong khi stagedFiles la mang rong', () => {
+  it('returns empty array when stagedFiles is empty array', () => {
     const result = scanDebugMarkers([]);
     assert.deepStrictEqual(result, []);
   });
 
-  it('tra mang rong khi file.content la empty string', () => {
+  it('returns empty array when file.content is empty string', () => {
     const files = [makeFile('src/empty.js', '')];
     const result = scanDebugMarkers(files);
     assert.deepStrictEqual(result, []);
@@ -93,7 +93,7 @@ describe('scanDebugMarkers — edge cases', () => {
 });
 
 describe('scanDebugMarkers — error handling', () => {
-  it('throw Error khi stagedFiles la null', () => {
+  it('throws Error when stagedFiles is null', () => {
     assert.throws(() => scanDebugMarkers(null), (err) => {
       assert.ok(err instanceof Error);
       assert.ok(err.message.includes('stagedFiles'));
@@ -101,7 +101,7 @@ describe('scanDebugMarkers — error handling', () => {
     });
   });
 
-  it('throw Error khi stagedFiles la undefined', () => {
+  it('throws Error when stagedFiles is undefined', () => {
     assert.throws(() => scanDebugMarkers(undefined), (err) => {
       assert.ok(err instanceof Error);
       assert.ok(err.message.includes('stagedFiles'));
@@ -109,7 +109,7 @@ describe('scanDebugMarkers — error handling', () => {
     });
   });
 
-  it('throw Error khi stagedFiles khong phai array', () => {
+  it('throws Error when stagedFiles is not an array', () => {
     assert.throws(() => scanDebugMarkers('not-array'), (err) => {
       assert.ok(err instanceof Error);
       assert.ok(err.message.includes('stagedFiles'));
@@ -123,7 +123,7 @@ describe('scanDebugMarkers — error handling', () => {
 // ═══════════════════════════════════════════════════════════
 
 describe('matchSecurityWarnings — happy path', () => {
-  it('tra 1 warning khi report co section va 1 file match', () => {
+  it('returns 1 warning when report has section and 1 file matches', () => {
     const report = makeReport(['src/auth.js: high - Hardcoded secret key']);
     const result = matchSecurityWarnings(report, ['src/auth.js']);
     assert.equal(result.length, 1);
@@ -132,15 +132,15 @@ describe('matchSecurityWarnings — happy path', () => {
     assert.ok(result[0].desc.length > 0);
   });
 
-  it('match ca khi section heading co dau tieng Viet', () => {
-    const report = makeReport(['src/db.js: critical - SQL injection'], { diacritics: true });
+  it('matches even when section heading uses singular form', () => {
+    const report = makeReport(['src/db.js: critical - SQL injection'], { singular: true });
     const result = matchSecurityWarnings(report, ['src/db.js']);
     assert.equal(result.length, 1);
     assert.equal(result[0].file, 'src/db.js');
     assert.equal(result[0].severity, 'critical');
   });
 
-  it('chi tra toi da 3 warnings khi co 5 canh bao match', () => {
+  it('returns at most 3 warnings when there are 5 matching warnings', () => {
     const warnings = [
       'src/a.js: high - Issue 1',
       'src/a.js: moderate - Issue 2',
@@ -155,13 +155,13 @@ describe('matchSecurityWarnings — happy path', () => {
 });
 
 describe('matchSecurityWarnings — no match', () => {
-  it('tra mang rong khi report khong co section "Canh bao bao mat"', () => {
-    const report = '# SCAN REPORT\n\n## Tong quan\nOK.\n';
+  it('returns empty array when report has no "Security Warnings" section', () => {
+    const report = '# SCAN REPORT\n\n## Overview\nOK.\n';
     const result = matchSecurityWarnings(report, ['src/app.js']);
     assert.deepStrictEqual(result, []);
   });
 
-  it('tra mang rong khi file paths khong match canh bao', () => {
+  it('returns empty array when file paths do not match any warning', () => {
     const report = makeReport(['src/other.js: high - Some issue']);
     const result = matchSecurityWarnings(report, ['src/app.js']);
     assert.deepStrictEqual(result, []);
@@ -169,7 +169,7 @@ describe('matchSecurityWarnings — no match', () => {
 });
 
 describe('matchSecurityWarnings — basename matching', () => {
-  it('match khi report chi chua basename (khong full path)', () => {
+  it('matches when report only contains basename (not full path)', () => {
     const report = makeReport(['auth.js: moderate - Weak hashing algorithm']);
     const result = matchSecurityWarnings(report, ['src/lib/auth.js']);
     assert.equal(result.length, 1);
@@ -179,7 +179,7 @@ describe('matchSecurityWarnings — basename matching', () => {
 });
 
 describe('matchSecurityWarnings — severity extraction', () => {
-  it('extract severity critical, high, moderate, low dung', () => {
+  it('extracts severity critical, high, moderate, low correctly', () => {
     const report = makeReport([
       'a.js: critical - CVE-2024-001',
       'b.js: high - SQL injection',
@@ -197,7 +197,7 @@ describe('matchSecurityWarnings — severity extraction', () => {
 });
 
 describe('matchSecurityWarnings — error handling', () => {
-  it('throw Error khi reportContent la null', () => {
+  it('throws Error when reportContent is null', () => {
     assert.throws(() => matchSecurityWarnings(null, []), (err) => {
       assert.ok(err instanceof Error);
       assert.ok(err.message.includes('reportContent'));
@@ -205,7 +205,7 @@ describe('matchSecurityWarnings — error handling', () => {
     });
   });
 
-  it('throw Error khi filePaths la null', () => {
+  it('throws Error when filePaths is null', () => {
     assert.throws(() => matchSecurityWarnings('content', null), (err) => {
       assert.ok(err instanceof Error);
       assert.ok(err.message.includes('filePaths'));
