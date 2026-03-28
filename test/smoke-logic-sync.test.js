@@ -239,10 +239,10 @@ describe('suggestClaudeRules — happy path', () => {
 // ═══════════════════════════════════════════════════════════
 
 describe('suggestClaudeRules — no data', () => {
-  it('tra suggestions rong va reasoning chua "du lieu" khi khong co data', () => {
+  it('tra suggestions rong va reasoning chua "data" khi khong co data', () => {
     const result = suggestClaudeRules({});
     assert.deepStrictEqual(result.suggestions, []);
-    assert.ok(result.reasoning.includes('du lieu') || result.reasoning.toLowerCase().includes('du lieu'));
+    assert.ok(result.reasoning.toLowerCase().includes('data'));
   });
 
   it('tra suggestions rong khi sessionContent va bugReportContent la undefined', () => {

@@ -128,21 +128,21 @@ describe('generateFilename — external', () => {
   it('external thieu id throw error', () => {
     assert.throws(
       () => generateFilename({ source: 'external', topic: 'Test' }),
-      /external source yeu cau id/
+      /external source requires id/
     );
   });
 
   it('external voi id=0 throw error', () => {
     assert.throws(
       () => generateFilename({ source: 'external', topic: 'Test', id: 0 }),
-      /external source yeu cau id/
+      /external source requires id/
     );
   });
 
   it('external voi id am throw error', () => {
     assert.throws(
       () => generateFilename({ source: 'external', topic: 'Test', id: -1 }),
-      /external source yeu cau id/
+      /external source requires id/
     );
   });
 });
@@ -151,26 +151,26 @@ describe('generateFilename — validation', () => {
   it('thieu source throw error', () => {
     assert.throws(
       () => generateFilename({ topic: 'Test' }),
-      /thieu tham so bat buoc/
+      /missing required parameters/
     );
   });
 
   it('thieu topic throw error', () => {
     assert.throws(
       () => generateFilename({ source: 'internal' }),
-      /thieu tham so bat buoc/
+      /missing required parameters/
     );
   });
 
   it('source khong hop le throw error', () => {
     assert.throws(
       () => generateFilename({ source: 'invalid', topic: 'Test' }),
-      /source khong hop le/
+      /invalid source/
     );
   });
 
   it('null options throw error', () => {
-    assert.throws(() => generateFilename(null), /thieu tham so bat buoc/);
+    assert.throws(() => generateFilename(null), /missing required parameters/);
   });
 });
 
@@ -194,7 +194,7 @@ describe('createEntry — internal source', () => {
     assert.equal(result.filename, 'auth-module-analysis.md');
   });
 
-  it('body mac dinh co heading va section Bang chung', () => {
+  it('body mac dinh co heading va section Evidence', () => {
     const result = createEntry({
       agent: 'test-agent',
       source: 'internal',
@@ -204,7 +204,7 @@ describe('createEntry — internal source', () => {
     });
 
     assert.ok(result.content.includes('# Test Topic'));
-    assert.ok(result.content.includes('## Bang chung'));
+    assert.ok(result.content.includes('## Evidence'));
   });
 
   it('custom body duoc su dung thay vi mac dinh', () => {
@@ -219,7 +219,7 @@ describe('createEntry — internal source', () => {
 
     assert.ok(result.content.includes('# Custom Content'));
     assert.ok(result.content.includes('Some analysis here.'));
-    assert.ok(!result.content.includes('## Bang chung'));
+    assert.ok(!result.content.includes('## Evidence'));
   });
 });
 
@@ -243,47 +243,47 @@ describe('createEntry — validation', () => {
   it('thieu agent throw error', () => {
     assert.throws(
       () => createEntry({ source: 'internal', topic: 'Test', confidence: 'HIGH' }),
-      /thieu truong bat buoc: agent/
+      /missing required field: agent/
     );
   });
 
   it('thieu source throw error', () => {
     assert.throws(
       () => createEntry({ agent: 'test', topic: 'Test', confidence: 'HIGH' }),
-      /thieu truong bat buoc: source/
+      /missing required field: source/
     );
   });
 
   it('thieu topic throw error', () => {
     assert.throws(
       () => createEntry({ agent: 'test', source: 'internal', confidence: 'HIGH' }),
-      /thieu truong bat buoc: topic/
+      /missing required field: topic/
     );
   });
 
   it('thieu confidence throw error', () => {
     assert.throws(
       () => createEntry({ agent: 'test', source: 'internal', topic: 'Test' }),
-      /thieu truong bat buoc: confidence/
+      /missing required field: confidence/
     );
   });
 
   it('confidence khong hop le throw error', () => {
     assert.throws(
       () => createEntry({ agent: 'test', source: 'internal', topic: 'Test', confidence: 'INVALID' }),
-      /confidence khong hop le/
+      /invalid confidence/
     );
   });
 
   it('source khong hop le throw error', () => {
     assert.throws(
       () => createEntry({ agent: 'test', source: 'unknown', topic: 'Test', confidence: 'HIGH' }),
-      /source khong hop le/
+      /invalid source/
     );
   });
 
   it('null options throw error', () => {
-    assert.throws(() => createEntry(null), /thieu tham so options/);
+    assert.throws(() => createEntry(null), /missing options parameter/);
   });
 });
 
@@ -318,7 +318,7 @@ confidence: HIGH
 ---
 # Auth Analysis
 
-## Bang chung
+## Evidence
 
 Source code analysis shows...
 `;
@@ -402,7 +402,7 @@ confidence: VERY_HIGH
 `;
     const result = parseEntry(content);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('confidence khong hop le')));
+    assert.ok(result.errors.some(e => e.includes('invalid confidence')));
   });
 
   it('source khong hop le: valid=false', () => {
@@ -417,7 +417,7 @@ confidence: HIGH
 `;
     const result = parseEntry(content);
     assert.equal(result.valid, false);
-    assert.ok(result.errors.some(e => e.includes('source khong hop le')));
+    assert.ok(result.errors.some(e => e.includes('invalid source')));
   });
 });
 
@@ -443,9 +443,9 @@ describe('parseEntry — edge cases', () => {
 // ─── validateEvidence ──────────────────────────────────────
 
 describe('validateEvidence — valid content', () => {
-  it('content co section Bang chung va claims voi source => valid=true', () => {
+  it('content co section Evidence va claims voi source => valid=true', () => {
     const content = `# Research
-## Bang chung
+## Evidence
 - Phat hien A — Source1 (confidence: HIGH)
 - Phat hien B -- Source2 (confidence: MEDIUM)
 `;
@@ -454,11 +454,11 @@ describe('validateEvidence — valid content', () => {
     assert.deepStrictEqual(result.warnings, []);
   });
 
-  it('content co nhieu sections — chi check section Bang chung', () => {
+  it('content co nhieu sections — chi check section Evidence', () => {
     const content = `# Research
 ## Tong quan
 Noi dung tong quan.
-## Bang chung
+## Evidence
 - Claim A — SourceX (confidence: HIGH)
 ## Ket luan
 Done.
@@ -470,54 +470,54 @@ Done.
 });
 
 describe('validateEvidence — thieu section', () => {
-  it('content KHONG co section Bang chung => valid=false', () => {
+  it('content KHONG co section Evidence => valid=false', () => {
     const content = `# Research
 ## Tong quan
 Noi dung gi do.
 `;
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
-    assert.ok(result.warnings.some(w => w.includes('thieu section')));
+    assert.ok(result.warnings.some(w => w.includes('missing section')));
   });
 });
 
 describe('validateEvidence — section rong', () => {
-  it('section Bang chung rong => valid=false', () => {
+  it('section Evidence rong => valid=false', () => {
     const content = `# Research
-## Bang chung
+## Evidence
 
 ## Ket luan
 Done.
 `;
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
-    assert.ok(result.warnings.some(w => w.includes('rong')));
+    assert.ok(result.warnings.some(w => w.includes('empty')));
   });
 });
 
 describe('validateEvidence — claim thieu source', () => {
   it('claim khong co em dash hoac double dash => warning', () => {
     const content = `# Research
-## Bang chung
+## Evidence
 - Claim khong co source chi tiet
 `;
     const result = validateEvidence(content);
     assert.equal(result.valid, false);
-    assert.ok(result.warnings.some(w => w.includes('claim thieu source')));
+    assert.ok(result.warnings.some(w => w.includes('claim missing source')));
   });
 });
 
 describe('validateEvidence — null/empty input', () => {
   it('null throw Error', () => {
-    assert.throws(() => validateEvidence(null), /thieu tham so content/);
+    assert.throws(() => validateEvidence(null), /missing content parameter/);
   });
 
   it('empty string throw Error', () => {
-    assert.throws(() => validateEvidence(''), /thieu tham so content/);
+    assert.throws(() => validateEvidence(''), /missing content parameter/);
   });
 
   it('undefined throw Error', () => {
-    assert.throws(() => validateEvidence(undefined), /thieu tham so content/);
+    assert.throws(() => validateEvidence(undefined), /missing content parameter/);
   });
 });
 
@@ -604,26 +604,26 @@ describe('appendAuditLog — row format', () => {
 
 describe('appendAuditLog — validation', () => {
   it('thieu entry => throw Error', () => {
-    assert.throws(() => appendAuditLog('', null), /thieu tham so entry/);
+    assert.throws(() => appendAuditLog('', null), /missing entry parameter/);
   });
 
   it('entry undefined => throw Error', () => {
-    assert.throws(() => appendAuditLog('', undefined), /thieu tham so entry/);
+    assert.throws(() => appendAuditLog('', undefined), /missing entry parameter/);
   });
 });
 
 // ─── generateIndex ─────────────────────────────────────────
 
 describe('generateIndex — empty entries', () => {
-  it('empty array => thong bao "Chua co research files"', () => {
+  it('empty array => thong bao "No research files"', () => {
     const result = generateIndex([]);
-    assert.ok(result.includes('Chua co research files'));
+    assert.ok(result.includes('No research files'));
     assert.ok(result.includes('# Research Index'));
   });
 
-  it('null => thong bao "Chua co research files"', () => {
+  it('null => thong bao "No research files"', () => {
     const result = generateIndex(null);
-    assert.ok(result.includes('Chua co research files'));
+    assert.ok(result.includes('No research files'));
   });
 });
 
@@ -762,7 +762,7 @@ confidence: MEDIUM
 ---
 # Auth Module
 
-## Bang chung
+## Evidence
 
 - API dung JWT tokens \u2014 Source code auth.js (confidence: HIGH)
 - Session timeout 30 phut \u2014 Config docs (confidence: MEDIUM)
@@ -778,7 +778,7 @@ confidence: MEDIUM
 ---
 # Test
 
-## Bang chung
+## Evidence
 
 - Claim A \u2014 SourceX
 - Claim B -- SourceY
@@ -793,24 +793,24 @@ confidence: MEDIUM
 ---
 # Test
 
-No bang chung section here.
+No evidence section here.
 `;
 
 const CLAIMS_EMPTY_SECTION = `# Test
-## Bang chung
+## Evidence
 
 ## Ket luan
 Done.
 `;
 
 const CLAIMS_NO_SEPARATOR = `# Test
-## Bang chung
+## Evidence
 
 - Claim khong co source separator chi tiet
 `;
 
 const CLAIMS_SOURCE_PARENS = `# Test
-## Bang chung
+## Evidence
 
 - React hooks (v18) giup state management \u2014 React docs (v18.2) (confidence: HIGH)
 `;
@@ -849,12 +849,12 @@ describe('parseClaims — extract structured claims', () => {
     assert.equal(result[2].source, 'Grep ket qua');
   });
 
-  it('parseClaims(content_no_bang_chung_section) tra ve []', () => {
+  it('parseClaims(content_no_evidence_section) tra ve []', () => {
     const result = parseClaims(CLAIMS_NO_SECTION);
     assert.deepStrictEqual(result, []);
   });
 
-  it('parseClaims(content_empty_bang_chung) tra ve []', () => {
+  it('parseClaims(content_empty_evidence) tra ve []', () => {
     const result = parseClaims(CLAIMS_EMPTY_SECTION);
     assert.deepStrictEqual(result, []);
   });
@@ -891,7 +891,7 @@ describe('createEntry — claims rendering', () => {
     created: '2026-03-25T10:00:00.000Z',
   };
 
-  it('createEntry voi claims[] render inline confidence tags trong ## Bang chung', () => {
+  it('createEntry voi claims[] render inline confidence tags trong ## Evidence', () => {
     const result = createEntry({
       ...BASE_OPTS,
       claims: [
@@ -899,7 +899,7 @@ describe('createEntry — claims rendering', () => {
         { text: 'Session timeout 30 phut', source: 'Config docs', confidence: 'MEDIUM' },
       ],
     });
-    assert.ok(result.content.includes('## Bang chung'));
+    assert.ok(result.content.includes('## Evidence'));
     assert.ok(result.content.includes('- API dung JWT tokens \u2014 Source code auth.js (confidence: HIGH)'));
     assert.ok(result.content.includes('- Session timeout 30 phut \u2014 Config docs (confidence: MEDIUM)'));
   });
@@ -912,19 +912,19 @@ describe('createEntry — claims rendering', () => {
     });
     assert.ok(result.content.includes('# Custom Content'));
     assert.ok(result.content.includes('Some analysis here.'));
-    assert.ok(result.content.includes('## Bang chung'));
-    assert.ok(result.content.includes('- Claim X \u2014 SourceX (confidence: LOW)'));
+    assert.ok(result.content.includes('## Evidence'));
+    assert.ok(result.content.includes('- Claim X — SourceX (confidence: LOW)'));
   });
 
-  it('createEntry voi body da co ## Bang chung + claims => khong duplicate header', () => {
+  it('createEntry voi body da co ## Evidence + claims => khong duplicate header', () => {
     const result = createEntry({
       ...BASE_OPTS,
-      body: '# Test\n\n## Bang chung\n\n- Existing claim \u2014 OldSource\n',
+      body: '# Test\n\n## Evidence\n\n- Existing claim — OldSource\n',
       claims: [{ text: 'New claim', source: 'NewSource', confidence: 'HIGH' }],
     });
-    // Chi co 1 ## Bang chung header
-    const count = (result.content.match(/## Bang chung/g) || []).length;
-    assert.equal(count, 1, 'chi duoc co 1 ## Bang chung header');
+    // Chi co 1 ## Evidence header
+    const count = (result.content.match(/## Evidence/g) || []).length;
+    assert.equal(count, 1, 'chi duoc co 1 ## Evidence header');
     assert.ok(result.content.includes('- New claim \u2014 NewSource (confidence: HIGH)'));
   });
 

@@ -77,14 +77,14 @@ describe('generateReproTest — template content', () => {
     const params = makeParams({ bugTitle: 'login-timeout' });
     const result = generateReproTest(params);
 
-    assert.ok(result.testCode.includes("describe('Tai hien: login-timeout'"), 'thieu describe block');
+    assert.ok(result.testCode.includes("describe('Reproduce: login-timeout'"), 'thieu describe block');
   });
 
   it('testCode chua TODO marker trong assert.fail', () => {
     const params = makeParams();
     const result = generateReproTest(params);
 
-    assert.ok(result.testCode.includes("assert.fail('TODO: Dien logic tai hien loi')"), 'thieu TODO marker');
+    assert.ok(result.testCode.includes("assert.fail('TODO: Fill in reproduction logic')"), 'thieu TODO marker');
   });
 
   it('testCode chua AAA comments (Arrange, Act, Assert)', () => {
@@ -115,7 +115,7 @@ describe('generateReproTest — template content', () => {
     // Khi thieu functionName
     const withoutFn = makeParams({ functionName: undefined });
     const resultWithoutFn = generateReproTest(withoutFn);
-    assert.ok(resultWithoutFn.testCode.includes('chua xac dinh'), 'thieu "chua xac dinh" khi khong co functionName');
+    assert.ok(resultWithoutFn.testCode.includes('unknown'), 'thieu "unknown" khi khong co functionName');
   });
 });
 
