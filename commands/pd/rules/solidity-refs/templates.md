@@ -1,15 +1,15 @@
 # Contract Templates
 
-Các template chuẩn theo coding style. Copy và customize theo nhu cầu.
+Standard templates following the coding style. Copy and customize as needed.
 
-> **Roadmap nâng cấp (chưa có):** Staking contract, NFT Mint + whitelist, Vesting contract
-> Khi user yêu cầu thêm template mới → thêm vào file này theo cùng format.
+> **Upgrade roadmap (not yet available):** Staking contract, NFT Mint + whitelist, Vesting contract
+> When user requests a new template → add to this file using the same format.
 
 ---
 
 ## Template 1a: Base Contract — Ownable
 
-Dùng khi contract chỉ cần 1 owner duy nhất quản lý toàn bộ.
+Use when the contract needs only a single owner managing everything.
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -98,8 +98,8 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
      * @param initialOwner Address that will own the contract. Must not be address(0).
      */
     constructor(address initialOwner) Ownable(initialOwner) {
-        // OZ v5 Ownable tự revert nếu initialOwner == address(0)
-        // require không cần thiết nhưng giữ cho nhất quán với Template 1b
+        // OZ v5 Ownable auto-reverts if initialOwner == address(0)
+        // require not necessary but kept for consistency with Template 1b
     }
 
     // =========================================================
@@ -119,10 +119,10 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
      * @param _amount  Token amount (in token units, NOT wei — contract applies DECIMAL_18)
      * @param _transId Unique backend ID. Must be > 0 and unused.
      */
-    // CUSTOMIZE: Thêm access control nếu backend gọi:
+    // CUSTOMIZE: Add access control if backend calls:
     //   Ownable:       onlyOwner
     //   AccessControl: onlyRole(OPERATOR_ROLE)
-    // Bỏ nếu user gọi trực tiếp (user-facing action)
+    // Remove if user calls directly (user-facing action)
     function doAction(
         address _user,
         uint256 _amount,
@@ -158,7 +158,7 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
      * @notice Rescue any ERC20 tokens mistakenly sent to this contract.
      * @dev Safety net for accidental transfers. Caller must verify `_amount`
      *      does not affect tokens intentionally held by the protocol.
-     *      OPTIONAL SAFETY: thêm `require(_tokenAddress != address(token))` để chặn rút token protocol.
+     *      OPTIONAL SAFETY: add `require(_tokenAddress != address(token))` to prevent withdrawing protocol tokens.
      * @param _tokenAddress Contract address of the ERC20 token to rescue
      * @param _target       Recipient address for the rescued tokens
      * @param _amount       Amount to transfer (in wei)
@@ -195,8 +195,8 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
         emit EthRescued(_target, _amount);
     }
 
-    // --- Token Approval (khi contract cần approve token cho bên thứ 3) ---
-    // BẮT BUỘC dùng forceApprove (OZ v5) thay vì safeApprove (deprecated)
+    // --- Token Approval (when contract needs to approve tokens for third parties) ---
+    // MUST use forceApprove (OZ v5) instead of safeApprove (deprecated)
     // token.forceApprove(spender, amount);
 
     /**
@@ -217,7 +217,7 @@ contract MyContract is Pausable, Ownable, ReentrancyGuard {
 
 ## Template 1b: Base Contract — AccessControl (multi-role)
 
-Dùng khi contract cần phân chia nhiều role khác nhau (admin, operator, pauser...).
+Use when the contract needs multiple different roles (admin, operator, pauser...).
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -352,9 +352,9 @@ contract MyContract is Pausable, AccessControl, ReentrancyGuard {
      * @param _amount  Token amount (in token units, NOT wei — contract applies DECIMAL_18)
      * @param _transId Unique backend ID. Must be > 0 and unused.
      */
-    // CUSTOMIZE: Thêm access control nếu backend gọi:
+    // CUSTOMIZE: Add access control if backend calls:
     //   onlyRole(OPERATOR_ROLE)
-    // Bỏ nếu user gọi trực tiếp (user-facing action)
+    // Remove if user calls directly (user-facing action)
     function doAction(
         address _user,
         uint256 _amount,
@@ -390,7 +390,7 @@ contract MyContract is Pausable, AccessControl, ReentrancyGuard {
      * @notice Rescue any ERC20 tokens mistakenly sent to this contract.
      * @dev Safety net for accidental transfers. Caller must verify `_amount`
      *      does not affect tokens intentionally held by the protocol.
-     *      OPTIONAL SAFETY: thêm `require(_tokenAddress != address(token))` để chặn rút token protocol.
+     *      OPTIONAL SAFETY: add `require(_tokenAddress != address(token))` to prevent withdrawing protocol tokens.
      * @param _tokenAddress Contract address of the ERC20 token to rescue
      * @param _target       Recipient address for the rescued tokens
      * @param _amount       Amount to transfer (in wei)
@@ -427,8 +427,8 @@ contract MyContract is Pausable, AccessControl, ReentrancyGuard {
         emit EthRescued(_target, _amount);
     }
 
-    // --- Token Approval (khi contract cần approve token cho bên thứ 3) ---
-    // BẮT BUỘC dùng forceApprove (OZ v5) thay vì safeApprove (deprecated)
+    // --- Token Approval (when contract needs to approve tokens for third parties) ---
+    // MUST use forceApprove (OZ v5) instead of safeApprove (deprecated)
     // token.forceApprove(spender, amount);
 
     /**
@@ -448,42 +448,42 @@ contract MyContract is Pausable, AccessControl, ReentrancyGuard {
 ---
 
 
-<!-- UPGRADE ZONE: thêm template mới vào đây khi user yêu cầu -->
-<!-- Format: ## Template N: <Tên Contract> -->
+<!-- UPGRADE ZONE: add new templates here when user requests -->
+<!-- Format: ## Template N: <Contract Name> -->
 
 ## Template 2: Signature Verification Pattern
 
-Dùng khi backend cần authorize một action on-chain mà không muốn để contract tự validate logic —
-backend ký off-chain, contract verify chữ ký trước khi execute.
+Use when backend needs to authorize an on-chain action without having the contract validate the logic itself —
+backend signs off-chain, contract verifies signature before executing.
 
-Pattern này lấy từ `claimBonus` trong `Omet_Dapp_Ver2`.
+This pattern is derived from `claimBonus` in `Omet_Dapp_Ver2`.
 
-### Cách hoạt động
+### How it works
 
 ```
 Backend (off-chain)                     Contract (on-chain)
 ─────────────────────────────────────   ──────────────────────────────────
-1. Build hash từ các params:            3. Rebuild cùng hash từ params
+1. Build hash from params:              3. Rebuild same hash from params
    keccak256(token, amount, trans_id,      keccak256(token, amount, trans_id,
      deadline, userAddr,                     deadline, msg.sender,
      chainId, contractAddr)                  block.chainid, address(this))
 
-2. Sign hash bằng operator key          4. Check hash chưa dùng (rẻ gas)
-   → bytes signature                    5. Check deadline chưa expired
-                                        6. Recover signer từ signature
+2. Sign hash with operator key          4. Check hash not yet used (cheap gas)
+   → bytes signature                    5. Check deadline not expired
+                                        6. Recover signer from signature
                                            → must == operator address
-                                        7. Mark hash as used (TRƯỚC transfer)
+                                        7. Mark hash as used (BEFORE transfer)
                                         8. Execute action (transfer/state change)
 ```
 
-> **Tại sao cần `block.chainid` + `address(this)` trong hash?**
-> - Thiếu `chainid`: signature trên Ethereum replay được trên BSC/Polygon (cùng contract address)
-> - Thiếu `address(this)`: signature cho contract A replay được trên contract B (cùng operator)
-> - Cả hai đều là attack vector thực tế đã bị exploit (Wintermute/Optimism, Wormhole)
+> **Why include `block.chainid` + `address(this)` in hash?**
+> - Missing `chainid`: signature on Ethereum can be replayed on BSC/Polygon (same contract address)
+> - Missing `address(this)`: signature for contract A can be replayed on contract B (same operator)
+> - Both are real attack vectors that have been exploited (Wintermute/Optimism, Wormhole)
 
-> **Khi nào dùng EIP-712 thay vì raw pattern này?**
-> - **Backend ký** (operator key, server-side) → raw pattern này OK
-> - **User ký qua wallet** (MetaMask popup) → BẮT BUỘC dùng OZ `EIP712.sol` — user thấy typed data thay vì hex hash
+> **When to use EIP-712 instead of this raw pattern?**
+> - **Backend signs** (operator key, server-side) → this raw pattern is OK
+> - **User signs via wallet** (MetaMask popup) → MUST use OZ `EIP712.sol` — user sees typed data instead of hex hash
 
 ### Dependencies
 
@@ -492,7 +492,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 ```
 
-### State variables cần thêm
+### State variables to add
 
 ```solidity
 using ECDSA for bytes32;
@@ -503,17 +503,17 @@ address public operator;
 
 /// @dev Tracks used hashes to prevent replay attacks.
 ///      Maps keccak256(message hash) => bool (true = already used).
-///      Dùng hash thay vì raw signature bytes: rẻ gas hơn + immune to signature malleability.
+///      Uses hash instead of raw signature bytes: cheaper gas + immune to signature malleability.
 mapping(bytes32 => bool) public hashUsed;
 
 /// @dev Emitted when a signed action is successfully executed.
 event SignedActionEvent(address indexed account, uint256 indexed transId, uint256 amount);
 
 /// @dev Emitted when the operator address is updated (used by setOperator below).
-///      Nếu dùng Template 1b (AccessControl) → XÓA dòng dưới vì Template 1b đã khai báo event này.
+///      If using Template 1b (AccessControl) → DELETE this line as Template 1b already declares this event.
 event OperatorUpdated(address indexed oldOperator, address indexed newOperator);
 
-/// @dev Optional: blacklist mapping. Uncomment nếu contract cần chặn wallet cụ thể.
+/// @dev Optional: blacklist mapping. Uncomment if contract needs to block specific wallets.
 // mapping(address => bool) public blacklistWallet;
 ```
 
@@ -537,7 +537,7 @@ function _checkValidateSignature(
 }
 ```
 
-### Function template dùng signature
+### Function template using signature
 
 ```solidity
 /**
@@ -570,12 +570,12 @@ function signedAction(
 ) public whenNotPaused nonReentrant {
     // --- Checks: identity ---
     require(_account == msg.sender, "User not valid");
-    // Optional: uncomment nếu dùng blacklist (khai báo mapping ở state variables)
+    // Optional: uncomment if using blacklist (declare mapping in state variables)
     // require(!blacklistWallet[_account], "Wallet is blacklist");
 
     // --- Checks: signature ---
-    // BẮT BUỘC: hash include block.chainid + address(this) chống replay cross-chain/cross-contract
-    // Các params khác (tokenAddress, amount, transId...) tuỳ ngữ cảnh contract — đảm bảo đủ để bind action
+    // REQUIRED: hash includes block.chainid + address(this) to prevent cross-chain/cross-contract replay
+    // Other params (tokenAddress, amount, transId...) depend on contract context — ensure enough to bind action
     bytes32 hash = keccak256(
         abi.encodePacked(_tokenAddress, _amount, _transId, _deadline, msg.sender, block.chainid, address(this))
     );
@@ -596,20 +596,20 @@ function signedAction(
     // e.g. token.safeTransfer(_account, _amount);
 
     // --- Event ---
-    // BẮT BUỘC: emit event sau state change — event đã khai báo ở section "State variables cần thêm"
+    // REQUIRED: emit event after state change — event declared in "State variables to add" section
     emit SignedActionEvent(_account, _transId, _amount);
 }
 ```
 
-### Admin setter (bắt buộc kèm theo)
+### Admin setter (required companion)
 
-> **Lưu ý access control:** Ví dụ dưới dùng `onlyRole(ADMIN_ROLE)` (AccessControl — Template 1b). Nếu contract dùng **Ownable** (Template 1a) → đổi thành `onlyOwner`.
+> **Access control note:** Example below uses `onlyRole(ADMIN_ROLE)` (AccessControl — Template 1b). If contract uses **Ownable** (Template 1a) → change to `onlyOwner`.
 
 ```solidity
 /**
  * @dev Sets the backend operator address used for signature verification.
  *      Changing this immediately invalidates all previously issued signatures
- *      (vì hash include address(this) + chainid, nhưng operator thay đổi → recover khác).
+ *      (because hash includes address(this) + chainid, but operator change → different recovery).
  * @param _newOperator New operator address. Must not be address(0).
  */
 // Ownable: function setOperator(address _newOperator) public onlyOwner {
@@ -621,15 +621,15 @@ function setOperator(address _newOperator) public onlyRole(ADMIN_ROLE) {
 }
 ```
 
-### Checklist khi dùng signature pattern
+### Checklist when using signature pattern
 
-- [ ] Hash **BẮT BUỘC** include `block.chainid` + `address(this)` (chống cross-chain + cross-contract replay)
-- [ ] Hash include đủ params bind action (tuỳ ngữ cảnh: token, amount, deadline, msg.sender, ...)
-- [ ] `_account == msg.sender` — không để user khác submit thay
-- [ ] Dùng `mapping(bytes32 => bool) hashUsed` track theo hash (KHÔNG track raw `bytes` signature — đắt gas + malleability risk)
-- [ ] `hashUsed[hash] = true` được set **trước** khi transfer (checks-effects-interactions)
-- [ ] `deadline >= block.timestamp` — signature có thời hạn, backend control TTL
-- [ ] `operator != address(0)` check trong `_checkValidateSignature`
-- [ ] `setOperator` chỉ `ADMIN_ROLE` / `onlyOwner` mới gọi được
-- [ ] Khi rotate operator key: các signature cũ chưa dùng sẽ invalid ngay lập tức
-- [ ] Nếu user ký qua wallet (MetaMask) → dùng OZ `EIP712.sol` thay vì raw pattern này
+- [ ] Hash **MUST** include `block.chainid` + `address(this)` (prevents cross-chain + cross-contract replay)
+- [ ] Hash includes enough params to bind action (context-dependent: token, amount, deadline, msg.sender, ...)
+- [ ] `_account == msg.sender` — prevents other users from submitting on behalf
+- [ ] Uses `mapping(bytes32 => bool) hashUsed` to track by hash (DO NOT track raw `bytes` signature — expensive gas + malleability risk)
+- [ ] `hashUsed[hash] = true` set **before** transfer (checks-effects-interactions)
+- [ ] `deadline >= block.timestamp` — signature has a TTL, backend controls expiry
+- [ ] `operator != address(0)` checked in `_checkValidateSignature`
+- [ ] `setOperator` callable only by `ADMIN_ROLE` / `onlyOwner`
+- [ ] When rotating operator key: all unused old signatures become invalid immediately
+- [ ] If user signs via wallet (MetaMask) → use OZ `EIP712.sol` instead of this raw pattern

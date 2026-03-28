@@ -1,34 +1,34 @@
-# Quy tắc Backend (NestJS)
+# Backend Rules (NestJS)
 
-> Chỉ chứa quy ước riêng. Kiến thức NestJS chuẩn → tra Context7 (`resolve-library-id` → `query-docs`).
+> Contains project-specific conventions only. Standard NestJS knowledge → look up via Context7 (`resolve-library-id` → `query-docs`).
 
-## Quy ước đặc biệt
-- **MongoDB collection**: prefix `m` + snake_case (VD: `mUsers`, `mOrder_items`)
+## Special conventions
+- **MongoDB collection**: prefix `m` + snake_case (e.g.: `mUsers`, `mOrder_items`)
 - **Mongoose schema**: `@Schema({ versionKey: false, timestamps: true })` + `mongoose-paginate-v2`
-- **TypeORM**: camelCase + suffix `Repo` + `@Column({ comment: 'tiếng Việt' })` + `@DeleteDateColumn()` soft delete
-- **Prisma**: `@@map("tên_bảng")` + `@@index` + camelCase
-- **DTO**: `@ApiProperty({ description: 'tiếng Việt', example: '...' })` BẮT BUỘC mỗi field
+- **TypeORM**: camelCase + suffix `Repo` + `@Column({ comment: 'description' })` + `@DeleteDateColumn()` soft delete
+- **Prisma**: `@@map("table_name")` + `@@index` + camelCase
+- **DTO**: `@ApiProperty({ description: 'field description', example: '...' })` MUST be on every field
 - **Decorator stack order**: JSDoc → @Post → @HttpCode → @UseGuards → @Roles
-- **Controller**: CHỈ delegate, KHÔNG chứa business logic
-- **Enum values**: STRING UPPER_SNAKE_CASE, file: `enums/tên-enum.enum.ts`
+- **Controller**: ONLY delegate, NO business logic
+- **Enum values**: STRING UPPER_SNAKE_CASE, file: `enums/enum-name.enum.ts`
 
-## Phân trang và phản hồi
-- Định dạng: `{ docs, page, limit, totalDocs, totalPages }`
-- Query lỗi: return `{ docs: [], page, limit, totalPages: 1 }`
-- Mutate lỗi: throw NestJS exception
+## Pagination and response
+- Format: `{ docs, page, limit, totalDocs, totalPages }`
+- Query error: return `{ docs: [], page, limit, totalPages: 1 }`
+- Mutation error: throw NestJS exception
 
-## Ngôn ngữ message
-- Grep pattern `throw`/`message` trong code hiện có → dùng ngôn ngữ project đang dùng
-- Không xác định → mặc định tiếng Việt
+## Message language
+- Grep pattern `throw`/`message` in existing code → use the language the project is using
+- Cannot determine → default to English
 
-## Bảo mật
-- Password: bcrypt(10), strip khỏi response
-- Sort: whitelist `allowedSortFields`, CẤM truyền user input trực tiếp
-- Rate limiting: `@nestjs/throttler` cho auth endpoints
+## Security
+- Password: bcrypt(10), strip from response
+- Sort: whitelist `allowedSortFields`, FORBIDDEN to pass user input directly
+- Rate limiting: `@nestjs/throttler` for auth endpoints
 - Input validation: `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true })` global
 - Soft delete: `deletedAt` field (TypeORM: `@DeleteDateColumn()`, Mongoose: field + middleware filter, Prisma: field + middleware)
 
-## Build và lint
+## Build and lint
 - Lint: `npx eslint src/ --fix`
 - Build: `npx nest build`
-- Nhận diện thư mục: Glob `**/nest-cli.json` → thư mục chứa là thư mục gốc của backend
+- Detection: Glob `**/nest-cli.json` → containing directory is the backend root

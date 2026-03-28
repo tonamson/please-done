@@ -1,13 +1,13 @@
-# Quy tắc Solidity Smart Contract
+# Solidity Smart Contract Rules
 
-> Chỉ chứa quy ước riêng + bảo mật critical. Kiến thức Solidity/OZ chuẩn → tra Context7.
+> Contains project-specific conventions + critical security only. Standard Solidity/OZ knowledge → look up via Context7.
 
-## Phong cách code
-- 4 spaces indent (KHÔNG 2 spaces)
-- File: PascalCase `.sol` (VD: `MyContract.sol`)
-- Giới hạn: mục tiêu 500 dòng, BẮT BUỘC tách >800
+## Code style
+- 4 spaces indent (NOT 2 spaces)
+- File: PascalCase `.sol` (e.g.: `MyContract.sol`)
+- Limits: target 500 lines, MUST split >800
 
-## Tiêu đề file
+## File header
 ```solidity
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.3.0
@@ -15,69 +15,69 @@ pragma solidity ^0.8.27;
 ```
 
 ## Import & OpenZeppelin
-- BẮT BUỘC named import `{}` — CẤM wildcard
-- BẮT BUỘC `using SafeERC20 for IERC20` cho mọi token operation
-- Token approval: `forceApprove` (OZ v5) thay `safeApprove` (deprecated)
-- Signature: `ECDSA` + `MessageHashUtils` từ OZ — KHÔNG tự implement
+- MUST use named import `{}` — FORBIDDEN wildcard
+- MUST use `using SafeERC20 for IERC20` for all token operations
+- Token approval: `forceApprove` (OZ v5) replaces `safeApprove` (deprecated)
+- Signature: `ECDSA` + `MessageHashUtils` from OZ — DO NOT self-implement
 
-## Thứ tự cấu trúc contract
+## Contract structure order
 Constants → State variables → Structs → Events → Modifiers → Constructor → External/Public → Internal/Private → Admin functions
 
-## Đặt tên
-- Constants: `UPPER_SNAKE_CASE` (VD: `DECIMAL_18`, `MAX_SUPPLY`)
+## Naming
+- Constants: `UPPER_SNAKE_CASE` (e.g.: `DECIMAL_18`, `MAX_SUPPLY`)
 - State: `camelCase` | Params: `_camelCase` | Events: `PascalCase`
 - Decimal: `uint256 private constant DECIMAL_18 = 1e18`
 
 ## NatSpec
-- Dùng **tiếng Anh** (hiển thị trong wallets + Etherscan)
-- `@title`, `@dev`, `@notice`, `@param` (kèm unit: wei/seconds), `@return`
+- Use **English** (displayed in wallets + Etherscan)
+- `@title`, `@dev`, `@notice`, `@param` (include unit: wei/seconds), `@return`
 
-## Modifier bảo mật
+## Security modifiers
 | Function type | `whenNotPaused` | `nonReentrant` |
 |---|---|---|
-| public + transfer token/ETH | bắt buộc | bắt buộc |
-| public + lưu on-chain | bắt buộc | không cần |
-| view/pure | không cần | không cần |
-| admin không transfer | không cần | không cần |
-| admin + transfer | không cần | bắt buộc |
+| public + transfer token/ETH | required | required |
+| public + store on-chain | required | not needed |
+| view/pure | not needed | not needed |
+| admin without transfer | not needed | not needed |
+| admin + transfer | not needed | required |
 
-## Sự kiện
-- Emit SAU khi state thay đổi, không TRƯỚC
+## Events
+- Emit AFTER state changes, not BEFORE
 
-## Bảo mật (BẮT BUỘC)
-- **Reentrancy**: Checks-Effects-Interactions — state update TRƯỚC transfer
-- **Access**: `onlyOwner`/`onlyRole` cho admin. Check `address(0)` trong constructor + setter
+## Security (REQUIRED)
+- **Reentrancy**: Checks-Effects-Interactions — state update BEFORE transfer
+- **Access**: `onlyOwner`/`onlyRole` for admin. Check `address(0)` in constructor + setter
 - **Input**: `qty > 0`, `address != address(0)`, array `length > 0 && length <= 50`
 - **Token**: `safeTransfer`/`safeTransferFrom`. Check `balanceOf >= amount`
-- **Replay**: `transIds` mapping nếu function gọi từ backend
-- **Rescue**: BẮT BUỘC `clearUnknownToken` + `rescueETH` (dùng `call{value:}`, KHÔNG `transfer`)
-- **ETH**: Không cần nhận ETH → KHÔNG thêm `receive()`/`fallback()`
-- **Flash Loan**: CẤM đọc balance trực tiếp làm price input. Dùng TWAP oracle
-- **MEV**: Swap → BẮT BUỘC `_minAmountOut`. Auction → commit-reveal. Price-sensitive → deadline
-- **Oracle**: Chainlink hoặc TWAP ≥30 phút. KHÔNG spot price AMM. Check staleness
-- **CẤM**: `tx.origin` (auth), `selfdestruct` (deprecated), `delegatecall` (trừ proxy), `unchecked` (trừ có proof)
-- **DoS**: Loop → giới hạn length. Batch → fail silently per item
+- **Replay**: `transIds` mapping if function is called from backend
+- **Rescue**: MUST have `clearUnknownToken` + `rescueETH` (use `call{value:}`, NOT `transfer`)
+- **ETH**: If no need to receive ETH → DO NOT add `receive()`/`fallback()`
+- **Flash Loan**: FORBIDDEN reading balance directly as price input. Use TWAP oracle
+- **MEV**: Swap → MUST have `_minAmountOut`. Auction → commit-reveal. Price-sensitive → deadline
+- **Oracle**: Chainlink or TWAP ≥30 min. NOT spot price AMM. Check staleness
+- **FORBIDDEN**: `tx.origin` (auth), `selfdestruct` (deprecated), `delegatecall` (except proxy), `unchecked` (except with proof)
+- **DoS**: Loop → limit length. Batch → fail silently per item
 
-## Xác thực chữ ký
-- Hash BẮT BUỘC: `block.chainid + address(this) + msg.sender + deadline` + params ngữ cảnh
-- `mapping(bytes32 => bool)` track hash — KHÔNG track raw signature
-- `hashUsed[hash] = true` TRƯỚC transfer
-- `deadline` và `signature` là 2 params CUỐI CÙNG
-- EIP-712 khi user ký qua wallet, raw prefix khi backend ký
+## Signature verification
+- Hash MUST include: `block.chainid + address(this) + msg.sender + deadline` + context-specific params
+- `mapping(bytes32 => bool)` to track hash — DO NOT track raw signature
+- `hashUsed[hash] = true` BEFORE transfer
+- `deadline` and `signature` are the LAST two parameters
+- EIP-712 when user signs via wallet, raw prefix when backend signs
 
-## Tối ưu Gas
-- `immutable` cho vars set 1 lần constructor
-- `uint256` thay `uint8/uint16`
-- `calldata` thay `memory` external
-- `mapping` thay `array` cho lookup
-- Custom errors thay `require("string")`
+## Gas optimization
+- `immutable` for vars set once in constructor
+- `uint256` instead of `uint8/uint16`
+- `calldata` instead of `memory` for external
+- `mapping` instead of `array` for lookup
+- Custom errors instead of `require("string")`
 
-## Build và lint
+## Build and lint
 - Hardhat: `npx hardhat compile` + `npx hardhat test`
 - Foundry: `forge build` + `forge test`
-- Nhận diện: Glob `**/hardhat.config.*` hoặc `**/foundry.toml`
+- Detection: Glob `**/hardhat.config.*` or `**/foundry.toml`
 
-## Tham khảo chi tiết
-Khi cần contract boilerplate hoặc audit → đọc `.planning/docs/solidity/`:
+## Detailed references
+When contract boilerplate or audit is needed → read `.planning/docs/solidity/`:
 - `templates.md` — Base contract (Ownable + AccessControl), signature verification pattern
-- `audit-checklist.md` — Full security audit checklist trước khi deploy
+- `audit-checklist.md` — Full security audit checklist before deployment

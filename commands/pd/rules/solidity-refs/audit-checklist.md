@@ -1,14 +1,14 @@
 # Solidity Audit Checklist
 
-Full checklist khi review contract trước khi deploy production.
+Full checklist for reviewing contracts before production deployment.
 
 ---
 
 ## 1. Reentrancy Attacks
 
-- [ ] Mọi `public`/`external` function có lệnh **transfer token hoặc ETH** đều có `nonReentrant`?
+- [ ] Do all `public`/`external` functions with **token or ETH transfers** have `nonReentrant`?
   ```solidity
-  // BẮT BUỘC — bất kỳ lệnh safeTransfer / safeTransferFrom / call{value:} nào
+  // REQUIRED — for any safeTransfer / safeTransferFrom / call{value:} statement
   function withdraw(uint256 _amount) public whenNotPaused nonReentrant {
       token.safeTransfer(msg.sender, _amount);
   }
@@ -23,230 +23,230 @@ Full checklist khi review contract trước khi deploy production.
       require(success, "ETH transfer failed");
   }
   ```
-- [ ] Checks-Effects-Interactions pattern được tuân theo?
+- [ ] Is the Checks-Effects-Interactions pattern followed?
   ```solidity
-  // ĐÚNG — state update TRƯỚC, transfer SAU
-  balances[msg.sender] -= amount;        // effect trước
-  token.safeTransfer(msg.sender, amount); // interaction sau
+  // CORRECT — state update BEFORE, transfer AFTER
+  balances[msg.sender] -= amount;        // effect first
+  token.safeTransfer(msg.sender, amount); // interaction after
 
-  // SAI — dễ bị reentrancy
-  token.safeTransfer(msg.sender, amount); // interaction trước
-  balances[msg.sender] -= amount;        // effect sau
+  // WRONG — vulnerable to reentrancy
+  token.safeTransfer(msg.sender, amount); // interaction first
+  balances[msg.sender] -= amount;        // effect after
   ```
-- [ ] Function chỉ đọc (`view`/`pure`) không cần `nonReentrant` — chỉ apply cho functions write state + transfer
+- [ ] Read-only functions (`view`/`pure`) do not need `nonReentrant` — only apply to functions that write state + transfer
 
 ## 2. Access Control
 
-- [ ] Mọi hàm thay đổi state có modifier phù hợp?
-- [ ] Không có hàm admin nào public mà không có modifier?
-- [ ] Không dùng `tx.origin` cho authentication? (dùng `msg.sender` — `tx.origin` dễ bị phishing attack)
-- [ ] Constructor khởi tạo đúng owner: `Ownable(initialOwner)` (truyền param, KHÔNG hardcode `msg.sender`)?
-- [ ] Role rotation secured? Ownable: `transferOwnership` chỉ owner. AccessControl: `grantRole`/`revokeRole` chỉ `DEFAULT_ADMIN_ROLE` holder?
-- [ ] Address(0) check trên các role address quan trọng?
+- [ ] Do all state-changing functions have appropriate modifiers?
+- [ ] Are there any admin functions that are public without a modifier?
+- [ ] Is `tx.origin` not used for authentication? (use `msg.sender` — `tx.origin` is vulnerable to phishing attacks)
+- [ ] Does the constructor correctly initialize the owner: `Ownable(initialOwner)` (pass parameter, DO NOT hardcode `msg.sender`)?
+- [ ] Is role rotation secured? Ownable: `transferOwnership` owner-only. AccessControl: `grantRole`/`revokeRole` `DEFAULT_ADMIN_ROLE` holder only?
+- [ ] Are there address(0) checks on critical role addresses?
 
 ## 3. Integer Arithmetic
 
-- [ ] Solidity ^0.8.x: overflow/underflow tự revert (OK)
-- [ ] Nếu dùng `unchecked {}`: đã verify manually?
-- [ ] Phép chia: kiểm tra chia cho 0?
-- [ ] Precision loss: nhân trước chia sau?
+- [ ] Solidity ^0.8.x: overflow/underflow auto-reverts (OK)
+- [ ] If using `unchecked {}`: manually verified?
+- [ ] Division: checked for divide by zero?
+- [ ] Precision loss: multiply before dividing?
   ```solidity
-  // ĐÚNG: (a * b) / c
-  // SAI:  a / c * b  — mất precision
+  // CORRECT: (a * b) / c
+  // WRONG:  a / c * b  — loses precision
   ```
 
 ## 4. Logic Errors
 
-- [ ] Điều kiện require đúng (> vs >= vs ==)?
+- [ ] Are require conditions correct (> vs >= vs ==)?
 - [ ] Array index out of bounds?
-- [ ] Mapping default value (0, false, address(0)) có gây lỗi logic không?
-- [ ] Loop: có thể bị block gas nếu array quá dài?
+- [ ] Does mapping default value (0, false, address(0)) cause logic errors?
+- [ ] Loop: can it be blocked by gas if array is too long?
 
 ## 5. Token Safety
 
-- [ ] Import `SafeERC20` và khai báo `using SafeERC20 for IERC20`?
-- [ ] Tất cả lệnh `transfer` → `safeTransfer`?
-- [ ] Tất cả lệnh `transferFrom` → `safeTransferFrom`?
-- [ ] Tất cả lệnh `approve` → `forceApprove`? (OZ v5 đã deprecate `safeApprove`)
+- [ ] Is `SafeERC20` imported and `using SafeERC20 for IERC20` declared?
+- [ ] All `transfer` calls → `safeTransfer`?
+- [ ] All `transferFrom` calls → `safeTransferFrom`?
+- [ ] All `approve` calls → `forceApprove`? (OZ v5 deprecated `safeApprove`)
   ```solidity
-  // BẮT BUỘC — áp dụng cho mọi ERC20 kể cả token tự deploy
+  // REQUIRED — applies to all ERC20 including self-deployed tokens
   import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
   import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
   contract Foo {
       using SafeERC20 for IERC20;
 
-      // ĐÚNG
+      // CORRECT
       token.safeTransfer(_to, _amount);
       token.safeTransferFrom(msg.sender, address(this), _amount);
 
-      // SAI — một số token (USDT, BNB) không revert khi fail
+      // WRONG — some tokens (USDT, BNB) do not revert on failure
       token.transfer(_to, _amount);
       token.transferFrom(msg.sender, address(this), _amount);
   }
   ```
-- [ ] Contract có thể nhận ETH không? Cần `receive()` hay `fallback()`?
+- [ ] Can the contract receive ETH? Does it need `receive()` or `fallback()`?
 
 ## 6. Signature Verification
 
-Áp dụng khi contract dùng off-chain signature để authorize action (claim, withdraw...).
+Applies when the contract uses off-chain signatures to authorize actions (claim, withdraw...).
 
-### 6a. Hash binding (BẮT BUỘC)
-- [ ] Hash **BẮT BUỘC** include `block.chainid`? (chống cross-chain replay — cùng contract deploy multi-chain)
-- [ ] Hash **BẮT BUỘC** include `address(this)`? (chống cross-contract replay — cùng operator ký nhiều contracts)
-- [ ] Hash include `msg.sender`? (thiếu → bất kỳ ai submit được signature của người khác)
-- [ ] Hash include `deadline`? (thiếu → signature valid mãi mãi)
-- [ ] Hash include đủ params bind action theo ngữ cảnh? (token_address, amount, trans_id, ...)
+### 6a. Hash binding (REQUIRED)
+- [ ] Does the hash **MUST** include `block.chainid`? (prevents cross-chain replay — same contract deployed multi-chain)
+- [ ] Does the hash **MUST** include `address(this)`? (prevents cross-contract replay — same operator signs multiple contracts)
+- [ ] Does the hash include `msg.sender`? (missing → anyone can submit someone else's signature)
+- [ ] Does the hash include `deadline`? (missing → signature valid forever)
+- [ ] Does the hash include enough params to bind action to context? (token_address, amount, trans_id, ...)
 
 ### 6b. Verification logic
-- [ ] `require(_account == msg.sender)` — không để user khác submit thay?
-- [ ] Dùng `mapping(bytes32 => bool) hashUsed` track theo hash? (KHÔNG dùng `mapping(bytes => bool)` track raw signature — đắt gas + signature malleability risk)
-- [ ] `hashUsed[hash] = true` set **trước** khi `safeTransfer` (checks-effects-interactions)?
-- [ ] `require(deadline >= block.timestamp)` — chống dùng signature hết hạn?
-- [ ] `operator != address(0)` được check trong verify function?
-- [ ] `setOperator` chỉ admin mới gọi được?
-- [ ] Dùng `ECDSA.recover` từ OZ, không tự implement?
+- [ ] `require(_account == msg.sender)` — prevents other users from submitting on behalf?
+- [ ] Uses `mapping(bytes32 => bool) hashUsed` to track by hash? (DO NOT use `mapping(bytes => bool)` tracking raw signature — expensive gas + signature malleability risk)
+- [ ] `hashUsed[hash] = true` set **before** `safeTransfer` (checks-effects-interactions)?
+- [ ] `require(deadline >= block.timestamp)` — prevents using expired signatures?
+- [ ] `operator != address(0)` checked in verify function?
+- [ ] `setOperator` callable only by admin?
+- [ ] Uses `ECDSA.recover` from OZ, not self-implemented?
   ```solidity
-  // ĐÚNG — dùng OZ ECDSA + MessageHashUtils
+  // CORRECT — uses OZ ECDSA + MessageHashUtils
   using ECDSA for bytes32;
   using MessageHashUtils for bytes32;
   bytes32 signedHash = _hash.toEthSignedMessageHash();
   return signedHash.recover(_signature) == operator;
 
-  // SAI — tự implement ecrecover hoặc manual abi.encodePacked prefix
+  // WRONG — self-implemented ecrecover or manual abi.encodePacked prefix
   ```
-- [ ] `deadline` và `signature` là 2 tham số **cuối cùng** của function?
+- [ ] `deadline` and `signature` are the **last two** function parameters?
   ```solidity
-  // ĐÚNG
+  // CORRECT
   function claimBonus(..., uint256 deadline, bytes memory signature)
 
-  // SAI — sai thứ tự convention
+  // WRONG — violates parameter order convention
   function claimBonus(bytes memory signature, ..., uint256 deadline)
   ```
 
 ### 6c. EIP-712 check
-- [ ] Nếu **user ký qua wallet** (MetaMask) → dùng OZ `EIP712.sol` (typed structured data)?
-  - Raw `\x19Ethereum Signed Message:\n32` chỉ dùng khi backend ký
-  - EIP-712 tự động xử lý domain separator (chainid + verifyingContract)
+- [ ] If **user signs via wallet** (MetaMask) → uses OZ `EIP712.sol` (typed structured data)?
+  - Raw `\x19Ethereum Signed Message:\n32` only when backend signs
+  - EIP-712 automatically handles domain separator (chainid + verifyingContract)
 
 ### 6d. Replay & Front-running
-- [ ] Nếu backend gọi contract: có `trans_id` deduplication?
-- [ ] Nếu dùng signature: có deadline?
-- [ ] Các action nhạy cảm có bị front-run không?
-- [ ] Swap/trade functions có slippage parameter (`_minAmountOut`)?
-- [ ] Price-sensitive actions có deadline parameter?
-- [ ] Auction/bid functions có dùng commit-reveal pattern? (chống frontrunning bid values)
+- [ ] If backend calls contract: has `trans_id` deduplication?
+- [ ] If using signature: has deadline?
+- [ ] Can sensitive actions be front-run?
+- [ ] Do swap/trade functions have slippage parameter (`_minAmountOut`)?
+- [ ] Do price-sensitive actions have deadline parameter?
+- [ ] Do auction/bid functions use commit-reveal pattern? (prevents frontrunning bid values)
 
 ### 6e. Flash Loan Protection
-- [ ] Contract có logic phụ thuộc vào balance (price oracle, share calculation)?
-- [ ] Nếu có → KHÔNG đọc balance trực tiếp làm input tính toán. Dùng TWAP oracle hoặc time-delayed mechanism
-- [ ] Các function nhạy cảm (mint, swap, redeem) có `nonReentrant`?
+- [ ] Does the contract have logic depending on balance (price oracle, share calculation)?
+- [ ] If yes → DO NOT read balance directly as calculation input. Use TWAP oracle or time-delayed mechanism
+- [ ] Do sensitive functions (mint, swap, redeem) have `nonReentrant`?
 
 ### 6f. Oracle Safety
-- [ ] Nếu dùng external price oracle → dùng Chainlink hoặc TWAP ≥30 phút?
-- [ ] KHÔNG dùng spot price từ AMM pool (dễ bị flash loan manipulate)?
-- [ ] Check staleness: `require(updatedAt > block.timestamp - MAX_DELAY)`?
+- [ ] If using external price oracle → uses Chainlink or TWAP ≥30 min?
+- [ ] NOT using spot price from AMM pool (vulnerable to flash loan manipulation)?
+- [ ] Staleness check: `require(updatedAt > block.timestamp - MAX_DELAY)`?
 
 ## 7. Pause & Emergency
 
-- [ ] Contract có `Pausable`?
-- [ ] Mọi `public`/`external` function liên quan đến **action** đều có `whenNotPaused`?
-  - Action = chuyển tiền, burn token, mint, stake, claim, lưu thông tin on-chain
-  - Rule: nếu function thay đổi state hoặc động đến token → bắt buộc `whenNotPaused`
+- [ ] Does the contract have `Pausable`?
+- [ ] Do all `public`/`external` functions related to **actions** have `whenNotPaused`?
+  - Action = transfer funds, burn tokens, mint, stake, claim, store data on-chain
+  - Rule: if function changes state or touches tokens → `whenNotPaused` required
   ```solidity
-  // BẮT BUỘC khi public + có action
+  // REQUIRED when public + has action
   function stake(uint256 _amount) public whenNotPaused nonReentrant { ... }
   function burn(uint256 _amount) public whenNotPaused nonReentrant { ... }
   function saveRecord(...) public whenNotPaused { ... }
 
-  // Không cần — chỉ đọc data
+  // Not needed — read-only
   function getPrice() public view returns (uint256) { ... }
   ```
-- [ ] Admin functions (`onlyOwner`) **không** cần `whenNotPaused` — phải chạy được khi emergency để fix
-- [ ] `pause()` / `unpause()` chỉ `onlyOwner` hoặc `onlyRole(PAUSER_ROLE)`?
+- [ ] Admin functions (`onlyOwner`) **do NOT** need `whenNotPaused` — must remain callable during emergency for fixes
+- [ ] `pause()` / `unpause()` restricted to `onlyOwner` or `onlyRole(PAUSER_ROLE)`?
 
 ## 8. Upgrade & Migration
 
-- [ ] Contract có upgradeable không? (Proxy pattern)
-- [ ] Nếu không: data migration plan nếu cần thay contract?
-- [ ] Constructor có set đúng initial state?
+- [ ] Is the contract upgradeable? (Proxy pattern)
+- [ ] If not: data migration plan if contract replacement needed?
+- [ ] Does the constructor set correct initial state?
 
 ## 9. Gas Limit & Array Validation
 
-- [ ] Mọi function nhận array input đều có validate length **> 0 và <= 50**?
+- [ ] Do all functions accepting array input validate length **> 0 and <= 50**?
   ```solidity
-  // BẮT BUỘC — 50 là default, tùy chỉnh theo gas limit nếu use case cần (VD: batch airdrop)
+  // REQUIRED — 50 is default, adjust per gas limit if use case requires (e.g.: batch airdrop)
   require(_arr.length > 0 && _arr.length <= 50, "Array length must be between 1 and 50");
   ```
-- [ ] Nếu có nhiều array cùng lúc: check length khớp nhau?
+- [ ] If multiple arrays at once: check lengths match?
   ```solidity
   require(_ids.length == _prices.length && _ids.length == _status.length, "Array length mismatch");
   ```
-- [ ] Loop nào khác có thể chạy unbounded? (DOS vector)
+- [ ] Any other loops that could run unbounded? (DoS vector)
 
 ### 9a. Denial of Service (DoS)
-- [ ] Mọi loop qua array có giới hạn length (> 0 && <= 50)?
-- [ ] Không có loop qua unbounded storage array (VD: `for (i = 0; i < allUsers.length; ...)`)? Dùng pagination hoặc off-chain computation
-- [ ] Batch operations (transfer/call tới nhiều recipients) — 1 recipient fail có chặn toàn bộ batch không?
+- [ ] Do all loops over arrays have length limits (> 0 && <= 50)?
+- [ ] No loops over unbounded storage arrays (e.g.: `for (i = 0; i < allUsers.length; ...)`)? Use pagination or off-chain computation
+- [ ] Batch operations (transfer/call to multiple recipients) — does 1 recipient failure block the entire batch?
   ```solidity
-  // SAI — 1 recipient revert → chặn tất cả
+  // WRONG — 1 recipient revert → blocks all
   for (uint256 i = 0; i < recipients.length; ++i) {
       token.safeTransfer(recipients[i], amounts[i]);
   }
 
-  // ĐÚNG — fail silently per item, emit event cho failed items
+  // CORRECT — fail silently per item, emit event for failed items
   for (uint256 i = 0; i < recipients.length; ++i) {
       (bool success, ) = recipients[i].call{value: amounts[i]}("");
       if (!success) emit TransferFailed(recipients[i], amounts[i]);
   }
   ```
-- [ ] `call{value:}` tới untrusted address — receiver có thể revert cố ý? (VD: malicious fallback chặn withdrawal)
-- [ ] Function có external call → đã tính trường hợp external contract consume hết gas chưa?
+- [ ] `call{value:}` to untrusted address — can receiver intentionally revert? (e.g.: malicious fallback blocking withdrawal)
+- [ ] Function has external call → accounted for external contract consuming all gas?
 
 ## 10. Events
 
-- [ ] Tất cả state changes quan trọng đều emit event?
-- [ ] Events emit **SAU** state changes, không trước? (state update trước, emit sau)
-- [ ] Event params đủ để reconstruct history off-chain?
-- [ ] `indexed` trên fields hay filter (address, id)?
+- [ ] Do all important state changes emit events?
+- [ ] Are events emitted **AFTER** state changes, not before? (state update first, emit after)
+- [ ] Are event params sufficient to reconstruct history off-chain?
+- [ ] `indexed` on fields commonly filtered (address, id)?
 
 ## 11. Hardcoded Values
 
-- [ ] Address token hardcode: có hàm thay đổi không? (nếu cần)
-- [ ] Các thresholds/prices: có setter function không?
-- [ ] Có magic numbers không giải thích? (dùng constant thay thế)
+- [ ] Hardcoded token address: is there a setter function? (if needed)
+- [ ] Thresholds/prices: are there setter functions?
+- [ ] Any unexplained magic numbers? (use constants instead)
 
 ## 12. Must-have Functions Checklist
 
-- [ ] `clearUnknownToken` — rescue token chuyển nhầm
-- [ ] `rescueETH` — rescue ETH (nếu contract có `receive()` hoặc nhận ETH qua selfdestruct/coinbase). Dùng `call{value:}`, KHÔNG `transfer`
+- [ ] `clearUnknownToken` — rescue mistakenly-sent tokens
+- [ ] `rescueETH` — rescue ETH (if contract has `receive()` or receives ETH via selfdestruct/coinbase). Use `call{value:}`, NOT `transfer`
 - [ ] `pause` / `unpause` — emergency stop
-- [ ] Role rotation: `transferOwnership` (Ownable) hoặc `grantRole`/`revokeRole` (AccessControl)
-- [ ] Setter cho config (price, status...) — không hardcode mãi
+- [ ] Role rotation: `transferOwnership` (Ownable) or `grantRole`/`revokeRole` (AccessControl)
+- [ ] Setter for config (price, status...) — do not hardcode permanently
 
 ---
 
 ## 13. Dangerous Patterns
 
-- [ ] Không dùng `delegatecall` trừ proxy pattern (UUPS/Transparent)?
-- [ ] Không dùng `unchecked {}` trừ khi có comment verify overflow impossible?
-- [ ] Không dùng `selfdestruct`? (deprecated EIP-6780)
-- [ ] Không dùng `tx.origin` cho authentication?
+- [ ] Not using `delegatecall` except for proxy pattern (UUPS/Transparent)?
+- [ ] Not using `unchecked {}` unless comment verifies overflow is impossible?
+- [ ] Not using `selfdestruct`? (deprecated EIP-6780)
+- [ ] Not using `tx.origin` for authentication?
 
 ## 14. Gas Optimization Review
 
-- [ ] Variables chỉ set 1 lần trong constructor → `immutable`?
-- [ ] Dùng `uint256` thay vì `uint8/uint16` (EVM pad 32 bytes)?
-- [ ] Struct fields packed (cùng type cạnh nhau)?
-- [ ] External function array params dùng `calldata` thay `memory`?
-- [ ] Loops: cache array length, `++i` thay `i++`?
-- [ ] Cân nhắc custom errors thay `require(cond, "string")`?
+- [ ] Variables set only once in constructor → `immutable`?
+- [ ] Using `uint256` instead of `uint8/uint16` (EVM pads 32 bytes)?
+- [ ] Struct fields packed (same types adjacent)?
+- [ ] External function array params use `calldata` instead of `memory`?
+- [ ] Loops: cache array length, `++i` instead of `i++`?
+- [ ] Consider custom errors instead of `require(cond, "string")`?
 
 ## Pre-deploy Checklist
 
-- [ ] Test trên local (Hardhat/Foundry)?
-- [ ] Test trên testnet (Sepolia/Amoy)?
-- [ ] Verify source code trên Etherscan?
-- [ ] Set đúng role address (không để msg.sender production)?
-- [ ] Multisig cho owner nếu là protocol lớn?
-- [ ] Audit bởi bên thứ 3 nếu TVL > $100k?
+- [ ] Tested locally (Hardhat/Foundry)?
+- [ ] Tested on testnet (Sepolia/Amoy)?
+- [ ] Source code verified on Etherscan?
+- [ ] Correct role addresses set (not using msg.sender in production)?
+- [ ] Multisig for owner if large protocol?
+- [ ] Third-party audit if TVL > $100k?
