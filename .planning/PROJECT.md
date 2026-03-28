@@ -95,7 +95,12 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-(None — next milestone not yet defined)
+- [ ] **TEST-01**: Standalone test flow — `pd:test --standalone` analyzes code and writes tests without milestone/plan/write-code prerequisites
+- [ ] **TEST-02**: Conditional guards — bypass task/CONTEXT.md requirements in standalone mode, soft warnings for FastCode/Context7
+- [ ] **TEST-03**: State-machine sync — new prerequisites row + side branch for standalone
+- [ ] **TEST-04**: what-next integration — detect standalone test reports and standalone bugs
+- [ ] **TEST-05**: complete-milestone sync — skip standalone bugs during milestone completion
+- [ ] **TEST-06**: Recovery path — detect interrupted standalone sessions, resume or rewrite
 
 ### Out of Scope
 
@@ -106,17 +111,25 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone
+## Current Milestone: v7.0 Standalone Test Mode
 
-(No active milestone — use `/gsd-new-milestone` to start next cycle)
+**Goal:** Add `pd:test --standalone` mode for testing without milestone/plan/write-code prerequisites
+
+**Target features:**
+- Standalone test flow (Steps S1–S8) in test.md workflow — auto-detect stack, analyze code, write tests, run, report
+- Conditional guards in test.md — bypass task/CONTEXT.md requirements in standalone mode, soft warnings for FastCode/Context7
+- State-machine sync — new prerequisites row + side branch for standalone
+- what-next integration — detect standalone test reports + standalone bugs
+- complete-milestone sync — skip standalone bugs (don't block milestone completion)
+- Recovery path — detect interrupted standalone sessions, resume or rewrite
 
 ## Current State
 
-**Current:** Planning next milestone
+**Current:** v7.0 Standalone Test Mode — defining requirements
 **Shipped:** v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27), v5.0 Repo Optimization (2026-03-27)
 **Previous:** v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
 
-v6.0 delivered: Full Vietnamese-to-English migration across all source code, documentation, templates, workflows, agents, rules, references, and test assertions. Zero Vietnamese content remaining outside `.planning/`. 1101/1102 tests passing.
+v7.0 scope: Add `pd:test --standalone` for testing legacy/imported projects without going through milestone/plan/write-code. Modifies 5 files (test.md skill+workflow, state-machine.md, what-next.md, complete-milestone.md). Standard flow unchanged.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules, 27,493 LOC JavaScript.
 
@@ -180,4 +193,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-29 after v6.0 Vietnamese → English Migration milestone completed_
+_Last updated: 2026-03-29 — v7.0 Standalone Test Mode milestone started_
