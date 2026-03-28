@@ -1,14 +1,14 @@
 ---
 gsd_state_version: 1.0
 milestone: v6.0
-milestone_name: "Vietnamese \u2192 English Migration"
-status: defining requirements
-stopped_at: Milestone v6.0 started
+milestone_name: "Vietnamese → English Migration"
+status: roadmap created
+stopped_at: Roadmap created — ready for Phase 65
 last_updated: "2026-03-28"
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
-  total_plans: 0
+  total_plans: 12
   completed_plans: 0
 ---
 
