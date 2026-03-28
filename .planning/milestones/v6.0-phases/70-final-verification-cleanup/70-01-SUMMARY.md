@@ -37,11 +37,13 @@ deviations: none
 ## Summary
 
 ### Task 1: Comprehensive Vietnamese scan — PASS
+
 - Diacritical character regex across all source files → **0 matches**
 - Non-diacritical Vietnamese phrase scan (18 common phrases) → **0 matches**
 - Scope: bin/, test/, commands/, scripts/, templates/, docs/, references/, workflows/, evals/, FastCode/, root files
 
 ### Task 2: Test suite verification — PASS
+
 - `node test/generate-snapshots.js` → 56 snapshots generated (4 platforms x 14 skills)
 - `node --test test/smoke-snapshot.test.js` → 56/56 pass
 - `node --test` → 1063/1104 pass, 41 fail (pre-existing, same before and after translation)
@@ -49,9 +51,11 @@ deviations: none
   - **No new test failures introduced by v6.0 migration**
 
 ### Task 3: Cleanup — DONE
+
 - Temp files removed (.tmp-translate-yaml.js, security-rules.yaml.tmp)
 - Git status clean (only .planning/ docs)
 - Benchmark timing results updated
 
 ### Task 4: Human review checkpoint
+
 - checkpoint:human-verify — awaiting user review of translation quality

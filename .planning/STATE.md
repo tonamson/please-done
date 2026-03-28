@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v6.0
 milestone_name: Vietnamese → English Migration
-status: Milestone v6.0 complete
-stopped_at: Phase 70 verified — milestone v6.0 complete
-last_updated: "2026-03-28T15:00:00.000Z"
+status: v6.0 milestone complete
+stopped_at: Milestone v6.0 complete — all 6 phases (65-70) verified and complete
+last_updated: "2026-03-28T17:40:20.369Z"
 progress:
   total_phases: 6
   completed_phases: 6
-  total_plans: 14
-  completed_plans: 14
+  total_plans: 12
+  completed_plans: 12
 ---
 
 # Project State

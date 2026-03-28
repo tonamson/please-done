@@ -1,5 +1,19 @@
 # Milestones
 
+## v6.0 Vietnamese → English Migration (Shipped: 2026-03-28)
+
+**Phases completed:** 6 phases, 12 plans, 12 tasks
+
+**Key accomplishments:**
+
+- Translated 7 workflow files (1,058 lines) from Vietnamese to English with zero diacritics remaining and all 56 smoke tests passing.
+- Translated 6 larger workflow files (2,552 lines) from Vietnamese to English. All 56 smoke-integrity tests pass. TRANS-03 complete — all 13 workflow files now English.
+- One-liner:
+- 1. [Rule 1 - Bug] Fixed residual Vietnamese in CHANGELOG.md line 8
+- Translated Vietnamese comments, JSDoc, and string literals in all 15 bin/lib/ JS source files to English with cross-module section name coordination
+
+---
+
 ## v5.1 Agent Sync & Reference Update (Shipped: 2026-03-27)
 
 **Phases completed:** 5 phases, 5 plans, 4 tasks

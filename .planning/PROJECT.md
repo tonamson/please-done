@@ -86,16 +86,16 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Reference Migration — smoke-agent-files.test.js and fix-bug.md updated — v5.1 (Phase 62)
 - ✓ Format Standardization — legacy security agents converted to new YAML frontmatter — v5.1 (Phase 63)
 - ✓ Registry & Test Updates — AGENT_REGISTRY 14→16, all smoke tests pass — v5.1 (Phase 64)
+- ✓ Skills + Config Foundation — 14 skill files + CLAUDE.md translated, 56 snapshots regenerated — v6.0 (Phase 65)
+- ✓ Workflow Translation — 13 workflow files (3,610 lines) translated to English — v6.0 (Phase 66)
+- ✓ Agents + Rules + References — 39 agent/rules/reference files translated — v6.0 (Phase 67)
+- ✓ Templates + Docs + Root Files — 41 files (templates, docs, root MDs, evals) translated — v6.0 (Phase 68)
+- ✓ JS Source Code + Tests — 33 JS source files translated, 12 test files synced — v6.0 (Phase 69)
+- ✓ Final Verification — Zero Vietnamese outside .planning/, 1101/1102 tests pass — v6.0 (Phase 70)
 
 ### Active
 
-- ✓ Translate 14 skill files + CLAUDE.md to English — v6.0 (Phase 65)
-- ✓ Regenerate 56 snapshots after skill translation — v6.0 (Phase 65)
-- [ ] Translate 13 workflow files to English — v6.0 (Phase 66)
-- [ ] Translate agents, rules, references to English — v6.0 (Phase 67)
-- [ ] Translate templates, docs, root MD files to English — v6.0 (Phase 68)
-- [ ] Translate JS source code + update test assertions — v6.0 (Phase 69)
-- [ ] Final verification: zero Vietnamese remaining + full test suite pass — v6.0 (Phase 70)
+(None — next milestone not yet defined)
 
 ### Out of Scope
 
@@ -106,28 +106,19 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v6.0 Vietnamese → English Migration
+## Current Milestone
 
-**Goal:** Convert all Vietnamese text to English across the entire project, excluding `.planning/`.
-
-**Target features:**
-
-- **Skills + Config Foundation:** Translate 14 skill files + CLAUDE.md, regenerate 56 auto-generated snapshots.
-- **Workflow Translation:** Translate 13 workflow files (3,610 lines total).
-- **Agents + Rules + References:** Translate agent definitions, coding rules, and reference docs.
-- **Templates + Docs + Root Files:** Translate template files, documentation, and root markdown files.
-- **JS Source + Tests:** Update Vietnamese strings in JS source code and synchronize test assertions.
-- **Final Verification:** Comprehensive grep sweep, full test suite, human review.
+(No active milestone — use `/gsd-new-milestone` to start next cycle)
 
 ## Current State
 
-**Current:** v6.0 Vietnamese → English Migration — DEFINING (2026-03-28)
-**Shipped:** v5.1 Agent Sync & Reference Update (2026-03-27), v5.0 Repo Optimization (2026-03-27)
+**Current:** Planning next milestone
+**Shipped:** v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27), v5.0 Repo Optimization (2026-03-27)
 **Previous:** v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
 
-v5.1 delivered: Agent Consolidation (16 agents into commands/pd/agents/), Symlink Architecture (16 symlinks), Reference Migration, Format Standardization, Registry & Test Updates.
+v6.0 delivered: Full Vietnamese-to-English migration across all source code, documentation, templates, workflows, agents, rules, references, and test assertions. Zero Vietnamese content remaining outside `.planning/`. 1101/1102 tests passing.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules, 27,493 LOC JavaScript.
 
 ## Constraints
 
@@ -161,10 +152,12 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills
 | External module for v1.5 features (D-02)         | fix-bug.md at 419/420 line limit — cannot inline                 | ✓ Good — logic-sync.js orchestrates 3 features in 1 call           |
 | Diff-based heuristics over AST (D-08)            | Regex on diff sufficient for v1.5, AST deferred to v2            | ✓ Good — 4 signal types cover common cases                         |
 | Non-blocking for cleanup + security + logic sync | User workflow must never be blocked by optional features         | ✓ Good — consistent non-blocking pattern across 9a and 10a         |
-| 1 template + 1 YAML thay 13 scanner files        | DRY, dễ bảo trì, mở rộng bằng YAML                               | ✓ Good — giảm 13 files thành 2, cùng chức năng                     |
-| Pure functions cho tất cả v4.0 modules           | TDD, no side effects, composable                                 | ✓ Good — smart-selection, session-delta, gadget-chain đều testable |
-| Security gate non-blocking                       | Không chặn workflow, chỉ cảnh báo                                | ✓ Good — phù hợp với triết lý "khuyến nghị, không ép buộc"         |
-| Path source of truth: audit.md B9                | .planning/audit/SECURITY_REPORT.md                               | ✓ Good — thống nhất sau gap closure 51-02                          |
+| 1 template + 1 YAML instead of 13 scanner files  | DRY, easier maintenance, YAML-driven extension                   | ✓ Good — reduced 13 files to 2, same functionality                 |
+| Pure functions for all v4.0 modules              | TDD, no side effects, composable                                 | ✓ Good — smart-selection, session-delta, gadget-chain all testable |
+| Security gate non-blocking                       | Don't block workflow, just warn                                  | ✓ Good — aligns with "recommend, don't enforce" philosophy         |
+| Path source of truth: audit.md B9                | .planning/audit/SECURITY_REPORT.md                               | ✓ Good — unified after gap closure 51-02                           |
+| Translation-only migration (v6.0)                | Language-only change, no structural or behavioral modifications  | ✓ Good — zero regressions, all tests pass                          |
+| .planning/ excluded from translation             | Planning artifacts are internal, can stay Vietnamese             | ✓ Good — reduced scope significantly, preserved history            |
 
 ## Evolution
 
@@ -187,4 +180,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-28 after v6.0 Vietnamese → English Migration milestone started_
+_Last updated: 2026-03-29 after v6.0 Vietnamese → English Migration milestone completed_
