@@ -176,7 +176,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 ### v6.0 Vietnamese → English Migration (Phases 65-70)
 
 - [x] Phase 65: Skills + Config Foundation (2 plans) (completed 2026-03-28)
-- [ ] Phase 66: Workflow Translation (2 plans)
+- [x] Phase 66: Workflow Translation (2 plans) (completed 2026-03-28)
 - [ ] Phase 67: Agents + Rules + References (2 plans)
 - [ ] Phase 68: Templates + Docs + Root Files (2 plans)
 - [ ] Phase 69: JS Source Code + Tests (3 plans)
@@ -215,7 +215,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 2. Step numbering follows English convention (Step X instead of Bước X)
 3. No structural or behavioral changes — only language
 
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] 66-01-PLAN.md — Translate 7 smaller workflows + update test assertions
