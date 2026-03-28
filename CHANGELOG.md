@@ -1,340 +1,340 @@
-# Nhật ký thay đổi Skills
+# Skills Changelog
 
 ## [2.8.0] - 21_03_2026
-### Thay đổi
-- **Rules**: Giảm chi phí token -79% (262K → 55K ký tự) — xóa 27 file tutorial framework, chỉ giữ quy ước riêng. Kiến thức framework tra Context7 MCP thay thế
-- **Rules headings**: Dịch tiếng Việt các heading/label tiếng Anh trong rules và tài liệu hướng dẫn
-- **README.md**: Thêm mục "Hệ thống quy ước" giải thích rõ tại sao cần cả Rules lẫn CLAUDE.md, hướng dẫn fork tùy chỉnh
-- **INTEGRATION_GUIDE.md**: Viết lại khớp cấu trúc rules mới, dịch tiếng Việt (Phase → Giai đoạn, Input/Output → Đầu vào/Đầu ra)
-- **Workflows**: Cập nhật init, scan, plan, write-code, fix-bug, test — bỏ tham chiếu refs đã xóa, dùng Context7
+### Changed
+- **Rules**: Reduced token cost -79% (262K → 55K characters) — removed 27 framework tutorial files, keeping only specific conventions. Framework knowledge looked up via Context7 MCP instead
+- **Rules headings**: Translated English headings/labels in rules and documentation to Vietnamese
+- **README.md**: Added "Convention System" section explaining why both Rules and CLAUDE.md are needed, guide for fork customization
+- **INTEGRATION_GUIDE.md**: Rewritten to match new rules structure, translated to Vietnamese (Phase → Stage, Input/Output → Input/Output)
+- **Workflows**: Updated init, scan, plan, write-code, fix-bug, test — removed references to deleted refs, using Context7
 
-### Thêm mới
-- **Skill `/pd:conventions`**: Quét code dự án, phát hiện quy ước lập trình, hỏi người dùng, tạo CLAUDE.md quy ước riêng (0 token cost — Claude Code tự load)
-- **Eval tests**: 4 workflow tests + 2 trigger tests cho conventions và tối ưu rules
+### Added
+- **Skill `/pd:conventions`**: Scan project code, detect coding conventions, ask user, create project-specific CLAUDE.md (0 token cost — Claude Code auto-loads)
+- **Eval tests**: 4 workflow tests + 2 trigger tests for conventions and rules optimization
 
 ## [2.7.3] - 21_03_2026
-### Thay đổi
-- **security-checklist.md**: Bổ sung khung phân tích bảo mật theo ngữ cảnh (endpoint type, data sensitivity, auth type), quy tắc theo ngữ cảnh (PUBLIC/ADMIN/INTERNAL), phân tích nâng cao (trust boundaries, idempotency, response minimization, secure-by-default, operational security, phòng sai sót con người), review tổng thể trước commit
-- **write-code.md**: Tích hợp phân tích ngữ cảnh bảo mật vào Bước 2/4/6.5b, thêm mục "Review bảo mật" vào template CODE_REPORT, PLAN.md vào commit list, STATE.md "Đang code" lifecycle
-- **plan.md**: Thêm Bước 8.5 commit kế hoạch (bảo vệ PLAN.md + TASKS.md khỏi mất mát khi gián đoạn), STATE.md Phase chỉ cập nhật khi CURRENT_MILESTONE cũng đổi (tránh desync khi pre-plan)
-- **test.md**: Tự phát hiện phase cũ hoàn tất chưa test sau auto-advance
-- **what-next.md**: Thêm quét phases cũ chưa test + Ưu tiên 5.5 cảnh báo phase chưa test
-- **complete-milestone.md**: Kiểm tra TEST_REPORT staleness (so sánh ngày test vs commit [LỖI] cuối)
-- **state-machine.md**: Cập nhật flow auto-advance + test interaction, plan commit
-- **templates/state.md**: Thêm trạng thái "Đang code" + auto-advance sync
+### Changed
+- **security-checklist.md**: Added contextual security analysis framework (endpoint type, data sensitivity, auth type), context-based rules (PUBLIC/ADMIN/INTERNAL), advanced analysis (trust boundaries, idempotency, response minimization, secure-by-default, operational security, human error prevention), overall review before commit
+- **write-code.md**: Integrated contextual security analysis into Steps 2/4/6.5b, added "Security Review" section to CODE_REPORT template, PLAN.md to commit list, STATE.md "Coding" lifecycle
+- **plan.md**: Added Step 8.5 plan commit (protects PLAN.md + TASKS.md from loss on interruption), STATE.md Phase only updates when CURRENT_MILESTONE also changes (prevents desync during pre-plan)
+- **test.md**: Auto-detect incomplete phases not yet tested after auto-advance
+- **what-next.md**: Added scan for incomplete phases not yet tested + Priority 5.5 warning for untested phases
+- **complete-milestone.md**: Check TEST_REPORT staleness (compare test date vs last [BUG] commit)
+- **state-machine.md**: Updated auto-advance + test interaction flow, plan commit
+- **templates/state.md**: Added "Coding" status + auto-advance sync
 
-### Sửa lỗi
-- **Codex converter**: Thêm fallback bắt buộc khi `request_user_input` không khả dụng — tránh gãy flow ở skills cần hỏi user
+### Fixed
+- **Codex converter**: Added mandatory fallback when `request_user_input` is unavailable — prevents flow breakage in skills that need user input
 
-### Thêm mới
+### Added
 - **test/smoke-state-machine.test.js**: 60 test cases — full lifecycle, auto-advance, dependency logic (circular detection), version filtering (semver traps), crash recovery, what-next priority, SESSION lifecycle, re-plan, skip phases, DISCUSS_STATE, CURRENT_MILESTONE↔ROADMAP consistency, --auto boundary
-- **test/smoke-all-platforms.test.js**: 36 test cases — Claude installer (symlinks, idempotency, uninstall), cross-platform 5 platforms (tất cả skills/content/rules/leak/.pdconfig)
+- **test/smoke-all-platforms.test.js**: 36 test cases — Claude installer (symlinks, idempotency, uninstall), cross-platform 5 platforms (all skills/content/rules/leak/.pdconfig)
 - **test/smoke-integrity.test.js**: 10 test cases — cross-file refs, workflow resolution, full-skill conversion
-- **claude.js installSkillsOnly()**: Hàm testable tách từ Step 5, không ảnh hưởng install() gốc
+- **claude.js installSkillsOnly()**: Testable function extracted from Step 5, does not affect original install()
 
 ## [2.7.2] - 21_03_2026
-### Sửa lỗi
-- **Version sync**: Đồng bộ version public toàn repo từ `2.7.1` lên `2.7.2` tại `VERSION`, `package.json`, `package-lock.json`, `README.md`
-- **Release hygiene**: Sửa lệch metadata giữa `package.json` và `package-lock.json` để chuẩn bị publish ổn định hơn
+### Fixed
+- **Version sync**: Synchronized public version across repo from `2.7.1` to `2.7.2` in `VERSION`, `package.json`, `package-lock.json`, `README.md`
+- **Release hygiene**: Fixed metadata mismatch between `package.json` and `package-lock.json` for more stable publish preparation
 
 ## [2.7.1] - 20_03_2026
-### Thay đổi
-- **README.md**: Thêm badges (version, license, node, platforms), mục lục (TOC), section "Tài liệu bổ sung" (link INTEGRATION_GUIDE, AUDIT_CHECKLIST, CHANGELOG), section "Giấy phép" (MIT)
-- **README.md**: Bỏ cột "Tỷ lệ đạt" trong bảng eval, cải thiện format mô tả test skill và commit patterns
-- **LICENSE**: Tạo file MIT license
+### Changed
+- **README.md**: Added badges (version, license, node, platforms), table of contents (TOC), "Additional Documentation" section (links to INTEGRATION_GUIDE, AUDIT_CHECKLIST, CHANGELOG), "License" section (MIT)
+- **README.md**: Removed "Pass Rate" column from eval table, improved format for test skill descriptions and commit patterns
+- **LICENSE**: Created MIT license file
 
 ## [2.7.0] - 19_03_2026
-### Thêm mới
-- **Semgrep auto-scan**: Quét lỗ hổng bảo mật tự động (OWASP Top 10, injection, XSS, hardcoded secrets) mỗi khi AI viết/sửa code
-- **Semgrep MCP server**: AI có thể chủ động gọi Semgrep để quét toàn bộ dự án hoặc kiểm tra pattern cụ thể
-- **PostToolUse hook**: Hook `semgrep-scan.sh` chạy sau mỗi Edit/Write file code (.ts, .js, .py, .sol, .php...) — cảnh báo ngay nếu phát hiện lỗ hổng
-- **Lớp bảo mật thứ 4**: Bổ sung Semgrep vào mô hình phòng thủ nhiều lớp (platform deny → skill rules → .gitignore → semgrep scan)
+### Added
+- **Semgrep auto-scan**: Automatic security vulnerability scanning (OWASP Top 10, injection, XSS, hardcoded secrets) every time AI writes/edits code
+- **Semgrep MCP server**: AI can proactively call Semgrep to scan the entire project or check specific patterns
+- **PostToolUse hook**: Hook `semgrep-scan.sh` runs after every Edit/Write for code files (.ts, .js, .py, .sol, .php...) — alerts immediately if vulnerabilities found
+- **4th security layer**: Added Semgrep to the defense-in-depth model (platform deny → skill rules → .gitignore → semgrep scan)
 
-### Thay đổi
-- **README.md**: Thêm Semgrep vào bảng MCP servers, hướng dẫn cài đặt Semgrep MCP tại local (CLI + MCP + hook), cập nhật mô hình bảo mật 4 lớp
+### Changed
+- **README.md**: Added Semgrep to MCP servers table, Semgrep MCP local setup guide (CLI + MCP + hook), updated 4-layer security model
 
 ## [2.6.2] - 19_03_2026
-### Thay đổi
-- **Rename**: `backend.md` → `nestjs.md`, `frontend.md` → `nextjs.md` — đồng bộ naming convention [stack]-refs/
+### Changed
+- **Rename**: `backend.md` → `nestjs.md`, `frontend.md` → `nextjs.md` — synchronized naming convention with [stack]-refs/
 - **nestjs-refs/**: 5 reference docs (authentication, database-patterns, testing, swagger, error-handling)
 - **nextjs-refs/**: 5 reference docs (server-components, authentication, seo-metadata, api-integration, zustand-patterns)
-- **nestjs.md**: thêm `## Cấu trúc dự án`, `## Bảo mật (BẮT BUỘC)` (rate limiting, helmet, CORS, validation), `## Tham khảo chi tiết`
-- **nextjs.md**: thêm `## Bảo mật (BẮT BUỘC)` (XSS, token storage, env vars, form validation), `## Tham khảo chi tiết`
-- **Detection flags**: `hasBackend` → `hasNestJS`, `hasFrontend` → `hasNextJS` (Express/Vite/React giữ hasBackend/hasFrontend)
-- **INTEGRATION_GUIDE.md**: cập nhật ~34 anchor patterns cho đúng trạng thái hiện tại
-- **README.md**: fix test skill description thiếu Flutter, cập nhật nestjs-refs/nextjs-refs descriptions
+- **nestjs.md**: added `## Project Structure`, `## Security (REQUIRED)` (rate limiting, helmet, CORS, validation), `## Detailed Reference`
+- **nextjs.md**: added `## Security (REQUIRED)` (XSS, token storage, env vars, form validation), `## Detailed Reference`
+- **Detection flags**: `hasBackend` → `hasNestJS`, `hasFrontend` → `hasNextJS` (Express/Vite/React keep hasBackend/hasFrontend)
+- **INTEGRATION_GUIDE.md**: updated ~34 anchor patterns to match current state
+- **README.md**: fix test skill description missing Flutter, updated nestjs-refs/nextjs-refs descriptions
 
 ## [2.6.1] - 19_03_2026
-### Sửa lỗi
-- **test.md**: description + objective thiếu Flutter (chỉ ghi NestJS/WordPress/Solidity)
-- **fix-bug.md**: Bước 5 danh sách rules đọc thiếu `flutter.md`
-- **init.md**: ví dụ "stack tương lai" còn Flutter dù đã tích hợp (→ Laravel)
+### Fixed
+- **test.md**: description + objective missing Flutter (only listed NestJS/WordPress/Solidity)
+- **fix-bug.md**: Step 5 rules read list missing `flutter.md`
+- **init.md**: "future stack" example still showed Flutter although already integrated (→ Laravel)
 
 ## [2.6.0] - 19_03_2026
-### Thêm mới
+### Added
 - **Flutter stack support** — rules (`flutter.md`), 8 reference docs (`flutter-refs/`), detection, scan, plan, write-code, test, fix-bug
 - Architecture: GetX (Logic + State + View + Binding), design tokens, Dio, manual fromJson/toJson
 - Testing: flutter_test + mocktail (unit + widget tests)
 - Detection: `pubspec.yaml` + Grep `flutter` | Fallback: `lib/main.dart`
-- Tất cả 8 skill files + README + AUDIT_CHECKLIST cập nhật cho Flutter
+- All 8 skill files + README + AUDIT_CHECKLIST updated for Flutter
 
 ## [2.5.1] - 19_03_2026
-### Sửa lỗi
-- **Solidity rules**: Thêm rule DoS attack vectors (unbounded loops, batch fail-silently, call revert), CẤM `selfdestruct` (EIP-6780), custom errors gas optimization
-- **Audit checklist**: Thêm section 9a DoS (5 checklist items + code examples), event emit order check, `selfdestruct` check, escape clause cho array max 50
-- **Templates**: Uncomment `OperatorUpdated` event declaration (Template 1a + Template 2 combo bị compile error nếu quên uncomment)
-- **Scan.md**: Thêm glob filter `(glob: "*.php")` cho WordPress grep patterns, `(glob: "*.ts")` cho NestJS patterns
-- **FastCode failure handling**: Thống nhất fallback Grep/Read + warning cho plan.md, write-code.md, test.md (trước đó DỪNG hoàn toàn)
-- **Complete-milestone.md**: Thêm `## WordPress` section trong MILESTONE_COMPLETE template
-- **Test.md**: `## Xác nhận database` → `## Xác nhận dữ liệu (Database/On-chain state)`. Bước 2 + Bước 4 heading thêm "(CHỈ NestJS flow)"
-- **Write-code.md**: `Nếu task Backend:` → `Nếu task Backend (NestJS):`. Security checklist thêm DoS, Flash Loan, Frontrunning/MEV, CẤM tx.origin
-- **README.md**: Thêm `test/*.ts` cho Hardhat test files. Copilot config `instructions.md` → `copilot-instructions.md`
+### Fixed
+- **Solidity rules**: Added DoS attack vector rules (unbounded loops, batch fail-silently, call revert), FORBID `selfdestruct` (EIP-6780), custom errors gas optimization
+- **Audit checklist**: Added section 9a DoS (5 checklist items + code examples), event emit order check, `selfdestruct` check, escape clause for array max 50
+- **Templates**: Uncommented `OperatorUpdated` event declaration (Template 1a + Template 2 combo had compile error if forgotten)
+- **Scan.md**: Added glob filter `(glob: "*.php")` for WordPress grep patterns, `(glob: "*.ts")` for NestJS patterns
+- **FastCode failure handling**: Unified fallback Grep/Read + warning for plan.md, write-code.md, test.md (previously STOPPED completely)
+- **Complete-milestone.md**: Added `## WordPress` section in MILESTONE_COMPLETE template
+- **Test.md**: `## Database Verification` → `## Data Verification (Database/On-chain state)`. Steps 2 + 4 headings added "(NestJS flow ONLY)"
+- **Write-code.md**: `If Backend task:` → `If Backend (NestJS) task:`. Security checklist added DoS, Flash Loan, Frontrunning/MEV, FORBID tx.origin
+- **README.md**: Added `test/*.ts` for Hardhat test files. Copilot config `instructions.md` → `copilot-instructions.md`
 
 ## [2.5.0] - 19_03_2026
-### Thêm mới
-- **Solidity smart contract stack support**: Thêm `solidity.md` rules (coding standards, OpenZeppelin imports, SafeERC20, security modifiers, NatSpec, gas optimization, signature verification)
-- **2 Solidity reference docs** (`solidity-refs/`): templates (base contract + signature verification pattern), audit-checklist (12 categories + pre-deploy checklist) — copy vào `.planning/docs/solidity/` khi init
-- **Solidity detection**: `init.md` + `scan.md` detect qua `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`
-- **Solidity test flow**: `test.md` hỗ trợ Hardhat (ethers.js + chai) + Foundry (forge-std) bên cạnh Jest/Supertest/PHPUnit
-- **Solidity scan patterns**: `scan.md` quét contracts, OZ imports, interfaces, events, custom modifiers, security patterns
-- **Solidity bug tracing**: `fix-bug.md` trace function call → require checks → state changes → external interactions → events
+### Added
+- **Solidity smart contract stack support**: Added `solidity.md` rules (coding standards, OpenZeppelin imports, SafeERC20, security modifiers, NatSpec, gas optimization, signature verification)
+- **2 Solidity reference docs** (`solidity-refs/`): templates (base contract + signature verification pattern), audit-checklist (12 categories + pre-deploy checklist) — copied to `.planning/docs/solidity/` on init
+- **Solidity detection**: `init.md` + `scan.md` detect via `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`
+- **Solidity test flow**: `test.md` supports Hardhat (ethers.js + chai) + Foundry (forge-std) alongside Jest/Supertest/PHPUnit
+- **Solidity scan patterns**: `scan.md` scans contracts, OZ imports, interfaces, events, custom modifiers, security patterns
+- **Solidity bug tracing**: `fix-bug.md` traces function call → require checks → state changes → external interactions → events
 - **3 eval tests Solidity**: init detection, write-code rules compliance, Hardhat test flow
-- **3 eval tests bổ sung Solidity (audit)**: Foundry detection, scan Solidity patterns, fix-bug Solidity trace
+- **3 additional eval tests Solidity (audit)**: Foundry detection, scan Solidity patterns, fix-bug Solidity trace
 
-### Thay đổi
-- `init.md`: Glob thêm `.sol` + exclude `artifacts/cache`. Detection patterns `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`. Copy `solidity-refs/` → `.planning/docs/solidity/`. Notification box + rules list thêm solidity.md
-- `scan.md`: Glob thêm `.sol`, Solidity scan section mới (contracts, OZ imports, interfaces, events, modifiers, security patterns)
-- `plan.md`: `<context>` đọc `solidity.md` rules theo stack
-- `write-code.md`: Solidity task section (SPDX, pragma, OZ imports, clearUnknownToken, NatSpec, security checklist, compile/test commands). Test suggestions bao gồm Solidity
-- `test.md`: Hardhat + Foundry test flow mới (deploy, core function, access control, input validation, reentrancy, pause/unpause, clearUnknownToken)
-- `fix-bug.md`: `<context>` + Bước 5 + Bước 7 bao gồm Solidity trace + audit checklist reference
-- `what-next.md`: Ưu tiên 6 bao gồm Solidity cho test suggestion
-- `complete-milestone.md`: TEST_REPORT check bao gồm Solidity
-- `general.md`: Code style ghi rõ "Solidity theo rules riêng trong solidity.md"
+### Changed
+- `init.md`: Glob added `.sol` + exclude `artifacts/cache`. Detection patterns `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol`. Copy `solidity-refs/` → `.planning/docs/solidity/`. Notification box + rules list added solidity.md
+- `scan.md`: Glob added `.sol`, new Solidity scan section (contracts, OZ imports, interfaces, events, modifiers, security patterns)
+- `plan.md`: `<context>` reads `solidity.md` rules by stack
+- `write-code.md`: Solidity task section (SPDX, pragma, OZ imports, clearUnknownToken, NatSpec, security checklist, compile/test commands). Test suggestions include Solidity
+- `test.md`: New Hardhat + Foundry test flow (deploy, core function, access control, input validation, reentrancy, pause/unpause, clearUnknownToken)
+- `fix-bug.md`: `<context>` + Step 5 + Step 7 include Solidity trace + audit checklist reference
+- `what-next.md`: Priority 6 includes Solidity for test suggestion
+- `complete-milestone.md`: TEST_REPORT check includes Solidity
+- `general.md`: Code style notes "Solidity follows its own rules in solidity.md"
 
-### Sửa lỗi
-- `README.md`: Phiên bản hiện tại ghi v2.4.0 → sửa thành v2.5.0 (khớp VERSION + package.json)
-- `audit-checklist.md`: `safeApprove (hoặc forceApprove)` → `forceApprove` (OZ v5 đã deprecate `safeApprove`)
-- `scan.md`: Grep `event .*Event` → `^\s*event ` (pattern cũ bỏ sót events không kết thúc bằng "Event" như Transfer, Approval)
-- `solidity.md`: Thiếu indent convention (4 spaces) + file naming convention (PascalCase cho .sol files) — thêm section Code style
+### Fixed
+- `README.md`: Current version showed v2.4.0 → fixed to v2.5.0 (matches VERSION + package.json)
+- `audit-checklist.md`: `safeApprove (or forceApprove)` → `forceApprove` (OZ v5 deprecated `safeApprove`)
+- `scan.md`: Grep `event .*Event` → `^\s*event ` (old pattern missed events not ending with "Event" like Transfer, Approval)
+- `solidity.md`: Missing indent convention (4 spaces) + file naming convention (PascalCase for .sol files) — added Code style section
 - **Signature verification security overhaul** (3 files):
-  - `solidity.md`: `block.chainid` + `address(this)` nâng từ "Khuyến nghị" → **BẮT BUỘC** (cross-chain replay là attack vector thực tế). Thêm `mapping(bytes32)` thay `mapping(bytes)`, EIP-712 requirement khi user ký qua wallet
-  - `templates.md`: Template 2 rewrite — hash include chainid + address(this), đổi `signatureUsed` → `hashUsed` (bytes32 key, rẻ gas + immune malleability), rename `OPERATOR` → `operator` (state variable phải camelCase), thêm EIP-712 guidance, cập nhật diagram + NatSpec + checklist
-  - `audit-checklist.md`: Section 6 tách thành 4 subsections (hash binding, verification logic, EIP-712, replay), thêm `block.chainid` + `address(this)` + `hashUsed` vào checklist bắt buộc
-- **Audit lần 3** — `templates.md`: snake_case → camelCase naming, Template 2 compatibility notes. `solidity.md`: NatSpec English exception explicit. `scan.md`: interface grep broadened. `plan.md`: Solidity/WordPress design sections
-- **Audit lần 4** (CRITICAL):
-  - **4 non-Claude installers** (`codex.js`, `gemini.js`, `opencode.js`, `copilot.js`): `readdirSync().filter('.md')` bỏ sót subdirectories `solidity-refs/`, `wordpress-refs/` → thêm recursive copy
-  - `test.md`: TEST_REPORT heading "Kết quả tự động (Jest)" hardcoded → parameterize `[Jest|PHPUnit|Hardhat|Foundry]`
-  - `what-next.md`: Bước 3.5 ghi "Backend" → "Backend NestJS, WordPress, hoặc Solidity" (khớp Priority 6)
-  - `scan.md`: Modifier grep `modifier ` quá broad → `^\s*modifier\s+\w+`
-  - `templates.md`: Template 1b constructor thiếu `require(addr != address(0))` cho AccessControl
-  - `solidity.md`: Thêm `forceApprove` (OZ v5) vào Bảo mật section
-  - 4 eval tests mới: Solidity TEST_REPORT heading, what-next Solidity routing, mixed NestJS+Solidity init, WordPress TEST_REPORT heading. Tổng 56 workflow tests
-- **Audit lần 5**:
-  - `scan.md`: SCAN_REPORT template thiếu section "Phân tích Solidity" (Backend/Frontend/WordPress có, Solidity không) → thêm section với Contracts, OZ Imports, Security Modifiers, Events
-  - `test.md`: Description/objective hardcoded "Jest + Supertest cho NestJS" → sửa thành multi-framework (Jest + Supertest, PHPUnit, Hardhat/Foundry)
-  - `codex.js` + `opencode.js`: Regex `/pd:([a-z0-9-]+)` thiếu underscore `_` → sửa thành `[a-z0-9_-]+` (phòng tương lai skill name có underscore)
-  - 2 eval tests mới: SCAN_REPORT Solidity section, Foundry test flow. Tổng 58 workflow tests
-- **Audit lần 6**:
-  - `platforms.js`: Regex `/pd:([a-z0-9-]+)` thiếu underscore → `[a-z0-9_-]+` (khớp với codex/opencode đã sửa lần 5)
-  - `copilot.js` installer: Rules copy thiếu Write, Edit replacements → thêm 2 tool name replacements (khớp converter COPILOT_TOOL_MAP)
-  - `gemini.js` installer: Rules copy THIẾU TOÀN BỘ tool name replacements → thêm Read→read_file, Write→write_file, Edit→edit_file, Bash→run_shell_command, Glob→glob, Grep→search_file_content
-  - `scan.md`: SCAN_REPORT template heading hardcoded "(NestJS)"/"(NextJS)" → generic "Phân tích Backend"/"Phân tích Frontend"
-  - `templates.md`: `clearUnknownToken` thiếu `nonReentrant` modifier (risk ERC777 reentrancy) → thêm cho cả Template 1a + 1b. Thêm `forceApprove` comment/example cho cả 2 templates
-  - `test.md`: Description hardcode framework names → generic "(NestJS/WordPress/Solidity)"
-  - `general.md`: Commit message format ambiguous khi không có git → thêm "(chỉ khi git tồn tại)"
-  - `promptfooconfig.yaml`: write-code Solidity test thêm assertions cho forceApprove + clearUnknownToken nonReentrant
+  - `solidity.md`: `block.chainid` + `address(this)` elevated from "Recommended" → **REQUIRED** (cross-chain replay is a real attack vector). Added `mapping(bytes32)` instead of `mapping(bytes)`, EIP-712 requirement when user signs via wallet
+  - `templates.md`: Template 2 rewrite — hash includes chainid + address(this), changed `signatureUsed` → `hashUsed` (bytes32 key, cheaper gas + immune to malleability), renamed `OPERATOR` → `operator` (state variable must be camelCase), added EIP-712 guidance, updated diagram + NatSpec + checklist
+  - `audit-checklist.md`: Section 6 split into 4 subsections (hash binding, verification logic, EIP-712, replay), added `block.chainid` + `address(this)` + `hashUsed` to required checklist
+- **Audit round 3** — `templates.md`: snake_case → camelCase naming, Template 2 compatibility notes. `solidity.md`: NatSpec English exception explicit. `scan.md`: interface grep broadened. `plan.md`: Solidity/WordPress design sections
+- **Audit round 4** (CRITICAL):
+  - **4 non-Claude installers** (`codex.js`, `gemini.js`, `opencode.js`, `copilot.js`): `readdirSync().filter('.md')` missed subdirectories `solidity-refs/`, `wordpress-refs/` → added recursive copy
+  - `test.md`: TEST_REPORT heading "Automated Results (Jest)" hardcoded → parameterized `[Jest|PHPUnit|Hardhat|Foundry]`
+  - `what-next.md`: Step 3.5 said "Backend" → "Backend NestJS, WordPress, or Solidity" (matches Priority 6)
+  - `scan.md`: Modifier grep `modifier ` too broad → `^\s*modifier\s+\w+`
+  - `templates.md`: Template 1b constructor missing `require(addr != address(0))` for AccessControl
+  - `solidity.md`: Added `forceApprove` (OZ v5) to Security section
+  - 4 new eval tests: Solidity TEST_REPORT heading, what-next Solidity routing, mixed NestJS+Solidity init, WordPress TEST_REPORT heading. Total 56 workflow tests
+- **Audit round 5**:
+  - `scan.md`: SCAN_REPORT template missing "Solidity Analysis" section (Backend/Frontend/WordPress had one, Solidity didn't) → added section with Contracts, OZ Imports, Security Modifiers, Events
+  - `test.md`: Description/objective hardcoded "Jest + Supertest for NestJS" → fixed to multi-framework (Jest + Supertest, PHPUnit, Hardhat/Foundry)
+  - `codex.js` + `opencode.js`: Regex `/pd:([a-z0-9-]+)` missing underscore `_` → fixed to `[a-z0-9_-]+` (future-proofing for skill names with underscore)
+  - 2 new eval tests: SCAN_REPORT Solidity section, Foundry test flow. Total 58 workflow tests
+- **Audit round 6**:
+  - `platforms.js`: Regex `/pd:([a-z0-9-]+)` missing underscore → `[a-z0-9_-]+` (matches codex/opencode fix from round 5)
+  - `copilot.js` installer: Rules copy missing Write, Edit replacements → added 2 tool name replacements (matches converter COPILOT_TOOL_MAP)
+  - `gemini.js` installer: Rules copy COMPLETELY MISSING tool name replacements → added Read→read_file, Write→write_file, Edit→edit_file, Bash→run_shell_command, Glob→glob, Grep→search_file_content
+  - `scan.md`: SCAN_REPORT template heading hardcoded "(NestJS)"/"(NextJS)" → generic "Backend Analysis"/"Frontend Analysis"
+  - `templates.md`: `clearUnknownToken` missing `nonReentrant` modifier (risk ERC777 reentrancy) → added for both Template 1a + 1b. Added `forceApprove` comment/example for both templates
+  - `test.md`: Description hardcodes framework names → generic "(NestJS/WordPress/Solidity)"
+  - `general.md`: Commit message format ambiguous when no git → added "(only when git exists)"
+  - `promptfooconfig.yaml`: write-code Solidity test added assertions for forceApprove + clearUnknownToken nonReentrant
 
 ## [2.4.0] - 19_03_2026
-### Thêm mới
-- **WordPress stack support**: Thêm `wordpress.md` rules (coding standards, security, hooks, database, REST API, performance, i18n, enqueue assets)
-- **9 WordPress reference docs** (`wordpress-refs/`): plugin-architecture, theme-development, gutenberg-blocks, woocommerce, security-hardening, database-migrations, wp-cli, multisite, testing — copy vào `.planning/docs/wordpress/` khi init
-- **WordPress detection**: `init.md` + `scan.md` detect qua `wp-config.php`, `wp-content/plugins/*/`, `wp-content/themes/*/style.css`
-- **WordPress test flow**: `test.md` hỗ trợ PHPUnit + `WP_UnitTestCase` bên cạnh Jest/Supertest
-- **WordPress scan patterns**: `scan.md` quét plugins, themes, custom tables (`dbDelta`/`$wpdb->prefix`), REST API (`register_rest_route`), hooks (`add_action`/`add_filter`)
-- **WordPress bug tracing**: `fix-bug.md` trace hook/action → callback → $wpdb → output, kiểm tra sanitize/escape/nonce/capability/prepared statements
+### Added
+- **WordPress stack support**: Added `wordpress.md` rules (coding standards, security, hooks, database, REST API, performance, i18n, enqueue assets)
+- **9 WordPress reference docs** (`wordpress-refs/`): plugin-architecture, theme-development, gutenberg-blocks, woocommerce, security-hardening, database-migrations, wp-cli, multisite, testing — copied to `.planning/docs/wordpress/` on init
+- **WordPress detection**: `init.md` + `scan.md` detect via `wp-config.php`, `wp-content/plugins/*/`, `wp-content/themes/*/style.css`
+- **WordPress test flow**: `test.md` supports PHPUnit + `WP_UnitTestCase` alongside Jest/Supertest
+- **WordPress scan patterns**: `scan.md` scans plugins, themes, custom tables (`dbDelta`/`$wpdb->prefix`), REST API (`register_rest_route`), hooks (`add_action`/`add_filter`)
+- **WordPress bug tracing**: `fix-bug.md` traces hook/action → callback → $wpdb → output, checks sanitize/escape/nonce/capability/prepared statements
 - **3 eval tests WordPress**: init detection, write-code rules compliance, PHPUnit test flow
 
-### Thay đổi
-- `init.md`: Glob thêm `.php` + exclude `wp-includes/wp-admin` (tránh core WP files). `<context>` + Bước 8 notification + `<rules>` security list đều bao gồm WordPress
-- `scan.md`: Glob thêm `.php`, Grep patterns dùng `|` (ripgrep syntax thay vì `\|`), WordPress scan section mới, `<rules>` security thêm `wp-config.php`
-- `plan.md`: `<context>` đọc `wordpress.md` rules theo stack
-- `write-code.md`: WordPress task section (ABSPATH check, docs tra cứu, Context7, `composer run lint`). Test suggestions: "NestJS hoặc WordPress" thay vì "NestJS only". Fallback lint: `composer run lint`
-- `fix-bug.md`: `<context>` + Bước 5 + Bước 7 bao gồm WordPress
-- `what-next.md`: Ưu tiên 6 bao gồm WordPress cho test suggestion
-- `complete-milestone.md`: TEST_REPORT check bao gồm WordPress
-- `general.md`: Code style ghi rõ "(TS/JS) — PHP theo rules riêng". Bảo mật thêm `wp-config.php`. Commit format thêm `[TRACKING]`
-- `backend.md`: Decorator `@Roles` (sửa từ `@Group/@Role`), RequestWithUser gợi ý, MongoDB prefix `m` có VD, Middleware & Interceptor section mới, Soft delete 3 patterns (TypeORM/Mongoose/Prisma)
-- `frontend.md`: Sub-components escape clause (>500 dòng), Error Handling & Loading section mới
-- `README.md`: Bảng rules + cây `.planning/` bao gồm WordPress, bảng tech stack thêm WordPress row
-- `promptfooconfig.yaml`: Glob patterns thêm `.php`, lint command đồng bộ, comment PHPUnit
+### Changed
+- `init.md`: Glob added `.php` + exclude `wp-includes/wp-admin` (avoid core WP files). `<context>` + Step 8 notification + `<rules>` security list all include WordPress
+- `scan.md`: Glob added `.php`, Grep patterns use `|` (ripgrep syntax instead of `\|`), new WordPress scan section, `<rules>` security added `wp-config.php`
+- `plan.md`: `<context>` reads `wordpress.md` rules by stack
+- `write-code.md`: WordPress task section (ABSPATH check, docs lookup, Context7, `composer run lint`). Test suggestions: "NestJS or WordPress" instead of "NestJS only". Fallback lint: `composer run lint`
+- `fix-bug.md`: `<context>` + Step 5 + Step 7 include WordPress
+- `what-next.md`: Priority 6 includes WordPress for test suggestion
+- `complete-milestone.md`: TEST_REPORT check includes WordPress
+- `general.md`: Code style notes "(TS/JS) — PHP follows its own rules". Security added `wp-config.php`. Commit format added `[TRACKING]`
+- `backend.md`: Decorator `@Roles` (fixed from `@Group/@Role`), RequestWithUser suggestion, MongoDB prefix `m` with example, new Middleware & Interceptor section, Soft delete 3 patterns (TypeORM/Mongoose/Prisma)
+- `frontend.md`: Sub-components escape clause (>500 lines), new Error Handling & Loading section
+- `README.md`: Rules table + `.planning/` tree include WordPress, tech stack table added WordPress row
+- `promptfooconfig.yaml`: Glob patterns added `.php`, lint command synchronized, PHPUnit comment
 
-### Sửa lỗi
-- `wordpress.md`: `update_meta_cache` → `update_post_meta_cache` (đúng WP_Query parameter)
-- `wordpress.md`: `composer run phpcs` → `composer run lint` (khớp testing.md reference)
-- `init.md`: Glob thiếu `.php` → WordPress PHP-only project bị coi là "dự án mới" (critical)
+### Fixed
+- `wordpress.md`: `update_meta_cache` → `update_post_meta_cache` (correct WP_Query parameter)
+- `wordpress.md`: `composer run phpcs` → `composer run lint` (matches testing.md reference)
+- `init.md`: Glob missing `.php` → WordPress PHP-only project treated as "new project" (critical)
 - `scan.md`: Grep `\|` → `|` (ripgrep syntax)
-- `write-code.md`: 4 chỗ reference NestJS-only cho test → sửa bao gồm WordPress
-- `promptfooconfig.yaml`: 6× glob thiếu `.php`, 1× `composer phpcs` cũ
+- `write-code.md`: 4 places referenced NestJS-only for test → fixed to include WordPress
+- `promptfooconfig.yaml`: 6× glob missing `.php`, 1× old `composer phpcs`
 
 ## [2.3.0] - 19_03_2026
-### Thêm mới
-- **DISCUSS mode dùng AskUserQuestion**: `plan.md` viết lại toàn bộ chế độ DISCUSS — user chọn bằng phím mũi tên thay vì gõ A/B/C. Hỗ trợ multiSelect, single select, chia nhóm 5+ vấn đề
-- **Vòng lặp thảo luận mở rộng (3.5.4)**: User có thể chọn "Thảo luận thêm" sau bảng tóm tắt → Claude đưa vấn đề mới → loop đến khi user hài lòng
-- **DISCUSS hybrid table**: PLAN.md phân biệt rõ "User chọn" vs "Claude quyết định" với ghi chú bổ sung cho quyết định tự đưa ra
-- **Tracking commit**: `write-code.md` tạo commit `[TRACKING]` riêng khi phase hoàn tất — tách khỏi commit task code
-- **7 eval tests mới**: Rules-missing check, 3.5.4 loop, back/cancel keywords, hybrid table, tracking commit, bug report header, TEST_REPORT failures. Tổng 41 tests (100% pass)
+### Added
+- **DISCUSS mode using AskUserQuestion**: `plan.md` rewritten with full DISCUSS mode — user selects using arrow keys instead of typing A/B/C. Supports multiSelect, single select, grouping for 5+ issues
+- **Extended discussion loop (3.5.4)**: User can choose "Discuss more" after summary table → Claude presents new issues → loops until user is satisfied
+- **DISCUSS hybrid table**: PLAN.md clearly distinguishes "User chose" vs "Claude decided" with supplementary notes for auto-decisions
+- **Tracking commit**: `write-code.md` creates separate `[TRACKING]` commit when phase completes — separate from task code commits
+- **7 new eval tests**: Rules-missing check, 3.5.4 loop, back/cancel keywords, hybrid table, tracking commit, bug report header, TEST_REPORT failures. Total 41 tests (100% pass)
 
-### Thay đổi
-- `plan.md`: Bước 4.5 mở rộng — cover 6 trường hợp DISCUSS/AUTO (skip-all, cancel, partial, full, 0 issues)
-- `plan.md`: Ngôn ngữ options PHẢI đơn giản cho người không phải dev, kèm VD tốt/xấu
-- `plan.md`: Xử lý keyword "back"/"cancel" qua Other — quay lại vấn đề trước hoặc hủy thảo luận
-- `init.md`: Kiểm tra rules files khi user giữ CONTEXT.md — cảnh báo nếu general.md bị thiếu
-- `init.md`: Sửa false positive NestJS detection — main.ts phải chứa `NestFactory` (tránh nhầm Vite/Angular)
-- `new-milestone.md`: Bước 6 phân biệt rõ hành vi GHI ĐÈ vs VIẾT TIẾP cho ROADMAP
-- `test.md`: Bug report header 2 dòng khớp fix-bug.md — `Trạng thái | Chức năng | Task` và `Patch version | Lần sửa`
-- `test.md`: Cập nhật trạng thái 🐛 CẢ HAI nơi (bảng + detail block)
-- `what-next.md`: Ưu tiên 6 tách rõ "chưa test" vs "test fail" — gợi ý /pd:fix-bug khi TEST_REPORT có ❌
-- `write-code.md`: --auto DỪNG tại ranh giới phase ban đầu (KHÔNG tự nhảy sang phase tiếp dù CURRENT_MILESTONE đã advance)
-- `install.js`: Dedup runtimes khi dùng --all + --claude cùng lúc
-- `install.js`: Banner word-wrapping cho platform names dài
-- `claude.js`: Cleanup symlink trước khi tạo mới (ngăn EEXIST)
-- `utils.js`: Bảo vệ null/undefined + truncate trong banner lines
+### Changed
+- `plan.md`: Step 4.5 expanded — covers 6 DISCUSS/AUTO cases (skip-all, cancel, partial, full, 0 issues)
+- `plan.md`: Options language MUST be simple for non-developers, with good/bad examples
+- `plan.md`: Handle "back"/"cancel" keywords via Other — return to previous issue or cancel discussion
+- `init.md`: Check rules files when user keeps CONTEXT.md — warn if general.md is missing
+- `init.md`: Fixed false positive NestJS detection — main.ts must contain `NestFactory` (avoids Vite/Angular confusion)
+- `new-milestone.md`: Step 6 clearly distinguishes OVERWRITE vs APPEND behavior for ROADMAP
+- `test.md`: Bug report header 2 lines matching fix-bug.md — `Status | Feature | Task` and `Patch version | Fix attempt`
+- `test.md`: Update 🐛 status in BOTH places (table + detail block)
+- `what-next.md`: Priority 6 separates "not tested" vs "test failed" — suggests /pd:fix-bug when TEST_REPORT has ❌
+- `write-code.md`: --auto STOPS at original phase boundary (does NOT auto-jump to next phase even if CURRENT_MILESTONE advanced)
+- `install.js`: Dedup runtimes when using --all + --claude together
+- `install.js`: Banner word-wrapping for long platform names
+- `claude.js`: Cleanup symlink before creating new (prevents EEXIST)
+- `utils.js`: Null/undefined protection + truncate for banner lines
 
-### Sửa lỗi
-- 2 eval tests cũ fail do scenario thiếu data → sửa: --auto phase boundary scenario rõ hơn, what-next all-phases-done bổ sung đầy đủ TEST_REPORT
+### Fixed
+- 2 old eval tests failed due to missing scenario data → fixed: --auto phase boundary scenario clearer, what-next all-phases-done with complete TEST_REPORT
 
 ## [2.2.1] - 18_03_2026
-### Thay đổi
-- `what-next.md`: Thêm rule bắt buộc output tiếng Việt có dấu (trước đó không đọc general.md nên thiếu rule ngôn ngữ)
-- `update.md`: Tương tự — thêm rule tiếng Việt trực tiếp trong `<rules>`
-- `README.md`: Bổ sung hướng dẫn bảo mật đa tầng cho tất cả 5 platforms (built-in rules + platform deny list + .gitignore)
+### Changed
+- `what-next.md`: Added mandatory Vietnamese output rule (previously didn't read general.md so lacked language rule)
+- `update.md`: Similarly — added Vietnamese rule directly in `<rules>`
+- `README.md`: Added multi-layer security guide for all 5 platforms (built-in rules + platform deny list + .gitignore)
 
 ## [2.2.0] - 18_03_2026
-### Thêm mới
-- **Eval suite (Promptfoo)**: Bộ đánh giá chất lượng prompt theo Anthropic best practices
-- **32 workflow compliance tests**: Kiểm tra mỗi skill follow đúng process, branch logic, prerequisite handling
-- **19 trigger accuracy tests**: Kiểm tra description trigger đúng skill (true positive, true negative, disambiguation)
-- **Benchmark history**: Lưu kết quả JSON + so sánh trend qua thời gian (`npm run eval:compare`)
-- **Full eval pipeline**: `npm run eval:full` chạy workflow + trigger + benchmark trong 1 lệnh
-- **Skill classification**: Ghi rõ tất cả 11 skills thuộc loại "Encoded Preference" trong config
+### Added
+- **Eval suite (Promptfoo)**: Prompt quality evaluation suite following Anthropic best practices
+- **32 workflow compliance tests**: Checks each skill follows correct process, branch logic, prerequisite handling
+- **19 trigger accuracy tests**: Checks descriptions trigger the right skill (true positive, true negative, disambiguation)
+- **Benchmark history**: Save JSON results + compare trends over time (`npm run eval:compare`)
+- **Full eval pipeline**: `npm run eval:full` runs workflow + trigger + benchmark in 1 command
+- **Skill classification**: Notes all 11 skills as "Encoded Preference" type in config
 
-### Thay đổi
-- `write-code.md`: Sửa description rõ ràng hơn — giảm false positive trigger cho việc lẻ (refactor, README)
+### Changed
+- `write-code.md`: Improved description clarity — reduced false positive trigger for miscellaneous work (refactor, README)
 
 ## [2.1.0] - 18_03_2026
-### Sửa lỗi
-- **Codex `mergeCodexConfig` mất markers**: Merge lần 2+ bị duplicate append do markers bị strip — giờ giữ lại markers để idempotent
-- **`--config-dir` không có giá trị**: parseArgs crash với `undefined` khi flag là arg cuối — thêm bounds check + thông báo lỗi
-- **Gemini JSON parse thầm lặng**: settings.json bị corrupt mất data không cảnh báo — thêm `log.warn`
+### Fixed
+- **Codex `mergeCodexConfig` lost markers**: 2nd+ merge caused duplicate append because markers were stripped — now preserves markers for idempotency
+- **`--config-dir` without value**: parseArgs crash with `undefined` when flag is last arg — added bounds check + error message
+- **Gemini JSON silent parse failures**: Corrupted settings.json lost data silently — added `log.warn`
 
-### Thêm mới
-- **npm scripts đầy đủ**: Thêm `install:opencode`, `install:copilot`, `uninstall:codex`, `uninstall:gemini`, `uninstall:opencode`, `uninstall:copilot`, `uninstall:all`
+### Added
+- **Complete npm scripts**: Added `install:opencode`, `install:copilot`, `uninstall:codex`, `uninstall:gemini`, `uninstall:opencode`, `uninstall:copilot`, `uninstall:all`
 
 ## [2.0.1] - 18_03_2026
-### Thay đổi
-- **Đổi tên skill**: `pd:roadmap` → `pd:new-milestone` — đồng bộ naming convention với `pd:complete-milestone`
-- Cập nhật references trong: `init.md`, `plan.md`, `what-next.md`, `complete-milestone.md`, `README.md`, `claude.js` installer
+### Changed
+- **Skill rename**: `pd:roadmap` → `pd:new-milestone` — synchronized naming convention with `pd:complete-milestone`
+- Updated references in: `init.md`, `plan.md`, `what-next.md`, `complete-milestone.md`, `README.md`, `claude.js` installer
 
 ## [2.0.0] - 18_03_2026
-### Thêm mới
-- **Cross-platform installer**: Hỗ trợ 5 platforms — Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot
-- `bin/install.js`: CLI installer với interactive mode, flags per platform (`--claude`, `--codex`, `--gemini`, `--opencode`, `--copilot`, `--all`)
-- Converters: transpile skills từ Claude Code format sang native format cho từng platform (tool names, command prefix, paths, frontmatter)
-- Codex: XML skill adapter header (`<codex_skill_adapter>`), MCP config trong `config.toml` (TOML)
-- Gemini: tool name mapping (Read→read_file, Bash→run_shell_command), MCP config trong `settings.json`
+### Added
+- **Cross-platform installer**: Supports 5 platforms — Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot
+- `bin/install.js`: CLI installer with interactive mode, per-platform flags (`--claude`, `--codex`, `--gemini`, `--opencode`, `--copilot`, `--all`)
+- Converters: transpile skills from Claude Code format to native format for each platform (tool names, command prefix, paths, frontmatter)
+- Codex: XML skill adapter header (`<codex_skill_adapter>`), MCP config in `config.toml` (TOML)
+- Gemini: tool name mapping (Read→read_file, Bash→run_shell_command), MCP config in `settings.json`
 - OpenCode: flat command structure (`command/pd-*.md`), strip frontmatter fields
-- Copilot: skill directories (`skills/pd-*/SKILL.md`), merge instructions vào `copilot-instructions.md`
-- SHA256 manifest tracking — detect + auto-backup files user đã modify trước khi re-install
-- Leaked path scan — verify không còn `~/.claude/` trong output non-Claude platforms
-- Uninstall tích hợp (`--uninstall`) — clean per platform, marker-based idempotent
+- Copilot: skill directories (`skills/pd-*/SKILL.md`), merge instructions into `copilot-instructions.md`
+- SHA256 manifest tracking — detect + auto-backup user-modified files before re-install
+- Leaked path scan — verify no `~/.claude/` in non-Claude platform output
+- Integrated uninstall (`--uninstall`) — clean per platform, marker-based idempotent
 
-### Thay đổi
-- `complete-milestone.md`: Thêm Bước 8 cập nhật `VERSION` và `package.json` khi hoàn tất milestone
-- `general.md`: Thêm quy tắc bảo mật — khi code dùng biến môi trường mới, BẮT BUỘC thêm key vào `.env.example`
+### Changed
+- `complete-milestone.md`: Added Step 8 to update `VERSION` and `package.json` on milestone completion
+- `general.md`: Added security rule — when code uses a new env variable, MUST add key to `.env.example` with placeholder value
 
-### Xóa
-- `install.sh` — thay bằng `bin/install.js --claude`
-- `uninstall.sh` — thay bằng `bin/install.js --uninstall --claude`
+### Removed
+- `install.sh` — replaced by `bin/install.js --claude`
+- `uninstall.sh` — replaced by `bin/install.js --uninstall --claude`
 
 ## [1.2.2] - 18_03_2026
-### Thay đổi
-- `complete-milestone.md`: Thêm Bước 8 cập nhật `VERSION` và `package.json` khi hoàn tất milestone, git add các file version trong commit
+### Changed
+- `complete-milestone.md`: Added Step 8 to update `VERSION` and `package.json` on milestone completion, git add version files in commit
 
 ## [1.2.1] - 18_03_2026
-### Thay đổi
-- `general.md`: Thêm quy tắc bảo mật — khi code dùng biến môi trường mới, BẮT BUỘC thêm key vào `.env.example` với giá trị placeholder
+### Changed
+- `general.md`: Added security rule — when code uses a new env variable, MUST add key to `.env.example` with placeholder value
 
 ## [1.2.0] - 18_03_2026
-### Thêm mới
-- **Transparency cho AUTO mode**: `plan.md`, `roadmap.md` ghi lại mọi quyết định Claude tự đưa ra (phương án, lý do, alternatives đã loại) — user review được trước khi viết code
-- **Quyết định chiến lược trong ROADMAP**: roadmap.md thêm section bắt buộc ghi lý do phân chia milestones, thứ tự ưu tiên
-- **Format specs chuẩn trong `general.md`**: CURRENT_MILESTONE.md format, TASKS.md dependency format, phase/version numbering convention, icon matching patterns
-- **Multi-stack detection**: `init.md`, `scan.md` detect Express, Vite, React generic ngoài NestJS/NextJS; `test.md` hỗ trợ thông báo + fallback cho non-NestJS
-- **Phase auto-advance**: `write-code.md` tự advance CURRENT_MILESTONE sang phase tiếp khi phase hiện tại hoàn tất
-- **`--all` regression test**: `test.md` đọc context cross-phase, xác định patch version theo milestone chứa task fail
-- **Task cross-phase lookup**: `test.md` tìm task ở phase khác nếu không có trong phase hiện tại
+### Added
+- **Transparency for AUTO mode**: `plan.md`, `roadmap.md` record all decisions Claude made (approach, reasoning, rejected alternatives) — user can review before coding
+- **Strategic decisions in ROADMAP**: roadmap.md added mandatory section recording reasoning for milestone division, priority ordering
+- **Standard format specs in `general.md`**: CURRENT_MILESTONE.md format, TASKS.md dependency format, phase/version numbering convention, icon matching patterns
+- **Multi-stack detection**: `init.md`, `scan.md` detect Express, Vite, React generic beyond NestJS/NextJS; `test.md` supports notification + fallback for non-NestJS
+- **Phase auto-advance**: `write-code.md` auto-advances CURRENT_MILESTONE to next phase when current phase completes
+- **`--all` regression test**: `test.md` reads cross-phase context, determines patch version by milestone containing failed task
+- **Task cross-phase lookup**: `test.md` finds task in other phases if not in current phase
 
-### Thay đổi
-- `write-code.md`: Đảo thứ tự Bước 7/8 — git commit TRƯỚC, đánh dấu ✅ SAU (rollback nếu commit fail)
-- `write-code.md`: Thêm stop khi PLAN.md thiếu info, circular dependency detection, lint/build retry limit (3 lần), update `Dự án mới` flag sau task đầu tiên
-- `write-code.md`: Parallel mode thêm empty wave guard, file conflict detection qua `> Files:` field
-- `plan.md`: Bước 4.5 ghi nhận quyết định SAU thiết kế (không phải trước), thêm check CURRENT_MILESTONE tồn tại, xử lý conflicting flags `--discuss --auto`
-- `scan.md`: Rules xóa chỉ template files (giữ custom rules), thêm path validation CONTEXT.md, explicit guard Bước 6 cho project mới
-- `roadmap.md`: Thêm cleanup/backup khi GHI ĐÈ, version conflict check khi VIẾT TIẾP, phân biệt câu hỏi theo mode
-- `fix-bug.md`: Thêm git commit sau user confirm fix, fallback Grep/Read khi FastCode lỗi, patch version regex nhất quán, retry suggestion sau 3 lần
-- `test.md`: Shared code bug attribution, testPathPattern cho phase hiện tại, patch version 3 số convention
-- `complete-milestone.md`: CODE_REPORT verify per-task per-phase (không cross-phase), CHANGELOG prepend, guard chống chạy lại, git tag check
-- `what-next.md`: Đọc ROADMAP cho ưu tiên 7, cross-check bugs vs tasks, renumber ưu tiên 1-8, TEST_REPORT content check
-- `fetch-doc.md`: Version detection từ package.json theo tên thư viện, SPA content detection, clarify 10 filter → 5 fetch, HTTP error handling, monorepo version conflict
-- `update.md`: Semver comparison rõ ràng, branch check trước pull, submodule check, rollback bằng commit hash, CHANGELOG chỉ hiện entries mới
-- `init.md`: CONTEXT.md thêm dòng `Cập nhật:`, monorepo path support, xóa rules chỉ template files
-- Bug severity 4 levels thống nhất giữa `fix-bug.md` và `test.md`
-- TASKS.md update CẢ HAI nơi (bảng + detail block) nhất quán toàn bộ skills
+### Changed
+- `write-code.md`: Swapped Step 7/8 order — git commit BEFORE, mark ✅ AFTER (rollback if commit fails)
+- `write-code.md`: Added stop when PLAN.md lacks info, circular dependency detection, lint/build retry limit (3 times), update `New project` flag after first task
+- `write-code.md`: Parallel mode added empty wave guard, file conflict detection via `> Files:` field
+- `plan.md`: Step 4.5 records decisions AFTER design (not before), added CURRENT_MILESTONE existence check, handles conflicting `--discuss --auto` flags
+- `scan.md`: Rules delete only template files (keeps custom rules), added path validation for CONTEXT.md, explicit Step 6 guard for new projects
+- `roadmap.md`: Added cleanup/backup on OVERWRITE, version conflict check on APPEND, mode-specific questions
+- `fix-bug.md`: Added git commit after user confirms fix, Grep/Read fallback when FastCode fails, consistent patch version regex, retry suggestion after 3 attempts
+- `test.md`: Shared code bug attribution, testPathPattern for current phase, 3-digit patch version convention
+- `complete-milestone.md`: CODE_REPORT verify per-task per-phase (not cross-phase), CHANGELOG prepend, re-run guard, git tag check
+- `what-next.md`: Read ROADMAP for priority 7, cross-check bugs vs tasks, renumbered priorities 1-8, TEST_REPORT content check
+- `fetch-doc.md`: Version detection from package.json by library name, SPA content detection, clarified 10 filter → 5 fetch, HTTP error handling, monorepo version conflict
+- `update.md`: Clear semver comparison, branch check before pull, submodule check, rollback by commit hash, CHANGELOG shows only new entries
+- `init.md`: CONTEXT.md added `Updated:` line, monorepo path support, rules delete only template files
+- Bug severity 4 levels unified between `fix-bug.md` and `test.md`
+- TASKS.md update in BOTH places (table + detail block) consistent across all skills
 
 ## [1.1.2] - 18_03_2026
-### Thay đổi
-- `complete-milestone.md`: Thêm gợi ý chạy `/pd:scan` sau khi hoàn tất milestone để cập nhật kiến trúc
-- `update.md`: Xóa cache status line (`pd-update-check.json`) sau khi cập nhật thành công — ngừng hiện thông báo ngay
-- `update.md`: Thêm rule bắt buộc xóa cache sau update
+### Changed
+- `complete-milestone.md`: Added suggestion to run `/pd:scan` after completing milestone to update architecture
+- `update.md`: Delete cache status line (`pd-update-check.json`) after successful update — stops showing notification immediately
+- `update.md`: Added mandatory rule to delete cache after update
 
 ## [1.1.1] - 18_03_2026
-### Thêm mới
-- Thông báo version mới trên status line (góc trái dưới) — `⬆ Skills v[x.x.x] — /pd:update`
-- SessionStart hook (`pd-check-update.js`) — kiểm tra remote version khi bắt đầu session, cache 10 phút
-- Tích hợp vào GSD statusline — hiện cùng dòng với thông tin GSD
+### Added
+- New version notification on status line (bottom left) — `⬆ Skills v[x.x.x] — /pd:update`
+- SessionStart hook (`pd-check-update.js`) — checks remote version on session start, caches for 10 minutes
+- Integrated into GSD statusline — displays on same line as GSD info
 
-### Sửa lỗi
-- Fix `update.md` Bước 8: "Ghi thêm" gây duplicate CURRENT_VERSION — đổi thành thay thế idempotent
-- Fix `what-next.md` context/rules: ghi rõ dùng Bash cho version check (trước nói "chỉ Read/Glob")
-- Xóa `check-update.sh` orphaned (đã thay bằng `pd-check-update.js`)
+### Fixed
+- Fix `update.md` Step 8: "Append" caused duplicate CURRENT_VERSION — changed to idempotent replacement
+- Fix `what-next.md` context/rules: specified to use Bash for version check (previously said "only Read/Glob")
+- Deleted orphaned `check-update.sh` (replaced by `pd-check-update.js`)
 
 ## [1.1.0] - 18_03_2026
-### Thêm mới
-- `/pd:update` — Kiểm tra + cập nhật bộ skills từ GitHub, hiện changelog, gợi ý restart
-- `/pd:plan --discuss` — Chế độ thảo luận tương tác: liệt kê vấn đề, user chọn thảo luận, options A-E cho từng vấn đề
-- `/pd:plan --auto` — Chế độ mặc định, Claude tự quyết định toàn bộ thiết kế
-- Kiểm tra phiên bản tự động — hiện thông báo khi có version mới (1 lần/conversation)
-- `VERSION` + `CHANGELOG.md` — Hệ thống tracking phiên bản cho bộ skills
+### Added
+- `/pd:update` — Check + update skills from GitHub, show changelog, suggest restart
+- `/pd:plan --discuss` — Interactive discussion mode: list issues, user chooses to discuss, options A-E per issue
+- `/pd:plan --auto` — Default mode, Claude decides all design
+- Automatic version check — notification when new version available (once per conversation)
+- `VERSION` + `CHANGELOG.md` — Version tracking system for the skills suite
 
-### Thay đổi
-- `plan.md`: Hỗ trợ 2 chế độ AUTO/DISCUSS, lưu quyết định thiết kế vào PLAN.md section "Quyết định thiết kế"
-- `plan.md`: DISCUSS flow hỗ trợ back/cancel/thay đổi quyết định, validate input không hợp lệ
-- `write-code.md`: Đọc + tuân thủ section "Quyết định thiết kế" từ PLAN.md (Bước 2 + rules)
-- `general.md`: Thêm section kiểm tra phiên bản Skills tự động
-- `what-next.md`: Thêm Bước 6 kiểm tra phiên bản (guard chống duplicate check)
-- `install.sh`: Hiện version khi cài, liệt kê `/pd:update`, bảo toàn CURRENT_VERSION trong .pdconfig
+### Changed
+- `plan.md`: Supports 2 modes AUTO/DISCUSS, saves design decisions to PLAN.md "Design Decisions" section
+- `plan.md`: DISCUSS flow supports back/cancel/change decision, validates invalid input
+- `write-code.md`: Reads + follows "Design Decisions" section from PLAN.md (Step 2 + rules)
+- `general.md`: Added automatic Skills version check section
+- `what-next.md`: Added Step 6 version check (guard against duplicate check)
+- `install.sh`: Shows version on install, lists `/pd:update`, preserves CURRENT_VERSION in .pdconfig
 
-### Sửa lỗi
-- Fix XML structure toàn bộ 11 skills: tags balanced, bỏ `</output>` thừa, consistent endings
-- Fix template comment `(CHỈ tạo section này nếu chế độ DISCUSS)` nằm trong code block — di chuyển ra ngoài
-- Fix `install.sh` ghi đè `.pdconfig` mất CURRENT_VERSION — preserve trước khi overwrite
-- Fix `update.md` không handle LOCAL > REMOTE — thêm semver comparison đầy đủ (4 nhánh)
-- Fix `plan.md` DISCUSS flow thiếu error handling — thêm xử lý input không hợp lệ, back, cancel
+### Fixed
+- Fixed XML structure across all 11 skills: balanced tags, removed extra `</output>`, consistent endings
+- Fixed template comment `(ONLY create this section if DISCUSS mode)` inside code block — moved outside
+- Fixed `install.sh` overwriting `.pdconfig` losing CURRENT_VERSION — preserve before overwrite
+- Fixed `update.md` not handling LOCAL > REMOTE — added complete semver comparison (4 branches)
+- Fixed `plan.md` DISCUSS flow missing error handling — added invalid input, back, cancel handling
 
 ## [1.0.0] - 18_03_2026
-### Khởi tạo
-- Bộ 10 skills: init, scan, roadmap, plan, fetch-doc, write-code, test, fix-bug, what-next, complete-milestone
+### Initial Release
+- 10 skills suite: init, scan, roadmap, plan, fetch-doc, write-code, test, fix-bug, what-next, complete-milestone
 - Rules: general.md, backend.md (NestJS), frontend.md (NextJS)
 - FastCode MCP + Context7 MCP integration
 - install.sh + uninstall.sh

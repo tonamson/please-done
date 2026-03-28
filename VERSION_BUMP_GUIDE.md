@@ -1,70 +1,70 @@
-# Hướng dẫn Bump Version
+# Version Bump Guide
 
-Tài liệu này chuẩn hóa cách tăng version cho toàn bộ repo `please-done`.
+This document standardizes the version bumping process for the entire `please-done` repo.
 
-Mục tiêu:
-- Không để lệch version giữa các file
-- Phân biệt rõ `patch` và `upgrade`
-- Có checklist cố định trước khi release
+Goals:
+- Prevent version mismatches between files
+- Clearly distinguish `patch` from `upgrade`
+- Have a fixed checklist before release
 
-## Chuẩn version
+## Version Standard
 
-Repo này dùng Semantic Versioning:
+This repo uses Semantic Versioning:
 
 - `MAJOR.MINOR.PATCH`
-- Ví dụ: `2.7.1`
+- Example: `2.7.1`
 
-Ý nghĩa:
-- `PATCH`: sửa lỗi, chỉnh wording, fix converter/installer, bổ sung nhỏ không phá hành vi cũ
-- `MINOR`: thêm tính năng mới, thêm skill, thêm stack support, thêm workflow, thêm eval mới nhưng không phá tương thích
-- `MAJOR`: thay đổi breaking change, đổi command syntax, đổi cấu trúc cài đặt, đổi format output khiến bản cũ không còn tương thích
+Meaning:
+- `PATCH`: bug fixes, wording adjustments, converter/installer fixes, small additions that don't break existing behavior
+- `MINOR`: new features, new skills, new stack support, new workflows, new evals without breaking compatibility
+- `MAJOR`: breaking changes, command syntax changes, installation structure changes, output format changes making old versions incompatible
 
-## Khi nào bump patch
+## When to Bump Patch
 
-Tăng `PATCH` khi thay đổi thuộc một trong các nhóm sau:
+Bump `PATCH` when changes fall into one of these categories:
 
-- Sửa bug trong installer, converter, utils
-- Sửa tài liệu, README, changelog, wording
-- Fix detection logic nhưng không đổi public contract
-- Bổ sung warning, validation, guard rails
-- Thêm rule nhỏ hoặc chỉnh prompt để ổn định hơn
-- Sửa lệch metadata, packaging, version sync
+- Fix bugs in installer, converter, utils
+- Fix documentation, README, changelog, wording
+- Fix detection logic without changing public contract
+- Add warnings, validation, guard rails
+- Add small rules or adjust prompts for stability
+- Fix metadata mismatches, packaging, version sync
 
-Ví dụ:
+Example:
 - `2.7.1` -> `2.7.2`
 
-## Khi nào bump upgrade
+## When to Bump Upgrade
 
-Trong repo này, "bump upgrade" nên hiểu là tăng chuẩn ở mức `MINOR` hoặc `MAJOR`.
+In this repo, "bump upgrade" means bumping at `MINOR` or `MAJOR` level.
 
-### Upgrade Minor
+### Minor Upgrade
 
-Tăng `MINOR` khi:
+Bump `MINOR` when:
 
-- Thêm skill mới
-- Thêm runtime/platform support
-- Thêm stack support mới như Flutter, Solidity, WordPress
-- Thêm workflow, templates, references đáng kể
-- Thêm eval suite hoặc capability mới mà vẫn tương thích ngược
+- Adding a new skill
+- Adding runtime/platform support
+- Adding new stack support like Flutter, Solidity, WordPress
+- Adding significant workflows, templates, references
+- Adding eval suite or new capability while maintaining backward compatibility
 
-Ví dụ:
+Example:
 - `2.7.1` -> `2.8.0`
 
-### Upgrade Major
+### Major Upgrade
 
-Tăng `MAJOR` khi:
+Bump `MAJOR` when:
 
-- Đổi tên command làm user cũ phải sửa thói quen dùng
-- Đổi format output, cấu trúc file cài đặt, hoặc config format
-- Xóa/bỏ runtime support
-- Thay đổi workflow theo cách các repo đang dùng sẽ bị ảnh hưởng
+- Renaming commands forcing users to change usage habits
+- Changing output format, installation file structure, or config format
+- Removing runtime support
+- Changing workflows in a way that affects repos already using them
 
-Ví dụ:
+Example:
 - `2.7.1` -> `3.0.0`
 
-## Các file bắt buộc phải đồng bộ version
+## Files That Must Be Version-Synced
 
-Mỗi lần bump version, kiểm tra tối thiểu các file sau:
+Every time you bump version, check at minimum these files:
 
 1. `VERSION`
 2. `package.json`
@@ -72,173 +72,173 @@ Mỗi lần bump version, kiểm tra tối thiểu các file sau:
 4. `README.md`
 5. `CHANGELOG.md`
 
-## Cách bump patch
+## How to Bump Patch
 
-Ví dụ bump từ `2.7.1` lên `2.7.2`.
+Example bumping from `2.7.1` to `2.7.2`.
 
-### Bước 1: cập nhật version nguồn
+### Step 1: Update version source
 
-Sửa file:
+Edit files:
 
 - `VERSION` -> `2.7.2`
 - `package.json` -> `"version": "2.7.2"`
 
-### Bước 2: đồng bộ lockfile
+### Step 2: Sync lockfile
 
-Chạy:
+Run:
 
 ```bash
 npm install --package-lock-only
 ```
 
-Mục tiêu:
-- cập nhật `package-lock.json`
-- tránh lệch giữa `package.json` và `package-lock.json`
+Goal:
+- Update `package-lock.json`
+- Prevent mismatch between `package.json` and `package-lock.json`
 
-### Bước 3: cập nhật README
+### Step 3: Update README
 
-Tìm và sửa các chỗ có version hiển thị:
+Find and fix all places showing version:
 
-- badge version
-- dòng `Phiên bản hiện tại`
+- Version badge
+- "Current version" line
 
-### Bước 4: ghi changelog
+### Step 4: Write changelog
 
-Thêm entry mới lên đầu `CHANGELOG.md` theo format đang dùng:
+Add new entry at the top of `CHANGELOG.md` using the existing format:
 
 ```md
 ## [2.7.2] - DD_MM_YYYY
-### Sửa lỗi
-- Mô tả thay đổi
+### Fixed
+- Change description
 ```
 
-Nếu là patch docs hoặc metadata thì ghi đúng bản chất, không thổi phồng thành feature.
+If it's a docs or metadata patch, describe it accurately — don't inflate it as a feature.
 
-### Bước 5: kiểm tra lại
+### Step 5: Final check
 
 Checklist:
 
-- `VERSION` đúng
-- `package.json` đúng
-- `package-lock.json` đúng
-- `README.md` không còn version cũ ở phần public
-- `CHANGELOG.md` có entry mới
+- `VERSION` correct
+- `package.json` correct
+- `package-lock.json` correct
+- `README.md` has no old version in public sections
+- `CHANGELOG.md` has new entry
 
-## Cách bump upgrade minor
+## How to Bump Minor Upgrade
 
-Ví dụ bump từ `2.7.1` lên `2.8.0`.
+Example bumping from `2.7.1` to `2.8.0`.
 
-Làm tương tự patch, nhưng changelog nên chia rõ:
+Same steps as patch, but changelog should be clearly divided:
 
-- `### Thêm mới`
-- `### Thay đổi`
-- `### Sửa lỗi`
+- `### Added`
+- `### Changed`
+- `### Fixed`
 
-Checklist bổ sung:
+Additional checklist:
 
-- README đã mô tả feature mới
-- danh sách skills/platforms/stacks đã cập nhật
-- các tài liệu integration liên quan đã sync
+- README describes the new feature
+- Skills/platforms/stacks lists are updated
+- Related integration documentation is synced
 
-## Cách bump upgrade major
+## How to Bump Major Upgrade
 
-Ví dụ bump từ `2.7.1` lên `3.0.0`.
+Example bumping from `2.7.1` to `3.0.0`.
 
-Ngoài các bước ở trên, bắt buộc thêm:
+In addition to the steps above, mandatory additions:
 
-- section `### Breaking changes` trong changelog
-- hướng dẫn migration trong `README.md` hoặc tài liệu riêng
-- nêu rõ user cần làm gì sau khi update
+- `### Breaking changes` section in changelog
+- Migration guide in `README.md` or separate document
+- Clearly state what users need to do after updating
 
-Nên có thêm:
+Should also include:
 
-- ví dụ before/after command
-- mapping tên cũ -> tên mới
-- cảnh báo cho local configs cũ
+- Before/after command examples
+- Old name → new name mapping
+- Warning for old local configs
 
-## Quy tắc ghi changelog
+## Changelog Writing Rules
 
-Ưu tiên ghi theo tác động thực tế:
+Prioritize recording actual impact:
 
-- file nào đổi
-- đổi vì sao
-- user được lợi gì
-- có breaking hay không
+- Which file changed
+- Why it changed
+- What benefit to users
+- Whether there are breaking changes
 
-Không nên ghi quá mơ hồ kiểu:
+Avoid vague entries like:
 
-- "Cải thiện hệ thống"
-- "Tối ưu hóa"
-- "Fix nhiều lỗi nhỏ"
+- "Improved the system"
+- "Optimization"
+- "Fixed many small bugs"
 
-## Quy trình release tối thiểu
+## Minimum Release Process
 
-Trước khi publish:
+Before publishing:
 
-1. Chốt loại bump: `patch`, `minor`, hoặc `major`
-2. Đồng bộ toàn bộ file version
-3. Cập nhật `CHANGELOG.md`
-4. Kiểm tra `README.md` còn version cũ hay không
-5. Chạy kiểm tra tối thiểu:
+1. Decide bump type: `patch`, `minor`, or `major`
+2. Sync all version files
+3. Update `CHANGELOG.md`
+4. Check if `README.md` still has old version
+5. Run minimum checks:
 
 ```bash
 npm test
 ```
 
-Nếu có quy trình eval thì nên chạy thêm:
+If there's an eval pipeline, also run:
 
 ```bash
 npm run eval
 ```
 
-6. Tạo git tag:
+6. Create git tag:
 
 ```bash
 git tag v2.8.0
 ```
 
-7. Push tag lên remote (nếu sẵn sàng release):
+7. Push tag to remote (when ready to release):
 
 ```bash
 git push origin v2.8.0
 ```
 
-## Checklist copy nhanh
+## Quick Copy Checklist
 
 ```md
-- [ ] Xác định đúng loại bump
-- [ ] Sửa VERSION
-- [ ] Sửa package.json
+- [ ] Determine correct bump type
+- [ ] Edit VERSION
+- [ ] Edit package.json
 - [ ] Regenerate package-lock.json
-- [ ] Sửa README badge + current version
-- [ ] Thêm entry mới vào CHANGELOG.md
-- [ ] Kiểm tra không còn version cũ ở các file public
-- [ ] Chạy test tối thiểu
-- [ ] Chạy eval nếu có
-- [ ] Tạo git tag: `git tag v[version]`
-- [ ] Push tag: `git push origin v[version]` (khi sẵn sàng release)
+- [ ] Edit README badge + current version
+- [ ] Add new entry to CHANGELOG.md
+- [ ] Check no old version remains in public files
+- [ ] Run minimum tests
+- [ ] Run eval if available
+- [ ] Create git tag: `git tag v[version]`
+- [ ] Push tag: `git push origin v[version]` (when ready to release)
 ```
 
-## Gợi ý chuẩn hóa thêm
+## Further Standardization Suggestions
 
-Để nâng chuẩn version toàn repo, nên áp dụng thêm:
+To raise version standards across the repo, consider:
 
-- Chỉ release khi `VERSION`, `package.json`, `package-lock.json` cùng khớp
-- Thêm CI check fail nếu version bị lệch
-- Có script tự động kiểm tra các file version trước khi publish
-- Quy định rõ: docs-only fix thì bump `patch`, feature mới thì bump `minor`, breaking change thì bump `major`
+- Only release when `VERSION`, `package.json`, `package-lock.json` all match
+- Add CI check that fails if version is mismatched
+- Have a script that auto-checks version files before publishing
+- Rules: docs-only fix → bump `patch`, new feature → bump `minor`, breaking change → bump `major`
 
-## Kết luận
+## Conclusion
 
-Nếu thay đổi nhỏ, sửa lỗi, chỉnh tài liệu: bump `PATCH`.
+If changes are small, bug fixes, documentation adjustments: bump `PATCH`.
 
-Nếu thêm capability mới nhưng không phá tương thích: bump `MINOR`.
+If adding new capability without breaking compatibility: bump `MINOR`.
 
-Nếu có breaking change: bump `MAJOR`.
+If there's a breaking change: bump `MAJOR`.
 
-Nguyên tắc quan trọng nhất là:
+The most important principle is:
 
-- tăng đúng cấp version
-- đồng bộ tất cả file public
-- ghi changelog rõ ràng
-- tạo git tag đánh dấu mốc release
+- Bump the right version level
+- Sync all public files
+- Write a clear changelog
+- Create a git tag to mark the release milestone

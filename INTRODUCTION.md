@@ -1,164 +1,164 @@
-# Please Done — "Làm ơn, xong cái!"
+# Please Done — "Please, Get It Done!"
 
-> Bộ kỹ năng miễn phí cho công cụ lập trình AI — biến ý tưởng thành mã nguồn có hệ thống, không cần giám sát từng bước.
-
----
-
-## Tại sao tên "Please Done"?
-
-Ai từng dùng AI viết code đều biết cảm giác này: bạn nhờ AI làm một việc, nó viết được nhưng sai hướng, thiếu ngữ cảnh, hoặc quên mất những gì đã làm trước đó. Bạn phải nhắc đi nhắc lại, sửa đi sửa lại, đến lúc muốn quỳ xuống van xin: **"Làm ơn, xong cái đi!"**
-
-Đó chính là Please Done — tiếng lòng của lập trình viên khi làm việc với AI.
-
-Gốc rễ vấn đề nằm ở 2 điểm yếu cố hữu của AI:
-
-1. **Không có kế hoạch** — AI viết code theo từng câu hỏi, không có bức tranh tổng thể. Mỗi lần hỏi là mỗi kiểu khác, càng viết càng lệch quỹ đạo.
-2. **Không nhớ gì** — AI không biết mình đã viết gì trước đó, đã quyết định gì, đã cam kết gì. Mỗi phiên làm việc mới là một tờ giấy trắng.
-
-Please Done giải quyết cả hai: cho AI một **kế hoạch rõ ràng** để đi đúng hướng, và một **bộ nhớ ngoài** (các tệp theo dõi trong `.planning/`) để không quên ngữ cảnh. Bạn chỉ cần lên kế hoạch một lần — AI tự viết code theo đúng kế hoạch đó, đúng cấu trúc, đúng quy tắc, đúng thứ tự.
-
-Để cuối cùng nó **xong cái** cho bạn.
+> A free skills suite for AI coding tools — turns ideas into structured code, without supervising every step.
 
 ---
 
-## Cách hoạt động
+## Why the Name "Please Done"?
+
+Anyone who has used AI to write code knows this feeling: you ask AI to do something, it writes code but goes in the wrong direction, lacks context, or forgets what it did before. You have to repeat yourself over and over, fix again and again, until you want to get on your knees and beg: **"Please, get it done!"**
+
+That is Please Done — the inner voice of developers working with AI.
+
+The root cause lies in 2 inherent weaknesses of AI:
+
+1. **No plan** — AI writes code per question, with no big picture. Each question gets a different approach, drifting further off course.
+2. **No memory** — AI doesn't know what it wrote before, what decisions were made, what commitments exist. Each new session is a blank slate.
+
+Please Done solves both: it gives AI a **clear plan** to stay on track, and an **external memory** (tracking files in `.planning/`) to preserve context. You only plan once — AI writes code following that exact plan, with the right structure, the right rules, the right order.
+
+So it finally **gets it done** for you.
+
+---
+
+## How It Works
 
 ```
-Bạn mô tả dự án        AI tự quét, phân tích       Bạn duyệt kế hoạch        AI viết code theo kế hoạch
+You describe the project     AI auto-scans, analyzes     You review the plan          AI writes code per plan
 
    /pd:init          →     /pd:scan            →     /pd:plan            →     /pd:write-code
-   Nhận diện công nghệ     Báo cáo cấu trúc          Thiết kế kỹ thuật         Từng nhiệm vụ, tự commit
-   Nạp quy tắc phù hợp    Thư viện, bảo mật          Chia danh sách việc       Kiểm tra cú pháp, báo cáo
+   Detect tech stack        Structure report           Technical design          Per task, auto-commit
+   Load matching rules      Dependencies, security     Split task list           Lint check, report
 ```
 
-### Bước 1 — Khởi tạo (`/pd:init`)
+### Step 1 — Initialize (`/pd:init`)
 
-AI tự nhận diện công nghệ của dự án (NestJS, NextJS, WordPress, Solidity, Flutter...) và nạp bộ quy tắc viết code tương ứng. Không cần cấu hình thủ công.
+AI auto-detects the project's tech stack (NestJS, NextJS, WordPress, Solidity, Flutter...) and loads the corresponding coding rules. No manual configuration needed.
 
-### Bước 2 — Quét dự án (`/pd:scan`)
+### Step 2 — Scan Project (`/pd:scan`)
 
-AI quét toàn bộ mã nguồn: cấu trúc thư mục, thư viện phụ thuộc, mẫu thiết kế đang dùng, lỗ hổng bảo mật. Kết quả lưu thành báo cáo để dùng cho các bước sau.
+AI scans the entire codebase: directory structure, dependencies, design patterns in use, security vulnerabilities. Results are saved as a report for subsequent steps.
 
-### Bước 3 — Lập kế hoạch (`/pd:new-milestone` + `/pd:plan`)
+### Step 3 — Plan (`/pd:new-milestone` + `/pd:plan`)
 
-Đây là bước quan trọng nhất. AI tạo:
+This is the most important step. AI creates:
 
-- **Lộ trình** — tổng quan dự án, chia thành các cột mốc và giai đoạn
-- **Bản thiết kế kỹ thuật** — chi tiết: điểm cuối API, lược đồ cơ sở dữ liệu, cấu trúc thành phần, quyết định kiến trúc
-- **Danh sách công việc** — nhiệm vụ cụ thể, có thứ tự phụ thuộc, mỗi nhiệm vụ ghi rõ tệp cần tạo/sửa
+- **Roadmap** — project overview, split into milestones and phases
+- **Technical design** — details: API endpoints, database schemas, component structure, architecture decisions
+- **Task list** — specific tasks with dependency ordering, each task specifying files to create/modify
 
-Bạn có thể chọn:
-- **Chế độ tự động** — AI tự quyết định toàn bộ, ghi lại lý do cho bạn xem lại
-- **Chế độ thảo luận** (`--discuss`) — AI đưa ra các vấn đề cần quyết định, bạn chọn phương án
+You can choose:
+- **Auto mode** — AI decides everything, records reasoning for you to review
+- **Discuss mode** (`--discuss`) — AI presents issues requiring decisions, you choose the approach
 
-### Bước 4 — AI viết code (`/pd:write-code`)
+### Step 4 — AI Writes Code (`/pd:write-code`)
 
-Sau khi kế hoạch được duyệt, AI viết code theo từng nhiệm vụ:
+After the plan is approved, AI writes code per task:
 
-- Đọc bản thiết kế kỹ thuật trước khi viết
-- Tuân thủ quy tắc code của công nghệ đang dùng (đặt tên, cấu trúc, bảo mật...)
-- Tự kiểm tra cú pháp + biên dịch sau mỗi nhiệm vụ
-- Tự lưu phiên bản với thông điệp rõ ràng
-- Tạo báo cáo chi tiết cho mỗi nhiệm vụ đã hoàn thành
+- Reads the technical design before writing
+- Follows coding rules for the current tech stack (naming, structure, security...)
+- Auto-runs lint + build after each task
+- Auto-commits with clear messages
+- Creates detailed reports for each completed task
 
-**3 chế độ thực thi:**
+**3 execution modes:**
 
-| Chế độ | Lệnh | Hành vi |
+| Mode | Command | Behavior |
 |---|---|---|
-| Từng nhiệm vụ | `/pd:write-code` | Làm 1 nhiệm vụ, dừng hỏi bạn |
-| Tự động | `/pd:write-code --auto` | Làm hết tất cả nhiệm vụ tuần tự |
-| Song song | `/pd:write-code --parallel` | Phân tích phụ thuộc, chạy đồng thời các nhiệm vụ độc lập bằng đa tác tử |
+| Per task | `/pd:write-code` | Complete 1 task, stop and ask |
+| Auto | `/pd:write-code --auto` | Complete all tasks sequentially |
+| Parallel | `/pd:write-code --parallel` | Analyze dependencies, run independent tasks simultaneously using multi-agent |
 
-### Bước 5 — Kiểm thử + Hoàn tất
+### Step 5 — Test + Complete
 
-- `/pd:test` — AI viết bài kiểm thử, chạy, báo cáo kết quả
-- `/pd:fix-bug` — Phát hiện lỗi? AI tự phân tích nguyên nhân, sửa, lưu phiên bản, lặp đến khi hết lỗi
-- `/pd:complete-milestone` — Kiểm tra tất cả nhiệm vụ + kiểm thử đạt, tạo báo cáo tổng kết, đánh dấu phiên bản
-
----
-
-## Tại sao tiết kiệm thời gian?
-
-### Lên kế hoạch 1 lần, không cần nhắc lại
-
-Mọi quyết định thiết kế được ghi lại. AI đọc bản thiết kế trước khi viết mỗi dòng code — không cần bạn nhắc lại "dùng thư viện gì", "cấu trúc thư mục ra sao", "định dạng phản hồi API thế nào".
-
-### Không bị lạc hướng giữa chừng
-
-Danh sách công việc có thứ tự phụ thuộc rõ ràng. AI biết nhiệm vụ nào làm trước, nhiệm vụ nào phải chờ.
-
-### Mất mạng? Bấm Esc nhầm? Không sao.
-
-Mọi tiến trình được lưu vào đĩa (không phụ thuộc kết nối). Khi quay lại:
-- AI biết đã viết được bao nhiêu tệp, đang ở bước nào
-- Tiếp tục từ chỗ dừng — không viết lại từ đầu
-- Hoạt động cho tất cả lệnh: viết code, lập kế hoạch, kiểm thử, sửa lỗi
-
-### Quy tắc tự động theo công nghệ
-
-Mỗi công nghệ có bộ quy tắc riêng — cấu trúc thư mục, quy ước đặt tên, mẫu bảo mật, lệnh kiểm tra cú pháp. AI tự nạp đúng bộ quy tắc, không cần bạn nhắc "nhớ dùng hàm khởi tạo hằng" hay "nhớ lọc đầu vào".
-
-### Chế độ song song cho dự án lớn
-
-AI phân tích đồ thị phụ thuộc giữa các nhiệm vụ, nhóm thành đợt, chạy đồng thời các nhiệm vụ độc lập bằng đa tác tử. Phần máy chủ và giao diện có thể viết cùng lúc — giao diện dùng đặc tả API từ bản thiết kế để code trước, không cần chờ máy chủ xong.
+- `/pd:test` — AI writes tests, runs them, reports results
+- `/pd:fix-bug` — Found a bug? AI auto-analyzes the cause, fixes it, commits, loops until resolved
+- `/pd:complete-milestone` — Checks all tasks + tests pass, creates summary report, tags version
 
 ---
 
-## So sánh với cách dùng AI thông thường
+## Why It Saves Time
 
-| | Gõ lệnh trực tiếp cho AI | Dùng Please Done |
+### Plan Once, No Repeating
+
+All design decisions are recorded. AI reads the design before writing every line of code — no need to remind "which library to use", "what's the directory structure", "what's the API response format".
+
+### No Drifting Mid-Way
+
+The task list has a clear dependency order. AI knows which tasks come first, which must wait.
+
+### Lost Connection? Hit Esc by Accident? No Problem.
+
+All progress is saved to disk (not connection-dependent). When you return:
+- AI knows how many files were written, which step it's on
+- Continues from where it stopped — no rewriting from scratch
+- Works for all commands: write-code, plan, test, fix-bug
+
+### Auto Rules by Tech Stack
+
+Each tech stack has its own rule set — directory structure, naming conventions, security patterns, lint commands. AI auto-loads the right rules, no need to remind "use constant initializers" or "sanitize input".
+
+### Parallel Mode for Large Projects
+
+AI analyzes the dependency graph between tasks, groups into waves, runs independent tasks simultaneously using multi-agent. Backend and frontend can be written concurrently — frontend uses the API spec from the design to code ahead, without waiting for the backend to finish.
+
+---
+
+## Compared to Using AI Directly
+
+| | Typing commands directly to AI | Using Please Done |
 |---|---|---|
-| **Lên kế hoạch** | Trong đầu bạn (AI không biết) | Trong PLAN.md (AI đọc được) |
-| **Theo dõi tiến trình** | Tự nhớ | TASKS.md + trạng thái tự động |
-| **Quy tắc viết code** | Nhắc mỗi lần | Tự động nạp theo công nghệ |
-| **Mất kết nối** | Mất hết ngữ cảnh | Tiếp tục từ chỗ dừng |
-| **Đổi phiên làm việc** | Phải giải thích lại | `/pd:what-next` → biết ngay |
-| **Kiểm thử** | "Viết test cho cái này" | AI tự viết test dựa trên code thật |
-| **Lưu phiên bản** | Tự gõ hoặc AI đoán | Tự động, theo quy ước |
-| **Nhiều nền tảng AI** | Mỗi nền tảng 1 cách dùng | Cùng 1 quy trình, 5 nền tảng |
+| **Planning** | In your head (AI doesn't know) | In PLAN.md (AI can read) |
+| **Progress tracking** | Self-remember | TASKS.md + auto status |
+| **Coding rules** | Remind every time | Auto-loaded by tech stack |
+| **Lost connection** | Lose all context | Continue from where stopped |
+| **Switch sessions** | Re-explain everything | `/pd:what-next` → instant overview |
+| **Testing** | "Write tests for this" | AI writes tests based on actual code |
+| **Version control** | Type manually or AI guesses | Automatic, following conventions |
+| **Multiple AI platforms** | Each platform different | Same workflow, 5 platforms |
 
 ---
 
-## Con số thực đo
+## Real Benchmarks
 
-> Tự chạy lại bằng `node test/benchmark.js` — không phải con số tự khai.
+> Reproduce with `node test/benchmark.js` — not self-reported numbers.
 
-### Hệ thống quy trình
+### Workflow System
 
-| | Số lượng |
+| | Count |
 |---|---|
-| Lệnh người dùng có thể gọi | 11 |
-| Tổng bước trong quy trình | 78 |
-| Cổng kiểm tra (AI không thể bỏ qua) | 48 |
-| Điểm khôi phục (chống mất tiến trình) | 42 |
-| Quy tắc viết code theo từng công nghệ | 35 tệp |
-| Tổng dòng logic quy trình | 3.167 |
+| User-callable commands | 11 |
+| Total workflow steps | 78 |
+| Verification gates (AI cannot skip) | 48 |
+| Recovery points (crash-resistant) | 42 |
+| Coding rules by tech stack | 35 files |
+| Total workflow logic lines | 3,167 |
 
-### Cài đặt đa nền tảng
+### Cross-Platform Installation
 
-Viết 1 lần → tạo ra **191 tệp, 46.100 dòng** cho 4 nền tảng:
+Write once → generates **191 files, 46,100 lines** for 4 platforms:
 
-| Nền tảng | Thời gian cài | Tệp sinh ra |
+| Platform | Install time | Files generated |
 |---|---|---|
 | Codex CLI | 33ms | 48 |
 | GitHub Copilot | 24ms | 48 |
 | Gemini CLI | 19ms | 48 |
 | OpenCode | 15ms | 47 |
 
-### Chất lượng
+### Quality
 
 | | |
 |---|---|
-| Kiểm thử tự động (smoke tests) | **75/75 đạt** |
-| Rò rỉ đường dẫn giữa nền tảng | **0** |
-| Cài lại an toàn (idempotent) | **4/4 nền tảng** |
-| Thời gian chạy toàn bộ kiểm thử | **338ms** |
+| Automated tests (smoke tests) | **75/75 pass** |
+| Cross-platform path leaks | **0** |
+| Safe reinstall (idempotent) | **4/4 platforms** |
+| Total test run time | **338ms** |
 
 ---
 
-## Hỗ trợ 5 nền tảng lập trình AI
+## Supports 5 AI Coding Platforms
 
-| Nền tảng | Lệnh |
+| Platform | Command |
 |---|---|
 | Claude Code | `/pd:init`, `/pd:plan`... |
 | Codex CLI | `$pd-init`, `$pd-plan`... |
@@ -166,31 +166,31 @@ Viết 1 lần → tạo ra **191 tệp, 46.100 dòng** cho 4 nền tảng:
 | OpenCode | `/pd-init`, `/pd-plan`... |
 | GitHub Copilot | `/pd:init`, `/pd:plan`... |
 
-Viết 1 lần cho Claude Code, trình cài đặt tự chuyển đổi sang định dạng riêng của từng nền tảng.
+Written once for Claude Code, the installer auto-converts to each platform's native format.
 
 ---
 
-## Công nghệ có quy tắc chuyên biệt
+## Tech Stacks with Specialized Rules
 
-| Công nghệ | Bộ quy tắc | Tài liệu tham khảo |
+| Tech Stack | Rule Set | Reference Docs |
 |---|---|---|
-| NestJS | Bộ điều khiển, dịch vụ, đối tượng truyền dữ liệu, bộ bảo vệ | 5 tài liệu (xác thực, CSDL, kiểm thử, tài liệu API, xử lý lỗi) |
-| NextJS (App Router) | Thành phần, quản lý trạng thái, tầng API, thành phần máy chủ | 5 tài liệu (thành phần máy chủ, xác thực, SEO, API, quản lý trạng thái) |
-| WordPress | Bảo mật, móc nối, API REST, tiêu chuẩn mã WP | 9 tài liệu (bổ sung, giao diện, trình soạn khối, thương mại điện tử...) |
-| Solidity | OpenZeppelin, bảo mật, chú thích NatSpec, tối ưu phí gas | 2 tài liệu (mẫu hợp đồng, danh mục kiểm tra) |
-| Flutter (GetX) | Giao diện, trạng thái, điều hướng, kết nối mạng, kênh nền tảng | 8 tài liệu (trạng thái, điều hướng, hệ thống thiết kế, kiểm thử...) |
+| NestJS | Controllers, services, DTOs, guards | 5 docs (authentication, database, testing, API docs, error handling) |
+| NextJS (App Router) | Components, state management, API layer, server components | 5 docs (server components, authentication, SEO, API, state management) |
+| WordPress | Security, hooks, REST API, WP coding standards | 9 docs (plugins, themes, block editor, e-commerce...) |
+| Solidity | OpenZeppelin, security, NatSpec comments, gas optimization | 2 docs (contract templates, audit checklist) |
+| Flutter (GetX) | UI, state, navigation, networking, platform channels | 8 docs (state, navigation, design system, testing...) |
 
-Công nghệ khác (Express, Vite/React...) được nhận diện nhưng chỉ áp dụng quy tắc chung. Có thể mở rộng bằng cách thêm tệp quy tắc mới.
+Other stacks (Express, Vite/React...) are detected but only apply general rules. Extensible by adding new rule files.
 
 ---
 
-## Miễn phí và mã nguồn mở
+## Free and Open Source
 
-- Giấy phép MIT — dùng cho dự án cá nhân lẫn thương mại
-- Không cần đăng ký, không giới hạn sử dụng
-- Yêu cầu: Node.js 16+ và ít nhất 1 công cụ lập trình AI đã cài
+- MIT License — use for personal and commercial projects
+- No registration, no usage limits
+- Requirements: Node.js 16+ and at least 1 AI coding tool installed
 
-### Cài đặt
+### Installation
 
 ```bash
 git clone https://github.com/tonamson/please-done.git
@@ -198,58 +198,58 @@ cd please-done
 node bin/install.js
 ```
 
-### Bắt đầu
+### Getting Started
 
 ```bash
-cd /đường-dẫn/tới/dự-án
-/pd:init              # Khởi tạo
-/pd:scan              # Quét dự án
-/pd:new-milestone     # Lập lộ trình
-/pd:plan              # Thiết kế kỹ thuật + chia nhiệm vụ
-/pd:write-code --auto # AI viết code theo kế hoạch
+cd /path/to/your/project
+/pd:init              # Initialize
+/pd:scan              # Scan project
+/pd:new-milestone     # Create roadmap
+/pd:plan              # Technical design + split tasks
+/pd:write-code --auto # AI writes code per plan
 ```
 
 ---
 
-## Quy trình tổng thể
+## Overall Workflow
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│                       QUY TRÌNH PLEASE DONE                          │
+│                       PLEASE DONE WORKFLOW                           │
 ├──────────────────────────────────────────────────────────────────────┤
 │                                                                      │
 │  /pd:init ──→ /pd:scan ──→ /pd:new-milestone ──→ /pd:plan           │
-│  Nhận diện     Phân tích     Lộ trình + giai đoạn   Thiết kế kỹ thuật│
-│  công nghệ     mã nguồn     + cột mốc               + chia nhiệm vụ │
+│  Detect        Analyze      Roadmap + phases       Technical design  │
+│  tech stack    codebase     + milestones            + split tasks     │
 │                                                                      │
 │                              ┌───────────────────────┐               │
 │                              │    /pd:write-code      │               │
-│                              │  AI viết theo thiết kế │               │
-│                              │  Kiểm tra → Biên dịch  │               │
-│                              │  → Lưu phiên bản       │               │
+│                              │  AI writes per design  │               │
+│                              │  Lint → Build           │               │
+│                              │  → Commit               │               │
 │                              └──────┬────────────────┘               │
 │                                     │                                │
 │                              ┌──────▼────────────────┐               │
 │              ┌───────────────│      /pd:test          │               │
-│              │  Có lỗi?      │  Viết + chạy kiểm thử  │               │
+│              │  Bug found?   │  Write + run tests     │               │
 │              │               └──────┬────────────────┘               │
 │       ┌──────▼──────┐               │                                │
-│       │ /pd:fix-bug │               │ Kiểm thử đạt                   │
-│       │ Phân tích,  │───────────────┘                                │
-│       │ sửa, lặp    │                                                │
+│       │ /pd:fix-bug │               │ Tests pass                     │
+│       │ Analyze,    │───────────────┘                                │
+│       │ fix, loop   │                                                │
 │       └─────────────┘        ┌──────▼────────────────┐               │
 │                              │/pd:complete-milestone  │               │
-│                              │ Tổng kết, đánh dấu     │               │
-│                              │ phiên bản, phát hành    │               │
+│                              │ Summarize, tag          │               │
+│                              │ version, release        │               │
 │                              └───────────────────────┘               │
 │                                                                      │
-│  Tiện ích:                                                           │
-│  /pd:what-next    → Quên đang làm gì? AI gợi ý bước tiếp            │
-│  /pd:fetch-doc    → Tải tài liệu thư viện về máy                    │
-│  /pd:update       → Cập nhật Please Done                             │
+│  Utilities:                                                          │
+│  /pd:what-next    → Forgot what you were doing? AI suggests next     │
+│  /pd:fetch-doc    → Download library docs locally                    │
+│  /pd:update       → Update Please Done                               │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-*Please Done — Bạn lên kế hoạch, AI thực thi.*
+*Please Done — You plan, AI executes.*

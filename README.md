@@ -1,43 +1,43 @@
-# Please Done — Bộ Skills AI Coding Đa Nền Tảng
+# Please Done — Cross-Platform AI Coding Skills
 
 [![Version](https://img.shields.io/badge/version-2.8.0-blue.svg)](https://github.com/tonamson/please-done/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
-[![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#nền-tảng-hỗ-trợ)
+[![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#supported-platforms)
 
-Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
+Please Done is a skills suite (`/pd:*`) for AI coding CLIs — a structured development workflow, from initialization to release.
 
-> Please Done là dự án fork và tinh chỉnh từ [GSD / get-shit-done](https://github.com/gsd-build/get-shit-done). Mục tiêu của bản này là làm workflow dễ tiếp cận hơn cho người mới, giảm độ phức tạp khi bắt đầu và ưu tiên trải nghiệm cài đặt/vận hành thực dụng trên nhiều CLI.
+> Please Done is a fork and refinement of [GSD / get-shit-done](https://github.com/gsd-build/get-shit-done). This version aims to make the workflow more accessible for beginners, reduce complexity when getting started, and prioritize a pragmatic installation/operation experience across multiple CLIs.
 >
-> Nếu bạn đã quen workflow agentic coding và muốn bộ tính năng đầy đủ, nhịp làm việc gốc, và cập nhật upstream nhanh nhất, [GSD](https://github.com/gsd-build/get-shit-done) vẫn là lựa chọn tốt hơn.
+> If you are already familiar with agentic coding workflows and want the full feature set, the original work rhythm, and the fastest upstream updates, [GSD](https://github.com/gsd-build/get-shit-done) is still the better choice.
 
-**Phiên bản hiện tại: v2.8.0**
+**Current version: v2.8.0**
 
-## Mục lục
+## Table of Contents
 
-- [Nền tảng hỗ trợ](#nền-tảng-hỗ-trợ)
-- [Yêu cầu](#yêu-cầu)
-- [Cài đặt](#cài-đặt)
-- [Gỡ cài đặt](#gỡ-cài-đặt)
-- [Cập nhật Please Done](#cập-nhật-please-done)
-- [Sau khi cài](#sau-khi-cài)
-- [Danh sách Skills](#danh-sách-skills)
-- [Cấu trúc `.planning/`](#cấu-trúc-planning)
-- [Kiến trúc đa nền tảng](#kiến-trúc-đa-nền-tảng)
-- [Máy chủ MCP](#máy-chủ-mcp)
-- [Bảo mật](#bảo-mật)
-- [Quy ước Commit](#quy-ước-commit)
-- [Biểu tượng trạng thái](#biểu-tượng-trạng-thái)
-- [Tech Stack hỗ trợ](#tech-stack-hỗ-trợ)
-- [Bộ đánh giá (Promptfoo)](#bộ-đánh-giá-promptfoo)
-- [Tài liệu bổ sung](#tài-liệu-bổ-sung)
-- [Giấy phép](#giấy-phép)
+- [Supported Platforms](#supported-platforms)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Uninstallation](#uninstallation)
+- [Updating Please Done](#updating-please-done)
+- [After Installation](#after-installation)
+- [Skills List](#skills-list)
+- [`.planning/` Structure](#planning-structure)
+- [Cross-Platform Architecture](#cross-platform-architecture)
+- [MCP Servers](#mcp-servers)
+- [Security](#security)
+- [Commit Conventions](#commit-conventions)
+- [Status Icons](#status-icons)
+- [Supported Tech Stacks](#supported-tech-stacks)
+- [Evaluation Suite (Promptfoo)](#evaluation-suite-promptfoo)
+- [Additional Documentation](#additional-documentation)
+- [License](#license)
 
-## Nền tảng hỗ trợ
+## Supported Platforms
 
 
-| Nền tảng           | Cú pháp gọi skill         | Vị trí cài skills (global)    | Vị trí cài skills (local)     |
-| ------------------ | ------------------------- | ----------------------------- | ----------------------------- |
+| Platform           | Skill invocation syntax    | Global skills location          | Local skills location           |
+| ------------------ | ------------------------- | ------------------------------- | ------------------------------- |
 | **Claude Code**    | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/`      | `.claude/commands/pd/`        |
 | **Codex CLI**      | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/`       | —                             |
 | **Gemini CLI**     | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/`      | —                             |
@@ -45,21 +45,21 @@ Please Done là bộ skills (`/pd:*`) cho AI coding CLI — quy trình phát tri
 | **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/`     | `.github/skills/pd-*/`        |
 
 
-Kiến trúc: Viết 1 lần (Claude Code) → Chuyển đổi khi cài → Chạy native trên từng nền tảng.
+Architecture: Write once (Claude Code) → Convert on install → Run natively on each platform.
 
-## Yêu cầu
+## Requirements
 
 - Node.js 16+ (`node --version`)
 - Python 3.12+ (`python3 --version`)
 - Git (`git --version`)
-- Ít nhất 1 AI coding CLI đã cài:
+- At least 1 AI coding CLI installed:
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
   - [Codex CLI](https://github.com/openai/codex)
   - [Gemini CLI](https://github.com/google-gemini/gemini-cli)
   - [OpenCode](https://github.com/opencode-ai/opencode)
   - [GitHub Copilot](https://github.com/features/copilot)
 
-## Cài đặt
+## Installation
 
 ```bash
 git clone https://github.com/tonamson/please-done.git
@@ -67,84 +67,84 @@ cd please-done
 ```
 
 ```bash
-# Tương tác — chọn nền tảng
+# Interactive — choose platform
 node bin/install.js
 
-# Cài cho nền tảng cụ thể
+# Install for a specific platform
 node bin/install.js --claude
 node bin/install.js --codex
 node bin/install.js --gemini
 node bin/install.js --opencode
 node bin/install.js --copilot
 
-# Cài tất cả nền tảng
+# Install all platforms
 node bin/install.js --all
 
-# Cài cục bộ (chỉ project hiện tại)
+# Local install (current project only)
 node bin/install.js --claude --local
 ```
 
-### Trình cài đặt tự động thực hiện
+### What the installer does
 
-**Claude Code** — full setup (6 bước):
+**Claude Code** — full setup (6 steps):
 
-| Bước | Mô tả                                                          |
-| ---- | -------------------------------------------------------------- |
-| 1    | Kiểm tra điều kiện tiên quyết (python 3.12+, uv, git)          |
-| 2    | Khởi tạo FastCode submodule                                    |
-| 3    | Tạo Python venv + cài thư viện phụ thuộc                       |
-| 4    | Cấu hình Gemini API Key (bắt buộc cho FastCode MCP)            |
-| 5    | Symlink skills vào `~/.claude/commands/pd/`                    |
-| 6    | Đăng ký máy chủ MCP (FastCode + Context7) qua `claude mcp add` |
+| Step | Description                                                              |
+| ---- | ------------------------------------------------------------------------ |
+| 1    | Check prerequisites (python 3.12+, uv, git)                             |
+| 2    | Initialize FastCode submodule                                            |
+| 3    | Create Python venv + install dependencies                                |
+| 4    | Configure Gemini API Key (required for FastCode MCP)                     |
+| 5    | Symlink skills into `~/.claude/commands/pd/`                             |
+| 6    | Register MCP servers (FastCode + Context7) via `claude mcp add`          |
 
-**Codex / Gemini / OpenCode / Copilot** — chỉ chuyển đổi + cài skills (3-4 bước):
+**Codex / Gemini / OpenCode / Copilot** — convert + install skills only (3-4 steps):
 
-| Bước | Mô tả                                                          |
-| ---- | -------------------------------------------------------------- |
-| 1    | Chuyển đổi skills sang định dạng nền tảng (tên công cụ, cú pháp lệnh, đường dẫn) |
-| 2    | Sao chép skills + rules vào thư mục cấu hình                   |
-| 3    | Lưu `.pdconfig` (trỏ về thư mục source gốc)                    |
-| 4    | Ghi cấu hình MCP vào file config nền tảng (Codex: `config.toml`, Gemini: `settings.json`, Copilot: `copilot-instructions.md`) |
+| Step | Description                                                              |
+| ---- | ------------------------------------------------------------------------ |
+| 1    | Convert skills to platform format (tool names, command syntax, paths)    |
+| 2    | Copy skills + rules into config directory                                |
+| 3    | Save `.pdconfig` (points back to source directory)                       |
+| 4    | Write MCP config to platform config file (Codex: `config.toml`, Gemini: `settings.json`, Copilot: `copilot-instructions.md`) |
 
-> **Lưu ý:** Các nền tảng non-Claude **không** tự setup Python/venv/Gemini API Key. Cấu hình MCP của chúng trỏ vào `FastCode/.venv/bin/python` — cần cài Claude trước (hoặc setup FastCode thủ công) để MCP hoạt động.
+> **Note:** Non-Claude platforms do **not** auto-setup Python/venv/Gemini API Key. Their MCP config points to `FastCode/.venv/bin/python` — you need to install Claude first (or set up FastCode manually) for MCP to work.
 
-### Lấy Gemini API Key (bắt buộc cho FastCode MCP)
+### Getting a Gemini API Key (required for FastCode MCP)
 
-FastCode MCP dùng Gemini API để lập chỉ mục và phân tích code:
+FastCode MCP uses Gemini API to index and analyze code:
 
-1. Truy cập [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-2. Tạo API key mới
-3. Dán key khi trình cài đặt Claude hỏi, hoặc tự ghi vào `FastCode/.env` nếu cài nền tảng khác trước
+1. Visit [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+2. Create a new API key
+3. Paste the key when the Claude installer prompts, or manually write it to `FastCode/.env` if installing another platform first
 
-### Context7 MCP (tự động cài)
+### Context7 MCP (auto-installed)
 
-Context7 tra cứu tài liệu API đúng phiên bản cho thư viện đang dùng. Trình cài đặt tự động đăng ký nếu có `npx`.
+Context7 looks up version-accurate API documentation for libraries in use. The installer automatically registers it if `npx` is available.
 
-## Gỡ cài đặt
+## Uninstallation
 
 ```bash
-# Gỡ từng nền tảng
+# Uninstall per platform
 node bin/install.js --uninstall --claude
 node bin/install.js --uninstall --codex
 node bin/install.js --uninstall --gemini
 node bin/install.js --uninstall --opencode
 node bin/install.js --uninstall --copilot
 
-# Gỡ tất cả
+# Uninstall all
 node bin/install.js --uninstall --all
 ```
 
-Gỡ cài đặt chỉ xóa artefact do Please Done tạo/quản lý (skill files, symlinks, rules, `.pdconfig`, MCP config entries) — không đụng cấu hình/files khác của người dùng.
+Uninstall only removes artifacts created/managed by Please Done (skill files, symlinks, rules, `.pdconfig`, MCP config entries) — it does not touch other user configurations/files.
 
-## Cập nhật Please Done
+## Updating Please Done
 
-Khi có phiên bản mới, thanh trạng thái sẽ hiện:
+When a new version is available, the status bar will show:
 
 ```
-⬆ Please Done v[x.x.x] — /pd:update hoặc $pd-update
+⬆ Please Done v[x.x.x] — /pd:update or $pd-update
 ```
 
-Cập nhật bằng lệnh:
+Update with:
 
 ```bash
 # Claude Code, Gemini CLI, GitHub Copilot
@@ -160,195 +160,195 @@ $pd-update --apply
 /pd-update --apply
 ```
 
-Sau khi cập nhật → thoát CLI → chạy lại để tải phiên bản Please Done mới.
+After updating → exit the CLI → restart to load the new Please Done version.
 
-## Sau khi cài
+## After Installation
 
 ```bash
-# 1. Khởi động lại CLI để tải Please Done mới
-# 2. Mở dự án bất kỳ
+# 1. Restart the CLI to load the new Please Done
+# 2. Open any project
 cd /path/to/your/project
 
-# 3. Chạy skill đầu tiên
+# 3. Run the first skill
 /pd:init        # Claude Code, Gemini, Copilot
 $pd-init        # Codex
 /pd-init        # OpenCode
 ```
 
-## Danh sách Skills
+## Skills List
 
-### Quy trình chính (theo thứ tự)
-
-
-| #   | Skill                | Mô tả                                                                                                              | Cần chạy trước |
-| --- | -------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------- |
-| 1   | `init`               | Kiểm tra FastCode MCP, lập chỉ mục dự án, nhận diện tech stack, tạo CONTEXT.md + sao chép rules                    | -              |
-| 2   | `scan`               | Quét cấu trúc code, thư viện phụ thuộc, kiến trúc, kiểm tra bảo mật, tạo SCAN_REPORT                               | init           |
-| 3   | `new-milestone`      | Lập kế hoạch milestones + phases + phụ thuộc                                                                       | init, scan (*) |
-| 4   | `plan`               | Nghiên cứu dự án, thiết kế kỹ thuật, chia danh sách công việc cho phase                                            | new-milestone  |
-| 5   | `write-code`         | Thực thi task từ TASKS.md, kiểm tra cú pháp, build, commit `[TASK-N]`                                              | plan           |
-| 6   | `test`               | Viết tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, flutter_test), chạy, yêu cầu xác nhận | write-code     |
-| 7   | `fix-bug`            | Nghiên cứu lỗi, phân tích, sửa, commit `[LỖI]`, lặp đến khi người dùng xác nhận                                    | init           |
-| 8   | `complete-milestone` | Kiểm tra lỗi, tổng kết, commit `[PHIÊN BẢN]`, tạo git tag                                                          | tất cả tasks ✅ |
+### Main Workflow (in order)
 
 
-(*) Dự án mới chưa có code: `new-milestone` cho phép bỏ qua scan.
+| #   | Skill                | Description                                                                                                       | Prerequisite   |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------- |
+| 1   | `init`               | Check FastCode MCP, index project, detect tech stack, create CONTEXT.md + copy rules                              | -              |
+| 2   | `scan`               | Scan code structure, dependencies, architecture, security checks, create SCAN_REPORT                              | init           |
+| 3   | `new-milestone`      | Plan milestones + phases + dependencies                                                                           | init, scan (*) |
+| 4   | `plan`               | Research project, create technical design, split task list for phase                                               | new-milestone  |
+| 5   | `write-code`         | Execute tasks from TASKS.md, lint check, build, commit `[TASK-N]`                                                 | plan           |
+| 6   | `test`               | Write tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, flutter_test), run, request confirmation                   | write-code     |
+| 7   | `fix-bug`            | Research bug, analyze, fix, commit `[BUG]`, loop until user confirms                                              | init           |
+| 8   | `complete-milestone` | Check for errors, summarize, commit `[VERSION]`, create git tag                                                   | all tasks ✅   |
 
-### Tiện ích
+
+(*) New project without code: `new-milestone` allows skipping scan.
+
+### Utilities
 
 
-| Skill         | Mô tả                                                                               |
+| Skill         | Description                                                                         |
 | ------------- | ----------------------------------------------------------------------------------- |
-| `what-next`   | Quét trạng thái .planning/, hiển thị tiến trình, gợi ý lệnh tiếp theo               |
-| `conventions` | Phân tích code, phát hiện patterns, hỏi user → tạo CLAUDE.md quy ước riêng dự án    |
-| `fetch-doc`   | Tải tài liệu từ URL, lưu markdown cục bộ kèm phiên bản + mục lục phân theo section  |
-| `update`      | Kiểm tra + cập nhật bộ skills từ GitHub, hiện nhật ký thay đổi, gợi ý khởi động lại |
+| `what-next`   | Scan .planning/ status, show progress, suggest next command                         |
+| `conventions` | Analyze code, detect patterns, ask user → create project-specific CLAUDE.md         |
+| `fetch-doc`   | Download documentation from URL, save markdown locally with version + section TOC   |
+| `update`      | Check + update skills from GitHub, show changelog, suggest restart                  |
 
 
-### Hệ thống quy ước (Rules + CLAUDE.md)
+### Convention System (Rules + CLAUDE.md)
 
-Please Done dùng **2 lớp quy ước** bổ sung nhau:
+Please Done uses **2 complementary convention layers**:
 
-| Lớp | Nguồn | Phạm vi | Áp dụng |
+| Layer | Source | Scope | Applied |
 | --- | --- | --- | --- |
-| **Rules** (`commands/pd/rules/`) | Có sẵn trong bộ skills | Chung cho mọi dự án cùng stack | Tự động khi `/pd:init` |
-| **CLAUDE.md** (root dự án) | Tạo bởi `/pd:conventions` hoặc viết tay | Riêng từng dự án | Tự động mỗi conversation |
+| **Rules** (`commands/pd/rules/`) | Included in skills suite | Common to all projects with same stack | Automatically on `/pd:init` |
+| **CLAUDE.md** (project root) | Created by `/pd:conventions` or manually | Per-project specific | Automatically each conversation |
 
-**Tại sao cần cả hai?**
+**Why both?**
 
-- **Rules** chứa config kỹ thuật mà workflows cần: lệnh build/lint, detection patterns nhận diện stack, quy tắc bảo mật đặc thù framework. Nếu bạn fork Please Done, hãy sửa rules theo quy ước riêng — mỗi lần `/pd:init`, quy ước của bạn tự động áp dụng cho mọi dự án cùng stack mà không cần khai báo lại.
-- **CLAUDE.md** chứa quy ước riêng của từng dự án cụ thể (coding style, architecture decisions, do/don't) mà rules chung không cover được.
+- **Rules** contain technical config that workflows need: build/lint commands, detection patterns for stack identification, framework-specific security rules. If you fork Please Done, edit the rules to match your conventions — every time `/pd:init` runs, your conventions are automatically applied to all projects with the same stack without re-declaring.
+- **CLAUDE.md** contains per-project specific conventions (coding style, architecture decisions, do/don't) that generic rules cannot cover.
 
-#### Rules (quy tắc viết code)
-
-
-| Tệp                     | Áp dụng khi  | Nội dung chính                                                                         |
-| ----------------------- | ------------ | -------------------------------------------------------------------------------------- |
-| `rules/general.md`      | Luôn luôn    | Phong cách code, ngôn ngữ, biểu tượng, định dạng phiên bản, git, bảo mật               |
-| `rules/nestjs.md`       | Có NestJS    | Quy ước riêng: MongoDB prefix, DTO, pagination format, error language                   |
-| `rules/nextjs.md`       | Có NextJS    | Quy ước riêng: Ant Design v6, Zustand, native fetch, admin permissions                  |
-| `rules/wordpress.md`    | Có WordPress | Quy ước riêng: WP coding standards, sanitize/escape, $wpdb, REST API                    |
-| `rules/solidity.md`     | Có Solidity  | Quy ước riêng: OZ v5, SafeERC20, security modifiers, signature, gas                     |
-| `rules/solidity-refs/`  | Có Solidity  | Contract templates + audit checklist (2 tệp)                                            |
-| `rules/flutter.md`     | Có Flutter   | Quy ước riêng: Logic+State architecture, design tokens, Dio, manual fromJson             |
+#### Rules (coding conventions)
 
 
-Rules được `init` tự động sao chép vào `.planning/rules/` theo tech stack nhận diện được. Rules chỉ chứa **quy ước riêng** — kiến thức framework chuẩn được tra qua Context7 MCP khi cần. Các skill `plan`, `write-code`, `test`, `fix-bug` đọc rules từ đó khi viết code.
+| File                    | Applied when | Main content                                                                  |
+| ----------------------- | ------------ | ----------------------------------------------------------------------------- |
+| `rules/general.md`     | Always       | Code style, language, icons, version format, git, security                    |
+| `rules/nestjs.md`      | Has NestJS   | Specific conventions: MongoDB prefix, DTO, pagination format, error language  |
+| `rules/nextjs.md`      | Has NextJS   | Specific conventions: Ant Design v6, Zustand, native fetch, admin permissions |
+| `rules/wordpress.md`   | Has WordPress| Specific conventions: WP coding standards, sanitize/escape, $wpdb, REST API  |
+| `rules/solidity.md`    | Has Solidity | Specific conventions: OZ v5, SafeERC20, security modifiers, signature, gas   |
+| `rules/solidity-refs/` | Has Solidity | Contract templates + audit checklist (2 files)                                |
+| `rules/flutter.md`     | Has Flutter  | Specific conventions: Logic+State architecture, design tokens, Dio, manual fromJson |
 
-> **Tùy chỉnh rules cho riêng bạn**: Fork repo Please Done → sửa file trong `commands/pd/rules/` theo quy ước cá nhân → cài skills từ fork. Mỗi lần `/pd:init`, quy ước của bạn tự động áp dụng mà không cần khai báo lại. Xem [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) để biết cách thêm stack mới hoặc chỉnh rules.
 
-#### Quy ước riêng dự án (CLAUDE.md)
+Rules are automatically copied to `.planning/rules/` by `init` based on detected tech stack. Rules only contain **specific conventions** — standard framework knowledge is looked up via Context7 MCP when needed. The `plan`, `write-code`, `test`, and `fix-bug` skills read rules from there when writing code.
 
-Ngoài rules có sẵn, mỗi dự án nên có file `CLAUDE.md` ở root chứa quy ước riêng của dự án đó. Claude Code tự động đọc file này mỗi conversation.
+> **Customize rules for yourself**: Fork the Please Done repo → edit files in `commands/pd/rules/` to match your personal conventions → install skills from your fork. Every time `/pd:init` runs, your conventions are automatically applied without re-declaring. See [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md) for how to add new stacks or edit rules.
 
-**Chạy `/pd:conventions`** để tự động phân tích code + tạo CLAUDE.md, hoặc tự viết:
+#### Per-Project Conventions (CLAUDE.md)
+
+In addition to built-in rules, each project should have a `CLAUDE.md` file at the root containing project-specific conventions. Claude Code automatically reads this file each conversation.
+
+**Run `/pd:conventions`** to auto-analyze code + create CLAUDE.md, or write it manually:
 
 ```markdown
-# Quy ước dự án
+# Project Conventions
 
-## Phong cách code
+## Code Style
 - Semicolons, single quotes, 2 spaces indent
-- Import alias: @/ cho cross-module
+- Import alias: @/ for cross-module
 
-## Kiến trúc
-- Quản lý trạng thái: Zustand (không Redux)
+## Architecture
+- State management: Zustand (not Redux)
 - CSS: Tailwind only
-- API: native fetch (không axios)
+- API: native fetch (not axios)
 
-## Nên / Không nên
-- Commit message tiếng Việt, conventional commits
-- Không mock database trong tests
-- Không tạo file mới nếu có thể sửa file cũ
+## Do / Don't
+- Commit messages in English, conventional commits
+- Don't mock database in tests
+- Don't create new files if you can edit existing ones
 ```
 
-Lợi ích:
-- **0 token cost từ skills** — Claude Code tự load
-- **Mỗi dự án khác nhau** — conventions khác nhau
-- **Dễ chỉnh sửa** — sửa trực tiếp file, không cần đụng skills
+Benefits:
+- **0 token cost from skills** — Claude Code auto-loads it
+- **Different per project** — different conventions
+- **Easy to edit** — edit the file directly, no need to touch skills
 
-### Tùy chọn plan
-
-
-| Lệnh                 | Hành vi                                                                                         |
-| -------------------- | ----------------------------------------------------------------------------------------------- |
-| `plan`               | Chế độ **TỰ ĐỘNG** — assistant tự quyết định, ghi lại mọi quyết định + lý do để người dùng xem lại |
-| `plan --discuss`     | Chế độ **THẢO LUẬN** — trao đổi tương tác tính năng với người dùng                              |
-| `plan 1.2`           | Lập kế hoạch cho phase cụ thể                                                                   |
-| `plan 1.2 --discuss` | Lập kế hoạch phase 1.2 kèm thảo luận                                                            |
+### Plan Options
 
 
-#### Chế độ THẢO LUẬN (`--discuss`)
-
-Assistant phân tích deliverable, liệt kê các vấn đề cần quyết định → người dùng chọn bằng phím mũi tên nếu nền tảng hỗ trợ, hoặc trả lời bằng văn bản thường nếu không có UI chọn → assistant đưa ra phương án cho từng vấn đề:
-
-- Người dùng chọn vấn đề muốn thảo luận (multiSelect — chọn nhiều cùng lúc)
-- Mỗi vấn đề hiện danh sách phương án — phương án đầu luôn là khuyến nghị (ghi "Đề xuất")
-- Chọn "Other" để mô tả cách riêng, gõ `back` quay lại vấn đề trước, `cancel` hủy thảo luận
-- Sau khi chốt → bảng tóm tắt → có thể "Thảo luận thêm vấn đề khác" (assistant đưa vấn đề mới)
-- Quyết định được lưu vào PLAN.md mục "Quyết định thiết kế" → `write-code` tuân thủ
-
-### Tùy chọn write-code
+| Command              | Behavior                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------- |
+| `plan`               | **AUTO** mode — assistant decides everything, records all decisions + reasoning for user review    |
+| `plan --discuss`     | **DISCUSS** mode — interactive feature discussion with the user                                   |
+| `plan 1.2`           | Plan for a specific phase                                                                         |
+| `plan 1.2 --discuss` | Plan phase 1.2 with discussion                                                                   |
 
 
-| Lệnh                      | Hành vi                                                         |
-| ------------------------- | --------------------------------------------------------------- |
-| `write-code`              | Chọn task ⬜ tiếp theo, làm xong **dừng hỏi**                    |
-| `write-code --auto`       | Làm **tất cả** tasks ⬜ trong phase **tuần tự**                  |
-| `write-code --parallel`   | Phân tích phụ thuộc, nhóm đợt, chạy **song song** tasks độc lập |
-| `write-code 3`            | Làm task số 3, xong dừng hỏi                                    |
-| `write-code 3 --auto`     | Bắt đầu từ task 3, chạy hết phase tuần tự                       |
-| `write-code 3 --parallel` | Bắt đầu từ task 3, chạy song song tasks độc lập                 |
+#### DISCUSS Mode (`--discuss`)
+
+The assistant analyzes deliverables, lists issues requiring decisions → user selects using arrow keys if the platform supports it, or answers in plain text if no selection UI → the assistant provides options for each issue:
+
+- User selects issues to discuss (multiSelect — select multiple at once)
+- Each issue shows a list of options — the first option is always the recommendation (labeled "Recommended")
+- Select "Other" to describe a custom approach, type `back` to return to the previous issue, `cancel` to cancel discussion
+- After finalizing → summary table → option to "Discuss more issues" (assistant presents new issues)
+- Decisions are saved to PLAN.md under "Design Decisions" → `write-code` follows them
+
+### Write-Code Options
 
 
-#### Chế độ song song (`--parallel`)
+| Command                    | Behavior                                                    |
+| ------------------------- | ----------------------------------------------------------- |
+| `write-code`              | Pick next ⬜ task, complete it, **stop and ask**             |
+| `write-code --auto`       | Complete **all** ⬜ tasks in phase **sequentially**          |
+| `write-code --parallel`   | Analyze dependencies, group waves, run independent tasks **in parallel** |
+| `write-code 3`            | Complete task 3, then stop                                  |
+| `write-code 3 --auto`     | Start from task 3, run all remaining sequentially           |
+| `write-code 3 --parallel` | Start from task 3, run independent tasks in parallel        |
 
-Phân tích đồ thị phụ thuộc giữa tasks → nhóm thành **đợt** → tasks độc lập trong cùng đợt chạy song song bằng **đa tác tử**:
+
+#### Parallel Mode (`--parallel`)
+
+Analyzes the dependency graph between tasks → groups into **waves** → independent tasks in the same wave run in parallel using **multi-agent**:
 
 ```
-Đợt 1 (song song):
-  🔀 Tác tử A: Task 1 (Backend) — tạo API users
-  🔀 Tác tử B: Task 2 (Frontend) — trang users (dùng cấu trúc response từ PLAN.md)
-Đợt 2 (tuần tự — phụ thuộc Đợt 1):
-  → Task 3: Kết nối validation (cần code từ Task 1)
+Wave 1 (parallel):
+  🔀 Agent A: Task 1 (Backend) — create users API
+  🔀 Agent B: Task 2 (Frontend) — users page (uses response structure from PLAN.md)
+Wave 2 (sequential — depends on Wave 1):
+  → Task 3: Connect validation (needs code from Task 1)
 ```
 
-## Cấu trúc `.planning/`
+## `.planning/` Structure
 
-Khi chạy skills trong một dự án, thư mục `.planning/` được tạo với cấu trúc:
+When running skills in a project, the `.planning/` directory is created with this structure:
 
 ```
 .planning/
-├── CONTEXT.md                    # Tech stack, thư viện, trỏ tới rules (< 50 dòng)
+├── CONTEXT.md                    # Tech stack, libraries, points to rules (< 50 lines)
 ├── ROADMAP.md                    # Milestones + phases + deliverables
-├── CURRENT_MILESTONE.md          # Theo dõi version/phase/trạng thái hiện tại
-├── CHANGELOG.md                  # Nhật ký thay đổi (tạo khi complete-milestone)
+├── CURRENT_MILESTONE.md          # Tracks current version/phase/status
+├── CHANGELOG.md                  # Change log (created on complete-milestone)
 ├── scan/
-│   └── SCAN_REPORT.md            # Báo cáo quét dự án + kiểm tra bảo mật thư viện
-├── docs/                         # Tài liệu cache (fetch-doc) + solidity refs
-│   └── solidity/                 # Contract templates + audit checklist (nếu có Solidity)
+│   └── SCAN_REPORT.md            # Project scan report + dependency security check
+├── docs/                         # Cached docs (fetch-doc) + solidity refs
+│   └── solidity/                 # Contract templates + audit checklist (if Solidity)
 ├── bugs/
-│   └── BUG_*.md                  # Báo cáo lỗi (code trước/sau, phiên bản vá)
-├── rules/                        # Quy tắc viết code (sao chép từ repo Please Done theo stack)
-│   ├── general.md                # Quy tắc chung (luôn có)
-│   ├── nestjs.md                 # Quy ước NestJS (nếu có NestJS)
-│   ├── nextjs.md                 # Quy ước NextJS (nếu có NextJS)
-│   ├── wordpress.md              # Quy ước WordPress (nếu có WordPress)
-│   ├── solidity.md               # Quy ước Solidity (nếu có Solidity)
-│   └── flutter.md                # Quy ước Flutter (nếu có Flutter)
+│   └── BUG_*.md                  # Bug reports (before/after code, patch version)
+├── rules/                        # Coding rules (copied from Please Done repo by stack)
+│   ├── general.md                # General rules (always present)
+│   ├── nestjs.md                 # NestJS conventions (if NestJS detected)
+│   ├── nextjs.md                 # NextJS conventions (if NextJS detected)
+│   ├── wordpress.md              # WordPress conventions (if WordPress detected)
+│   ├── solidity.md               # Solidity conventions (if Solidity detected)
+│   └── flutter.md                # Flutter conventions (if Flutter detected)
 └── milestones/[version]/
-    ├── MILESTONE_COMPLETE.md     # Tổng kết milestone (tạo khi hoàn tất)
+    ├── MILESTONE_COMPLETE.md     # Milestone summary (created on completion)
     └── phase-[x.x]/
-        ├── PLAN.md               # Thiết kế kỹ thuật + API + cơ sở dữ liệu + quyết định
-        ├── TASKS.md              # Danh sách công việc + trạng thái
-        ├── TEST_REPORT.md        # Kết quả kiểm thử (NestJS/WordPress/Solidity/Flutter)
+        ├── PLAN.md               # Technical design + API + database + decisions
+        ├── TASKS.md              # Task list + status
+        ├── TEST_REPORT.md        # Test results (NestJS/WordPress/Solidity/Flutter)
         └── reports/
-            └── CODE_REPORT_TASK_[N].md  # Báo cáo từng task
+            └── CODE_REPORT_TASK_[N].md  # Per-task report
 ```
 
-## Kiến trúc đa nền tảng
+## Cross-Platform Architecture
 
 ```
-Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài          Nền tảng đích
+Source (Claude Code original)       Converter on install             Target platform
 ┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────┐
 │ commands/pd/*.md     │            │                  │──────────→ │ Claude Code     │
 │ workflows/*.md       │            │                  │──────────→ │ Codex CLI       │
@@ -359,55 +359,55 @@ Mã nguồn (Claude Code gốc)          Trình chuyển đổi khi cài        
 └──────────────────────┘
 ```
 
-**Nguyên tắc:**
+**Principles:**
 
-- Các skill chỉ viết 1 lần bằng định dạng Claude Code
-- Trình cài đặt chuyển đổi sang định dạng gốc cho từng nền tảng
-- Không có thư viện phụ thuộc khi chạy (chỉ Node.js stdlib)
-- Theo dõi mã băm SHA256 — tự động sao lưu files người dùng đã chỉnh sửa trước khi cài lại
-- Quét đường dẫn rò rỉ — xác minh không còn `~/.claude/` trong đầu ra nền tảng khác
+- Skills are written once in Claude Code format
+- The installer converts to native format for each platform
+- No runtime dependencies (Node.js stdlib only)
+- SHA256 manifest tracking — auto-backup user-modified files before reinstall
+- Leaked path scanning — verifies no `~/.claude/` paths remain in non-Claude platform output
 
-### Chuyển đổi theo nền tảng
+### Per-Platform Conversion
 
 
-| Thành phần          | Claude Code       | Codex                  | Gemini                                   | OpenCode       | Copilot                 |
+| Component          | Claude Code       | Codex                  | Gemini                                   | OpenCode       | Copilot                 |
 | ------------------- | ----------------- | ---------------------- | ---------------------------------------- | -------------- | ----------------------- |
-| **Tên công cụ**     | Read, Write, Bash | Giữ nguyên             | read_file, write_file, run_shell_command | Giữ nguyên     | read, write, execute    |
-| **Tiền tố lệnh**    | /pd:              | $pd-                   | /pd:                                     | /pd-           | /pd:                    |
-| **Định dạng skill** | .md lồng nhau     | SKILL.md + XML adapter | .md lồng nhau                            | pd-*.md phẳng  | SKILL.md                |
-| **Cấu hình MCP**    | settings.json     | config.toml (TOML)     | settings.json                            | Cấu hình riêng | copilot-instructions.md |
+| **Tool names**     | Read, Write, Bash | Unchanged              | read_file, write_file, run_shell_command | Unchanged      | read, write, execute    |
+| **Command prefix** | /pd:              | $pd-                   | /pd:                                     | /pd-           | /pd:                    |
+| **Skill format**   | Nested .md        | SKILL.md + XML adapter | Nested .md                               | pd-*.md flat   | SKILL.md                |
+| **MCP config**     | settings.json     | config.toml (TOML)     | settings.json                            | Custom config  | copilot-instructions.md |
 
 
-## Máy chủ MCP
+## MCP Servers
 
 
-| MCP          | Vai trò                                              | Bắt buộc             |
-| ------------ | ---------------------------------------------------- | -------------------- |
-| **FastCode** | Lập chỉ mục + phân tích code dự án (dùng Gemini API) | Có (init dừng nếu lỗi; skill khác fallback Grep/Read) |
-| **Context7** | Tra cứu tài liệu API thư viện đúng phiên bản         | Không (nhưng nên có) |
+| MCP          | Role                                                  | Required             |
+| ------------ | ----------------------------------------------------- | -------------------- |
+| **FastCode** | Index + analyze project code (uses Gemini API)        | Yes (init stops on error; other skills fallback to Grep/Read) |
+| **Context7** | Look up version-accurate library API documentation    | No (but recommended) |
 
 
-Please Done tự động gọi FastCode để nghiên cứu code hiện có và Context7 để tra cứu tài liệu thư viện. Nếu FastCode MCP lỗi: `init` sẽ dừng (bắt buộc kết nối thành công); các skill khác (`scan`, `plan`, `write-code`, `test`, `fix-bug`) tự động fallback sang Grep/Read kèm cảnh báo — vẫn hoạt động nhưng kém chính xác hơn.
+Please Done automatically calls FastCode to research existing code and Context7 to look up library documentation. If FastCode MCP fails: `init` will stop (successful connection required); other skills (`scan`, `plan`, `write-code`, `test`, `fix-bug`) automatically fall back to Grep/Read with a warning — still works but less accurate.
 
-## Bảo mật
+## Security
 
-### Bảo vệ tích hợp trong skills
+### Built-in Protection in Skills
 
-Tất cả skills tuân thủ quy tắc bảo mật trong `rules/general.md`:
-
-
-| Quy tắc                       | Mô tả                                                                            |
-| ----------------------------- | -------------------------------------------------------------------------------- |
-| **CẤM đọc/hiển thị nội dung** | `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` |
-| **Chỉ ghi tên biến**          | Khi quét/báo cáo gặp biến môi trường → ghi tên key, KHÔNG ghi giá trị            |
-| **Bắt buộc `.env.example`**   | Khi code dùng biến môi trường mới → thêm key vào `.env.example` với giá trị mẫu  |
+All skills follow security rules in `rules/general.md`:
 
 
-Đây là lớp phòng thủ **trong prompt** — skills tự từ chối đọc file nhạy cảm dù người dùng yêu cầu.
+| Rule                          | Description                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------- |
+| **FORBIDDEN to read/display** | `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`  |
+| **Log key names only**        | When scanning/reporting encounters env variables → log key name, NOT value        |
+| **Require `.env.example`**    | When code uses a new env variable → add key to `.env.example` with sample value   |
 
-### Bảo vệ ở tầng nền tảng (khuyến nghị)
 
-Lớp phòng thủ trong prompt có thể bị vượt qua. Nên thêm danh sách chặn **ở tầng nền tảng** để chặn hoàn toàn:
+This is an **in-prompt** defense layer — skills refuse to read sensitive files even if the user requests it.
+
+### Platform-Level Protection (recommended)
+
+The in-prompt defense layer can be bypassed. Add a **platform-level** deny list for full blocking:
 
 **Claude Code** — `.claude/settings.json`:
 
@@ -423,7 +423,7 @@ Lớp phòng thủ trong prompt có thể bị vượt qua. Nên thêm danh sác
 }
 ```
 
-**Codex CLI** — thêm vào `~/.codex/instructions.md`:
+**Codex CLI** — add to `~/.codex/instructions.md`:
 
 ```
 NEVER read files matching: .env, .env.*, *.pem, *.key, *credential*, secrets/*
@@ -439,92 +439,92 @@ NEVER read files matching: .env, .env.*, *.pem, *.key, *credential*, secrets/*
 }
 ```
 
-**OpenCode / Copilot** — thêm vào `.gitignore` (đã có sẵn) + tệp hướng dẫn của nền tảng tương ứng với nội dung tương tự Codex.
+**OpenCode / Copilot** — add to `.gitignore` (already present) + platform instruction file with similar content to Codex.
 
 > [!IMPORTANT]
-> Phòng thủ nhiều lớp luôn tốt hơn: **Lớp 1** — Danh sách chặn nền tảng ngăn đọc file. **Lớp 2** — Skills từ chối đọc/hiển thị nội dung nhạy cảm. **Lớp 3** — `.gitignore` ngăn commit file bí mật.
+> Defense in depth is always better: **Layer 1** — Platform deny list prevents file reads. **Layer 2** — Skills refuse to read/display sensitive content. **Layer 3** — `.gitignore` prevents committing secret files.
 
-## Quy ước Commit
+## Commit Conventions
 
-Please Done tự động commit với tiền tố tiếng Việt (bỏ qua nếu dự án không có git):
-
-
-| Tiền tố       | Skill              | Khi nào                                                                |
-| ------------- | ------------------ | ---------------------------------------------------------------------- |
-| `[TASK-N]`    | write-code         | Hoàn thành 1 task                                                      |
-| `[KIỂM THỬ]`  | test               | Thêm file kiểm thử (`.spec.ts`, `test-*.php`, `test/*.ts`, `test/*.t.sol`, `test/**/*_test.dart`) |
-| `[LỖI]`       | fix-bug            | Mỗi lần sửa lỗi (có thể nhiều lần/lỗi)                                 |
-| `[TRACKING]`  | write-code         | Phase hoàn tất tất cả tasks (tracking commit riêng)                    |
-| `[PHIÊN BẢN]` | complete-milestone | Đóng milestone + tạo git tag                                           |
-| `[AUDIT]`     | thủ công           | Sửa lỗi phát hiện từ audit + patch bump + git tag                      |
+Please Done auto-commits with prefixes (skipped if the project has no git):
 
 
-## Biểu tượng trạng thái
+| Prefix        | Skill              | When                                                                    |
+| ------------- | ------------------ | ----------------------------------------------------------------------- |
+| `[TASK-N]`    | write-code         | Completed 1 task                                                        |
+| `[TEST]`      | test               | Added test files (`.spec.ts`, `test-*.php`, `test/*.ts`, `test/*.t.sol`, `test/**/*_test.dart`) |
+| `[BUG]`       | fix-bug            | Each bug fix (may be multiple per bug)                                  |
+| `[TRACKING]`  | write-code         | Phase completed all tasks (separate tracking commit)                    |
+| `[VERSION]`   | complete-milestone | Close milestone + create git tag                                        |
+| `[AUDIT]`     | manual             | Fix discovered from audit + patch bump + git tag                        |
 
 
-| Biểu tượng | Ý nghĩa        |
-| ---------- | -------------- |
-| ⬜          | Chưa bắt đầu   |
-| 🔄         | Đang thực hiện |
-| ✅          | Hoàn tất       |
-| ❌          | Bị chặn        |
-| 🐛         | Có lỗi         |
+## Status Icons
 
 
-## Tech Stack hỗ trợ
+| Icon | Meaning        |
+| ---- | -------------- |
+| ⬜    | Not started    |
+| 🔄   | In progress    |
+| ✅    | Completed      |
+| ❌    | Blocked        |
+| 🐛   | Has bug        |
 
 
-| Loại       | Framework                  | Cơ sở dữ liệu                     | Nhận diện bằng                                           |
+## Supported Tech Stacks
+
+
+| Type       | Framework                  | Database                          | Detected by                                              |
 | ---------- | -------------------------- | --------------------------------- | -------------------------------------------------------- |
 | Backend    | NestJS                     | MongoDB/Mongoose, TypeORM, Prisma | `nest-cli.json`, `app.module.ts`                         |
-| Backend    | Express                    | -                                 | `app.js`/`app.ts` + `express` trong package.json         |
+| Backend    | Express                    | -                                 | `app.js`/`app.ts` + `express` in package.json            |
 | Frontend   | NextJS App Router          | -                                 | `next.config.`*                                          |
-| Frontend   | Vite/React                 | -                                 | `vite.config.`*, nhiều tệp `.tsx/.jsx`                   |
+| Frontend   | Vite/React                 | -                                 | `vite.config.`*, many `.tsx/.jsx` files                  |
 | CMS        | WordPress                  | MySQL (wp-config.php)             | `wp-config.php`, `wp-content/`                           |
 | Blockchain | Solidity (Hardhat/Foundry) | On-chain (EVM)                    | `hardhat.config.*`, `foundry.toml`, `contracts/**/*.sol` |
 | Mobile     | Flutter (Dart + GetX)      | Local (Hive/SQLite)               | `pubspec.yaml` + `flutter`, `lib/main.dart`              |
 
 
-NestJS, NextJS, WordPress, Solidity, và Flutter có rules + phân tích chi tiết. Các stack khác được nhận diện nhưng chỉ liệt kê files, áp dụng `general.md`.
+NestJS, NextJS, WordPress, Solidity, and Flutter have rules + detailed analysis. Other stacks are detected but only list files, applying `general.md`.
 
-**Mở rộng stack mới**: Thêm tệp `commands/pd/rules/[stack].md` + mẫu nhận diện trong `workflows/init.md` Bước 4.
+**Extending with a new stack**: Add a `commands/pd/rules/[stack].md` file + detection patterns in `workflows/init.md` Step 4.
 
-## Bộ đánh giá (Promptfoo)
+## Evaluation Suite (Promptfoo)
 
-Bộ đánh giá chất lượng prompt theo [phương pháp Anthropic](https://claude.com/blog/improving-skill-creator-test-measure-and-refine-agent-skills). Tất cả skills thuộc loại **Encoded Preference** — đánh giá tập trung vào độ chính xác quy trình.
+Prompt quality evaluation suite following [Anthropic best practices](https://claude.com/blog/improving-skill-creator-test-measure-and-refine-agent-skills). All skills are classified as **Encoded Preference** — evaluation focuses on process compliance accuracy.
 
-### Chạy đánh giá
+### Running Evaluations
 
 ```bash
-# Thiết lập: tạo .env với ANTHROPIC_API_KEY
-# Cài promptfoo: npm install -g promptfoo
+# Setup: create .env with ANTHROPIC_API_KEY
+# Install promptfoo: npm install -g promptfoo
 
-npm run eval            # 58 bài kiểm tra tuân thủ quy trình
-npm run eval:trigger    # 19 bài kiểm tra độ chính xác kích hoạt
-npm run eval:full       # Cả 2 + lưu lịch sử benchmark
-npm run eval:compare    # So sánh benchmark qua thời gian
-npm run eval:view       # Xem kết quả trong trình duyệt
-npm run eval:filter -- "pd:init"  # Chạy riêng 1 skill
+npm run eval            # 58 workflow compliance tests
+npm run eval:trigger    # 19 trigger accuracy tests
+npm run eval:full       # Both + save benchmark history
+npm run eval:compare    # Compare benchmarks over time
+npm run eval:view       # View results in browser
+npm run eval:filter -- "pd:init"  # Run for a single skill
 ```
 
-### Kết quả hiện tại
+### Current Results
 
 
-| Bộ kiểm tra            | Số lượng |
+| Test suite              | Count    |
 | ---------------------- | -------- |
-| Tuân thủ quy trình     | 58       |
-| Độ chính xác kích hoạt | 19       |
+| Workflow compliance    | 58       |
+| Trigger accuracy       | 19       |
 
 
-## Tài liệu bổ sung
+## Additional Documentation
 
 
-| Tệp                                          | Nội dung                                                                 |
-| --------------------------------------------- | ------------------------------------------------------------------------ |
-| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)  | Hướng dẫn tích hợp: anchor patterns, cross-references giữa skills       |
-| [CHANGELOG.md](CHANGELOG.md)                  | Nhật ký thay đổi chi tiết theo từng phiên bản                           |
+| File                                          | Content                                                                 |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| [INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)  | Integration guide: anchor patterns, cross-references between skills     |
+| [CHANGELOG.md](CHANGELOG.md)                  | Detailed changelog per version                                          |
 
 
-## Giấy phép
+## License
 
-[MIT](LICENSE) - Xem file LICENSE để biết chi tiết.
+[MIT](LICENSE) - See the LICENSE file for details.
