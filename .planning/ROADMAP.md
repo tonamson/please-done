@@ -178,7 +178,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 - [x] Phase 65: Skills + Config Foundation (2 plans) (completed 2026-03-28)
 - [x] Phase 66: Workflow Translation (2 plans) (completed 2026-03-28)
 - [x] Phase 67: Agents + Rules + References (2 plans) (completed 2026-03-28)
-- [ ] Phase 68: Templates + Docs + Root Files (2 plans)
+- [x] Phase 68: Templates + Docs + Root Files (2 plans) (completed 2026-03-28)
 - [ ] Phase 69: JS Source Code + Tests (3 plans)
 - [ ] Phase 70: Final Verification + Cleanup (1 plan)
 
@@ -274,11 +274,11 @@ Plans:
 4. README.md fully in English
 5. 4 evals files translated (comments/strings/values only)
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 68-01-PLAN.md — Translate 12 template files + 14 docs files
-- [ ] 68-02-PLAN.md — Translate 11 root MD files + 4 evals files
+- [x] 68-02-PLAN.md — Translate 11 root MD files + 4 evals files
 
 **Plan 01 — Templates + Docs:**
 - Task 1: Translate 12 template files
@@ -292,27 +292,39 @@ Plans:
 
 #### Phase 69: JS Source Code + Tests
 
-**Goal:** Translate Vietnamese in JS source code and synchronize test assertions.
+**Goal:** Translate Vietnamese in JS source code (comments, JSDoc, string literals) and synchronize test assertions.
 
-**Requirements:** TRANS-10, TRANS-11, SYNC-02
+**Requirements:** TRANS-10, SYNC-02
+
+**Plans:** 3 plans
+
+Plans:
+- [ ] 69-01-PLAN.md — Translate 15 bin/lib/ core + remaining modules
+- [ ] 69-02-PLAN.md — Translate install.js + 5 installers + 9 non-diacritical lib files
+- [ ] 69-03-PLAN.md — Update 14 test files + run full test suite
 
 **Success criteria:**
-1. Zero Vietnamese in bin/ JS files (JSDoc, comments, string literals)
-2. Zero Vietnamese in evals/ files
-3. Test assertion strings match new English output
-4. Full test suite passes: `node --test` → 1103+ tests, 0 failures
+1. Zero Vietnamese in 33 bin/ JS source files (JSDoc, comments, string literals)
+2. Test assertion strings match new English output
+3. Full test suite passes: `node --test` → 1103+ tests, 0 failures
 
-**Plan 01 — JS source batch 1:**
+**Plan 01 — JS source batch 1 (Wave 1):**
 - Task 1: Translate bin/lib/ core modules (utils.js, report-filler.js, outcome-router.js, research-store.js, index-generator.js, audit-logger.js, bug-memory.js)
-- Task 2: Translate bin/lib/ remaining (regression-analyzer.js, manifest.js, evidence-protocol.js, confidence-scorer.js, installer-utils.js + converters/codex.js)
+- Task 2: Translate bin/lib/ remaining (regression-analyzer.js, manifest.js, evidence-protocol.js, confidence-scorer.js, installer-utils.js, converters/codex.js, plan-checker.js, platforms.js)
 
-**Plan 02 — JS source batch 2 + installers:**
-- Task 1: Translate bin/ top-level (install.js, plan-check.js, route-query.js, update-research-index.js, generate-pdf-report.js)
-- Task 2: Translate bin/lib/installers/ (claude.js, copilot.js, gemini.js) + evals/*.js
+**Plan 02 — JS source batch 2 + installers (Wave 1):**
+- Task 1: Translate bin/install.js + remaining diacritical (checkpoint-handler.js, logic-sync.js, debug-cleanup.js)
+- Task 2: Translate bin/lib/installers/ (claude.js, copilot.js, gemini.js, codex.js, opencode.js) + 9 non-diacritical lib files
 
-**Plan 03 — Test files:**
-- Task 1: Update test assertion strings to match new English JS output (~12 affected test files)
-- Task 2: Run full test suite `node --test` → verify 1103+ tests pass
+**Plan 03 — Test files (Wave 2, depends on 01+02):**
+- Task 1: Update test assertion strings + translate describe/it strings in all 14 test files
+- Task 2: Run full test suite `node --test` → fix remaining failures → verify 1103+ tests pass
+
+- Task 2: Translate bin/lib/installers/ (claude.js, copilot.js, gemini.js, codex.js, opencode.js) + 9 non-diacritical lib files
+
+**Plan 03 — Test files (Wave 2, depends on 01+02):**
+- Task 1: Update test assertion strings + translate describe/it strings in all 14 test files
+- Task 2: Run full test suite `node --test` → fix remaining failures → verify 1103+ tests pass
 
 ---
 
