@@ -387,7 +387,7 @@ describe("Repo integrity — canonical skill structure", () => {
 // "guard references" and "no duplication" are TDD RED — they will PASS after Plan 02 updates skills.
 
 describe("Repo integrity -- guard deduplication", () => {
-  it("guard micro-templates ton tai trong references/", () => {
+  it("guard micro-templates exist in references/", () => {
     const guardFiles = [
       "guard-context.md",
       "guard-fastcode.md",
@@ -399,25 +399,25 @@ describe("Repo integrity -- guard deduplication", () => {
       const guardPath = path.join(ROOT, "references", guardFile);
       assert.ok(
         fs.existsSync(guardPath),
-        `thieu file: references/${guardFile}`,
+        `missing file: references/${guardFile}`,
       );
 
       const content = fs.readFileSync(guardPath, "utf8").trim();
       assert.match(
         content,
         /^- \[ \]/,
-        `references/${guardFile}: khong bat dau bang "- [ ]"`,
+        `references/${guardFile}: does not start with "- [ ]"`,
       );
       // Verify non-diacritical Vietnamese
       assert.match(
         content,
-        /ton tai|ket noi|hop le/,
-        `references/${guardFile}: khong chua non-diacritical Vietnamese`,
+        /exists|connected|valid/,
+        `references/${guardFile}: does not contain expected English keywords`,
       );
     }
   });
 
-  it("guard micro-templates duoc tham chieu dung trong skills", () => {
+  it("guard micro-templates are properly referenced in skills", () => {
     const guardFiles = fs
       .readdirSync(path.join(ROOT, "references"))
       .filter((f) => f.startsWith("guard-"));
@@ -433,12 +433,12 @@ describe("Repo integrity -- guard deduplication", () => {
 
       assert.ok(
         refCount >= 2,
-        `${guardFile}: chi duoc tham chieu boi ${refCount} skill (can >= 2)`,
+        `${guardFile}: only referenced by ${refCount} skill(s) (need >= 2)`,
       );
     }
   });
 
-  it("khong con guard text trung lap giua cac skills", () => {
+  it("no duplicate guard text between skills", () => {
     // Read each guard template content
     const guardContents = fs
       .readdirSync(path.join(ROOT, "references"))
@@ -456,7 +456,7 @@ describe("Repo integrity -- guard deduplication", () => {
         if (guards.includes("@references/guard-")) {
           assert.ok(
             !guards.includes(guardContent),
-            `${skill.name}: van con guard text trung lap du da dung @references/`,
+            `${skill.name}: still contains duplicate guard text despite using @references/`,
           );
         }
       }
@@ -776,60 +776,60 @@ describe("Repo integrity -- context7 standardization", () => {
     "what-next",
   ];
 
-  it("context7-pipeline.md ton tai voi noi dung bat buoc", () => {
+  it("context7-pipeline.md exists with required content", () => {
     const pipelinePath = path.join(ROOT, "references", "context7-pipeline.md");
     assert.ok(
       fs.existsSync(pipelinePath),
-      "thieu references/context7-pipeline.md",
+      "missing references/context7-pipeline.md",
     );
     const content = fs.readFileSync(pipelinePath, "utf8");
     assert.match(
       content,
       /resolve-library-id/,
-      "pipeline thieu resolve-library-id",
+      "pipeline missing resolve-library-id",
     );
-    assert.match(content, /query-docs/, "pipeline thieu query-docs");
-    assert.match(content, /TU DONG/, "pipeline thieu TU DONG trigger rule");
-    assert.match(content, /[Ff]allback/, "pipeline thieu fallback section");
+    assert.match(content, /query-docs/, "pipeline missing query-docs");
+    assert.match(content, /AUTOMATIC/, "pipeline missing AUTOMATIC trigger rule");
+    assert.match(content, /[Ff]allback/, "pipeline missing fallback section");
     assert.match(
       content,
-      /resolve TAT CA/,
-      "pipeline thieu multi-lib batch pattern",
+      /resolve ALL/,
+      "pipeline missing multi-lib batch pattern",
     );
   });
 
-  it("pipeline KHONG co stack-specific rules (D-07)", () => {
+  it("pipeline does NOT have stack-specific rules (D-07)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
-    assert.ok(!content.includes("antd"), "pipeline con sot antd rule");
+    assert.ok(!content.includes("antd"), "pipeline still contains antd rule");
     assert.ok(
       !content.includes("Guard/JWT"),
-      "pipeline con sot Guard/JWT rule",
+      "pipeline still contains Guard/JWT rule",
     );
     assert.ok(
       !content.includes("BAT BUOC tra Context7 (nestjs)"),
-      "pipeline con sot nestjs-specific rule",
+      "pipeline still contains nestjs-specific rule",
     );
   });
 
-  it("pipeline KHONG con hard-stop 3 lua chon (thay the boi fallback)", () => {
+  it("pipeline does NOT have hard-stop 3 choices (replaced by fallback)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
     assert.ok(
       !content.includes("Tiep tuc khong docs"),
-      "pipeline con sot hard-stop option 1",
+      "pipeline still contains hard-stop option 1",
     );
     assert.ok(
       !content.includes("sua Context7 roi chay lai"),
-      "pipeline con sot hard-stop option 2",
+      "pipeline still contains hard-stop option 2",
     );
   });
 
-  it("5 skills co Context7 trong allowed-tools", () => {
+  it("5 skills have Context7 in allowed-tools", () => {
     for (const name of CONTEXT7_SKILLS) {
       const content = fs.readFileSync(
         path.join(COMMANDS_DIR, `${name}.md`),
@@ -839,16 +839,16 @@ describe("Repo integrity -- context7 standardization", () => {
       const tools = frontmatter["allowed-tools"] || [];
       assert.ok(
         tools.includes("mcp__context7__resolve-library-id"),
-        `${name}: thieu resolve-library-id trong allowed-tools`,
+        `${name}: missing resolve-library-id in allowed-tools`,
       );
       assert.ok(
         tools.includes("mcp__context7__query-docs"),
-        `${name}: thieu query-docs trong allowed-tools`,
+        `${name}: missing query-docs in allowed-tools`,
       );
     }
   });
 
-  it("7 skills KHONG co Context7 trong allowed-tools", () => {
+  it("7 skills do NOT have Context7 in allowed-tools", () => {
     for (const name of NON_CONTEXT7_SKILLS) {
       const content = fs.readFileSync(
         path.join(COMMANDS_DIR, `${name}.md`),
@@ -858,16 +858,16 @@ describe("Repo integrity -- context7 standardization", () => {
       const tools = frontmatter["allowed-tools"] || [];
       assert.ok(
         !tools.includes("mcp__context7__resolve-library-id"),
-        `${name}: KHONG nen co resolve-library-id`,
+        `${name}: should NOT have resolve-library-id`,
       );
       assert.ok(
         !tools.includes("mcp__context7__query-docs"),
-        `${name}: KHONG nen co query-docs`,
+        `${name}: should NOT have query-docs`,
       );
     }
   });
 
-  it("guard-context7.md co kiem tra hoat dong (D-09)", () => {
+  it("guard-context7.md has operation check (D-09)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "guard-context7.md"),
       "utf8",
@@ -875,19 +875,19 @@ describe("Repo integrity -- context7 standardization", () => {
     assert.match(
       content,
       /resolve-library-id/,
-      "guard thieu kiem tra resolve-library-id",
+      "guard missing resolve-library-id check",
     );
     const checklistLines = content
       .split("\n")
       .filter((l) => l.trim().startsWith("- [ ]"));
     assert.ok(
       checklistLines.length >= 2,
-      `guard can it nhat 2 dieu kien kiem tra, co ${checklistLines.length}`,
+      `guard needs at least 2 check conditions, has ${checklistLines.length}`,
     );
   });
 
   // TDD RED until Plan 02 refactors workflows
-  it("workflows co tham chieu context7-pipeline", () => {
+  it("workflows reference context7-pipeline", () => {
     const workflowsWithContext7 = ["write-code", "plan", "fix-bug", "test"];
     for (const name of workflowsWithContext7) {
       const content = fs.readFileSync(
@@ -897,29 +897,29 @@ describe("Repo integrity -- context7 standardization", () => {
       assert.match(
         content,
         /context7-pipeline/,
-        `workflows/${name}.md: thieu tham chieu context7-pipeline`,
+        `workflows/${name}.md: missing context7-pipeline reference`,
       );
     }
   });
 
   // TDD RED until Plan 02 refactors workflows
-  it("workflows KHONG con stack-specific Context7 rules (D-07)", () => {
+  it("workflows do NOT have stack-specific Context7 rules (D-07)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "workflows", "write-code.md"),
       "utf8",
     );
     assert.ok(
       !content.includes("Admin (antd): BAT BUOC"),
-      "write-code.md con sot antd rule",
+      "write-code.md still contains antd rule",
     );
     assert.ok(
       !content.includes("Guard/JWT/Role: BAT BUOC"),
-      "write-code.md con sot Guard/JWT rule",
+      "write-code.md still contains Guard/JWT rule",
     );
   });
 
   // TDD RED until Plan 02 refactors workflows
-  it("workflows KHONG con silent fallback (D-10)", () => {
+  it("workflows do NOT have silent fallback (D-10)", () => {
     const workflowsToCheck = ["write-code", "plan", "fix-bug"];
     for (const name of workflowsToCheck) {
       const content = fs.readFileSync(
@@ -929,7 +929,7 @@ describe("Repo integrity -- context7 standardization", () => {
       assert.ok(
         !content.includes("knowledge san") &&
           !content.includes("knowledge s\u1EB5n"),
-        `workflows/${name}.md: con sot silent fallback "knowledge san"`,
+        `workflows/${name}.md: still contains silent fallback "knowledge san"`,
       );
     }
   });
@@ -945,10 +945,10 @@ describe("Repo integrity -- library fallback and version detection", () => {
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
-    assert.match(content, /Buoc 0.*Version/i, "pipeline thieu Buoc 0 Version");
+    assert.match(content, /Step 0.*Version/i, "pipeline missing Step 0 Version");
   });
 
-  it("version detection tham chieu 3 manifest types (LIBR-03b)", () => {
+  it("version detection references 3 manifest types (LIBR-03b)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
@@ -956,40 +956,40 @@ describe("Repo integrity -- library fallback and version detection", () => {
     assert.match(
       content,
       /package\.json/,
-      "pipeline thieu package.json reference",
+      "pipeline missing package.json reference",
     );
     assert.match(
       content,
       /pubspec\.yaml/,
-      "pipeline thieu pubspec.yaml reference",
+      "pipeline missing pubspec.yaml reference",
     );
     assert.match(
       content,
       /composer\.json/,
-      "pipeline thieu composer.json reference",
+      "pipeline missing composer.json reference",
     );
   });
 
-  it("pipeline co fallback chain voi 3 nguon (LIBR-02a)", () => {
+  it("pipeline has fallback chain with 3 sources (LIBR-02a)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
-    assert.match(content, /[Ff]allback/, "pipeline thieu fallback section");
+    assert.match(content, /[Ff]allback/, "pipeline missing fallback section");
     assert.match(
       content,
       /[Pp]roject docs/i,
-      "pipeline thieu project docs fallback",
+      "pipeline missing project docs fallback",
     );
-    assert.match(content, /[Cc]odebase/, "pipeline thieu codebase fallback");
+    assert.match(content, /[Cc]odebase/, "pipeline missing codebase fallback");
     assert.match(
       content,
       /[Tt]raining data/i,
-      "pipeline thieu training data fallback",
+      "pipeline missing training data fallback",
     );
   });
 
-  it("fallback thu tu dung: project docs < codebase < training data (LIBR-02a)", () => {
+  it("fallback order correct: project docs < codebase < training data (LIBR-02a)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
@@ -997,49 +997,49 @@ describe("Repo integrity -- library fallback and version detection", () => {
     const projectDocsPos = content.search(/[Pp]roject docs/i);
     const codebasePos = content.search(/[Cc]odebase/);
     const trainingPos = content.search(/[Tt]raining data/i);
-    assert.ok(projectDocsPos < codebasePos, "project docs phai truoc codebase");
-    assert.ok(codebasePos < trainingPos, "codebase phai truoc training data");
+    assert.ok(projectDocsPos < codebasePos, "project docs must come before codebase");
+    assert.ok(codebasePos < trainingPos, "codebase must come before training data");
   });
 
-  it("fallback tu dong, KHONG hoi user (LIBR-02b/D-03)", () => {
+  it("fallback is automatic, does NOT ask user (LIBR-02b/D-03)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
-    assert.match(content, /[Tt]u dong|TU DONG/, "fallback phai ghi ro tu dong");
-    assert.match(content, /KHONG hoi/, "fallback phai ghi KHONG hoi user");
+    assert.match(content, /[Aa]utomatic/, "fallback must state automatic");
+    assert.match(content, /NOT ask/, "fallback must state NOT ask user");
   });
 
-  it("training data co warning (LIBR-02c/D-04)", () => {
-    const content = fs.readFileSync(
-      path.join(ROOT, "references", "context7-pipeline.md"),
-      "utf8",
-    );
-    assert.match(
-      content,
-      /knowledge s[aă]n/,
-      "pipeline thieu warning training data",
-    );
-    assert.match(
-      content,
-      /khong chinh xac/,
-      "pipeline thieu canh bao khong chinh xac",
-    );
-  });
-
-  it("pipeline co transparency message format (LIBR-02e/D-11)", () => {
+  it("training data has warning (LIBR-02c/D-04)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
     assert.match(
       content,
-      /nguon:/,
-      "pipeline thieu transparency message format",
+      /built-in knowledge/,
+      "pipeline missing training data warning",
+    );
+    assert.match(
+      content,
+      /not.*accurate/,
+      "pipeline missing inaccuracy warning",
     );
   });
 
-  it("version detection co monorepo heuristic (LIBR-03c/D-08)", () => {
+  it("pipeline has transparency message format (LIBR-02e/D-11)", () => {
+    const content = fs.readFileSync(
+      path.join(ROOT, "references", "context7-pipeline.md"),
+      "utf8",
+    );
+    assert.match(
+      content,
+      /source:/,
+      "pipeline missing transparency message format",
+    );
+  });
+
+  it("version detection has monorepo heuristic (LIBR-03c/D-08)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
@@ -1047,16 +1047,16 @@ describe("Repo integrity -- library fallback and version detection", () => {
     assert.match(
       content,
       /nest-cli\.json/,
-      "pipeline thieu NestJS monorepo heuristic",
+      "pipeline missing NestJS monorepo heuristic",
     );
     assert.match(
       content,
       /next\.config/,
-      "pipeline thieu NextJS monorepo heuristic",
+      "pipeline missing NextJS monorepo heuristic",
     );
   });
 
-  it("khong tim thay version thi dung latest (LIBR-03d/D-10)", () => {
+  it("version not found uses latest (LIBR-03d/D-10)", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
@@ -1064,7 +1064,7 @@ describe("Repo integrity -- library fallback and version detection", () => {
     assert.match(
       content,
       /latest/,
-      "pipeline thieu latest fallback khi khong co version",
+      "pipeline missing latest fallback when no version found",
     );
   });
 });
