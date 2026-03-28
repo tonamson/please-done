@@ -1,82 +1,82 @@
 <!-- Audit 2026-03-23: Intentional -- simple conventions workflow without numbered steps (data-driven, not procedural). See Phase 14 Audit I7. -->
-Phân tích dự án, phát hiện quy ước lập trình từ code, hỏi user ưu tiên riêng, tạo/cập nhật CLAUDE.md.
+Analyze project, detect coding conventions from code, ask user for specific preferences, create/update CLAUDE.md.
 
 <context>
-- @references/conventions.md → commit prefixes, biểu tượng, ngôn ngữ
+- @references/conventions.md → commit prefixes, icons, language
 </context>
 
 <process>
 
-## Bước 1: Kiểm tra CLAUDE.md hiện có
-`CLAUDE.md` ở root:
-- Đã có → "Đã có CLAUDE.md. (1) Bổ sung (giữ cũ) (2) Tạo lại"
-- Chưa có → tiếp tục
+## Step 1: Check for existing CLAUDE.md
+`CLAUDE.md` at root:
+- Exists → "CLAUDE.md already exists. (1) Supplement (keep existing) (2) Recreate"
+- Does not exist → continue
 
-## Bước 2: Phát hiện conventions từ code
-Grep/Read quét patterns:
+## Step 2: Detect conventions from code
+Grep/Read scan patterns:
 
-| Loại | Grep targets |
+| Type | Grep targets |
 |------|-------------|
-| Đặt tên | file naming (snake/kebab/camelCase/PascalCase), function/method, biến (prefix `is*`/`has*`/`_private`) |
+| Naming | file naming (snake/kebab/camelCase/PascalCase), function/method, variables (prefix `is*`/`has*`/`_private`) |
 | Import & module | aliases (`@/`, `~/`, `#/`), relative vs absolute, barrel exports (`index.ts`) |
 | Styling | `className`+Tailwind, `styled.`/`` css` ``, `.module.css`, `style={{`, `antd`/`ant-design` |
 | State management | `zustand`/`create<`, `redux`/`createSlice`, `GetxController`/`.obs`, `useState`/`useReducer` |
 | API | `axios`, `fetch(`, `Dio` |
 | Testing | `describe(`/`it(`, `WP_UnitTestCase`, `flutter_test` |
-| Error & logging | `console.log`/`Logger`/`winston`, `throw new`/`HttpException`, ngôn ngữ throw messages |
+| Error & logging | `console.log`/`Logger`/`winston`, `throw new`/`HttpException`, throw message language |
 | Formatting | `.prettierrc`/`.eslintrc`/`biome.json`, `tsconfig.json` (strict, paths, target) |
 
-## Bước 3: Tổng hợp phát hiện
-Liệt kê cho user:
+## Step 3: Compile findings
+List for user:
 ```
-Phát hiện từ code:
-- Đặt tên: kebab-case files, camelCase functions
-- Giao diện: Ant Design v6 + inline styles
-- Trạng thái: Zustand
+Detected from code:
+- Naming: kebab-case files, camelCase functions
+- UI: Ant Design v6 + inline styles
+- State: Zustand
 - ...
 ```
 
-## Bước 4: Hỏi user bổ sung
-Hỏi những thứ KHÔNG detect được:
-1. Ngôn ngữ giao tiếp: ghi chú/JSDoc tiếng Việt hay Anh?
-2. Phong cách commit: conventional? Tiếng Việt? Tiền tố?
-3. Quy ước đặc biệt khác? (prefix MongoDB, format phân trang, cấu trúc thư mục...)
-4. AI hay làm sai gì cần nhắc? (tạo file mới thay vì sửa, thêm thư viện không cần...)
+## Step 4: Ask user for additions
+Ask about things NOT detectable:
+1. Communication language: notes/JSDoc in Vietnamese or English?
+2. Commit style: conventional? Vietnamese? Prefixes?
+3. Special conventions? (MongoDB prefix, pagination format, directory structure...)
+4. Common AI mistakes to remind? (creating new files instead of editing, adding unnecessary libraries...)
 
-User có thể skip bất kỳ câu nào.
+User can skip any question.
 
-## Bước 5: Tạo CLAUDE.md
+## Step 5: Create CLAUDE.md
 ```markdown
-# Quy ước dự án
+# Project Conventions
 
-## Phong cách code
-## Đặt tên
-## Kiến trúc
-## Nên / Không nên
-## Build & Kiểm thử
+## Code Style
+## Naming
+## Architecture
+## Do / Don't
+## Build & Testing
 ```
 
-Quy tắc: CHỈ viết thứ AI không tự suy ra. KHÔNG lặp kiến thức framework. Mỗi bullet 1 dòng. **Dưới 50 dòng.** CLAUDE.md cũ + bổ sung → merge, loại trùng.
+Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework knowledge. Each bullet 1 line. **Under 50 lines.** Existing CLAUDE.md + additions → merge, remove duplicates.
 
-## Bước 6: Thông báo
+## Step 6: Notification
 ```
 ╔══════════════════════════════════════╗
-║     CLAUDE.md đã tạo!               ║
+║     CLAUDE.md created!               ║
 ╠══════════════════════════════════════╣
-║ File: CLAUDE.md ([N] dòng)          ║
-║ Claude Code tự đọc mỗi conversation ║
-║ Sửa: trực tiếp hoặc /pd:conventions ║
+║ File: CLAUDE.md ([N] lines)          ║
+║ Claude Code auto-reads each session  ║
+║ Edit: directly or /pd:conventions    ║
 ╚══════════════════════════════════════╝
 ```
 
 </process>
 
 <rules>
-- CLAUDE.md DƯỚI 50 dòng — ngắn gọn, chỉ conventions riêng
-- KHÔNG viết tutorial/giải thích framework
-- KHÔNG lặp nội dung `.planning/rules/`
-- PHẢI scan code thực tế trước khi hỏi user
-- Project chưa có code → hỏi nhiều hơn, detect ít hơn
-- CẤM đọc/hiển thị file nhạy cảm
-- File tương thích Claude Code auto-load (CLAUDE.md ở root)
+- CLAUDE.md UNDER 50 lines — concise, only project-specific conventions
+- DO NOT write tutorial/framework explanations
+- DO NOT repeat `.planning/rules/` content
+- MUST scan actual code before asking user
+- New project with no code → ask more, detect less
+- DO NOT read/display sensitive files
+- File compatible with Claude Code auto-load (CLAUDE.md at root)
 </rules>

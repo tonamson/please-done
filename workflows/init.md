@@ -1,43 +1,43 @@
 <purpose>
-Skill đầu tiên — kiểm tra FastCode MCP (BẮT BUỘC), index dự án, phát hiện tech stack, tạo CONTEXT.md + copy rules.
+First skill — check FastCode MCP (REQUIRED), index project, detect tech stack, create CONTEXT.md + copy rules.
 
-Ghi chú: `~/.claude/` dùng cho Claude Code. Trình cài đặt chuyển đổi đường dẫn phù hợp nền tảng khác.
+Note: `~/.claude/` is for Claude Code. The installer converts to platform-appropriate paths.
 </purpose>
 
 <process>
 
-## Bước 1: Xác định đường dẫn dự án
-- `$ARGUMENTS` có path → dùng đó | Không → thư mục hiện tại
-- Ghi nhận absolute path
+## Step 1: Determine project path
+- `$ARGUMENTS` has path → use it | No → current directory
+- Record absolute path
 
-## Bước 2: Kiểm tra FastCode MCP (BẮT BUỘC)
+## Step 2: Check FastCode MCP (REQUIRED)
 `mcp__fastcode__list_indexed_repos`:
-- **THÀNH CÔNG** → "FastCode MCP: Hoạt động", tiếp tục
-- **THẤT BẠI** → Canh bao: "FastCode MCP khong hoat dong. Code search se dung Grep/Read (cham hon)."
-  Tiep tuc khong co FastCode -- chuc nang co ban van hoat dong (Grep/Read fallback).
-  Hien thi: "Tiep tuc khong co FastCode? (Khuyen nghi: Co)"
+- **SUCCESS** → "FastCode MCP: Active", continue
+- **FAILURE** → Warning: "FastCode MCP not active. Code search will use Grep/Read (slower)."
+  Continue without FastCode -- basic functionality still works (Grep/Read fallback).
+  Display: "Continue without FastCode? (Recommended: Yes)"
 
-## Bước 2.5: Kiểm tra CONTEXT.md hiện có
-`.planning/CONTEXT.md` đã tồn tại → hỏi: "1. Giữ nguyên 2. Khởi tạo lại"
-- Giữ → kiểm tra `.planning/rules/general.md`:
-  - THIẾU → cảnh báo: "Rules bị thiếu. Nên khởi tạo lại." Hỏi lại.
-  - CÓ → "Giữ nguyên. Sẵn sàng." + gợi ý `/pd:scan`/`/pd:what-next`. KHÔNG chạy tiếp.
-- Khởi tạo lại → tiếp Bước 3
+## Step 2.5: Check for existing CONTEXT.md
+`.planning/CONTEXT.md` already exists → ask: "1. Keep existing 2. Reinitialize"
+- Keep → check `.planning/rules/general.md`:
+  - MISSING → warn: "Rules missing. Should reinitialize." Ask again.
+  - EXISTS → "Keeping existing. Ready." + suggest `/pd:scan`/`/pd:what-next`. DO NOT continue.
+- Reinitialize → continue to Step 3
 
-## Bước 3: Kiểm tra project có code chưa
-Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — KHÔNG gồm `.json`):
-- **CÓ** → `isNewProject = false`, tiếp Bước 3a
-- **KHÔNG** → `isNewProject = true`, nhảy Bước 4
+## Step 3: Check if project has code
+Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (exclude node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — NOT including `.json`):
+- **HAS code** → `isNewProject = false`, continue to Step 3a
+- **NO code** → `isNewProject = true`, jump to Step 4
 
-### Bước 3a: Index dự án FastCode (CHỈ khi isNewProject = false)
-`mcp__fastcode__code_qa` (repos: absolute path): "Liệt kê modules, tech stack, database type."
-Pre-warm index — response bỏ qua. Lỗi → warning, tiếp Bước 3b.
+### Step 3a: Index project with FastCode (ONLY when isNewProject = false)
+`mcp__fastcode__code_qa` (repos: absolute path): "List modules, tech stack, database type."
+Pre-warm index — response discarded. Error → warning, continue to Step 3b.
 
-### Bước 3b: Map codebase (CHỈ khi isNewProject = false)
+### Step 3b: Map codebase (ONLY when isNewProject = false)
 
-Kiểm tra `.planning/codebase/STRUCTURE.md` tồn tại:
-- **CÓ** → "Codebase đã được map. Bỏ qua." Nhảy Bước 4.
-- **KHÔNG** → Tạo thư mục và spawn mapper:
+Check `.planning/codebase/STRUCTURE.md` exists:
+- **EXISTS** → "Codebase already mapped. Skipping." Jump to Step 4.
+- **NOT EXISTS** → Create directory and spawn mapper:
 
 ```bash
 mkdir -p .planning/codebase
@@ -46,124 +46,124 @@ mkdir -p .planning/codebase
 Spawn pd-codebase-mapper agent:
 ```
 Task(prompt="
-Map codebase của dự án tại đường dẫn hiện tại.
-Tạo các file output vào .planning/codebase/:
-- STRUCTURE.md — cấu trúc thư mục
+Map codebase of the project at current path.
+Create output files in .planning/codebase/:
+- STRUCTURE.md — directory structure
 - TECH_STACK.md — tech stack
 - ENTRY_POINTS.md — entry points
 - DEPENDENCIES.md — dependency graph
 ", subagent_type="pd-codebase-mapper", model="haiku", description="Map codebase structure")
 ```
 
-- **THÀNH CÔNG** → "Codebase mapped: .planning/codebase/"
-- **THẤT BẠI** → Warning: "Mapper thất bại. Tiếp tục không có codebase map." Tiếp tục Bước 4 — KHÔNG block init.
+- **SUCCESS** → "Codebase mapped: .planning/codebase/"
+- **FAILURE** → Warning: "Mapper failed. Continuing without codebase map." Continue to Step 4 — DO NOT block init.
 
-## Bước 4: Phát hiện tech stack
+## Step 4: Detect tech stack
 
 ### isNewProject = false:
-Dùng Glob/Grep/Read quét nhanh:
+Use Glob/Grep/Read for quick scan:
 
 | Detection | Condition | Flag |
 |-----------|-----------|------|
 | NestJS | `**/nest-cli.json` → fallback `**/app.module.ts` → fallback `**/main.ts` + grep `NestFactory` | hasNestJS |
-| Backend generic | `**/app.js`/`**/app.ts` + `express` trong package.json | hasBackend (chỉ general.md) |
+| Backend generic | `**/app.js`/`**/app.ts` + `express` in package.json | hasBackend (general.md only) |
 | NextJS | `**/next.config.*` | hasNextJS |
-| Frontend generic | `**/vite.config.*` hoặc >5 `.tsx/.jsx` | hasFrontend (chỉ general.md) |
+| Frontend generic | `**/vite.config.*` or >5 `.tsx/.jsx` | hasFrontend (general.md only) |
 | DB type | `**/*.module.ts` → grep `MongooseModule\|TypeOrmModule\|PrismaService` | — |
-| WordPress | `**/wp-config.php` → fallback `**/wp-content/plugins/*/` hoặc `themes/*/style.css` | hasWordPress |
+| WordPress | `**/wp-config.php` → fallback `**/wp-content/plugins/*/` or `themes/*/style.css` | hasWordPress |
 | Solidity | `**/hardhat.config.*` → fallback `**/foundry.toml` → fallback `**/contracts/**/*.sol` | hasSolidity |
 | Flutter | `**/pubspec.yaml` + grep `flutter` → fallback `**/lib/main.dart` | hasFlutter |
 
-- WordPress/Solidity/Flutter: giữ nguyên các flags khác (có thể kết hợp)
-- Stack không có rules file → "Phát hiện [stack] nhưng chưa có rules template. Chỉ general.md."
+- WordPress/Solidity/Flutter: keep other flags (can combine)
+- Stack with no rules file → "Detected [stack] but no rules template exists. general.md only."
 
-Đọc nhanh: `package.json`, `.planning/CURRENT_MILESTONE.md`, `.planning/ROADMAP.md` (nếu có)
+Quick read: `package.json`, `.planning/CURRENT_MILESTONE.md`, `.planning/ROADMAP.md` (if exists)
 
 ### isNewProject = true:
-Hỏi: "Dự án mới chưa có code. Bạn muốn xây dựng gì?" → ghi nhận. Tất cả flags = false.
+Ask: "New project with no code. What do you want to build?" → record. All flags = false.
 
-## Bước 4.5: Thảo luận Chính sách Ngôn ngữ & Báo lỗi [MỚI]
-Agent sử dụng `AskUserQuestion` để chốt chiến lược ngôn ngữ cho 3 tầng:
-1. **Giao diện (UI):** Thông báo lỗi/thành công cho người dùng cuối.
-2. **Nhật ký (Logs):** Ghi chú cho lập trình viên debug.
-3. **Nội bộ (Exceptions):** Mã lỗi và tin nhắn trong code.
+## Step 4.5: Discuss Language & Error Reporting Policy [NEW]
+Agent uses `AskUserQuestion` to finalize language strategy for 3 layers:
+1. **UI:** Error/success messages for end users.
+2. **Logs:** Developer debug notes.
+3. **Internal (Exceptions):** Error codes and messages in code.
 
-**Gợi ý các lựa chọn phổ biến:**
-- **Standard (Khuyên dùng):** UI (Tiếng Việt), Logs/Exceptions (Tiếng Anh).
-- **International:** Toàn bộ bằng Tiếng Anh.
-- **Local:** Toàn bộ bằng Tiếng Việt.
+**Suggest common choices:**
+- **Standard (Recommended):** UI (Vietnamese), Logs/Exceptions (English).
+- **International:** All in English.
+- **Local:** All in Vietnamese.
 
-Kết quả thảo luận sẽ được ghi vào `PROJECT.md` ngay sau khi file này được tạo ở các bước sau.
+Discussion results will be written to `PROJECT.md` immediately after the file is created in later steps.
 
-## Bước 5: Tạo .planning/ structure
+## Step 5: Create .planning/ structure
 ```bash
 mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules .planning/docs/solidity
 ```
 
-## Bước 6: Copy rules vào .planning/rules/
-Đọc `.pdconfig` → `SKILLS_DIR`. (Claude Code: `cat ~/.claude/commands/pd/.pdconfig`)
-Không tồn tại → **DỪNG**: "Không tìm thấy .pdconfig. Chạy lại `node bin/install.js`."
+## Step 6: Copy rules to .planning/rules/
+Read `.pdconfig` → `SKILLS_DIR`. (Claude Code: `cat ~/.claude/commands/pd/.pdconfig`)
+Not found → **STOP**: "Cannot find .pdconfig. Run `node bin/install.js` again."
 
-Xóa CHỈ files template: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Giữ files custom.
+Delete ONLY template files: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Keep custom files.
 
-Copy từ `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:
-- **Luôn**: `general.md`
+Copy from `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:
+- **Always**: `general.md`
 - hasNestJS → `nestjs.md`
 - hasNextJS → `nextjs.md`
 - hasWordPress → `wordpress.md`
 - hasSolidity → `solidity.md` + copy `solidity-refs/` → `.planning/docs/solidity/`
 - hasFlutter → `flutter.md`
-- Project mới/stack khác → CHỈ `general.md`
+- New project/other stack → ONLY `general.md`
 
-## Bước 7: Tạo CONTEXT.md (DƯỚI 50 dòng)
+## Step 7: Create CONTEXT.md (UNDER 50 lines)
 ```markdown
-# Context dự án
-> Khởi tạo: [DD_MM_YYYY HH:MM]
-> Cập nhật: —
-> Đường dẫn Backend: [path hoặc —]
-> Đường dẫn Frontend: [path hoặc —]
-> FastCode MCP: Hoạt động
-> Dự án mới: [Có/Không]
+# Project Context
+> Initialized: [DD_MM_YYYY HH:MM]
+> Updated: —
+> Backend path: [path or —]
+> Frontend path: [path or —]
+> FastCode MCP: Active
+> New project: [Yes/No]
 
 ## Tech Stack
-(CHỈ stack CÓ — project mới ghi mô tả user)
-- [stack]: [framework] | Thư mục: [dir]
-- Database: [type] (nếu có)
+(ONLY detected stacks — new project records user description)
+- [stack]: [framework] | Directory: [dir]
+- Database: [type] (if any)
 
-## Thư viện chính
-| Tên | Phiên bản |
-(dependencies chính, bỏ devDeps, tối đa 20 dòng — bỏ section nếu project mới)
+## Main Libraries
+| Name | Version |
+(main dependencies, exclude devDeps, max 20 lines — omit section if new project)
 
 ## Rules
-`.planning/rules/`: (CHỈ files đã copy)
+`.planning/rules/`: (ONLY copied files)
 
-## Milestone hiện tại
-(nếu có từ session trước)
+## Current Milestone
+(if exists from previous session)
 ```
 
-## Bước 8: Thông báo kết quả
+## Step 8: Notification
 ```
 ╔══════════════════════════════════════╗
-║     Khởi tạo hoàn tất!              ║
+║     Initialization complete!         ║
 ╠══════════════════════════════════════╣
-║ Dự án: [tên]                        ║
-║ Tech:  [stacks]                     ║
-║ MCP:   ✅ Hoạt động                 ║
-║ Context: .planning/CONTEXT.md       ║
-║ Rules: .planning/rules/             ║
-║ Docs:  .planning/docs/ (nếu có)     ║
+║ Project: [name]                      ║
+║ Tech:  [stacks]                      ║
+║ MCP:   ✅ Active                     ║
+║ Context: .planning/CONTEXT.md        ║
+║ Rules: .planning/rules/              ║
+║ Docs:  .planning/docs/ (if any)      ║
 ╠══════════════════════════════════════╣
-║ Tiếp: /pd:scan hoặc /pd:new-milestone║
+║ Next: /pd:scan or /pd:new-milestone  ║
 ╚══════════════════════════════════════╝
 ```
 </process>
 
 <rules>
-- CONTEXT.md DƯỚI 50 dòng — chỉ info dự án
-- Coding rules riêng `.planning/rules/*.md` — copy từ `[SKILLS_DIR]/commands/pd/rules/` (path từ `.pdconfig`)
-- Chỉ copy rules phù hợp tech stack (hasNestJS/hasNextJS/hasWordPress/hasSolidity/hasFlutter)
-- Project mới: skip FastCode indexing, hỏi mô tả, chỉ copy general.md
-- FastCode MCP PHẢI kết nối thành công → DỪNG nếu thất bại
-- CẤM đọc/hiển thị `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`
-- CONTEXT.md đã có → hỏi giữ/khởi tạo lại
+- CONTEXT.md UNDER 50 lines — project info only
+- Coding rules in separate `.planning/rules/*.md` — copy from `[SKILLS_DIR]/commands/pd/rules/` (path from `.pdconfig`)
+- Only copy rules matching tech stack (hasNestJS/hasNextJS/hasWordPress/hasSolidity/hasFlutter)
+- New project: skip FastCode indexing, ask for description, copy only general.md
+- FastCode MCP MUST connect successfully → STOP if fails
+- DO NOT read/display `.env`, `.env.*` (except `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`
+- Existing CONTEXT.md → ask keep/reinitialize
 </rules>
