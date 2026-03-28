@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 
 /**
- * Skills Installer — Cross-platform installer cho bộ /pd:* skills.
+ * Skills Installer — Cross-platform installer for /pd:* skills.
  *
- * Hỗ trợ: Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot.
- * Kiến trúc: Write Once (Claude Code) → Transpile at Install → Native per Platform.
+ * Supports: Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot.
+ * Architecture: Write Once (Claude Code) → Transpile at Install → Native per Platform.
  *
  * Usage:
- *   npx please-done                    # Interactive — chọn platform
- *   npx please-done --claude           # Cài cho Claude Code
- *   npx please-done --codex            # Cài cho Codex CLI
- *   npx please-done --gemini           # Cài cho Gemini CLI
- *   npx please-done --opencode         # Cài cho OpenCode
- *   npx please-done --copilot          # Cài cho GitHub Copilot
- *   npx please-done --all              # Cài tất cả platforms
- *   npx please-done --uninstall --codex  # Gỡ khỏi Codex
+ *   npx please-done                    # Interactive — choose platform
+ *   npx please-done --claude           # Install for Claude Code
+ *   npx please-done --codex            # Install for Codex CLI
+ *   npx please-done --gemini           # Install for Gemini CLI
+ *   npx please-done --opencode         # Install for OpenCode
+ *   npx please-done --copilot          # Install for GitHub Copilot
+ *   npx please-done --all              # Install all platforms
+ *   npx please-done --uninstall --codex  # Uninstall from Codex
  *   npx please-done --global           # Global install (default)
  *   npx please-done --local            # Local install (project-level)
  */
@@ -90,40 +90,40 @@ async function promptRuntime() {
   const runtimes = getAllRuntimes();
 
   console.log('');
-  console.log('Chọn platform để cài đặt skills:');
+  console.log('Choose a platform to install skills:');
   console.log('');
   runtimes.forEach((rt, i) => {
     console.log(`  ${i + 1}. ${PLATFORMS[rt].name}`);
   });
-  console.log(`  ${runtimes.length + 1}. Tất cả`);
+  console.log(`  ${runtimes.length + 1}. All`);
   console.log('');
 
-  const answer = await ask(rl, `Chọn (1-${runtimes.length + 1}): `);
+  const answer = await ask(rl, `Choose (1-${runtimes.length + 1}): `);
   rl.close();
 
   const num = parseInt(answer, 10);
   if (num === runtimes.length + 1) return runtimes;
   if (num >= 1 && num <= runtimes.length) return [runtimes[num - 1]];
 
-  log.error('Lựa chọn không hợp lệ.');
+  log.error('Invalid selection.');
   process.exit(1);
 }
 
 async function promptLocation() {
   const rl = createRL();
   console.log('');
-  console.log('Phạm vi cài đặt:');
-  console.log('  1. Global (cho mọi project)');
-  console.log('  2. Local (chỉ project hiện tại)');
+  console.log('Installation scope:');
+  console.log('  1. Global (for all projects)');
+  console.log('  2. Local (current project only)');
   console.log('');
 
-  const answer = await ask(rl, 'Chọn (1-2, default: 1): ');
+  const answer = await ask(rl, 'Choose (1-2, default: 1): ');
   rl.close();
 
   return answer === '2' ? false : true;
 }
 
-// ─── Installed dirs per platform (cho manifest tracking) ──
+// ─── Installed dirs per platform (for manifest tracking) ──
 function getInstalledDirs(runtime) {
   switch (runtime) {
     case 'claude': return ['commands/pd'];
@@ -138,7 +138,7 @@ function getInstalledDirs(runtime) {
 // ─── Install dispatcher ───────────────────────────────────
 
 /**
- * Cài đặt skills cho 1 runtime cụ thể.
+ * Install skills for a specific runtime.
  */
 async function install(runtime, isGlobal, configDir) {
   const platform = PLATFORMS[runtime];
@@ -149,10 +149,10 @@ async function install(runtime, isGlobal, configDir) {
   console.log('');
   log.info(`Installing for ${platform.name} → ${targetDir}`);
 
-  // Backup user-modified files trước khi overwrite
+  // Backup user-modified files before overwrite
   const patchCount = saveLocalPatches(targetDir);
   if (patchCount > 0) {
-    log.warn(`Đã backup ${patchCount} file(s) có thay đổi local.`);
+    log.warn(`Backed up ${patchCount} locally modified file(s).`);
   }
 
   // Load platform-specific installer
@@ -161,33 +161,33 @@ async function install(runtime, isGlobal, configDir) {
     await installer.install(SCRIPT_DIR, targetDir, { isGlobal, version: VERSION });
   } catch (err) {
     if (err.code === 'MODULE_NOT_FOUND') {
-      log.warn(`Installer cho ${platform.name} chưa được triển khai.`);
+      log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
     throw err;
   }
 
-  // Write manifest cho lần re-install sau
+  // Write manifest for future re-installs
   const installedDirs = getInstalledDirs(runtime);
   writeManifest(targetDir, VERSION, installedDirs);
 
-  // Scan leaked paths cho non-Claude platforms
+  // Scan leaked paths for non-Claude platforms
   if (runtime !== 'claude') {
     const leaked = scanLeakedPaths(targetDir, '~/.claude/');
     if (leaked.length > 0) {
-      log.warn(`${leaked.length} file(s) còn chứa ~/.claude/ chưa replace:`);
+      log.warn(`${leaked.length} file(s) still contain ~/.claude/ not yet replaced:`);
       for (const f of leaked) log.info(`    ${f}`);
     }
   }
 
-  // Report patches nếu có
+  // Report patches if any
   reportLocalPatches(targetDir);
 
-  log.success(`${platform.name} — hoàn tất!`);
+  log.success(`${platform.name} — done!`);
 }
 
 /**
- * Gỡ skills khỏi 1 runtime.
+ * Uninstall skills from a runtime.
  */
 async function uninstall(runtime, isGlobal, configDir) {
   const platform = PLATFORMS[runtime];
@@ -203,49 +203,49 @@ async function uninstall(runtime, isGlobal, configDir) {
     if (typeof installer.uninstall === 'function') {
       await installer.uninstall(targetDir, { isGlobal });
     } else {
-      log.warn(`Uninstaller cho ${platform.name} chưa được triển khai.`);
+      log.warn(`Uninstaller for ${platform.name} is not yet implemented.`);
       return;
     }
   } catch (err) {
     if (err.code === 'MODULE_NOT_FOUND') {
-      log.warn(`Installer cho ${platform.name} chưa được triển khai.`);
+      log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
     throw err;
   }
 
-  log.success(`${platform.name} — đã gỡ!`);
+  log.success(`${platform.name} — uninstalled!`);
 }
 
 // ─── Help ─────────────────────────────────────────────────
 function showHelp() {
   console.log(`
 Skills Installer v${VERSION}
-Cross-platform installer cho bộ /pd:* skills.
+Cross-platform installer for /pd:* skills.
 
 Usage:
   npx please-done [options]
 
 Platforms:
-  --claude          Cài cho Claude Code
-  --codex           Cài cho Codex CLI
-  --gemini          Cài cho Gemini CLI
-  --opencode        Cài cho OpenCode
-  --copilot         Cài cho GitHub Copilot
-  --all             Cài tất cả platforms
+  --claude          Install for Claude Code
+  --codex           Install for Codex CLI
+  --gemini          Install for Gemini CLI
+  --opencode        Install for OpenCode
+  --copilot         Install for GitHub Copilot
+  --all             Install all platforms
 
 Options:
   -g, --global      Global install (default)
   -l, --local       Local install (project-level)
-  -u, --uninstall   Gỡ cài đặt
+  -u, --uninstall   Uninstall
   -c, --config-dir  Custom config directory
-  -h, --help        Hiện help
+  -h, --help        Show help
 
 Examples:
   npx please-done                     Interactive mode
-  npx please-done --claude            Cài cho Claude Code
-  npx please-done --all --global      Cài tất cả (global)
-  npx please-done -u --codex          Gỡ khỏi Codex
+  npx please-done --claude            Install for Claude Code
+  npx please-done --all --global      Install all (global)
+  npx please-done -u --codex          Uninstall from Codex
 `);
 }
 
@@ -261,7 +261,7 @@ async function main() {
 
   // WSL check
   if (isWSL()) {
-    log.warn('Phát hiện WSL. Nên chạy installer từ Linux native, không qua Windows.');
+    log.warn('WSL detected. Consider running the installer from native Linux, not through Windows.');
   }
 
   // Banner
@@ -285,7 +285,7 @@ async function main() {
     }
   }
 
-  // Execute (deduplicate nếu user dùng --all + --claude cùng lúc)
+  // Execute (deduplicate if user uses --all + --claude simultaneously)
   runtimes = [...new Set(runtimes)];
   for (const runtime of runtimes) {
     if (flags.uninstall) {
@@ -301,12 +301,12 @@ async function main() {
     const platformNames = runtimes.map(r => PLATFORMS[r].name).join(', ');
     const platformLine = `  Platforms: ${platformNames}`;
     const bannerLines = [
-      '  Cài đặt hoàn tất!',
+      '  Installation complete!',
       platformLine,
       '',
-      '  Khởi động lại editor để load skills.',
+      '  Restart your editor to load skills.',
     ];
-    // Nếu platform names dài → tách thành nhiều dòng vừa banner width
+    // If platform names are long → split into multiple lines to fit banner width
     if (platformLine.length > 39) {
       const names = runtimes.map(r => PLATFORMS[r].name);
       const prefix = '  Platforms: ';

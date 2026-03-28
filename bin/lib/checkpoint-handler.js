@@ -1,15 +1,15 @@
 /**
- * Checkpoint Handler Module — CHECKPOINT flow va Continuation Agent (PROT-04, PROT-06).
+ * Checkpoint Handler Module — CHECKPOINT flow and Continuation Agent (PROT-04, PROT-06).
  *
- * Khi agent ghi CHECKPOINT REACHED, orchestrator can trich xuat cau hoi cho user
- * va tao context cho agent tiep theo (Continuation Agent).
- * Module nay enforce gioi han 2 vong continuation.
+ * When an agent writes CHECKPOINT REACHED, the orchestrator can extract the question for
+ * the user and create context for the next agent (Continuation Agent).
+ * This module enforces a 2-round continuation limit.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
+ * Pure functions: NO file reads, NO require('fs'), NO side effects.
  *
- * - extractCheckpointQuestion: trich xuat cau hoi tu evidence checkpoint
- * - buildContinuationContext: tao prompt cho continuation agent
- * - MAX_CONTINUATION_ROUNDS: gioi han vong continuation (2)
+ * - extractCheckpointQuestion: extract question from checkpoint evidence
+ * - buildContinuationContext: create prompt for continuation agent
+ * - MAX_CONTINUATION_ROUNDS: continuation round limit (2)
  */
 
 'use strict';
@@ -18,15 +18,15 @@ const { parseEvidence } = require('./evidence-protocol');
 
 // ─── Constants ────────────────────────────────────────────
 
-/** Gioi han so vong continuation agent (per D-09). */
+/** Continuation round limit (per D-09). */
 const MAX_CONTINUATION_ROUNDS = 2;
 
-// ─── extractCheckpointQuestion ───────────────────────────
+// ─── extractCheckpointQuestion ───────────────────────
 
 /**
- * Trich xuat cau hoi cho user tu evidence checkpoint (per D-05).
+ * Extract the user-facing question from checkpoint evidence (per D-05).
  *
- * @param {string} evidenceContent - Noi dung evidence file (frontmatter + body)
+ * @param {string} evidenceContent - Evidence file content (frontmatter + body)
  * @returns {{ question: string, context: string, agentName: string|null, warnings: string[] }}
  */
 function extractCheckpointQuestion(evidenceContent) {
@@ -34,7 +34,7 @@ function extractCheckpointQuestion(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
   if (parsed.outcome !== 'checkpoint') {
-    warnings.push(`outcome khong phai checkpoint: ${parsed.outcome}`);
+    warnings.push(`outcome is not checkpoint: ${parsed.outcome}`);
     return { question: '', context: '', agentName: null, warnings };
   }
 
@@ -43,7 +43,7 @@ function extractCheckpointQuestion(evidenceContent) {
   const agentName = parsed.agent;
 
   if (!question) {
-    warnings.push('Evidence thieu section "Câu hỏi cho User"');
+    warnings.push('Evidence missing section "Câu hỏi cho User"');
   }
 
   return { question, context, agentName, warnings };
@@ -52,14 +52,14 @@ function extractCheckpointQuestion(evidenceContent) {
 // ─── buildContinuationContext ────────────────────────────
 
 /**
- * Tao prompt va metadata cho continuation agent (per D-10).
+ * Create prompt and metadata for the continuation agent (per D-10).
  *
  * @param {object} params
- * @param {string} params.evidencePath - Duong dan file evidence truoc
- * @param {string} params.userAnswer - Cau tra loi cua user
- * @param {string} params.sessionDir - Thu muc session
- * @param {number} params.currentRound - Vong hien tai (1-based)
- * @param {string} params.agentName - Ten agent
+ * @param {string} params.evidencePath - Path to previous evidence file
+ * @param {string} params.userAnswer - User's answer
+ * @param {string} params.sessionDir - Session directory
+ * @param {number} params.currentRound - Current round (1-based)
+ * @param {string} params.agentName - Agent name
  * @returns {{ prompt: string, agentName: string, round: number, canContinue: boolean, warnings: string[] }}
  */
 function buildContinuationContext({ evidencePath, userAnswer, sessionDir, currentRound, agentName }) {
@@ -67,14 +67,14 @@ function buildContinuationContext({ evidencePath, userAnswer, sessionDir, curren
   const canContinue = currentRound <= MAX_CONTINUATION_ROUNDS;
 
   if (!canContinue) {
-    warnings.push(`Da vuot qua ${MAX_CONTINUATION_ROUNDS} vong continuation — can nguoi xem xet`);
+    warnings.push(`Exceeded ${MAX_CONTINUATION_ROUNDS} continuation rounds — manual review needed`);
   }
 
   const prompt = [
-    `CONTINUATION — Vong ${currentRound}/${MAX_CONTINUATION_ROUNDS}`,
+    `CONTINUATION — Round ${currentRound}/${MAX_CONTINUATION_ROUNDS}`,
     `Session dir: ${sessionDir}`,
-    `Evidence truoc: ${evidencePath}`,
-    `Cau tra loi user: ${userAnswer}`,
+    `Previous evidence: ${evidencePath}`,
+    `User answer: ${userAnswer}`,
   ].join('\n');
 
   return { prompt, agentName, round: currentRound, canContinue, warnings };

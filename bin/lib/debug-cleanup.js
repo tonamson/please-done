@@ -1,12 +1,12 @@
 /**
  * Debug Cleanup Module — scanDebugMarkers + matchSecurityWarnings
  *
- * Pure functions: nhan input, tra output.
- * KHONG doc file, KHONG co side effects.
+ * Pure functions: receive input, return output.
+ * NO file reads, NO side effects.
  * Zero dependencies — self-contained.
  *
- * - scanDebugMarkers: tim dong co marker [PD-DEBUG] trong staged files
- * - matchSecurityWarnings: lien ket canh bao bao mat tu SCAN_REPORT.md cho file bi loi
+ * - scanDebugMarkers: find lines with [PD-DEBUG] marker in staged files
+ * - matchSecurityWarnings: match security warnings from SCAN_REPORT.md for failing files
  */
 
 'use strict';
@@ -20,16 +20,16 @@ const SECTION_RE = /## C[aả]nh b[aá]o b[aả]o m[aậ]t\s*\n([\s\S]*?)(?=\n##
 // ─── scanDebugMarkers ─────────────────────────────────────
 
 /**
- * Scan staged files tim dong co marker [PD-DEBUG].
- * Chi scan va bao cao — KHONG xoa.
+ * Scan staged files for lines containing the [PD-DEBUG] marker.
+ * Only scans and reports — does NOT remove.
  *
- * @param {Array<{path: string, content: string}>} stagedFiles - Danh sach file staged
- * @returns {Array<{path: string, line: number, text: string}>} Cac dong co marker, line 1-indexed
- * @throws {Error} Khi stagedFiles la null/undefined hoac khong phai array
+ * @param {Array<{path: string, content: string}>} stagedFiles - List of staged files
+ * @returns {Array<{path: string, line: number, text: string}>} Lines with marker, line 1-indexed
+ * @throws {Error} When stagedFiles is null/undefined or not an array
  */
 function scanDebugMarkers(stagedFiles) {
   if (!stagedFiles || !Array.isArray(stagedFiles)) {
-    throw new Error('scanDebugMarkers: thieu tham so stagedFiles');
+    throw new Error('scanDebugMarkers: missing stagedFiles parameter');
   }
   const results = [];
   for (const file of stagedFiles) {
@@ -47,20 +47,20 @@ function scanDebugMarkers(stagedFiles) {
 // ─── matchSecurityWarnings ────────────────────────────────
 
 /**
- * Match canh bao bao mat tu SCAN_REPORT.md cho cac file paths cu the.
- * Tra toi da 3 canh bao (per D-09).
+ * Match security warnings from SCAN_REPORT.md for specific file paths.
+ * Returns at most 3 warnings (per D-09).
  *
- * @param {string} reportContent - Noi dung SCAN_REPORT.md
- * @param {string[]} filePaths - Danh sach file paths can match
- * @returns {Array<{file: string, severity: string, desc: string}>} Cac canh bao match
- * @throws {Error} Khi reportContent/filePaths la null/undefined
+ * @param {string} reportContent - SCAN_REPORT.md content
+ * @param {string[]} filePaths - List of file paths to match
+ * @returns {Array<{file: string, severity: string, desc: string}>} Matched warnings
+ * @throws {Error} When reportContent/filePaths is null/undefined
  */
 function matchSecurityWarnings(reportContent, filePaths) {
   if (!reportContent || typeof reportContent !== 'string') {
-    throw new Error('matchSecurityWarnings: thieu tham so reportContent');
+    throw new Error('matchSecurityWarnings: missing reportContent parameter');
   }
   if (!filePaths || !Array.isArray(filePaths)) {
-    throw new Error('matchSecurityWarnings: thieu tham so filePaths');
+    throw new Error('matchSecurityWarnings: missing filePaths parameter');
   }
   const sectionMatch = reportContent.match(SECTION_RE);
   if (!sectionMatch) return [];
