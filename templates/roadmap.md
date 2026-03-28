@@ -1,73 +1,73 @@
-# Mẫu ROADMAP.md
+# ROADMAP.md Template
 
-> `/pd:new-milestone` tạo/cập nhật | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone`, `/pd:what-next` đọc
+> `/pd:new-milestone` creates/updates | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone`, `/pd:what-next` read
 
-## Mẫu
+## Template
 
 ```markdown
-# Lộ trình dự án
-> Dự án: [tên]
-> Ngày tạo: [DD_MM_YYYY]
-> Cập nhật lần cuối: [DD_MM_YYYY]
+# Project Roadmap
+> Project: [name]
+> Created: [DD_MM_YYYY]
+> Last updated: [DD_MM_YYYY]
 
-## Mục tiêu dự án
-[Mô tả ngắn — copy từ PROJECT.md "Tầm nhìn"]
+## Project Goal
+[Brief description — copy from PROJECT.md "Vision"]
 
 ## Milestones
 
-### Milestone 1: [Tên] (v1.0)
-> Trạng thái: ⬜ | Ưu tiên: Quan trọng
+### Milestone 1: [Name] (v1.0)
+> Status: ⬜ | Priority: Critical
 
-#### Phase 1.1: [Tên]
-- [ ] Sản phẩm bàn giao 1
-- [ ] Sản phẩm bàn giao 2
-- Yêu cầu: AUTH-01, AUTH-02
-- Tiêu chí thành công:
-  1. [Người dùng có thể... → kết quả quan sát được]
-  2. [Người dùng có thể... → kết quả quan sát được]
-- Phụ thuộc: Không
+#### Phase 1.1: [Name]
+- [ ] Deliverable 1
+- [ ] Deliverable 2
+- Requirements: AUTH-01, AUTH-02
+- Success Criteria:
+  1. [User can... → observable result]
+  2. [User can... → observable result]
+- Dependencies: None
 
-#### Phase 1.2: [Tên]
-- [ ] Sản phẩm bàn giao 1
-- Yêu cầu: PROF-01, PROF-02
-- Tiêu chí thành công:
-  1. [tiêu chí quan sát được]
-- Phụ thuộc: Phase 1.1
+#### Phase 1.2: [Name]
+- [ ] Deliverable 1
+- Requirements: PROF-01, PROF-02
+- Success Criteria:
+  1. [observable criterion]
+- Dependencies: Phase 1.1
 
-### Milestone 2: [Tên] (v1.1)
-> Trạng thái: ⬜ | Ưu tiên: Cao
+### Milestone 2: [Name] (v1.1)
+> Status: ⬜ | Priority: High
 ...
 
-## Quyết định chiến lược
-| # | Vấn đề | Quyết định | Lý do | Phương án đã loại |
-|---|--------|-----------|-------|-------------------|
+## Strategic Decisions
+| # | Issue | Decision | Reason | Alternatives Rejected |
+|---|-------|----------|--------|-----------------------|
 
-## Rủi ro & Lưu ý
+## Risks & Notes
 ```
 
-## Quy tắc Phase
+## Phase Rules
 
-Mỗi phase PHẢI có: Mục tiêu (1 câu), Sản phẩm bàn giao (checkbox), Mã yêu cầu (từ REQUIREMENTS.md), Tiêu chí thành công (2-5), Phụ thuộc.
+Each phase MUST have: Goal (1 sentence), Deliverables (checkboxes), Requirement IDs (from REQUIREMENTS.md), Success Criteria (2-5), Dependencies.
 
-## Quy tắc phiên bản
+## Versioning Rules
 
-| Loại | Khi nào |
-|------|---------|
-| Lớn | Bộ tính năng hoàn chỉnh mới (1.0 → 2.0) |
-| Nhỏ | Tính năng bổ sung (1.0 → 1.1) |
+| Type | When |
+|------|------|
+| Major | Complete new feature set (1.0 → 2.0) |
+| Minor | Additional features (1.0 → 1.1) |
 
-Ghi lý do vào bảng Quyết định chiến lược.
+Record reasoning in the Strategic Decisions table.
 
-## Quy tắc ưu tiên
+## Priority Rules
 
-Quan trọng (không có → không hoạt động) | Cao (cần cho trải nghiệm tối thiểu) | Trung bình (cải thiện, có thể hoãn) | Thấp (nâng cao)
+Critical (won't work without it) | High (needed for minimum experience) | Medium (improvement, can be deferred) | Low (enhancement)
 
-## GHI ĐÈ vs VIẾT TIẾP
+## OVERWRITE vs APPEND
 
-**GHI ĐÈ:** Viết mới toàn bộ.
-**VIẾT TIẾP:** Giữ milestones cũ nguyên → thêm mới SAU milestone cuối → cập nhật `Cập nhật lần cuối`.
+**OVERWRITE:** Write everything from scratch.
+**APPEND:** Keep existing milestones unchanged → add new AFTER the last milestone → update `Last updated`.
 
-## Kiểm tra độ phủ (BẮT BUỘC)
+## Coverage Check (REQUIRED)
 
-MỌI yêu cầu v1 PHẢI gắn vào **đúng 1 phase**. Chưa gắn = lỗi → DỪNG sửa. 1 yêu cầu gắn 2+ phases = lỗi → chọn phase chính.
-Viết tiếp: phiên bản milestones mới KHÔNG trùng milestones đã có.
+ALL v1 requirements MUST be mapped to **exactly 1 phase**. Unmapped = error → STOP and fix. 1 requirement mapped to 2+ phases = error → choose primary phase.
+Append: new milestone versions MUST NOT duplicate existing milestones.

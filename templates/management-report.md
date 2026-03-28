@@ -1,62 +1,62 @@
-# Bao cao quan ly
+# Management Report
 
 > Milestone: {{milestone_name}} ({{version}})
-> Ngay: {{date}}
+> Date: {{date}}
 
-## 1. Tom tat dieu hanh
+## 1. Executive Summary
 
-<!-- AI fill: 3-5 bullet points tong quan milestone -->
-<!-- Noi dung: Muc tieu milestone, ket qua dat duoc, thoi gian thuc hien -->
+<!-- AI fill: 3-5 bullet points for milestone overview -->
+<!-- Content: Milestone goals, results achieved, execution timeline -->
 
-## 2. Tong quan Milestone
+## 2. Milestone Overview
 
-<!-- AI fill: bang tien do phases, so lieu thong ke -->
-<!-- Format: bang Markdown voi cot Phase | Trang thai | Plans | Thoi gian -->
+<!-- AI fill: phase progress table, statistics -->
+<!-- Format: Markdown table with columns Phase | Status | Plans | Duration -->
 
-| Phase | Trang thai | Plans | Thoi gian |
-|-------|-----------|-------|-----------|
+| Phase | Status | Plans | Duration |
+|-------|--------|-------|----------|
 | {{phase_name}} | {{status}} | {{plan_count}} | {{duration}} |
 
-## 3. Luong nghiep vu (Business Logic Flow)
+## 3. Business Logic Flow
 
-<!-- AI fill: Mermaid flowchart TD tu Truths va Key Links cua milestone -->
-<!-- Moi Truth la mot node, lien ket theo dependency -->
-<!-- Tuan thu mermaid-rules.md: quoted labels, max 15 nodes, Corporate Blue palette -->
+<!-- AI fill: Mermaid flowchart TD from Truths and Key Links of the milestone -->
+<!-- Each Truth is a node, linked by dependency -->
+<!-- Follow mermaid-rules.md: quoted labels, max 15 nodes, Corporate Blue palette -->
 
 ```mermaid
 flowchart TD
-  %% Placeholder — Phase 22 se generate noi dung thuc te
-  start(["Bat dau"]) --> process["Xu ly"]
-  process --> done(["Hoan thanh"])
+  %% Placeholder — Phase 22 will generate actual content
+  start(["Start"]) --> process["Process"]
+  process --> done(["Complete"])
 ```
 
-## 4. Kien truc tong quan (Architecture Overview)
+## 4. Architecture Overview
 
-<!-- AI fill: Mermaid flowchart LR voi subgraphs tu Artifacts va CODE_REPORTs -->
-<!-- Module boundaries ro rang, shapes theo Shape-by-Role (mermaid-rules.md) -->
+<!-- AI fill: Mermaid flowchart LR with subgraphs from Artifacts and CODE_REPORTs -->
+<!-- Clear module boundaries, shapes per Shape-by-Role (mermaid-rules.md) -->
 
 ```mermaid
 flowchart LR
-  %% Placeholder — Phase 22 se generate noi dung thuc te
+  %% Placeholder — Phase 22 will generate actual content
   api("API") --> svc["Service"]
   svc --> db[("Database")]
 ```
 
-## 5. Thanh tuu noi bat
+## 5. Key Achievements
 
-<!-- AI fill: danh sach features, fixes, improvements quan trong nhat -->
-<!-- Format: bullet list voi mo ta ngan gon tac dong kinh doanh -->
+<!-- AI fill: list of important features, fixes, improvements -->
+<!-- Format: bullet list with brief business impact description -->
 
-## 6. Chi so chat luong
+## 6. Quality Metrics
 
-<!-- AI fill: so lieu test coverage, so luong tests, code quality metrics -->
-<!-- Format: bang hoac bullet list voi so lieu cu the -->
+<!-- AI fill: test coverage, test count, code quality metrics -->
+<!-- Format: table or bullet list with specific numbers -->
 
-| Chi so | Gia tri |
-|--------|---------|
+| Metric | Value |
+|--------|-------|
 | {{metric_name}} | {{metric_value}} |
 
-## 7. Buoc tiep theo
+## 7. Next Steps
 
-<!-- AI fill: ke hoach milestone tiep theo, rui ro can theo doi -->
-<!-- Format: bullet list voi timeline du kien -->
+<!-- AI fill: next milestone plan, risks to monitor -->
+<!-- Format: bullet list with projected timeline -->

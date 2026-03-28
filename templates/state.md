@@ -1,45 +1,45 @@
-# Mẫu STATE.md
+# STATE.md Template
 
-> `/pd:new-milestone` tạo/đặt lại | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` cập nhật | `/pd:plan`, `/pd:what-next` đọc
+> `/pd:new-milestone` creates/resets | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` update | `/pd:plan`, `/pd:what-next` read
 
-Trạng thái làm việc hiện tại: vị trí, hoạt động cuối, bối cảnh tích lũy, vấn đề chặn.
+Current working state: position, last activity, accumulated context, blockers.
 
-- `CURRENT_MILESTONE.md` = con trỏ nhỏ (4 trường) — @templates/current-milestone.md
-- `STATE.md` = trạng thái chi tiết + bối cảnh tích lũy
+- `CURRENT_MILESTONE.md` = small pointer (4 fields) — @templates/current-milestone.md
+- `STATE.md` = detailed state + accumulated context
 
-## Mẫu
+## Template
 
 ```markdown
-# Trạng thái làm việc
-> Cập nhật: [DD_MM_YYYY]
+# Working State
+> Updated: [DD_MM_YYYY]
 
-## Vị trí hiện tại
-- Milestone: v[X.Y] — [Tên milestone]
-- Phase: [Chưa bắt đầu | x.x]
-- Kế hoạch: [— | Kế hoạch hoàn tất, sẵn sàng code | Đang code]
-- Trạng thái: [Sẵn sàng lên kế hoạch | Đang thực hiện | Milestone v[X.Y] hoàn tất]
-- Hoạt động cuối: [DD_MM_YYYY] — [mô tả ngắn]
+## Current Position
+- Milestone: v[X.Y] — [Milestone name]
+- Phase: [Not started | x.x]
+- Plan: [— | Plan complete, ready to code | Coding in progress]
+- Status: [Ready to plan | In progress | Milestone v[X.Y] completed]
+- Last activity: [DD_MM_YYYY] — [brief description]
 
-## Bối cảnh tích lũy
-[Milestone trước → giữ bối cảnh có giá trị. Milestone đầu → "Chưa có bối cảnh tích lũy."]
+## Accumulated Context
+[Previous milestone → keep valuable context. First milestone → "No accumulated context yet."]
 
-## Vấn đề chặn
-[Không | Mô tả vấn đề]
+## Blockers
+[None | Blocker description]
 ```
 
-## Quy tắc cập nhật
+## Update Rules
 
-| Thời điểm | Hành động |
-|-----------|-----------|
-| Tạo milestone mới | Đặt lại, **GIỮ** "Bối cảnh tích lũy" |
-| Bắt đầu milestone | `Hoạt động cuối: [ngày] — Bắt đầu milestone mới` |
-| Nghiên cứu xong | `Hoạt động cuối: [ngày] — Nghiên cứu hoàn tất` |
-| Yêu cầu duyệt | `Hoạt động cuối: [ngày] — Yêu cầu v[X.Y] đã duyệt` |
-| Lộ trình duyệt | `Hoạt động cuối: [ngày] — Lộ trình v[X.Y] đã duyệt` |
-| Plan phase xong | Phase → [x.x], Kế hoạch → `sẵn sàng code` |
-| Bắt đầu code | Kế hoạch → `Đang code` |
-| Phase xong | `Hoạt động cuối: [ngày] — Phase [x.x] hoàn tất` |
-| Auto-advance | Phase → [mới], Kế hoạch → `sẵn sàng code` (đồng bộ CURRENT_MILESTONE) |
-| Đóng milestone | Trạng thái → `Milestone v[X.Y] hoàn tất` |
+| When | Action |
+|------|--------|
+| Create new milestone | Reset, **KEEP** "Accumulated Context" |
+| Start milestone | `Last activity: [date] — Started new milestone` |
+| Research complete | `Last activity: [date] — Research completed` |
+| Requirements approved | `Last activity: [date] — v[X.Y] requirements approved` |
+| Roadmap approved | `Last activity: [date] — v[X.Y] roadmap approved` |
+| Phase plan complete | Phase → [x.x], Plan → `ready to code` |
+| Start coding | Plan → `Coding in progress` |
+| Phase complete | `Last activity: [date] — Phase [x.x] completed` |
+| Auto-advance | Phase → [new], Plan → `ready to code` (sync CURRENT_MILESTONE) |
+| Close milestone | Status → `Milestone v[X.Y] completed` |
 
-**"Bối cảnh tích lũy" KHÔNG BAO GIỜ bị xóa sạch** — chỉ bổ sung hoặc giữ nguyên.
+**"Accumulated Context" is NEVER wiped clean** — only appended to or kept as-is.

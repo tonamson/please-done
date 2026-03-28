@@ -1,66 +1,66 @@
-# Mẫu TASKS.md
+# TASKS.md Template
 
-> `/pd:plan` tạo | `/pd:write-code`, `/pd:test`, `/pd:fix-bug`, `/pd:what-next`, `/pd:complete-milestone` đọc
+> `/pd:plan` creates | `/pd:write-code`, `/pd:test`, `/pd:fix-bug`, `/pd:what-next`, `/pd:complete-milestone` read
 
-Danh sách công việc 1 phase: bảng tổng quan + chi tiết từng task.
+Task list for 1 phase: overview table + detail for each task.
 
-Biểu tượng trạng thái: @references/conventions.md
+Status icons: @references/conventions.md
 
-## Mẫu
+## Template
 
 ```markdown
-# Danh sách công việc
-> Milestone: [tên] (v[x.x]) | Phase: [x.x]
-> Ngày tạo: [DD_MM_YYYY] | Tổng: [N]
+# Task List
+> Milestone: [name] (v[x.x]) | Phase: [x.x]
+> Created: [DD_MM_YYYY] | Total: [N]
 
-## Tổng quan
-| # | Công việc | Trạng thái | Ưu tiên | Phụ thuộc | Loại | Truths |
-|---|----------|-----------|---------|-----------|------|--------|
+## Overview
+| # | Task | Status | Priority | Dependencies | Type | Truths |
+|---|------|--------|----------|--------------|------|--------|
 
 ---
-## Task 1: [Tên]
-> Trạng thái: ⬜ | Ưu tiên: Cao | Phụ thuộc: Không | Loại: Backend | Effort: standard
-> Files: [danh sách files dự kiến]
-> Truths: [T1, T2] ← truy vết Tiêu chí thành công PLAN.md
+## Task 1: [Name]
+> Status: ⬜ | Priority: High | Dependencies: None | Type: Backend | Effort: standard
+> Files: [list of expected files]
+> Truths: [T1, T2] ← traces back to PLAN.md Success Criteria
 
-### Mô tả
-[Công việc cần làm]
+### Description
+[Work to be done]
 
-### Tiêu chí chấp nhận
-- [ ] [Tiêu chí 1 — liên quan Truths]
-- [ ] [Tiêu chí 2]
+### Acceptance Criteria
+- [ ] [Criterion 1 — related to Truths]
+- [ ] [Criterion 2]
 
-### Ghi chú kỹ thuật
-[Chỉ khi cần thiết]
+### Technical Notes
+[Only when necessary]
 ```
 
-## Loại task
+## Task Types
 
-`Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Stack khác]`
+`Backend` | `Frontend` | `Fullstack` | `WordPress` | `Solidity` | `Flutter` | `[Other stack]`
 
-## Effort level
+## Effort Level
 
 `simple` | `standard` | `complex`
 
-Mặc định: `standard`. Xem @references/conventions.md → 'Effort level'.
+Default: `standard`. See @references/conventions.md → 'Effort level'.
 
-## Truths (truy vết goal-backward)
+## Truths (goal-backward traceability)
 
-Cột `Truths` + trường `> Truths:` = mã Truth từ PLAN.md "Tiêu chí thành công → Sự thật phải đạt".
-- Mỗi task PHẢI phục vụ ≥1 Truth
-- Mỗi Truth PHẢI được ≥1 task phủ
-- Truth không task nào phủ → gap → thêm task hoặc sửa plan
+Column `Truths` + field `> Truths:` = Truth IDs from PLAN.md "Success Criteria → Required Truths".
+- Each task MUST serve ≥1 Truth
+- Each Truth MUST be covered by ≥1 task
+- Truth not covered by any task → gap → add task or fix plan
 
-## Phụ thuộc
+## Dependencies
 
-| Loại | Cách ghi | Parallel-safe? |
-|------|---------|---------------|
-| Code | `Task A` | Không — B dùng function A tạo |
-| Design | `Không` | Có — dùng response shape từ PLAN.md |
-| File | `Task A (shared file)` | Không — sửa cùng file |
+| Type | Format | Parallel-safe? |
+|------|--------|----------------|
+| Code | `Task A` | No — B uses function A creates |
+| Design | `None` | Yes — uses response shape from PLAN.md |
+| File | `Task A (shared file)` | No — modifying the same file |
 
-## Cập nhật trạng thái
+## Status Updates
 
-- Cập nhật CẢ HAI: bảng Tổng quan + task detail `> Trạng thái:`
-- Cập nhật `> Files:` nếu thực tế khác plan
-- Chỉ ✅ SAU git commit thành công (@references/conventions.md)
+- Update BOTH: Overview table + task detail `> Status:`
+- Update `> Files:` if actual differs from plan
+- Only ✅ AFTER successful git commit (@references/conventions.md)

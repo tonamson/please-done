@@ -1,57 +1,57 @@
-# Mẫu REQUIREMENTS.md
+# REQUIREMENTS.md Template
 
-> `/pd:new-milestone` tạo | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` đọc
+> `/pd:new-milestone` creates | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` reads
 
-## Mẫu
+## Template
 
 ```markdown
-# Yêu cầu: [Tên dự án]
-> Ngày tạo: [DD_MM_YYYY]
-> Milestone: v[X.Y] — [Tên milestone]
+# Requirements: [Project Name]
+> Created: [DD_MM_YYYY]
+> Milestone: v[X.Y] — [Milestone name]
 
-## Yêu cầu v1
-Yêu cầu milestone hiện tại. Mỗi yêu cầu gắn 1 phase.
+## Requirements v1
+Current milestone requirements. Each requirement is mapped to 1 phase.
 
-### [Nhóm 1]
-- [ ] **NHOM1-01**: Người dùng có thể [hành động cụ thể, kiểm tra được]
-- [ ] **NHOM1-02**: Người dùng có thể [hành động cụ thể, kiểm tra được]
+### [Group 1]
+- [ ] **GROUP1-01**: User can [specific, testable action]
+- [ ] **GROUP1-02**: User can [specific, testable action]
 
-### [Nhóm 2]
-- [ ] **NHOM2-01**: Người dùng có thể [hành động cụ thể, kiểm tra được]
+### [Group 2]
+- [ ] **GROUP2-01**: User can [specific, testable action]
 
-## Yêu cầu tương lai
-Hoãn sang milestone sau.
+## Future Requirements
+Deferred to next milestone.
 
-- **NHOM-XX**: [mô tả]
+- **GROUP-XX**: [description]
 
-## Ngoài phạm vi
-| Tính năng | Lý do loại |
-|-----------|-----------|
+## Out of Scope
+| Feature | Reason for Exclusion |
+|---------|---------------------|
 
-## Bảng theo dõi
-| Yêu cầu | Phase | Trạng thái |
-|----------|-------|------------|
+## Traceability Table
+| Requirement | Phase | Status |
+|-------------|-------|--------|
 
-**Độ phủ:**
-- Yêu cầu v1: [X] tổng
-- Đã gắn vào phase: —
-- Chưa gắn: [X] (gắn khi tạo lộ trình)
+**Coverage:**
+- Requirements v1: [X] total
+- Mapped to phase: —
+- Unmapped: [X] (map when creating roadmap)
 
 ---
-*Tạo: [DD_MM_YYYY]*
-*Cập nhật lần cuối: [DD_MM_YYYY]*
+*Created: [DD_MM_YYYY]*
+*Last updated: [DD_MM_YYYY]*
 ```
 
-## Mã yêu cầu
+## Requirement Codes
 
-Format: `[NHÓM]-[SỐ]` viết HOA, không dấu (VD: `AUTH-01`, `NOTIF-02`).
-Có REQUIREMENTS.md cũ → tiếp tục đánh số. Tên nhóm 3-10 ký tự.
+Format: `[GROUP]-[NUMBER]` uppercase, no diacritics (e.g., `AUTH-01`, `NOTIF-02`).
+If existing REQUIREMENTS.md → continue numbering. Group name 3-10 characters.
 
-## Tiêu chí yêu cầu tốt
+## Good Requirement Criteria
 
-| Tiêu chí | Tốt | Xấu |
-|----------|-----|-----|
-| Cụ thể, kiểm tra được | "Đặt lại mật khẩu qua email" | "Xử lý mật khẩu" |
-| Hướng người dùng | "Người dùng có thể X" | "Hệ thống làm Y" |
-| Đơn lẻ | "Đăng nhập bằng email" | "Đăng nhập và quản lý hồ sơ" |
-| Độc lập | Ít phụ thuộc | Cần 3 yêu cầu khác |
+| Criterion | Good | Bad |
+|-----------|------|-----|
+| Specific, testable | "Reset password via email" | "Handle passwords" |
+| User-oriented | "User can X" | "System does Y" |
+| Singular | "Login with email" | "Login and manage profile" |
+| Independent | Few dependencies | Needs 3 other requirements |

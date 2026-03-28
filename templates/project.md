@@ -1,51 +1,51 @@
-# Mẫu PROJECT.md
+# PROJECT.md Template
 
-> `/pd:new-milestone` tạo/cập nhật | Tất cả commands đọc (nguồn sự thật cấp dự án)
+> `/pd:new-milestone` creates/updates | All commands read (project-level source of truth)
 
-Nguồn sự thật duy nhất cấp dự án: tầm nhìn, đối tượng, ràng buộc, lịch sử milestones, bài học.
+Single source of truth at the project level: vision, audience, constraints, milestone history, lessons learned.
 
-- `ROADMAP.md` = phases/deliverables (thay đổi mỗi milestone)
-- `STATE.md` = trạng thái hiện tại (thay đổi liên tục)
-- `PROJECT.md` = bức tranh toàn cảnh (ít thay đổi)
+- `ROADMAP.md` = phases/deliverables (changes each milestone)
+- `STATE.md` = current state (changes continuously)
+- `PROJECT.md` = the big picture (rarely changes)
 
-## Mẫu
+## Template
 
 ```markdown
-# [Tên dự án]
-> Khởi tạo: [DD_MM_YYYY]
-> Cập nhật: [DD_MM_YYYY]
+# [Project Name]
+> Created: [DD_MM_YYYY]
+> Updated: [DD_MM_YYYY]
 
-## Tầm nhìn
-[1-3 câu: dự án phục vụ ai, giải quyết vấn đề gì]
+## Vision
+[1-3 sentences: who the project serves, what problem it solves]
 
-## Đối tượng người dùng
-- [Nhóm 1]: [nhu cầu chính]
-- [Nhóm 2]: [nhu cầu chính]
+## Target Audience
+- [Group 1]: [primary need]
+- [Group 2]: [primary need]
 
-## Ràng buộc
-[Kỹ thuật, kinh doanh, thời gian, pháp lý — hoặc "Chưa xác định ràng buộc đặc biệt."]
+## Constraints
+[Technical, business, time, legal — or "No special constraints identified."]
 
-## Chính sách Ngôn ngữ & Báo lỗi
-- **Giao diện (UI):** [VD: Tiếng Việt]
-- **Nhật ký (Logs):** [VD: Tiếng Anh]
-- **Exceptions:** [VD: Tiếng Anh]
-- **Ghi chú:** [VD: Thông báo UI phải thân thiện, tránh từ ngữ kỹ thuật phức tạp]
+## Language & Error Reporting Policy
+- **UI:** [e.g., Vietnamese]
+- **Logs:** [e.g., English]
+- **Exceptions:** [e.g., English]
+- **Notes:** [e.g., UI messages should be user-friendly, avoid complex technical jargon]
 
-## Lịch sử Milestones
-| Phiên bản | Tên | Ngày hoàn tất | Tóm tắt |
-|-----------|-----|---------------|---------|
-| v1.0 | [Tên] | DD_MM_YYYY | [1 dòng: chức năng chính] |
+## Milestone History
+| Version | Name | Completion Date | Summary |
+|---------|------|-----------------|---------|
+| v1.0 | [Name] | DD_MM_YYYY | [1 line: main features] |
 
-## Bài học kinh nghiệm
-- [Bài học ảnh hưởng quyết định tương lai]
+## Lessons Learned
+- [Lessons that influence future decisions]
 ```
 
-## Quy tắc cập nhật
+## Update Rules
 
-| Thời điểm | Hành động |
-|-----------|-----------|
-| Tạo milestone mới | Thêm milestone vừa xong vào "Lịch sử". Cập nhật "Tầm nhìn" nếu đổi hướng |
-| Đóng milestone | Thêm "Lịch sử" + "Bài học" nếu có |
-| User yêu cầu | Cập nhật bất kỳ phần nào |
+| When | Action |
+|------|--------|
+| Create new milestone | Add just-completed milestone to "History". Update "Vision" if direction changed |
+| Close milestone | Add "History" + "Lessons Learned" if any |
+| User requests | Update any section |
 
-**KHÔNG ghi:** chi tiết phase/task (→ ROADMAP/TASKS), trạng thái (→ STATE/CURRENT_MILESTONE), kỹ thuật chi tiết (→ CONTEXT/SCAN_REPORT)
+**DO NOT record:** phase/task details (→ ROADMAP/TASKS), state (→ STATE/CURRENT_MILESTONE), technical details (→ CONTEXT/SCAN_REPORT)

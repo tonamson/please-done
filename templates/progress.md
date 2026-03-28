@@ -1,44 +1,44 @@
-# Mẫu PROGRESS.md
+# PROGRESS.md Template
 
-> `/pd:write-code` tạo + cập nhật | `/pd:write-code` đọc (khôi phục), `/pd:what-next` đọc
+> `/pd:write-code` creates + updates | `/pd:write-code` reads (recovery), `/pd:what-next` reads
 
-Điểm khôi phục khi phiên viết code bị gián đoạn. Lưu tại `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`.
+Recovery checkpoint when a coding session is interrupted. Stored at `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`.
 
-**Vòng đời:** Tạo khi bắt đầu task → cập nhật sau mỗi file/giai đoạn → xóa sau commit thành công.
+**Lifecycle:** Created when starting a task → updated after each file/stage → deleted after successful commit.
 
-## Mẫu
+## Template
 
 ```markdown
-# Tiến trình thực thi
-> Cập nhật: [DD_MM_YYYY HH:MM]
-> Task: [N] — [Tên task]
-> Giai đoạn: [Bắt đầu | Đọc context | Viết code | Lint/Build | Tạo báo cáo | Commit]
+# Execution Progress
+> Updated: [DD_MM_YYYY HH:MM]
+> Task: [N] — [Task name]
+> Stage: [Started | Reading context | Writing code | Lint/Build | Creating report | Commit]
 
-## Các bước
-- [x] Chọn task
-- [ ] Đọc context + nghiên cứu
-- [ ] Viết code
+## Steps
+- [x] Select task
+- [ ] Read context + research
+- [ ] Write code
 - [ ] Lint + Build
-- [ ] Tạo báo cáo
+- [ ] Create report
 - [ ] Commit
 
-## Files dự kiến
-(Từ TASKS.md `> Files:`)
+## Expected Files
+(From TASKS.md `> Files:`)
 
-## Files đã viết
-(Cập nhật sau mỗi file — xác định cần viết thêm gì nếu gián đoạn)
+## Files Written
+(Updated after each file — determines what still needs writing if interrupted)
 
-## Logic Changes (nếu có)
-<!-- CHỈ tạo khi phát hiện logic nghiệp vụ cần điều chỉnh. Không có → KHÔNG tạo section này. -->
-| Truth ID | Thay đổi | Lý do |
-|----------|---------|-------|
+## Logic Changes (if any)
+<!-- ONLY create when discovering business logic that needs adjustment. None → DO NOT create this section. -->
+| Truth ID | Change | Reason |
+|----------|--------|--------|
 ```
 
-## Quy tắc
+## Rules
 
-- PHẢI tạo khi bắt đầu task mới — trước khi viết code
-- PHẢI cập nhật sau mỗi file + sau mỗi bước (`> Giai đoạn:` + `> Cập nhật:`)
-- Xóa `rm -f` sau commit thành công
-- Task 🔄 có PROGRESS.md → khôi phục (Bước 1.1 Case 1)
-- Task 🔄 KHÔNG có PROGRESS.md → Bước 2, tạo mới
-- Không có logic change → KHÔNG tạo section "Logic Changes" (D-14)
+- MUST create when starting a new task — before writing code
+- MUST update after each file + after each step (`> Stage:` + `> Updated:`)
+- Delete `rm -f` after successful commit
+- Task 🔄 has PROGRESS.md → recover (Step 1.1 Case 1)
+- Task 🔄 has NO PROGRESS.md → Step 2, create new
+- No logic change → DO NOT create "Logic Changes" section (D-14)

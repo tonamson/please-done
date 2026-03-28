@@ -1,43 +1,43 @@
 # Fix Phase {PHASE_NUMBER}: {VULNERABILITY_NAME}
 
-## Evidence goc
+## Original Evidence
 
-| Finding | File | Dong | Severity | Category |
+| Finding | File | Line | Severity | Category |
 |---------|------|------|----------|----------|
 | {FINDING_NAME} | {FILE_PATH} | {LINE} | {SEVERITY} | {CATEGORY} |
 
 > {EVIDENCE_QUOTE}
 
-## Gadget Chain (neu co)
+## Gadget Chain (if any)
 
 Chain: {CHAIN_NAME}
-Vi tri trong chain: {CHAIN_POSITION}
-Fix finding nay se: {CHAIN_IMPACT}
+Position in chain: {CHAIN_POSITION}
+Fixing this finding will: {CHAIN_IMPACT}
 
-## Huong sua
+## Fix Approach
 
 {FIX_DESCRIPTION}
 
-### Code pattern truoc (nguy hiem)
+### Code Pattern Before (unsafe)
 
 ```
 {UNSAFE_CODE}
 ```
 
-### Code pattern sau (an toan)
+### Code Pattern After (safe)
 
 ```
 {SAFE_CODE}
 ```
 
-## Files can sua
+## Files to Modify
 
-| # | File | Ham | Dong | Hanh dong |
-|---|------|-----|------|-----------|
+| # | File | Function | Line | Action |
+|---|------|----------|------|--------|
 | 1 | {FILE_PATH} | {FUNCTION_NAME} | {LINE} | {ACTION} |
 
-## Tieu chi hoan thanh
+## Completion Criteria
 
 - [ ] {CRITERION_1}
 - [ ] {CRITERION_2}
-- [ ] Chay scanner category {CATEGORY} tren files da sua -> verdict PASS
+- [ ] Run scanner category {CATEGORY} on modified files -> verdict PASS

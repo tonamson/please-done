@@ -1,39 +1,39 @@
-# Mẫu CURRENT_MILESTONE.md
+# CURRENT_MILESTONE.md Template
 
-> `/pd:new-milestone` tạo | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` cập nhật | Tất cả commands đọc
+> `/pd:new-milestone` creates | `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone` updates | All commands read
 
-Con trỏ milestone/phase đang hoạt động (4 trường). Khác STATE.md (trạng thái chi tiết + bối cảnh tích lũy — @templates/state.md).
+Active milestone/phase pointer (4 fields). Different from STATE.md (detailed state + accumulated context — @templates/state.md).
 
-## Mẫu — Đang hoạt động
+## Template — Active
 
 ```markdown
-# Milestone hiện tại
-- milestone: [tên milestone]
+# Current Milestone
+- milestone: [milestone name]
 - version: [x.x]
 - phase: [x.x]
-- status: [Chưa bắt đầu | Đang thực hiện]
+- status: [Not started | In progress]
 ```
 
-## Mẫu — Hoàn tất toàn bộ
+## Template — Fully Completed
 
 ```markdown
-# Milestone hiện tại
-- milestone: Tất cả đã hoàn tất
-- version: [version cuối]
+# Current Milestone
+- milestone: All completed
+- version: [final version]
 - phase: -
-- status: Hoàn tất toàn bộ
+- status: Fully completed
 ```
 
-## Quy tắc cập nhật
+## Update Rules
 
-| Thời điểm | Hành động |
-|-----------|-----------|
-| Tạo milestone (ghi đè) | Tạo mới, status = `Chưa bắt đầu` |
-| Tạo milestone (viết tiếp) | **Giữ nguyên** nếu đã tồn tại |
-| Plan phase mới | Cập nhật `phase` CHỈ NẾU phase hiện tại chưa plan/đã xong. KHÔNG nếu đang thực hiện. `status` → `Đang thực hiện` nếu `Chưa bắt đầu` |
-| Phase xong + tiếp đã plan | Auto-advance `phase` |
-| Phase xong + tiếp chưa plan | Giữ nguyên, gợi ý `/pd:plan` |
-| Đóng (còn tiếp) | Chuyển milestone tiếp, `Chưa bắt đầu` |
-| Đóng (hết) | `Tất cả đã hoàn tất`, version cuối, `-`, `Hoàn tất toàn bộ` |
+| When | Action |
+|------|--------|
+| Create milestone (overwrite) | Create new, status = `Not started` |
+| Create milestone (append) | **Keep unchanged** if already exists |
+| Plan new phase | Update `phase` ONLY IF current phase is not planned/already done. NOT if in progress. `status` → `In progress` if `Not started` |
+| Phase done + next already planned | Auto-advance `phase` |
+| Phase done + next not planned | Keep unchanged, suggest `/pd:plan` |
+| Close (more remaining) | Switch to next milestone, `Not started` |
+| Close (none remaining) | `All completed`, final version, `-`, `Fully completed` |
 
-So sánh version bằng semver (tách major.minor thành số), KHÔNG string comparison. Phase đầu = số nhỏ nhất trong milestone.
+Compare version using semver (split major.minor into numbers), NOT string comparison. First phase = smallest number in milestone.
