@@ -94,18 +94,22 @@ Translate 13 workflow files in `workflows/*.md` (3,610 lines total) from Vietnam
 </canonical_refs>
 
 <code_context>
+
 ## Existing Code Insights
 
 ### Reusable Assets
+
 - Phase 65 translation patterns — same approach applies: preserve structure, translate prose only.
 - Temp-file strategy from Phase 65 — create translations in `.tmp/`, verify, then copy into place.
 
 ### Established Patterns
+
 - Step numbering: All 13 workflow files use "Bước X" consistently — 269 total occurrences across all files.
 - Cross-references: Workflows reference each other and skills via `@workflows/name.md`, `@references/name.md` path syntax.
 - XML structure: Workflows use `<purpose>`, `<process>`, `<required_reading>`, `<verification>` XML tags — these must be preserved.
 
 ### Integration Points
+
 - `test/smoke-integrity.test.js` reads workflow files and checks structure/content.
 - `test/smoke-converters.test.js`, `test/smoke-plan-checker.test.js`, `test/smoke-utils.test.js` reference workflows — impact should be minimal since they check structure not language.
 - Skill files in `commands/pd/` reference workflows via `@workflows/name.md` — paths stay unchanged.
@@ -128,5 +132,5 @@ None — discussion stayed within phase scope.
 
 ---
 
-*Phase: 66-workflow-translation*
-*Context gathered: 2026-03-28*
+_Phase: 66-workflow-translation_
+_Context gathered: 2026-03-28_

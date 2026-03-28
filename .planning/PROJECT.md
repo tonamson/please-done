@@ -111,6 +111,7 @@ Every workflow step must produce the highest quality code output while consuming
 **Goal:** Convert all Vietnamese text to English across the entire project, excluding `.planning/`.
 
 **Target features:**
+
 - **Skills + Config Foundation:** Translate 14 skill files + CLAUDE.md, regenerate 56 auto-generated snapshots.
 - **Workflow Translation:** Translate 13 workflow files (3,610 lines total).
 - **Agents + Rules + References:** Translate agent definitions, coding rules, and reference docs.
@@ -137,39 +138,40 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills
 
 ## Key Decisions
 
-| Decision | Rationale | Outcome |
-|----------|-----------|---------|
-| Audit + implement in same cycle | User wants concrete improvements, not just a report | ✓ Good — shipped 9 phases in 1 day |
-| Keep backward compatibility | Active user base with existing installations | ✓ Good — all 5 platform outputs verified identical |
-| Optimize all token vectors | Prompt size, tool calls, and lazy loading all contribute to cost | ✓ Good — 30.6% compression + 12,549 lazy tokens |
-| Parallel execution priority | User specifically requested parallel tasks for speed | ✓ Good — wave-based execution with conflict detection |
-| Template method over class inheritance | Codebase uses pure functions, no classes | ✓ Good — base.js config-driven, easy to extend |
-| Snapshot testing for converter refactoring | 48 comparisons guarantee zero behavioral regression | ✓ Good — caught no regressions, high confidence |
-| Pure functions for plan checker | No file I/O in check functions — content passed as args | ✓ Good — testable, composable, no side effects |
-| Historical validation gate (D-17) | Zero false positives on all 22 v1.0 plans required | ✓ Good — caught regressions early, built confidence |
-| Dynamic PASS table over hardcoded | Future checks auto-included via name mapping | ✓ Good — Phase 13 was needed to fix Phase 11's hardcoded table |
-| Audit + fix in same milestone (v1.2) | Scan first (Phase 14-15), fix after (Phase 16) | ✓ Good — found 27 issues, fixed 22, deferred 5 with docs |
-| CLI wrapper for plan-check | Separate file I/O from library logic | ✓ Good — bin/plan-check.js reads files, calls library |
-| Defer re-export cleanup to v2.0 | COPILOT/GEMINI_TOOL_MAP re-exports are harmless | ✓ Good — low risk, tracked as tech debt |
-| Buoc 1.7 ~100 token budget | Keep logic validation concise, not verbose | ✓ Good — bullet paraphrase format effective |
-| Buoc 6.5 before code fix | Correct Truth before fixing code prevents drift | ✓ Good — logic stays in sync with implementation |
-| CHECK-05 default WARN severity | Orphan tasks are tech debt, not blockers | ✓ Good — configurable per project needs |
-| Pure function pattern for all v1.4 modules | No file I/O in library code — content passed as args | ✓ Good — testable, composable, consistent with plan-checker |
-| Section-specific Mermaid replacement | Avoid cross-section pollution in template fill | ✓ Good — Section 3 (TD) and Section 4 (LR) never mix |
-| Non-blocking pipeline for report generation | Milestone completion must never fail due to report errors | ✓ Good — try/catch per sub-step, warnings only |
-| External module for v1.5 features (D-02) | fix-bug.md at 419/420 line limit — cannot inline | ✓ Good — logic-sync.js orchestrates 3 features in 1 call |
-| Diff-based heuristics over AST (D-08) | Regex on diff sufficient for v1.5, AST deferred to v2 | ✓ Good — 4 signal types cover common cases |
-| Non-blocking for cleanup + security + logic sync | User workflow must never be blocked by optional features | ✓ Good — consistent non-blocking pattern across 9a and 10a |
-| 1 template + 1 YAML thay 13 scanner files | DRY, dễ bảo trì, mở rộng bằng YAML | ✓ Good — giảm 13 files thành 2, cùng chức năng |
-| Pure functions cho tất cả v4.0 modules | TDD, no side effects, composable | ✓ Good — smart-selection, session-delta, gadget-chain đều testable |
-| Security gate non-blocking | Không chặn workflow, chỉ cảnh báo | ✓ Good — phù hợp với triết lý "khuyến nghị, không ép buộc" |
-| Path source of truth: audit.md B9 | .planning/audit/SECURITY_REPORT.md | ✓ Good — thống nhất sau gap closure 51-02 |
+| Decision                                         | Rationale                                                        | Outcome                                                            |
+| ------------------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Audit + implement in same cycle                  | User wants concrete improvements, not just a report              | ✓ Good — shipped 9 phases in 1 day                                 |
+| Keep backward compatibility                      | Active user base with existing installations                     | ✓ Good — all 5 platform outputs verified identical                 |
+| Optimize all token vectors                       | Prompt size, tool calls, and lazy loading all contribute to cost | ✓ Good — 30.6% compression + 12,549 lazy tokens                    |
+| Parallel execution priority                      | User specifically requested parallel tasks for speed             | ✓ Good — wave-based execution with conflict detection              |
+| Template method over class inheritance           | Codebase uses pure functions, no classes                         | ✓ Good — base.js config-driven, easy to extend                     |
+| Snapshot testing for converter refactoring       | 48 comparisons guarantee zero behavioral regression              | ✓ Good — caught no regressions, high confidence                    |
+| Pure functions for plan checker                  | No file I/O in check functions — content passed as args          | ✓ Good — testable, composable, no side effects                     |
+| Historical validation gate (D-17)                | Zero false positives on all 22 v1.0 plans required               | ✓ Good — caught regressions early, built confidence                |
+| Dynamic PASS table over hardcoded                | Future checks auto-included via name mapping                     | ✓ Good — Phase 13 was needed to fix Phase 11's hardcoded table     |
+| Audit + fix in same milestone (v1.2)             | Scan first (Phase 14-15), fix after (Phase 16)                   | ✓ Good — found 27 issues, fixed 22, deferred 5 with docs           |
+| CLI wrapper for plan-check                       | Separate file I/O from library logic                             | ✓ Good — bin/plan-check.js reads files, calls library              |
+| Defer re-export cleanup to v2.0                  | COPILOT/GEMINI_TOOL_MAP re-exports are harmless                  | ✓ Good — low risk, tracked as tech debt                            |
+| Buoc 1.7 ~100 token budget                       | Keep logic validation concise, not verbose                       | ✓ Good — bullet paraphrase format effective                        |
+| Buoc 6.5 before code fix                         | Correct Truth before fixing code prevents drift                  | ✓ Good — logic stays in sync with implementation                   |
+| CHECK-05 default WARN severity                   | Orphan tasks are tech debt, not blockers                         | ✓ Good — configurable per project needs                            |
+| Pure function pattern for all v1.4 modules       | No file I/O in library code — content passed as args             | ✓ Good — testable, composable, consistent with plan-checker        |
+| Section-specific Mermaid replacement             | Avoid cross-section pollution in template fill                   | ✓ Good — Section 3 (TD) and Section 4 (LR) never mix               |
+| Non-blocking pipeline for report generation      | Milestone completion must never fail due to report errors        | ✓ Good — try/catch per sub-step, warnings only                     |
+| External module for v1.5 features (D-02)         | fix-bug.md at 419/420 line limit — cannot inline                 | ✓ Good — logic-sync.js orchestrates 3 features in 1 call           |
+| Diff-based heuristics over AST (D-08)            | Regex on diff sufficient for v1.5, AST deferred to v2            | ✓ Good — 4 signal types cover common cases                         |
+| Non-blocking for cleanup + security + logic sync | User workflow must never be blocked by optional features         | ✓ Good — consistent non-blocking pattern across 9a and 10a         |
+| 1 template + 1 YAML thay 13 scanner files        | DRY, dễ bảo trì, mở rộng bằng YAML                               | ✓ Good — giảm 13 files thành 2, cùng chức năng                     |
+| Pure functions cho tất cả v4.0 modules           | TDD, no side effects, composable                                 | ✓ Good — smart-selection, session-delta, gadget-chain đều testable |
+| Security gate non-blocking                       | Không chặn workflow, chỉ cảnh báo                                | ✓ Good — phù hợp với triết lý "khuyến nghị, không ép buộc"         |
+| Path source of truth: audit.md B9                | .planning/audit/SECURITY_REPORT.md                               | ✓ Good — thống nhất sau gap closure 51-02                          |
 
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
 
 **After each phase transition** (via `/gsd:transition`):
+
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
@@ -177,10 +179,12 @@ This document evolves at phase transitions and milestone boundaries.
 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `/gsd:complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-28 after v6.0 Vietnamese → English Migration milestone started*
+
+_Last updated: 2026-03-28 after v6.0 Vietnamese → English Migration milestone started_

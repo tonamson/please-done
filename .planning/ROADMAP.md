@@ -177,7 +177,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 
 - [x] Phase 65: Skills + Config Foundation (2 plans) (completed 2026-03-28)
 - [x] Phase 66: Workflow Translation (2 plans) (completed 2026-03-28)
-- [ ] Phase 67: Agents + Rules + References (2 plans)
+- [x] Phase 67: Agents + Rules + References (2 plans) (completed 2026-03-28)
 - [ ] Phase 68: Templates + Docs + Root Files (2 plans)
 - [ ] Phase 69: JS Source Code + Tests (3 plans)
 - [ ] Phase 70: Final Verification + Cleanup (1 plan)
@@ -244,7 +244,7 @@ Plans:
 4. Test assertions updated for translated guard/pipeline content
 5. No broken cross-references
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 67-01-PLAN.md — Translate 16 agent files + 8 rules files

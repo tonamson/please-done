@@ -4,14 +4,14 @@
 
 ### Gray Areas Identified
 
-| ID | Gray Area | Recommended | Auto-Selected |
-|----|-----------|-------------|---------------|
-| G-01 | Agent file count: roadmap says 8, actually 16 have Vietnamese | Translate all 16 | Yes |
-| G-02 | YAML file translation: preserve structure vs translate all | Translate values/comments only, preserve keys/structure | Yes |
-| G-03 | Guard file scope: some are 1-line with minimal Vietnamese | Translate all regardless of size | Yes |
-| G-04 | Batching: 39 files across 2 plans | Keep Plan01/Plan02 split, update agent count to 16 | Yes |
-| G-05 | Test impact: ~35+ Vietnamese assertions in smoke-integrity | Update all Vietnamese test assertions to English | Yes |
-| G-06 | Non-diacritical detection strategy | Full file review, not diacritic-based only | Yes |
+| ID   | Gray Area                                                     | Recommended                                             | Auto-Selected |
+| ---- | ------------------------------------------------------------- | ------------------------------------------------------- | ------------- |
+| G-01 | Agent file count: roadmap says 8, actually 16 have Vietnamese | Translate all 16                                        | Yes           |
+| G-02 | YAML file translation: preserve structure vs translate all    | Translate values/comments only, preserve keys/structure | Yes           |
+| G-03 | Guard file scope: some are 1-line with minimal Vietnamese     | Translate all regardless of size                        | Yes           |
+| G-04 | Batching: 39 files across 2 plans                             | Keep Plan01/Plan02 split, update agent count to 16      | Yes           |
+| G-05 | Test impact: ~35+ Vietnamese assertions in smoke-integrity    | Update all Vietnamese test assertions to English        | Yes           |
+| G-06 | Non-diacritical detection strategy                            | Full file review, not diacritic-based only              | Yes           |
 
 ### Decisions Made (Auto)
 
@@ -28,5 +28,6 @@
 - **G-06 → D-12**: Apply full-file translation review to all files, including those showing zero diacritics. Phase 66 demonstrated that non-diacritical Vietnamese is a significant presence.
 
 ### Cross-Reference
+
 - No pending todos matched phase 67
 - Prior context loaded from Phase 65 (D-01 through D-10) and Phase 66 (D-01 through D-12)

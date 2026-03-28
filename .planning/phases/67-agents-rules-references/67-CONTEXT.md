@@ -1,9 +1,11 @@
 # Phase 67 — Agents + Rules + References — Context
 
 ## Phase Goal
+
 Translate supporting definition files — agents, coding rules, and reference docs — from Vietnamese to English.
 
 ## Requirements Coverage
+
 - **TRANS-04**: Agent definition files (commands/pd/agents/)
 - **TRANS-05**: Coding rules files (commands/pd/rules/)
 - **TRANS-06**: Reference documentation (references/)
@@ -11,14 +13,18 @@ Translate supporting definition files — agents, coding rules, and reference do
 ## Scope Assessment
 
 ### Agent Files (commands/pd/agents/) — 16 files, ~968 lines
+
 Roadmap listed 8 agent files, but scouting reveals **all 16** contain Vietnamese:
+
 - 5 files with diacritics: pd-bug-janitor(42), pd-code-detective(16), pd-doc-specialist(17), pd-fix-architect(27), pd-repro-engineer(14)
 - 11 files with non-diacritical Vietnamese only: pd-codebase-mapper(16), pd-evidence-collector(25), pd-fact-checker(21), pd-feature-analyst(14), pd-planner(22), pd-regression-analyzer(18), pd-research-synthesizer(20), pd-sec-fixer(16), pd-sec-reporter(40), pd-sec-scanner(43), pd-security-researcher(13)
 
 ### Rules Files (commands/pd/rules/) — 8 files, ~1196 lines
+
 All 8 have Vietnamese diacritics: flutter(22), general(51), nestjs(20), nextjs(29), solidity(44), wordpress(26), audit-checklist(113), templates(57)
 
 ### Reference Files (references/) — 15 files, ~2713 lines
+
 - 7 with diacritics: conventions(58), prioritization(38), questioning(43), security-checklist(170), security-rules.yaml(288), state-machine(77), ui-brand(124)
 - 7 with non-diacritical Vietnamese only: context7-pipeline(17), gadget-chain-templates.yaml(7), guard-context7(2), guard-fastcode(1), guard-valid-path(1), mermaid-rules(42), verification(125)
 - 1 with non-diacritical Vietnamese (1 line): guard-context.md
@@ -50,11 +56,13 @@ All 8 have Vietnamese diacritics: flutter(22), general(51), nestjs(20), nextjs(2
 - **D-12: Non-diacritical detection** — Use full file review for all files, not just diacritic-based detection (lesson from Phase 66 fix-bug.md).
 
 ## Plan Structure (from Roadmap)
+
 - **Plan 01 — Agents + Rules**: Task 1 = 16 agent files, Task 2 = 8 rules files
 - **Plan 02 — References**: Task 1 = 9 .md reference files, Task 2 = 2 .yaml + 4 guard files
 - **Test updates**: Include in each plan as final task
 
 ## Prior Art
+
 - Phase 65: Established translation patterns for skills + config files
 - Phase 66: Refined patterns for larger workflow files (write-code.md, fix-bug.md, etc.)
 - Temp file strategy: create `.tmp` then `mv` to avoid partial writes

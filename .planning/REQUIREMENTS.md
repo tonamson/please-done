@@ -14,7 +14,7 @@ Requirements for full Vietnamese-to-English migration. Each maps to roadmap phas
 - [x] **TRANS-03**: Translate 13 workflow files (workflows/*.md) from Vietnamese to English
 - [x] **TRANS-04**: Translate 8 agent files with Vietnamese content to English
 - [x] **TRANS-05**: Translate 8 rules files to English
-- [ ] **TRANS-06**: Translate 15 reference files (.md + .yaml) to English
+- [x] **TRANS-06**: Translate 15 reference files (.md + .yaml) to English
 - [ ] **TRANS-07**: Translate 12 template files to English
 - [ ] **TRANS-08**: Translate 14 docs files to English
 - [ ] **TRANS-09**: Translate 12 root .md files to English

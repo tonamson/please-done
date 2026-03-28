@@ -47,9 +47,9 @@ None.
 
 ## Phase Requirements
 
-| ID | Description | Research Support |
-|----|-------------|------------------|
-| TRANS-03 | Translate 13 workflow files (workflows/*.md) from Vietnamese to English | File inventory verified: 13 files, 3,610 lines total, 212 "Bước" occurrences, 1,794 lines with Vietnamese diacritics |
+| ID       | Description                                                              | Research Support                                                                                                     |
+| -------- | ------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
+| TRANS-03 | Translate 13 workflow files (workflows/\*.md) from Vietnamese to English | File inventory verified: 13 files, 3,610 lines total, 212 "Bước" occurrences, 1,794 lines with Vietnamese diacritics |
 
 </phase_requirements>
 
@@ -61,11 +61,11 @@ None.
 
 No external libraries required. This phase uses only existing project tools:
 
-| Tool | Purpose | Why |
-|------|---------|-----|
-| `grep` (BSD) | Vietnamese diacritic sweep verification | Available on macOS, sufficient for regex character class matching |
-| `node --test` | Run smoke-integrity.test.js | Node.js v24.13.0 already installed |
-| `wc -l` | Line count validation | Standard UNIX tool |
+| Tool          | Purpose                                 | Why                                                               |
+| ------------- | --------------------------------------- | ----------------------------------------------------------------- |
+| `grep` (BSD)  | Vietnamese diacritic sweep verification | Available on macOS, sufficient for regex character class matching |
+| `node --test` | Run smoke-integrity.test.js             | Node.js v24.13.0 already installed                                |
+| `wc -l`       | Line count validation                   | Standard UNIX tool                                                |
 
 ## Architecture Patterns
 
@@ -73,43 +73,44 @@ No external libraries required. This phase uses only existing project tools:
 
 All 13 workflow files follow a consistent structure with these XML tags:
 
-| Tag | Count | Preservation Rule |
-|-----|-------|-------------------|
-| `<process>` | 13 (all files) | Keep tag, translate content inside |
-| `<purpose>` | 12 | Keep tag, translate content |
-| `<rules>` | 13 | Keep tag, translate content |
-| `<required_reading>` | 9 | Keep tag, translate descriptions but preserve `@path` refs |
-| `<conditional_reading>` | 10 | Keep tag, translate descriptions but preserve `@path` refs |
-| `<research_injection>` | 2 | Keep tag, translate content |
-| `<context>` | 1 | Keep tag, translate content |
-| `<verification_loop>` | 1 | Keep tag, translate content |
-| `<success_criteria>` | 2 | Keep tag, translate content |
+| Tag                     | Count          | Preservation Rule                                          |
+| ----------------------- | -------------- | ---------------------------------------------------------- |
+| `<process>`             | 13 (all files) | Keep tag, translate content inside                         |
+| `<purpose>`             | 12             | Keep tag, translate content                                |
+| `<rules>`               | 13             | Keep tag, translate content                                |
+| `<required_reading>`    | 9              | Keep tag, translate descriptions but preserve `@path` refs |
+| `<conditional_reading>` | 10             | Keep tag, translate descriptions but preserve `@path` refs |
+| `<research_injection>`  | 2              | Keep tag, translate content                                |
+| `<context>`             | 1              | Keep tag, translate content                                |
+| `<verification_loop>`   | 1              | Keep tag, translate content                                |
+| `<success_criteria>`    | 2              | Keep tag, translate content                                |
 
 ### Step Numbering Inventory
 
 Total "Bước" occurrences across all 13 files: **212**
 
-| File | "Bước" count | Vietnamese diacritic lines |
-|------|-------------|---------------------------|
-| plan.md | 38 | 305 |
-| write-code.md | 39 | 284 |
-| fix-bug-v1.5.md | 35 | 278 |
-| new-milestone.md | 7 | 194 |
-| complete-milestone.md | 17 | 170 |
-| audit.md | 13 | 134 |
-| test.md | 15 | 127 |
-| init.md | 18 | 85 |
-| scan.md | 10 | 63 |
-| what-next.md | 8 | 57 |
-| research.md | 6 | 53 |
-| conventions.md | 6 | 44 |
-| fix-bug.md | 0 | 0 |
+| File                  | "Bước" count | Vietnamese diacritic lines |
+| --------------------- | ------------ | -------------------------- |
+| plan.md               | 38           | 305                        |
+| write-code.md         | 39           | 284                        |
+| fix-bug-v1.5.md       | 35           | 278                        |
+| new-milestone.md      | 7            | 194                        |
+| complete-milestone.md | 17           | 170                        |
+| audit.md              | 13           | 134                        |
+| test.md               | 15           | 127                        |
+| init.md               | 18           | 85                         |
+| scan.md               | 10           | 63                         |
+| what-next.md          | 8            | 57                         |
+| research.md           | 6            | 53                         |
+| conventions.md        | 6            | 44                         |
+| fix-bug.md            | 0            | 0                          |
 
 **Note:** `fix-bug.md` uses non-diacritical Vietnamese (e.g., "Buoc", "Kiem tra") — 408 lines of Vietnamese content without diacritics. The diacritic grep will pass, but the content still needs translation to English.
 
 ### Cross-Reference Patterns
 
 Workflows reference each other and other files via `@type/name.md`:
+
 - `@workflows/name.md` — inter-workflow references
 - `@references/name.md` — shared reference files
 - `@templates/name.md` — template files
@@ -119,6 +120,7 @@ All these path references must be preserved verbatim (per D-10).
 ### Translation Pattern (from Phase 65)
 
 Phase 65 established a proven translation workflow:
+
 1. Read source file completely
 2. Translate prose content to English
 3. Preserve: XML tags, frontmatter keys, placeholders (`$ARGUMENTS`, `@path` refs), command names (`/pd:*`), variable names, file paths
@@ -129,11 +131,11 @@ Phase 65 established a proven translation workflow:
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Vietnamese detection | Custom parser | `grep '[àáạ...ỹ]' workflows/*.md` | Simple regex covers all diacritic characters; already proven in Phase 65 |
-| Test regression check | Manual file comparison | `node --test test/smoke-integrity.test.js` | Existing test suite catches structural and content regressions |
-| Non-diacritical Vietnamese detection | Automated tool | Manual review during translation | Non-diacritical Vietnamese (like in fix-bug.md) cannot be reliably detected by regex |
+| Problem                              | Don't Build            | Use Instead                                | Why                                                                                  |
+| ------------------------------------ | ---------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------ |
+| Vietnamese detection                 | Custom parser          | `grep '[àáạ...ỹ]' workflows/*.md`          | Simple regex covers all diacritic characters; already proven in Phase 65             |
+| Test regression check                | Manual file comparison | `node --test test/smoke-integrity.test.js` | Existing test suite catches structural and content regressions                       |
+| Non-diacritical Vietnamese detection | Automated tool         | Manual review during translation           | Non-diacritical Vietnamese (like in fix-bug.md) cannot be reliably detected by regex |
 
 ## Common Pitfalls
 
@@ -178,22 +180,22 @@ Phase 65 established a proven translation workflow:
 
 These test assertions match Vietnamese strings in workflow files being translated:
 
-| Line | Test | Regex/Match | Workflow | Required Change |
-|------|------|-------------|----------|-----------------|
-| 115 | `inlineWorkflow xử lý được mọi command có workflow` | `/(Bước\|Buoc) [0-9]+/` | All via inline | Update regex to `/(Step\|Bước\|Buoc) [0-9]+/` or `/(Step) [0-9]+/` |
-| 693 | `fix-bug workflow co single-agent fallback` | `/Kiem tra che do hoat dong/` | fix-bug.md | Update to match English translation (e.g., `/Check operating mode/`) |
-| 727 | `test workflow co effort routing` | `/Effort routing cho test/` | test.md | Update to match English (e.g., `/Effort routing for test/`) |
-| 1144 | `write-code.md co post-wave build check` | `/build fail.*D[UƯ]NG\|D[UƯ]NG.*build fail/is` | write-code.md | Update to use `STOP` (e.g., `/build fail.*STOP\|STOP.*build fail/is`) |
-| 1156 | `write-code.md co agent context minimization` | `/KH[OÔ]NG dump to[aà]n b[oộ] PLAN/i` | write-code.md | Update to English (e.g., `/DO NOT dump (the )?entire PLAN/i`) |
-| 1168 | `write-code.md co > Files: cross-reference` | `/> Files:.*cross-reference\|giao nhau/i` | write-code.md | Already handles English "cross-reference" — can simplify to remove Vietnamese "giao nhau" |
+| Line | Test                                                | Regex/Match                                    | Workflow       | Required Change                                                                           |
+| ---- | --------------------------------------------------- | ---------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------- |
+| 115  | `inlineWorkflow xử lý được mọi command có workflow` | `/(Bước\|Buoc) [0-9]+/`                        | All via inline | Update regex to `/(Step\|Bước\|Buoc) [0-9]+/` or `/(Step) [0-9]+/`                        |
+| 693  | `fix-bug workflow co single-agent fallback`         | `/Kiem tra che do hoat dong/`                  | fix-bug.md     | Update to match English translation (e.g., `/Check operating mode/`)                      |
+| 727  | `test workflow co effort routing`                   | `/Effort routing cho test/`                    | test.md        | Update to match English (e.g., `/Effort routing for test/`)                               |
+| 1144 | `write-code.md co post-wave build check`            | `/build fail.*D[UƯ]NG\|D[UƯ]NG.*build fail/is` | write-code.md  | Update to use `STOP` (e.g., `/build fail.*STOP\|STOP.*build fail/is`)                     |
+| 1156 | `write-code.md co agent context minimization`       | `/KH[OÔ]NG dump to[aà]n b[oộ] PLAN/i`          | write-code.md  | Update to English (e.g., `/DO NOT dump (the )?entire PLAN/i`)                             |
+| 1168 | `write-code.md co > Files: cross-reference`         | `/> Files:.*cross-reference\|giao nhau/i`      | write-code.md  | Already handles English "cross-reference" — can simplify to remove Vietnamese "giao nhau" |
 
 ### Assertions That Need Careful Review (may or may not break)
 
-| Line | Test | Regex/Match | Workflow | Risk |
-|------|------|-------------|----------|------|
-| 339 | output section check | `/Next step\|Buoc tiep theo\|Bước tiếp theo/` | Skills (not workflows) | LOW — checks skill files, not workflow files directly. Already has English "Next step" variant. |
-| 615, 623 | `plan workflow co effort classification` | `/Effort level/` | plan.md | LOW — "Effort level" is already English. Test description uses Vietnamese "Buoc 5" but regex checks English string. |
-| 655 | `write-code workflow co effort->model routing` | `/model:\s*\{resolved_model\}/` | write-code.md | LOW — regex checks English/code pattern. Test description uses Vietnamese "Buoc 10". |
+| Line     | Test                                           | Regex/Match                                   | Workflow               | Risk                                                                                                                |
+| -------- | ---------------------------------------------- | --------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 339      | output section check                           | `/Next step\|Buoc tiep theo\|Bước tiếp theo/` | Skills (not workflows) | LOW — checks skill files, not workflow files directly. Already has English "Next step" variant.                     |
+| 615, 623 | `plan workflow co effort classification`       | `/Effort level/`                              | plan.md                | LOW — "Effort level" is already English. Test description uses Vietnamese "Buoc 5" but regex checks English string. |
+| 655      | `write-code workflow co effort->model routing` | `/model:\s*\{resolved_model\}/`               | write-code.md          | LOW — regex checks English/code pattern. Test description uses Vietnamese "Buoc 10".                                |
 
 ### Assertions That DO NOT Break (reference files, not workflows)
 
@@ -209,43 +211,53 @@ Per D-09, Vietnamese test names like `"mỗi command có frontmatter tối thi�
 
 ```markdown
 # Before (Vietnamese)
+
 ## Bước 1: Xác định đường dẫn dự án
+
 ## Bước 1.5: Kiểm tra khôi phục sau gián đoạn
+
 ## Bước 5b.1: Tạo session mới
 
 # After (English)
+
 ## Step 1: Determine project path
+
 ## Step 1.5: Check recovery after interruption
+
 ## Step 5b.1: Create new session
 ```
 
 ### Behavioral Keyword Mapping
 
-| Vietnamese | English | Force Level |
-|------------|---------|-------------|
-| DỪNG / DUNG | STOP | Hard stop |
-| BẮT BUỘC / BAT BUOC | REQUIRED / MANDATORY | Mandatory |
-| KHÔNG / KHONG | DO NOT | Prohibition |
-| CHỈ / CHI | ONLY | Restriction |
-| CÓ / CO | YES | Affirmative |
-| THIẾU / THIEU | MISSING | Error condition |
-| Chạy | Run | Action |
-| Đọc | Read | Action |
-| Ghi | Write | Action |
-| Kiểm tra / Kiem tra | Check | Action |
-| Cảnh báo / Canh bao | Warning | Alert |
-| Hiển thị / Hien thi | Display | Action |
+| Vietnamese          | English              | Force Level     |
+| ------------------- | -------------------- | --------------- |
+| DỪNG / DUNG         | STOP                 | Hard stop       |
+| BẮT BUỘC / BAT BUOC | REQUIRED / MANDATORY | Mandatory       |
+| KHÔNG / KHONG       | DO NOT               | Prohibition     |
+| CHỈ / CHI           | ONLY                 | Restriction     |
+| CÓ / CO             | YES                  | Affirmative     |
+| THIẾU / THIEU       | MISSING              | Error condition |
+| Chạy                | Run                  | Action          |
+| Đọc                 | Read                 | Action          |
+| Ghi                 | Write                | Action          |
+| Kiểm tra / Kiem tra | Check                | Action          |
+| Cảnh báo / Canh bao | Warning              | Alert           |
+| Hiển thị / Hien thi | Display              | Action          |
 
 ### Cross-Reference Preservation
 
 ```markdown
 # Before — preserve @path references, translate surrounding text
+
 Đọc KHI cần:
+
 - @references/prioritization.md -> phân loại rủi ro bug -- KHI nhiều bugs cần ưu tiên
 - @references/context7-pipeline.md -> tra cứu tài liệu thư viện qua Context7 -- KHI lỗi liên quan thư viện
 
 # After
+
 Read WHEN needed:
+
 - @references/prioritization.md -> classify bug risk -- WHEN multiple bugs need prioritization
 - @references/context7-pipeline.md -> look up library docs via Context7 -- WHEN error involves a library
 ```
@@ -270,18 +282,18 @@ assert.match(
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
+| Old Approach                | Current Approach         | When Changed       | Impact                                                          |
+| --------------------------- | ------------------------ | ------------------ | --------------------------------------------------------------- |
 | Vietnamese workflow content | English workflow content | Phase 66 (current) | AI agents consume clearer instructions, reduced token ambiguity |
-| "Bước X" step numbering | "Step X" step numbering | Phase 66 (current) | Standard English convention |
+| "Bước X" step numbering     | "Step X" step numbering  | Phase 66 (current) | Standard English convention                                     |
 
 ## Environment Availability
 
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Node.js | Test execution | ✓ | v24.13.0 | — |
-| grep (BSD) | Vietnamese diacritic sweep | ✓ | 2.6.0-FreeBSD | — |
-| git | Commits | ✓ | — | — |
+| Dependency | Required By                | Available | Version       | Fallback |
+| ---------- | -------------------------- | --------- | ------------- | -------- |
+| Node.js    | Test execution             | ✓         | v24.13.0      | —        |
+| grep (BSD) | Vietnamese diacritic sweep | ✓         | 2.6.0-FreeBSD | —        |
+| git        | Commits                    | ✓         | —             | —        |
 
 No missing dependencies.
 
@@ -289,20 +301,20 @@ No missing dependencies.
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | Node.js built-in test runner |
-| Config file | None — uses `node --test` directly |
-| Quick run command | `node --test test/smoke-integrity.test.js` |
-| Full suite command | `node --test test/smoke-*.test.js` |
+| Property           | Value                                      |
+| ------------------ | ------------------------------------------ |
+| Framework          | Node.js built-in test runner               |
+| Config file        | None — uses `node --test` directly         |
+| Quick run command  | `node --test test/smoke-integrity.test.js` |
+| Full suite command | `node --test test/smoke-*.test.js`         |
 
 ### Phase Requirements → Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| TRANS-03 | All 13 workflow files contain zero Vietnamese diacritics | smoke | `grep -c '[àáạảãâầấậẩẫăằắặẳẵđèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]' workflows/*.md \|\| true` | ✅ (inline command) |
-| TRANS-03 | Workflow structure preserved (XML tags, cross-refs) | smoke | `node --test test/smoke-integrity.test.js` | ✅ |
-| TRANS-03 | Step numbering uses English convention | manual | Visual review during translation | N/A |
+| Req ID   | Behavior                                                 | Test Type | Automated Command                                                                                          | File Exists?        |
+| -------- | -------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------- | ------------------- |
+| TRANS-03 | All 13 workflow files contain zero Vietnamese diacritics | smoke     | `grep -c '[àáạảãâầấậẩẫăằắặẳẵđèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹ]' workflows/*.md \|\| true` | ✅ (inline command) |
+| TRANS-03 | Workflow structure preserved (XML tags, cross-refs)      | smoke     | `node --test test/smoke-integrity.test.js`                                                                 | ✅                  |
+| TRANS-03 | Step numbering uses English convention                   | manual    | Visual review during translation                                                                           | N/A                 |
 
 ### Sampling Rate
 
@@ -330,6 +342,7 @@ None — existing test infrastructure covers all phase requirements. No new test
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH — no external libraries needed, only existing project tools
 - Architecture: HIGH — file structure and patterns directly inspected from source files
 - Pitfalls: HIGH — test assertion impact exhaustively analyzed line-by-line from smoke-integrity.test.js

@@ -52,6 +52,7 @@ completed: 2026-03-28
 - **Files modified:** 8
 
 ## Accomplishments
+
 - Translated init.md, scan.md, conventions.md, what-next.md, research.md, complete-milestone.md, test.md to English
 - All "Bước X" references converted to "Step X" with sub-numbering preserved
 - Updated smoke-integrity.test.js assertions that referenced translated content
@@ -63,6 +64,7 @@ completed: 2026-03-28
 2. **Task 2: Update test assertions for translated workflows** - `aa077f0` (test)
 
 ## Files Created/Modified
+
 - `workflows/init.md` - Project initialization workflow (168 lines)
 - `workflows/scan.md` - Project scanning workflow (108 lines)
 - `workflows/conventions.md` - Coding conventions detection (81 lines)
@@ -73,6 +75,7 @@ completed: 2026-03-28
 - `test/smoke-integrity.test.js` - Updated regex alternation and effort routing assertion
 
 ## Decisions Made
+
 - Added "Step" to process regex alternation as temporary measure (Step|Bước|Buoc) — Plan 02 will finalize to Step-only
 - Changed "Effort routing cho test" → "Effort routing for test" to match translated test.md
 
@@ -81,9 +84,11 @@ completed: 2026-03-28
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## Self-Check: PASSED
+
 - All 7 files: 0 Vietnamese diacritics (grep verified)
 - All 7 files: 0 "Bước" occurrences (grep verified)
 - All 7 files: Step numbering present (grep verified)
