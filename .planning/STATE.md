@@ -1,14 +1,15 @@
 ---
 gsd_state_version: 1.0
 milestone: v6.0
-milestone_name: "Vietnamese → English Migration"
-status: roadmap created
-stopped_at: Roadmap created — ready for Phase 65
-last_updated: "2026-03-28"
+milestone_name: Vietnamese → English Migration
+status: Defining requirements
+stopped_at: Phase 65 context gathered
+last_updated: "2026-03-28T01:20:22.140Z"
+last_activity: 2026-03-28 \u2014 Milestone v6.0 started
 progress:
   total_phases: 6
   completed_phases: 0
-  total_plans: 12
+  total_plans: 2
   completed_plans: 0
 ---
 
@@ -68,5 +69,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-28
-Stopped at: Milestone v6.0 started \u2014 defining requirements
+Last session: 2026-03-28T01:20:22.133Z
+Stopped at: Phase 65 context gathered
