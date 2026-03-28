@@ -1,8 +1,8 @@
 /**
  * Smoke tests — All Platforms (Claude + Codex + Copilot + Gemini + OpenCode)
- * Kiểm tra TẤT CẢ skills được install đúng trên MỌI platform.
+ * Test ALL skills are installed correctly on EVERY platform.
  *
- * Chạy: node --test test/smoke-all-platforms.test.js
+ * Run: node --test test/smoke-all-platforms.test.js
  */
 
 'use strict';
@@ -36,13 +36,13 @@ function listDir(base, ...parts) {
   return fs.existsSync(dir) ? fs.readdirSync(dir) : [];
 }
 
-/** Lấy danh sách canonical skills từ source */
+/** Get list of canonical skills from source */
 function getCanonicalSkills() {
   const skillsSrc = path.join(SKILLS_DIR, 'commands', 'pd');
   return listSkillFiles(skillsSrc);
 }
 
-/** Lấy danh sách canonical rules từ source */
+/** Get list of canonical rules from source */
 function getCanonicalRules() {
   const rulesDir = path.join(SKILLS_DIR, 'commands', 'pd', 'rules');
   if (!fs.existsSync(rulesDir)) return [];
@@ -54,11 +54,11 @@ function getCanonicalRules() {
 describe('Canonical skills baseline', () => {
   const canonical = getCanonicalSkills();
 
-  it('có ít nhất 10 skills', () => {
-    assert.ok(canonical.length >= 10, `chỉ có ${canonical.length} skills — thiếu`);
+  it('has at least 10 skills', () => {
+    assert.ok(canonical.length >= 10, `only ${canonical.length} skills — too few`);
   });
 
-  it('bao gồm tất cả core skills', () => {
+  it('includes all core skills', () => {
     const names = canonical.map(s => s.name);
     const required = [
       'init', 'scan', 'new-milestone', 'plan', 'write-code',
@@ -66,15 +66,15 @@ describe('Canonical skills baseline', () => {
       'fetch-doc', 'update',
     ];
     for (const r of required) {
-      assert.ok(names.includes(r), `thiếu core skill: ${r}`);
+      assert.ok(names.includes(r), `missing core skill: ${r}`);
     }
   });
 
-  it('mỗi skill có frontmatter hợp lệ', () => {
+  it('each skill has valid frontmatter', () => {
     for (const skill of canonical) {
       const { frontmatter } = parseFrontmatter(skill.content);
-      assert.ok(frontmatter.name, `${skill.name} thiếu name trong frontmatter`);
-      assert.ok(frontmatter.description, `${skill.name} thiếu description`);
+      assert.ok(frontmatter.name, `${skill.name} missing name in frontmatter`);
+      assert.ok(frontmatter.description, `${skill.name} missing description`);
     }
   });
 });
@@ -92,54 +92,54 @@ describe('Claude installer (installSkillsOnly)', () => {
   });
   after(() => fs.rmSync(tmpDir, { recursive: true, force: true }));
 
-  it('tạo commands/pd/ directory', () => {
-    assert.ok(fileExists(tmpDir, 'commands', 'pd'), 'thiếu commands/pd/');
+  it('creates commands/pd/ directory', () => {
+    assert.ok(fileExists(tmpDir, 'commands', 'pd'), 'missing commands/pd/');
   });
 
-  it('TẤT CẢ skills được symlink', () => {
+  it('ALL skills are symlinked', () => {
     const installed = listDir(tmpDir, 'commands', 'pd')
       .filter(f => f.endsWith('.md'))
       .map(f => f.replace('.md', ''));
     for (const skill of canonical) {
       assert.ok(installed.includes(skill.name),
-        `thiếu skill: ${skill.name} (có: ${installed.join(', ')})`);
+        `missing skill: ${skill.name} (have: ${installed.join(', ')})`);
     }
     assert.equal(installed.length, canonical.length,
-      `số skills không khớp: installed=${installed.length} vs canonical=${canonical.length}`);
+      `skill count mismatch: installed=${installed.length} vs canonical=${canonical.length}`);
   });
 
-  it('skill files là symlinks (không phải copies)', () => {
+  it('skill files are symlinks (not copies)', () => {
     for (const skill of canonical) {
       const fp = path.join(tmpDir, 'commands', 'pd', `${skill.name}.md`);
       const stat = fs.lstatSync(fp);
-      assert.ok(stat.isSymbolicLink(), `${skill.name}.md phải là symlink`);
+      assert.ok(stat.isSymbolicLink(), `${skill.name}.md must be a symlink`);
     }
   });
 
-  it('symlinks trỏ đến source files đúng', () => {
+  it('symlinks point to correct source files', () => {
     for (const skill of canonical) {
       const fp = path.join(tmpDir, 'commands', 'pd', `${skill.name}.md`);
       const target = fs.readlinkSync(fp);
       assert.equal(target, skill.filePath,
-        `${skill.name}.md symlink sai: ${target} !== ${skill.filePath}`);
+        `${skill.name}.md symlink wrong: ${target} !== ${skill.filePath}`);
     }
   });
 
-  it('rules directory được symlink', () => {
+  it('rules directory is symlinked', () => {
     const rulesLink = path.join(tmpDir, 'commands', 'pd', 'rules');
-    assert.ok(fs.existsSync(rulesLink), 'thiếu rules symlink');
+    assert.ok(fs.existsSync(rulesLink), 'missing rules symlink');
     const stat = fs.lstatSync(rulesLink);
-    assert.ok(stat.isSymbolicLink(), 'rules phải là symlink');
+    assert.ok(stat.isSymbolicLink(), 'rules must be a symlink');
   });
 
-  it('rules symlink trỏ đến source rules đúng', () => {
+  it('rules symlink points to correct source', () => {
     const rulesLink = path.join(tmpDir, 'commands', 'pd', 'rules');
     const target = fs.readlinkSync(rulesLink);
     const expected = path.join(SKILLS_DIR, 'commands', 'pd', 'rules');
     assert.equal(target, expected);
   });
 
-  it('tạo .pdconfig đúng format', () => {
+  it('creates .pdconfig with correct format', () => {
     assert.ok(fileExists(tmpDir, 'commands', 'pd', '.pdconfig'));
     const config = readFile(tmpDir, 'commands', 'pd', '.pdconfig');
     assert.match(config, /SKILLS_DIR=/);
@@ -147,15 +147,15 @@ describe('Claude installer (installSkillsOnly)', () => {
     assert.match(config, /CURRENT_VERSION=0\.0\.0-test/);
   });
 
-  it('idempotent: cài lần 2 không duplicate/lỗi', () => {
+  it('idempotent: second install does not duplicate/error', () => {
     installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
     const count = listDir(tmpDir, 'commands', 'pd')
       .filter(f => f.endsWith('.md')).length;
-    assert.equal(count, canonical.length, 'cài lần 2 tạo thêm files');
+    assert.equal(count, canonical.length, 'second install creates extra files');
   });
 
-  it('uninstall xóa sạch symlinks + .pdconfig', async () => {
-    // Tạo bản mới để test uninstall
+  it('uninstall removes all symlinks + .pdconfig', async () => {
+    // Create fresh copy for uninstall test
     const tmpDir2 = makeTmpDir('claude-uninstall');
     installer.installSkillsOnly(SKILLS_DIR, tmpDir2, { version: '0.0.0-test' });
 
@@ -173,7 +173,7 @@ describe('Claude installer (installSkillsOnly)', () => {
     try { fs.lstatSync(rulesLink); fs.unlinkSync(rulesLink); } catch { /* */ }
 
     const remaining = fs.readdirSync(cmdDir);
-    assert.equal(remaining.length, 0, `còn sót ${remaining.length} files sau uninstall`);
+    assert.equal(remaining.length, 0, `${remaining.length} files remaining after uninstall`);
 
     fs.rmSync(tmpDir2, { recursive: true, force: true });
   });
@@ -181,11 +181,11 @@ describe('Claude installer (installSkillsOnly)', () => {
 
 // ─── CROSS-PLATFORM: Tất cả skills trên tất cả platforms ────
 
-describe('Cross-platform — TẤT CẢ skills phải có trên MỌI platform', () => {
+describe('Cross-platform — ALL skills must exist on EVERY platform', () => {
   const canonical = getCanonicalSkills();
   const canonicalNames = canonical.map(s => s.name).sort();
 
-  /** Lấy tên skills đã install theo platform */
+  /** Get installed skill names by platform */
   function getInstalledSkills(platform, tmpDir) {
     switch (platform) {
       case 'claude': {
@@ -223,70 +223,70 @@ describe('Cross-platform — TẤT CẢ skills phải có trên MỌI platform',
   }
 
   // ── Claude ──
-  it('Claude: tất cả skills có mặt', () => {
+  it('Claude: all skills present', () => {
     const tmpDir = makeTmpDir('xplat-claude');
     try {
       const installer = require('../bin/lib/installers/claude');
       installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const installed = getInstalledSkills('claude', tmpDir);
       assert.deepEqual(installed, canonicalNames,
-        `Claude thiếu/thừa skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
+        `Claude missing/extra skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
   // ── Codex ──
-  it('Codex: tất cả skills có mặt', async () => {
+  it('Codex: all skills present', async () => {
     const tmpDir = makeTmpDir('xplat-codex');
     try {
       const installer = require('../bin/lib/installers/codex');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const installed = getInstalledSkills('codex', tmpDir);
       assert.deepEqual(installed, canonicalNames,
-        `Codex thiếu/thừa skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
+        `Codex missing/extra skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
   // ── Copilot ──
-  it('Copilot: tất cả skills có mặt', async () => {
+  it('Copilot: all skills present', async () => {
     const tmpDir = makeTmpDir('xplat-copilot');
     try {
       const installer = require('../bin/lib/installers/copilot');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test', isGlobal: true });
       const installed = getInstalledSkills('copilot', tmpDir);
       assert.deepEqual(installed, canonicalNames,
-        `Copilot thiếu/thừa skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
+        `Copilot missing/extra skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
   // ── Gemini ──
-  it('Gemini: tất cả skills có mặt', async () => {
+  it('Gemini: all skills present', async () => {
     const tmpDir = makeTmpDir('xplat-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const installed = getInstalledSkills('gemini', tmpDir);
       assert.deepEqual(installed, canonicalNames,
-        `Gemini thiếu/thừa skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
+        `Gemini missing/extra skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
   // ── OpenCode ──
-  it('OpenCode: tất cả skills có mặt', async () => {
+  it('OpenCode: all skills present', async () => {
     const tmpDir = makeTmpDir('xplat-opencode');
     try {
       const installer = require('../bin/lib/installers/opencode');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const installed = getInstalledSkills('opencode', tmpDir);
       assert.deepEqual(installed, canonicalNames,
-        `OpenCode thiếu/thừa skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
+        `OpenCode missing/extra skills:\n  installed: ${installed.join(', ')}\n  expected: ${canonicalNames.join(', ')}`);
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
@@ -295,25 +295,25 @@ describe('Cross-platform — TẤT CẢ skills phải có trên MỌI platform',
 
 // ─── CROSS-PLATFORM: Skill content integrity ─────────────────
 
-describe('Cross-platform — Skill content không rỗng + có frontmatter', () => {
+describe('Cross-platform — Skill content not empty + has frontmatter', () => {
   const canonical = getCanonicalSkills();
 
-  it('Claude: mỗi skill đọc được và có nội dung', () => {
+  it('Claude: each skill is readable and has content', () => {
     const tmpDir = makeTmpDir('content-claude');
     try {
       const installer = require('../bin/lib/installers/claude');
       installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       for (const skill of canonical) {
         const content = readFile(tmpDir, 'commands', 'pd', `${skill.name}.md`);
-        assert.ok(content.length > 100, `${skill.name} quá ngắn (${content.length} chars)`);
-        assert.match(content, /^---/m, `${skill.name} thiếu frontmatter`);
+        assert.ok(content.length > 100, `${skill.name} too short (${content.length} chars)`);
+        assert.match(content, /^---/m, `${skill.name} missing frontmatter`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Codex: mỗi skill có SKILL.md với nội dung', async () => {
+  it('Codex: each skill has SKILL.md with content', async () => {
     const tmpDir = makeTmpDir('content-codex');
     try {
       const installer = require('../bin/lib/installers/codex');
@@ -321,39 +321,39 @@ describe('Cross-platform — Skill content không rỗng + có frontmatter', () 
       for (const skill of canonical) {
         const skillDir = `pd-${skill.name}`;
         assert.ok(fileExists(tmpDir, 'skills', skillDir, 'SKILL.md'),
-          `${skillDir} thiếu SKILL.md`);
+          `${skillDir} missing SKILL.md`);
         const content = readFile(tmpDir, 'skills', skillDir, 'SKILL.md');
-        assert.ok(content.length > 100, `${skillDir}/SKILL.md quá ngắn`);
+        assert.ok(content.length > 100, `${skillDir}/SKILL.md too short`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Gemini: mỗi skill file có nội dung TOML hợp lệ', async () => {
+  it('Gemini: each skill file has valid TOML content', async () => {
     const tmpDir = makeTmpDir('content-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       for (const skill of canonical) {
         const content = readFile(tmpDir, 'commands', 'pd', `${skill.name}.toml`);
-        assert.ok(content.length > 100, `${skill.name} quá ngắn`);
-        assert.match(content, /^description = "/, `${skill.name} thiếu description`);
-        assert.match(content, /\nprompt = "/, `${skill.name} thiếu prompt`);
+        assert.ok(content.length > 100, `${skill.name} too short`);
+        assert.match(content, /^description = "/, `${skill.name} missing description`);
+        assert.match(content, /\nprompt = "/, `${skill.name} missing prompt`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('OpenCode: mỗi skill file có nội dung', async () => {
+  it('OpenCode: each skill file has content', async () => {
     const tmpDir = makeTmpDir('content-opencode');
     try {
       const installer = require('../bin/lib/installers/opencode');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       for (const skill of canonical) {
         const content = readFile(tmpDir, 'command', `pd-${skill.name}.md`);
-        assert.ok(content.length > 100, `pd-${skill.name}.md quá ngắn`);
+        assert.ok(content.length > 100, `pd-${skill.name}.md too short`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -363,56 +363,56 @@ describe('Cross-platform — Skill content không rỗng + có frontmatter', () 
 
 // ─── CROSS-PLATFORM: Rules đầy đủ ───────────────────────────
 
-describe('Cross-platform — Rules files đầy đủ', () => {
+describe('Cross-platform — Rules files complete', () => {
   const canonicalRules = getCanonicalRules();
 
-  it('có ít nhất general.md trong canonical rules', () => {
-    assert.ok(canonicalRules.includes('general.md'), 'thiếu general.md');
+  it('has at least general.md in canonical rules', () => {
+    assert.ok(canonicalRules.includes('general.md'), 'missing general.md');
   });
 
-  it('Claude: rules symlink chứa tất cả rule files', () => {
+  it('Claude: rules symlink contains all rule files', () => {
     const tmpDir = makeTmpDir('rules-claude');
     try {
       const installer = require('../bin/lib/installers/claude');
       installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const rules = listDir(tmpDir, 'commands', 'pd', 'rules').filter(f => f.endsWith('.md'));
       for (const r of canonicalRules) {
-        assert.ok(rules.includes(r), `Claude thiếu rule: ${r}`);
+        assert.ok(rules.includes(r), `Claude missing rule: ${r}`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Codex: pd-rules chứa tất cả rule files', async () => {
+  it('Codex: pd-rules contains all rule files', async () => {
     const tmpDir = makeTmpDir('rules-codex');
     try {
       const installer = require('../bin/lib/installers/codex');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const rules = listDir(tmpDir, 'skills', 'pd-rules').filter(f => f.endsWith('.md'));
       for (const r of canonicalRules) {
-        assert.ok(rules.includes(r), `Codex thiếu rule: ${r}`);
+        assert.ok(rules.includes(r), `Codex missing rule: ${r}`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Gemini: rules/ chứa tất cả rule files', async () => {
+  it('Gemini: rules/ contains all rule files', async () => {
     const tmpDir = makeTmpDir('rules-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
       await installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const rules = listDir(tmpDir, 'commands', 'pd', 'rules').filter(f => f.endsWith('.md'));
       for (const r of canonicalRules) {
-        assert.ok(rules.includes(r), `Gemini thiếu rule: ${r}`);
+        assert.ok(rules.includes(r), `Gemini missing rule: ${r}`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('OpenCode: pd-rules-*.md chứa tất cả rule files', async () => {
+  it('OpenCode: pd-rules-*.md contains all rule files', async () => {
     const tmpDir = makeTmpDir('rules-opencode');
     try {
       const installer = require('../bin/lib/installers/opencode');
@@ -420,7 +420,7 @@ describe('Cross-platform — Rules files đầy đủ', () => {
       const files = listDir(tmpDir, 'command').filter(f => f.startsWith('pd-rules-'));
       const rules = files.map(f => f.replace('pd-rules-', ''));
       for (const r of canonicalRules) {
-        assert.ok(rules.includes(r), `OpenCode thiếu rule: ${r}`);
+        assert.ok(rules.includes(r), `OpenCode missing rule: ${r}`);
       }
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
@@ -430,22 +430,22 @@ describe('Cross-platform — Rules files đầy đủ', () => {
 
 // ─── CROSS-PLATFORM: Không rò rỉ ~/.claude/ ─────────────────
 
-describe('Cross-platform — Không rò rỉ ~/.claude/', () => {
-  it('Claude: không leak (symlinks trỏ đúng, không có ~/.claude/ trong content)', () => {
+describe('Cross-platform — No leaked ~/.claude/', () => {
+  it('Claude: no leak (symlinks point correctly, no ~/.claude/ in content)', () => {
     const tmpDir = makeTmpDir('leak-claude');
     try {
       const installer = require('../bin/lib/installers/claude');
       installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
-      // Claude dùng symlinks → không cần scan content (symlinks trỏ về source)
-      // Chỉ check .pdconfig
+      // Claude uses symlinks → no need to scan content (symlinks point back to source)
+      // Only check .pdconfig
       const config = readFile(tmpDir, 'commands', 'pd', '.pdconfig');
-      assert.ok(!config.includes('~/.claude/'), '.pdconfig không được chứa ~/.claude/');
+      assert.ok(!config.includes('~/.claude/'), '.pdconfig must not contain ~/.claude/');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Codex: không leak', async () => {
+  it('Codex: no leak', async () => {
     const tmpDir = makeTmpDir('leak2-codex');
     try {
       const installer = require('../bin/lib/installers/codex');
@@ -457,7 +457,7 @@ describe('Cross-platform — Không rò rỉ ~/.claude/', () => {
     }
   });
 
-  it('Copilot: không leak', async () => {
+  it('Copilot: no leak', async () => {
     const tmpDir = makeTmpDir('leak2-copilot');
     try {
       const installer = require('../bin/lib/installers/copilot');
@@ -469,7 +469,7 @@ describe('Cross-platform — Không rò rỉ ~/.claude/', () => {
     }
   });
 
-  it('Gemini: không leak', async () => {
+  it('Gemini: no leak', async () => {
     const tmpDir = makeTmpDir('leak2-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
@@ -481,7 +481,7 @@ describe('Cross-platform — Không rò rỉ ~/.claude/', () => {
     }
   });
 
-  it('OpenCode: không leak', async () => {
+  it('OpenCode: no leak', async () => {
     const tmpDir = makeTmpDir('leak2-opencode');
     try {
       const installer = require('../bin/lib/installers/opencode');
@@ -496,21 +496,21 @@ describe('Cross-platform — Không rò rỉ ~/.claude/', () => {
 
 // ─── CROSS-PLATFORM: .pdconfig consistency ───────────────────
 
-describe('Cross-platform — .pdconfig có mặt + format đúng', () => {
-  it('Claude: .pdconfig trong commands/pd/', () => {
+describe('Cross-platform — .pdconfig present + correct format', () => {
+  it('Claude: .pdconfig in commands/pd/', () => {
     const tmpDir = makeTmpDir('config-claude');
     try {
       const installer = require('../bin/lib/installers/claude');
       installer.installSkillsOnly(SKILLS_DIR, tmpDir, { version: '0.0.0-test' });
       const config = readFile(tmpDir, 'commands', 'pd', '.pdconfig');
-      assert.match(config, /SKILLS_DIR=/, 'thiếu SKILLS_DIR');
-      assert.match(config, /FASTCODE_DIR=/, 'thiếu FASTCODE_DIR');
+      assert.match(config, /SKILLS_DIR=/, 'missing SKILLS_DIR');
+      assert.match(config, /FASTCODE_DIR=/, 'missing FASTCODE_DIR');
     } finally {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     }
   });
 
-  it('Codex: .pdconfig ở root', async () => {
+  it('Codex: .pdconfig at root', async () => {
     const tmpDir = makeTmpDir('config-codex');
     try {
       const installer = require('../bin/lib/installers/codex');
@@ -523,7 +523,7 @@ describe('Cross-platform — .pdconfig có mặt + format đúng', () => {
     }
   });
 
-  it('Copilot: .pdconfig ở root', async () => {
+  it('Copilot: .pdconfig at root', async () => {
     const tmpDir = makeTmpDir('config-copilot');
     try {
       const installer = require('../bin/lib/installers/copilot');
@@ -534,7 +534,7 @@ describe('Cross-platform — .pdconfig có mặt + format đúng', () => {
     }
   });
 
-  it('Gemini: .pdconfig trong commands/pd/', async () => {
+  it('Gemini: .pdconfig in commands/pd/', async () => {
     const tmpDir = makeTmpDir('config-gemini');
     try {
       const installer = require('../bin/lib/installers/gemini');
@@ -545,7 +545,7 @@ describe('Cross-platform — .pdconfig có mặt + format đúng', () => {
     }
   });
 
-  it('OpenCode: .pdconfig ở root', async () => {
+  it('OpenCode: .pdconfig at root', async () => {
     const tmpDir = makeTmpDir('config-opencode');
     try {
       const installer = require('../bin/lib/installers/opencode');

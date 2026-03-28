@@ -1,8 +1,8 @@
 /**
  * Smoke tests — State Machine (.planning/ interactions)
- * Kiểm tra tương tác trạng thái giữa các commands qua full lifecycle.
+ * Test state interactions between commands through full lifecycle.
  *
- * Chạy: node --test test/smoke-state-machine.test.js
+ * Run: node --test test/smoke-state-machine.test.js
  */
 
 'use strict';
@@ -36,7 +36,7 @@ function fileExists(base, relPath) {
   return fs.existsSync(path.join(base, relPath));
 }
 
-/** Parse CURRENT_MILESTONE.md thành object */
+/** Parse CURRENT_MILESTONE.md into object */
 function parseMilestone(content) {
   const r = {};
   for (const line of content.split('\n')) {
@@ -46,13 +46,13 @@ function parseMilestone(content) {
   return r;
 }
 
-/** Parse STATE.md fields cơ bản */
+/** Parse STATE.md basic fields */
 function parseState(content) {
   const r = {};
   const phaseMatch = content.match(/- Phase:\s*(.+)/);
-  const planMatch = content.match(/- Kế hoạch:\s*(.+)/);
-  const statusMatch = content.match(/- Trạng thái:\s*(.+)/);
-  const lastMatch = content.match(/- Hoạt động cuối:\s*(.+)/);
+  const planMatch = content.match(/- Plan:\s*(.+)/);
+  const statusMatch = content.match(/- Status:\s*(.+)/);
+  const lastMatch = content.match(/- Last activity:\s*(.+)/);
   if (phaseMatch) r.phase = phaseMatch[1].trim();
   if (planMatch) r.plan = planMatch[1].trim();
   if (statusMatch) r.status = statusMatch[1].trim();
@@ -60,7 +60,7 @@ function parseState(content) {
   return r;
 }
 
-/** Đếm task icons trong TASKS.md */
+/** Count task icons in TASKS.md */
 function countTaskStatus(content) {
   return {
     pending: (content.match(/⬜/g) || []).length,
@@ -71,7 +71,7 @@ function countTaskStatus(content) {
   };
 }
 
-/** Kiểm tra ROADMAP deliverable status */
+/** Check ROADMAP deliverable status */
 function countDeliverables(content) {
   return {
     checked: (content.match(/- \[x\]/g) || []).length,
@@ -79,7 +79,7 @@ function countDeliverables(content) {
   };
 }
 
-/** Tìm patch versions trong danh sách bug files */
+/** Find patch versions in bug file list */
 function extractPatchVersions(bugContents) {
   return bugContents
     .map(c => {
@@ -91,7 +91,7 @@ function extractPatchVersions(bugContents) {
 
 // ─── Version filtering logic (from conventions.md) ──────────
 
-/** Kiểm tra bug thuộc milestone version hay không */
+/** Check if bug belongs to milestone version */
 function bugBelongsToVersion(patchVersion, milestoneVersion) {
   if (patchVersion === milestoneVersion) return true;
   const parts = patchVersion.split('.');
@@ -102,27 +102,27 @@ function bugBelongsToVersion(patchVersion, milestoneVersion) {
   return false;
 }
 
-/** Task selection: tìm task sẵn sàng (⬜ + dependencies đã ✅) */
+/** Task selection: find ready task (⬜ + dependencies ✅) */
 function findReadyTask(tasksContent) {
   const taskBlocks = [...tasksContent.matchAll(
-    /### Task (\d+):[^\n]*\n> Loại: \S+ \| Trạng thái: (⬜|🔄|✅|❌|🐛) \| Phụ thuộc: ([^\n]*)/g
+    /### Task (\d+):[^\n]*\n> Type: \S+ \| Status: (⬜|🔄|✅|❌|🐛) \| Depends: ([^\n]*)/g
   )];
   const statusMap = {};
   for (const [, num, status] of taskBlocks) statusMap[num] = status;
 
   for (const [, num, status, dep] of taskBlocks) {
     if (status !== '⬜') continue;
-    if (dep.trim() === 'Không') return parseInt(num);
+    if (dep.trim() === 'None') return parseInt(num);
     const depMatch = dep.match(/Task (\d+)/);
     if (depMatch && statusMap[depMatch[1]] === '✅') return parseInt(num);
   }
-  return null; // tất cả blocked hoặc không còn ⬜
+  return null; // all blocked or no ⬜ left
 }
 
-/** Phát hiện circular dependency */
+/** Detect circular dependency */
 function hasCircularDependency(tasksContent) {
   const taskBlocks = [...tasksContent.matchAll(
-    /### Task (\d+):[^\n]*\n> Loại: \S+ \| Trạng thái: ⬜ \| Phụ thuộc: ([^\n]*)/g
+    /### Task (\d+):[^\n]*\n> Type: \S+ \| Status: ⬜ \| Depends: ([^\n]*)/g
   )];
   const deps = {};
   for (const [, num, dep] of taskBlocks) {
@@ -153,7 +153,7 @@ function determineWhatNextPriority(root, version, phase) {
     const openBugs = bugFiles.filter(f => {
       const c = readFile(root, `.planning/bugs/${f}`);
       const pv = c.match(/Patch version:\s*([\d.]+)/);
-      const isOpen = c.includes('Chưa xử lý') || c.includes('Đang sửa');
+      const isOpen = c.includes('Unresolved') || c.includes('Fixing');
       return isOpen && pv && bugBelongsToVersion(pv[1], version);
     });
     if (openBugs.length > 0) return { priority: 1, action: '/pd:fix-bug' };
@@ -163,16 +163,16 @@ function determineWhatNextPriority(root, version, phase) {
   const tasks = readFile(root, `${phaseDir}/TASKS.md`);
   const counts = countTaskStatus(tasks);
 
-  // P2: task đang làm
+  // P2: task in progress
   if (counts.inProgress > 0) return { priority: 2, action: '/pd:write-code' };
-  // P3: task lỗi
+  // P3: task with bug
   if (counts.bug > 0) return { priority: 3, action: '/pd:fix-bug' };
-  // P4: task chưa bắt đầu
+  // P4: task not started
   if (counts.pending > 0) return { priority: 4, action: '/pd:write-code' };
-  // P5: tất cả blocked
+  // P5: all blocked
   if (counts.blocked > 0 && counts.pending === 0) return { priority: 5, action: '/pd:fix-bug' };
 
-  // P5.5: kiểm tra phases cũ chưa test
+  // P5.5: check old phases not yet tested
   const milestonesDir = path.join(root, '.planning', 'milestones', version);
   if (fs.existsSync(milestonesDir)) {
     const allPhases = fs.readdirSync(milestonesDir).filter(d => d.startsWith('phase-'));
@@ -188,39 +188,39 @@ function determineWhatNextPriority(root, version, phase) {
     }
   }
 
-  // P6: tất cả ✅ nhưng chưa test
+  // P6: all ✅ but not tested
   if (counts.done > 0 && counts.pending === 0) {
     if (!fileExists(root, `${phaseDir}/TEST_REPORT.md`))
       return { priority: 6, action: '/pd:test' };
-    // P7/P8: đã test → plan tiếp hoặc complete
-    return { priority: 7, action: '/pd:plan hoặc /pd:complete-milestone' };
+    // P7/P8: tested → plan next or complete
+    return { priority: 7, action: '/pd:plan or /pd:complete-milestone' };
   }
 
   return { priority: 99, action: 'unknown' };
 }
 
-// ─── Simulators: mô phỏng file mutations của mỗi command ───
+// ─── Simulators: simulate file mutations of each command ───
 
-/** Mô phỏng /pd:init */
+/** Simulate /pd:init */
 function simInit(root) {
   mkp(root, '.planning', 'scan');
   mkp(root, '.planning', 'docs');
   mkp(root, '.planning', 'bugs');
   mkp(root, '.planning', 'rules');
 
-  writeFile(root, '.planning/rules/general.md', '# Quy tắc chung');
-  writeFile(root, '.planning/rules/nestjs.md', '# Quy tắc NestJS');
+  writeFile(root, '.planning/rules/general.md', '# General rules');
+  writeFile(root, '.planning/rules/nestjs.md', '# NestJS rules');
 
-  writeFile(root, '.planning/CONTEXT.md', `# Context dự án
-> Khởi tạo: 21_03_2026 14:00
-> Cập nhật: —
-> Đường dẫn Backend: ${root}
-> Đường dẫn Frontend: —
-> FastCode MCP: Hoạt động
-> Dự án mới: Không
+  writeFile(root, '.planning/CONTEXT.md', `# Project Context
+> Initialized: 21_03_2026 14:00
+> Updated: —
+> Backend path: ${root}
+> Frontend path: —
+> FastCode MCP: Active
+> New project: No
 
 ## Tech Stack
-- Backend: NestJS | Thư mục: ${root}
+- Backend: NestJS | Directory: ${root}
 - Database: PostgreSQL
 
 ## Rules
@@ -229,32 +229,32 @@ function simInit(root) {
 `);
 }
 
-/** Mô phỏng /pd:scan */
+/** Simulate /pd:scan */
 function simScan(root) {
-  writeFile(root, '.planning/scan/SCAN_REPORT.md', `# Báo cáo quét dự án
-> Ngày quét: 21_03_2026 14:10
-> Dự án: mini-todo
+  writeFile(root, '.planning/scan/SCAN_REPORT.md', `# Project Scan Report
+> Scan date: 21_03_2026 14:10
+> Project: mini-todo
 
-## Tổng quan
+## Overview
 - NestJS API, PostgreSQL, 5 modules
 
-## Trạng thái hoàn thành
-| Chức năng | Trạng thái |
-|-----------|-----------|
-| Khung dự án | Hoàn tất |
+## Completion Status
+| Feature | Status |
+|---------|--------|
+| Project skeleton | Complete |
 `);
 }
 
-/** Mô phỏng /pd:new-milestone */
+/** Simulate /pd:new-milestone */
 function simNewMilestone(root, version, name, phases) {
-  writeFile(root, '.planning/PROJECT.md', `# Dự án
-> Cập nhật: 21_03_2026
+  writeFile(root, '.planning/PROJECT.md', `# Project
+> Updated: 21_03_2026
 
-## Tầm nhìn
-Ứng dụng quản lý todo đơn giản.
+## Vision
+Simple todo management application.
 
-## Lịch sử Milestones
-| Version | Tên | Ngày | Tóm tắt |
+## Milestone History
+| Version | Name | Date | Summary |
 `);
 
   // Tạo REQUIREMENTS.md
@@ -268,7 +268,7 @@ function simNewMilestone(root, version, name, phases) {
 ${reqLines.join('\n')}
 `);
 
-  // Tạo ROADMAP.md
+  // Create ROADMAP.md
   const roadmapPhases = phases.map((p, i) => {
     const num = `${version}.${i + 1}`;
     const deliverables = p.deliverables.map(d => `- [ ] ${d}`).join('\n');
@@ -276,58 +276,58 @@ ${reqLines.join('\n')}
 ${deliverables}`;
   }).join('\n\n');
 
-  writeFile(root, '.planning/ROADMAP.md', `# Lộ trình
-> Cập nhật lần cuối: 21_03_2026
+  writeFile(root, '.planning/ROADMAP.md', `# Roadmap
+> Last updated: 21_03_2026
 
 ### Milestone v${version}: ${name}
-Trạng thái: ⬜
+Status: ⬜
 
 ${roadmapPhases}
 `);
 
   // STATE.md
-  writeFile(root, '.planning/STATE.md', `# Trạng thái làm việc
-> Cập nhật: 21_03_2026
+  writeFile(root, '.planning/STATE.md', `# Work Status
+> Updated: 21_03_2026
 
-## Vị trí hiện tại
+## Current Position
 - Milestone: v${version} — ${name}
-- Phase: Chưa bắt đầu
-- Kế hoạch: —
-- Trạng thái: Sẵn sàng lên kế hoạch
-- Hoạt động cuối: 21_03_2026 — Milestone v${version} khởi tạo
+- Phase: Not started
+- Plan: —
+- Status: Ready to plan
+- Last activity: 21_03_2026 — Milestone v${version} initialized
 
-## Bối cảnh tích lũy
-Chưa có bối cảnh tích lũy.
+## Accumulated Context
+No accumulated context yet.
 
-## Vấn đề chặn
-Không
+## Blockers
+None
 `);
 
   // CURRENT_MILESTONE.md
-  writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Milestone hiện tại
+  writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Current Milestone
 - milestone: ${name}
 - version: ${version}
 - phase: ${version}.1
-- status: Chưa bắt đầu
+- status: Not started
 `);
 
   mkp(root, '.planning', 'milestones', version);
 }
 
-/** Mô phỏng /pd:plan */
+/** Simulate /pd:plan */
 function simPlan(root, version, phaseNum, tasks) {
   const phase = `${version}.${phaseNum}`;
   const phaseDir = `.planning/milestones/${version}/phase-${phase}`;
   mkp(root, phaseDir, 'reports');
 
   // PLAN.md
-  writeFile(root, `${phaseDir}/PLAN.md`, `# Kế hoạch kỹ thuật — Phase ${phase}
-## Thiết kế
-Mô tả thiết kế kỹ thuật...
+  writeFile(root, `${phaseDir}/PLAN.md`, `# Technical Plan — Phase ${phase}
+## Design
+Technical design description...
 
-## Quyết định thiết kế
-| # | Vấn đề | Phương án | Nguồn |
-|---|--------|----------|-------|
+## Design Decisions
+| # | Issue | Solution | Source |
+|---|-------|----------|--------|
 `);
 
   // TASKS.md
@@ -351,43 +351,43 @@ ${taskRows}
 ${taskDetails}
 `);
 
-  // Cập nhật CURRENT_MILESTONE
+  // Update CURRENT_MILESTONE
   const cm = readFile(root, '.planning/CURRENT_MILESTONE.md');
   const parsed = parseMilestone(cm);
   const currentPhaseHasTasks = fileExists(root,
     `.planning/milestones/${version}/phase-${parsed.phase}/TASKS.md`);
-  const shouldAdvance = !currentPhaseHasTasks || parsed.status === 'Chưa bắt đầu';
+  const shouldAdvance = !currentPhaseHasTasks || parsed.status === 'Not started';
 
   if (shouldAdvance) {
-    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Milestone hiện tại
+    writeFile(root, '.planning/CURRENT_MILESTONE.md', `# Current Milestone
 - milestone: ${parsed.milestone}
 - version: ${version}
 - phase: ${phase}
-- status: Đang thực hiện
+- status: In progress
 `);
   } else {
-    // Chỉ cập nhật status nếu đang "Chưa bắt đầu"
-    if (parsed.status === 'Chưa bắt đầu') {
+    // Only update status if currently "Not started"
+    if (parsed.status === 'Not started') {
       writeFile(root, '.planning/CURRENT_MILESTONE.md', cm.replace(
-        /status: Chưa bắt đầu/, 'status: Đang thực hiện'));
+        /status: Not started/, 'status: In progress'));
     }
   }
 
-  // Cập nhật STATE.md — CHỈ khi CURRENT_MILESTONE cũng cập nhật
+  // Update STATE.md — ONLY when CURRENT_MILESTONE also updates
   const state = readFile(root, '.planning/STATE.md');
   if (shouldAdvance) {
     const updated = state
       .replace(/- Phase:\s*.+/, `- Phase: ${phase}`)
-      .replace(/- Kế hoạch:\s*.+/, '- Kế hoạch: Kế hoạch hoàn tất, sẵn sàng code')
-      .replace(/- Hoạt động cuối:\s*.+/, `- Hoạt động cuối: 21_03_2026 — Lên kế hoạch phase ${phase} hoàn tất`);
+      .replace(/- Plan:\s*.+/, '- Plan: Plan complete, ready to code')
+      .replace(/- Last activity:\s*.+/, `- Last activity: 21_03_2026 — Planning phase ${phase} complete`);
     writeFile(root, '.planning/STATE.md', updated);
   }
-  // Nếu pre-plan (CURRENT_MILESTONE không đổi) → STATE.md KHÔNG đổi Phase
+  // If pre-plan (CURRENT_MILESTONE unchanged) → STATE.md Phase does NOT change
 
-  // Cập nhật ROADMAP status
+  // Update ROADMAP status
   const roadmap = readFile(root, '.planning/ROADMAP.md');
   writeFile(root, '.planning/ROADMAP.md',
-    roadmap.replace('Trạng thái: ⬜', 'Trạng thái: 🔄'));
+    roadmap.replace('Status: ⬜', 'Status: 🔄'));
 }
 
 /** Mô phỏng /pd:write-code hoàn tất 1 task */
