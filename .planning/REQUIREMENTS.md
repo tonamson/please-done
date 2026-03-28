@@ -47,32 +47,21 @@ None — this is a one-time migration milestone.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
-| Requirement | Phase | Status |
-|-------------|-------|--------|
-| TRANS-01 | Pending | Pending |
-| TRANS-02 | Pending | Pending |
-| TRANS-03 | Pending | Pending |
-| TRANS-04 | Pending | Pending |
-| TRANS-05 | Pending | Pending |
-| TRANS-06 | Pending | Pending |
-| TRANS-07 | Pending | Pending |
-| TRANS-08 | Pending | Pending |
-| TRANS-09 | Pending | Pending |
-| TRANS-10 | Pending | Pending |
-| TRANS-11 | Pending | Pending |
-| SYNC-01 | Pending | Pending |
-| SYNC-02 | Pending | Pending |
-| VERIF-01 | Pending | Pending |
-| VERIF-02 | Pending | Pending |
-| VERIF-03 | Pending | Pending |
-
-**Coverage:**
-- v6.0 requirements: 16 total
-- Mapped to phases: 0
-- Unmapped: 16 ⚠️
-
----
-*Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after milestone v6.0 started*
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| TRANS-01 | 65 | — |
+| TRANS-02 | 65 | — |
+| TRANS-03 | 66 | — |
+| TRANS-04 | 67 | — |
+| TRANS-05 | 67 | — |
+| TRANS-06 | 67 | — |
+| TRANS-07 | 68 | — |
+| TRANS-08 | 68 | — |
+| TRANS-09 | 68 | — |
+| TRANS-10 | 69 | — |
+| TRANS-11 | 69 | — |
+| SYNC-01 | 65 | — |
+| SYNC-02 | 69 | — |
+| VERIF-01 | 70 | — |
+| VERIF-02 | 70 | — |
+| VERIF-03 | 70 | — |
