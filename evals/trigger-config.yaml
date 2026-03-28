@@ -1,5 +1,5 @@
-# Trigger Accuracy Tests — Skill description có trigger đúng không?
-# Đánh giá false positive (trigger sai) và false negative (không trigger khi cần)
+# Trigger Accuracy Tests — Do skill descriptions trigger correctly?
+# Evaluates false positives (wrong trigger) and false negatives (no trigger when expected)
 
 description: "Please Done Skills — Trigger Accuracy"
 
@@ -22,160 +22,160 @@ defaultTest:
 
 tests:
   # ══════════════════════════════════════════════════════════════
-  # TRUE POSITIVES — user request PHẢI trigger đúng skill
+  # TRUE POSITIVES — user request MUST trigger the correct skill
   # ══════════════════════════════════════════════════════════════
 
-  - description: "Trigger pd:init — khởi tạo project"
+  - description: "Trigger pd:init — initialize project"
     vars:
-      user_request: "Khởi tạo project mới cho tao"
+      user_request: "Initialize a new project for me"
     assert:
       - type: icontains
         value: "pd:init"
 
-  - description: "Trigger pd:scan — quét project"
+  - description: "Trigger pd:scan — scan project"
     vars:
-      user_request: "Quét project xem cấu trúc như nào"
+      user_request: "Scan the project to see its structure"
     assert:
       - type: icontains
         value: "pd:scan"
 
-  - description: "Trigger pd:new-milestone — lập roadmap"
+  - description: "Trigger pd:new-milestone — create roadmap"
     vars:
-      user_request: "Lập lộ trình phát triển cho dự án"
+      user_request: "Create a development roadmap for the project"
     assert:
       - type: icontains
         value: "pd:new-milestone"
 
-  - description: "Trigger pd:plan — thiết kế kỹ thuật"
+  - description: "Trigger pd:plan — technical design"
     vars:
-      user_request: "Lên kế hoạch kỹ thuật cho phase authentication"
+      user_request: "Create a technical plan for the authentication phase"
     assert:
       - type: icontains
         value: "pd:plan"
 
-  - description: "Trigger pd:write-code — viết code"
+  - description: "Trigger pd:write-code — write code"
     vars:
-      user_request: "Viết code task tiếp theo"
+      user_request: "Write code for the next task"
     assert:
       - type: icontains
         value: "pd:write-code"
 
-  - description: "Trigger pd:test — chạy test"
+  - description: "Trigger pd:test — run tests"
     vars:
-      user_request: "Chạy kiểm thử cho module users"
+      user_request: "Run tests for the users module"
     assert:
       - type: icontains
         value: "pd:test"
 
-  - description: "Trigger pd:fix-bug — sửa lỗi"
+  - description: "Trigger pd:fix-bug — fix bug"
     vars:
-      user_request: "API login trả về 500, fix giúp tao"
+      user_request: "The login API returns 500, fix it for me"
     assert:
       - type: icontains
         value: "pd:fix-bug"
 
-  - description: "Trigger pd:complete-milestone — đóng version"
+  - description: "Trigger pd:complete-milestone — close version"
     vars:
-      user_request: "Hoàn tất milestone hiện tại, tạo tag"
+      user_request: "Complete the current milestone, create a tag"
     assert:
       - type: icontains
         value: "pd:complete-milestone"
 
-  - description: "Trigger pd:what-next — hỏi làm gì tiếp"
+  - description: "Trigger pd:what-next — ask what to do next"
     vars:
-      user_request: "Giờ tao nên làm gì tiếp?"
+      user_request: "What should I do next?"
     assert:
       - type: icontains
         value: "pd:what-next"
 
-  - description: "Trigger pd:fetch-doc — tải tài liệu"
+  - description: "Trigger pd:fetch-doc — fetch documentation"
     vars:
-      user_request: "Tải docs NestJS guards về cho tao"
+      user_request: "Fetch NestJS guards docs for me"
     assert:
       - type: icontains
         value: "pd:fetch-doc"
 
-  - description: "Trigger pd:update — cập nhật skills"
+  - description: "Trigger pd:update — update skills"
     vars:
-      user_request: "Kiểm tra xem bộ skills có bản mới không"
+      user_request: "Check if there is a new version of the skills"
     assert:
       - type: icontains
         value: "pd:update"
 
-  - description: "Trigger pd:conventions — tạo quy ước"
+  - description: "Trigger pd:conventions — create conventions"
     vars:
-      user_request: "Tạo file conventions cho project này"
+      user_request: "Create a conventions file for this project"
     assert:
       - type: icontains
         value: "pd:conventions"
 
   - description: "Trigger pd:conventions — CLAUDE.md"
     vars:
-      user_request: "Phân tích code style rồi tạo CLAUDE.md"
+      user_request: "Analyze the code style and create CLAUDE.md"
     assert:
       - type: icontains
         value: "pd:conventions"
 
   # ══════════════════════════════════════════════════════════════
-  # TRUE NEGATIVES — request KHÔNG nên trigger skill nào
+  # TRUE NEGATIVES — request should NOT trigger any skill
   # ══════════════════════════════════════════════════════════════
 
   - description: "No trigger — refactor code (general task)"
     vars:
-      user_request: "Refactor function calculateTotal cho gọn hơn"
+      user_request: "Refactor the calculateTotal function to be cleaner"
     assert:
       - type: icontains
         value: "none"
 
-  - description: "No trigger — deploy (không có skill deploy)"
+  - description: "No trigger — deploy (no deploy skill)"
     vars:
-      user_request: "Deploy lên production server"
+      user_request: "Deploy to the production server"
     assert:
       - type: icontains
         value: "none"
 
-  - description: "No trigger — giải thích code"
+  - description: "No trigger — explain code"
     vars:
-      user_request: "Giải thích đoạn code trong file auth.guard.ts"
+      user_request: "Explain the code in the auth.guard.ts file"
     assert:
       - type: icontains
         value: "none"
 
-  - description: "No trigger — tạo README"
+  - description: "No trigger — create README"
     vars:
-      user_request: "Viết README.md cho project"
+      user_request: "Write a README.md for the project"
     assert:
       - type: icontains
         value: "none"
 
   # ══════════════════════════════════════════════════════════════
-  # AMBIGUOUS — phân biệt skills gần giống nhau
+  # AMBIGUOUS — distinguish between similar skills
   # ══════════════════════════════════════════════════════════════
 
-  - description: "Disambiguate scan vs init — đã init rồi, cần quét"
+  - description: "Disambiguate scan vs init — already initialized, need scan"
     vars:
-      user_request: "Project đã khởi tạo rồi, giờ quét cấu trúc chi tiết"
+      user_request: "The project is already initialized, now scan the detailed structure"
     assert:
       - type: icontains
         value: "pd:scan"
 
-  - description: "Disambiguate plan vs new-milestone — cần plan cụ thể cho 1 phase"
+  - description: "Disambiguate plan vs new-milestone — need specific plan for 1 phase"
     vars:
-      user_request: "Thiết kế chi tiết cho phase 1.2 CRUD Products"
+      user_request: "Create a detailed design for phase 1.2 CRUD Products"
     assert:
       - type: icontains
         value: "pd:plan"
 
-  - description: "Disambiguate fix-bug vs write-code — task bị lỗi"
+  - description: "Disambiguate fix-bug vs write-code — task has error"
     vars:
-      user_request: "Task 3 bị lỗi, endpoint trả sai response"
+      user_request: "Task 3 has an error, the endpoint returns the wrong response"
     assert:
       - type: icontains
         value: "pd:fix-bug"
 
-  - description: "Disambiguate write-code vs plan — chưa có plan"
+  - description: "Disambiguate write-code vs plan — no plan yet"
     vars:
-      user_request: "Bắt đầu code feature mới chưa lên kế hoạch"
+      user_request: "Start coding a new feature that hasn't been planned yet"
     assert:
       - type: icontains
         value: "pd:plan"

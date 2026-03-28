@@ -1,11 +1,11 @@
 /**
- * Trigger accuracy test — kiểm tra skill description có trigger đúng không.
- * Cho AI danh sách skills + descriptions, hỏi user request nào trigger skill nào.
+ * Trigger accuracy test — checks whether skill descriptions trigger correctly.
+ * Given a list of skills + descriptions, asks which skill a user request should trigger.
  */
 const fs = require('fs');
 const path = require('path');
 
-// Đọc tất cả skill files, extract name + description từ frontmatter
+// Read all skill files, extract name + description from frontmatter
 function loadSkillDescriptions() {
   const skillDir = path.resolve(__dirname, '..', 'commands', 'pd');
   const files = fs.readdirSync(skillDir).filter(f => f.endsWith('.md'));
@@ -29,13 +29,13 @@ module.exports = function ({ vars }) {
   return [
     {
       role: 'system',
-      content: `Bạn là AI assistant có các skills sau:
+      content: `You are an AI assistant with the following skills:
 
 ${skillList}
 
-Khi user đưa ra yêu cầu, trả lời CHỈ tên skill phù hợp nhất (VD: "pd:init").
-Nếu KHÔNG có skill nào phù hợp, trả lời "none".
-Trả lời NGẮN GỌN — chỉ tên skill, không giải thích.`,
+When the user makes a request, reply with ONLY the most appropriate skill name (e.g., "pd:init").
+If NO skill matches, reply "none".
+Reply BRIEFLY — just the skill name, no explanation.`,
     },
     {
       role: 'user',

@@ -1,230 +1,260 @@
-# Nâng cấp `pd:test` — Chế độ test độc lập (`--standalone`)
+# Upgrading `pd:test` — Standalone Test Mode (`--standalone`)
 
-## Bối cảnh
+## Background
 
-Hiện tại `pd:test` **bắt buộc** phải có task ở trạng thái ✅ (đã qua `pd:write-code`). Điều này không phù hợp với:
-- **Dự án cũ** đã có code nhưng chưa dùng please-done workflow
-- **Dự án import** từ bên ngoài cần kiểm thử ngay
-- **Regression test** trên code có sẵn mà không cần tạo milestone/plan/write-code
+Currently `pd:test` **requires** a task in ✅ status (having gone through `pd:write-code`). This doesn't work for:
 
-**Mục tiêu:** Thêm tham số `--standalone` cho phép test chạy độc lập — bỏ qua guards về task status, tự phân tích code và viết test trực tiếp.
+- **Legacy projects** that already have code but haven't used the please-done workflow
+- **Imported projects** from external sources that need immediate testing
+- **Regression testing** on existing code without needing to create milestone/plan/write-code
+
+**Goal:** Add a `--standalone` parameter allowing tests to run independently — bypass task status guards, analyze code directly and write tests.
 
 ---
 
-## Nguyên tắc thiết kế
+## Design Principles
 
 > [!IMPORTANT]
-> **Flow hiện tại KHÔNG bị thay đổi.** Logic `write-code` → `test` (task phải ✅) vẫn giữ nguyên 100%. `--standalone` là flow **mới hoàn toàn**, song song, không ảnh hưởng flow cũ.
+> **The current flow is NOT changed.** The `write-code` → `test` logic (task must be ✅) remains 100% intact. `--standalone` is a **completely new flow**, running in parallel, not affecting the existing flow.
 
-| Flow | Điều kiện | Mô tả |
-|------|-----------|-------|
-| **Chuẩn** (giữ nguyên) | Task number / `--all` / không tham số | Yêu cầu TASKS.md + task ✅. Đúng workflow hiện tại |
-| **Độc lập** (MỚI) | `--standalone [scope]` | Bỏ qua milestone/task. Tự scan code → viết test → chạy |
+| Flow                    | Condition                             | Description                                              |
+| ----------------------- | ------------------------------------- | -------------------------------------------------------- |
+| **Standard** (unchanged) | Task number / `--all` / no argument  | Requires TASKS.md + task ✅. Existing workflow unchanged |
+| **Standalone** (NEW)     | `--standalone [scope]`               | Bypass milestone/task. Auto-scan code → write tests → run |
 
 ---
 
-## Audit xung đột với hệ thống hiện tại
+## Conflict Audit with Existing System
 
 > [!CAUTION]
-> Dưới đây là **6 xung đột** phát hiện qua cross-reference audit toàn bộ các skill/workflow. Mỗi xung đột đều có phương án xử lý.
+> Below are **6 conflicts** discovered through a cross-reference audit of all skills/workflows. Each conflict has a resolution plan.
 
-### Xung đột 1: `state-machine.md` dòng 50 — Điều kiện tiên quyết cứng
+### Conflict 1: `state-machine.md` line 50 — Hard prerequisites
 
-**Hiện tại:**
+**Current:**
+
 ```
-| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Chạy `/pd:write-code` trước" |
+| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Run `/pd:write-code` first" |
 ```
 
-**Vấn đề:** Bảng điều kiện tiên quyết không nhắc đến `--standalone`, các skill khác đọc `state-machine.md` để validate → sẽ hiểu sai rằng test luôn cần PLAN.md + TASKS.md.
+**Issue:** The prerequisites table doesn't mention `--standalone`, other skills reading `state-machine.md` for validation → will incorrectly assume test always needs PLAN.md + TASKS.md.
 
-**Sửa:**
+**Fix:** Add a new line right below the existing `/pd:test` line (keep the old line):
+
 ```diff
--| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Chạy `/pd:write-code` trước" |
-+| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Chạy `/pd:write-code` trước" |
-+| `/pd:test --standalone` | CONTEXT.md (hoặc tự detect) + có source code | "Dự án chưa có code để test" |
-```
-
-Thêm dòng mới trong bảng cho `--standalone`, giữ nguyên dòng cũ.
-
----
-
-### Xung đột 2: `state-machine.md` Luồng chính — Thiếu nhánh standalone
-
-**Hiện tại:**
-```
-→ [/pd:write-code] → Đang code
-  → [/pd:test] → Đã test (tùy chọn)
-```
-
-**Vấn đề:** Luồng chính chỉ thể hiện `test` sau `write-code`. Không có nhánh cho standalone.
-
-**Sửa:** Thêm vào phần **Nhánh phụ**:
-```diff
- **Nhánh phụ** (bất kỳ lúc nào sau init):
- - `/pd:fix-bug` → điều tra + sửa lỗi
- - `/pd:what-next` → kiểm tra tiến trình
-+- `/pd:test --standalone` → test độc lập (không cần milestone/plan/write-code)
+ | `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Run `/pd:write-code` first" |
++| `/pd:test --standalone` | CONTEXT.md (or auto-detect) + source code exists | "Project has no code to test" |
 ```
 
 ---
 
-### Xung đột 3: `what-next.md` — Không phát hiện standalone reports
+### Conflict 2: `state-machine.md` Main Flow — Missing standalone branch
 
-**Hiện tại (Bước 3):**
-- Dòng 37: `phase-[phase]/TEST_REPORT.md tồn tại?`
-- Dòng 38: Quét `phase-*/` chưa có `TEST_REPORT.md`
-- Ưu tiên 5.6/6: Chỉ gợi ý `/pd:test` dựa trên phase-based TEST_REPORT
+**Current:**
 
-**Vấn đề:** Standalone reports lưu ở `.planning/reports/STANDALONE_TEST_REPORT_*.md` → `what-next` hoàn toàn không biết, không gợi ý.
-
-**Sửa:** Thêm sub-step 8 vào Bước 3:
-```diff
- 7. `VERIFICATION_REPORT.md` tồn tại? → `Đạt`/`Có gap`/`Cần kiểm tra thủ công`
-+8. Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → đếm. CÓ → ghi nhận "Có [N] báo cáo test độc lập"
+```
+→ [/pd:write-code] → Coding
+  → [/pd:test] → Tested (optional)
 ```
 
-Thêm Ưu tiên mới vào Bước 4:
+**Issue:** The main flow only shows `test` after `write-code`. No branch for standalone.
+
+**Fix:** Add to the **Side branches** section (full context per actual file):
+
 ```diff
- | 5.6 | Phase cũ hoàn tất chưa test | `/pd:test` (tự phát hiện phase) |
-+| 5.7 | Có STANDALONE_TEST_REPORT với lỗi (❌ > 0) | `/pd:fix-bug` — "Có [N] lỗi từ test độc lập." |
+ **Side branches** (anytime after init):
+ - `/pd:fix-bug` → investigate + fix bug
+ - `/pd:what-next` → check progress
+ - `/pd:fetch-doc` → cache documentation
+ - `/pd:update` → update skills
+ - `/pd:audit` → security audit milestone
++- `/pd:test --standalone` → standalone testing (no milestone/plan/write-code needed)
 ```
 
 ---
 
-### Xung đột 4: Bug report format — `Patch version` thiếu cho standalone
+### Conflict 3: `what-next.md` — Doesn't detect standalone reports
 
-**Hiện tại:**
-- `workflows/test.md` Bước 8: Bug report có `> Patch version: [x.x.x]` (lấy từ TASKS.md → milestone version)
-- `workflows/complete-milestone.md` Bước 3: Grep `Patch version:` → filter bugs theo milestone
-- `workflows/what-next.md` Bước 2: Grep `Patch version:` → filter bugs
+**Current (Step 3):**
 
-**Vấn đề:** Standalone không có milestone → không có version → bug report thiếu `Patch version` → **KHÔNG BỊ** `complete-milestone` bắt (tốt — không chặn sai), NHƯNG cũng không hiện trong `what-next` (xấu — bị bỏ quên).
+- Line 37: `phase-[phase]/TEST_REPORT.md exists?`
+- Line 38: Scan `phase-*/` without `TEST_REPORT.md`
+- Priority 5.6/6: Only suggests `/pd:test` based on phase-based TEST_REPORT
 
-**Sửa:** Standalone bug report dùng format đặc biệt:
+**Issue:** Standalone reports are saved at `.planning/reports/STANDALONE_TEST_REPORT_*.md` → `what-next` is completely unaware, doesn't suggest them.
+
+**Fix:** Add sub-step 8 to Step 3:
+
+```diff
+ 7. `VERIFICATION_REPORT.md` exists? → `Passed`/`Has gaps`/`Needs manual check`
++8. Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → count. EXISTS → note "Found [N] standalone test reports"
+```
+
+Add new Priority to Step 4:
+
+```diff
+ | 5.6 | Old phase completed but untested | `/pd:test` (auto-detect phase) |
++| 5.7 | STANDALONE_TEST_REPORT has failures (❌ > 0) | `/pd:fix-bug` — "Found [N] failures from standalone tests." |
+```
+
+---
+
+### Conflict 4: Bug report format — Missing `Patch version` for standalone
+
+**Current:**
+
+- `workflows/test.md` Step 8: Bug report has `> Patch version: [x.x.x]` (from TASKS.md → milestone version)
+- `workflows/complete-milestone.md` Step 3: Grep `Patch version:` → filter bugs by milestone
+- `workflows/what-next.md` Step 2: Grep `Patch version:` → filter bugs
+
+**Issue:** Standalone has no milestone → no version → bug report missing `Patch version` → **NOT caught** by `complete-milestone` (good — doesn't block incorrectly), BUT also doesn't show in `what-next` (bad — gets forgotten).
+
+**Fix:** Standalone bug reports use a special format:
+
 ```markdown
-> Trạng thái: Chưa xử lý | Nguồn: Standalone test | Scope: [path]
+> Status: Unresolved | Source: Standalone test | Scope: [path]
 > Patch version: standalone
 ```
 
-Cập nhật `what-next.md` Bước 2:
+Update `what-next.md` Step 2:
+
 ```diff
- Glob `.planning/bugs/BUG_*.md` → grep `> Trạng thái:` (Chưa xử lý/Đang sửa) + `> Patch version:` → filter milestone hiện tại
-+- Bugs có `Patch version: standalone` → hiện riêng: "Có [N] lỗi từ test độc lập chưa xử lý."
+ Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In Progress) + `> Patch version:` → filter current milestone
++- Bugs with `Patch version: standalone` → show separately: "Found [N] unresolved bugs from standalone tests."
 ```
 
-Cập nhật `complete-milestone.md` Bước 3 — thêm note:
+Update `complete-milestone.md` Step 3 — add note:
+
 ```diff
- - Bỏ qua bugs milestone khác
-+- Bỏ qua bugs `Patch version: standalone` (không thuộc milestone nào)
+ - Skip bugs from other milestones
++- Skip bugs with `Patch version: standalone` (not part of any milestone)
 ```
 
 > [!NOTE]
-> Bugs standalone sẽ được hiển thị trong `what-next` nhưng **KHÔNG chặn** `complete-milestone`. Điều này hợp lý vì chúng không thuộc workflow milestone.
+> Standalone bugs will be displayed in `what-next` but **will NOT block** `complete-milestone`. This is correct behavior since they don't belong to the milestone workflow.
 
 ---
 
-### Xung đột 5: Guard `CONTEXT.md` — Standalone muốn bypass
+### Conflict 5: Guard `CONTEXT.md` — Standalone wants to bypass
 
-**Hiện tại:** `guard-context.md` yêu cầu `.planning/CONTEXT.md` tồn tại → "Chạy `/pd:init` trước."
+**Current:** `guard-context.md` requires `.planning/CONTEXT.md` to exist → "Run `/pd:init` first."
 
-**Vấn đề:** Kế hoạch ban đầu đề xuất standalone tự detect stack khi không có CONTEXT.md, nhưng guard chạy TRƯỚC workflow → sẽ DỪNG ngay.
+**Issue:** The original plan proposes standalone auto-detecting the stack when CONTEXT.md is missing, but the guard runs BEFORE the workflow → will STOP immediately.
 
-**Sửa 2 bước:**
+**Fix in 2 steps:**
 
-**a) Trong `commands/pd/test.md` — Guard có điều kiện:**
+**a) In `commands/pd/test.md` — Conditional guard:**
+
 ```diff
 -@references/guard-context.md
-+- [ ] **CHỈ khi KHÔNG có `--standalone`:** `.planning/CONTEXT.md` tồn tại -> "Chạy `/pd:init` trước."
-+- [ ] **CHỈ khi CÓ `--standalone`:** `.planning/CONTEXT.md` tồn tại HOẶC dự án có source code -> "Dự án chưa có code và chưa khởi tạo. Chạy `/pd:init` trước."
+-- [ ] Valid task number or `--all` flag -> "Provide a task number or use `--all`."
+-@references/guard-fastcode.md
+-@references/guard-context7.md
+-- [ ] At least 1 task in `done` status -> "No tasks completed yet. Run `/pd:write-code` first."
++- [ ] **ONLY when NOT `--standalone`:** `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
++- [ ] **ONLY when `--standalone`:** `.planning/CONTEXT.md` exists OR project has source code -> "No code and not initialized. Run `/pd:init` first."
++- [ ] Valid task number or `--all` flag or `--standalone` -> "Provide a task number, use `--all`, or `--standalone [scope]`."
++- [ ] **ONLY when NOT `--standalone`:** At least 1 task in `done` status -> "No tasks completed yet. Run `/pd:write-code` first."
++
++**Soft warnings (DO NOT block skill):**
++- FastCode MCP not connected → warn "FastCode unavailable — using Grep/Read instead." Continue.
++- Context7 MCP not connected → warn "Context7 unavailable — skipping library lookup." Continue.
 ```
 
-**b) Trong `workflows/test.md` Bước S1:** Khi CONTEXT.md không tồn tại → tự detect stack (đã có trong kế hoạch, giữ nguyên).
+**b) In `workflows/test.md` Step S1:** When CONTEXT.md doesn't exist → auto-detect stack (already in the plan, keep as-is).
 
 > [!IMPORTANT]
-> KHÔNG sửa `guard-context.md` bản thân (shared reference). Chỉ sửa cách đặt guard trong `commands/pd/test.md`.
+> DO NOT modify `guard-context.md` itself (shared reference). Only modify how the guard is placed in `commands/pd/test.md`.
+> FastCode and Context7 changed to soft warnings — workflow already has fallback (Grep/Read for FastCode, skip for Context7).
 
 ---
 
-### Xung đột 6: `complete-milestone.md` Bước 2 — Kiểm tra TEST_REPORT
+### Conflict 6: `complete-milestone.md` Step 2 — TEST_REPORT check
 
-**Hiện tại (dòng 38):**
+**Current (line 38):**
+
 ```
-- `phase-*/TEST_REPORT.md` (BẮT BUỘC — backend test tự động, frontend-only kiểm thử thủ công)
+- `phase-*/TEST_REPORT.md` (REQUIRED — backend automated tests, frontend-only manual testing)
 ```
 
-**Vấn đề:** Nếu user đã chạy `--standalone` test cho code nhưng KHÔNG chạy flow chuẩn → phase vẫn thiếu `TEST_REPORT.md` → `complete-milestone` cảnh báo. Đây là **hành vi mong muốn** — standalone test không thay thế test chuẩn theo phase.
+**Issue:** If user ran `--standalone` test for code but NOT the standard flow → phase still missing `TEST_REPORT.md` → `complete-milestone` warns. This is **expected behavior** — standalone tests don't replace standard phase tests.
 
-**Quyết định: KHÔNG SỬA.** Đây đúng logic:
-- Standalone test = test nhanh, regression, kiểm thử dự án cũ
-- Milestone completion vẫn yêu cầu test theo phase (flow chuẩn)
-- User muốn bỏ qua → `complete-milestone` đã có option "(2) Bỏ qua"
+**Decision: NO FIX.** This is correct logic:
+
+- Standalone test = quick testing, regression, testing legacy projects
+- Milestone completion still requires phase-based tests (standard flow)
+- User wants to skip → `complete-milestone` already has option "(2) Skip"
 
 ---
 
-## Thay đổi chi tiết
+## Detailed Changes
 
 ### File 1: `commands/pd/test.md`
 
-#### 1.1 Cập nhật `argument-hint`
+#### 1.1 Update `argument-hint`
 
 ```diff
 -argument-hint: "[task number | --all]"
 +argument-hint: "[task number | --all | --standalone [module/path]]"
 ```
 
-#### 1.2 Cập nhật `<objective>`
+#### 1.2 Update `<objective>`
 
 ```diff
- Viết test theo stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). Frontend-only: danh sách kiểm thử thủ công + xác nhận.
- Test với dữ liệu cụ thể, chạy kiểm thử, để người dùng xác nhận rồi commit.
+ Write tests per stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). Frontend-only: manual testing checklist + confirmation.
+ Test with specific data, run tests, let the user confirm then commit.
 +
-+**Chế độ `--standalone`:** Test độc lập — không cần milestone/plan/write-code. Tự phân tích code có sẵn, viết test, chạy và báo cáo. Dùng cho dự án cũ hoặc regression test.
++**`--standalone` mode:** Independent testing — no milestone/plan/write-code needed. Auto-analyzes existing code, writes tests, runs and reports. Use for legacy projects or regression testing.
 
- **Sau khi xong:** `/pd:write-code`, `/pd:fix-bug`, hoặc `/pd:complete-milestone`
+ **After completion:** `/pd:write-code`, `/pd:fix-bug`, or `/pd:complete-milestone`
 ```
 
-#### 1.3 Cập nhật `<guards>`
+#### 1.3 Update `<guards>`
 
 ```diff
  <guards>
- Dừng và hướng dẫn người dùng nếu bất kỳ điều kiện nào sau đây thất bại:
+ Stop and guide the user if any of the following conditions fail:
 
 -@references/guard-context.md
--- [ ] Task number hợp lệ hoặc có cờ `--all` -> "Cung cấp số task hoặc dùng `--all`."
-+- [ ] **CHỈ khi KHÔNG có `--standalone`:** `.planning/CONTEXT.md` tồn tại -> "Chạy `/pd:init` trước."
-+- [ ] **CHỈ khi CÓ `--standalone`:** `.planning/CONTEXT.md` tồn tại HOẶC dự án có source code -> "Dự án chưa có code và chưa khởi tạo. Chạy `/pd:init` trước."
-+- [ ] Task number hợp lệ hoặc có cờ `--all` hoặc `--standalone` -> "Cung cấp số task, dùng `--all`, hoặc `--standalone [scope]`."
- @references/guard-fastcode.md
- @references/guard-context7.md
--- [ ] Có ít nhất 1 task ở trạng thái `done` -> "Chưa có task nào hoàn thành. Chạy `/pd:write-code` trước."
-+- [ ] **CHỈ khi KHÔNG có `--standalone`:** Có ít nhất 1 task ở trạng thái `done` -> "Chưa có task nào hoàn thành. Chạy `/pd:write-code` trước."
+-- [ ] Valid task number or `--all` flag -> "Provide a task number or use `--all`."
+-@references/guard-fastcode.md
+-@references/guard-context7.md
+-- [ ] At least 1 task in `done` status -> "No tasks completed yet. Run `/pd:write-code` first."
++- [ ] **ONLY when NOT `--standalone`:** `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
++- [ ] **ONLY when `--standalone`:** `.planning/CONTEXT.md` exists OR project has source code -> "No code and not initialized. Run `/pd:init` first."
++- [ ] Valid task number or `--all` flag or `--standalone` -> "Provide a task number, use `--all`, or `--standalone [scope]`."
++- [ ] **ONLY when NOT `--standalone`:** At least 1 task in `done` status -> "No tasks completed yet. Run `/pd:write-code` first."
++
++**Soft warnings (DO NOT block skill):**
++- FastCode MCP not connected → warn "FastCode unavailable — using Grep/Read instead." Continue.
++- Context7 MCP not connected → warn "Context7 unavailable — skipping library lookup." Continue.
  </guards>
 ```
 
-#### 1.4 Cập nhật `<context>`
+#### 1.4 Update `<context>`
 
 ```diff
  <context>
- Người dùng nhập: $ARGUMENTS
- - Task number -> test riêng task đó (phải done)
- - `--all` -> regression toàn bộ phases
- - Không có gì -> test tất cả tasks done trong phase hiện tại
-+- `--standalone` -> test độc lập, không cần milestone/plan/write-code:
-+  - `--standalone` (không scope) -> hỏi user chọn module/đường dẫn cần test
-+  - `--standalone src/modules/users` -> test module chỉ định
-+  - `--standalone src/modules/users/users.service.ts` -> test file chỉ định
-+  - `--standalone --all` -> quét toàn bộ source, test tất cả
+ User input: $ARGUMENTS
+ - Task number -> test that specific task (must be done)
+ - `--all` -> regression across all phases
+ - Nothing -> test all done tasks in the current phase
++- `--standalone` -> standalone testing, no milestone/plan/write-code needed:
++  - `--standalone` (no scope) -> ask user to choose module/path to test
++  - `--standalone src/modules/users` -> test specified module
++  - `--standalone src/modules/users/users.service.ts` -> test specified file
++  - `--standalone --all` -> scan all source, test everything
 ```
 
-#### 1.5 Cập nhật `<output>`
+#### 1.5 Update `<output>`
 
 ```diff
- **Tạo/Cập nhật:**
- - File test theo từng stack (Jest, PHPUnit, Hardhat, `flutter_test`)
- - Danh sách kiểm thử thủ công cho frontend-only
--- Cập nhật `TASKS.md`
-+- Cập nhật `TASKS.md` (chỉ flow chuẩn)
-+- `STANDALONE_TEST_REPORT_[timestamp].md` trong `.planning/reports/` (chỉ --standalone)
+ **Create/Update:**
+ - Test files per stack (Jest, PHPUnit, Hardhat, `flutter_test`)
+ - Manual testing checklist for frontend-only
+-- Update `TASKS.md`
++- Update `TASKS.md` (standard flow only)
++- `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/` (--standalone only)
 ```
 
 ---
@@ -232,321 +262,338 @@ Cập nhật `complete-milestone.md` Bước 3 — thêm note:
 ### File 2: `workflows/test.md`
 
 > [!IMPORTANT]
-> Thêm **Bước 0** mới trước Bước 1. Nếu `--standalone` → nhảy sang **Bước S1–S8** (flow mới). Nếu không → giữ nguyên Bước 1–10 100%.
+> Add **Step 0** before Step 1. If `--standalone` → jump to **Step S1–S8** (new flow). If not → keep Steps 1–10 100% unchanged.
 
-#### 2.1 Bước 0 (MỚI): Route theo chế độ
+#### 2.1 Step 0 (NEW): Route by mode
 
 ```markdown
-## Bước 0: Phân luồng chế độ
+## Step 0: Route by mode
 
-`$ARGUMENTS` chứa `--standalone`?
-- **CÓ** → nhảy **Bước S1** (flow standalone)
-- **KHÔNG** → tiếp **Bước 1** (flow chuẩn — giữ nguyên 100%)
+Does `$ARGUMENTS` contain `--standalone`?
+
+- **YES** → jump to **Step S1** (standalone flow)
+- **NO** → continue to **Step 1** (standard flow — 100% unchanged)
 ```
 
-#### 2.2 Flow standalone — Bước S1 đến S8
+#### 2.2 Standalone flow — Step S1 through S8
 
-```markdown
-## === FLOW STANDALONE (--standalone) ===
+````markdown
+## === STANDALONE FLOW (--standalone) ===
 
-## Bước S1: Xác định scope + đọc context
+## Step S1: Determine scope + read context
 
-1. **Đọc CONTEXT.md** → Tech Stack → xác định test framework:
-   - CONTEXT.md tồn tại → dùng thông tin stack
+1. **Read CONTEXT.md** → Tech Stack → determine test framework:
+   - CONTEXT.md exists → use stack information
 
-   - CONTEXT.md KHÔNG tồn tại → **tự phát hiện stack** (logic từ `workflows/init.md` Bước 4):
+   - CONTEXT.md DOES NOT exist → **auto-detect stack** (logic from `workflows/init.md` Step 4):
      | Detection | Condition | Framework |
      |-----------|-----------|-----------|
      | NestJS | `**/nest-cli.json` / `**/app.module.ts` | Jest + Supertest |
      | WordPress | `**/wp-config.php` / `**/wp-content/plugins/*/` | PHPUnit |
      | Solidity | `**/hardhat.config.*` / `**/foundry.toml` | Hardhat/Foundry |
      | Flutter | `**/pubspec.yaml` + grep `flutter` | flutter_test + mocktail |
-     | Frontend-only | `**/vite.config.*` / >5 `.tsx/.jsx` | kiểm thử thủ công |
-     
-     Thông báo: "Không có CONTEXT.md — tự phát hiện stack: [kết quả]. Chạy `/pd:init` để tạo context đầy đủ."
+     | Frontend-only | `**/vite.config.*` / >5 `.tsx/.jsx` | manual testing |
 
-2. **Xác định scope cần test:**
-   - `--standalone [path]` → validate path tồn tại → scope = path đó
-   - `--standalone --all` → scope = toàn bộ source (trừ node_modules, .planning, build, dist)
-   - `--standalone` (không scope) → hỏi user:
+     Message: "No CONTEXT.md — auto-detected stack: [result]. Run `/pd:init` to create full context."
+
+2. **Determine test scope:**
+   - `--standalone [path]` → validate path exists → scope = that path
+   - `--standalone --all` → scope = all source (excluding node_modules, .planning, build, dist)
+   - `--standalone` (no scope) → ask user:
      ```
-     Chạy test độc lập. Chọn phạm vi:
-     1. Toàn bộ dự án
-     2. Module cụ thể (nhập đường dẫn)
-     3. File cụ thể (nhập đường dẫn)
+     Running standalone tests. Choose scope:
+     1. Entire project
+     2. Specific module (enter path)
+     3. Specific file (enter path)
      ```
 
-3. `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT`
-4. `mkdir -p .planning/reports` (đảm bảo thư mục tồn tại)
+3. `git rev-parse --git-dir 2>/dev/null` → save `HAS_GIT`
+4. `mkdir -p .planning/reports` (ensure directory exists)
 
 ---
 
-## Bước S1.5: Kiểm tra khôi phục sau gián đoạn
+## Step S1.5: Check for recovery after interruption
 
-1. **Test files chưa commit?** Glob theo stack (tương tự Bước 1.5 chuẩn):
-   - Tìm thấy test files chưa commit (`git status`):
-     - "Tìm thấy [N] test files chưa commit (có thể từ phiên trước)."
-     - Hỏi: "1. GIỮ — chỉ chạy test | 2. VIẾT LẠI từ đầu"
-     - Giữ → nhảy Bước S5 | Viết lại → tiếp tục
+1. **Uncommitted test files?** Glob by stack (similar to standard Step 1.5):
+   - Found uncommitted test files (`git status`):
+     - "Found [N] uncommitted test files (possibly from a previous session)."
+     - Ask: "1. KEEP — just run tests | 2. REWRITE from scratch"
+     - Keep → jump to Step S5 | Rewrite → continue
 
-2. **STANDALONE_TEST_REPORT_*.md tồn tại?** → `.planning/reports/STANDALONE_TEST_REPORT_*.md`
-   - CÓ → Hỏi: "1. GIỮ report — chỉ commit | 2. CHẠY LẠI từ đầu"
-   - Giữ → nhảy Bước S8 | Chạy lại → tiếp tục
+2. **STANDALONE*TEST_REPORT*\*.md exists?** → `.planning/reports/STANDALONE_TEST_REPORT_*.md`
+   - EXISTS → read `> Scope:` in report → **only ask about recovery if scope matches** the current scope
+   - Scope matches → Ask: "1. KEEP report — just commit | 2. RERUN from scratch"
+   - Different scope → skip (old report for a different module, not relevant)
+   - Keep → jump to Step S8 | Rerun → continue
 
-3. Không có dấu vết → tiếp Bước S2
-
----
-
-## Bước S2: Kiểm tra test infrastructure
-
-Giống hệt Bước 2 flow chuẩn (kiểm tra Jest/PHPUnit/Hardhat/Foundry/Flutter + cài nếu thiếu).
+3. No traces found → continue to Step S2
 
 ---
 
-## Bước S3: Phân tích code trong scope
+## Step S2: Check test infrastructure
 
-**Mục tiêu:** Hiểu logic code để viết test chính xác — KHÔNG cần PLAN.md hay TASKS.md.
-
-1. **FastCode** (nếu kết nối): `mcp__fastcode__code_qa` với scope:
-   - "Liệt kê tất cả endpoints/functions/services trong [scope]. Mô tả input/output/validation/error cases."
-
-2. **Fallback** (FastCode lỗi hoặc không kết nối):
-   - Glob `[scope]/**/*.{ts,tsx,js,jsx,php,sol,dart}` (trừ test files, node_modules)
-   - Đọc từng file → extract exports, class, functions, decorators
-   
-3. **Tổng hợp danh sách cần test:**
-   ```
-   ╔═══╦══════════════════════╦══════════════╦═════════════╗
-   ║ # ║ Module/File          ║ Chức năng    ║ Loại test   ║
-   ╠═══╬══════════════════════╬══════════════╬═════════════╣
-   ║ 1 ║ users.service.ts     ║ CRUD users   ║ Unit + E2E  ║
-   ║ 2 ║ auth.controller.ts   ║ Login/Signup ║ E2E         ║
-   ╚═══╩══════════════════════╩══════════════╩═════════════╝
-   ```
-
-4. **Hỏi user xác nhận:**
-   - "Danh sách trên đúng chưa? Thêm/bớt module nào?"
-   - User xác nhận → tiếp. User chỉnh → cập nhật.
-
-5. **Context7** (thư viện bên thứ ba): @references/context7-pipeline.md
+Same as standard Step 2 (check Jest/PHPUnit/Hardhat/Foundry/Flutter + install if missing).
 
 ---
 
-## Bước S4: Viết test files
+## Step S3: Analyze code in scope
 
-Giống hệt Bước 4 flow chuẩn về format + quy tắc:
-- Đặt cạnh source (NestJS `*.spec.ts`, WP `test-*.php`, v.v.)
-- Mỗi test case có đầu vào RÕ RÀNG + đầu ra CỤ THỂ
-- Test data dùng `Date.now()` unique
-- Nhóm: happy path → validation → auth → edge cases
-- Describe/it/comment tiếng Việt có dấu
+**Goal:** Understand code logic to write accurate tests — PLAN.md and TASKS.md NOT needed.
 
-**Khác biệt với flow chuẩn:**
-- Nguồn thông tin: từ code thực tế (Bước S3), KHÔNG từ PLAN.md/TASKS.md
-- Phạm vi: có thể rộng hơn (toàn bộ module, không chỉ 1 task)
-- Test có sẵn: kiểm tra test files đã tồn tại → BỔ SUNG, không ghi đè
+1. **FastCode** (if connected): `mcp__fastcode__code_qa` with scope:
+   - "List all endpoints/functions/services in [scope]. Describe input/output/validation/error cases."
 
----
+2. **Fallback** (FastCode error or not connected):
+   - Glob `[scope]/**/*.{ts,tsx,js,jsx,php,sol,dart}` (excluding test files, node_modules)
+   - Read each file → extract exports, classes, functions, decorators
+3. **Compile list of things to test:**
 
-## Bước S5: Chạy test
+   **Scale limits:** Scope `--all` or wide scope with >20 source files → group into batches (each batch ≤10 files), display first batch, ask user: "Remaining [N] batches. (1) Continue all | (2) Test this batch only | (3) Choose specific batch"
+````
 
-Giống hệt Bước 5 flow chuẩn:
-- `cd [đường-dẫn-backend] && npm test -- --verbose --testPathPattern=[pattern]`
-- Hiển thị bảng kết quả (# | Test case | KQ | Đầu vào | Đầu ra)
+╔═══╦══════════════════════╦══════════════╦═════════════╗
+║ # ║ Module/File          ║ Function     ║ Test Type   ║
+╠═══╬══════════════════════╬══════════════╬═════════════╣
+║ 1 ║ users.service.ts     ║ CRUD users   ║ Unit + E2E  ║
+║ 2 ║ auth.controller.ts   ║ Login/Signup ║ E2E         ║
+╚═══╩══════════════════════╩══════════════╩═════════════╝
 
----
+````
 
-## Bước S6: User xác nhận
+4. **Ask user for confirmation:**
+- "Is the above list correct? Add/remove any modules?"
+- User confirms → continue. User modifies → update.
 
-Giống hệt Bước 6 flow chuẩn:
-> 1. Database: [bảng cần kiểm tra, dữ liệu kỳ vọng]
-> 2. API responses: [endpoint test thủ công, dữ liệu kỳ vọng]
-> 3. Giao diện: [CHỈ nếu có Frontend]
-> 4. Tất cả đã đúng? (y/n)
+5. **Context7** (third-party libraries): @references/context7-pipeline.md
 
 ---
 
-## Bước S7: STANDALONE_TEST_REPORT
+## Step S4: Write test files
 
-Viết `.planning/reports/STANDALONE_TEST_REPORT_[DD_MM_YYYY_HH_MM_SS].md`:
+Same as standard Step 4 for format + rules:
+- Place next to source (NestJS `*.spec.ts`, WP `test-*.php`, etc.)
+- Each test case has CLEAR input + SPECIFIC output
+- Test data uses `Date.now()` unique values
+- Group: happy path → validation → auth → edge cases
+- Describe/it/comment in English
+
+**Differences from standard flow:**
+- Information source: from actual code (Step S3), NOT from PLAN.md/TASKS.md
+- Scope: may be broader (entire module, not just 1 task)
+- Existing tests: check for existing test files → SUPPLEMENT, don't overwrite:
+- Read old test file → list existing `describe`/`it` names
+- Only add test cases that don't already exist (match by `describe`/`it` name)
+- If duplicate name → skip, log: "Skipped [N] existing test cases."
+- Append to the corresponding describe block (don't rearrange existing order)
+
+---
+
+## Step S5: Run tests
+
+Same as standard Step 5:
+- `cd [backend-path] && npm test -- --verbose --testPathPattern=[pattern]`
+- Display results table (# | Test case | Result | Input | Output)
+
+---
+
+## Step S6: User confirmation
+
+Same as standard Step 6:
+> 1. Database: [tables to check, expected data]
+> 2. API responses: [endpoint to test manually, expected data]
+> 3. UI: [ONLY if Frontend exists]
+> 4. Everything correct? (y/n)
+
+---
+
+## Step S7: STANDALONE_TEST_REPORT
+
+Write `.planning/reports/STANDALONE_TEST_REPORT_[DD_MM_YYYY_HH_MM_SS].md`:
 
 ```markdown
-# Báo cáo kiểm thử độc lập
-> Ngày: [DD_MM_YYYY HH:MM]
-> Scope: [đường dẫn / toàn bộ]
-> Tech Stack: [phát hiện tự động / từ CONTEXT.md]
-> Tổng: [X] tests | ✅ [Y] đạt | ❌ [Z] lỗi
+# Standalone Test Report
+> Date: [DD_MM_YYYY HH:MM]
+> Scope: [path / entire project]
+> Tech Stack: [auto-detected / from CONTEXT.md]
+> Total: [X] tests | ✅ [Y] passed | ❌ [Z] failed
 
-## Phạm vi đã test
-| Module/File | Chức năng | Số test | Kết quả |
+## Tested Scope
+| Module/File | Function | Tests | Result |
 
-## Kết quả chi tiết [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Kiểm thử thủ công]
-| Test case | Đầu vào | Kỳ vọng | Thực tế | KQ |
+## Detailed Results [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Manual testing]
+| Test case | Input | Expected | Actual | Result |
 
-## Xác nhận giao diện (bỏ nếu không có Frontend)
-| Chức năng | Kết quả | Ghi chú |
+## UI Verification (skip if no Frontend)
+| Feature | Result | Notes |
 
-## Xác nhận dữ liệu (bỏ nếu không có Database/On-chain)
-| Bảng/Collection/Contract | Kết quả | Ghi chú |
+## Data Verification (skip if no Database/On-chain)
+| Table/Collection/Contract | Result | Notes |
 
-## Lỗi phát hiện (nếu có)
-| # | Module | Mô tả lỗi | Mức độ | Đề xuất sửa |
-```
+## Discovered Bugs (if any)
+| # | Module | Bug Description | Severity | Fix Suggestion |
+````
 
-**Nếu có lỗi** → tạo bug report `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
+**If bugs found** → create bug report `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
+
 ```markdown
-# Báo cáo lỗi (từ kiểm thử độc lập)
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: [Nghiêm trọng/Cao/Trung bình/Nhẹ]
-> Trạng thái: Chưa xử lý | Nguồn: Standalone test | Scope: [path]
+# Bug Report (from standalone testing)
+
+> Date: [DD_MM_YYYY HH:MM:SS] | Severity: [Critical/High/Medium/Low]
+> Status: Unresolved | Source: Standalone test | Scope: [path]
 > Patch version: standalone
-> Format: BUG_[timestamp].md (giống flow chuẩn)
+> Format: BUG\_[timestamp].md (same as standard flow)
 ```
 
 > [!IMPORTANT]
-> `Patch version: standalone` → `complete-milestone` sẽ bỏ qua (không khớp version nào). `what-next` sẽ hiện riêng. `fix-bug` vẫn tìm được qua Glob + grep `Chưa xử lý`.
+> `Patch version: standalone` → `complete-milestone` will skip (doesn't match any version). `what-next` will show separately. `fix-bug` can still find them via Glob + grep `Unresolved`.
 
 ---
 
-## Bước S8: Git commit (CHỈ nếu HAS_GIT = true)
+## Step S8: Git commit (ONLY if HAS_GIT = true)
 
 ```bash
 git add [test files]
 git add .planning/reports/STANDALONE_TEST_REPORT_[timestamp].md
-# Nếu có bug report:
+# If bug report exists:
 git add .planning/bugs/BUG_[timestamp].md
-git commit -m "[KIỂM THỬ] Kiểm thử độc lập [scope]
+git commit -m "[TEST] Standalone testing [scope]
 
-Phạm vi: [scope]
-Kết quả: X/Y đạt
+Scope: [scope]
+Result: X/Y passed
 Stack: [framework]"
 ```
 
-## === KẾT THÚC FLOW STANDALONE ===
+## === END STANDALONE FLOW ===
+
+````
+
+---
+
+### File 3: `references/state-machine.md` — Update 2 locations
+
+#### 3.1 Prerequisites table (line 50)
+
+```diff
+ | `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Run `/pd:write-code` first" |
++| `/pd:test --standalone` | CONTEXT.md (or auto-detect) + source code exists | "Project has no code to test" |
+````
+
+#### 3.2 Side branches (line 20-24)
+
+```diff
+ **Side branches** (anytime after init):
+ - `/pd:fix-bug` → investigate + fix bug
+ - `/pd:what-next` → check progress
++- `/pd:test --standalone` → standalone testing (no milestone/plan/write-code needed)
+ - `/pd:fetch-doc` → cache documentation
 ```
 
 ---
 
-### File 3: `references/state-machine.md` — Cập nhật 2 chỗ
+### File 4: `workflows/what-next.md` — Update 2 locations
 
-#### 3.1 Bảng điều kiện tiên quyết (dòng 50)
+#### 4.1 Step 3: Add sub-step 8 (after line 39)
 
 ```diff
- | `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Chạy `/pd:write-code` trước" |
-+| `/pd:test --standalone` | CONTEXT.md (hoặc tự detect) + có source code | "Dự án chưa có code để test" |
+ 7. `VERIFICATION_REPORT.md` exists? → `Passed`/`Has gaps`/`Needs manual check`
++8. Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → count. EXISTS → note "Found [N] standalone test reports"
 ```
 
-#### 3.2 Nhánh phụ (dòng 20-24)
+#### 4.2 Step 2: Add standalone bug handling (line 28-30)
 
 ```diff
- **Nhánh phụ** (bất kỳ lúc nào sau init):
- - `/pd:fix-bug` → điều tra + sửa lỗi
- - `/pd:what-next` → kiểm tra tiến trình
-+- `/pd:test --standalone` → test độc lập (không cần milestone/plan/write-code)
- - `/pd:fetch-doc` → cache tài liệu
+ Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In Progress) + `> Patch version:` → filter current milestone
+ - HAS open bugs → note
+ - Bugs from other milestones → note separately, suggest as secondary
++- Bugs with `Patch version: standalone` → note separately: "Found [N] unresolved bugs from standalone tests." Suggest `/pd:fix-bug`
 ```
 
----
-
-### File 4: `workflows/what-next.md` — Cập nhật 2 chỗ
-
-#### 4.1 Bước 3: Thêm sub-step 8 (sau dòng 39)
+#### 4.3 Step 4: Add Priority 5.7 (after line 51)
 
 ```diff
- 7. `VERIFICATION_REPORT.md` tồn tại? → `Đạt`/`Có gap`/`Cần kiểm tra thủ công`
-+8. Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → đếm. CÓ → ghi nhận "Có [N] báo cáo test độc lập"
-```
-
-#### 4.2 Bước 2: Bổ sung xử lý bug standalone (dòng 28-30)
-
-```diff
- Glob `.planning/bugs/BUG_*.md` → grep `> Trạng thái:` (Chưa xử lý/Đang sửa) + `> Patch version:` → filter milestone hiện tại
- - CÓ bugs mở → ghi nhận
- - Bugs milestone khác → ghi riêng, gợi ý phụ
-+- Bugs `Patch version: standalone` → ghi riêng: "Có [N] lỗi từ test độc lập chưa xử lý." Gợi ý `/pd:fix-bug`
-```
-
-#### 4.3 Bước 4: Thêm Ưu tiên 5.7 (sau dòng 51)
-
-```diff
- | 5.6 | Phase cũ hoàn tất chưa test | `/pd:test` (tự phát hiện phase) |
-+| 5.7 | Có standalone bug mở (`Patch version: standalone`) | `/pd:fix-bug` — "Có [N] lỗi từ test độc lập." |
+ | 5.6 | Old phase completed but untested | `/pd:test` (auto-detect phase) |
++| 5.7 | Has open standalone bugs (`Patch version: standalone`) | `/pd:fix-bug` — "Found [N] bugs from standalone tests." |
 ```
 
 ---
 
-### File 5: `workflows/complete-milestone.md` — Bổ sung 1 dòng Bước 3
+### File 5: `workflows/complete-milestone.md` — Add 1 line to Step 3
 
 ```diff
- - Bỏ qua bugs milestone khác
-+- Bỏ qua bugs `Patch version: standalone` (không thuộc milestone — sẽ hiện trong `/pd:what-next`)
+ - Skip bugs from other milestones
++- Skip bugs with `Patch version: standalone` (not part of any milestone — will show in `/pd:what-next`)
 ```
 
 ---
 
-## Ma trận so sánh 2 flow
+## Comparison Matrix: 2 Flows
 
-| Tiêu chí | Flow chuẩn | Flow standalone |
-|----------|-----------|-----------------|
-| **Yêu cầu** | `init` → `plan` → `write-code` → `test` | `init` (hoặc tự detect) → `test --standalone` |
-| **Guard task ✅** | Bắt buộc | Bỏ qua |
-| **Guard CONTEXT.md** | Bắt buộc (qua @guard-context) | Có thì dùng, không thì tự detect + cảnh báo |
-| **PLAN.md / TASKS.md** | Bắt buộc (đọc thiết kế) | Không cần |
-| **Nguồn thông tin** | PLAN.md + TASKS.md + CODE_REPORT | Code thực tế (FastCode/Grep/Read) |
-| **Scope** | Theo task/phase | Theo path/module/toàn bộ |
-| **Report** | `TEST_REPORT.md` trong phase dir | `STANDALONE_TEST_REPORT_*.md` trong `.planning/reports/` |
-| **Cập nhật TASKS.md** | Có (đánh 🐛 nếu fail) | Không (không có tasks) |
-| **Bug report** | `Patch version: [x.x.x]` | `Patch version: standalone` |
-| **`complete-milestone`** | Kiểm tra TEST_REPORT + bugs | Bỏ qua standalone bugs + reports |
-| **`what-next`** | Gợi ý dựa trên phase | Gợi ý fix bugs standalone riêng |
-| **Commit prefix** | `[KIỂM THỬ]` | `[KIỂM THỬ]` (giữ nguyên) |
-
----
-
-## Tóm tắt files cần sửa
-
-| # | File | Thay đổi | Ảnh hưởng |
-|---|------|----------|-----------|
-| 1 | `commands/pd/test.md` | Thêm `--standalone` vào args, guards, context, output | **Chính** |
-| 2 | `workflows/test.md` | Thêm Bước 0 (router) + flow S1–S8 | **Chính** |
-| 3 | `references/state-machine.md` | Thêm dòng bảng + nhánh phụ | Đồng bộ |
-| 4 | `workflows/what-next.md` | Thêm sub-step 8 + Ưu tiên 5.7 + standalone bugs | Đồng bộ |
-| 5 | `workflows/complete-milestone.md` | Thêm 1 dòng bỏ qua standalone bugs | Đồng bộ |
-
-**KHÔNG SỬA:** `guard-context.md`, `conventions.md`, `fix-bug.md`, `write-code.md`, `complete-milestone.md` (logic chính)
+| Criteria                   | Standard Flow                           | Standalone Flow                                          |
+| -------------------------- | --------------------------------------- | -------------------------------------------------------- |
+| **Requirements**            | `init` → `plan` → `write-code` → `test` | `init` (or auto-detect) → `test --standalone`            |
+| **Guard task ✅**          | Required                                | Bypassed                                                  |
+| **Guard CONTEXT.md**       | Required (via @guard-context)           | Use if exists, otherwise auto-detect + warn               |
+| **Guard FastCode/Context7** | Hard block (guard)                     | Soft warning + Grep/Read fallback                         |
+| **PLAN.md / TASKS.md**     | Required (reads design)                | Not needed                                                |
+| **Information source**     | PLAN.md + TASKS.md + CODE_REPORT       | Actual code (FastCode/Grep/Read)                         |
+| **Scope**                  | By task/phase                          | By path/module/entire project                            |
+| **Report**                 | `TEST_REPORT.md` in phase dir          | `STANDALONE_TEST_REPORT_*.md` in `.planning/reports/`    |
+| **Update TASKS.md**        | Yes (marks 🐛 if fail)                 | No (no tasks)                                            |
+| **Bug report**             | `Patch version: [x.x.x]`              | `Patch version: standalone`                              |
+| **`complete-milestone`**   | Checks TEST_REPORT + bugs              | Skips standalone bugs + reports                          |
+| **`what-next`**            | Suggests based on phase                | Suggests fixing standalone bugs separately               |
+| **Commit prefix**          | `[TEST]`                               | `[TEST]` (same)                                          |
 
 ---
 
-## Xác minh
+## Files to Modify Summary
 
-### Kiểm tra sau khi thay đổi
+| #   | File                              | Change                                                 | Impact    |
+| --- | --------------------------------- | ----------------------------------------------------- | --------- |
+| 1   | `commands/pd/test.md`             | Add `--standalone` to args, guards, context, output   | **Main**  |
+| 2   | `workflows/test.md`               | Add Step 0 (router) + flow S1–S8                      | **Main**  |
+| 3   | `references/state-machine.md`     | Add table row + side branch                           | Sync      |
+| 4   | `workflows/what-next.md`          | Add sub-step 8 + Priority 5.7 + standalone bugs       | Sync      |
+| 5   | `workflows/complete-milestone.md` | Add 1 line to skip standalone bugs                    | Sync      |
 
-1. **Flow chuẩn vẫn hoạt động:**
-   - Chạy `/pd:test 1` với task ✅ → đúng flow cũ, tạo TEST_REPORT trong phase dir
-   - Chạy `/pd:test` không có task ✅ → vẫn DỪNG + thông báo "Chạy `/pd:write-code`"
-   - Chạy `/pd:test --all` → regression toàn bộ phases (giữ nguyên)
+**NOT MODIFIED:** `guard-context.md`, `guard-fastcode.md`, `guard-context7.md`, `conventions.md`, `fix-bug.md`, `write-code.md`, `complete-milestone.md` (main logic)
 
-2. **Flow standalone hoạt động:**
-   - Chạy `/pd:test --standalone src/modules/users` → tự detect stack, phân tích code, hỏi xác nhận scope, viết test, chạy, tạo STANDALONE_TEST_REPORT
-   - Chạy `/pd:test --standalone` (không scope) → hỏi user chọn scope
-   - Chạy `/pd:test --standalone --all` → quét toàn bộ source
+---
 
-3. **Tích hợp hệ thống:**
-   - `/pd:what-next` → hiện standalone test reports + standalone bugs
-   - `/pd:complete-milestone` → bỏ qua standalone bugs (không chặn sai)
-   - `/pd:fix-bug` → tìm standalone bugs qua Glob (hoạt động bình thường)
-   - `state-machine.md` → phản ánh đúng 2 flow
+## Verification
+
+### Post-Change Checks
+
+1. **Standard flow still works:**
+   - Run `/pd:test 1` with ✅ task → correct old flow, creates TEST_REPORT in phase dir
+   - Run `/pd:test` without ✅ task → still STOPS + message "Run `/pd:write-code` first"
+   - Run `/pd:test --all` → regression across all phases (unchanged)
+
+2. **Standalone flow works:**
+   - Run `/pd:test --standalone src/modules/users` → auto-detect stack, analyze code, ask scope confirmation, write tests, run, create STANDALONE_TEST_REPORT
+   - Run `/pd:test --standalone` (no scope) → ask user to choose scope
+   - Run `/pd:test --standalone --all` → scan all source
+
+3. **System integration:**
+   - `/pd:what-next` → shows standalone test reports + standalone bugs
+   - `/pd:complete-milestone` → skips standalone bugs (doesn't block incorrectly)
+   - `/pd:fix-bug` → finds standalone bugs via Glob (works normally)
+   - `state-machine.md` → correctly reflects both flows
 
 4. **Edge cases:**
-   - Dự án chưa có code → DỪNG "Dự án chưa có code để test"
-   - Không có CONTEXT.md + có code → tự detect stack, cảnh báo chạy `/pd:init`
-   - FastCode lỗi → fallback Grep/Read
-   - Gián đoạn giữa chừng → khôi phục từ test files chưa commit
-   - Bug standalone → hiện trong `what-next`, không chặn `complete-milestone`
+   - Project has no code → STOPS "Project has no code to test"
+   - No CONTEXT.md + has code → auto-detect stack, warn to run `/pd:init`
+   - FastCode error → fallback to Grep/Read
+   - Context7 error → skip library lookup, continue
+   - Interrupted mid-flow → recover from uncommitted test files
+   - Standalone bug → shows in `what-next`, doesn't block `complete-milestone`
+   - **Concurrent:** User running standard flow + `--standalone` → standalone test files placed next to source same as standard flow. Standard flow Step 1.5 finds uncommitted test files and asks user. No conflict because standalone commits first, standard flow creates/overwrites per task.
 
-### Kiểm tra thủ công
-- Review `commands/pd/test.md` và `workflows/test.md` sau khi thay đổi
-- Đọc qua flow standalone (Bước S1–S8) xác nhận logic hợp lý
-- Xác nhận flow chuẩn (Bước 1–10) KHÔNG bị chỉnh sửa nội dung
-- Xác nhận `state-machine.md` phản ánh đúng prerequisites mới
-- Xác nhận `what-next.md` gợi ý đúng cho standalone bugs/reports
-- Xác nhận `complete-milestone.md` bỏ qua standalone bugs
+### Manual Checks
+
+- Review `commands/pd/test.md` and `workflows/test.md` after changes
+- Read through standalone flow (Step S1–S8) confirming logic is sound
+- Confirm standard flow (Steps 1–10) NOT modified in content
+- Confirm `state-machine.md` correctly reflects new prerequisites
+- Confirm `what-next.md` correctly suggests for standalone bugs/reports
+- Confirm `complete-milestone.md` skips standalone bugs

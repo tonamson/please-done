@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 /**
- * Eval runner — load .env, chạy promptfoo, lưu benchmark history.
+ * Eval runner — load .env, run promptfoo, save benchmark history.
  *
  * Usage:
- *   node evals/run.js                    — chạy workflow eval
- *   node evals/run.js --trigger          — chạy trigger accuracy eval
- *   node evals/run.js --full             — chạy cả 2 + lưu benchmark
- *   node evals/run.js --compare          — so sánh benchmark history
+ *   node evals/run.js                    — run workflow eval
+ *   node evals/run.js --trigger          — run trigger accuracy eval
+ *   node evals/run.js --full             — run both + save benchmark
+ *   node evals/run.js --compare          — compare benchmark history
  *   node evals/run.js --filter-pattern X — filter tests
  */
 const fs = require('fs');
@@ -49,8 +49,8 @@ function timestamp() {
 }
 
 /**
- * Chạy eval với output real-time (stdio: inherit) + capture output vào file tạm.
- * Dùng shell pipe tee để vừa hiển thị vừa lưu.
+ * Run eval with real-time output (stdio: inherit) + capture output to temp file.
+ * Uses shell pipe tee to both display and save.
  */
 function runEval(configFlag, label) {
   ensureDir(TMP_DIR);
@@ -103,7 +103,7 @@ function compareBenchmarks() {
   const files = fs.readdirSync(BENCHMARK_DIR).filter(f => f.endsWith('.json')).sort();
 
   if (files.length === 0) {
-    console.log('Chua co benchmark nao. Chay: npm run eval:full');
+    console.log('No benchmarks yet. Run: npm run eval:full');
     return;
   }
 
@@ -121,7 +121,7 @@ function compareBenchmarks() {
   for (const [suite, runs] of Object.entries(suites)) {
     console.log(`| Suite: ${suite.padEnd(53)}|`);
     console.log('+----------------------+--------+--------+--------+---------+');
-    console.log('| Ngay                 | Pass % | Passed | Failed | Tokens  |');
+    console.log('| Date                 | Pass % | Passed | Failed | Tokens  |');
     console.log('+----------------------+--------+--------+--------+---------+');
 
     for (const r of runs.slice(-10)) {
@@ -174,7 +174,7 @@ if (isFull) {
   const tTotal = tBench.passed + tBench.failed + tBench.errors;
   console.log(`Workflow: ${wBench.pass_rate}% (${wBench.passed}/${wTotal})`);
   console.log(`Trigger:  ${tBench.pass_rate}% (${tBench.passed}/${tTotal})`);
-  console.log(`\nXem chi tiet: promptfoo view`);
+  console.log(`\nSee details: promptfoo view`);
 
   if (w.exitCode || t.exitCode) process.exit(1);
 
