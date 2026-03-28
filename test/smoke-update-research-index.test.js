@@ -163,7 +163,7 @@ describe('update-research-index — end-to-end', () => {
     const indexPath = path.join(researchDir, 'INDEX.md');
     assert.ok(fs.existsSync(indexPath), 'INDEX.md van duoc tao');
     const indexContent = fs.readFileSync(indexPath, 'utf8');
-    assert.ok(indexContent.includes('Chua co research files'), 'phai co thong bao rong');
+    assert.ok(indexContent.includes('No research files yet.'), 'phai co thong bao rong');
   });
 
   it('file khong co frontmatter bi bo qua', () => {

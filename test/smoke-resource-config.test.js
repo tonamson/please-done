@@ -47,11 +47,11 @@ describe('getModelForTier', () => {
   });
 
   it('throw khi tier null', () => {
-    assert.throws(() => getModelForTier(null), /thieu tham so/);
+    assert.throws(() => getModelForTier(null), /missing tier parameter/);
   });
 
   it('throw khi tier khong hop le', () => {
-    assert.throws(() => getModelForTier('invalid'), /khong hop le/);
+    assert.throws(() => getModelForTier('invalid'), /invalid tier/);
   });
 });
 
@@ -212,11 +212,11 @@ describe('getAgentConfig', () => {
   });
 
   it('throw khi agent null', () => {
-    assert.throws(() => getAgentConfig(null), /thieu tham so/);
+    assert.throws(() => getAgentConfig(null), /missing agentName parameter/);
   });
 
   it('throw khi agent khong ton tai', () => {
-    assert.throws(() => getAgentConfig('unknown-agent'), /khong ton tai/);
+    assert.throws(() => getAgentConfig('unknown-agent'), /does not exist/);
   });
 });
 
