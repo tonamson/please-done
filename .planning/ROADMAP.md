@@ -265,13 +265,20 @@ Plans:
 
 **Goal:** Translate documentation, templates, and root markdown files.
 
-**Requirements:** TRANS-07, TRANS-08, TRANS-09
+**Requirements:** TRANS-07, TRANS-08, TRANS-09, TRANS-11
 
 **Success criteria:**
 1. All 12 template files translated
 2. All 14 docs files translated
 3. All 12 root .md files translated
 4. README.md fully in English
+5. 4 evals files translated (comments/strings/values only)
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 68-01-PLAN.md — Translate 12 template files + 14 docs files
+- [ ] 68-02-PLAN.md — Translate 11 root MD files + 4 evals files
 
 **Plan 01 — Templates + Docs:**
 - Task 1: Translate 12 template files
