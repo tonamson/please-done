@@ -1,23 +1,23 @@
-# Lệnh `pd test`
+# Command `pd test`
 
-## Mục đích
-Đảm bảo chất lượng và độ tin cậy của code đã viết. Chứng minh bằng số liệu và kết quả thực tế.
+## Purpose
+Ensure the quality and reliability of written code. Prove it with data and actual results.
 
-## Cách hoạt động
-1. **Chạy Test Suite:** Thực thi các bộ test hiện có của dự án (Jest, Mocha, Flutter test, v.v.).
-2. **Kiểm tra Regression:** Đảm bảo những thay đổi mới không làm hỏng các tính năng cũ.
-3. **Viết Báo cáo (verification-report.md):** AI tạo một file báo cáo tóm tắt các test đã chạy, kết quả (Pass/Fail) và các "Truths" đã được kiểm chứng.
+## How It Works
+1. **Run Test Suite:** Execute the project's existing test suites (Jest, Mocha, Flutter test, etc.).
+2. **Check Regression:** Ensure new changes don't break existing features.
+3. **Write Report (verification-report.md):** AI creates a summary report of tests run, results (Pass/Fail), and "Truths" that have been verified.
 
-## Tại sao lệnh này quan trọng?
-Trong PD, một Milestone chỉ được coi là hoàn thành khi đã có báo cáo kiểm thử. Đây là căn cứ để "chốt" code.
+## Why is this command important?
+In PD, a Milestone is only considered complete when it has a test report. This is the basis for "locking in" the code.
 
-## Kết quả (Output)
-- Kết quả chạy test trong console.
+## Output
+- Test results in the console.
 - File `.planning/milestones/[version]/phase-[phase]/verification-report.md`.
-- Gợi ý lệnh tiếp theo (thường là `pd complete-milestone`).
+- Suggested next command (usually `pd complete-milestone`).
 
-## Mẹo sử dụng
-- Nếu dự án của bạn có các lệnh test đặc thù, hãy khai báo trong `.planning/PROJECT.md` hoặc `rules/general.md` để AI biết cách chạy đúng.
+## Usage Tips
+- If your project has specific test commands, declare them in `.planning/PROJECT.md` or `rules/general.md` so AI knows how to run them correctly.
 
 ---
-**Bước tiếp theo:** [pd complete-milestone](complete-milestone.md)
+**Next step:** [pd complete-milestone](complete-milestone.md)

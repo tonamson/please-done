@@ -1,24 +1,24 @@
-# Lệnh `pd complete-milestone`
+# Command `pd complete-milestone`
 
-## Mục đích
-Kết thúc một giai đoạn (Phase/Milestone) của dự án. Đây là bước dọn dẹp và đóng gói thành quả.
+## Purpose
+Close a project Phase/Milestone. This is the cleanup and packaging step for achievements.
 
-## Quy trình AI thực hiện
-1. **Kiểm tra trạng thái:** Đảm bảo 100% Task trong `TASKS.md` đã `COMPLETED`.
-2. **Xác nhận báo cáo:** Kiểm tra xem `verification-report.md` đã có kết quả Pass chưa.
-3. **Cập nhật tài liệu:**
-   - Đánh dấu trạng thái `Done` trong `ROADMAP.md`.
-   - Tổng kết những gì đã làm vào `CHANGELOG.md`.
-4. **Dọn dẹp:** Xóa các file rác hoặc ghi chú tạm thời không cần thiết.
-5. **Đề xuất Phase tiếp theo:** Dựa trên `ROADMAP.md` để gợi ý bước đi tiếp theo.
+## AI Process
+1. **Check status:** Ensure 100% of Tasks in `TASKS.md` are `COMPLETED`.
+2. **Confirm reports:** Verify that `verification-report.md` has a Pass result.
+3. **Update documentation:**
+   - Mark status as `Done` in `ROADMAP.md`.
+   - Summarize what was accomplished in `CHANGELOG.md`.
+4. **Clean up:** Remove unnecessary junk files or temporary notes.
+5. **Suggest next Phase:** Based on `ROADMAP.md` to recommend the next step.
 
-## Tại sao lệnh này quan trọng?
-Nó giúp dự án luôn ngăn nắp. Mỗi Milestone hoàn thành là một "điểm checkpoint" vững chắc để tiến lên giai đoạn sau.
+## Why is this command important?
+It keeps the project organized. Each completed Milestone is a solid "checkpoint" to move forward to the next phase.
 
-## Kết quả (Output)
-- Cập nhật `ROADMAP.md` và `CHANGELOG.md`.
-- File `STATE.md` được reset để chuẩn bị cho Milestone mới.
-- Một bản tổng kết ngắn gọn cho User về những gì đã đạt được.
+## Output
+- Updated `ROADMAP.md` and `CHANGELOG.md`.
+- `STATE.md` is reset to prepare for a new Milestone.
+- A brief summary for the User about what was achieved.
 
 ---
-**Bước tiếp theo:** [pd new-milestone](new-milestone.md)
+**Next step:** [pd new-milestone](new-milestone.md)

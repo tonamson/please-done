@@ -1,36 +1,36 @@
-# Lệnh `pd research` (Hệ thống Nghiên cứu Phân tầng & Minh bạch)
+# Command `pd research` (Multi-layer & Transparent Research System)
 
-## Mục đích
-Hệ thống nghiên cứu kỹ thuật đa năng phục vụ cả việc triển khai dự án (Internal) lẫn mở rộng tri thức cho người dùng (External). Mỗi bản nghiên cứu đều được chuẩn hóa theo định dạng **Audit-Ready** để chống ảo giác và lưu trữ vĩnh viễn.
+## Purpose
+A versatile technical research system serving both project implementation (Internal) and user knowledge expansion (External). Each research report is standardized in an **Audit-Ready** format to prevent hallucination and enable permanent storage.
 
-## Phân vùng Dữ liệu (Storage Structure)
-Mọi kết quả nghiên cứu đều được lưu trong thư mục `.planning/research/`:
+## Data Partitioning (Storage Structure)
+All research results are stored in the `.planning/research/` directory:
 
-1. **`internal/` (Nghiên cứu dự án)**:
-   - File chính: `TECHNICAL_STRATEGY.md`, `CODEBASE_MAP.md`.
-   - Đặc điểm: Được cập nhật liên tục theo từng Phase. Phục vụ trực tiếp cho AI khi code.
-2. **`external/` (Nghiên cứu ngoài)**:
-   - File định dạng: `RES-[ID]-[SLUG].md` (Ví dụ: `RES-001-CVE-NESTJS.md`).
-   - Đặc điểm: **Không ghi đè**. Mỗi yêu cầu nghiên cứu mới sẽ tạo ra một file mới có mã số ID riêng.
+1. **`internal/` (Project Research)**:
+   - Main files: `TECHNICAL_STRATEGY.md`, `CODEBASE_MAP.md`.
+   - Characteristics: Continuously updated per Phase. Directly serves AI when coding.
+2. **`external/` (External Research)**:
+   - File format: `RES-[ID]-[SLUG].md` (Example: `RES-001-CVE-NESTJS.md`).
+   - Characteristics: **Never overwritten**. Each new research request creates a new file with a unique ID.
 3. **`INDEX.md`**:
-   - Bảng tổng hợp (Danh mục) tất cả các bản nghiên cứu, giúp người dùng tra cứu lại dễ dàng.
+   - Summary table (directory) of all research reports, enabling easy lookup.
 
-## Chế độ hoạt động (Modes)
-- **`pd research`**: Chế độ mặc định, quét codebase phục vụ `plan`. Kết quả lưu vào `internal/`.
-- **`pd research [chủ đề/thư viện/lỗi]`**: Chế độ nghiên cứu mở rộng. 
-  - AI sẽ tìm kiếm thông tin bên ngoài dự án.
-  - Tạo file báo cáo mới trong `external/` và cập nhật ID vào `INDEX.md`.
+## Operating Modes
+- **`pd research`**: Default mode, scans codebase for `plan`. Results saved to `internal/`.
+- **`pd research [topic/library/issue]`**: Extended research mode.
+  - AI will search for information outside the project.
+  - Creates a new report file in `external/` and updates the ID in `INDEX.md`.
 
-## Tiêu chuẩn Audit (Audit Standard)
-Mỗi bản nghiên cứu (đặc biệt là nghiên cứu ngoài) PHẢI tuân thủ cấu trúc:
-- **Nguồn dẫn chứng**: Link URL, snippet tài liệu hoặc API thực tế.
-- **Log Tìm kiếm**: Danh sách các tài liệu đã đọc để đi đến kết luận.
-- **Mức độ tin cậy**: AI tự đánh giá độ chính xác (High/Medium/Low).
+## Audit Standard
+Each research report (especially external ones) MUST follow this structure:
+- **Evidence Sources**: URL links, documentation snippets, or actual API references.
+- **Search Log**: List of documents reviewed to reach conclusions.
+- **Confidence Level**: AI self-assesses accuracy (High/Medium/Low).
 
-## Kết quả (Output)
-- File báo cáo kỹ thuật minh bạch.
-- Cập nhật danh mục nghiên cứu (`INDEX.md`).
-- Bổ sung tri thức vào hồ sơ dự án (`.planning/codebase/`).
+## Output
+- Transparent technical report file.
+- Updated research directory (`INDEX.md`).
+- Knowledge additions to the project record (`.planning/codebase/`).
 
 ---
-**Bước tiếp theo:** [pd plan](plan.md)
+**Next step:** [pd plan](plan.md)

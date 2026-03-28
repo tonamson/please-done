@@ -1,25 +1,25 @@
-# Lệnh `pd fix-bug`
+# Command `pd fix-bug`
 
-## Mục đích
-Khắc phục lỗi (Bugs) một cách có hệ thống và kiểm soát được. Không bao giờ sửa bug mà không có kế hoạch.
+## Purpose
+Fix bugs systematically and in a controlled manner. Never fix a bug without a plan.
 
-## Quy trình 4 bước của PD
-1. **Tái hiện (Reproduction):** AI sẽ viết một script hoặc test case nhỏ để chứng minh bug đang tồn tại. Nếu không tái hiện được, AI sẽ không sửa.
-2. **Phân tích (Root Cause):** Tìm hiểu nguyên nhân sâu xa (ví dụ: lỗi logic, sai lệch kiểu dữ liệu, thiếu context).
-3. **Lên kế hoạch sửa (Fix Plan):** Đưa ra giải pháp sửa lỗi và liệt kê các file cần can thiệp.
-4. **Thực thi & Kiểm chứng (Execute & Verify):** Áp dụng thay đổi và chạy lại script tái hiện ở Bước 1 để đảm bảo bug đã biến mất.
+## PD's 4-Step Process
+1. **Reproduction:** AI writes a small script or test case to prove the bug exists. If it cannot be reproduced, AI will not fix it.
+2. **Root Cause Analysis:** Investigate the underlying cause (e.g., logic error, type mismatch, missing context).
+3. **Fix Plan:** Propose a fix solution and list the files that need intervention.
+4. **Execute & Verify:** Apply changes and re-run the reproduction script from Step 1 to ensure the bug is gone.
 
-## Tại sao quy trình này hiệu quả?
-- **Ngăn chặn lỗi lặp lại:** Bằng cách có script tái hiện, bạn có thể chạy lại nó sau này để đảm bảo lỗi không quay lại.
-- **Minh bạch:** Mọi bước sửa lỗi đều được tài liệu hóa trong `CHANGELOG.md` hoặc báo cáo fix bug.
+## Why is this process effective?
+- **Prevents recurring bugs:** By having a reproduction script, you can re-run it later to ensure the bug doesn't come back.
+- **Transparency:** Every fix step is documented in `CHANGELOG.md` or a bug fix report.
 
-## Kết quả (Output)
-- Code sửa lỗi trong codebase.
-- Script/Test tái hiện bug.
-- Cập nhật `CHANGELOG.md`.
+## Output
+- Bug fix code in the codebase.
+- Bug reproduction script/test.
+- Updated `CHANGELOG.md`.
 
-## Mẹo sử dụng
-- Hãy cung cấp log lỗi hoặc mô tả các bước người dùng thực hiện dẫn đến bug để AI tái hiện nhanh hơn.
+## Usage Tips
+- Provide error logs or describe the user steps that lead to the bug so AI can reproduce it faster.
 
 ---
-**Bước tiếp theo:** [pd test](test.md) hoặc [pd what-next](what-next.md).
+**Next step:** [pd test](test.md) or [pd what-next](what-next.md).

@@ -1,22 +1,22 @@
-# Lệnh `pd what-next`
+# Command `pd what-next`
 
-## Mục đích
-Giúp AI Agent xác định hành động tiếp theo dựa trên trạng thái hiện tại của dự án. Đây là "la bàn" để Agent không bị lạc lối giữa hàng tá nhiệm vụ.
+## Purpose
+Help the AI Agent determine the next action based on the project's current state. This is the "compass" to prevent the Agent from getting lost among numerous tasks.
 
-## Cách hoạt động
-Khi chạy `pd what-next`, AI sẽ:
-1. **Quét `STATE.md`:** Để biết mình đang ở Phase nào, Milestone nào.
-2. **Đọc `ROADMAP.md` và `TASKS.md`:** Để tìm danh sách công việc chưa hoàn thành.
-3. **Phân tích độ ưu tiên:** Ưu tiên các Task có trạng thái `PENDING` và không bị chặn bởi các Task khác.
-4. **Đề xuất:** Chỉ định chính xác Task ID tiếp theo cần làm.
+## How It Works
+When running `pd what-next`, AI will:
+1. **Scan `STATE.md`:** To know which Phase and Milestone it's in.
+2. **Read `ROADMAP.md` and `TASKS.md`:** To find the list of uncompleted tasks.
+3. **Analyze priority:** Prioritize Tasks with `PENDING` status that are not blocked by other Tasks.
+4. **Recommend:** Specify exactly which Task ID to work on next.
 
-## Tại sao lệnh này quan trọng?
-Trong quá trình phát triển, Agent có thể bị mất bối cảnh (context drift) do thay đổi lượt chat hoặc crash. `pd what-next` đảm bảo Agent luôn bắt đầu đúng nơi mình đã dừng lại.
+## Why is this command important?
+During development, the Agent may lose context (context drift) due to chat session changes or crashes. `pd what-next` ensures the Agent always starts right where it left off.
 
-## Kết quả (Output)
-- Tên Phase hiện tại.
-- ID và tên Task tiếp theo cần thực hiện.
-- Hướng dẫn lệnh cụ thể cho bước tiếp theo (thường là `pd write-code`).
+## Output
+- Current Phase name.
+- ID and name of the next Task to execute.
+- Specific command guidance for the next step (usually `pd write-code`).
 
 ---
-**Bước tiếp theo:** [pd write-code](write-code.md)
+**Next step:** [pd write-code](write-code.md)

@@ -1,53 +1,53 @@
-# Tổng Quan Quy Trình please-done (PD)
+# please-done (PD) Workflow Overview
 
-Hệ thống **please-done (PD)** không chỉ là một bộ lệnh CLI; nó là một **Giao thức Vận hành (Protocol)** dành cho AI Agent. PD buộc AI phải làm việc theo phong cách "Kỹ sư Cấp cao": Suy nghĩ kỹ (Plan) -> Chia nhỏ việc (Task) -> Kiểm tra tính khả thi (Check) -> Thực thi (Execute) -> Chứng minh (Verify).
-
----
-
-## 1. Vòng đời của một Phase (Milestone)
-
-Mọi dự án trong PD đều tuân theo một chu trình khép kín gồm 5 bước chính:
-
-### Bước 1: Khởi tạo (Initialization) - `pd init`
-Thiết lập cấu trúc dự án. Tạo ra "Hệ thần kinh" cho dự án bao gồm thư mục `.planning/` và file `ROADMAP.md`. Tại đây, các yêu cầu (Requirements) được định nghĩa rõ ràng.
-
-### Bước 2: Lập kế hoạch (Planning) - `pd plan`
-Đây là bước quan trọng nhất. AI không được phép viết code ngay. Nó phải:
-- Đọc `ROADMAP.md` để hiểu mục tiêu của Phase hiện tại.
-- Tạo file `PLAN.md`: Mô tả chiến lược, giải pháp kỹ thuật và các điểm nối then chốt (Key Links).
-- Tạo file `TASKS.md`: Chia nhỏ `PLAN.md` thành các nhiệm vụ cụ thể, có định lượng (Effort, Files, Truths).
-- **Plan-Checker:** Một bộ quy tắc tự động (D-01 đến D-13) sẽ quét qua Plan. Nếu Plan quá lớn (> 6 tasks) hoặc quá phức tạp, AI buộc phải làm lại.
-
-### Bước 3: Chuẩn bị Task (Task Prep) - `pd what-next`
-AI nhìn vào `STATE.md` để biết mình đang ở đâu và việc gì cần làm tiếp theo. Nó sẽ chọn ra một Task ưu tiên cao nhất chưa hoàn thành để thực hiện.
-
-### Bước 4: Thực thi (Execution) - `pd write-code`
-AI tập trung vào đúng 1 Task duy nhất.
-- Đọc mô tả Task trong `TASKS.md`.
-- Sửa đổi hoặc tạo mới các file đã được liệt kê.
-- Đảm bảo tuân thủ các Rule cụ thể của ngôn ngữ/framework (NestJS, NextJS, Flutter...).
-
-### Bước 5: Kiểm tra & Nghiệm thu (Verify & Complete) - `pd test` & `pd complete-milestone`
-- **Verify:** AI tự viết báo cáo nghiệm thu (`verification-report.md`), chứng minh các "Truths" đã đề ra ở Bước 2 đều đúng.
-- **Complete:** Khi mọi Task trong Phase đã xong, AI cập nhật `ROADMAP.md` và `CHANGELOG.md`, đóng lại một chu kỳ thành công.
+The **please-done (PD)** system is more than a set of CLI commands; it is an **Operating Protocol** for AI Agents. PD forces AI to work like a "Senior Engineer": Think carefully (Plan) -> Break down work (Task) -> Check feasibility (Check) -> Execute (Execute) -> Prove (Verify).
 
 ---
 
-## 2. Quản lý trạng thái (The State Machine)
+## 1. Lifecycle of a Phase (Milestone)
 
-Tại sao AI của PD không bao giờ "mất não" (context drift)? Đó là nhờ file `STATE.md`.
-- File này lưu trữ: Activity gần nhất, Phase hiện tại, Task đang làm.
-- Mọi câu lệnh của PD đều cập nhật hoặc đọc từ `STATE.md`.
-- Nếu Agent bị crash, Agent mới chỉ cần đọc `STATE.md` là có thể tiếp tục công việc ngay lập tức mà không cần hỏi lại User.
+Every project in PD follows a closed-loop cycle of 5 main steps:
+
+### Step 1: Initialization - `pd init`
+Set up the project structure. Create the project's "nervous system" including the `.planning/` directory and `ROADMAP.md` file. Here, Requirements are clearly defined.
+
+### Step 2: Planning - `pd plan`
+This is the most critical step. AI is not allowed to write code immediately. It must:
+- Read `ROADMAP.md` to understand the current Phase's objectives.
+- Create `PLAN.md`: Describe the strategy, technical solution, and Key Links.
+- Create `TASKS.md`: Break `PLAN.md` down into specific, measurable tasks (Effort, Files, Truths).
+- **Plan-Checker:** A set of automated rules (D-01 through D-13) will scan the Plan. If the Plan is too large (> 6 tasks) or too complex, AI must redo it.
+
+### Step 3: Task Preparation - `pd what-next`
+AI looks at `STATE.md` to know where it is and what needs to be done next. It selects the highest-priority uncompleted Task for execution.
+
+### Step 4: Execution - `pd write-code`
+AI focuses on exactly 1 Task at a time.
+- Read the Task description in `TASKS.md`.
+- Modify or create the listed files.
+- Ensure compliance with language/framework-specific Rules (NestJS, NextJS, Flutter...).
+
+### Step 5: Verification & Acceptance - `pd test` & `pd complete-milestone`
+- **Verify:** AI writes a verification report (`verification-report.md`), proving that the "Truths" established in Step 2 are all correct.
+- **Complete:** When all Tasks in the Phase are done, AI updates `ROADMAP.md` and `CHANGELOG.md`, closing a successful cycle.
 
 ---
 
-## 3. Quy tắc "Surgical" (Can thiệp chính xác)
+## 2. State Management (The State Machine)
 
-Triết lý của PD là **Surgical update**:
-- Chỉ sửa những gì cần thiết.
-- Không refactor "tiện tay" ngoài phạm vi Task.
-- Mỗi thay đổi phải có lý do (mapped với một Truth trong Plan).
+Why does PD's AI never "lose its mind" (context drift)? It's thanks to `STATE.md`.
+- This file stores: most recent Activity, current Phase, current Task.
+- Every PD command either updates or reads from `STATE.md`.
+- If the Agent crashes, a new Agent only needs to read `STATE.md` to resume work immediately without asking the User again.
 
 ---
-*Tài liệu này là hướng dẫn nền tảng. Để xem chi tiết từng câu lệnh, vui lòng đọc [COMMAND_REFERENCE.md](COMMAND_REFERENCE.md).*
+
+## 3. The "Surgical" Principle (Precise Intervention)
+
+PD's philosophy is **Surgical update**:
+- Only change what is necessary.
+- No "while I'm at it" refactoring outside the Task scope.
+- Every change must have a reason (mapped to a Truth in the Plan).
+
+---
+*This document is a foundational guide. For details on each command, please read [COMMAND_REFERENCE.md](COMMAND_REFERENCE.md).*

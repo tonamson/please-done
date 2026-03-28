@@ -1,21 +1,21 @@
-# Lệnh `pd new-milestone`
+# Command `pd new-milestone`
 
-## Mục đích
-Khởi tạo một Milestone hoặc Phase mới dựa trên `ROADMAP.md`.
+## Purpose
+Initialize a new Milestone or Phase based on `ROADMAP.md`.
 
-## Cách hoạt động
-1. **Quét ROADMAP:** Tìm Phase tiếp theo chưa thực hiện (VD: `Phase 1.2`).
-2. **Cập nhật CURRENT_MILESTONE.md:** Đánh dấu giai đoạn đang làm việc.
-3. **Tạo cấu trúc thư mục:** `.planning/milestones/[version]/phase-[phase]/`.
-4. **Chuẩn bị file:** Copy các template cần thiết (Plan, Tasks, Research) vào thư mục mới.
+## How It Works
+1. **Scan ROADMAP:** Find the next unexecuted Phase (e.g., `Phase 1.2`).
+2. **Update CURRENT_MILESTONE.md:** Mark the phase currently being worked on.
+3. **Create directory structure:** `.planning/milestones/[version]/phase-[phase]/`.
+4. **Prepare files:** Copy necessary templates (Plan, Tasks, Research) into the new directory.
 
-## Khi nào cần chạy lệnh này?
-- Ngay sau khi `pd init` hoàn tất để bắt đầu Phase đầu tiên.
-- Sau khi `pd complete-milestone` để chuyển sang Phase tiếp theo.
+## When to run this command?
+- Right after `pd init` completes to start the first Phase.
+- After `pd complete-milestone` to move on to the next Phase.
 
-## Kết quả (Output)
-- Thư mục milestone mới sẵn sàng để chạy `pd plan`.
-- Cập nhật trạng thái trong `STATE.md`.
+## Output
+- New milestone directory ready to run `pd plan`.
+- Status updated in `STATE.md`.
 
 ---
-**Bước tiếp theo:** [pd plan](plan.md)
+**Next step:** [pd plan](plan.md)

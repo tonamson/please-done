@@ -1,27 +1,27 @@
-# Lệnh `pd init`
+# Command `pd init`
 
-## Mục đích
-Khởi tạo cấu trúc quản lý dự án theo chuẩn **please-done (PD)**. Đây là bước đầu tiên để biến một thư mục code thông thường thành một dự án được AI hỗ trợ quản lý chặt chẽ.
+## Purpose
+Initialize the project management structure following the **please-done (PD)** standard. This is the first step to transform a regular code directory into a project tightly managed by AI.
 
-## Cách hoạt động
-Khi chạy `pd init`, AI (Sử dụng **Haiku 4.5**) sẽ:
-1. **Phân tích bối cảnh:** Quét thư mục hiện tại để hiểu loại dự án.
-2. **Codebase Mapper (MỚI):** Tự động quét thực trạng hoặc đề xuất Blueprint (cho dự án mới).
-3. **Tạo cấu trúc `.planning/`:** Khởi tạo thư mục `codebase/` với các file STACK, ARCHITECTURE.
-4. **Khởi tạo tài liệu gốc:** PROJECT, ROADMAP, STATE.
+## How It Works
+When running `pd init`, AI (using **Haiku 4.5**) will:
+1. **Analyze context:** Scan the current directory to understand the project type.
+2. **Codebase Mapper (NEW):** Automatically scan the current state or propose a Blueprint (for new projects).
+3. **Create `.planning/` structure:** Initialize the `codebase/` directory with STACK, ARCHITECTURE files.
+4. **Initialize root documents:** PROJECT, ROADMAP, STATE.
 
-## Đầu vào (Input)
-- **Yêu cầu từ User:** Mô tả tổng quan về dự án hoặc tính năng muốn xây dựng.
-- **Codebase hiện tại (nếu có):** AI sẽ tự đọc cấu trúc file để thích nghi.
+## Input
+- **User requirements:** A general description of the project or features to build.
+- **Existing codebase (if any):** AI will read the file structure to adapt accordingly.
 
-## Kết quả (Output)
-- Thư mục `.planning/` với đầy đủ các template cần thiết.
-- File `ROADMAP.md` chứa lộ trình sơ bộ.
-- Dự án sẵn sàng để chạy `pd plan` cho Milestone đầu tiên.
+## Output
+- `.planning/` directory with all necessary templates.
+- `ROADMAP.md` file containing the initial roadmap.
+- Project ready to run `pd plan` for the first Milestone.
 
-## Mẹo sử dụng
-- Hãy cung cấp yêu cầu càng chi tiết càng tốt ở bước này để AI tạo ra một `ROADMAP.md` sát với thực tế.
-- Nếu bạn đã có file thiết kế hoặc tài liệu PRD, hãy nhắc AI đọc chúng trong quá trình `init`.
+## Usage Tips
+- Provide requirements as detailed as possible at this step so AI creates a `ROADMAP.md` that closely matches reality.
+- If you already have design files or PRD documents, tell AI to read them during `init`.
 
 ---
-**Bước tiếp theo:** [pd plan](plan.md) hoặc [pd new-milestone](new-milestone.md)
+**Next step:** [pd plan](plan.md) or [pd new-milestone](new-milestone.md)

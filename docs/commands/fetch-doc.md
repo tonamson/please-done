@@ -1,24 +1,24 @@
-# Lệnh `pd fetch-doc`
+# Command `pd fetch-doc`
 
-## Mục đích
-Giúp AI Agent lấy thông tin và tài liệu mới nhất từ các thư viện hoặc dịch vụ bên ngoài (thông qua Context7).
+## Purpose
+Help the AI Agent retrieve the latest information and documentation from external libraries or services (via Context7).
 
-## Cách hoạt động
-1. **Phân tích yêu cầu:** AI xác định thư viện hoặc API cần tìm hiểu.
-2. **Truy vấn Context7:** Gọi công cụ `mcp__context7` để tìm tài liệu chính thức và các ví dụ code mẫu.
-3. **Lọc thông tin:** Chọn lọc những phần quan trọng nhất (như hướng dẫn cài đặt, hàm API chính).
-4. **Lưu trữ:** Kết quả được lưu vào file `RESEARCH.md` trong Milestone hiện tại.
+## How It Works
+1. **Analyze the request:** AI determines which library or API needs to be researched.
+2. **Query Context7:** Call the `mcp__context7` tool to find official documentation and code examples.
+3. **Filter information:** Select the most important parts (such as installation guides, main API functions).
+4. **Store:** Results are saved to the `RESEARCH.md` file in the current Milestone.
 
-## Tại sao lệnh này quan trọng?
-Nó giúp AI luôn làm việc với kiến thức cập nhật nhất, thay vì chỉ dựa vào dữ liệu huấn luyện cũ. Điều này đặc biệt quan trọng với các thư viện thay đổi nhanh như Next.js, Flutter, hoặc Solidity.
+## Why is this command important?
+It helps AI always work with the most up-to-date knowledge, rather than relying solely on old training data. This is especially important with rapidly changing libraries like Next.js, Flutter, or Solidity.
 
-## Kết quả (Output)
-- Danh sách thư viện đã được nghiên cứu.
-- Các ví dụ code mẫu được lưu vào thư mục `milestones`.
-- Báo cáo nghiên cứu (RESEARCH.md) giúp lập kế hoạch (`pd plan`) tốt hơn.
+## Output
+- List of researched libraries.
+- Code examples saved to the `milestones` directory.
+- Research report (RESEARCH.md) that supports better planning (`pd plan`).
 
-## Mẹo sử dụng
-- Nếu AI đang loay hoay với một thư viện mới, hãy bảo nó "chạy pd fetch-doc cho thư viện X".
+## Usage Tips
+- If AI is struggling with a new library, tell it to "run pd fetch-doc for library X".
 
 ---
-**Bước tiếp theo:** [pd plan](plan.md)
+**Next step:** [pd plan](plan.md)

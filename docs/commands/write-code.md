@@ -1,29 +1,29 @@
-# Lệnh `pd write-code`
+# Command `pd write-code`
 
-## Mục đích
-Thực thi các thay đổi mã nguồn (Coding) dựa trên Task đã được giao trong `TASKS.md`.
+## Purpose
+Execute code changes (Coding) based on the Task assigned in `TASKS.md`.
 
-## Quy trình AI thực hiện
-1. **Đọc mô tả Task:** Tìm hiểu cụ thể Task ID cần làm là gì, các file liên quan và tiêu chí nghiệm thu.
-2. **Quét Context:** Tìm kiếm các đoạn code hiện có để hiểu cách implement chuẩn (ví dụ: dùng thư viện gì, naming convention nào).
-3. **Thực thi thay đổi:**
-   - **Surgical update:** Chỉ sửa đúng những file được liệt kê trong Task.
-   - **Tuân thủ quy tắc:** Áp dụng các rules trong `.planning/rules/` (NestJS, React, Flutter...).
-4. **Tự kiểm tra (Self-check):**
-   - Chạy lệnh linting/formatting (nếu có).
-   - Đảm bảo code build không lỗi.
-5. **Cập nhật trạng thái:** Đánh dấu Task là `COMPLETED` trong `TASKS.md`.
+## AI Process
+1. **Read Task description:** Understand exactly what the Task ID requires, related files, and acceptance criteria.
+2. **Scan Context:** Search existing code to understand the correct implementation approach (e.g., which library to use, naming conventions).
+3. **Execute changes:**
+   - **Surgical update:** Only modify the files listed in the Task.
+   - **Follow rules:** Apply rules from `.planning/rules/` (NestJS, React, Flutter...).
+4. **Self-check:**
+   - Run linting/formatting commands (if available).
+   - Ensure the code builds without errors.
+5. **Update status:** Mark the Task as `COMPLETED` in `TASKS.md`.
 
-## Quy tắc "Surgical" (Can thiệp chính xác)
-Lệnh này cực kỳ nghiêm ngặt về việc không làm lan man:
-- **KHÔNG** refactor code nằm ngoài phạm vi Task.
-- **KHÔNG** thêm tính năng "tiện tay" nếu không có trong Plan.
-- Mỗi dòng code thay đổi phải hướng tới việc hoàn thành "Truth" đã cam kết.
+## The "Surgical" Principle (Precise Intervention)
+This command is extremely strict about not going off-scope:
+- **DO NOT** refactor code outside the Task scope.
+- **DO NOT** add "nice-to-have" features not in the Plan.
+- Every line of code changed must work toward completing a committed "Truth".
 
-## Kết quả (Output)
-- Code thay đổi trong codebase.
-- Trạng thái Task được cập nhật trong `TASKS.md`.
-- Gợi ý lệnh tiếp theo (thường là `pd what-next` hoặc `pd test`).
+## Output
+- Code changes in the codebase.
+- Task status updated in `TASKS.md`.
+- Suggested next command (usually `pd what-next` or `pd test`).
 
 ---
-**Bước tiếp theo:** [pd what-next](what-next.md) (cho task kế tiếp) hoặc [pd test](test.md) (nếu xong Milestone).
+**Next step:** [pd what-next](what-next.md) (for the next task) or [pd test](test.md) (if Milestone is complete).
