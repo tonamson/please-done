@@ -157,18 +157,18 @@ function parseTaskDetailBlocksV11(tasksContent) {
     const filesLine = /^>\s*Files:\s*(.+)$/m.exec(block);
     const truthsLine = /^>\s*Truths:\s*(.+)$/m.exec(block);
 
-    // Check for Mo ta section (with or without diacritics)
-    const hasDescription = /###\s*M[oô]\s*t[aả]/i.test(block) &&
-      (block.split(/###\s*M[oô]\s*t[aả]/i)[1] || '').split(/^###/m)[0].trim().length > 0;
+    // Check for Description section
+    const hasDescription = /###\s*Description/i.test(block) &&
+      (block.split(/###\s*Description/i)[1] || '').split(/^###/m)[0].trim().length > 0;
 
-    // Check for Tieu chi chap nhan section (with or without diacritics)
-    const hasCriteria = /###\s*Ti[eê]u\s*ch[ií]\s*ch[aấ]p\s*nh[aậ]n/i.test(block);
+    // Check for Acceptance Criteria section
+    const hasCriteria = /###\s*Acceptance\s*Criteria/i.test(block);
 
     // Optional fields
-    const hasStatus = /Tr[aạ]ng\s*th[aá]i/i.test(block);
-    const hasPriority = /[UƯ]u\s*ti[eê]n/i.test(block);
-    const hasDependency = /Ph[uụ]\s*thu[oộ]c/i.test(block);
-    const hasType = /Lo[aạ]i:/i.test(block);
+    const hasStatus = /Status/i.test(block);
+    const hasPriority = /Priority/i.test(block);
+    const hasDependency = /Dependenc(y|ies)/i.test(block);
+    const hasType = /Type:/i.test(block);
 
     tasks.push({
       id: parseInt(taskId, 10),
@@ -280,11 +280,11 @@ function parseTaskDepsV11(tasksContent) {
     );
     if (!taskSection) continue;
 
-    const depLine = taskSection[0].match(/Ph[uụ]\s*thu[oộ]c:?\s*([^\n|]*)/i);
+    const depLine = taskSection[0].match(/Dependenc(?:y|ies):?\s*([^\n|]*)/i);
     if (!depLine) continue;
 
     const depStr = depLine[1].trim();
-    if (/^(Kh[oô]ng|Khong|$)/i.test(depStr)) continue;
+    if (/^(None|$)/i.test(depStr)) continue;
 
     // Extract Task N references
     const depRefs = [...depStr.matchAll(/Task\s*(\d+)/gi)];
@@ -318,9 +318,9 @@ function normalizeKeyLinkPath(rawPath) {
 function parseKeyLinksV11(planContent) {
   if (!planContent) return [];
 
-  // Find Key Links section (handle diacritics)
+  // Find Key Links section
   const sectionMatch = planContent.match(
-    /###\s*Li[eê]n\s*k[eế]t\s*then\s*ch[oố]t[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i
+    /###\s*Key\s*Links[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i
   );
   if (!sectionMatch) return [];
 
@@ -381,10 +381,10 @@ function computeActualEffort(task, tasksContent) {
       new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`)
     );
     if (taskSection) {
-      const depLine = taskSection[0].match(/Ph[uụ]\s*thu[oộ]c:?\s*([^\n|]*)/i);
+      const depLine = taskSection[0].match(/Dependenc(?:y|ies):?\s*([^\n|]*)/i);
       if (depLine) {
         const depStr = depLine[1].trim();
-        if (!/^(Kh[oô]ng|Khong|$)/i.test(depStr)) {
+        if (!/^(None|$)/i.test(depStr)) {
           const depRefs = [...depStr.matchAll(/Task\s*(\d+)/gi)];
           depCount = depRefs.length;
         }
