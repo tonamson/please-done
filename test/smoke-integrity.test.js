@@ -112,8 +112,8 @@ describe("Repo integrity — command/workflow graph", () => {
       );
       assert.match(
         inlined,
-        /<process>[\s\S]*(Step|Bước|Buoc) [0-9]+[\s\S]*<\/process>/,
-        `${skill.name}: process chưa được inline đầy đủ`,
+        /<process>[\s\S]*(Step) [0-9]+[\s\S]*<\/process>/,
+        `${skill.name}: process not fully inlined`,
       );
 
       if (workflowContent.includes("<required_reading>")) {
@@ -624,8 +624,8 @@ describe("Repo integrity -- effort-level routing", () => {
     );
     assert.match(
       content,
-      /Files\s+s.a\/t.o\s*\|\s*1-2\s*\|\s*3-4\s*\|\s*5\+/,
-      "plan.md: thieu classification signals table",
+      /Files\s+modified\/created\s*\|\s*1-2\s*\|\s*3-4\s*\|\s*5\+/,
+      "plan.md: missing classification signals table",
     );
   });
 
@@ -690,8 +690,8 @@ describe("Repo integrity -- effort-level routing", () => {
     );
     assert.match(
       content,
-      /Kiem tra che do hoat dong/,
-      "fix-bug.md: thieu Buoc 0 detection",
+      /Check operating mode/,
+      "fix-bug.md: missing Step 0 detection",
     );
   });
 
@@ -1141,8 +1141,8 @@ describe("Repo integrity -- wave-based parallel execution", () => {
     );
     assert.match(
       content,
-      /build fail.*D[UƯ]NG|D[UƯ]NG.*build fail/is,
-      "write-code.md: thieu post-wave build check",
+      /build fail.*STOP|STOP.*build fail/is,
+      "write-code.md: missing post-wave build check",
     );
   });
 
@@ -1153,8 +1153,8 @@ describe("Repo integrity -- wave-based parallel execution", () => {
     );
     assert.match(
       content,
-      /KH[OÔ]NG dump to[aà]n b[oộ] PLAN/i,
-      "write-code.md: thieu agent context minimization",
+      /DO NOT dump the entire PLAN/i,
+      "write-code.md: missing agent context minimization",
     );
   });
 
@@ -1165,8 +1165,8 @@ describe("Repo integrity -- wave-based parallel execution", () => {
     );
     assert.match(
       content,
-      /> Files:.*cross-reference|giao nhau/i,
-      "write-code.md: thieu > Files: cross-reference",
+      /> Files:.*cross-reference/i,
+      "write-code.md: missing > Files: cross-reference",
     );
   });
 
