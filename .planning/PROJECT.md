@@ -81,13 +81,21 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Token Budget — TOKEN_BUDGET per tier (4K/8K/12K), baseline v5.0 (86,305 tokens), 10 workflows conditional_reading, eval pipeline verified — v5.0 (Phase 58)
 - ✓ Integration Wiring + Verification Gaps — Platform wiring production caller, pd-sec-scanner path, Phase 52/53 verification — v5.0 (Phase 59)
 
+- ✓ Agent Consolidation — 16 agents into commands/pd/agents/ as single source of truth — v5.1 (Phase 60)
+- ✓ Symlink Architecture — 16 symlinks in .claude/agents/ pointing to commands/pd/agents/ — v5.1 (Phase 61)
+- ✓ Reference Migration — smoke-agent-files.test.js and fix-bug.md updated — v5.1 (Phase 62)
+- ✓ Format Standardization — legacy security agents converted to new YAML frontmatter — v5.1 (Phase 63)
+- ✓ Registry & Test Updates — AGENT_REGISTRY 14→16, all smoke tests pass — v5.1 (Phase 64)
+
 ### Active
 
-- [ ] Consolidate 16 agents into `commands/pd/agents/` — v5.1 (Phase 60)
-- [ ] Create symlinks in `.claude/agents/` to `commands/pd/agents/` — v5.1 (Phase 61)
-- [ ] Update `smoke-agent-files.test.js` and `fix-bug.md` references — v5.1 (Phase 62)
-- [ ] Standardize legacy security agents to new frontmatter format — v5.1 (Phase 63)
-- [ ] Update `AGENT_REGISTRY` and verify with smoke tests — v5.1 (Phase 64)
+- [ ] Translate 14 skill files + CLAUDE.md to English — v6.0 (Phase 65)
+- [ ] Regenerate 56 snapshots after skill translation — v6.0 (Phase 65)
+- [ ] Translate 13 workflow files to English — v6.0 (Phase 66)
+- [ ] Translate agents, rules, references to English — v6.0 (Phase 67)
+- [ ] Translate templates, docs, root MD files to English — v6.0 (Phase 68)
+- [ ] Translate JS source code + update test assertions — v6.0 (Phase 69)
+- [ ] Final verification: zero Vietnamese remaining + full test suite pass — v6.0 (Phase 70)
 
 ### Out of Scope
 
@@ -98,24 +106,25 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v5.1 Agent Sync & Reference Update
+## Current Milestone: v6.0 Vietnamese → English Migration
 
-**Goal:** Consolidate all agent definitions into `commands/pd/agents/` as the single source of truth and update system references.
+**Goal:** Convert all Vietnamese text to English across the entire project, excluding `.planning/`.
 
 **Target features:**
-- **Agent Consolidation:** Sync 14 agents from `.claude/agents/` to `commands/pd/agents/` (16 total agents).
-- **Symlink Architecture:** Use symlinks in `.claude/agents/` to maintain Claude Code compatibility while centralizing source files.
-- **Reference Migration:** Update `smoke-agent-files.test.js` and `fix-bug.md` to point to the new source of truth.
-- **Format Standardization:** Convert legacy security agents to the new YAML frontmatter format (tier/model/maxTurns).
-- **Registry & Test Updates:** Ensure `AGENT_REGISTRY` and smoke tests cover all 16 agents with the new format.
+- **Skills + Config Foundation:** Translate 14 skill files + CLAUDE.md, regenerate 56 auto-generated snapshots.
+- **Workflow Translation:** Translate 13 workflow files (3,610 lines total).
+- **Agents + Rules + References:** Translate agent definitions, coding rules, and reference docs.
+- **Templates + Docs + Root Files:** Translate template files, documentation, and root markdown files.
+- **JS Source + Tests:** Update Vietnamese strings in JS source code and synchronize test assertions.
+- **Final Verification:** Comprehensive grep sweep, full test suite, human review.
 
 ## Current State
 
-**Current:** v5.1 Agent Sync & Reference Update — DEFINING (2026-03-27)
-**Shipped:** v5.0 Repo Optimization (2026-03-27), v4.0 OWASP Security Audit (2026-03-27)
-**Previous:** v3.0 Research Squad (2026-03-26), v2.1 Detective Orchestrator (2026-03-25)
+**Current:** v6.0 Vietnamese → English Migration — DEFINING (2026-03-28)
+**Shipped:** v5.1 Agent Sync & Reference Update (2026-03-27), v5.0 Repo Optimization (2026-03-27)
+**Previous:** v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
 
-v5.0 delivered: Agent Reform (6 new agents, 3-tier model, platform-aware dispatch), Platform Mapping (7 platforms, automatic fallback), Parallel dispatch wiring (adaptive workers, heavy agent detection, backpressure), Skill-Agent integration, Reference dedup, Runtime DRY, Token budget, Integration wiring + verification gaps closure.
+v5.1 delivered: Agent Consolidation (16 agents into commands/pd/agents/), Symlink Architecture (16 symlinks), Reference Migration, Format Standardization, Registry & Test Updates.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules.
 
@@ -174,4 +183,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-27 after v5.1 Agent Sync & Reference Update milestone started*
+*Last updated: 2026-03-28 after v6.0 Vietnamese → English Migration milestone started*
