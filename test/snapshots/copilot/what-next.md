@@ -15,72 +15,72 @@ User input: $ARGUMENTS (no arguments)
 No rules or FastCode MCP needed - only read planning files.
 </context>
 <required_reading>
-Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
-(Claude Code: cat ~/.copilot/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
-- [SKILLS_DIR]/references/conventions.md → biểu tượng trạng thái, version filtering
+read .pdconfig → get SKILLS_DIR, then read the following files before starting:
+(Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
+- [SKILLS_DIR]/references/conventions.md → status icons, version filtering
 </required_reading>
 <conditional_reading>
-Đọc CHỈ KHI cần (phân tích mô tả task trước):
-- [SKILLS_DIR]/references/state-machine.md -- KHI task lien quan den milestone state transitions
+read ONLY WHEN needed (analyze task description first):
+- [SKILLS_DIR]/references/state-machine.md -- WHEN task relates to milestone state transitions
 </conditional_reading>
 <process>
-## Bước 1: Kiểm tra nền tảng
-Đọc lần lượt (dừng ở điểm THIẾU đầu tiên):
-1. `.planning/CONTEXT.md` → không có → gợi ý `/pd:init`, **DỪNG**
-1.5. `.planning/PROJECT.md` (nếu có) → tầm nhìn + lịch sử milestones
-2. `.planning/scan/SCAN_REPORT.md` → không có → ghi nhận (gợi ý phụ Bước 5), KHÔNG DỪNG
-3. `.planning/ROADMAP.md` → không có → gợi ý `/pd:new-milestone`, **DỪNG**
+## Step 1: Check foundation
+read in order (stop at first MISSING):
+1. `.planning/CONTEXT.md` → not found → suggest `/pd:init`, **STOP**
+1.5. `.planning/PROJECT.md` (if exists) → vision + milestone history
+2. `.planning/scan/SCAN_REPORT.md` → not found → note (secondary suggestion Step 5), DO NOT STOP
+3. `.planning/ROADMAP.md` → not found → suggest `/pd:new-milestone`, **STOP**
 4. `.planning/CURRENT_MILESTONE.md` → `version`, `phase`, `status`
-   - status = `Hoàn tất toàn bộ` → "Tất cả milestones đã hoàn tất!", **DỪNG**
-5. `.planning/REQUIREMENTS.md` (nếu có) → thống kê độ phủ
-6. `.planning/STATE.md` (nếu có) → vấn đề chặn, bối cảnh, hoạt động cuối
-## Bước 2: Kiểm tra bugs đang mở
-glob `.planning/bugs/BUG_*.md` → grep `> Trạng thái:` (Chưa xử lý/Đang sửa) + `> Patch version:` → filter milestone hiện tại theo [SKILLS_DIR]/references/conventions.md → "Version filtering"
-- CÓ bugs mở → ghi nhận
-- Bugs milestone khác → ghi riêng, gợi ý phụ
-## Bước 3: Kiểm tra tiến trình phase
-1. glob `.planning/milestones/[version]/phase-[phase]/TASKS.md` → không tồn tại → gợi ý `/pd:plan`, **DỪNG**
-2. Đọc TASKS.md → đếm: 🔄 ⬜ 🐛 ✅ ❌. TASKS.md rỗng (0 tasks) → "TASKS.md rỗng, chạy `/pd:plan` lại." **DỪNG**
-3. glob `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → đếm
-4. ROADMAP.md → phases còn lại milestone
-5. `phase-[phase]/TEST_REPORT.md` tồn tại?
-6. **Quét phases cũ chưa test**: mỗi `milestones/[version]/phase-*/` → TẤT CẢ tasks ✅ + KHÔNG TEST_REPORT → ghi nhận (Ưu tiên 5.6)
-7. `VERIFICATION_REPORT.md` tồn tại? → `Đạt`/`Có gap`/`Cần kiểm tra thủ công`
-## Bước 4: Phân tích + gợi ý (1 hành động chính, thứ tự ưu tiên)
-| Ưu tiên | Điều kiện | Gợi ý |
+   - status = `All completed` → "All milestones completed!", **STOP**
+5. `.planning/REQUIREMENTS.md` (if exists) → coverage statistics
+6. `.planning/STATE.md` (if exists) → blocking issues, context, last activity
+## Step 2: Check open bugs
+glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In progress) + `> Patch version:` → filter current milestone per [SKILLS_DIR]/references/conventions.md → "Version filtering"
+- HAS open bugs → note
+- Bugs from other milestones → note separately, secondary suggestion
+## Step 3: Check phase progress
+1. glob `.planning/milestones/[version]/phase-[phase]/TASKS.md` → not found → suggest `/pd:plan`, **STOP**
+2. read TASKS.md → count: 🔄 ⬜ 🐛 ✅ ❌. Empty TASKS.md (0 tasks) → "TASKS.md empty, run `/pd:plan` again." **STOP**
+3. glob `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → count
+4. ROADMAP.md → remaining phases in milestone
+5. `phase-[phase]/TEST_REPORT.md` exists?
+6. **Scan untested old phases**: each `milestones/[version]/phase-*/` → ALL tasks ✅ + NO TEST_REPORT → note (Priority 5.6)
+7. `VERIFICATION_REPORT.md` exists? → `Passed`/`Has gaps`/`Needs manual testing`
+## Step 4: Analyze + suggest (1 main action, priority order)
+| Priority | Condition | Suggestion |
 |---------|-----------|-------|
-| 1 | Bugs đang mở | `/pd:fix-bug` |
-| 2 | Task 🔄 (kiểm tra PROGRESS.md nếu có) | `/pd:write-code [N]` tiếp tục |
-| 3 | Task 🐛 (kiểm tra bug report tương ứng) | `/pd:fix-bug` |
-| 4 | Còn task ⬜ | `/pd:write-code` hoặc `--parallel` |
-| 5 | Tất cả còn lại ❌/🐛 | `/pd:fix-bug` hoặc kiểm tra lý do chặn |
-| 5.5 | VERIFICATION_REPORT `Có gap` | `/pd:fix-bug` hoặc `/pd:write-code` re-verify |
-| 5.6 | Phase cũ hoàn tất chưa test | `/pd:test` (tự phát hiện phase) |
-| 6 | Tất cả ✅, chưa test/test fail | `/pd:test` hoặc `/pd:fix-bug` |
-| 7 | Phase hoàn tất, còn phases tiếp | `/pd:plan [y.y]` |
-| 7.5 | Tất cả phases ✅ + chưa có `.planning/audit/SECURITY_REPORT.md` | `/pd:audit` — "Chưa kiểm toán bảo mật. Chạy `/pd:audit` trước khi đóng milestone." |
-| 8 | Tất cả phases hoàn tất | `/pd:complete-milestone` |
-## Bước 5: Hiển thị báo cáo
+| 1 | Open bugs | `/pd:fix-bug` |
+| 2 | Task 🔄 (check PROGRESS.md if exists) | `/pd:write-code [N]` continue |
+| 3 | Task 🐛 (check corresponding bug report) | `/pd:fix-bug` |
+| 4 | Remaining tasks ⬜ | `/pd:write-code` or `--parallel` |
+| 5 | All remaining ❌/🐛 | `/pd:fix-bug` or check blocking reason |
+| 5.5 | VERIFICATION_REPORT `Has gaps` | `/pd:fix-bug` or `/pd:write-code` re-verify |
+| 5.6 | Completed old phase not tested | `/pd:test` (auto-detect phase) |
+| 6 | All ✅, not tested/test fail | `/pd:test` or `/pd:fix-bug` |
+| 7 | Phase complete, more phases ahead | `/pd:plan [y.y]` |
+| 7.5 | All phases ✅ + no `.planning/audit/SECURITY_REPORT.md` | `/pd:audit` — "No security audit yet. Run `/pd:audit` before closing milestone." |
+| 8 | All phases completed | `/pd:complete-milestone` |
+## Step 5: Display report
 ```
 ╔══════════════════════════════════════╗
-║         TIẾN TRÌNH DỰ ÁN            ║
+║         PROJECT PROGRESS             ║
 ╠══════════════════════════════════════╣
-║ Dự án/Tầm nhìn (từ PROJECT.md)     ║
-║ Milestone: [tên] (v[x.x])          ║
+║ Project/Vision (from PROJECT.md)    ║
+║ Milestone: [name] (v[x.x])         ║
 ║ Phase: [x.x]                        ║
-║ Trạng thái: ✅[N] 🔄[N] ⬜[N] 🐛[N] ❌[N] ║
-║ Yêu cầu: [X]/[Y] | Bugs mở: [N]   ║
-║ Vấn đề chặn: [từ STATE.md]         ║
+║ Status: ✅[N] 🔄[N] ⬜[N] 🐛[N] ❌[N] ║
+║ Requirements: [X]/[Y] | Open bugs: [N] ║
+║ Blocking issues: [from STATE.md]    ║
 ╠══════════════════════════════════════╣
-║ GỢI Ý: [command] — [lý do]         ║
+║ SUGGESTION: [command] — [reason]    ║
 ╚══════════════════════════════════════╝
 ```
-Thiếu SCAN_REPORT → gợi ý phụ `/pd:scan`
-## Bước 6: Kiểm tra phiên bản Skills
-Nếu đã kiểm tra trong conversation → bỏ qua.
-`.pdconfig` → `SKILLS_DIR`. Kiểm tra `git rev-parse --git-dir` trong SKILLS_DIR → không phải git → bỏ qua.
-`LOCAL=$(cat [SKILLS_DIR]/VERSION)` vs `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet && git show origin/main:VERSION)` → semver compare → REMOTE mới hơn → "Skills v[REMOTE] đã có. Chạy `/pd:update`."
-Fetch lỗi/version giống → bỏ qua.
+Missing SCAN_REPORT → secondary suggestion `/pd:scan`
+## Step 6: Check Skills version
+If already checked in conversation → skip.
+`.pdconfig` → `SKILLS_DIR`. Check `git rev-parse --git-dir` in SKILLS_DIR → not git → skip.
+`LOCAL=$(cat [SKILLS_DIR]/VERSION)` vs `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet && git show origin/main:VERSION)` → semver compare → REMOTE newer → "Skills v[REMOTE] available. Run `/pd:update`."
+Fetch error/same version → skip.
 </process>
 <output>
 **Create/Update:**
@@ -98,12 +98,12 @@ Fetch lỗi/version giống → bỏ qua.
 - READ ONLY. DO NOT edit any files
 - DO NOT call FastCode MCP or Context7 MCP
 - The suggested command MUST be based on the actual current state, never guessed
-- KHÔNG gọi FastCode MCP — chỉ read/glob (execute cho version check Bước 6)
-- KHÔNG sửa file — chỉ đọc và báo cáo
-- Thiếu CONTEXT.md → `/pd:init` rồi **DỪNG**
-- Chỉ 1 gợi ý chính (ưu tiên cao nhất), kèm gợi ý phụ
-- Task 🔄 hiển thị số + tên cụ thể
-- Bugs mở hiển thị mô tả ngắn
-- Format ngày DD_MM_YYYY
-- Output PHẢI tiếng Việt có dấu
+- DO NOT call FastCode MCP — use only read/glob (execute for version check Step 6)
+- DO NOT modify files — read and report only
+- Missing CONTEXT.md → `/pd:init` then **STOP**
+- Only 1 main suggestion (highest priority), with secondary suggestions
+- Task 🔄 display number + specific name
+- Open bugs display brief description
+- Date format DD_MM_YYYY
+- Output MUST be in English
 </rules>

@@ -3,100 +3,100 @@ name: pd-scan
 description: Scan the entire project, analyze structure, libraries, security, and generate a report
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-scan`
-Khi user gọi `$pd-scan {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-scan {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Scan the project: analyze code structure, dependencies, architecture, and security to produce a report.
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
-- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `$pd-init` first."
+- [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."
+- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
 </guards>
 <context>
 User input: {{GSD_ARGS}}
 Read `.planning/CONTEXT.md` (from $pd-init). No rules are needed here - only scanning and reporting.
 </context>
 <process>
-## Bước 1: Xác định đường dẫn
-- `{{GSD_ARGS}}` có path → dùng đó | Không → thư mục hiện tại
-- Tạo `.planning/scan/` nếu chưa có
-## Bước 2: Kiểm tra project có code không
-Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (trừ node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — KHÔNG gồm .json/.css):
-(.json loai tru khoi phat hien code vi config files khong chi thi ma nguon dang hoat dong. .css loai tru vi styling khong chi thi logic code.)
-- **KHÔNG có source files** → nhảy **Bước 5** tạo scan report tối giản: "Dự án mới, chưa có code. Tech stack dự kiến: [từ CONTEXT.md]". KHÔNG chạy Bước 3, 4, 6.
-- **CÓ** → tiếp tục
-## Bước 2a: Quét cấu trúc bằng built-in tools
-- **Glob** tìm file: `**/*.ts`, `**/*.tsx`, `**/*.json`, `**/*.prisma`, `**/*.sol`, `**/Dockerfile`
+## Step 1: Determine path
+- `{{GSD_ARGS}}` has path → use it | No → current directory
+- Create `.planning/scan/` if not exists
+## Step 2: Check if project has code
+Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (exclude node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — NOT including .json/.css):
+(.json excluded from code detection because config files do not indicate active source code. .css excluded because styling does not indicate code logic.)
+- **NO source files** → jump to **Step 5** create minimal scan report: "New project, no code yet. Expected tech stack: [from CONTEXT.md]". DO NOT run Steps 3, 4, 6.
+- **HAS code** → continue
+## Step 2a: Scan structure with built-in tools
+- **Glob** find files: `**/*.ts`, `**/*.tsx`, `**/*.json`, `**/*.prisma`, `**/*.sol`, `**/Dockerfile`
 - **Read** config: `package.json`, `tsconfig.json`, `nest-cli.json`, `next.config.*`, `prisma/schema.prisma`
 - **Grep** patterns:
 | Stack | Detect condition | Grep patterns |
 |-------|-----------------|---------------|
 | NestJS | — | `@Module`, `@Controller`, `@Injectable`, `@Entity`, `@Guard`, `@Get/@Post/@Put/@Patch/@Delete` (*.ts) |
-| NextJS | `next.config.*` tồn tại | Pages `**/app/**/page.tsx`, Components `**/components/**/*.tsx`, `'use client'`, Stores `**/stores/use*.{ts,tsx}`, Hooks `**/hooks/use*.{ts,tsx}`, API `**/lib/api.ts`, Types `**/types/*.ts` |
+| NextJS | `next.config.*` exists | Pages `**/app/**/page.tsx`, Components `**/components/**/*.tsx`, `'use client'`, Stores `**/stores/use*.{ts,tsx}`, Hooks `**/hooks/use*.{ts,tsx}`, API `**/lib/api.ts`, Types `**/types/*.ts` |
 | WordPress | `**/wp-config.php` / `**/wp-content/plugins/*/` / `**/wp-content/themes/*/style.css` | Plugins, Themes, `dbDelta\|\$wpdb->prefix`, `register_rest_route`, `add_action\|add_filter` (*.php) |
 | Solidity | `**/hardhat.config.*` / `**/foundry.toml` / `**/contracts/**/*.sol` | Contracts, `import.*@openzeppelin`, `interface\s+`, `event `, `modifier\s+\w+`, `nonReentrant\|whenNotPaused\|onlyOwner` (*.sol) |
 | Flutter | `**/pubspec.yaml` + `flutter` dependency | Screens `**/modules/**/*_view.dart`, `extends GetxController`, `GetPage\(`, `fromJson\|toJson`, `pubspec.yaml` packages |
-## Bước 3: Bổ sung bằng FastCode MCP (CHỈ khi có code)
-Validate đường dẫn CONTEXT.md khớp `pwd`. Khác → cảnh báo user.
-`mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
-- "Phân tích cấu trúc project, liệt kê modules, services, controllers, routes, models, utilities."
-FastCode MCP lỗi → ghi warning trong report, tiếp tục với Bước 2a. KHÔNG DỪNG.
-## Bước 4: Kiểm tra bảo mật dependencies (CHỈ khi có package.json)
-Detect: `yarn.lock` → yarn | `pnpm-lock.yaml` → pnpm | mặc định → npm.
+## Step 3: Supplement with FastCode MCP (ONLY when code exists)
+Validate CONTEXT.md path matches `pwd`. Different → warn user.
+`mcp__fastcode__code_qa` (repos: path from CONTEXT.md):
+- "Analyze project structure, list modules, services, controllers, routes, models, utilities."
+FastCode MCP error → write warning in report, continue with Step 2a. DO NOT STOP.
+## Step 4: Check dependency security (ONLY when package.json exists)
+Detect: `yarn.lock` → yarn | `pnpm-lock.yaml` → pnpm | default → npm.
 ```bash
 # npm:  cd [dir] && npm audit --omit=dev 2>&1 | tail -30
 # yarn: cd [dir] && yarn audit --groups production 2>&1 | tail -30
 # pnpm: cd [dir] && pnpm audit --prod 2>&1 | tail -30
 ```
-Audit fail (không phải vulnerabilities) → ghi "Audit command thất bại". Liệt kê lỗ hổng theo mức độ + backend/frontend.
-## Bước 5: Tạo báo cáo
-Viết `.planning/scan/SCAN_REPORT.md`:
+Audit fail (not vulnerabilities) → write "Audit command failed". List vulnerabilities by severity + backend/frontend.
+## Step 5: Generate report
+Write `.planning/scan/SCAN_REPORT.md`:
 ```markdown
-# Báo cáo quét dự án
-> Ngày quét: [DD_MM_YYYY HH:MM] | Dự án: [tên] | Đường dẫn: [path]
-## Tổng quan
-## Cấu trúc thư mục
-## Thư viện (Dependencies / DevDependencies)
-## Cảnh báo bảo mật
-## Phân tích Backend (NestJS: Modules | Controllers & Routes | Services | Entities | Guards & Middleware)
-## Phân tích Frontend (NextJS: Pages & Routing | Components | State Management | API Layer | UI Framework | SEO)
-## Phân tích WordPress (Plugins | Themes | Custom Tables | REST API | Hooks)
-## Phân tích Solidity (Contracts | OZ Imports | Security Modifiers | Events)
-## Phân tích Flutter (Screens & Navigation | State Management | Packages)
-## Cơ sở dữ liệu
-## Xác thực & Phân quyền
-## Trạng thái hoàn thành
-## Vấn đề & Đề xuất
+# Project Scan Report
+> Scan date: [DD_MM_YYYY HH:MM] | Project: [name] | Path: [path]
+## Overview
+## Directory Structure
+## Libraries (Dependencies / DevDependencies)
+## Security Warnings
+## Backend Analysis (NestJS: Modules | Controllers & Routes | Services | Entities | Guards & Middleware)
+## Frontend Analysis (NextJS: Pages & Routing | Components | State Management | API Layer | UI Framework | SEO)
+## WordPress Analysis (Plugins | Themes | Custom Tables | REST API | Hooks)
+## Solidity Analysis (Contracts | OZ Imports | Security Modifiers | Events)
+## Flutter Analysis (Screens & Navigation | State Management | Packages)
+## Database
+## Authentication & Authorization
+## Completion Status
+## Issues & Recommendations
 ```
-**CHỈ tạo sections có dữ liệu.** Bỏ section rỗng.
-## Bước 6: Cập nhật CONTEXT.md + Rules
-**CHỈ khi có code. Project mới → bỏ qua.**
-1. **Re-detect tech stack** (cùng pattern init.md): NestJS `nest-cli.json` → `app.module.ts` → `main.ts`+`NestFactory` | NextJS `next.config.*` | WordPress `wp-config.php`/`wp-content/` | Solidity `hardhat.config.*`/`foundry.toml`/`contracts/**/*.sol` | Flutter `pubspec.yaml`+`flutter`
-2. **Cập nhật CONTEXT.md** (giữ format gốc, DƯỚI 50 dòng):
-   - `Dự án mới: Không` (nếu có source). Cập nhật `> Cập nhật:`, Tech Stack, Thư viện chính (tối đa 20 dòng, bỏ devDeps), Rules files
-3. **Re-copy rules nếu tech stack thay đổi**:
-   So sánh stack mới vs cũ → KHÁC → đọc `.pdconfig` → `SKILLS_DIR` → xóa template files (`general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`) giữ custom → copy lại phù hợp. hasSolidity thay đổi → copy/xóa `solidity-refs/` ↔ `.planning/docs/solidity/`. Không có `.pdconfig` → bỏ qua, warning.
-   Stack GIỐNG → không copy lại.
-## Bước 7: Thông báo
-Tóm tắt kết quả. Nếu CONTEXT.md/rules cập nhật → thông báo rõ.
+**ONLY create sections with data.** Omit empty sections.
+## Step 6: Update CONTEXT.md + Rules
+**ONLY when code exists. New project → skip.**
+1. **Re-detect tech stack** (same pattern as init.md): NestJS `nest-cli.json` → `app.module.ts` → `main.ts`+`NestFactory` | NextJS `next.config.*` | WordPress `wp-config.php`/`wp-content/` | Solidity `hardhat.config.*`/`foundry.toml`/`contracts/**/*.sol` | Flutter `pubspec.yaml`+`flutter`
+2. **Update CONTEXT.md** (keep original format, UNDER 50 lines):
+   - `New project: No` (if has source). Update `> Updated:`, Tech Stack, Main libraries (max 20 lines, exclude devDeps), Rules files
+3. **Re-copy rules if tech stack changed**:
+   Compare new stack vs old → DIFFERENT → read `.pdconfig` → `SKILLS_DIR` → delete template files (`general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`) keep custom → re-copy as appropriate. hasSolidity changed → copy/delete `solidity-refs/` ↔ `.planning/docs/solidity/`. No `.pdconfig` → skip, warning.
+   Stack SAME → do not re-copy.
+## Step 7: Notification
+Summarize results. If CONTEXT.md/rules updated → notify clearly.
 </process>
 <output>
 **Create/Update:**
@@ -115,19 +115,19 @@ Tóm tắt kết quả. Nếu CONTEXT.md/rules cập nhật → thông báo rõ.
 - All output MUST be in English
 - Only read and analyze, DO NOT change project source code
 - The report must include: structure, dependencies, architecture, and security
-- Tuân thủ `.planning/rules/general.md` (ngôn ngữ, ngày tháng, bảo mật)
-- Không sửa code, chỉ quét và báo cáo
-- Project mới → scan report tối giản, KHÔNG gọi FastCode, KHÔNG npm audit
-- CHỈ sections có dữ liệu, bỏ rỗng
-- "Trạng thái hoàn thành" BẮT BUỘC
-- PHẢI liệt kê thư viện + chạy audit NẾU có package.json
-- CẤM đọc/hiển thị `.env`, `.env.*` (trừ `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` — chỉ ghi tên file
-- Frontend CHỈ khi detect được framework (NextJS `next.config.*`, Vite `vite.config.*`, hoặc >5 `.tsx/.jsx`). Ngoài NextJS: chỉ liệt kê files
-- WordPress CHỈ khi detect `wp-config.php`/`wp-content/`
-- Solidity CHỈ khi detect `hardhat.config.*`/`foundry.toml`/`contracts/**/*.sol`
-- Flutter CHỈ khi detect `pubspec.yaml` + `flutter`
-- Backend CHỈ khi detect framework (NestJS `nest-cli.json`/`app.module.ts`, Express `app.js`/`app.ts`+`express`). Ngoài NestJS: chỉ liệt kê files
-- FastCode lỗi → warning, tiếp tục built-in tools
-- PHẢI cập nhật CONTEXT.md sau quét
-- Tech stack thay đổi → PHẢI re-copy rules
+- Follow `.planning/rules/general.md` (language, dates, security)
+- Do not modify code, only scan and report
+- New project → minimal scan report, DO NOT call FastCode, DO NOT npm audit
+- ONLY sections with data, omit empty
+- "Completion Status" REQUIRED
+- MUST list libraries + run audit IF package.json exists
+- DO NOT read/display `.env`, `.env.*` (except `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php` — only note filename
+- Frontend ONLY when framework detected (NextJS `next.config.*`, Vite `vite.config.*`, or >5 `.tsx/.jsx`). Non-NextJS: only list files
+- WordPress ONLY when `wp-config.php`/`wp-content/` detected
+- Solidity ONLY when `hardhat.config.*`/`foundry.toml`/`contracts/**/*.sol` detected
+- Flutter ONLY when `pubspec.yaml` + `flutter` detected
+- Backend ONLY when framework detected (NestJS `nest-cli.json`/`app.module.ts`, Express `app.js`/`app.ts`+`express`). Non-NestJS: only list files
+- FastCode error → warning, continue with built-in tools
+- MUST update CONTEXT.md after scan
+- Tech stack changed → MUST re-copy rules
 </rules>

@@ -3,23 +3,23 @@ name: pd-conventions
 description: "Analyze the project and create CLAUDE.md with project-specific coding conventions (style, naming, patterns)"
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-conventions`
-Khi user gọi `$pd-conventions {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-conventions {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Analyze the project, detect coding conventions, ask about user preferences, then create or update `CLAUDE.md`.
@@ -32,56 +32,56 @@ There are no strict prerequisites. This skill can be run at any time.
 User input: {{GSD_ARGS}}
 </context>
 <process>
-## Bước 1: Kiểm tra CLAUDE.md hiện có
-`CLAUDE.md` ở root:
-- Đã có → "Đã có CLAUDE.md. (1) Bổ sung (giữ cũ) (2) Tạo lại"
-- Chưa có → tiếp tục
-## Bước 2: Phát hiện conventions từ code
-Grep/Read quét patterns:
-| Loại | Grep targets |
+## Step 1: Check for existing CLAUDE.md
+`CLAUDE.md` at root:
+- Exists → "CLAUDE.md already exists. (1) Supplement (keep existing) (2) Recreate"
+- Does not exist → continue
+## Step 2: Detect conventions from code
+Grep/Read scan patterns:
+| Type | Grep targets |
 |------|-------------|
-| Đặt tên | file naming (snake/kebab/camelCase/PascalCase), function/method, biến (prefix `is*`/`has*`/`_private`) |
+| Naming | file naming (snake/kebab/camelCase/PascalCase), function/method, variables (prefix `is*`/`has*`/`_private`) |
 | Import & module | aliases (`@/`, `~/`, `#/`), relative vs absolute, barrel exports (`index.ts`) |
 | Styling | `className`+Tailwind, `styled.`/`` css` ``, `.module.css`, `style={{`, `antd`/`ant-design` |
 | State management | `zustand`/`create<`, `redux`/`createSlice`, `GetxController`/`.obs`, `useState`/`useReducer` |
 | API | `axios`, `fetch(`, `Dio` |
 | Testing | `describe(`/`it(`, `WP_UnitTestCase`, `flutter_test` |
-| Error & logging | `console.log`/`Logger`/`winston`, `throw new`/`HttpException`, ngôn ngữ throw messages |
+| Error & logging | `console.log`/`Logger`/`winston`, `throw new`/`HttpException`, throw message language |
 | Formatting | `.prettierrc`/`.eslintrc`/`biome.json`, `tsconfig.json` (strict, paths, target) |
-## Bước 3: Tổng hợp phát hiện
-Liệt kê cho user:
+## Step 3: Compile findings
+List for user:
 ```
-Phát hiện từ code:
-- Đặt tên: kebab-case files, camelCase functions
-- Giao diện: Ant Design v6 + inline styles
-- Trạng thái: Zustand
+Detected from code:
+- Naming: kebab-case files, camelCase functions
+- UI: Ant Design v6 + inline styles
+- State: Zustand
 - ...
 ```
-## Bước 4: Hỏi user bổ sung
-Hỏi những thứ KHÔNG detect được:
-1. Ngôn ngữ giao tiếp: ghi chú/JSDoc tiếng Việt hay Anh?
-2. Phong cách commit: conventional? Tiếng Việt? Tiền tố?
-3. Quy ước đặc biệt khác? (prefix MongoDB, format phân trang, cấu trúc thư mục...)
-4. AI hay làm sai gì cần nhắc? (tạo file mới thay vì sửa, thêm thư viện không cần...)
-User có thể skip bất kỳ câu nào.
-## Bước 5: Tạo CLAUDE.md
+## Step 4: Ask user for additions
+Ask about things NOT detectable:
+1. Communication language: notes/JSDoc in Vietnamese or English?
+2. Commit style: conventional? Vietnamese? Prefixes?
+3. Special conventions? (MongoDB prefix, pagination format, directory structure...)
+4. Common AI mistakes to remind? (creating new files instead of editing, adding unnecessary libraries...)
+User can skip any question.
+## Step 5: Create CLAUDE.md
 ```markdown
-# Quy ước dự án
-## Phong cách code
-## Đặt tên
-## Kiến trúc
-## Nên / Không nên
-## Build & Kiểm thử
+# Project Conventions
+## Code Style
+## Naming
+## Architecture
+## Do / Don't
+## Build & Testing
 ```
-Quy tắc: CHỈ viết thứ AI không tự suy ra. KHÔNG lặp kiến thức framework. Mỗi bullet 1 dòng. **Dưới 50 dòng.** CLAUDE.md cũ + bổ sung → merge, loại trùng.
-## Bước 6: Thông báo
+Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework knowledge. Each bullet 1 line. **Under 50 lines.** Existing CLAUDE.md + additions → merge, remove duplicates.
+## Step 6: Notification
 ```
 ╔══════════════════════════════════════╗
-║     CLAUDE.md đã tạo!               ║
+║     CLAUDE.md created!               ║
 ╠══════════════════════════════════════╣
-║ File: CLAUDE.md ([N] dòng)          ║
-║ Claude Code tự đọc mỗi conversation ║
-║ Sửa: trực tiếp hoặc $pd-conventions ║
+║ File: CLAUDE.md ([N] lines)          ║
+║ Claude Code auto-reads each session  ║
+║ Edit: directly or $pd-conventions    ║
 ╚══════════════════════════════════════╝
 ```
 </process>
@@ -100,11 +100,11 @@ Quy tắc: CHỈ viết thứ AI không tự suy ra. KHÔNG lặp kiến thức 
 - All output MUST be in English
 - You MUST ask the user about personal preferences before creating `CLAUDE.md`
 - `CLAUDE.md` MUST reflect the current codebase reality and must not impose new conventions
-- CLAUDE.md DƯỚI 50 dòng — ngắn gọn, chỉ conventions riêng
-- KHÔNG viết tutorial/giải thích framework
-- KHÔNG lặp nội dung `.planning/rules/`
-- PHẢI scan code thực tế trước khi hỏi user
-- Project chưa có code → hỏi nhiều hơn, detect ít hơn
-- CẤM đọc/hiển thị file nhạy cảm
-- File tương thích Claude Code auto-load (CLAUDE.md ở root)
+- CLAUDE.md UNDER 50 lines — concise, only project-specific conventions
+- DO NOT write tutorial/framework explanations
+- DO NOT repeat `.planning/rules/` content
+- MUST scan actual code before asking user
+- New project with no code → ask more, detect less
+- DO NOT read/display sensitive files
+- File compatible with Claude Code auto-load (CLAUDE.md at root)
 </rules>

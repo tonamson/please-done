@@ -13,7 +13,7 @@ Download documentation from a URL into a local markdown file with version metada
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `/pd-init` first."
 - [ ] URL is valid (has `http` or `https`) -> "Invalid URL. Check it again."
 - [ ] WebFetch is available -> "WebFetch is unavailable. Check the MCP setup."
       </guards>

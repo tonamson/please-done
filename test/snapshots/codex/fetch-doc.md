@@ -3,30 +3,30 @@ name: pd-fetch-doc
 description: Download documentation from a URL using the current library version, and cache it locally for fast lookup
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-fetch-doc`
-Khi user gọi `$pd-fetch-doc {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-fetch-doc {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Download documentation from a URL into a local markdown file with version metadata and a section index. Cache the exact version so later skills can read the index first, then open only the required section.
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `$pd-init` first."
 - [ ] URL is valid (has `http` or `https`) -> "Invalid URL. Check it again."
 - [ ] WebFetch is available -> "WebFetch is unavailable. Check the MCP setup."
       </guards>

@@ -3,23 +3,23 @@ name: pd-test
 description: Write tests + run verification (NestJS/WordPress/Solidity/Flutter/Frontend), confirm with the user, and report failures
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-test`
-Khi user gọi `$pd-test {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-test {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Write tests based on the stack (Jest/PHPUnit/Hardhat-Foundry/flutter_test). For frontend-only work: provide a manual test checklist plus confirmation.
@@ -28,11 +28,11 @@ Test with concrete data, run the tests, get user confirmation, then commit.
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `$pd-init` first."
 - [ ] Valid task number or `--all` flag provided -> "Provide a task number or use `--all`."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
-- [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
+- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
+- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
+- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
 - [ ] At least one task is in `done` state -> "No completed tasks yet. Run `$pd-write-code` first."
 </guards>
 <context>
@@ -45,82 +45,82 @@ Additional reads:
 - `.planning/rules/{nestjs,wordpress,solidity,flutter}.md` -> build & lint rules (ONLY if they exist)
 </context>
 <required_reading>
-Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
-(Claude Code: cat ~/.codex/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
-- [SKILLS_DIR]/references/conventions.md → biểu tượng trạng thái, commit prefixes, patch version
+Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
+(Claude Code: cat ~/.codex/.pdconfig — other platforms: converter auto-converts paths)
+- [SKILLS_DIR]/references/conventions.md → status icons, commit prefixes, patch version
 </required_reading>
 <conditional_reading>
-Đọc CHỈ KHI cần (phân tích mô tả task trước):
-- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
+Read ONLY WHEN needed (analyze task description first):
+- [SKILLS_DIR]/references/context7-pipeline.md -- WHEN task needs it
 </conditional_reading>
 <process>
-## Bước 1: Xác định scope + đọc context
-- Đọc `.planning/CONTEXT.md` → Tech Stack → xác định test framework:
-| Stack | Framework | Vị trí test | Lệnh chạy |
+## Step 1: Determine scope + read context
+- Read `.planning/CONTEXT.md` → Tech Stack → determine test framework:
+| Stack | Framework | Test location | Run command |
 |-------|-----------|-------------|------------|
-| NestJS | Jest + Supertest | cạnh source `*.spec.ts` | `npm test` |
+| NestJS | Jest + Supertest | alongside source `*.spec.ts` | `npm test` |
 | WordPress | PHPUnit + WP_UnitTestCase | `tests/test-*.php` | `composer test` |
-| Solidity | Hardhat `npx hardhat test` / Foundry `forge test -vvv` | `test/*.ts` / `test/*.t.sol` | đọc `.planning/docs/solidity/audit-checklist.md` |
+| Solidity | Hardhat `npx hardhat test` / Foundry `forge test -vvv` | `test/*.ts` / `test/*.t.sol` | read `.planning/docs/solidity/audit-checklist.md` |
 | Flutter | flutter_test + mocktail | `test/unit/`, `test/widget/` | `flutter test` |
-| Framework khác | — | — | thông báo hỗ trợ NestJS/WP/Solidity/Flutter |
-| Frontend-only | kiểm thử thủ công | — | liệt kê chức năng + kỳ vọng, user xác nhận |
-- Mọi stack: hiển thị kết quả → user xác nhận → TEST_REPORT (Bước 7) → bug report nếu fail (Bước 8) → commit (Bước 10)
-- `git rev-parse --git-dir 2>/dev/null` → lưu `HAS_GIT`
-- Đọc `.planning/CURRENT_MILESTONE.md` → version + phase + status
-- status = `Hoàn tất toàn bộ` → **DỪNG**: "Tất cả milestones đã hoàn tất."
-- `.planning/milestones/[version]/phase-[phase]/PLAN.md` → không có → **DỪNG**: "Chưa có plan. Chạy `$pd-plan`."
-- `.planning/milestones/[version]/phase-[phase]/TASKS.md` → không có → **DỪNG**: "Chưa có tasks. Chạy `$pd-plan`."
-- Đọc PLAN.md → thiết kế kỹ thuật, API endpoints, request/response format
-- `{{GSD_ARGS}}` chứa `--all` → đọc PLAN.md, TASKS.md, CODE_REPORT_TASK_*.md từ TẤT CẢ phases (`milestones/[version]/phase-*/`). Chạy toàn bộ test suite (mọi tasks ✅), không chỉ phase hiện tại.
-- `{{GSD_ARGS}}` chỉ định task → kiểm tra trạng thái:
-  - Task number áp dụng cho phase hiện tại. Không tìm thấy → tìm các phase khác cùng milestone → thông báo: "Task [N] thuộc phase [x.x], không phải phase hiện tại."
-  - ✅ → test riêng task đó
-  - KHÔNG ✅ → **DỪNG**: "Task [N] chưa hoàn tất (trạng thái: [icon]). Chạy `$pd-write-code [N]`."
-    Xem [SKILLS_DIR]/references/conventions.md → 'Biểu tượng trạng thái Task'
-- Không chỉ định → đọc `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → lấy endpoints/features cần test
-- Chỉ test tasks ✅
-**Effort routing cho test:**
-Test mirrors effort của task đang test:
-- Đọc `Effort:` từ task metadata trong TASKS.md
-- Thiếu trường Effort → mặc định `standard` (sonnet)
-- Thông báo: "Spawning {model} agent cho test ({effort})..."
-- **KHÔNG có task ✅ nào** → kiểm tra auto-advance:
-  - Quét TẤT CẢ `milestones/[version]/phase-*/` → tìm phases có TẤT CẢ tasks ✅ nhưng KHÔNG có TEST_REPORT.md
-  - Tìm thấy → chuyển sang test phase đó (số lớn nhất): "Phase [y.y] chưa có task hoàn tất. Phase [x.x] đã hoàn tất chưa test → chuyển sang test phase [x.x]."
-  - Không tìm thấy → **DỪNG**: "Chưa có task hoàn tất. Chạy `$pd-write-code`."
-- `.planning/rules/nestjs.md` → đọc conventions cho .spec.ts (CHỈ nếu file tồn tại)
+| Other framework | — | — | notify NestJS/WP/Solidity/Flutter supported |
+| Frontend-only | manual testing | — | list features + expectations, user confirms |
+- All stacks: display results → user confirms → TEST_REPORT (Step 7) → bug report if fail (Step 8) → commit (Step 10)
+- `git rev-parse --git-dir 2>/dev/null` → save `HAS_GIT`
+- Read `.planning/CURRENT_MILESTONE.md` → version + phase + status
+- status = `All completed` → **STOP**: "All milestones completed."
+- `.planning/milestones/[version]/phase-[phase]/PLAN.md` → not found → **STOP**: "No plan yet. Run `$pd-plan`."
+- `.planning/milestones/[version]/phase-[phase]/TASKS.md` → not found → **STOP**: "No tasks yet. Run `$pd-plan`."
+- Read PLAN.md → technical design, API endpoints, request/response format
+- `{{GSD_ARGS}}` contains `--all` → read PLAN.md, TASKS.md, CODE_REPORT_TASK_*.md from ALL phases (`milestones/[version]/phase-*/`). Run entire test suite (all ✅ tasks), not just current phase.
+- `{{GSD_ARGS}}` specifies task → check status:
+  - Task number applies to current phase. Not found → search other phases in same milestone → notify: "Task [N] belongs to phase [x.x], not current phase."
+  - ✅ → test that specific task
+  - NOT ✅ → **STOP**: "Task [N] not yet completed (status: [icon]). Run `$pd-write-code [N]`."
+    See [SKILLS_DIR]/references/conventions.md → 'Task Status Icons'
+- Not specified → read `phase-[phase]/TASKS.md` + `phase-[phase]/reports/CODE_REPORT_TASK_*.md` → get endpoints/features to test
+- Only test ✅ tasks
+**Effort routing for test:**
+Test mirrors effort of the task being tested:
+- Read `Effort:` from task metadata in TASKS.md
+- Missing Effort field → default `standard` (sonnet)
+- Notify: "Spawning {model} agent for test ({effort})..."
+- **NO ✅ tasks** → check auto-advance:
+  - Scan ALL `milestones/[version]/phase-*/` → find phases with ALL tasks ✅ but NO TEST_REPORT.md
+  - Found → switch to test that phase (highest number): "Phase [y.y] has no completed tasks. Phase [x.x] completed but untested → switching to test phase [x.x]."
+  - Not found → **STOP**: "No completed tasks. Run `$pd-write-code`."
+- `.planning/rules/nestjs.md` → read conventions for .spec.ts (ONLY if file exists)
 ---
-## Bước 1.5: Kiểm tra khôi phục sau gián đoạn
-1. **TEST_REPORT.md đã tồn tại?** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`
-   - CÓ → "TEST_REPORT đã tồn tại (có thể bị gián đoạn trước commit)."
-   - Hỏi: "1. GIỮ report — chỉ commit | 2. CHẠY LẠI từ đầu"
-   - Giữ → nhảy Bước 10 | Chạy lại → tiếp tục
-2. **Test files đã tồn tại?** (CHỈ kiểm tra khi không có TEST_REPORT)
-   Glob theo stack: NestJS `**/*.spec.ts` | WP `**/test-*.php` | Solidity `**/test/*.ts` hoặc `**/test/*.t.sol` | Flutter `**/test/**/*_test.dart` | Frontend-only → bỏ qua
-   Tìm thấy test files CHƯA commit (`git status`):
-   - "Tìm thấy [N] test files chưa commit."
-   - Hỏi: "1. GIỮ — chỉ chạy test (bỏ qua viết) | 2. VIẾT LẠI từ đầu"
-   - Giữ → nhảy Bước 5 | Viết lại → tiếp tục
-3. **Không có dấu vết** → tiếp tục Bước 2
+## Step 1.5: Check for interrupted session recovery
+1. **TEST_REPORT.md already exists?** → `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`
+   - EXISTS → "TEST_REPORT already exists (may have been interrupted before commit)."
+   - Ask: "1. KEEP report — just commit | 2. RE-RUN from scratch"
+   - Keep → jump to Step 10 | Re-run → continue
+2. **Test files already exist?** (ONLY check when no TEST_REPORT)
+   Glob by stack: NestJS `**/*.spec.ts` | WP `**/test-*.php` | Solidity `**/test/*.ts` or `**/test/*.t.sol` | Flutter `**/test/**/*_test.dart` | Frontend-only → skip
+   Found test files NOT committed (`git status`):
+   - "Found [N] uncommitted test files."
+   - Ask: "1. KEEP — just run tests (skip writing) | 2. REWRITE from scratch"
+   - Keep → jump to Step 5 | Rewrite → continue
+3. **No traces** → continue Step 2
 ---
-## Bước 2: Kiểm tra test infrastructure
-| Stack | Kiểm tra | Cài nếu thiếu |
+## Step 2: Check test infrastructure
+| Stack | Check | Install if missing |
 |-------|----------|----------------|
 | NestJS | Jest config + `@nestjs/testing`, `supertest`, `jest` | `npm install --save-dev @nestjs/testing supertest @types/supertest` |
-| WordPress | PHPUnit + WP test suite | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + tạo `phpunit.xml` nếu thiếu |
-| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` hoặc `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox` |
+| WordPress | PHPUnit + WP test suite | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + create `phpunit.xml` if missing |
+| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` or `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox` |
 | Solidity/Foundry | `lib/forge-std/` | `forge install foundry-rs/forge-std` |
-| Flutter | `flutter_test` + `mocktail` trong `dev_dependencies` | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget` |
+| Flutter | `flutter_test` + `mocktail` in `dev_dependencies` | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget` |
 ---
-## Bước 3: Đọc code để hiểu logic
-`mcp__fastcode__code_qa` (repos: đường dẫn từ CONTEXT.md):
-- "Endpoint [X] làm gì? Request/response format? Validations? Error cases?"
-- Ưu tiên đọc code thực tế (FastCode/Grep) — PLAN.md chỉ để kiểm tra compliance, KHÔNG phải source-of-truth cho test.
-- FastCode lỗi → Grep/Read. Cảnh báo: "FastCode lỗi — chạy `$pd-init`."
-**Context7** (thư viện bên thứ ba): [SKILLS_DIR]/references/context7-pipeline.md
+## Step 3: Read code to understand logic
+`mcp__fastcode__code_qa` (repos: path from CONTEXT.md):
+- "What does endpoint [X] do? Request/response format? Validations? Error cases?"
+- Prioritize reading actual code (FastCode/Grep) — PLAN.md is for compliance checking only, NOT source-of-truth for tests.
+- FastCode error → Grep/Read. Warn: "FastCode error — run `$pd-init`."
+**Context7** (third-party libraries): [SKILLS_DIR]/references/context7-pipeline.md
 ---
-## Bước 4: Viết test files (NestJS — .spec.ts)
-Đặt cạnh source: `src/modules/users/users.controller.spec.ts`
+## Step 4: Write test files (NestJS — .spec.ts)
+Place alongside source: `src/modules/users/users.controller.spec.ts`
 ```typescript
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
@@ -137,94 +137,94 @@ describe('UsersController', () => {
   });
   afterAll(async () => { await app.close(); });
   describe('POST /api/users', () => {
-    it('trả về 201 khi dữ liệu hợp lệ', async () => {
-      const duLieuVao = { email: `test_${Date.now()}@test.com`, name: 'Nguyễn Văn A', password: 'MatKhau123!' };
-      const response = await request(app.getHttpServer()).post('/api/users').send(duLieuVao).expect(201);
-      expect(response.body.email).toBe(duLieuVao.email);
+    it('returns 201 with valid data', async () => {
+      const inputData = { email: `test_${Date.now()}@test.com`, name: 'Test User', password: 'Password123!' };
+      const response = await request(app.getHttpServer()).post('/api/users').send(inputData).expect(201);
+      expect(response.body.email).toBe(inputData.email);
       expect(response.body.password).toBeUndefined();
     });
-    it('trả về 400 khi thiếu trường bắt buộc', async () => {
-      await request(app.getHttpServer()).post('/api/users').send({ name: 'Thiếu email' }).expect(400);
+    it('returns 400 when required field missing', async () => {
+      await request(app.getHttpServer()).post('/api/users').send({ name: 'Missing email' }).expect(400);
     });
   });
 });
 ```
-Quy tắc: mỗi test case có đầu vào RÕ RÀNG + đầu ra CỤ THỂ. Test data dùng `Date.now()` unique. Nhóm: happy path → validation → auth → edge cases. Describe/it/comment tiếng Việt có dấu. KHÔNG mock database nếu có test database.
+Rules: each test case has CLEAR input + SPECIFIC expected output. Test data uses `Date.now()` for uniqueness. Group: happy path → validation → auth → edge cases. Describe/it/comments in English. DO NOT mock database if test database available.
 ---
-## Bước 5: Chạy test
-Đọc CONTEXT.md → thư mục backend (Glob `**/nest-cli.json`):
+## Step 5: Run tests
+Read CONTEXT.md → backend directory (Glob `**/nest-cli.json`):
 ```bash
-cd [đường-dẫn-backend] && npm test -- --verbose --testPathPattern=[pattern] 2>&1
+cd [backend-path] && npm test -- --verbose --testPathPattern=[pattern] 2>&1
 ```
-- Mặc định: regex match `.spec.ts` của phase hiện tại
-- `--all` (regression): bỏ `--testPathPattern`, chạy tất cả `.spec.ts`
-Hiển thị bảng kết quả:
+- Default: regex match `.spec.ts` of current phase
+- `--all` (regression): remove `--testPathPattern`, run all `.spec.ts`
+Display results table:
 ```
 ╔═══╦═════════════════════╦════╦══════════════╦═════════════════╗
-║ # ║ Test case           ║ KQ ║ Đầu vào     ║ Đầu ra          ║
+║ # ║ Test case           ║ KQ ║ Input        ║ Output          ║
 ╠═══╬═════════════════════╬════╬══════════════╬═════════════════╣
-║ 1 ║ Tạo user thành công ║ ✅ ║ email,name   ║ 201 + user obj  ║
+║ 1 ║ Create user success ║ ✅ ║ email,name   ║ 201 + user obj  ║
 ╚═══╩═════════════════════╩════╩══════════════╩═════════════════╝
-Tổng: X/Y đạt
+Total: X/Y passed
 ```
 ---
-## Bước 6: User xác nhận database + giao diện
-> 1. Database: [bảng cần kiểm tra, dữ liệu kỳ vọng]
-> 2. API responses: [endpoint test thủ công, dữ liệu kỳ vọng]
-> 3. Giao diện: [CHỈ nếu CONTEXT.md có Frontend]
-> 4. Tất cả đã đúng? (y/n)
-Không có Frontend → bỏ phần giao diện. Cho phép xác nhận batch.
+## Step 6: User confirms database + UI
+> 1. Database: [tables to check, expected data]
+> 2. API responses: [endpoint manual test, expected data]
+> 3. UI: [ONLY if CONTEXT.md has Frontend]
+> 4. All correct? (y/n)
+No Frontend → omit UI section. Allow batch confirmation.
 ---
-## Bước 7: TEST_REPORT.md
-Viết `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
+## Step 7: TEST_REPORT.md
+Write `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
 ```markdown
-# Báo cáo kiểm thử
-> Ngày: [DD_MM_YYYY HH:MM]
-> Milestone: [tên] (v[x.x])
-> Tổng: [X] tests | ✅ [Y] đạt | ❌ [Z] lỗi
-## Kết quả [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Kiểm thử thủ công]
-| Test case | Đầu vào | Kỳ vọng | Thực tế | KQ |
-## Xác nhận giao diện (bỏ nếu không có Frontend)
-| Chức năng | Kết quả | Ghi chú |
-## Xác nhận dữ liệu (bỏ nếu không có Database/On-chain)
-| Bảng/Collection/Contract | Kết quả | Ghi chú |
+# Test Report
+> Date: [DD_MM_YYYY HH:MM]
+> Milestone: [name] (v[x.x])
+> Total: [X] tests | ✅ [Y] passed | ❌ [Z] failed
+## Results [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Manual Testing]
+| Test case | Input | Expected | Actual | Result |
+## UI Confirmation (omit if no Frontend)
+| Feature | Result | Notes |
+## Data Confirmation (omit if no Database/On-chain)
+| Table/Collection/Contract | Result | Notes |
 ```
 ---
-## Bước 8: Bug Report (nếu có lỗi)
-Tạo `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
-Xem [SKILLS_DIR]/references/conventions.md → 'Patch version'
+## Step 8: Bug Report (if failures)
+Create `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
+See [SKILLS_DIR]/references/conventions.md → 'Patch version'
 ```markdown
-# Báo cáo lỗi (từ kiểm thử)
-> Ngày: [DD_MM_YYYY HH:MM:SS] | Mức độ: [Nghiêm trọng/Cao/Trung bình/Nhẹ]
-> Trạng thái: Chưa xử lý | Chức năng: [Tên] | Task: [N]
-> Patch version: [x.x.x] | Lần sửa: 0
-> Format header PHẢI khớp fix-bug.md: `Trạng thái | Chức năng | Task` cùng dòng, `Patch version | Lần sửa` cùng dòng.
-> Patch version LUÔN 3 số (x.y.z). Xác định version từ TASKS.md chứa task fail (`milestones/[version]/phase-*/TASKS.md`), KHÔNG mặc định CURRENT_MILESTONE. Bug thuộc version → `[version].0`. Patch version trước → increment.
-## Mô tả lỗi
-Test case: [tên] | Đầu vào: [...] | Kỳ vọng: [...] | Thực tế: [...]
-## Tham chiếu
+# Bug Report (from testing)
+> Date: [DD_MM_YYYY HH:MM:SS] | Severity: [Critical/High/Medium/Low]
+> Status: Unresolved | Feature: [Name] | Task: [N]
+> Patch version: [x.x.x] | Fix attempts: 0
+> Header format MUST match fix-bug.md: `Status | Feature | Task` same line, `Patch version | Fix attempts` same line.
+> Patch version ALWAYS 3 numbers (x.y.z). Determine version from TASKS.md containing failed task (`milestones/[version]/phase-*/TASKS.md`), DO NOT default to CURRENT_MILESTONE. Bug belongs to version → `[version].0`. Previous patch version → increment.
+## Bug Description
+Test case: [name] | Input: [...] | Expected: [...] | Actual: [...]
+## References
 > TEST_REPORT: .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
 > Test framework: [Jest|PHPUnit|Hardhat|Foundry|FlutterTest]
 ```
-Header PHẢI có `Trạng thái` + `Patch version` để complete-milestone filter được.
+Header MUST have `Status` + `Patch version` for complete-milestone to filter.
 ---
-## Bước 9: Cập nhật TASKS.md
-Xem [SKILLS_DIR]/references/conventions.md → 'Biểu tượng trạng thái Task'
-- Pass hết → giữ ✅
-- Có test fail → đổi 🐛 CHỈ cho task có test fail (giữ ✅ cho tasks pass). Cập nhật CẢ HAI: (1) bảng Tổng quan, (2) task detail `> Trạng thái:`. Đề xuất `$pd-fix-bug`
-- Test fail do shared code → ghi BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Đổi 🐛 cho task có test fail, ghi chú suspected tasks.
+## Step 9: Update TASKS.md
+See [SKILLS_DIR]/references/conventions.md → 'Task Status Icons'
+- All pass → keep ✅
+- Has test fail → change to 🐛 ONLY for tasks with failing tests (keep ✅ for passing tasks). Update BOTH: (1) Overview table, (2) task detail `> Status:`. Suggest `$pd-fix-bug`
+- Test fail due to shared code → write BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Change 🐛 for task with failing test, note suspected tasks.
 ---
-## Bước 10: Git commit (CHỈ nếu HAS_GIT = true)
+## Step 10: Git commit (ONLY if HAS_GIT = true)
 ```
-git add [test files — *.spec.ts | test-*.php | test/*.ts hoặc test/*.t.sol | test/**/*_test.dart]
+git add [test files — *.spec.ts | test-*.php | test/*.ts or test/*.t.sol | test/**/*_test.dart]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
 git add .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
-# Nếu có bug report:
+# If bug report exists:
 git add .planning/bugs/BUG_[timestamp].md
-git commit -m "[KIỂM THỬ] Thêm kiểm thử cho [module]
-Kiểm thử bao gồm:
-- [test case 1]: đầu vào [...] → kỳ vọng [...]
-Kết quả: X/Y đạt"
+git commit -m "[TEST] Add tests for [module]
+Tests include:
+- [test case 1]: input [...] → expected [...]
+Result: X/Y passed"
 ```
 </process>
 <output>
@@ -247,15 +247,15 @@ Kết quả: X/Y đạt"
 - Tests MUST use concrete input data, not vague generic mocks.
 - You MUST run the tests and confirm they pass before committing.
 - You MUST ask the user for confirmation before finishing.
-- Tuân thủ `.planning/rules/` (chung + theo stack).
-- PHẢI viết test files vào repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart`. KHÔNG chỉ CURL.
-- Mỗi test case PHẢI có đầu vào CỤ THỂ + đầu ra kỳ vọng RÕ RÀNG.
-- PHẢI yêu cầu người dùng xác nhận giao diện + database.
-- PHẢI đọc PLAN.md trước khi viết test.
-- Token trong test report rút gọn (eyJhb...xxx).
-- FastCode lỗi → Grep/Read, KHÔNG DỪNG.
-- PHẢI kiểm tra TEST_REPORT + test files trên đĩa trước khi bắt đầu — phát hiện phiên gián đoạn.
-- TEST_REPORT đã tồn tại → hỏi người dùng giữ hay chạy lại.
-- Test files chưa commit → hỏi người dùng giữ hay viết lại.
-- KHÔNG ghi đè test files/report mà không hỏi người dùng.
+- Follow `.planning/rules/` (general + per stack).
+- MUST write test files to repo — NestJS `.spec.ts`, WP `test-*.php`, Solidity `test/*.ts`/`test/*.t.sol`, Flutter `test/**/*_test.dart`. NOT just CURL.
+- Each test case MUST have SPECIFIC input + CLEAR expected output.
+- MUST ask user to confirm UI + database.
+- MUST read PLAN.md before writing tests.
+- Tokens in test report abbreviated (eyJhb...xxx).
+- FastCode error → Grep/Read, DO NOT STOP.
+- MUST check TEST_REPORT + test files on disk before starting — detect interrupted sessions.
+- TEST_REPORT already exists → ask user keep or re-run.
+- Uncommitted test files → ask user keep or rewrite.
+- DO NOT overwrite test files/report without asking user.
 </rules>

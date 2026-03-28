@@ -3,23 +3,23 @@ name: pd-update
 description: Check for a new version of the skill set on GitHub, show the changelog, and update it
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-update`
-Khi user gọi `$pd-update {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-update {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Check for a newer version on GitHub, display the changelog, update the skill set, and suggest restarting the session.

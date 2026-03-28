@@ -3,34 +3,34 @@ name: pd-new-milestone
 description: Strategic project planning with a clear roadmap and milestones
 ---
 <codex_skill_adapter>
-## Cách gọi skill này
+## How to invoke this skill
 Skill name: `$pd-new-milestone`
-Khi user gọi `$pd-new-milestone {{args}}`, thực hiện toàn bộ instructions bên dưới.
+When the user invokes `$pd-new-milestone {{args}}`, execute all instructions below.
 ## Tool mapping
-- `AskUserQuestion` → `request_user_input`: Khi cần hỏi user, dùng request_user_input thay vì AskUserQuestion
-- `Task()` → `spawn_agent()`: Khi cần spawn sub-agent, dùng spawn_agent với fork_context
-  - Chờ kết quả: `wait(agent_ids)`
-  - Kết thúc agent: `close_agent()`
-## Fallback tương thích
-- Nếu `request_user_input` không khả dụng trong mode hiện tại, hỏi user bằng văn bản thường bằng 1 câu ngắn gọn rồi chờ user trả lời
-- Mọi chỗ ghi "PHẢI dùng `request_user_input`" được hiểu là: ưu tiên dùng khi tool khả dụng; nếu không thì fallback sang hỏi văn bản thường, không được tự đoán thay user
-## Quy ước
-- `$ARGUMENTS` chính là `{{GSD_ARGS}}` — input từ user khi gọi skill
-- Tất cả paths config đã được chuyển sang `~/.codex/`
-- Các MCP tools (`mcp__*`) hoạt động tự động qua config.toml
-- Đọc `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → lấy `SKILLS_DIR`
-- Các tham chiếu `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → đọc từ thư mục source tương ứng
+- `AskUserQuestion` → `request_user_input`: When you need to ask the user, use request_user_input instead of AskUserQuestion
+- `Task()` → `spawn_agent()`: When you need to spawn a sub-agent, use spawn_agent with fork_context
+  - Wait for result: `wait(agent_ids)`
+  - End agent: `close_agent()`
+## Compatibility fallback
+- If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
+- Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
+## Conventions
+- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- All config paths have been converted to `~/.codex/`
+- MCP tools (`mcp__*`) work automatically via config.toml
+- Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
+- References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
 Initialize a new milestone: check -> update the project -> ask questions -> research (optional) -> requirements -> roadmap -> approval.
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `$pd-init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `$pd-init` first."
 - [ ] `.planning/rules/general.md` exists -> "Rules are missing. Run `$pd-init` to recreate them."
 - [ ] A milestone name is provided, or the user will be asked if it is missing
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
-- [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
+- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
+- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
 - [ ] WebSearch is available when research is needed -> "WebSearch is unavailable. Check the network connection."
 </guards>
 <context>
@@ -42,289 +42,289 @@ Additional reads:
 - `.planning/rules/general.md` -> language, dates, conventions
 </context>
 <required_reading>
-Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
-(Claude Code: cat ~/.codex/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
-Đọc tất cả files trong execution_context trước khi bắt đầu:
+Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
+(Claude Code: cat ~/.codex/.pdconfig — other platforms: converter auto-converts paths)
+Read all files in execution_context before starting:
 - [SKILLS_DIR]/templates/project.md, [SKILLS_DIR]/templates/requirements.md, [SKILLS_DIR]/templates/roadmap.md, [SKILLS_DIR]/templates/state.md, [SKILLS_DIR]/templates/current-milestone.md
 - [SKILLS_DIR]/references/conventions.md
 </required_reading>
 <conditional_reading>
-Đọc CHỈ KHI cần (phân tích mô tả task trước):
-- [SKILLS_DIR]/references/questioning.md -- KHI DISCUSS mode -- can interactive user questioning
-- [SKILLS_DIR]/references/ui-brand.md -- KHI task tao/sua UI components hoac man hinh user-facing
-- [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
-- [SKILLS_DIR]/references/state-machine.md -- KHI task lien quan den milestone state transitions
+Read ONLY WHEN needed (analyze task description first):
+- [SKILLS_DIR]/references/questioning.md -- WHEN DISCUSS mode -- needs interactive user questioning
+- [SKILLS_DIR]/references/ui-brand.md -- WHEN task creates/modifies UI components or user-facing screens
+- [SKILLS_DIR]/references/prioritization.md -- WHEN task ordering/ranking multiple tasks or triage
+- [SKILLS_DIR]/references/state-machine.md -- WHEN task relates to milestone state transitions
 </conditional_reading>
 <process>
-## 0. Tự kiểm tra
-| # | File | Không có → |
+## 0. Self-check
+| # | File | Missing → |
 |---|------|-----------|
-| 1 | `.planning/CONTEXT.md` | "Chạy `$pd-init` trước." → **DỪNG** |
-| 2 | `.planning/rules/general.md` | "Rules bị thiếu. Chạy `$pd-init` để tạo lại." → **DỪNG** |
-Đọc cả hai. Ghi nhận ngôn ngữ, format ngày tháng, quy cách phiên bản, biểu tượng trạng thái.
+| 1 | `.planning/CONTEXT.md` | "Run `$pd-init` first." → **STOP** |
+| 2 | `.planning/rules/general.md` | "Rules are missing. Run `$pd-init` to recreate." → **STOP** |
+Read both. Note language, date format, versioning convention, status icons.
 ---
-## 0.5: Xác định tài liệu tham khảo (Auto-discovery)
-Phân tích `CONTEXT.md` và bối cảnh để kích hoạt tài liệu bổ trợ:
-- Có giao diện người dùng? → đọc [SKILLS_DIR]/references/ui-brand.md
-- Cần thảo luận sâu với user? → đọc [SKILLS_DIR]/references/questioning.md
-- Nhiều yêu cầu cần sắp xếp? → đọc [SKILLS_DIR]/references/prioritization.md
-- Cần quản lý trạng thái phức tạp? → đọc [SKILLS_DIR]/references/state-machine.md
+## 0.5: Determine reference documents (Auto-discovery)
+Analyze `CONTEXT.md` and context to activate supplementary documents:
+- Has user interface? → read [SKILLS_DIR]/references/ui-brand.md
+- Need deep discussion with user? → read [SKILLS_DIR]/references/questioning.md
+- Many requirements need ordering? → read [SKILLS_DIR]/references/prioritization.md
+- Need complex state management? → read [SKILLS_DIR]/references/state-machine.md
 ---
-## 1. Tạo/Cập nhật PROJECT.md
-> Mẫu: [SKILLS_DIR]/templates/project.md
-**Chưa tồn tại:**
-- Đọc CONTEXT.md → thông tin dự án
-- Hỏi user ([SKILLS_DIR]/references/questioning.md): tầm nhìn (1-3 câu), đối tượng người dùng, ràng buộc
-- Tạo PROJECT.md theo mẫu
-**Đã tồn tại:**
-- Đọc PROJECT.md → lịch sử milestones, tầm nhìn
-- Milestone trước hoàn tất → thêm vào bảng "Lịch sử Milestones"
-- Hỏi user: "Tầm nhìn thay đổi không? Bài học từ milestone trước?"
-- Cập nhật nếu cần
-**Cập nhật STATE.md** (nếu tồn tại): `Hoạt động cuối: [DD_MM_YYYY] — Bắt đầu khởi tạo milestone mới`
+## 1. Create/Update PROJECT.md
+> Template: [SKILLS_DIR]/templates/project.md
+**Does not exist:**
+- Read CONTEXT.md → project information
+- Ask user ([SKILLS_DIR]/references/questioning.md): vision (1-3 sentences), target audience, constraints
+- Create PROJECT.md from template
+**Already exists:**
+- Read PROJECT.md → milestone history, vision
+- Previous milestone completed → add to "Milestone History" table
+- Ask user: "Has the vision changed? Lessons from previous milestone?"
+- Update if needed
+**Update STATE.md** (if exists): `Last activity: [DD_MM_YYYY] — Started new milestone initialization`
 ---
-## 2. Kiểm tra báo cáo quét
-- **KHÔNG** có `.planning/scan/SCAN_REPORT.md`:
-  - CONTEXT.md → dự án mới (chưa có code) → cho phép tiếp tục
-  - Dự án đã có code → "Chạy `$pd-scan` trước." → **DỪNG**
-- **CÓ** → đọc: trạng thái hoàn thành, thư viện có sẵn, vấn đề & đề xuất
+## 2. Check scan report
+- **NO** `.planning/scan/SCAN_REPORT.md`:
+  - CONTEXT.md → new project (no code yet) → allow continuing
+  - Project already has code → "Run `$pd-scan` first." → **STOP**
+- **YES** → read: completion status, available libraries, issues & suggestions
 ---
-## 3. Kiểm tra lộ trình hiện có
-`.planning/ROADMAP.md` đã tồn tại:
+## 3. Check existing roadmap
+`.planning/ROADMAP.md` already exists:
 ```
 request_user_input({
   questions: [{
-    question: "Đã có lộ trình. Bạn muốn làm gì?",
-    header: "Lộ trình hiện có",
+    question: "A roadmap already exists. What do you want to do?",
+    header: "Existing Roadmap",
     multiSelect: false,
     options: [
-      { label: "Ghi đè toàn bộ", description: "Xóa lộ trình cũ, lập lại từ đầu" },
-      { label: "Viết tiếp", description: "Giữ milestones cũ, thêm mới vào cuối" }
+      { label: "Overwrite entirely", description: "Delete old roadmap, start from scratch" },
+      { label: "Continue from existing", description: "Keep old milestones, add new ones at the end" }
     ]
   }]
 })
 ```
-**GHI ĐÈ → cảnh báo thư mục milestone cũ:**
+**OVERWRITE → warn about old milestone directories:**
 ```
 request_user_input({
   questions: [{
-    question: "Thư mục milestones cũ vẫn tồn tại. Xử lý thế nào?",
-    header: "Milestones cũ",
+    question: "Old milestone directories still exist. How to handle?",
+    header: "Old Milestones",
     multiSelect: false,
     options: [
-      { label: "Sao lưu (Đề xuất)", description: "Đổi tên thành milestones_backup_[ngày]" },
-      { label: "Xóa tất cả", description: "Xóa toàn bộ thư mục milestones cũ" },
-      { label: "Chỉ xóa chưa có code", description: "Giữ milestones đã có code, xóa phần còn lại" }
+      { label: "Backup (Recommended)", description: "Rename to milestones_backup_[date]" },
+      { label: "Delete all", description: "Delete all old milestone directories" },
+      { label: "Only delete those without code", description: "Keep milestones that have code, delete the rest" }
     ]
   }]
 })
 ```
-- request_user_input khong kha dung nhu tool → hoi van ban thuong (theo rules). Nguoi dung khong phan hoi HOAC tool loi ky thuat → tu dong sao luu: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`. Ghi chu: "Da tu dong sao luu do khong nhan duoc phan hoi."
+- request_user_input not available as tool → ask as plain text (per rules). User does not respond OR tool technical error → auto backup: `.planning/milestones/` → `.planning/milestones_backup_[DD_MM_YYYY]/`. Note: "Auto-backed up due to no response received."
 **`--reset-phase-numbers`:**
-- Có cờ → đánh số phase từ 1
-- Có thư mục phase cũ → lưu trữ trước để tránh xung đột
-- Không có cờ → tiếp tục đánh số từ phase cuối milestone trước
+- Flag present → number phases from 1
+- Old phase directories exist → archive first to avoid conflicts
+- No flag → continue numbering from last phase of previous milestone
 ---
-## 4. Thu thập yêu cầu milestone
-> Áp dụng [SKILLS_DIR]/references/questioning.md
-`{{GSD_ARGS}}` có nội dung → dùng làm bối cảnh ban đầu.
-**GHI ĐÈ:** trình bày milestones đã hoàn tất → hỏi toàn bộ (mục tiêu, chức năng cốt lõi, ưu tiên) → hỏi sâu (đối tượng, tình huống, ràng buộc, tiến độ)
-**VIẾT TIẾP:** trình bày milestones đã có → hỏi milestones/tính năng MỚI → hỏi sâu (phạm vi, quan hệ với tính năng cũ)
-**Dự án mới:** CONTEXT.md + PROJECT.md làm nền → hỏi chức năng chính → hỏi ưu tiên, đối tượng, ràng buộc
+## 4. Gather milestone requirements
+> Apply [SKILLS_DIR]/references/questioning.md
+`{{GSD_ARGS}}` has content → use as initial context.
+**OVERWRITE:** present completed milestones → ask everything (goals, core features, priorities) → deep dive (audience, scenarios, constraints, timeline)
+**CONTINUE:** present existing milestones → ask about NEW milestones/features → deep dive (scope, relationship with existing features)
+**New project:** CONTEXT.md + PROJECT.md as foundation → ask about main features → ask priorities, audience, constraints
 ---
-## 5. Nghiên cứu chiến lược (Fast Parallel Research)
+## 5. Strategic research (Fast Parallel Research)
 ```
 request_user_input({
   questions: [{
-    question: "Có muốn nghiên cứu chiến lược (kiến trúc, thư viện, luồng dữ liệu) trước khi xác định phạm vi?",
-    header: "Nghiên cứu",
+    question: "Do you want to conduct strategic research (architecture, libraries, data flow) before defining scope?",
+    header: "Research",
     multiSelect: false,
     options: [
-      { label: "Nghiên cứu trước (Đề xuất)", description: "Dùng FastCode + Context7 để tra cứu nhanh, quét lỗi kiến trúc" },
-      { label: "Bỏ qua, đi thẳng vào yêu cầu", description: "Dùng kiến thức hiện có" }
+      { label: "Research first (Recommended)", description: "Use FastCode + Context7 for quick lookups, scan for architecture issues" },
+      { label: "Skip, go straight to requirements", description: "Use existing knowledge" }
     ]
   }]
 })
 ```
-**"Bỏ qua":** nhảy Bước 6.
-**"Nghiên cứu trước":**
+**"Skip":** jump to Step 6.
+**"Research first":**
 ```bash
 mkdir -p .planning/research
 ```
-Thực hiện **Gọi công cụ song song** (Parallel Tool Calls) thay vì tạo tác tử con (sub-agents) để tối ưu hóa hiệu suất:
-1. `mcp__fastcode__code_qa`: Tìm kiếm các thành phần (components/modules) có thể tái sử dụng và phát hiện điểm nghẽn kiến trúc tiềm tàng.
-2. `mcp__context7__query-docs` (hoặc WebSearch): Tra cứu thư viện tối ưu nhất cho stack hiện tại và các rủi ro bảo mật cần phòng tránh.
-3. **Logic nội bộ**: Phác thảo luồng dữ liệu (Data flow) và hành trình người dùng (User Journey) để xác định các trường hợp ngoại lệ (edge cases) như lỗi mạng, tải dữ liệu hoặc hoàn tác.
-Sau khi có kết quả, tổng hợp và ghi trực tiếp vào `.planning/research/SUMMARY.md` (bao gồm: Thư viện đề xuất, Điểm tái sử dụng, Cạm bẫy kiến trúc, Luồng dữ liệu cần chú ý).
-Hiển thị tóm tắt cho người dùng: thư viện bổ sung, tính năng bắt buộc, cảnh báo quan trọng nhất.
+Execute **Parallel Tool Calls** instead of spawning sub-agents to optimize performance:
+1. `mcp__fastcode__code_qa`: Search for reusable components/modules and detect potential architecture bottlenecks.
+2. `mcp__context7__query-docs` (or WebSearch): Look up optimal libraries for the current stack and security risks to prevent.
+3. **Internal logic**: Draft data flow and user journey to identify edge cases such as network errors, data loading, or undo operations.
+After getting results, synthesize and write directly to `.planning/research/SUMMARY.md` (including: Recommended libraries, Reuse points, Architecture pitfalls, Data flows to watch).
+Display summary for user: additional libraries, mandatory features, most critical warnings.
 **Commit:**
 ```bash
-git add .planning/research/ && git commit -m "docs: nghiên cứu chiến lược milestone — [tóm tắt ngắn]"
+git add .planning/research/ && git commit -m "docs: strategic research for milestone — [brief summary]"
 ```
-**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Nghiên cứu chiến lược hoàn tất`
+**Update STATE.md:** `Last activity: [DD_MM_YYYY] — Strategic research completed`
 ---
-## 6. Định nghĩa yêu cầu
-> Mẫu + tiêu chí: [SKILLS_DIR]/templates/requirements.md
-### 6a. Phân tích hiện trạng
-- CÓ báo cáo quét → tính năng hoàn thành/dở/chưa, thư viện có sẵn
-- CÓ nghiên cứu → đọc `.planning/research/SUMMARY.md` → tính năng theo nhóm
-- Dự án mới → dựa vào yêu cầu user từ Bước 4
-- **KHÔNG gọi FastCode** cho thông tin đã có trong báo cáo quét
-### 6b. Xác định phạm vi theo nhóm
-Với MỖI nhóm:
+## 6. Define requirements
+> Template + criteria: [SKILLS_DIR]/templates/requirements.md
+### 6a. Analyze current state
+- HAS scan report → completed/partial/unstarted features, available libraries
+- HAS research → read `.planning/research/SUMMARY.md` → features by group
+- New project → based on user requirements from Step 4
+- **DO NOT call FastCode** for information already in the scan report
+### 6b. Define scope by group
+For EACH group:
 ```
 request_user_input({
   questions: [{
-    question: "[Tên nhóm] — chọn tính năng đưa vào milestone:",
-    header: "[Nhóm]",
+    question: "[Group name] — select features for this milestone:",
+    header: "[Group]",
     multiSelect: true,
     options: [
-      { label: "[Tính năng 1]", description: "[mô tả — bắt buộc/tạo khác biệt]" },
-      { label: "Không đưa nhóm này vào", description: "Hoãn sang milestone sau" }
+      { label: "[Feature 1]", description: "[description — required/differentiator]" },
+      { label: "Exclude this group", description: "Defer to next milestone" }
     ]
   }]
 })
 ```
-Phân loại: Được chọn → **v1** | Bắt buộc không chọn → **Tương lai** | Tạo khác biệt không chọn → **Ngoài phạm vi**
-### 6c. Kiểm tra thiếu sót
+Classify: Selected → **v1** | Required not selected → **Future** | Differentiator not selected → **Out of scope**
+### 6c. Check for gaps
 ```
 request_user_input({
   questions: [{
-    question: "Có tính năng nào chưa liệt kê mà bạn muốn thêm?",
-    header: "Bổ sung",
+    question: "Are there any features not listed that you want to add?",
+    header: "Additional",
     multiSelect: false,
     options: [
-      { label: "Không, đã đủ", description: "Chuyển sang tạo danh sách yêu cầu" },
-      { label: "Có, tôi muốn thêm", description: "Mô tả tính năng cần bổ sung" }
+      { label: "No, that's complete", description: "Move on to creating the requirements list" },
+      { label: "Yes, I want to add more", description: "Describe the features to add" }
     ]
   }]
 })
 ```
-"Có" → thu thập thêm → xác định phạm vi lại.
-### 6d. Tạo REQUIREMENTS.md
-Theo mẫu [SKILLS_DIR]/templates/requirements.md.
-- Mã: `[NHÓM]-[SỐ]` (AUTH-01, NOTIF-02)
-- Có REQUIREMENTS.md cũ → tiếp tục đánh số từ mã cuối
-- Áp dụng tiêu chí yêu cầu tốt
-### 6e. Cổng duyệt — Yêu cầu
-Trình bày TOÀN BỘ yêu cầu:
+"Yes" → collect more → re-scope.
+### 6d. Create REQUIREMENTS.md
+Per template [SKILLS_DIR]/templates/requirements.md.
+- Code: `[GROUP]-[NUMBER]` (AUTH-01, NOTIF-02)
+- Has existing REQUIREMENTS.md → continue numbering from last code
+- Apply good requirement criteria
+### 6e. Approval gate — Requirements
+Present ALL requirements:
 ```
-## Yêu cầu Milestone v[X.Y]
-### [Nhóm 1]
-- [ ] **NHOM1-01**: Người dùng có thể...
-**Tổng: [X] yêu cầu | [Y] nhóm**
+## Requirements for Milestone v[X.Y]
+### [Group 1]
+- [ ] **GROUP1-01**: User can...
+**Total: [X] requirements | [Y] groups**
 ```
 ```
 request_user_input({
   questions: [{
-    question: "Yêu cầu có đúng phạm vi không?",
-    header: "Duyệt yêu cầu",
+    question: "Are the requirements correctly scoped?",
+    header: "Review requirements",
     multiSelect: false,
     options: [
-      { label: "Duyệt", description: "Chuyển sang tạo lộ trình" },
-      { label: "Điều chỉnh", description: "Thêm/bớt/sửa rồi xem lại" }
+      { label: "Approve", description: "Move on to roadmap creation" },
+      { label: "Adjust", description: "Add/remove/edit then review again" }
     ]
   }]
 })
 ```
-- **"Duyệt"** → commit, tiếp Bước 7
-- **"Điều chỉnh"** → sửa → hỏi duyệt lại (lặp đến khi duyệt)
+- **"Approve"** → commit, continue to Step 7
+- **"Adjust"** → edit → ask for approval again (loop until approved)
 **Commit:**
 ```bash
-git add .planning/REQUIREMENTS.md && git commit -m "docs: định nghĩa yêu cầu milestone v[X.Y] ([N] yêu cầu)"
+git add .planning/REQUIREMENTS.md && git commit -m "docs: define requirements for milestone v[X.Y] ([N] requirements)"
 ```
-**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Yêu cầu milestone v[X.Y] đã duyệt`
+**Update STATE.md:** `Last activity: [DD_MM_YYYY] — Milestone v[X.Y] requirements approved`
 ---
-## 7. Thiết kế lộ trình
-> Mẫu + quy tắc: [SKILLS_DIR]/templates/roadmap.md
-### 7a. Chia milestones và phases
-- Chia Milestones (1.0, 1.1, 2.0...) → Phases
-- Mỗi phase PHẢI có đủ 5 thành phần ([SKILLS_DIR]/templates/roadmap.md → "Quy tắc Phase")
-- Xác định phụ thuộc, ưu tiên, đánh số phiên bản, kiểm tra trùng (khi VIẾT TIẾP)
-### 7b. Kiểm tra độ phủ (BẮT BUỘC)
-MỌI yêu cầu v1 PHẢI gắn vào đúng 1 phase. Chưa gắn → **DỪNG**, sửa trước.
-### 7c. Quyết định chiến lược
-Claude PHẢI ghi nhận: tại sao milestone X trước Y, tại sao ưu tiên Z, tại sao chia N milestones, phụ thuộc.
-### 7d. Tạo ROADMAP.md
-- **GHI ĐÈ** → viết mới theo mẫu
-- **VIẾT TIẾP** → giữ nguyên milestones cũ → thêm mới SAU cuối → cập nhật ngày
-- Thêm quyết định chiến lược vào bảng hiện có
-### 7e. Cập nhật bảng theo dõi REQUIREMENTS.md
-| Yêu cầu | Phase | Trạng thái |
-|----------|-------|------------|
-| AUTH-01 | Phase 1.1 | Chờ triển khai |
-Kiểm tra: tất cả v1 đã gắn → Đủ. Có yêu cầu chưa gắn → **DỪNG**, sửa trước.
-### 7f. Cổng duyệt — Lộ trình
-Trình bày: `[N] phases | [X] yêu cầu đã gắn | Độ phủ: ✓` + bảng phases + chi tiết.
+## 7. Design roadmap
+> Template + rules: [SKILLS_DIR]/templates/roadmap.md
+### 7a. Split milestones and phases
+- Split Milestones (1.0, 1.1, 2.0...) → Phases
+- Each phase MUST have all 5 components ([SKILLS_DIR]/templates/roadmap.md → "Phase Rules")
+- Determine dependencies, priorities, version numbering, check for duplicates (when CONTINUING)
+### 7b. Coverage check (REQUIRED)
+ALL v1 requirements MUST be mapped to exactly 1 phase. Unmapped → **STOP**, fix first.
+### 7c. Strategic decisions
+Claude MUST document: why milestone X before Y, why prioritize Z, why split into N milestones, dependencies.
+### 7d. Create ROADMAP.md
+- **OVERWRITE** → write new from template
+- **CONTINUE** → keep existing milestones → add new AFTER the end → update dates
+- Add strategic decisions to existing table
+### 7e. Update REQUIREMENTS.md tracking table
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| AUTH-01 | Phase 1.1 | Pending implementation |
+Check: all v1 mapped → Done. Any unmapped requirements → **STOP**, fix first.
+### 7f. Approval gate — Roadmap
+Present: `[N] phases | [X] requirements mapped | Coverage: ✓` + phases table + details.
 ```
 request_user_input({
   questions: [{
-    question: "Lộ trình có phù hợp không?",
-    header: "Duyệt lộ trình",
+    question: "Is the roadmap suitable?",
+    header: "Review roadmap",
     multiSelect: false,
     options: [
-      { label: "Duyệt", description: "Chốt và commit" },
-      { label: "Điều chỉnh phases", description: "Thay đổi thứ tự, gộp/tách, di chuyển yêu cầu" },
-      { label: "Xem file đầy đủ", description: "Hiển thị toàn bộ ROADMAP.md trước khi quyết định" }
+      { label: "Approve", description: "Finalize and commit" },
+      { label: "Adjust phases", description: "Change order, merge/split, move requirements" },
+      { label: "View full file", description: "Display entire ROADMAP.md before deciding" }
     ]
   }]
 })
 ```
-- **"Duyệt"** → commit, tiếp Bước 8
-- **"Điều chỉnh"** → sửa → hỏi lại (lặp đến khi duyệt)
-- **"Xem file đầy đủ"** → hiển thị → hỏi lại
+- **"Approve"** → commit, continue to Step 8
+- **"Adjust"** → edit → ask again (loop until approved)
+- **"View full file"** → display → ask again
 **Commit:**
 ```bash
-git add .planning/ROADMAP.md .planning/REQUIREMENTS.md && git commit -m "docs: tạo lộ trình milestone v[X.Y] ([N] phases, [X] yêu cầu đã gắn)"
+git add .planning/ROADMAP.md .planning/REQUIREMENTS.md && git commit -m "docs: create roadmap for milestone v[X.Y] ([N] phases, [X] requirements mapped)"
 ```
-In bảng quyết định chiến lược + cảnh báo review trước `$pd-plan`.
-**Cập nhật STATE.md:** `Hoạt động cuối: [DD_MM_YYYY] — Lộ trình milestone v[X.Y] đã duyệt`
+Print strategic decisions table + review warning before `$pd-plan`.
+**Update STATE.md:** `Last activity: [DD_MM_YYYY] — Milestone v[X.Y] roadmap approved`
 ---
-## 8. Tạo/Đặt lại STATE.md
+## 8. Create/Reset STATE.md
 ```markdown
-# Trạng thái làm việc
-> Cập nhật: [DD_MM_YYYY]
-## Vị trí hiện tại
-- Milestone: v[X.Y] — [Tên]
-- Phase: Chưa bắt đầu
-- Kế hoạch: —
-- Trạng thái: Sẵn sàng lên kế hoạch
-- Hoạt động cuối: [DD_MM_YYYY] — Milestone v[X.Y] khởi tạo
-## Bối cảnh tích lũy
-[Milestone trước → giữ bối cảnh có giá trị. Milestone đầu → "Chưa có."]
-## Vấn đề chặn
-Không
+# Working State
+> Updated: [DD_MM_YYYY]
+## Current Position
+- Milestone: v[X.Y] — [Name]
+- Phase: Not started
+- Plan: —
+- Status: Ready for planning
+- Last activity: [DD_MM_YYYY] — Milestone v[X.Y] initialized
+## Accumulated Context
+[Previous milestone → keep valuable context. First milestone → "None yet."]
+## Blocking Issues
+None
 ```
-Có STATE.md cũ → đọc "Bối cảnh tích lũy" → giữ lại → đặt lại phần còn lại.
+Has existing STATE.md → read "Accumulated Context" → keep it → reset the rest.
 ---
-## 9. Tạo theo dõi + Commit
-### 9a. Tạo/cập nhật CURRENT_MILESTONE.md
-- **GHI ĐÈ hoặc chưa tồn tại:** tạo mới (milestone, version, phase đầu tiên, status: Chưa bắt đầu)
-- **VIẾT TIẾP VÀ đã tồn tại:** giữ nguyên
-### 9b. Tạo `.planning/milestones/[version]/` cho TẤT CẢ milestones mới
-### 9c. Cập nhật `> Cập nhật: [DD_MM_YYYY]` trong PROJECT.md
+## 9. Create tracking + Commit
+### 9a. Create/update CURRENT_MILESTONE.md
+- **OVERWRITE or does not exist:** create new (milestone, version, first phase, status: Not started)
+- **CONTINUE AND already exists:** keep as-is
+### 9b. Create `.planning/milestones/[version]/` for ALL new milestones
+### 9c. Update `> Updated: [DD_MM_YYYY]` in PROJECT.md
 ### 9d. Commit
 ```bash
-git add .planning/STATE.md .planning/CURRENT_MILESTONE.md .planning/PROJECT.md && git commit -m "docs: khởi tạo milestone v[X.Y] [Tên] — sẵn sàng lên kế hoạch"
+git add .planning/STATE.md .planning/CURRENT_MILESTONE.md .planning/PROJECT.md && git commit -m "docs: initialize milestone v[X.Y] [Name] — ready for planning"
 ```
 ---
-## 10. Thông báo
+## 10. Notification
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- KHỞI TẠO MILESTONE HOÀN TẤT ✓
+ MILESTONE INITIALIZATION COMPLETE ✓
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Milestone v[X.Y]: [Tên]
-| Sản phẩm       | Đường dẫn                     | Trạng thái |
-|-----------------|-------------------------------|------------|
-| Dự án           | .planning/PROJECT.md          | ✓          |
-| Nghiên cứu      | .planning/research/           | ✓/—        |
-| Yêu cầu         | .planning/REQUIREMENTS.md     | ✓          |
-| Lộ trình         | .planning/ROADMAP.md          | ✓          |
-| Trạng thái       | .planning/STATE.md            | ✓          |
-| Theo dõi         | .planning/CURRENT_MILESTONE.md| ✓          |
-[N] phases | [X] yêu cầu | Độ phủ 100% ✓
-▶ Tiếp theo: $pd-plan
-   Phase [đầu tiên]: [Tên] — [Mục tiêu]
+Milestone v[X.Y]: [Name]
+| Artifact        | Path                          | Status |
+|-----------------|-------------------------------|--------|
+| Project          | .planning/PROJECT.md          | ✓      |
+| Research         | .planning/research/           | ✓/—    |
+| Requirements     | .planning/REQUIREMENTS.md     | ✓      |
+| Roadmap          | .planning/ROADMAP.md          | ✓      |
+| State            | .planning/STATE.md            | ✓      |
+| Tracking         | .planning/CURRENT_MILESTONE.md| ✓      |
+[N] phases | [X] requirements | Coverage 100% ✓
+▶ Next: $pd-plan
+   Phase [first]: [Name] — [Goal]
 ```
 </process>
 <output>
@@ -350,23 +350,23 @@ Milestone v[X.Y]: [Tên]
 - You MUST ask the user to approve the requirements before creating the roadmap.
 - You MUST ask the user to approve the roadmap before committing.
 - Research is required only for new features, and may be skipped for refactor or bugfix milestones.
-- Tuân thủ `.planning/rules/general.md`
-- Milestones thực tế, ưu tiên tính năng cốt lõi trước
-- Backend + Frontend → Backend API trước. Frontend-only (UI, SEO) → độc lập
-- Chỉ Frontend hoặc chỉ Backend → lên kế hoạch theo stack có sẵn
-- Dự án mới: phase đầu = thiết lập (khởi tạo, cấu hình, thư viện)
-- Xác thực/Bảo mật luôn trong milestone đầu
-- KHÔNG gọi FastCode cho thông tin đã có trong báo cáo quét
-- PHẢI kiểm tra CONTEXT.md + rules/general.md tồn tại → DỪNG nếu thiếu
-- PHẢI tạo/cập nhật PROJECT.md ở Bước 1 — trước mọi công việc khác
-- MỌI yêu cầu v1 PHẢI gắn vào đúng 1 phase — chưa gắn → sửa trước khi duyệt
-- Yêu cầu PHẢI hướng người dùng, kiểm tra được, đơn lẻ
-- PHẢI tạo thư mục milestones/[version]/ khi tạo lộ trình
-- PHẢI có 2 cổng duyệt: yêu cầu + lộ trình — lặp đến khi duyệt
-- PHẢI commit sau mỗi cổng
-- PHẢI cập nhật STATE.md ở mỗi mốc (Bước 1, 5, 6e, 7f), KHÔNG chỉ cuối
-- STATE.md PHẢI giữ "Bối cảnh tích lũy" từ milestone trước — KHÔNG xóa sạch
-- FastCode và Context7 chạy song song trong Bước Nghiên cứu chiến lược
-- Tổng hợp nghiên cứu trực tiếp vào .planning/research/SUMMARY.md
-- request_user_input không khả dụng → hỏi văn bản thường, chờ trả lời
+- Follow `.planning/rules/general.md`
+- Milestones realistic, prioritize core features first
+- Backend + Frontend → Backend API first. Frontend-only (UI, SEO) → independent
+- Only Frontend or only Backend → plan according to available stack
+- New project: first phase = setup (initialization, config, libraries)
+- Auth/Security always in first milestone
+- DO NOT call FastCode for information already in the scan report
+- MUST check CONTEXT.md + rules/general.md exist → STOP if missing
+- MUST create/update PROJECT.md in Step 1 — before any other work
+- ALL v1 requirements MUST be mapped to exactly 1 phase — unmapped → fix before approving
+- Requirements MUST be user-oriented, testable, singular
+- MUST create milestones/[version]/ directory when creating roadmap
+- MUST have 2 approval gates: requirements + roadmap — loop until approved
+- MUST commit after each gate
+- MUST update STATE.md at each checkpoint (Step 1, 5, 6e, 7f), NOT just at the end
+- STATE.md MUST keep "Accumulated Context" from previous milestone — DO NOT wipe clean
+- FastCode and Context7 run in parallel during Strategic Research step
+- Synthesize research directly into .planning/research/SUMMARY.md
+- request_user_input not available → ask as plain text, wait for response
 </rules>

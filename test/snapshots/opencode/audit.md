@@ -20,52 +20,52 @@ Automatically detect the operating mode BEFORE running guards:
 3. Missing -> mode = "standalone": skip guard-context and run only the remaining 2 guards (guard-valid-path, guard-fastcode)
 Stop and instruct the user if any guard fails:
 @references/guard-context.md (integrated mode only)
-- [ ] Tham so path hop le (neu co) -> "Path khong ton tai hoac khong phai thu muc."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
+- [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."
+- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
 </guards>
 <context>
 User input: $ARGUMENTS
 </context>
 <process>
-## Bước 1: Detect mode
-Tự động phát hiện chế độ hoạt động:
-1. Chạy: `test -f .planning/PROJECT.md`
-2. Tồn tại → mode = "tich-hop", output_dir = ".planning/audit/"
-3. Không tồn tại → mode = "doc-lap", output_dir = "./"
-4. Tạo session dir: `/tmp/pd-audit-{hash}/` trong đó hash = md5 của scanPath + Date.now()
+## Step 1: Detect mode
+Automatically detect operating mode:
+1. Run: `test -f .planning/PROJECT.md`
+2. Exists → mode = "integrated", output_dir = ".planning/audit/"
+3. Does not exist → mode = "standalone", output_dir = "./"
+4. Create session dir: `/tmp/pd-audit-{hash}/` where hash = md5 of scanPath + Date.now()
    ```bash
    SESSION_HASH=$(node -e "console.log(require('crypto').createHash('md5').update('${SCAN_PATH}' + Date.now()).digest('hex').slice(0,8))")
    SESSION_DIR="/tmp/pd-audit-${SESSION_HASH}"
    mkdir -p "$SESSION_DIR"
    ```
-5. Ghi `{session_dir}/01-detect.md` với nội dung: mode, output_dir, timestamp ISO
-6. Log: "Chế độ: {mode} — output sẽ ghi vào {output_dir}"
-## Bước 2: Delta-aware
-Phân loại hàm từ evidence phiên cũ để chỉ quét lại những gì thay đổi.
-1. Tìm evidence cũ trong output_dir:
+5. Write `{session_dir}/01-detect.md` with content: mode, output_dir, ISO timestamp
+6. Log: "Mode: {mode} — output will be written to {output_dir}"
+## Step 2: Delta-aware
+Classify functions from prior session evidence to only re-scan what has changed.
+1. Find prior evidence in output_dir:
    ```bash
    ls ${OUTPUT_DIR}/evidence_sec_*.md 2>/dev/null
    ```
-2. Nếu KHÔNG có evidence cũ nào:
+2. If NO prior evidence found:
    - delta_mode = "full-scan"
-   - Log: "Không tìm thấy evidence phiên cũ — chạy full scan"
-   - Ghi `{session_dir}/02-delta.md` với: status=full-scan, reason="no prior evidence"
-   - Chuyển qua B3
-3. Nếu CÓ evidence cũ:
-   a. Với MỖI evidence file `evidence_sec_{cat}.md`:
-      - Đọc nội dung file bằng Read
-      - Parse frontmatter lấy commit_sha:
+   - Log: "No prior session evidence found — running full scan"
+   - Write `{session_dir}/02-delta.md` with: status=full-scan, reason="no prior evidence"
+   - Move to Step 3
+3. If prior evidence EXISTS:
+   a. For EACH evidence file `evidence_sec_{cat}.md`:
+      - Read file content using Read
+      - Parse frontmatter to get commit_sha:
         ```bash
         node -e "const {parseFrontmatter}=require('./bin/lib/utils');const fm=parseFrontmatter(require('fs').readFileSync('${OUTPUT_DIR}/evidence_sec_${cat}.md','utf8'));console.log(fm.frontmatter.commit_sha||'')"
         ```
-      - Nếu có commit_sha:
+      - If commit_sha exists:
         ```bash
         git diff --name-only ${COMMIT_SHA}..HEAD
         ```
-        Truyền kết quả (danh sách files) vào changedFiles
-      - Nếu KHÔNG có commit_sha (evidence cũ từ trước Phase 49):
-        Treat như full scan cho category này — classifyDelta('', [])
-   b. Gọi classifyDelta:
+        Pass the result (file list) into changedFiles
+      - If NO commit_sha (prior evidence from before Phase 49):
+        Treat as full scan for this category — classifyDelta('', [])
+   b. Call classifyDelta:
       ```bash
       node -e "
         const {classifyDelta}=require('./bin/lib/session-delta');
@@ -77,48 +77,48 @@ Phân loại hàm từ evidence phiên cũ để chỉ quét lại những gì t
         console.log(JSON.stringify({...result, functions: fns}));
       "
       ```
-   c. Lưu kết quả classification vào `{session_dir}/02-delta.md`:
-      - Per category: số hàm SKIP, RE-SCAN, KNOWN-UNFIXED
-      - Tổng: delta_mode="delta", summary counts
-4. Truyền classification results cho B5:
-   - B5 dispatch scanner với bổ sung context: danh sách hàm cần scan lại (RE-SCAN) và hàm mới (NEW)
-   - Hàm SKIP và KNOWN-UNFIXED không cần quét lại — scanner nhận danh sách này để bỏ qua
-## Bước 3: Scope / parse args
+   c. Save classification results to `{session_dir}/02-delta.md`:
+      - Per category: count of SKIP, RE-SCAN, KNOWN-UNFIXED functions
+      - Total: delta_mode="delta", summary counts
+4. Pass classification results to Step 5:
+   - Step 5 dispatches scanner with additional context: list of functions to re-scan (RE-SCAN) and new functions (NEW)
+   - SKIP and KNOWN-UNFIXED functions do not need re-scanning — scanner receives this list to skip them
+## Step 3: Scope / parse args
 Parse $ARGUMENTS:
-1. **path** — path cần quét, mặc định "."
-2. **--full** — chạy 13 categories
-3. **--only cat1,cat2** — chỉ chạy categories chỉ định + validate slugs
-4. **--poc** — parse va luu poc_enabled=true. Flag nay se duoc truyen xuong B5 dispatch de scanner tao section ## POC trong evidence.
-5. **--auto-fix** — parse nhưng báo "Chưa hỗ trợ trong phiên bản này" (per D-04)
-Lấy danh sách 13 valid slugs bằng Bash:
+1. **path** — path to scan, default "."
+2. **--full** — run all 13 categories
+3. **--only cat1,cat2** — run only specified categories + validate slugs
+4. **--poc** — parse and save poc_enabled=true. This flag will be passed to Step 5 dispatch so scanners create a ## POC section in evidence.
+5. **--auto-fix** — parse but report "Not supported in this version" (per D-04)
+Get list of 13 valid slugs via Bash:
 ```bash
 node -e "const {getAgentConfig}=require('./bin/lib/resource-config');console.log(JSON.stringify(getAgentConfig('pd-sec-scanner').categories))"
 ```
-Xác định categories_to_scan:
-- --full → 13 categories, SKIP Bước 4
-- --only cat1,cat2 → validate slugs + THÊM 3 base (secrets, misconfig, logging) + de-dup, SKIP Bước 4 (per D-06, D-15). Slug không hợp lệ → warning và bỏ qua
-- Không có flag → chuyển qua Bước 4 Smart Selection
-Ghi `{session_dir}/02-scope.md` với: scan_path, mode (full|only), categories list, flags (poc/auto-fix status), warnings
-## Bước 4: Smart selection
-Nếu --full hoặc --only: SKIP bước này (đã có categories từ B3).
-Không có flag → chạy smart selection (toàn bộ bước này KHÔNG spawn AI — chỉ Bash/Glob/Grep):
-1. **Thu thập project context:**
-   a. Đọc package.json (nếu tồn tại) → lấy deps:
+Determine categories_to_scan:
+- --full → 13 categories, SKIP Step 4
+- --only cat1,cat2 → validate slugs + ADD 3 base (secrets, misconfig, logging) + de-dup, SKIP Step 4 (per D-06, D-15). Invalid slug → warning and skip
+- No flag → move to Step 4 Smart Selection
+Write `{session_dir}/02-scope.md` with: scan_path, mode (full|only), categories list, flags (poc/auto-fix status), warnings
+## Step 4: Smart selection
+If --full or --only: SKIP this step (categories already set from Step 3).
+No flag → run smart selection (this entire step does NOT spawn AI — only Bash/Glob/Grep):
+1. **Gather project context:**
+   a. Read package.json (if exists) → get deps:
       ```bash
       node -e "try{const p=JSON.parse(require('fs').readFileSync('package.json','utf8'));console.log(JSON.stringify([...Object.keys(p.dependencies||{}),...Object.keys(p.devDependencies||{})]))}catch(e){console.log('[]')}"
       ```
-   b. Đọc requirements.txt (nếu tồn tại) → lấy Python deps:
+   b. Read requirements.txt (if exists) → get Python deps:
       ```bash
       grep -v '^#' requirements.txt 2>/dev/null | sed 's/[>=<].*//' | tr -d ' ' || echo ""
       ```
-   c. Glob file extensions: kiểm tra tồn tại của *.jsx, *.tsx, *.vue, *.svelte, *.php, *.ejs, *.pug, *.hbs
-   d. Grep code patterns (3-4 lệnh gom nhóm):
+   c. Glob file extensions: check for existence of *.jsx, *.tsx, *.vue, *.svelte, *.php, *.ejs, *.pug, *.hbs
+   d. Grep code patterns (3-4 grouped commands):
       - `grep -rl "req\.\(body\|params\|query\)" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
       - `grep -rl "child_process\|exec(\|spawn(" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
       - `grep -rl "createHash\|createCipher\|jwt\.sign" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
       - `grep -rl "app\.\(get\|post\|put\|delete\)(\|router\.\(get\|post\)" --include="*.js" --include="*.ts" . 2>/dev/null | head -1`
-   e. Kiểm tra lockfile: test -f package-lock.json || test -f yarn.lock || test -f pnpm-lock.yaml || test -f requirements.txt
-2. **Gọi selectScanners():**
+   e. Check lockfile: test -f package-lock.json || test -f yarn.lock || test -f pnpm-lock.yaml || test -f requirements.txt
+2. **Call selectScanners():**
    ```bash
    node -e "
      const {selectScanners}=require('./bin/lib/smart-selection');
@@ -131,74 +131,74 @@ Không có flag → chạy smart selection (toàn bộ bước này KHÔNG spawn
      console.log(JSON.stringify(selectScanners(ctx)));
    "
    ```
-3. **Xử lý kết quả:**
-   a. Nếu lowConfidence=false:
-      - Log: "Smart Selection: {selected.length}/{13} scanners, {skipped.length} bỏ qua"
-      - Log từng signal: "  - {signal.id}: {signal.description}"
-      - Dùng selected làm categories_to_scan
-   b. Nếu lowConfidence=true (< 2 signals — per D-05):
-      - Hiển thị prompt:
+3. **Process results:**
+   a. If lowConfidence=false:
+      - Log: "Smart Selection: {selected.length}/{13} scanners, {skipped.length} skipped"
+      - Log each signal: "  - {signal.id}: {signal.description}"
+      - Use selected as categories_to_scan
+   b. If lowConfidence=true (< 2 signals — per D-05):
+      - Display prompt:
         ```
-        Smart Selection kết quả:
-          Tín hiệu tìm được: {signals.length}/12
-          {Liệt kê từng signal}
-          Scanner sẽ chạy ({selected.length}):
-          {Liệt kê selected, đánh dấu base}
-          Scanner bỏ qua ({skipped.length}): {liệt kê skipped}
-          [1] Chạy {selected.length} scanner đã chọn
-          [2] Chạy --full (13 scanner)
-        Chọn (1/2):
+        Smart Selection results:
+          Signals found: {signals.length}/12
+          {List each signal}
+          Scanners to run ({selected.length}):
+          {List selected, mark base}
+          Scanners skipped ({skipped.length}): {list skipped}
+          [1] Run {selected.length} selected scanners
+          [2] Run --full (13 scanners)
+        Choose (1/2):
         ```
-      - Nếu user chọn 1: dùng selected
-      - Nếu user chọn 2: dùng ALL_CATEGORIES (13)
-      - Nếu không có interactive (không thể hỏi user): default chạy selected + log warning "Không thể hỏi user — chạy {selected.length} scanner đã chọn"
-4. **Ghi {session_dir}/03-selection.md** với:
+      - If user chooses 1: use selected
+      - If user chooses 2: use ALL_CATEGORIES (13)
+      - If no interactive (cannot ask user): default run selected + log warning "Cannot ask user — running {selected.length} selected scanners"
+4. **Write {session_dir}/03-selection.md** with:
    - status: completed
    - signals: [{id, description, categories}]
    - selected_categories: [...]
    - skipped_categories: [...]
    - lowConfidence: true/false
-   - user_choice: (nếu lowConfidence=true)
-## Bước 5: Dispatch scanners
-Đây là bước chính — dispatch scanners song song 2/wave.
-1. Lấy categories_to_scan từ B3 (--full/--only) hoặc B4 (smart selection)
-2. Chia categories thành waves of 2 theo logic buildScannerPlan:
+   - user_choice: (if lowConfidence=true)
+## Step 5: Dispatch scanners
+This is the main step — dispatch scanners in parallel 2/wave.
+1. Get categories_to_scan from Step 3 (--full/--only) or Step 4 (smart selection)
+2. Split categories into waves of 2 using buildScannerPlan logic:
    ```bash
    node -e "const {buildScannerPlan}=require('./bin/lib/parallel-dispatch');const plan=buildScannerPlan(categories, 2, scanPath);console.log(JSON.stringify(plan))"
    ```
-   13 categories → 7 waves. Ví dụ: wave 1 = [sql-injection, xss], wave 2 = [cmd-injection, path-traversal], ...
-3. Khởi tạo biến `scanResults = []` để tích lũy kết quả từ tất cả waves (mảng các object `{category, evidenceContent, error}`)
-4. Agent pd-sec-scanner dùng FastCode tool-first, Grep fallback (per D-14 Phase 46)
-5. Tạo thư mục `{session_dir}/03-dispatch/` trước khi dispatch:
+   13 categories → 7 waves. Example: wave 1 = [sql-injection, xss], wave 2 = [cmd-injection, path-traversal], ...
+3. Initialize variable `scanResults = []` to accumulate results from all waves (array of objects `{category, evidenceContent, error}`)
+4. Agent pd-sec-scanner uses FastCode tool-first, Grep fallback (per D-14 Phase 46)
+5. Create directory `{session_dir}/03-dispatch/` before dispatch:
    ```bash
    mkdir -p "${SESSION_DIR}/03-dispatch"
    ```
-6. Với MỖI WAVE (tuần tự — wave trước PHẢI xong trước khi bắt đầu wave sau):
-   a. Spawn tối đa 2 scanner agents SONG SONG bằng SubAgent tool:
-      - Agent name: pd-sec-scanner (per D-12, lấy từ getAgentConfig)
-      - Tham số truyền cho agent: `--category {slug} --path {scanPath}`
-      - Prompt cho mỗi scanner: "Quét bảo mật category {slug} tại path {scanPath}. Session dir: {session_dir}/03-dispatch/. Ghi evidence file vào session dir.{neu poc_enabled: ' --poc: Tao section ## POC cho moi finding FAIL/FLAG.'}"
+6. For EACH WAVE (sequential — previous wave MUST complete before starting next):
+   a. Spawn up to 2 scanner agents IN PARALLEL using SubAgent tool:
+      - Agent name: pd-sec-scanner (per D-12, from getAgentConfig)
+      - Parameters for agent: `--category {slug} --path {scanPath}`
+      - Prompt for each scanner: "Scan security category {slug} at path {scanPath}. Session dir: {session_dir}/03-dispatch/. Write evidence file to session dir.{if poc_enabled: ' --poc: Create ## POC section for each FAIL/FLAG finding.'}"
       - Tier: scout / Haiku (per D-13)
-      - Mỗi scanner tự đọc references/security-rules.yaml và quét theo category
-   b. Đợi TẤT CẢ scanners trong wave hoàn tất (backpressure per D-10)
-   c. Thu thập kết quả mỗi scanner:
-      - Thành công → đọc evidence file output từ scanner, thêm `{category, evidenceContent: <nội dung evidence>, error: null}` vào `scanResults`
-      - Thất bại / timeout → thêm `{category, evidenceContent: null, error: <error message>}` vào `scanResults`, KHÔNG dừng lại (per D-11 — failure isolation, ghi inconclusive)
-   d. Ghi `{session_dir}/03-dispatch/{category}.md` cho mỗi scanner result
-7. Log sau mỗi wave: "Wave {N}/{totalWaves} hoàn tất: {completed} thành công, {failed} thất bại"
-**QUAN TRỌNG:** Đợi TẤT CẢ scanners trong wave hoàn tất rồi mới bắt đầu wave tiếp theo (backpressure per D-10). KHÔNG dispatch tất cả 13 scanners cùng lúc.
-## Bước 5b: Cập nhật evidence metadata
-Sau khi TẤT CẢ waves dispatch hoàn tất (B5 xong):
-1. Lấy commit SHA hiện tại:
+      - Each scanner reads references/security-rules.yaml and scans by category
+   b. Wait for ALL scanners in wave to complete (backpressure per D-10)
+   c. Collect results from each scanner:
+      - Success → read evidence file output from scanner, add `{category, evidenceContent: <evidence content>, error: null}` to `scanResults`
+      - Failure / timeout → add `{category, evidenceContent: null, error: <error message>}` to `scanResults`, DO NOT stop (per D-11 — failure isolation, write inconclusive)
+   d. Write `{session_dir}/03-dispatch/{category}.md` for each scanner result
+7. Log after each wave: "Wave {N}/{totalWaves} completed: {completed} successful, {failed} failed"
+**IMPORTANT:** Wait for ALL scanners in wave to complete before starting next wave (backpressure per D-10). DO NOT dispatch all 13 scanners simultaneously.
+## Step 5b: Update evidence metadata
+After ALL dispatch waves complete (Step 5 done):
+1. Get current commit SHA:
    ```bash
    CURRENT_SHA=$(git rev-parse --short HEAD)
    ```
-2. Với MỖI evidence file mới từ B5 (trong session_dir/03-dispatch/):
-   a. Đọc nội dung evidence file
-   b. Thêm/cập nhật `commit_sha: ${CURRENT_SHA}` vào frontmatter YAML:
-      - Nếu evidence có frontmatter (---...---): thêm trường commit_sha
-      - Nếu không có: tạo frontmatter mới với commit_sha
-   c. Gọi appendAuditHistory để thêm dòng history:
+2. For EACH new evidence file from Step 5 (in session_dir/03-dispatch/):
+   a. Read evidence file content
+   b. Add/update `commit_sha: ${CURRENT_SHA}` in YAML frontmatter:
+      - If evidence has frontmatter (---...---): add commit_sha field
+      - If not: create new frontmatter with commit_sha
+   c. Call appendAuditHistory to add history line:
       ```bash
       node -e "
         const {appendAuditHistory}=require('./bin/lib/session-delta');
@@ -213,51 +213,51 @@ Sau khi TẤT CẢ waves dispatch hoàn tất (B5 xong):
         require('fs').writeFileSync('${EVIDENCE_PATH}', updated);
       "
       ```
-   d. Copy evidence file ra output_dir (ghi đè file cũ)
-3. Log: "Evidence metadata cập nhật: commit_sha=${CURRENT_SHA}, {N} files có audit history"
-## Bước 6: Reporter
+   d. Copy evidence file to output_dir (overwrite old file)
+3. Log: "Evidence metadata updated: commit_sha=${CURRENT_SHA}, {N} files have audit history"
+## Step 6: Reporter
 Spawn pd-sec-reporter agent:
-- Input: session_dir (chứa tất cả evidence files từ B5 trong 03-dispatch/)
-- Prompt: "Tổng hợp báo cáo bảo mật từ evidence files trong {session_dir}/03-dispatch/. Ghi SECURITY_REPORT.md vào {session_dir}/SECURITY_REPORT.md."
+- Input: session_dir (contains all evidence files from Step 5 in 03-dispatch/)
+- Prompt: "Synthesize security report from evidence files in {session_dir}/03-dispatch/. Write SECURITY_REPORT.md to {session_dir}/SECURITY_REPORT.md."
 - Output: {session_dir}/SECURITY_REPORT.md
-- Reporter đọc tất cả {session_dir}/03-dispatch/*.md và tổng hợp thành 1 báo cáo
-Nếu reporter fail: tạo SECURITY_REPORT.md đơn giản liệt kê các evidence files đã thu thập và thống kê cơ bản.
-## Bước 7: Analyze / merge
-Dùng `scanResults` đã tích lũy từ B5 (mảng các `{category, evidenceContent, error}`). Truyền vào mergeScannerResults(scanResults) để tổng hợp:
-1. Đếm completedCount (scanners thành công), failedCount (scanners fail/inconclusive)
-2. Liệt kê categories có findings (FAIL/FLAG)
-3. Liệt kê categories sạch (PASS)
-4. Liệt kê categories inconclusive (fail/timeout)
-5. Ghi {session_dir}/04-analysis.md với: total_scanners, completed, failed, categories_with_findings, categories_clean, categories_inconclusive
-6. Log thống kê tóm tắt cho user
-## Bước 8: Fix routing
-Spawn pd-sec-fixer agent de phan tich findings va tao de xuat fix phases.
-1. Lay agent config:
+- Reporter reads all {session_dir}/03-dispatch/*.md and synthesizes into 1 report
+If reporter fails: create a simple SECURITY_REPORT.md listing collected evidence files and basic statistics.
+## Step 7: Analyze / merge
+Use `scanResults` accumulated from Step 5 (array of `{category, evidenceContent, error}`). Pass to mergeScannerResults(scanResults) to synthesize:
+1. Count completedCount (successful scanners), failedCount (failed/inconclusive scanners)
+2. List categories with findings (FAIL/FLAG)
+3. List clean categories (PASS)
+4. List inconclusive categories (fail/timeout)
+5. Write {session_dir}/04-analysis.md with: total_scanners, completed, failed, categories_with_findings, categories_clean, categories_inconclusive
+6. Log summary statistics for user
+## Step 8: Fix routing
+Spawn pd-sec-fixer agent to analyze findings and create fix phase proposals.
+1. Get agent config:
    ```bash
    node -e "const {getAgentConfig}=require('./bin/lib/resource-config');console.log(JSON.stringify(getAgentConfig('pd-sec-fixer')))"
    ```
 2. Spawn pd-sec-fixer agent:
-   - Input: session_dir (chua SECURITY_REPORT.md va evidence files)
-   - Prompt: "Phan tich SECURITY_REPORT.md va evidence files trong {session_dir}. Tao de xuat fix phases. Mode: {mode}. Output dir: {output_dir}. Audit phase number: {current_phase_number}."
-   - Agent doc SECURITY_REPORT.md + evidence files + gadget-chain-templates.yaml
-   - Agent goi detectChains() va orderFixPriority() de sap thu tu fix
+   - Input: session_dir (contains SECURITY_REPORT.md and evidence files)
+   - Prompt: "Analyze SECURITY_REPORT.md and evidence files in {session_dir}. Create fix phase proposals. Mode: {mode}. Output dir: {output_dir}. Audit phase number: {current_phase_number}."
+   - Agent reads SECURITY_REPORT.md + evidence files + gadget-chain-templates.yaml
+   - Agent calls detectChains() and orderFixPriority() to determine fix order
 3. Agent output:
-   - Mode "tich-hop": hien thi proposal, hoi user approve, neu approve thi ghi vao ROADMAP.md
-   - Mode "doc-lap": ghi proposal vao {session_dir}/fix-phases-proposal.md
-4. Ghi {session_dir}/05-fix-routing.md voi:
+   - Mode "integrated": display proposal, ask user to approve, if approved write to ROADMAP.md
+   - Mode "standalone": write proposal to {session_dir}/fix-phases-proposal.md
+4. Write {session_dir}/05-fix-routing.md with:
    - status: completed
    - mode: {mode}
-   - chains_detected: {so chain phat hien}
-   - fix_phases_proposed: {so fix phases de xuat}
-   - user_approved: {true/false} (chi mode tich hop)
-5. Neu pd-sec-fixer fail: ghi {session_dir}/05-fix-routing.md voi status=error, tiep tuc B9 (khong chan audit)
-## Bước 9: Save report
-1. Đọc {session_dir}/SECURITY_REPORT.md (từ B6)
-2. Copy ra output_dir (từ B1):
-   - mode "doc-lap" → ./SECURITY_REPORT.md
-   - mode "tich-hop" → .planning/audit/SECURITY_REPORT.md (tạo thư mục .planning/audit/ nếu chưa có bằng `mkdir -p`)
-3. Log: "Báo cáo bảo mật đã lưu tại: {output_path}"
-4. In tóm tắt ngắn cho user: số findings theo severity (CRITICAL/HIGH/MEDIUM/LOW), số categories đã quét, số categories inconclusive (nếu có)
+   - chains_detected: {number of chains detected}
+   - fix_phases_proposed: {number of fix phases proposed}
+   - user_approved: {true/false} (integrated mode only)
+5. If pd-sec-fixer fails: write {session_dir}/05-fix-routing.md with status=error, continue to Step 9 (do not block audit)
+## Step 9: Save report
+1. Read {session_dir}/SECURITY_REPORT.md (from Step 6)
+2. Copy to output_dir (from Step 1):
+   - mode "standalone" → ./SECURITY_REPORT.md
+   - mode "integrated" → .planning/audit/SECURITY_REPORT.md (create .planning/audit/ directory if not exists using `mkdir -p`)
+3. Log: "Security report saved at: {output_path}"
+4. Print brief summary for user: number of findings by severity (CRITICAL/HIGH/MEDIUM/LOW), number of categories scanned, number of inconclusive categories (if any)
 </process>
 <output>
 **Create:**
@@ -276,10 +276,10 @@ Spawn pd-sec-fixer agent de phan tich findings va tao de xuat fix phases.
 - DO NOT modify project code - only scan and report.
 - When `--poc` is passed: pass the `--poc` flag to the scanner in the B5 dispatch prompt.
 - When `--auto-fix` is passed: report "Not supported in this version yet" and continue.
-- Mọi output PHẢI bằng tiếng Việt có dấu
-- KHÔNG sửa code của dự án — chỉ quét và báo cáo
-- Khi --poc duoc truyen: truyen flag --poc cho scanner trong B5 dispatch prompt
-- Khi --auto-fix duoc truyen: thong bao "Chua ho tro trong phien ban nay" va tiep tuc
-- Wave trước PHẢI hoàn tất trước khi bắt đầu wave sau — tuân thủ backpressure
-- Scanner thất bại ghi inconclusive, không dừng toàn bộ audit
+- All output MUST be in English
+- DO NOT modify project code — scan and report only
+- When --poc is passed: pass --poc flag to scanner in Step 5 dispatch prompt
+- When --auto-fix is passed: report "Not supported in this version" and continue
+- Previous wave MUST complete before starting next wave — follow backpressure
+- Failed scanner writes inconclusive, does not stop the entire audit
 </rules>

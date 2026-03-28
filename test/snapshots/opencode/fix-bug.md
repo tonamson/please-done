@@ -20,11 +20,11 @@ Repeat until the user confirms success. Create a patch version for completed mil
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
-- [ ] `.planning/CONTEXT.md` ton tai -> "Chay `/pd-init` truoc."
+- [ ] `.planning/CONTEXT.md` exists -> "Run `/pd-init` first."
 - [ ] A bug description was provided -> "Please provide a bug description or investigation session name."
-- [ ] FastCode MCP ket noi thanh cong -> "Kiem tra Docker dang chay va FastCode MCP da duoc cau hinh."
-- [ ] Context7 MCP ket noi thanh cong -> "Kiem tra Context7 MCP da duoc cau hinh."
-- [ ] Context7 MCP hoat dong (thu resolve-library-id "react") -> "Context7 khong phan hoi. Kiem tra ket noi MCP."
+- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
+- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
+- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
 </guards>
 <context>
 User input: $ARGUMENTS
@@ -33,318 +33,318 @@ Additional reads:
 - `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> rules for the bug type (ONLY if they exist)
 </context>
 <required_reading>
-Đọc .pdconfig → lấy SKILLS_DIR, rồi đọc các files sau trước khi bắt đầu:
-(Claude Code: cat ~/.config/opencode/.pdconfig — nền tảng khác: converter tự chuyển đổi đường dẫn)
-Doc truoc khi bat dau:
-- [SKILLS_DIR]/references/conventions.md -> version matching, patch version, bieu tuong, commit prefixes
+Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
+(Claude Code: cat ~/.config/opencode/.pdconfig — other platforms: converter auto-converts paths)
+Read before starting:
+- [SKILLS_DIR]/references/conventions.md -> version matching, patch version, icons, commit prefixes
 </required_reading>
 <conditional_reading>
-Đọc CHỈ KHI cần (phân tích mô tả task trước):
-- [SKILLS_DIR]/references/prioritization.md -- KHI task ordering/ranking nhieu tasks hoac triage
-- [SKILLS_DIR]/references/context7-pipeline.md -- KHI task can
+Read ONLY WHEN needed (analyze task description first):
+- [SKILLS_DIR]/references/prioritization.md -- WHEN task ordering/ranking multiple tasks or triage
+- [SKILLS_DIR]/references/context7-pipeline.md -- WHEN task needs it
 </conditional_reading>
 <process>
-## Buoc 0: Kiem tra che do hoat dong
-1. Parse $ARGUMENTS -> kiem tra co `--single` flag khong
-2. Neu KHONG co --single:
-   - Kiem tra 5 files ton tai:
+## Step 0: Check operating mode
+1. Parse $ARGUMENTS -> check for `--single` flag
+2. If NO --single:
+   - Check 5 files exist:
      `commands/pd/agents/pd-bug-janitor.md`
      `commands/pd/agents/pd-code-detective.md`
      `commands/pd/agents/pd-doc-specialist.md`
      `commands/pd/agents/pd-repro-engineer.md`
      `commands/pd/agents/pd-fix-architect.md`
-   - Thieu bat ky file nao -> auto-fallback = true
-3. Neu --single HOAC auto-fallback:
-   Hien: "--- Che do don agent: Thieu agent configs, dung che do don agent ---"
-   Doc va thuc hien theo noi dung file `workflows/fix-bug-v1.5.md`. DUNG workflow v2.1 tai day.
-4. Neu du 5 files -> tiep tuc Buoc 0.5 (Resume UI ben duoi)
-## Buoc 0.5: Resume UI
-`git rev-parse --git-dir 2>/dev/null` -> luu `HAS_GIT`
+   - Missing any file -> auto-fallback = true
+3. If --single OR auto-fallback:
+   Display: "--- Single agent mode: Missing agent configs, using single agent mode ---"
+   Read and execute per content of file `workflows/fix-bug-v1.5.md`. STOP workflow v2.1 here.
+4. If all 5 files present -> continue to Step 0.5 (Resume UI below)
+## Step 0.5: Resume UI
+`git rev-parse --git-dir 2>/dev/null` -> store `HAS_GIT`
 `mkdir -p .planning/debug`
-1. Glob `.planning/debug/S*` -> lay danh sach folder names
-2. Voi moi folder, Read `{folder}/SESSION.md` -> lay content
-3. Goi `listSessions(folderNames, sessionContents)` tu `bin/lib/session-manager.js`
-   - folderNames: mang ten folders (VD: `['S001-login-timeout', 'S002-cart-empty']`)
-   - sessionContents: mang `[{folderName, sessionMdContent}]`
-   - Tra ve danh sach sessions chua resolved, gom { number, id, slug, status, outcome, updated }
-4. Neu co sessions active/paused:
-   Hien bang:
+1. Glob `.planning/debug/S*` -> get list of folder names
+2. For each folder, Read `{folder}/SESSION.md` -> get content
+3. Call `listSessions(folderNames, sessionContents)` from `bin/lib/session-manager.js`
+   - folderNames: array of folder names (e.g.: `['S001-login-timeout', 'S002-cart-empty']`)
+   - sessionContents: array of `[{folderName, sessionMdContent}]`
+   - Returns list of unresolved sessions, containing { number, id, slug, status, outcome, updated }
+4. If there are active/paused sessions:
+   Display table:
    ```
-   Phien dieu tra dang mo:
-   | # | ID   | Mo ta            | Trang thai |
+   Open investigation sessions:
+   | # | ID   | Description      | Status     |
    |---|------|------------------|------------|
    | 1 | S001 | login-timeout    | active     |
    | 2 | S003 | cart-empty       | paused     |
    ```
-   Hoi: "Nhap so de tiep tuc, hoac mo ta loi moi de tao phien."
-5. User nhap so -> doc SESSION.md cua phien do -> xac dinh buoc tiep theo tu status:
-   - status=active -> Buoc 1 (tiep tuc voi session hien tai, truyen session_dir)
-   - status=paused -> doc evidence files da co -> nhay buoc phu hop
-6. User nhap mo ta moi -> Buoc 0.6
-7. Khong co sessions nao VA co $ARGUMENTS -> Buoc 0.6
-8. Khong co sessions nao VA khong co $ARGUMENTS -> hoi user mo ta loi -> Buoc 0.6
-## Buoc 0.6: Phan tich bug -- quyet dinh tai lieu tham khao
-- Nhieu bugs can uu tien? -> doc [SKILLS_DIR]/references/prioritization.md
-Neu chi co 1 bug -> BO QUA.
-### Tao session moi (per D-09)
-Goi `createSession({ existingSessions, description })` tu `bin/lib/session-manager.js`
-- existingSessions: danh sach sessions tu Buoc 0 (mang { number })
-- description: mo ta loi tu user ($ARGUMENTS hoac input)
-- Ket qua: { id, slug, folderName, sessionMd }
+   Ask: "Enter number to continue, or describe a new bug to create a session."
+5. User enters number -> read SESSION.md of that session -> determine next step from status:
+   - status=active -> Step 1 (continue with current session, pass session_dir)
+   - status=paused -> read existing evidence files -> jump to appropriate step
+6. User enters new description -> Step 0.6
+7. No sessions AND has $ARGUMENTS -> Step 0.6
+8. No sessions AND no $ARGUMENTS -> ask user for bug description -> Step 0.6
+## Step 0.6: Analyze bug — determine reference documents
+- Multiple bugs need prioritization? -> read [SKILLS_DIR]/references/prioritization.md
+If only 1 bug -> SKIP.
+### Create new session (per D-09)
+Call `createSession({ existingSessions, description })` from `bin/lib/session-manager.js`
+- existingSessions: session list from Step 0 (array of { number })
+- description: bug description from user ($ARGUMENTS or input)
+- Result: { id, slug, folderName, sessionMd }
 - `mkdir -p .planning/debug/{folderName}`
-- Ghi sessionMd vao `.planning/debug/{folderName}/SESSION.md`
-- Luu `session_dir` = duong dan tuyet doi toi `.planning/debug/{folderName}` de truyen cho cac buoc sau
-## Buoc 1: Thu thap trieu chung
---- Buoc 1/5: Thu thap trieu chung ---
+- Write sessionMd to `.planning/debug/{folderName}/SESSION.md`
+- Store `session_dir` = absolute path to `.planning/debug/{folderName}` to pass to subsequent steps
+## Step 1: Collect symptoms
+--- Step 1/5: Collect symptoms ---
 Spawn Agent `pd-bug-janitor`:
   "Session dir: {absolute_session_dir}.
-   Mo ta loi: {user_description}.
-   Thu thap 5 trieu chung cot loi va ghi evidence_janitor.md vao session dir."
-Sau khi agent hoan tat:
+   Bug description: {user_description}.
+   Collect 5 core symptoms and write evidence_janitor.md to session dir."
+After agent completes:
 1. Read `{session_dir}/evidence_janitor.md`
-2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js`
-3. Kiem tra ket qua:
-   - valid=true -> tiep tuc Buoc 2
-   - valid=false VA content chua trieu chung (grep "Trieu chung" hoac "Mong doi") -> WARNING, ghi vao SESSION.md, tiep tuc Buoc 2
-   - valid=false VA KHONG co trieu chung -> STOP: "Khong du thong tin de dieu tra. Vui long mo ta loi chi tiet hon."
-4. Goi `updateSession(currentMd, { status: 'active', appendToBody: '- evidence_janitor.md: da ghi' })` tu `bin/lib/session-manager.js`
-   - Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+2. Call `validateEvidence(content)` from `bin/lib/evidence-protocol.js`
+3. Check result:
+   - valid=true -> continue to Step 2
+   - valid=false AND content has symptoms (grep "Symptoms" or "Expected") -> WARNING, write to SESSION.md, continue to Step 2
+   - valid=false AND NO symptoms -> STOP: "Insufficient information to investigate. Please describe the bug in more detail."
+4. Call `updateSession(currentMd, { status: 'active', appendToBody: '- evidence_janitor.md: recorded' })` from `bin/lib/session-manager.js`
+   - Write resulting sessionMd to `{session_dir}/SESSION.md`
 Janitor FAIL (agent throw/timeout):
-- Co $ARGUMENTS du trieu chung -> WARNING: "Janitor khong phan hoi. Tiep tuc voi thong tin ban dau."
-  Tao evidence_janitor.md thu cong tu $ARGUMENTS (5 trieu chung theo format evidence), tiep Buoc 2.
-- KHONG co trieu chung -> STOP: "Khong the thu thap trieu chung. Vui long thu lai."
-## Buoc 2: Phan tich code va tai lieu
---- Buoc 2/5: Phan tich code va tai lieu ---
-0. Goi `isHeavyAgent('pd-code-detective')` tu `bin/lib/resource-config.js`
-   - true -> WARNING: "Detective dung heavy tool (FastCode). Chi 1 tac vu nang tai 1 thoi diem."
+- Has $ARGUMENTS with sufficient symptoms -> WARNING: "Janitor did not respond. Continuing with initial information."
+  Manually create evidence_janitor.md from $ARGUMENTS (5 symptoms in evidence format), continue to Step 2.
+- NO symptoms -> STOP: "Unable to collect symptoms. Please try again."
+## Step 2: Analyze code and documentation
+--- Step 2/5: Analyze code and documentation ---
+0. Call `isHeavyAgent('pd-code-detective')` from `bin/lib/resource-config.js`
+   - true -> WARNING: "Detective uses heavy tool (FastCode). Only 1 heavy task at a time."
    - Read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { appendToBody: 'WARNING: Detective dung heavy tool. Chi 1 tac vu nang tai 1 thoi diem.' })` tu `bin/lib/session-manager.js`
-     Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
-1. Goi `buildParallelPlan(sessionDir, janitorEvidencePath)` tu `bin/lib/parallel-dispatch.js`
-   - sessionDir: gia tri session_dir tu Buoc 0.6
+     Call `updateSession(currentMd, { appendToBody: 'WARNING: Detective uses heavy tool. Only 1 heavy task at a time.' })` from `bin/lib/session-manager.js`
+     Write resulting sessionMd to `{session_dir}/SESSION.md`
+1. Call `buildParallelPlan(sessionDir, janitorEvidencePath)` from `bin/lib/parallel-dispatch.js`
+   - sessionDir: session_dir value from Step 0.6
    - janitorEvidencePath: `{session_dir}/evidence_janitor.md`
-   - Ket qua: { agents, warnings } — agents gom pd-code-detective (critical) va pd-doc-specialist (optional)
-   Neu day la INCONCLUSIVE loop-back (co user_input_round_N.md trong session_dir):
-     Goi `buildInconclusiveContext({ evidenceContent: noi_dung_evidence_architect_cu, userInputPath: '{session_dir}/user_input_round_{N}.md', sessionDir: session_dir, currentRound: N })` tu `bin/lib/outcome-router.js`
-     Them prompt vao prompt cua Detective va DocSpec de agents biet Elimination Log va thong tin moi tu user.
+   - Result: { agents, warnings } — agents include pd-code-detective (critical) and pd-doc-specialist (optional)
+   If this is an INCONCLUSIVE loop-back (user_input_round_N.md exists in session_dir):
+     Call `buildInconclusiveContext({ evidenceContent: old_evidence_architect_content, userInputPath: '{session_dir}/user_input_round_{N}.md', sessionDir: session_dir, currentRound: N })` from `bin/lib/outcome-router.js`
+     Add prompt to Detective and DocSpec prompts so agents know the Elimination Log and new information from user.
 2. Spawn Agent `pd-code-detective`:
    "Session dir: {absolute_session_dir}.
-    Doc evidence_janitor.md va phan tich code nguon. Ghi evidence_code.md."
+    Read evidence_janitor.md and analyze source code. Write evidence_code.md."
 3. Read `{session_dir}/evidence_code.md` -> detectiveContent
-   - Goi `validateEvidence(detectiveContent)` tu `bin/lib/evidence-protocol.js` -> detectiveValidation
+   - Call `validateEvidence(detectiveContent)` from `bin/lib/evidence-protocol.js` -> detectiveValidation
    - Construct detectiveResult: { evidenceContent: detectiveContent }
 4. Spawn Agent `pd-doc-specialist`:
    "Session dir: {absolute_session_dir}.
-    Doc evidence_janitor.md va tra cuu tai lieu thu vien. Ghi evidence_docs.md."
-5. Read `{session_dir}/evidence_docs.md` -> docSpecContent (co the khong ton tai)
-   - Neu file ton tai: validateEvidence(docSpecContent) -> docSpecValidation
+    Read evidence_janitor.md and look up library documentation. Write evidence_docs.md."
+5. Read `{session_dir}/evidence_docs.md` -> docSpecContent (may not exist)
+   - If file exists: validateEvidence(docSpecContent) -> docSpecValidation
    - Construct docSpecResult: { evidenceContent: docSpecContent }
-   - Neu file KHONG ton tai hoac invalid: docSpecResult = null
-6. Goi `mergeParallelResults({ detectiveResult, docSpecResult })` tu `bin/lib/parallel-dispatch.js`
-   - detectiveResult: { evidenceContent: detectiveContent } hoac { error: { message: '...' } }
-   - docSpecResult: { evidenceContent: docSpecContent } hoac { error: { message: '...' } } hoac null
-   - Ket qua: { results, allSucceeded, warnings }
-7. Ghi warnings vao SESSION.md (neu co):
+   - If file DOES NOT exist or invalid: docSpecResult = null
+6. Call `mergeParallelResults({ detectiveResult, docSpecResult })` from `bin/lib/parallel-dispatch.js`
+   - detectiveResult: { evidenceContent: detectiveContent } or { error: { message: '...' } }
+   - docSpecResult: { evidenceContent: docSpecContent } or { error: { message: '...' } } or null
+   - Result: { results, allSucceeded, warnings }
+7. Write warnings to SESSION.md (if any):
    - Read `{session_dir}/SESSION.md` -> currentMd
-   - Goi `updateSession(currentMd, { appendToBody: '\n' + warnings.join('\n') })` tu `bin/lib/session-manager.js`
-   - Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
-8. Kiem tra:
-   - Detective THANH CONG -> tiep tuc Buoc 3
-   - Detective FAIL + DocSpec THANH CONG -> WARNING: "Code Detective khong tra ket qua. Chi co tai lieu." Tiep tuc Buoc 3 voi evidence_docs.md.
-   - CA HAI FAIL -> STOP: "Khong the phan tich. Vui long kiem tra lai mo ta loi."
-   - Detective FAIL do timeout/spawn error:
-     Goi `shouldDegrade(error)` tu `bin/lib/resource-config.js`
-     true -> WARNING: "Ha cap sang che do tuan tu." Spawn DocSpec truoc, dung evidence_docs.md de spawn Detective lai.
-     false -> xu ly nhu tren (STOP neu ca hai fail)
-DocSpec fail la NON-BLOCKING (per D-06). Chi Detective fail moi co the block workflow.
+   - Call `updateSession(currentMd, { appendToBody: '\n' + warnings.join('\n') })` from `bin/lib/session-manager.js`
+   - Write resulting sessionMd to `{session_dir}/SESSION.md`
+8. Check:
+   - Detective SUCCEEDED -> continue to Step 3
+   - Detective FAILED + DocSpec SUCCEEDED -> WARNING: "Code Detective returned no results. Only documentation available." Continue to Step 3 with evidence_docs.md.
+   - BOTH FAILED -> STOP: "Unable to analyze. Please check the bug description."
+   - Detective FAILED due to timeout/spawn error:
+     Call `shouldDegrade(error)` from `bin/lib/resource-config.js`
+     true -> WARNING: "Degrading to sequential mode." Spawn DocSpec first, use evidence_docs.md to re-spawn Detective.
+     false -> handle as above (STOP if both fail)
+DocSpec failure is NON-BLOCKING (per D-06). Only Detective failure can block the workflow.
 ### Progressive Disclosure (FLOW-08)
-Moi buoc bat dau bang banner format:
+Each step starts with a banner in this format:
 ```
---- Buoc N/5: [Mo ta ngan] ---
+--- Step N/5: [Short description] ---
 ```
-Danh sach banner:
-- `--- Buoc 1/5: Thu thap trieu chung ---`
-- `--- Buoc 2/5: Phan tich code va tai lieu ---`
-- `--- Buoc 3/5: Tao test tai hien ---`
-- `--- Buoc 4/5: Tong hop va ra phan quyet ---`
-- `--- Buoc 5/5: Sua code va commit ---`
-Chi hien banner va ket qua cuoi. KHONG hien chi tiet agent output cho user.
-## Buoc 3: Tao test tai hien
---- Buoc 3/5: Tao test tai hien ---
+Banner list:
+- `--- Step 1/5: Collect symptoms ---`
+- `--- Step 2/5: Analyze code and documentation ---`
+- `--- Step 3/5: Create reproduction test ---`
+- `--- Step 4/5: Synthesize and render verdict ---`
+- `--- Step 5/5: Fix code and commit ---`
+Only show banner and final results. DO NOT show detailed agent output to user.
+## Step 3: Create reproduction test
+--- Step 3/5: Create reproduction test ---
 Spawn Agent `pd-repro-engineer`:
   "Session dir: {absolute_session_dir}.
-   Doc evidence_janitor.md va evidence_code.md (va evidence_docs.md neu co).
-   Tao reproduction test va ghi evidence_repro.md."
-Sau khi agent hoan tat:
+   Read evidence_janitor.md and evidence_code.md (and evidence_docs.md if available).
+   Create reproduction test and write evidence_repro.md."
+After agent completes:
 1. Read `{session_dir}/evidence_repro.md`
-2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js`
-3. Kiem tra:
-   - valid=true -> tiep tuc Buoc 4
-   - valid=false -> WARNING: "Repro Engineer khong tao duoc test tai hien." Tiep tuc Buoc 4 voi evidence tu Buoc 2.
+2. Call `validateEvidence(content)` from `bin/lib/evidence-protocol.js`
+3. Check:
+   - valid=true -> continue to Step 4
+   - valid=false -> WARNING: "Repro Engineer could not create reproduction test." Continue to Step 4 with evidence from Step 2.
 4. Read `{session_dir}/SESSION.md` -> currentMd
-   Goi `updateSession(currentMd, { appendToBody: '- evidence_repro.md: da ghi' })` tu `bin/lib/session-manager.js`
-   Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
+   Call `updateSession(currentMd, { appendToBody: '- evidence_repro.md: recorded' })` from `bin/lib/session-manager.js`
+   Write resulting sessionMd to `{session_dir}/SESSION.md`
 Repro FAIL (agent throw/timeout):
-- WARNING: "Khong tao duoc test tai hien. Tiep tuc voi evidence phan tich."
+- WARNING: "Could not create reproduction test. Continuing with analysis evidence."
 - Read `{session_dir}/SESSION.md` -> currentMd
-  Goi `updateSession(currentMd, { appendToBody: 'WARNING: Repro Engineer fail. Tiep tuc voi evidence phan tich.' })` tu `bin/lib/session-manager.js`
-  Ghi ket qua sessionMd vao `{session_dir}/SESSION.md`
-- Tiep tuc Buoc 4 (Repro la bo sung, khong block workflow)
-## Buoc 4: Tong hop va ra phan quyet
---- Buoc 4/5: Tong hop va ra phan quyet ---
+  Call `updateSession(currentMd, { appendToBody: 'WARNING: Repro Engineer failed. Continuing with analysis evidence.' })` from `bin/lib/session-manager.js`
+  Write resulting sessionMd to `{session_dir}/SESSION.md`
+- Continue to Step 4 (Repro is supplementary, does not block workflow)
+## Step 4: Synthesize and render verdict
+--- Step 4/5: Synthesize and render verdict ---
 Spawn Agent `pd-fix-architect`:
   "Session dir: {absolute_session_dir}.
-   Doc TAT CA evidence files (evidence_janitor.md, evidence_code.md, evidence_docs.md, evidence_repro.md).
-   Tong hop va ra phan quyet. Ghi evidence_architect.md."
-Sau khi agent hoan tat:
+   Read ALL evidence files (evidence_janitor.md, evidence_code.md, evidence_docs.md, evidence_repro.md).
+   Synthesize and render verdict. Write evidence_architect.md."
+After agent completes:
 1. Read `{session_dir}/evidence_architect.md`
-2. Goi `validateEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { valid, outcome }
-3. Goi `parseEvidence(content)` tu `bin/lib/evidence-protocol.js` -> { frontmatter, body, sections }
-### Routing theo outcome:
-Khoi tao roundNumber = 1 (mac dinh cho lan dau). Neu quay lai Buoc 4 sau continuation, tang roundNumber len 1.
-**NEU outcome = 'root_cause':**
-  1. Goi `buildRootCauseMenu(content)` tu `bin/lib/outcome-router.js`
-     -> { question, choices } (3 lua chon: fix_now, fix_plan, self_fix)
-  2. Hien question va 3 lua chon cho user (dung cau hoi truc tiep, KHONG hien agent output)
-  3. User chon:
-     - fix_now -> Goi `prepareFixNow(content)` tu `bin/lib/outcome-router.js`
-       -> { action, reusableModules, evidence, suggestion, commitPrefix, warnings } -> Buoc 5
-     - fix_plan -> Goi `prepareFixPlan(content, sessionDir)` tu `bin/lib/outcome-router.js`
+2. Call `validateEvidence(content)` from `bin/lib/evidence-protocol.js` -> { valid, outcome }
+3. Call `parseEvidence(content)` from `bin/lib/evidence-protocol.js` -> { frontmatter, body, sections }
+### Routing by outcome:
+Initialize roundNumber = 1 (default for first time). If returning to Step 4 after continuation, increment roundNumber by 1.
+**IF outcome = 'root_cause':**
+  1. Call `buildRootCauseMenu(content)` from `bin/lib/outcome-router.js`
+     -> { question, choices } (3 choices: fix_now, fix_plan, self_fix)
+  2. Display question and 3 choices to user (use direct question, DO NOT show agent output)
+  3. User selects:
+     - fix_now -> Call `prepareFixNow(content)` from `bin/lib/outcome-router.js`
+       -> { action, reusableModules, evidence, suggestion, commitPrefix, warnings } -> Step 5
+     - fix_plan -> Call `prepareFixPlan(content, sessionDir)` from `bin/lib/outcome-router.js`
        -> { planPath, planContent }
-       Ghi planContent vao {session_dir}/FIX-PLAN.md (planPath da chua full path tu prepareFixPlan). Thong bao: "Da tao ke hoach sua tai {planPath}."
+       Write planContent to {session_dir}/FIX-PLAN.md (planPath already contains full path from prepareFixPlan). Notify: "Fix plan created at {planPath}."
        Read `{session_dir}/SESSION.md` -> currentMd
-       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
-       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
-     - self_fix -> Goi `prepareSelfFix(content)` tu `bin/lib/outcome-router.js`
+       Call `updateSession(currentMd, { status: 'paused' })` from `bin/lib/session-manager.js`
+       Write result to `{session_dir}/SESSION.md`. STOP workflow.
+     - self_fix -> Call `prepareSelfFix(content)` from `bin/lib/outcome-router.js`
        -> { action, sessionUpdate, summary, filesForReview, resumeHint, warnings }
-       Hien summary, filesForReview va resumeHint cho user.
+       Display summary, filesForReview and resumeHint to user.
        Read `{session_dir}/SESSION.md` -> currentMd
-       Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
-       Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
-**NEU outcome = 'checkpoint':**
-  1. Goi `extractCheckpointQuestion(content)` tu `bin/lib/checkpoint-handler.js`
+       Call `updateSession(currentMd, { status: 'paused' })` from `bin/lib/session-manager.js`
+       Write result to `{session_dir}/SESSION.md`. STOP workflow.
+**IF outcome = 'checkpoint':**
+  1. Call `extractCheckpointQuestion(content)` from `bin/lib/checkpoint-handler.js`
      -> { question, context }
-  2. Hien question cho user, cho tra loi
-  3. User tra loi -> Goi `buildContinuationContext({ evidencePath: '{session_dir}/evidence_architect.md', userAnswer, sessionDir: session_dir, currentRound: roundNumber, agentName: 'pd-fix-architect' })` tu `bin/lib/checkpoint-handler.js`
+  2. Display question to user, wait for answer
+  3. User answers -> Call `buildContinuationContext({ evidencePath: '{session_dir}/evidence_architect.md', userAnswer, sessionDir: session_dir, currentRound: roundNumber, agentName: 'pd-fix-architect' })` from `bin/lib/checkpoint-handler.js`
      -> { canContinue, prompt, agentName, round, warnings }
-  4. canContinue = true -> Spawn lai `pd-fix-architect` voi continuation prompt. Quay lai dau Buoc 4.
-  5. canContinue = false (da vuot MAX_CONTINUATION_ROUNDS = 2 vong) ->
-     Thong bao: "Da vuot 2 vong hoi dap. Can nguoi xem xet."
+  4. canContinue = true -> Re-spawn `pd-fix-architect` with continuation prompt. Return to beginning of Step 4.
+  5. canContinue = false (exceeded MAX_CONTINUATION_ROUNDS = 2) ->
+     Notify: "Exceeded 2 Q&A rounds. Human review needed."
      Read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
-     Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
-**NEU outcome = 'inconclusive':**
-  1. Goi `buildInconclusiveContext({ evidenceContent: content, userInputPath: null, sessionDir: session_dir, currentRound })` tu `bin/lib/outcome-router.js`
-     - currentRound: doc tu SESSION.md body — dem so "## Round" headings + 1 (mac dinh 1 neu chua co heading nao)
+     Call `updateSession(currentMd, { status: 'paused' })` from `bin/lib/session-manager.js`
+     Write result to `{session_dir}/SESSION.md`. STOP workflow.
+**IF outcome = 'inconclusive':**
+  1. Call `buildInconclusiveContext({ evidenceContent: content, userInputPath: null, sessionDir: session_dir, currentRound })` from `bin/lib/outcome-router.js`
+     - currentRound: read from SESSION.md body — count "## Round" headings + 1 (default 1 if no headings)
      -> { eliminationLog, canContinue, prompt, warnings }
-  2. Hien Elimination Log cho user
-  3. NEU canContinue = false (da dat 3 vong):
-     Thong bao: "Da dieu tra 3 vong. Day la Elimination Log day du:\n{eliminationLog}"
+  2. Display Elimination Log to user
+  3. IF canContinue = false (reached 3 rounds):
+     Notify: "Investigated 3 rounds. Here is the complete Elimination Log:\n{eliminationLog}"
      Read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { status: 'paused' })` tu `bin/lib/session-manager.js`
-     Ghi ket qua vao `{session_dir}/SESSION.md`. DUNG workflow.
-  4. NEU canContinue = true:
-     Hoi user bo sung thong tin qua cau hoi truc tiep (free-text)
-     Ghi response vao `{session_dir}/user_input_round_{currentRound}.md`
+     Call `updateSession(currentMd, { status: 'paused' })` from `bin/lib/session-manager.js`
+     Write result to `{session_dir}/SESSION.md`. STOP workflow.
+  4. IF canContinue = true:
+     Ask user for additional information via direct question (free-text)
+     Write response to `{session_dir}/user_input_round_{currentRound}.md`
      Read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { appendToBody: '\n## Round ' + currentRound + ': INCONCLUSIVE\n' })` tu `bin/lib/session-manager.js`
-     Ghi ket qua vao `{session_dir}/SESSION.md`
-     Hien banner: "--- Vong {currentRound}/3: Dang dieu tra them voi thong tin moi ---"
-     Quay lai Buoc 2 (spawn Detective + DocSpec voi context moi tu prompt)
+     Call `updateSession(currentMd, { appendToBody: '\n## Round ' + currentRound + ': INCONCLUSIVE\n' })` from `bin/lib/session-manager.js`
+     Write result to `{session_dir}/SESSION.md`
+     Display banner: "--- Round {currentRound}/3: Investigating further with new information ---"
+     Return to Step 2 (spawn Detective + DocSpec with new context from prompt)
 Architect FAIL (agent throw/timeout):
-- Hien tat ca evidence da thu thap (janitor, detective, docs, repro) truc tiep cho user
-- Hoi: "Architect khong tra phan quyet. Ban muon: (1) Xem evidence va tu quyet dinh, (2) Dung lai?"
-- User chon (1) -> hien evidence, cho user quyet dinh fix_now/fix_plan/self_fix
-  Neu fix_now -> tao evidence va suggestion thu cong tu evidence files -> Buoc 5
-- User chon (2) -> Read `{session_dir}/SESSION.md` -> currentMd
-  Goi `updateSession(currentMd, { status: 'paused' })`. Ghi ket qua. DUNG workflow.
-## Buoc 5: Sua code va commit
---- Buoc 5/5: Sua code va commit ---
-### 5a: Regression analysis (truoc khi sua)
-1. Doc evidence va suggestion tu prepareFixNow() (Buoc 4) -> parse targetFiles va targetFunction tu evidence content
+- Display all collected evidence (janitor, detective, docs, repro) directly to user
+- Ask: "Architect did not render a verdict. Would you like to: (1) Review evidence and decide, (2) Stop?"
+- User selects (1) -> display evidence, let user decide fix_now/fix_plan/self_fix
+  If fix_now -> manually create evidence and suggestion from evidence files -> Step 5
+- User selects (2) -> Read `{session_dir}/SESSION.md` -> currentMd
+  Call `updateSession(currentMd, { status: 'paused' })`. Write result. STOP workflow.
+## Step 5: Fix code and commit
+--- Step 5/5: Fix code and commit ---
+### 5a: Regression analysis (before fixing)
+1. Read evidence and suggestion from prepareFixNow() (Step 4) -> parse targetFiles and targetFunction from evidence content
 2. Try:
-   - Dung FastCode `code_qa`: "Liet ke cac files import hoac goi {targetFunction} trong {targetFile}"
-   - Thanh cong -> goi `analyzeFromCallChain({ callChainText, targetFile, targetFunction })` tu `bin/lib/regression-analyzer.js`
-   - FastCode loi -> doc source files quanh targetFile -> goi `analyzeFromSourceFiles({ sourceFiles, targetFile, targetFunction })` tu `bin/lib/regression-analyzer.js`
-   Catch: WARNING: "Khong phan tich duoc regression: {error.message}". Tiep tuc.
-3. Ket qua affectedFiles -> Read `{session_dir}/SESSION.md` -> currentMd
-   Goi `updateSession(currentMd, { appendToBody: 'Regression: {N} files bi anh huong: {list}' })` tu `bin/lib/session-manager.js`
-   Ghi ket qua vao `{session_dir}/SESSION.md`
-### 5b: Sua code
-1. Doc evidence va suggestion tu prepareFixNow() output — evidence chua bang chung, suggestion chua de xuat fix
-2. Ap dung fix theo huong dan
-3. Chay test: xac dinh test command tu project (package.json scripts hoac .planning rules)
-4. Test FAIL -> doc error, dieu chinh fix, chay lai (toi da 3 lan)
-5. Test PASS -> tiep tuc 5c
-### 5c: Debug cleanup (truoc commit)
-1. `git diff --cached --name-only` -> danh sach staged files
-2. Read noi dung tung staged file -> tao array [{path, content}]
-3. Try: goi `scanDebugMarkers(stagedFiles)` tu `bin/lib/debug-cleanup.js`
-   Catch: WARNING: "Debug cleanup loi: {error.message}". Tiep tuc.
-4. Ket qua co markers -> hien danh sach theo file:
+   - Use FastCode `code_qa`: "List files that import or call {targetFunction} in {targetFile}"
+   - Success -> call `analyzeFromCallChain({ callChainText, targetFile, targetFunction })` from `bin/lib/regression-analyzer.js`
+   - FastCode error -> read source files around targetFile -> call `analyzeFromSourceFiles({ sourceFiles, targetFile, targetFunction })` from `bin/lib/regression-analyzer.js`
+   Catch: WARNING: "Could not analyze regression: {error.message}". Continue.
+3. Result affectedFiles -> Read `{session_dir}/SESSION.md` -> currentMd
+   Call `updateSession(currentMd, { appendToBody: 'Regression: {N} affected files: {list}' })` from `bin/lib/session-manager.js`
+   Write result to `{session_dir}/SESSION.md`
+### 5b: Fix code
+1. Read evidence and suggestion from prepareFixNow() output — evidence contains proof, suggestion contains fix proposal
+2. Apply fix per guidance
+3. Run tests: determine test command from project (package.json scripts or .planning rules)
+4. Test FAIL -> read error, adjust fix, rerun (max 3 times)
+5. Test PASS -> continue to 5c
+### 5c: Debug cleanup (before commit)
+1. `git diff --cached --name-only` -> list of staged files
+2. Read content of each staged file -> create array [{path, content}]
+3. Try: call `scanDebugMarkers(stagedFiles)` from `bin/lib/debug-cleanup.js`
+   Catch: WARNING: "Debug cleanup error: {error.message}". Continue.
+4. Result has markers -> display list by file:
    ```
-   [PD-DEBUG] Tim thay debug markers:
-     {file}: Dong {line}: {content}
-   Xoa tat ca debug markers? (Y/n)
+   [PD-DEBUG] Found debug markers:
+     {file}: Line {line}: {content}
+   Remove all debug markers? (Y/n)
    ```
-   User Y -> xoa markers, git add lai files
-   User n -> WARNING: "Debug markers van con trong commit."
-5. Try: doc `.planning/scan/SCAN_REPORT.md` (neu ton tai va < 7 ngay)
-   -> goi `matchSecurityWarnings(reportContent, filePaths)` tu `bin/lib/debug-cleanup.js`
-   Catch: bo qua.
-   Co canh bao -> hien non-blocking (toi da 3):
+   User Y -> remove markers, git add files again
+   User n -> WARNING: "Debug markers still present in commit."
+5. Try: read `.planning/scan/SCAN_REPORT.md` (if exists and < 7 days old)
+   -> call `matchSecurityWarnings(reportContent, filePaths)` from `bin/lib/debug-cleanup.js`
+   Catch: skip.
+   Has warnings -> display non-blocking (max 3):
    ```
-   Canh bao bao mat lien quan:
+   Related security warnings:
    - {file}: [{severity}] {message}
    ```
 ### 5d: Commit
 ```
 git add {fixed files} {session_dir}/SESSION.md {session_dir}/evidence_*.md
-git commit -m "fix([LOI]): {mo_ta_ngan}"
+git commit -m "fix([BUG]): {short_description}"
 ```
 ### 5e: User verify (per D-10)
-Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
-**User xac nhan OK:**
-  1. Glob `.planning/bugs/BUG-*.md` -> parse so tu moi filename (VD: BUG-003.md -> {number: 3}) -> tao mang existingBugs
-  2. Goi `createBugRecord({ existingBugs, file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` tu `bin/lib/bug-memory.js`
-     -> bugRecord (object voi { id, fileName, content, number })
-  3. Ghi bugRecord.content vao `.planning/bugs/${bugRecord.fileName}`
-  3. Glob `.planning/bugs/BUG-*.md` -> Read tat ca
-     Voi moi file BUG-*.md:
-       - Goi `parseFrontmatter(content)` tu `bin/lib/utils.js` -> { frontmatter }
-       - Parse so tu filename (VD: BUG-003.md -> 'BUG-003')
+Ask: "Fixed {description}. Please check and confirm."
+**User confirms FIXED:**
+  1. Glob `.planning/bugs/BUG-*.md` -> parse number from each filename (e.g.: BUG-003.md -> {number: 3}) -> create existingBugs array
+  2. Call `createBugRecord({ existingBugs, file: targetFile, functionName: targetFunction, errorMessage: originalError, rootCause, fix: fixDescription, sessionId: folderName })` from `bin/lib/bug-memory.js`
+     -> bugRecord (object with { id, fileName, content, number })
+  3. Write bugRecord.content to `.planning/bugs/${bugRecord.fileName}`
+  3. Glob `.planning/bugs/BUG-*.md` -> Read all
+     For each BUG-*.md file:
+       - Call `parseFrontmatter(content)` from `bin/lib/utils.js` -> { frontmatter }
+       - Parse number from filename (e.g.: BUG-003.md -> 'BUG-003')
        - Construct object: { id: 'BUG-003', frontmatter: parsed.frontmatter }
-     Tao mang bugRecords tu tat ca objects tren
-     Goi `buildIndex(bugRecords)` tu `bin/lib/bug-memory.js` -> indexMd
-     Ghi indexMd vao `.planning/bugs/INDEX.md`
+     Create bugRecords array from all objects above
+     Call `buildIndex(bugRecords)` from `bin/lib/bug-memory.js` -> indexMd
+     Write indexMd to `.planning/bugs/INDEX.md`
   4. Read `{session_dir}/SESSION.md` -> currentMd
-     Goi `updateSession(currentMd, { status: 'resolved' })` tu `bin/lib/session-manager.js`
-     Ghi ket qua vao `{session_dir}/SESSION.md`
-  5. Git add va commit:
+     Call `updateSession(currentMd, { status: 'resolved' })` from `bin/lib/session-manager.js`
+     Write result to `{session_dir}/SESSION.md`
+  5. Git add and commit:
      ```
      git add .planning/bugs/BUG-{NNN}.md .planning/bugs/INDEX.md {session_dir}/SESSION.md
-     git commit -m "fix([LOI]): ghi bug record va dong session {sessionId}"
+     git commit -m "fix([BUG]): record bug and close session {sessionId}"
      ```
-**User xac nhan CHUA SUA:**
-  - Thu thap them trieu chung moi tu user
-  - Quay lai 5b voi thong tin bo sung
-  - Toi da 3 lan -> goi y: "Da thu 3 lan. De xuat: phan tich lai tu Buoc 2 hoac dung lai."
-### 5f: Logic sync (non-blocking, SAU user verify thanh cong)
+**User confirms NOT FIXED:**
+  - Collect additional new symptoms from user
+  - Return to 5b with supplementary information
+  - Max 3 times -> suggest: "Tried 3 times. Suggest: re-analyze from Step 2 or stop."
+### 5f: Logic sync (non-blocking, AFTER successful user verify)
 1. `git diff HEAD~1` -> diffText
 2. Read `{session_dir}/SESSION.md` -> sessionContent
-3. Read BUG report vua tao (`.planning/bugs/BUG-{NNN}.md`) -> bugReportContent
-4. Read `CLAUDE.md` -> claudeContent (neu ton tai)
-5. Glob `.planning/reports/*.md` -> reportContent (file moi nhat, neu co)
-6. Try: goi `runLogicSync({ diffText, bugReportContent, sessionContent, claudeContent, reportContent, planContents: [] })` tu `bin/lib/logic-sync.js`
+3. Read bug report just created (`.planning/bugs/BUG-{NNN}.md`) -> bugReportContent
+4. Read `CLAUDE.md` -> claudeContent (if exists)
+5. Glob `.planning/reports/*.md` -> reportContent (newest file, if any)
+6. Try: call `runLogicSync({ diffText, bugReportContent, sessionContent, claudeContent, reportContent, planContents: [] })` from `bin/lib/logic-sync.js`
    -> { logicResult, reportResult, rulesResult, warnings }
-   Catch: WARNING: "Logic sync loi: {error.message}". KHONG block.
-7. logicResult?.hasLogicChange = true va reportResult !== null -> hoi: "Cap nhat lai PDF? (Y/n)"
+   Catch: WARNING: "Logic sync error: {error.message}". DO NOT block.
+7. logicResult?.hasLogicChange = true and reportResult !== null -> ask: "Update PDF? (Y/n)"
    Y -> `node bin/generate-pdf-report.js {reportPath}`
-8. rulesResult?.suggestions?.length > 0 -> hien rulesResult.suggestions va hoi: "Them vao CLAUDE.md? (Y/n)"
-   Y -> append vao CLAUDE.md, git add va commit:
+8. rulesResult?.suggestions?.length > 0 -> display rulesResult.suggestions and ask: "Add to CLAUDE.md? (Y/n)"
+   Y -> append to CLAUDE.md, git add and commit:
    ```
    git add CLAUDE.md
-   git commit -m "fix([LOI]): them rule tu post-mortem"
+   git commit -m "fix([BUG]): add rule from post-mortem"
    ```
 </process>
 <output>
@@ -368,19 +368,19 @@ Hoi: "Da sua {mo_ta}. Vui long kiem tra va xac nhan."
 - You MUST pass the gate check before changing code.
 - You MUST repeat the loop until the user confirms success.
 - You MUST NOT change code unrelated to the bug.
-- Tuan thu `.planning/rules/` (general + stack-specific)
-- CAM doc/hien thi file nhay cam (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
-- PHAI spawn agents theo dung thu tu: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix
-- PHAI truyen absolute session_dir path khi spawn moi agent
-- PHAI goi validateEvidence() sau moi agent hoan tat
-- PHAI xu ly ca 3 outcomes sau Buoc 4: root_cause, checkpoint, inconclusive
-- PHAI tao bug record SAU user verify (KHONG truoc) — per D-10
-- PHAI dong session SAU bug record + INDEX rebuild — per D-11
-- KHONG hien chi tiet agent output cho user — chi hien banners va ket qua cuoi (progressive disclosure)
-- KHONG block workflow khi DocSpec hoac Repro fail — chi WARNING va tiep tuc
-- CHI STOP khi: (1) Janitor fail khong co trieu chung, (2) Detective fail, (3) User chon dung
-- Moi v1.5 module call (debug-cleanup, logic-sync, regression-analyzer) PHAI wrap trong try/catch — loi chi tao WARNING
-- Commit message format: `fix([LOI]): mo ta` — per D-08
-- Tiep tuc phien cu -> doc SESSION.md TRUOC, khong bat dau lai
-- KHONG de agent spawn agent — chi orchestrator (workflow nay) moi spawn agent
+- Follow `.planning/rules/` (general + stack-specific)
+- FORBIDDEN to read/display sensitive files (`.env`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`)
+- MUST spawn agents in correct order: Janitor -> Detective+DocSpec -> Repro -> Architect -> Fix
+- MUST pass absolute session_dir path when spawning each agent
+- MUST call validateEvidence() after each agent completes
+- MUST handle all 3 outcomes after Step 4: root_cause, checkpoint, inconclusive
+- MUST create bug record AFTER user verify (NOT before) — per D-10
+- MUST close session AFTER bug record + INDEX rebuild — per D-11
+- DO NOT show detailed agent output to user — only show banners and final results (progressive disclosure)
+- DO NOT block workflow when DocSpec or Repro fail — only WARNING and continue
+- ONLY STOP when: (1) Janitor fails with no symptoms, (2) Detective fails, (3) User chooses to stop
+- Every v1.5 module call (debug-cleanup, logic-sync, regression-analyzer) MUST be wrapped in try/catch — errors only create WARNING
+- Commit message format: `fix([BUG]): description` — per D-08
+- Resuming old session -> read SESSION.md FIRST, do not start over
+- DO NOT let agent spawn agent — only orchestrator (this workflow) spawns agents
 </rules>
