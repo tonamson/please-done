@@ -9,20 +9,20 @@ Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases
 
 ### Standalone Flow
 
-- [ ] **TEST-01**: User can run `pd:test --standalone [path]` to test a specific module without milestone/plan/write-code
-- [ ] **TEST-02**: User can run `pd:test --standalone --all` to test entire project source
-- [ ] **TEST-03**: Standalone flow auto-detects tech stack when CONTEXT.md is missing (NestJS/WordPress/Solidity/Flutter/Frontend)
+- [x] **TEST-01**: User can run `pd:test --standalone [path]` to test a specific module without milestone/plan/write-code
+- [x] **TEST-02**: User can run `pd:test --standalone --all` to test entire project source
+- [x] **TEST-03**: Standalone flow auto-detects tech stack when CONTEXT.md is missing (NestJS/WordPress/Solidity/Flutter/Frontend)
 
 ### Guards & Routing
 
-- [ ] **GUARD-01**: `pd:test` standard flow guards remain unchanged — task ✅ required, CONTEXT.md required
-- [ ] **GUARD-02**: `pd:test --standalone` bypasses task status guards + uses conditional CONTEXT.md check
-- [ ] **GUARD-03**: FastCode/Context7 changed to soft warnings with fallback (Grep/Read for FastCode, skip for Context7)
+- [x] **GUARD-01**: `pd:test` standard flow guards remain unchanged — task ✅ required, CONTEXT.md required
+- [x] **GUARD-02**: `pd:test --standalone` bypasses task status guards + uses conditional CONTEXT.md check
+- [x] **GUARD-03**: FastCode/Context7 changed to soft warnings with fallback (Grep/Read for FastCode, skip for Context7)
 
 ### Reporting & Bugs
 
-- [ ] **REPORT-01**: Standalone flow creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
-- [ ] **REPORT-02**: Standalone bugs use `Patch version: standalone` format — not tied to any milestone
+- [x] **REPORT-01**: Standalone flow creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
+- [x] **REPORT-02**: Standalone bugs use `Patch version: standalone` format — not tied to any milestone
 
 ### System Integration
 
@@ -32,7 +32,7 @@ Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases
 
 ### Recovery
 
-- [ ] **RECOV-01**: Standalone flow detects interrupted sessions (uncommitted test files, existing reports) and offers resume/rewrite
+- [x] **RECOV-01**: Standalone flow detects interrupted sessions (uncommitted test files, existing reports) and offers resume/rewrite
 
 ## Future Requirements
 
@@ -42,26 +42,26 @@ Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases
 
 ## Out of Scope
 
-| Feature | Reason |
-| --- | --- |
-| Modify standard test flow | `--standalone` is a parallel flow, standard flow stays 100% unchanged |
-| Modify shared guard files | `guard-context.md`, `guard-fastcode.md`, `guard-context7.md` are shared — only change how test.md references them |
-| Add new JS library modules | This milestone only modifies markdown skill/workflow/reference files |
-| Guard fixes for scan/plan/write-code | P0-1 from de_xuat_cai_tien.md — deferred to separate milestone |
+| Feature                              | Reason                                                                                                            |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Modify standard test flow            | `--standalone` is a parallel flow, standard flow stays 100% unchanged                                             |
+| Modify shared guard files            | `guard-context.md`, `guard-fastcode.md`, `guard-context7.md` are shared — only change how test.md references them |
+| Add new JS library modules           | This milestone only modifies markdown skill/workflow/reference files                                              |
+| Guard fixes for scan/plan/write-code | P0-1 from de_xuat_cai_tien.md — deferred to separate milestone                                                    |
 
 ## Traceability
 
-| REQ-ID | Phase | Status |
-| --- | --- | --- |
-| TEST-01 | 71 | — |
-| TEST-02 | 71 | — |
-| TEST-03 | 71 | — |
-| GUARD-01 | 71 | — |
-| GUARD-02 | 71 | — |
-| GUARD-03 | 71 | — |
-| REPORT-01 | 71 | — |
-| REPORT-02 | 71 | — |
-| SYNC-01 | 72 | — |
-| SYNC-02 | 72 | — |
-| SYNC-03 | 72 | — |
-| RECOV-01 | 71 | — |
+| REQ-ID    | Phase | Status |
+| --------- | ----- | ------ |
+| TEST-01   | 71    | —      |
+| TEST-02   | 71    | —      |
+| TEST-03   | 71    | —      |
+| GUARD-01  | 71    | —      |
+| GUARD-02  | 71    | —      |
+| GUARD-03  | 71    | —      |
+| REPORT-01 | 71    | —      |
+| REPORT-02 | 71    | —      |
+| SYNC-01   | 72    | —      |
+| SYNC-02   | 72    | —      |
+| SYNC-03   | 72    | —      |
+| RECOV-01  | 71    | —      |
