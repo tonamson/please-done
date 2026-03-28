@@ -1,67 +1,67 @@
-# Requirements: Vietnamese → English Migration
+# Requirements: Standalone Test Mode
 
-**Defined:** 2026-03-28
+**Defined:** 2026-03-29
 **Core Value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
-## v6.0 Requirements
+## v7.0 Requirements
 
-Requirements for full Vietnamese-to-English migration. Each maps to roadmap phases.
+Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases.
 
-### Translation
+### Standalone Flow
 
-- [x] **TRANS-01**: Translate 14 skill files (commands/pd/\*.md) from Vietnamese to English
-- [x] **TRANS-02**: Update CLAUDE.md language convention from Vietnamese to English
-- [x] **TRANS-03**: Translate 13 workflow files (workflows/\*.md) from Vietnamese to English
-- [x] **TRANS-04**: Translate 8 agent files with Vietnamese content to English
-- [x] **TRANS-05**: Translate 8 rules files to English
-- [x] **TRANS-06**: Translate 15 reference files (.md + .yaml) to English
-- [x] **TRANS-07**: Translate 12 template files to English
-- [x] **TRANS-08**: Translate 14 docs files to English
-- [x] **TRANS-09**: Translate 12 root .md files to English
-- [x] **TRANS-10**: Translate Vietnamese JSDoc, comments, and string literals in ~43 bin/ JS files to English
-- [x] **TRANS-11**: Translate Vietnamese in ~4 evals/ files to English
+- [ ] **TEST-01**: User can run `pd:test --standalone [path]` to test a specific module without milestone/plan/write-code
+- [ ] **TEST-02**: User can run `pd:test --standalone --all` to test entire project source
+- [ ] **TEST-03**: Standalone flow auto-detects tech stack when CONTEXT.md is missing (NestJS/WordPress/Solidity/Flutter/Frontend)
 
-### Synchronization
+### Guards & Routing
 
-- [x] **SYNC-01**: Regenerate 56 snapshot files after skill translation
-- [x] **SYNC-02**: Update test assertion strings to match new English JS output
+- [ ] **GUARD-01**: `pd:test` standard flow guards remain unchanged — task ✅ required, CONTEXT.md required
+- [ ] **GUARD-02**: `pd:test --standalone` bypasses task status guards + uses conditional CONTEXT.md check
+- [ ] **GUARD-03**: FastCode/Context7 changed to soft warnings with fallback (Grep/Read for FastCode, skip for Context7)
 
-### Verification
+### Reporting & Bugs
 
-- [x] **VERIF-01**: Zero Vietnamese text remaining outside `.planning/` (grep sweep)
-- [x] **VERIF-02**: Full test suite passes (1101/1102, 1 pre-existing js-yaml failure)
-- [x] **VERIF-03**: Human review confirms translation quality
+- [ ] **REPORT-01**: Standalone flow creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
+- [ ] **REPORT-02**: Standalone bugs use `Patch version: standalone` format — not tied to any milestone
+
+### System Integration
+
+- [ ] **SYNC-01**: `state-machine.md` updated with standalone prerequisites row + side branch
+- [ ] **SYNC-02**: `what-next.md` detects standalone test reports and standalone bugs
+- [ ] **SYNC-03**: `complete-milestone.md` skips standalone bugs (doesn't block milestone completion)
+
+### Recovery
+
+- [ ] **RECOV-01**: Standalone flow detects interrupted sessions (uncommitted test files, existing reports) and offers resume/rewrite
 
 ## Future Requirements
 
-None — this is a one-time migration milestone.
+- `pd:onboard` skill for joining existing projects mid-stream (from de_xuat_cai_tien.md P1-1)
+- Integration test for skill chains (from de_xuat_cai_tien.md P1-5)
+- `pd:status` dashboard skill (from de_xuat_cai_tien.md P2-2)
 
 ## Out of Scope
 
-| Feature                       | Reason                                                                       |
-| ----------------------------- | ---------------------------------------------------------------------------- |
-| Translate `.planning/` folder | Explicitly excluded per user request — planning artifacts stay in Vietnamese |
-| Restructure or rename files   | Migration is language-only, not structural                                   |
-| Refactor code logic           | Only translate text, preserve all behavior                                   |
-| Add new features              | Pure translation milestone, no functional changes                            |
+| Feature | Reason |
+| --- | --- |
+| Modify standard test flow | `--standalone` is a parallel flow, standard flow stays 100% unchanged |
+| Modify shared guard files | `guard-context.md`, `guard-fastcode.md`, `guard-context7.md` are shared — only change how test.md references them |
+| Add new JS library modules | This milestone only modifies markdown skill/workflow/reference files |
+| Guard fixes for scan/plan/write-code | P0-1 from de_xuat_cai_tien.md — deferred to separate milestone |
 
 ## Traceability
 
-| REQ-ID   | Phase | Status |
-| -------- | ----- | ------ |
-| TRANS-01 | 65    | —      |
-| TRANS-02 | 65    | —      |
-| TRANS-03 | 66    | —      |
-| TRANS-04 | 67    | —      |
-| TRANS-05 | 67    | —      |
-| TRANS-06 | 67    | —      |
-| TRANS-07 | 68    | —      |
-| TRANS-08 | 68    | —      |
-| TRANS-09 | 68    | —      |
-| TRANS-10 | 69    | —      |
-| TRANS-11 | 69    | —      |
-| SYNC-01  | 65    | —      |
-| SYNC-02  | 69    | —      |
-| VERIF-01 | 70    | —      |
-| VERIF-02 | 70    | —      |
-| VERIF-03 | 70    | —      |
+| REQ-ID | Phase | Status |
+| --- | --- | --- |
+| TEST-01 | — | — |
+| TEST-02 | — | — |
+| TEST-03 | — | — |
+| GUARD-01 | — | — |
+| GUARD-02 | — | — |
+| GUARD-03 | — | — |
+| REPORT-01 | — | — |
+| REPORT-02 | — | — |
+| SYNC-01 | — | — |
+| SYNC-02 | — | — |
+| SYNC-03 | — | — |
+| RECOV-01 | — | — |
