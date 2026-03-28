@@ -1,7 +1,7 @@
 /**
  * Regression Analyzer Module Tests
- * Kiểm tra phân tích module phụ thuộc qua call chain và BFS fallback.
- * Pure function: nhận dependency data, trả về danh sách files bị ảnh hưởng.
+ * Tests dependency module analysis via call chain and BFS fallback.
+ * Pure function: receives dependency data, returns list of affected files.
  */
 
 'use strict';
@@ -15,9 +15,9 @@ const { analyzeFromCallChain, analyzeFromSourceFiles } = require('../bin/lib/reg
 // ─── Helper: makeCallChainText ──────────────────────────
 
 /**
- * Tạo mock FastCode call chain output.
- * Mỗi dòng: - {path}:{line} → {function}() [depth {n}]
- * @param {number} callerCount - Số callers cần tạo
+ * Create mock FastCode call chain output.
+ * Each line: - {path}:{line} → {function}() [depth {n}]
+ * @param {number} callerCount - Number of callers to create
  * @param {object} [opts] - { maxDepth: number }
  * @returns {string}
  */
@@ -34,7 +34,7 @@ function makeCallChainText(callerCount, opts = {}) {
 }
 
 /**
- * Tạo mock call chain text với depth tuỳ chỉnh cho từng caller.
+ * Create mock call chain text with custom depth for each caller.
  * @param {Array<{path: string, line: number, func: string, depth: number}>} callers
  * @returns {string}
  */
@@ -49,8 +49,8 @@ function makeCustomCallChain(callers) {
 // ─── Helper: makeSourceFiles ────────────────────────────
 
 /**
- * Tạo mảng [{path, content}] với require/import statements.
- * @param {Array<{path: string, imports: string[]}>} files - Mỗi file với danh sách imports
+ * Create array [{path, content}] with require/import statements.
+ * @param {Array<{path: string, imports: string[]}>} files - Each file with list of imports
  * @returns {Array<{path: string, content: string}>}
  */
 function makeSourceFiles(files) {
@@ -66,7 +66,7 @@ function makeSourceFiles(files) {
 // ─── analyzeFromCallChain — happy path ──────────────────
 
 describe('analyzeFromCallChain — happy path', () => {
-  it('3 callers → trả về 3 affectedFiles với path, reason, depth', () => {
+  it('3 callers → returns 3 affectedFiles with path, reason, depth', () => {
     const text = makeCallChainText(3);
     const result = analyzeFromCallChain({ callChainText: text, targetFile: 'target.js' });
 
@@ -74,14 +74,14 @@ describe('analyzeFromCallChain — happy path', () => {
     assert.equal(result.totalFound, 3);
 
     for (const f of result.affectedFiles) {
-      assert.ok(f.path, 'phải có path');
-      assert.ok(f.reason, 'phải có reason');
-      assert.equal(typeof f.depth, 'number', 'depth phải là number');
+      assert.ok(f.path, 'must have path');
+      assert.ok(f.reason, 'must have reason');
+      assert.equal(typeof f.depth, 'number', 'depth must be number');
     }
   });
 
-  it('10 callers → trả về chỉ 5 (MAX_AFFECTED per D-05)', () => {
-    // Tạo 10 callers tất cả depth 1-2
+  it('10 callers → returns only 5 (MAX_AFFECTED per D-05)', () => {
+    // Create 10 callers all depth 1-2
     const callers = [];
     for (let i = 1; i <= 10; i++) {
       callers.push({
@@ -98,7 +98,7 @@ describe('analyzeFromCallChain — happy path', () => {
     assert.equal(result.totalFound, 10);
   });
 
-  it('affectedFiles sorted by depth (depth 1 trước depth 2)', () => {
+  it('affectedFiles sorted by depth (depth 1 before depth 2)', () => {
     const callers = [
       { path: 'src/deep.js', line: 50, func: 'deepFn', depth: 2 },
       { path: 'src/shallow.js', line: 10, func: 'shallowFn', depth: 1 },
@@ -109,7 +109,7 @@ describe('analyzeFromCallChain — happy path', () => {
     const result = analyzeFromCallChain({ callChainText: text, targetFile: 'target.js' });
 
     assert.equal(result.affectedFiles.length, 4);
-    // Tất cả depth 1 phải trước depth 2
+    // All depth 1 must come before depth 2
     assert.equal(result.affectedFiles[0].depth, 1);
     assert.equal(result.affectedFiles[1].depth, 1);
     assert.equal(result.affectedFiles[2].depth, 2);
@@ -120,13 +120,13 @@ describe('analyzeFromCallChain — happy path', () => {
 // ─── analyzeFromCallChain — edge cases ──────────────────
 
 describe('analyzeFromCallChain — edge cases', () => {
-  it('callChainText rỗng → trả về { affectedFiles: [], totalFound: 0 }', () => {
+  it('empty callChainText → returns { affectedFiles: [], totalFound: 0 }', () => {
     const result = analyzeFromCallChain({ callChainText: 'No callers found.', targetFile: 'target.js' });
     assert.deepEqual(result.affectedFiles, []);
     assert.equal(result.totalFound, 0);
   });
 
-  it('callers depth 3+ bị loại bỏ (D-04: max 2 levels)', () => {
+  it('callers depth 3+ filtered out (D-04: max 2 levels)', () => {
     const callers = [
       { path: 'src/a.js', line: 10, func: 'fnA', depth: 1 },
       { path: 'src/b.js', line: 20, func: 'fnB', depth: 2 },
@@ -138,18 +138,18 @@ describe('analyzeFromCallChain — edge cases', () => {
 
     assert.equal(result.affectedFiles.length, 2);
     assert.equal(result.totalFound, 2);
-    // Chỉ giữ depth 1 và 2
+    // Only keep depth 1 and 2
     assert.ok(result.affectedFiles.every(f => f.depth <= 2));
   });
 
-  it('thiếu callChainText → throw Error', () => {
+  it('missing callChainText → throw Error', () => {
     assert.throws(
       () => analyzeFromCallChain({ targetFile: 'target.js' }),
       { message: /callChainText/ }
     );
   });
 
-  it('thiếu targetFile → throw Error', () => {
+  it('missing targetFile → throw Error', () => {
     assert.throws(
       () => analyzeFromCallChain({ callChainText: 'some text' }),
       { message: /targetFile/ }
@@ -160,7 +160,7 @@ describe('analyzeFromCallChain — edge cases', () => {
 // ─── analyzeFromSourceFiles — happy path ────────────────
 
 describe('analyzeFromSourceFiles — happy path', () => {
-  it('3 source files, 1 file import targetFile → trả về 1 affectedFile depth 1', () => {
+  it('3 source files, 1 file imports targetFile → returns 1 affectedFile depth 1', () => {
     const sources = makeSourceFiles([
       { path: 'src/service.js', imports: ['./utils/target'] },
       { path: 'src/controller.js', imports: ['./routes'] },
@@ -191,16 +191,16 @@ describe('analyzeFromSourceFiles — happy path', () => {
     assert.equal(result.affectedFiles.length, 2);
     // depth 1: service.js (import target.js)
     const depth1 = result.affectedFiles.find(f => f.depth === 1);
-    assert.ok(depth1, 'phải có file depth 1');
+    assert.ok(depth1, 'must have file at depth 1');
     assert.equal(depth1.path, 'src/service.js');
     // depth 2: controller.js (import service.js)
     const depth2 = result.affectedFiles.find(f => f.depth === 2);
-    assert.ok(depth2, 'phải có file depth 2');
+    assert.ok(depth2, 'must have file at depth 2');
     assert.equal(depth2.path, 'src/controller.js');
   });
 
-  it('max 5 files trong output (D-05)', () => {
-    // Tạo 8 files, tất cả import target
+  it('max 5 files in output (D-05)', () => {
+    // Create 8 files, all import target
     const sources = [];
     for (let i = 1; i <= 8; i++) {
       sources.push({ path: `src/mod${i}.js`, imports: ['./target'] });
@@ -210,7 +210,7 @@ describe('analyzeFromSourceFiles — happy path', () => {
       targetFile: 'target.js',
     });
 
-    assert.ok(result.affectedFiles.length <= 5, `kết quả phải <= 5, nhận được ${result.affectedFiles.length}`);
+    assert.ok(result.affectedFiles.length <= 5, `result must be <= 5, got ${result.affectedFiles.length}`);
     assert.equal(result.totalFound, 8);
   });
 });
@@ -218,7 +218,7 @@ describe('analyzeFromSourceFiles — happy path', () => {
 // ─── analyzeFromSourceFiles — edge cases ────────────────
 
 describe('analyzeFromSourceFiles — edge cases', () => {
-  it('sourceFiles rỗng → trả về { affectedFiles: [], totalFound: 0 }', () => {
+  it('empty sourceFiles → returns { affectedFiles: [], totalFound: 0 }', () => {
     const result = analyzeFromSourceFiles({
       sourceFiles: [],
       targetFile: 'target.js',
@@ -227,7 +227,7 @@ describe('analyzeFromSourceFiles — edge cases', () => {
     assert.equal(result.totalFound, 0);
   });
 
-  it('filter test files: files có .test. KHÔNG xuất hiện trong affectedFiles', () => {
+  it('filter test files: files with .test. do NOT appear in affectedFiles', () => {
     const sources = makeSourceFiles([
       { path: 'src/service.js', imports: ['./target'] },
       { path: 'src/service.test.js', imports: ['./target'] },
@@ -240,19 +240,19 @@ describe('analyzeFromSourceFiles — edge cases', () => {
 
     assert.equal(result.affectedFiles.length, 1);
     assert.equal(result.affectedFiles[0].path, 'src/service.js');
-    // test và spec files bị filter
+    // test and spec files are filtered
     const testFiles = result.affectedFiles.filter(f => /\.(test|spec)\./.test(f.path));
-    assert.equal(testFiles.length, 0, 'test/spec files phải bị filter');
+    assert.equal(testFiles.length, 0, 'test/spec files must be filtered');
   });
 
-  it('thiếu sourceFiles → throw Error', () => {
+  it('missing sourceFiles → throw Error', () => {
     assert.throws(
       () => analyzeFromSourceFiles({ targetFile: 'target.js' }),
       { message: /sourceFiles/ }
     );
   });
 
-  it('thiếu targetFile → throw Error', () => {
+  it('missing targetFile → throw Error', () => {
     assert.throws(
       () => analyzeFromSourceFiles({ sourceFiles: [] }),
       { message: /targetFile/ }

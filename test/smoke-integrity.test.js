@@ -1,7 +1,7 @@
 /**
  * Smoke tests — Repo integrity
- * Kiểm tra tính nhất quán giữa commands/workflows/templates/references
- * và xác nhận converter xử lý đúng toàn bộ skill thật của repo.
+ * Tests consistency between commands/workflows/templates/references
+ * and verifies converter handles all real skills in the repo correctly.
  */
 
 "use strict";
@@ -52,36 +52,36 @@ function collectRefs(content) {
 }
 
 describe("Repo integrity — command/workflow graph", () => {
-  it("mỗi command có frontmatter tối thiểu và process section", () => {
+  it("each command has minimum frontmatter and process section", () => {
     const skills = listSkillFiles(COMMANDS_DIR);
 
     for (const skill of skills) {
       const { frontmatter, body } = parseFrontmatter(skill.content);
-      assert.ok(frontmatter.name, `${skill.name}: thiếu frontmatter.name`);
+      assert.ok(frontmatter.name, `${skill.name}: missing frontmatter.name`);
       assert.ok(
         frontmatter.description,
-        `${skill.name}: thiếu frontmatter.description`,
+        `${skill.name}: missing frontmatter.description`,
       );
       assert.match(
         body,
         /<process>[\s\S]*<\/process>/,
-        `${skill.name}: thiếu <process>`,
+        `${skill.name}: missing <process>`,
       );
     }
   });
 
-  it("mọi @workflows/@templates/@references được tham chiếu từ command đều tồn tại", () => {
+  it("all @workflows/@templates/@references referenced from commands exist", () => {
     for (const filePath of listMarkdownFiles(COMMANDS_DIR)) {
       const relFile = path.relative(ROOT, filePath);
       const content = fs.readFileSync(filePath, "utf8");
 
       for (const ref of collectRefs(content)) {
-        assert.ok(fs.existsSync(ref.absPath), `${relFile}: thiếu ${ref.ref}`);
+        assert.ok(fs.existsSync(ref.absPath), `${relFile}: missing ${ref.ref}`);
       }
     }
   });
 
-  it("chỉ các command được whitelist mới không có workflow riêng", () => {
+  it("only whitelisted commands have no dedicated workflow", () => {
     const commands = listSkillFiles(COMMANDS_DIR)
       .map((skill) => skill.name)
       .sort();
@@ -95,7 +95,7 @@ describe("Repo integrity — command/workflow graph", () => {
     assert.deepEqual(commandsWithoutWorkflow, [...ALLOWED_NO_WORKFLOW].sort());
   });
 
-  it("inlineWorkflow xử lý được mọi command có workflow", () => {
+  it("inlineWorkflow processes all commands with workflow", () => {
     const skills = listSkillFiles(COMMANDS_DIR);
 
     for (const skill of skills) {
@@ -108,7 +108,7 @@ describe("Repo integrity — command/workflow graph", () => {
 
       assert.ok(
         !inlined.includes(`@workflows/${skill.name}.md`),
-        `${skill.name}: còn sót workflow ref sau inline`,
+        `${skill.name}: still has workflow ref after inline`,
       );
       assert.match(
         inlined,
@@ -120,7 +120,7 @@ describe("Repo integrity — command/workflow graph", () => {
         assert.match(
           inlined,
           /<required_reading>[\s\S]*SKILLS_DIR[\s\S]*<\/required_reading>/,
-          `${skill.name}: thiếu required_reading sau inline`,
+          `${skill.name}: missing required_reading after inline`,
         );
       }
     }
@@ -128,7 +128,7 @@ describe("Repo integrity — command/workflow graph", () => {
 });
 
 describe("Repo integrity — shared references", () => {
-  it("mọi ref trong workflows/templates/references đều trỏ tới file có thật", () => {
+  it("all refs in workflows/templates/references point to real files", () => {
     const files = [
       ...listMarkdownFiles(WORKFLOWS_DIR),
       ...listMarkdownFiles(path.join(ROOT, "templates")),
@@ -140,12 +140,12 @@ describe("Repo integrity — shared references", () => {
       const content = fs.readFileSync(filePath, "utf8");
 
       for (const ref of collectRefs(content)) {
-        assert.ok(fs.existsSync(ref.absPath), `${relFile}: thiếu ${ref.ref}`);
+        assert.ok(fs.existsSync(ref.absPath), `${relFile}: missing ${ref.ref}`);
       }
     }
   });
 
-  it("extractReadingRefs trả về refs duy nhất cho command thực", () => {
+  it("extractReadingRefs returns unique refs for real commands", () => {
     const content = read("commands/pd/plan.md");
     const refs = extractReadingRefs(content);
 
@@ -158,7 +158,7 @@ describe("Repo integrity — shared references", () => {
 describe("Repo integrity — full command conversion", () => {
   const skills = listSkillFiles(COMMANDS_DIR);
 
-  it("Codex converter sạch command refs và AskUserQuestion cho toàn bộ skills", () => {
+  it("Codex converter cleans command refs and AskUserQuestion for all skills", () => {
     for (const skill of skills) {
       const result = codex.convertSkill(skill.content, skill.name, ROOT);
       const bodyStart = result.indexOf("<objective>");
@@ -166,43 +166,46 @@ describe("Repo integrity — full command conversion", () => {
 
       assert.ok(
         !result.includes("~/.claude/"),
-        `${skill.name}: Codex còn sót ~/.claude/`,
+        `${skill.name}: Codex still contains ~/.claude/`,
       );
-      assert.ok(!body.includes("/pd:"), `${skill.name}: Codex còn sót /pd:`);
+      assert.ok(
+        !body.includes("/pd:"),
+        `${skill.name}: Codex still contains /pd:`,
+      );
       assert.ok(
         !body.includes("AskUserQuestion"),
-        `${skill.name}: Codex còn sót AskUserQuestion`,
+        `${skill.name}: Codex still contains AskUserQuestion`,
       );
     }
   });
 
-  it("Gemini converter xuất TOML hợp lệ và không leak ~/.claude/ cho toàn bộ skills", () => {
+  it("Gemini converter outputs valid TOML and does not leak ~/.claude/ for all skills", () => {
     for (const skill of skills) {
       const result = gemini.convertSkill(skill.content, ROOT);
       // TOML format: description = "..." + prompt = "..."
       assert.match(
         result,
         /^description = "/,
-        `${skill.name}: Gemini thiếu description TOML key`,
+        `${skill.name}: Gemini missing description TOML key`,
       );
       assert.match(
         result,
         /\nprompt = "/,
-        `${skill.name}: Gemini thiếu prompt TOML key`,
+        `${skill.name}: Gemini missing prompt TOML key`,
       );
       assert.ok(
         !result.includes("~/.claude/"),
-        `${skill.name}: Gemini còn sót ~/.claude/`,
+        `${skill.name}: Gemini still contains ~/.claude/`,
       );
-      // TOML format không có frontmatter allowed-tools — MCP tools tự động loại bỏ
+      // TOML format has no frontmatter allowed-tools — MCP tools are automatically removed
       assert.ok(
         !result.includes("allowed-tools"),
-        `${skill.name}: Gemini không nên có allowed-tools`,
+        `${skill.name}: Gemini should not have allowed-tools`,
       );
     }
   });
 
-  it("Copilot converter map MCP refs và tool names cho toàn bộ skills", () => {
+  it("Copilot converter maps MCP refs and tool names for all skills", () => {
     for (const skill of skills) {
       const result = copilot.convertSkill(skill.content, true, ROOT);
       const bodyStart = result.indexOf("<objective>");
@@ -210,20 +213,20 @@ describe("Repo integrity — full command conversion", () => {
 
       assert.ok(
         !result.includes("~/.claude/"),
-        `${skill.name}: Copilot còn sót ~/.claude/`,
+        `${skill.name}: Copilot still contains ~/.claude/`,
       );
       assert.ok(
         !body.includes("mcp__fastcode__"),
-        `${skill.name}: Copilot còn sót fastcode MCP ref`,
+        `${skill.name}: Copilot still contains fastcode MCP ref`,
       );
       assert.ok(
         !body.includes("mcp__context7__"),
-        `${skill.name}: Copilot còn sót context7 MCP ref`,
+        `${skill.name}: Copilot still contains context7 MCP ref`,
       );
     }
   });
 
-  it("OpenCode converter sạch command refs và AskUserQuestion cho toàn bộ skills", () => {
+  it("OpenCode converter cleans command refs and AskUserQuestion for all skills", () => {
     for (const skill of skills) {
       const result = opencode.convertSkill(skill.content, ROOT);
       const bodyStart = result.indexOf("<objective>");
@@ -231,12 +234,15 @@ describe("Repo integrity — full command conversion", () => {
 
       assert.ok(
         !result.includes("~/.claude/"),
-        `${skill.name}: OpenCode còn sót ~/.claude/`,
+        `${skill.name}: OpenCode still contains ~/.claude/`,
       );
-      assert.ok(!body.includes("/pd:"), `${skill.name}: OpenCode còn sót /pd:`);
+      assert.ok(
+        !body.includes("/pd:"),
+        `${skill.name}: OpenCode still contains /pd:`,
+      );
       assert.ok(
         !body.includes("AskUserQuestion"),
-        `${skill.name}: OpenCode còn sót AskUserQuestion`,
+        `${skill.name}: OpenCode still contains AskUserQuestion`,
       );
     }
   });
@@ -789,7 +795,11 @@ describe("Repo integrity -- context7 standardization", () => {
       "pipeline missing resolve-library-id",
     );
     assert.match(content, /query-docs/, "pipeline missing query-docs");
-    assert.match(content, /AUTOMATIC/, "pipeline missing AUTOMATIC trigger rule");
+    assert.match(
+      content,
+      /AUTOMATIC/,
+      "pipeline missing AUTOMATIC trigger rule",
+    );
     assert.match(content, /[Ff]allback/, "pipeline missing fallback section");
     assert.match(
       content,
@@ -945,7 +955,11 @@ describe("Repo integrity -- library fallback and version detection", () => {
       path.join(ROOT, "references", "context7-pipeline.md"),
       "utf8",
     );
-    assert.match(content, /Step 0.*Version/i, "pipeline missing Step 0 Version");
+    assert.match(
+      content,
+      /Step 0.*Version/i,
+      "pipeline missing Step 0 Version",
+    );
   });
 
   it("version detection references 3 manifest types (LIBR-03b)", () => {
@@ -997,8 +1011,14 @@ describe("Repo integrity -- library fallback and version detection", () => {
     const projectDocsPos = content.search(/[Pp]roject docs/i);
     const codebasePos = content.search(/[Cc]odebase/);
     const trainingPos = content.search(/[Tt]raining data/i);
-    assert.ok(projectDocsPos < codebasePos, "project docs must come before codebase");
-    assert.ok(codebasePos < trainingPos, "codebase must come before training data");
+    assert.ok(
+      projectDocsPos < codebasePos,
+      "project docs must come before codebase",
+    );
+    assert.ok(
+      codebasePos < trainingPos,
+      "codebase must come before training data",
+    );
   });
 
   it("fallback is automatic, does NOT ask user (LIBR-02b/D-03)", () => {
@@ -1115,7 +1135,7 @@ describe("Repo integrity -- wave-based parallel execution", () => {
     );
     assert.match(
       content,
-      /auto-serialize|d[oờ]i.*wave/i,
+      /auto-serialize|wait.*wave/i,
       "write-code.md: thieu auto-serialize logic",
     );
     assert.match(content, /conflict/, "write-code.md: thieu conflict handling");

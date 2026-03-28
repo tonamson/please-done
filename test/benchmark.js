@@ -1,26 +1,30 @@
 #!/usr/bin/env node
 
 /**
- * Benchmark — Đo lường hiệu suất installer + phân tích cấu trúc workflow.
+ * Benchmark — Measures installer performance + workflow structure analysis.
  *
- * Chạy: node test/benchmark.js
- * Kết quả: in ra terminal dạng markdown (copy-paste được)
+ * Run: node test/benchmark.js
+ * Results: printed to terminal in markdown format (copy-paste ready)
  */
 
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const os = require('os');
+const fs = require("fs");
+const path = require("path");
+const os = require("os");
 
-const SKILLS_DIR = path.resolve(__dirname, '..');
+const SKILLS_DIR = path.resolve(__dirname, "..");
 const RESULTS = [];
 
-function out(msg = '') { console.log(msg); RESULTS.push(msg); }
+function out(msg = "") {
+  console.log(msg);
+  RESULTS.push(msg);
+}
 
 // ─── Helpers ──────────────────────────────────────────────
 function countFilesRecursive(dir) {
-  let files = 0, lines = 0;
+  let files = 0,
+    lines = 0;
   if (!fs.existsSync(dir)) return { files, lines };
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
@@ -30,7 +34,9 @@ function countFilesRecursive(dir) {
       lines += sub.lines;
     } else {
       files++;
-      try { lines += fs.readFileSync(full, 'utf8').split('\n').length; } catch {}
+      try {
+        lines += fs.readFileSync(full, "utf8").split("\n").length;
+      } catch {}
     }
   }
   return { files, lines };
@@ -50,72 +56,87 @@ function countPattern(content, regex) {
 
 // ─── Main ─────────────────────────────────────────────────
 async function main() {
-  out('# Benchmark — Please Done');
-  out(`> Ngày: ${new Date().toISOString().slice(0, 10)}`);
+  out("# Benchmark — Please Done");
+  out(`> Date: ${new Date().toISOString().slice(0, 10)}`);
   out(`> Node: ${process.version}`);
   out(`> OS: ${os.platform()} ${os.arch()}`);
 
   // ════════════════════════════════════════════════════════
-  out('\n## 1. Hiệu suất cài đặt');
-  out('');
-  out('Cài vào thư mục tạm → đo thời gian + files sinh ra → gỡ → xác nhận sạch.');
-  out('');
-  out('| Nền tảng | Cài (ms) | Gỡ (ms) | Files | Dòng | Rò rỉ path |');
-  out('|----------|---------|---------|-------|------|-----------|');
+  out("\n## 1. Installation performance");
+  out("");
+  out(
+    "Install to temp directory → measure time + generated files → uninstall → confirm clean.",
+  );
+  out("");
+  out(
+    "| Platform | Install (ms) | Uninstall (ms) | Files | Lines | Path leak |",
+  );
+  out("|----------|-------------|---------------|-------|-------|-----------|");
 
-  const { scanLeakedPaths } = require('../bin/lib/manifest');
+  const { scanLeakedPaths } = require("../bin/lib/manifest");
   const platformMap = {
-    codex: 'Codex CLI',
-    copilot: 'GitHub Copilot',
-    gemini: 'Gemini CLI',
-    opencode: 'OpenCode',
+    codex: "Codex CLI",
+    copilot: "GitHub Copilot",
+    gemini: "Gemini CLI",
+    opencode: "OpenCode",
   };
 
-  let totalFiles = 0, totalLines = 0;
+  let totalFiles = 0,
+    totalLines = 0;
 
   for (const [key, name] of Object.entries(platformMap)) {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `pd-bench-${key}-`));
     const installer = require(`../bin/lib/installers/${key}`);
 
-    // Cài
+    // Install
     const t1 = performance.now();
-    await silenced(() => installer.install(SKILLS_DIR, tmpDir, { version: '0.0.0-bench' }));
+    await silenced(() =>
+      installer.install(SKILLS_DIR, tmpDir, { version: "0.0.0-bench" }),
+    );
     const installMs = Math.round(performance.now() - t1);
 
-    // Đếm
+    // Count
     const { files, lines } = countFilesRecursive(tmpDir);
     totalFiles += files;
     totalLines += lines;
 
-    // Rò rỉ
-    const leaked = scanLeakedPaths(tmpDir, '~/.claude/');
+    // Leak check
+    const leaked = scanLeakedPaths(tmpDir, "~/.claude/");
 
-    // Gỡ
+    // Uninstall
     const t2 = performance.now();
     await silenced(() => installer.uninstall(tmpDir));
     const uninstallMs = Math.round(performance.now() - t2);
 
-    out(`| ${name} | ${installMs} | ${uninstallMs} | ${files} | ${lines.toLocaleString()} | ${leaked.length === 0 ? '✅ 0' : '❌ ' + leaked.length} |`);
+    out(
+      `| ${name} | ${installMs} | ${uninstallMs} | ${files} | ${lines.toLocaleString()} | ${leaked.length === 0 ? "✅ 0" : "❌ " + leaked.length} |`,
+    );
 
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 
-  out('');
-  out(`**Tổng**: ${totalFiles} files, ${totalLines.toLocaleString()} dòng được sinh ra cho 4 nền tảng từ 1 bộ source duy nhất.`);
+  out("");
+  out(
+    `**Total**: ${totalFiles} files, ${totalLines.toLocaleString()} lines generated for 4 platforms from 1 single source.`,
+  );
 
   // ════════════════════════════════════════════════════════
-  out('\n## 2. Idempotency (cài lại an toàn)');
-  out('');
+  out("\n## 2. Idempotency (safe reinstall)");
+  out("");
 
   let idempotentPass = 0;
   for (const key of Object.keys(platformMap)) {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), `pd-idem-${key}-`));
     const installer = require(`../bin/lib/installers/${key}`);
 
-    await silenced(() => installer.install(SKILLS_DIR, tmpDir, { version: '1.0.0' }));
+    await silenced(() =>
+      installer.install(SKILLS_DIR, tmpDir, { version: "1.0.0" }),
+    );
     const count1 = countFilesRecursive(tmpDir).files;
 
-    await silenced(() => installer.install(SKILLS_DIR, tmpDir, { version: '2.0.0' }));
+    await silenced(() =>
+      installer.install(SKILLS_DIR, tmpDir, { version: "2.0.0" }),
+    );
     const count2 = countFilesRecursive(tmpDir).files;
 
     const ok = Math.abs(count1 - count2) <= 1; // manifest file may differ
@@ -124,17 +145,19 @@ async function main() {
     fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 
-  out(`Cài 2 lần liên tiếp (v1 → v2): **${idempotentPass}/4 nền tảng** không tạo file thừa.`);
+  out(
+    `Install twice consecutively (v1 → v2): **${idempotentPass}/4 platforms** no extra files created.`,
+  );
 
   // ════════════════════════════════════════════════════════
-  out('\n## 3. Smoke tests');
-  out('');
+  out("\n## 3. Smoke tests");
+  out("");
 
-  // Chạy test và đếm kết quả
-  const { execSync } = require('child_process');
+  // Run tests and count results
+  const { execSync } = require("child_process");
   try {
     const testOutput = execSync("node --test 'test/smoke-*.test.js' 2>&1", {
-      encoding: 'utf8',
+      encoding: "utf8",
       cwd: SKILLS_DIR,
       timeout: 60000,
     });
@@ -143,31 +166,35 @@ async function main() {
     const failMatch = testOutput.match(/fail (\d+)/);
     const durationMatch = testOutput.match(/duration_ms ([\d.]+)/);
 
-    const pass = passMatch ? passMatch[1] : '?';
-    const fail = failMatch ? failMatch[1] : '?';
-    const duration = durationMatch ? Math.round(parseFloat(durationMatch[1])) : '?';
+    const pass = passMatch ? passMatch[1] : "?";
+    const fail = failMatch ? failMatch[1] : "?";
+    const duration = durationMatch
+      ? Math.round(parseFloat(durationMatch[1]))
+      : "?";
 
-    out(`| Kết quả | Số lượng |`);
-    out(`|---------|---------|`);
-    out(`| ✅ Đạt | ${pass} |`);
-    out(`| ❌ Lỗi | ${fail} |`);
-    out(`| ⏱ Thời gian | ${duration}ms |`);
+    out(`| Result | Count |`);
+    out(`|--------|-------|`);
+    out(`| ✅ Pass | ${pass} |`);
+    out(`| ❌ Fail | ${fail} |`);
+    out(`| ⏱ Duration | ${duration}ms |`);
   } catch (err) {
-    const output = err.stdout || err.stderr || '';
+    const output = err.stdout || err.stderr || "";
     const passMatch = output.match(/pass (\d+)/);
     const failMatch = output.match(/fail (\d+)/);
-    out(`Tests: ${passMatch ? passMatch[1] : '?'} đạt, ${failMatch ? failMatch[1] : '?'} lỗi`);
+    out(
+      `Tests: ${passMatch ? passMatch[1] : "?"} pass, ${failMatch ? failMatch[1] : "?"} fail`,
+    );
   }
 
   // ════════════════════════════════════════════════════════
-  out('\n## 4. Phân tích cấu trúc workflow');
-  out('');
+  out("\n## 4. Workflow structure analysis");
+  out("");
 
-  // Đọc tất cả workflow + command files
-  const workflowDir = path.join(SKILLS_DIR, 'workflows');
-  const commandDir = path.join(SKILLS_DIR, 'commands', 'pd');
-  const refDir = path.join(SKILLS_DIR, 'references');
-  const tplDir = path.join(SKILLS_DIR, 'templates');
+  // Read all workflow + command files
+  const workflowDir = path.join(SKILLS_DIR, "workflows");
+  const commandDir = path.join(SKILLS_DIR, "commands", "pd");
+  const refDir = path.join(SKILLS_DIR, "references");
+  const tplDir = path.join(SKILLS_DIR, "templates");
 
   let totalSteps = 0;
   let totalGates = 0;
@@ -175,85 +202,112 @@ async function main() {
   let totalUserInteraction = 0;
   let totalWorkflowLines = 0;
 
-  const workflowFiles = fs.readdirSync(workflowDir).filter(f => f.endsWith('.md'));
+  const workflowFiles = fs
+    .readdirSync(workflowDir)
+    .filter((f) => f.endsWith(".md"));
 
   for (const file of workflowFiles) {
-    const content = fs.readFileSync(path.join(workflowDir, file), 'utf8');
-    totalWorkflowLines += content.split('\n').length;
-    totalSteps += countPattern(content, /^##\s+Bước\s+/gm);
-    totalGates += countPattern(content, /DỪNG|CHẶN|\*\*DỪNG\*\*|\*\*CHẶN\*\*/g);
-    totalRecovery += countPattern(content, /khôi phục|phục hồi|PROGRESS\.md|DISCUSS_STATE|debug\//gi);
-    totalUserInteraction += countPattern(content, /AskUserQuestion|hỏi user|yêu cầu.*xác nhận/gi);
+    const content = fs.readFileSync(path.join(workflowDir, file), "utf8");
+    totalWorkflowLines += content.split("\n").length;
+    totalSteps += countPattern(content, /^##\s+Step\s+/gm);
+    totalGates += countPattern(
+      content,
+      /STOP|BLOCK|\*\*STOP\*\*|\*\*BLOCK\*\*/g,
+    );
+    totalRecovery += countPattern(
+      content,
+      /recover|restore|PROGRESS\.md|DISCUSS_STATE|debug\//gi,
+    );
+    totalUserInteraction += countPattern(
+      content,
+      /AskUserQuestion|ask user|request.*confirmation/gi,
+    );
   }
 
-  // Đếm files hỗ trợ
-  const refFiles = fs.existsSync(refDir) ? fs.readdirSync(refDir).filter(f => f.endsWith('.md')).length : 0;
-  const tplFiles = fs.existsSync(tplDir) ? fs.readdirSync(tplDir).filter(f => f.endsWith('.md')).length : 0;
-  const commandFiles = fs.readdirSync(commandDir).filter(f => f.endsWith('.md')).length;
-  const rulesDir = path.join(commandDir, 'rules');
-  const rulesFiles = fs.existsSync(rulesDir) ? countFilesRecursive(rulesDir).files : 0;
+  // Count supporting files
+  const refFiles = fs.existsSync(refDir)
+    ? fs.readdirSync(refDir).filter((f) => f.endsWith(".md")).length
+    : 0;
+  const tplFiles = fs.existsSync(tplDir)
+    ? fs.readdirSync(tplDir).filter((f) => f.endsWith(".md")).length
+    : 0;
+  const commandFiles = fs
+    .readdirSync(commandDir)
+    .filter((f) => f.endsWith(".md")).length;
+  const rulesDir = path.join(commandDir, "rules");
+  const rulesFiles = fs.existsSync(rulesDir)
+    ? countFilesRecursive(rulesDir).files
+    : 0;
 
-  out('| Thành phần | Số lượng |');
-  out('|-----------|---------|');
-  out(`| Skills (lệnh người dùng gọi) | ${commandFiles} |`);
-  out(`| Workflows (quy trình chi tiết) | ${workflowFiles.length} |`);
-  out(`| Tổng bước workflow | ${totalSteps} |`);
-  out(`| Cổng kiểm tra (DỪNG/CHẶN) | ${totalGates} |`);
-  out(`| Điểm khôi phục (gián đoạn) | ${totalRecovery} |`);
-  out(`| Điểm tương tác người dùng | ${totalUserInteraction} |`);
-  out(`| Templates (mẫu file) | ${tplFiles} |`);
-  out(`| References (quy ước chung) | ${refFiles} |`);
-  out(`| Rules (quy tắc code theo stack) | ${rulesFiles} |`);
-  out(`| Tổng dòng workflow | ${totalWorkflowLines.toLocaleString()} |`);
+  out("| Component | Count |");
+  out("|-----------|-------|");
+  out(`| Skills (user-invoked commands) | ${commandFiles} |`);
+  out(`| Workflows (detailed processes) | ${workflowFiles.length} |`);
+  out(`| Total workflow steps | ${totalSteps} |`);
+  out(`| Check gates (STOP/BLOCK) | ${totalGates} |`);
+  out(`| Recovery points (interruption) | ${totalRecovery} |`);
+  out(`| User interaction points | ${totalUserInteraction} |`);
+  out(`| Templates (file templates) | ${tplFiles} |`);
+  out(`| References (shared conventions) | ${refFiles} |`);
+  out(`| Rules (stack-specific code rules) | ${rulesFiles} |`);
+  out(`| Total workflow lines | ${totalWorkflowLines.toLocaleString()} |`);
 
   // ════════════════════════════════════════════════════════
-  out('\n## 5. Khả năng đa nền tảng');
-  out('');
-  out('Viết 1 lần bằng format Claude Code → trình cài đặt tự chuyển đổi cho từng nền tảng.');
-  out('');
-  out('| Nền tảng | Lệnh gọi | Đường dẫn config | Tool mapping |');
-  out('|----------|----------|-----------------|-------------|');
+  out("\n## 5. Cross-platform capability");
+  out("");
+  out(
+    "Write once in Claude Code format → installer auto-converts for each platform.",
+  );
+  out("");
+  out("| Platform | Command | Config path | Tool mapping |");
+  out("|----------|---------|-------------|-------------|");
 
-  const { PLATFORMS } = require('../bin/lib/platforms');
+  const { PLATFORMS } = require("../bin/lib/platforms");
   for (const [key, p] of Object.entries(PLATFORMS)) {
     const toolCount = Object.keys(p.toolMap || {}).length;
-    out(`| ${p.name} | \`${p.commandPrefix}init\` | \`~/${p.dirName}/\` | ${toolCount > 0 ? toolCount + ' tools' : 'giữ nguyên'} |`);
+    out(
+      `| ${p.name} | \`${p.commandPrefix}init\` | \`~/${p.dirName}/\` | ${toolCount > 0 ? toolCount + " tools" : "unchanged"} |`,
+    );
   }
 
   // ════════════════════════════════════════════════════════
-  out('\n## 6. Luồng làm việc chính');
-  out('');
-  out('```');
-  out('/pd:init          Khởi tạo môi trường, phát hiện tech stack');
-  out('    ↓');
-  out('/pd:scan          Quét cấu trúc dự án, báo cáo bảo mật');
-  out('    ↓');
-  out('/pd:new-milestone Lập kế hoạch chiến lược + yêu cầu + lộ trình');
-  out('    ↓');
-  out('/pd:plan          Thiết kế kỹ thuật + chia danh sách công việc');
-  out('    ↓');
-  out('/pd:write-code    AI viết code theo kế hoạch (auto/parallel)');
-  out('    ↓');
-  out('/pd:test          Kiểm thử tự động (hoặc thủ công cho frontend)');
-  out('    ↓');
-  out('/pd:fix-bug       Sửa lỗi theo phương pháp khoa học');
-  out('    ↓');
-  out('/pd:complete-milestone  Đóng phiên bản, tạo git tag, báo cáo');
-  out('```');
-  out('');
-  out('Mỗi bước có cổng kiểm tra — AI không thể bỏ qua hoặc tự ý thay đổi thiết kế đã duyệt.');
+  out("\n## 6. Main workflow");
+  out("");
+  out("```");
+  out("/pd:init          Initialize environment, detect tech stack");
+  out("    ↓");
+  out("/pd:scan          Scan project structure, security report");
+  out("    ↓");
+  out("/pd:new-milestone  Strategic planning + requirements + roadmap");
+  out("    ↓");
+  out("/pd:plan          Technical design + task breakdown");
+  out("    ↓");
+  out("/pd:write-code    AI writes code per plan (auto/parallel)");
+  out("    ↓");
+  out("/pd:test          Automated testing (or manual for frontend)");
+  out("    ↓");
+  out("/pd:fix-bug       Fix bugs using scientific method");
+  out("    ↓");
+  out("/pd:complete-milestone  Close version, create git tag, report");
+  out("```");
+  out("");
+  out(
+    "Each step has check gates — AI cannot skip or self-modify approved designs.",
+  );
 
   // ════════════════════════════════════════════════════════
-  out('\n---');
-  out(`*Benchmark chạy tự động bởi \`node test/benchmark.js\` — ${new Date().toISOString()}*`);
+  out("\n---");
+  out(
+    `*Benchmark auto-generated by \`node test/benchmark.js\` — ${new Date().toISOString()}*`,
+  );
 
   // Ghi file
-  const outputPath = path.join(SKILLS_DIR, 'BENCHMARK_RESULTS.md');
-  fs.writeFileSync(outputPath, RESULTS.join('\n') + '\n', 'utf8');
-  console.log(`\n→ Đã ghi kết quả vào ${outputPath}`);
+  const outputPath = path.join(SKILLS_DIR, "BENCHMARK_RESULTS.md");
+  fs.writeFileSync(outputPath, RESULTS.join("\n") + "\n", "utf8");
+  console.log(`\n→ Results written to ${outputPath}`);
 }
 
-main().catch(err => {
-  console.error('Benchmark lỗi:', err.message);
+main().catch((err) => {
+  console.error("Benchmark error:", err.message);
   process.exit(1);
 });
