@@ -1,50 +1,50 @@
 # Context7 Pipeline
 
-> Dung boi: write-code, plan, new-milestone, fix-bug, test
-> Nguon su that cho quy trinh tra cuu thu vien ngoai
+> Used by: write-code, plan, new-milestone, fix-bug, test
+> Single source of truth for external library lookup process
 
-## Khi nao
+## When
 
-BAT KY task nao su dung thu vien ngoai -> TU DONG tra cuu, KHONG can user yeu cau.
+ANY task using an external library -> AUTOMATIC lookup, NO user request needed.
 
-## Buoc 0: Version
+## Step 0: Version
 
-Truoc khi resolve, detect version thu vien tu manifest:
+Before resolving, detect library version from manifest:
 
 | Manifest | Stack | Parse |
 |----------|-------|-------|
-| `package.json` | Node.js | dependencies + devDependencies -> ten:version |
-| `pubspec.yaml` | Flutter | dependencies -> ten:version |
-| `composer.json` | PHP | require + require-dev -> ten:version |
+| `package.json` | Node.js | dependencies + devDependencies -> name:version |
+| `pubspec.yaml` | Flutter | dependencies -> name:version |
+| `composer.json` | PHP | require + require-dev -> name:version |
 
-Nhieu manifest (monorepo) -> uu tien file gan nhat voi code dang sua.
+Multiple manifests (monorepo) -> prioritize the file closest to the code being edited.
 Heuristic: `nest-cli.json` -> backend, `next.config.*` -> frontend.
-Khong tim thay -> dung "latest", ghi note.
+Not found -> use "latest", add note.
 
-## Buoc 1: Resolve
+## Step 1: Resolve
 
-`resolve-library-id` cho TUNG thu vien -> lay ID.
-Nhieu thu vien -> resolve TAT CA truoc khi query.
+`resolve-library-id` for EACH library -> get ID.
+Multiple libraries -> resolve ALL before querying.
 
-## Buoc 2: Query
+## Step 2: Query
 
-`query-docs` voi ID da resolve -> docs. Truyen version vao topic/query neu co.
+`query-docs` with resolved ID -> docs. Pass version into topic/query if available.
 
-## Fallback (Context7 loi hoac khong co ket qua)
+## Fallback (Context7 error or no results)
 
-Tu dong thu theo thu tu, KHONG hoi user:
+Automatically try in order, DO NOT ask user:
 
-| # | Nguon | Cach thu | Dieu kien thanh cong |
-|---|-------|----------|---------------------|
-| 1 | Project docs | Glob `.planning/docs/*.md` -> match ten thu vien | Tim thay file co noi dung lien quan |
-| 2 | Codebase | Grep import/usage patterns trong code hien co | Tim thay patterns su dung thu vien |
-| 3 | Training data | Knowledge san co cua model | Luon co (nguon cuoi) |
+| # | Source | Method | Success condition |
+|---|--------|--------|-------------------|
+| 1 | Project docs | Glob `.planning/docs/*.md` -> match library name | Found file with relevant content |
+| 2 | Codebase | Grep import/usage patterns in existing code | Found library usage patterns |
+| 3 | Training data | Model's built-in knowledge | Always available (last resort) |
 
-Fallback 3 (training data) -> hien thi: "Dung knowledge san, co the khong chinh xac cho version hien tai."
+Fallback 3 (training data) -> display: "Using built-in knowledge, may not be accurate for current version."
 
-TAT CA nguon that bai -> dung training data voi warning.
+ALL sources fail -> use training data with warning.
 
 ## Transparency
 
-Moi lan tra cuu, in 1 dong: `[thu vien] v[version] -- nguon: [ten nguon]`
-VD: `@nestjs/common v10.3.0 -- nguon: Context7`
+Every lookup, print 1 line: `[library] v[version] -- source: [source name]`
+E.g.: `@nestjs/common v10.3.0 -- source: Context7`

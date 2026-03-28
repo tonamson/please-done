@@ -1,54 +1,54 @@
-# Hướng dẫn ưu tiên
+# Prioritization Guide
 
-> Dùng bởi: `/pd:new-milestone`, `/pd:plan`, `/pd:fix-bug`
-> Framework sắp xếp ưu tiên tính năng, phase, task, bug
+> Used by: `/pd:new-milestone`, `/pd:plan`, `/pd:fix-bug`
+> Framework for prioritizing features, phases, tasks, bugs
 
-## Mức ưu tiên
+## Priority Levels
 
-| Mức | Ý nghĩa | Ví dụ |
-|-----|---------|-------|
-| Quan trọng | Không có thì dự án không hoạt động | Xác thực, CRUD cốt lõi |
-| Cao | Cần thiết cho trải nghiệm tối thiểu | Phân quyền, validation, UI chính |
-| Trung bình | Cải thiện đáng kể nhưng có thể hoãn | Tìm kiếm nâng cao, báo cáo |
-| Thấp | Nâng cao, có thì tốt | Dark mode, export PDF |
+| Level | Meaning | Examples |
+|-------|---------|---------|
+| Critical | Project does not work without it | Authentication, core CRUD |
+| High | Required for minimum experience | Authorization, validation, main UI |
+| Medium | Significant improvement but can be deferred | Advanced search, reports |
+| Low | Enhancement, nice to have | Dark mode, export PDF |
 
-## Quy tắc sắp xếp
+## Ordering Rules
 
-### Giữa milestones
-1. MVP (v1.0) luôn trước
-2. Tính năng nền tảng (auth, data model) trước phụ thuộc
-3. Rủi ro kỹ thuật cao → giải quyết sớm
+### Between milestones
+1. MVP (v1.0) always first
+2. Foundation features (auth, data model) before dependents
+3. High technical risk → resolve early
 
-### Giữa phases
-1. **Backend API trước Frontend** (khi frontend cần data từ API mới)
-2. **Frontend-only tasks** (UI, SEO, layout) kế hoạch độc lập
-3. **Core logic trước Validation/Edge cases**
-4. **Xác thực/Bảo mật** luôn milestone/phase đầu
-5. Dự án mới: phase đầu = thiết lập
+### Between phases
+1. **Backend API before Frontend** (when frontend needs data from new API)
+2. **Frontend-only tasks** (UI, SEO, layout) planned independently
+3. **Core logic before Validation/Edge cases**
+4. **Authentication/Security** always first milestone/phase
+5. New project: first phase = setup
 
-### Giữa tasks
+### Between tasks
 1. Entity/Model → Service → Controller → DTO (Backend)
-2. Module mới = task riêng
-3. Không phụ thuộc → song song
-4. Mỗi task: atomic, tối đa 5-7 files
+2. New module = separate task
+3. No dependencies → parallel
+4. Each task: atomic, maximum 5-7 files
 
-## Phân loại rủi ro bug
+## Bug Risk Classification
 
-| Loại | Ký hiệu | Ví dụ | Chiến lược kiểm thử | Chiến lược commit |
-|------|---------|-------|---------------------|-------------------|
-| Sửa nhanh | 🟢 | Lỗi chính tả, CSS, giá trị cấu hình sai | Lint + build đủ | Commit trực tiếp |
-| Lỗi logic | 🟡 | Logic code sai, thiếu ngoại lệ, sai lệch 1 đơn vị | Unit + integration test bắt buộc | Commit + test cùng nhau |
-| Lỗi dữ liệu | 🟠 | Dữ liệu hỏng, migration sai, DB lệch | Sao lưu trước, kiểm tra sau | Commit riêng cho migration |
-| Nhạy cảm bảo mật | 🔴 | Vượt quyền, injection, lộ khóa bí mật | User đồng ý + rà soát | Commit riêng, không gộp |
-| Hạ tầng/cấu hình | 🔵 | Biến môi trường, cấu hình deploy, dịch vụ bên thứ ba | Kiểm tra đúng môi trường | Tóm tắt thay đổi |
+| Type | Symbol | Examples | Testing strategy | Commit strategy |
+|------|--------|---------|-----------------|-----------------|
+| Quick fix | 🟢 | Typo, CSS, wrong config value | Lint + build sufficient | Direct commit |
+| Logic error | 🟡 | Wrong code logic, missing exception, off-by-one | Unit + integration test required | Commit + test together |
+| Data error | 🟠 | Corrupt data, wrong migration, DB mismatch | Backup first, verify after | Separate commit for migration |
+| Security sensitive | 🔴 | Privilege escalation, injection, leaked secret | User approval + review | Separate commit, no bundling |
+| Infrastructure/config | 🔵 | Environment variable, deploy config, third-party service | Verify correct environment | Summarize changes |
 
-## Ma trận quyết định
+## Decision Matrix
 
-| Tiêu chí | Trọng số |
-|----------|---------|
-| Ảnh hưởng người dùng | Cao |
-| Rủi ro kỹ thuật | Cao |
-| Nỗ lực triển khai | Trung bình |
-| Khả năng mở rộng sau | Thấp |
+| Criterion | Weight |
+|-----------|--------|
+| User impact | High |
+| Technical risk | High |
+| Implementation effort | Medium |
+| Future extensibility | Low |
 
-Ưu tiên: ít rủi ro + ảnh hưởng user tích cực + đơn giản nhất.
+Priority: low risk + positive user impact + simplest.

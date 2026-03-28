@@ -1,106 +1,106 @@
-# State Machine — Luồng trạng thái dự án
+# State Machine — Project State Flow
 
-> Dùng bởi: tất cả commands (validation), `/pd:what-next` (gợi ý)
-> Định nghĩa trạng thái hợp lệ, chuyển tiếp, điều kiện
+> Used by: all commands (validation), `/pd:what-next` (suggestions)
+> Defines valid states, transitions, conditions
 
-## Luồng chính
-
-```
-Chưa khởi tạo
-  → [/pd:init] → Đã khởi tạo
-    → [/pd:scan] → Đã quét (tùy chọn)
-    → [/pd:new-milestone] → Có lộ trình
-      → [/pd:plan] → Có kế hoạch
-        → [/pd:write-code] → Đang code
-          → [/pd:test] → Đã test (tùy chọn)
-          → [/pd:complete-milestone] → Milestone hoàn tất
-            → [/pd:new-milestone] → Có lộ trình (cycle mới)
-```
-
-**Nhánh phụ** (bất kỳ lúc nào sau init):
-- `/pd:fix-bug` → điều tra + sửa lỗi
-- `/pd:what-next` → kiểm tra tiến trình
-- `/pd:fetch-doc` → cache tài liệu
-- `/pd:update` → cập nhật skills
-- `/pd:audit` → kiểm toán bảo mật milestone
-
-## Trạng thái phase
+## Main Flow
 
 ```
-⬜ Chưa plan
-  → [/pd:plan] → Đã plan (có RESEARCH.md + PLAN.md + TASKS.md + Tiêu chí thành công) → commit kế hoạch
-    → [/pd:write-code] → Đang code (có task 🔄)
-      → [tất cả tasks ✅] → Xác minh 4 cấp (Tồn tại → Thực chất → Kết nối → Truths)
-        → [xác minh đạt] → Phase hoàn tất → chuyển tiếp tự động
-        → [có gap] → Tự sửa code (tối đa 2 vòng) → Xác minh lại
-          → [vẫn fail sau 2 vòng] → DỪNG, hỏi user (fix-bug / re-plan / bỏ qua)
-        → auto-advance CURRENT_MILESTONE (nếu phase tiếp đã plan)
-          → [/pd:test] → tự phát hiện phase cũ chưa test
+Not initialized
+  → [/pd:init] → Initialized
+    → [/pd:scan] → Scanned (optional)
+    → [/pd:new-milestone] → Has roadmap
+      → [/pd:plan] → Has plan
+        → [/pd:write-code] → Coding
+          → [/pd:test] → Tested (optional)
+          → [/pd:complete-milestone] → Milestone complete
+            → [/pd:new-milestone] → Has roadmap (new cycle)
 ```
 
-## Điều kiện tiên quyết
+**Side branches** (anytime after init):
+- `/pd:fix-bug` → investigate + fix bug
+- `/pd:what-next` → check progress
+- `/pd:fetch-doc` → cache documentation
+- `/pd:update` → update skills
+- `/pd:audit` → security audit milestone
 
-| Command | Yêu cầu tồn tại | Nếu thiếu |
-|---------|-----------------|-----------|
-| `/pd:init` | — | Luôn chạy được |
-| `/pd:scan` | CONTEXT.md | "Chạy `/pd:init` trước" |
-| `/pd:new-milestone` | CONTEXT.md + rules/general.md | "Chạy `/pd:init` trước" |
-| `/pd:plan` | CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md | Gợi ý command phù hợp |
-| `/pd:write-code` | CONTEXT.md + PLAN.md + TASKS.md | "Chạy `/pd:plan` trước" |
-| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Chạy `/pd:write-code` trước" |
-| `/pd:fix-bug` | CONTEXT.md | "Chạy `/pd:init` trước" |
-| `/pd:complete-milestone` | CONTEXT.md + CURRENT_MILESTONE.md + tất cả tasks ✅ + bugs đã đóng | Liệt kê blockers |
-| `/pd:what-next` | — | Gợi ý `/pd:init` nếu thiếu CONTEXT.md |
-| `/pd:fetch-doc` | CONTEXT.md | "Chạy `/pd:init` trước" |
-| `/pd:update` | — | Luôn chạy được |
-| `/pd:audit` | CONTEXT.md | "Chạy `/pd:init` trước" |
+## Phase States
 
-## Chuyển tiếp phase (Auto-advance)
+```
+⬜ Not planned
+  → [/pd:plan] → Planned (has RESEARCH.md + PLAN.md + TASKS.md + Success criteria) → commit plan
+    → [/pd:write-code] → Coding (has task 🔄)
+      → [all tasks ✅] → 4-level verification (Exists → Substantive → Connected → Truths)
+        → [verification passed] → Phase complete → auto-advance
+        → [has gaps] → Auto-fix code (max 2 rounds) → Re-verify
+          → [still fails after 2 rounds] → STOP, ask user (fix-bug / re-plan / skip)
+        → auto-advance CURRENT_MILESTONE (if next phase is already planned)
+          → [/pd:test] → auto-detect untested previous phase
+```
 
-Khi TẤT CẢ tasks ✅:
-1. Kiểm tra ROADMAP → có phase tiếp?
-2. Phase tiếp có TASKS.md? → auto-advance `phase` trong CURRENT_MILESTONE.md
-3. Chưa plan? → giữ nguyên, gợi ý `/pd:plan [phase tiếp]`
+## Prerequisites
+
+| Command | Required to exist | If missing |
+|---------|-------------------|-----------|
+| `/pd:init` | — | Always runnable |
+| `/pd:scan` | CONTEXT.md | "Run `/pd:init` first" |
+| `/pd:new-milestone` | CONTEXT.md + rules/general.md | "Run `/pd:init` first" |
+| `/pd:plan` | CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md | Suggest appropriate command |
+| `/pd:write-code` | CONTEXT.md + PLAN.md + TASKS.md | "Run `/pd:plan` first" |
+| `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Run `/pd:write-code` first" |
+| `/pd:fix-bug` | CONTEXT.md | "Run `/pd:init` first" |
+| `/pd:complete-milestone` | CONTEXT.md + CURRENT_MILESTONE.md + all tasks ✅ + bugs closed | List blockers |
+| `/pd:what-next` | — | Suggest `/pd:init` if missing CONTEXT.md |
+| `/pd:fetch-doc` | CONTEXT.md | "Run `/pd:init` first" |
+| `/pd:update` | — | Always runnable |
+| `/pd:audit` | CONTEXT.md | "Run `/pd:init` first" |
+
+## Phase Transition (Auto-advance)
+
+When ALL tasks ✅:
+1. Check ROADMAP → next phase exists?
+2. Next phase has TASKS.md? → auto-advance `phase` in CURRENT_MILESTONE.md
+3. Not planned? → keep as-is, suggest `/pd:plan [next phase]`
 
 **Auto-advance + test:**
-- Auto-advance xảy ra ngay khi phase hoàn tất, TRƯỚC `/pd:test`
-- `/pd:test` tự phát hiện phase cũ chưa test: phase mới không có task ✅ → quét phases khác tìm phase hoàn tất chưa có TEST_REPORT
-- `/pd:what-next` cũng quét phases phát hiện chưa test (Ưu tiên 5.5)
+- Auto-advance happens immediately when phase completes, BEFORE `/pd:test`
+- `/pd:test` auto-detects untested previous phase: new phase has no ✅ tasks → scans other phases for completed phase without TEST_REPORT
+- `/pd:what-next` also scans phases for untested phases (Priority 5.5)
 
-## Edge cases
+## Edge Cases
 
 ### Skip phase
-- KHÔNG có skip tự động
-- User muốn skip → `/pd:plan [phase sau]` trực tiếp
-- Phase bị skip hiện ROADMAP với deliverables `- [ ]`
-- `/pd:complete-milestone` cảnh báo phases chưa triển khai → user chọn bỏ qua/plan thêm
+- NO automatic skip
+- User wants to skip → `/pd:plan [later phase]` directly
+- Skipped phase shows in ROADMAP with deliverables `- [ ]`
+- `/pd:complete-milestone` warns about unimplemented phases → user chooses to skip/plan more
 
 ### Rollback phase
-- KHÔNG có rollback tự động
-- User muốn redo → `/pd:plan [phase cũ]` → cảnh báo tasks đã hoàn thành → user chọn ghi đè
-- Code đã commit giữ nguyên git history
+- NO automatic rollback
+- User wants to redo → `/pd:plan [old phase]` → warn about completed tasks → user chooses to overwrite
+- Already committed code keeps git history
 
-### Re-plan phase đang code
-- `/pd:plan [phase hiện tại]` khi có tasks 🔄/✅ → cảnh báo user
-- User xác nhận ghi đè → tasks cũ mất trạng thái
+### Re-plan phase during coding
+- `/pd:plan [current phase]` when tasks are 🔄/✅ → warn user
+- User confirms overwrite → old tasks lose status
 
-### Test phát hiện lỗi (✅ → 🐛)
-- `/pd:write-code` đánh ✅ sau code + build + commit
-- `/pd:test` → test fail → đổi ✅ → 🐛
-- Chuyển tiếp hợp lệ: code pass build nhưng fail test logic
-- `/pd:complete-milestone` chặn nếu có 🐛 → chạy `/pd:fix-bug` trước
+### Test discovers bug (✅ → 🐛)
+- `/pd:write-code` marks ✅ after code + build + commit
+- `/pd:test` → test fails → change ✅ → 🐛
+- Valid transition: code passes build but fails test logic
+- `/pd:complete-milestone` blocks if 🐛 exists → run `/pd:fix-bug` first
 
-### Plan --discuss bị ngắt
-- Trạng thái lưu `.planning/milestones/[version]/phase-[phase]/DISCUSS_STATE.md`
-- Chạy lại → đọc DISCUSS_STATE.md → resume vấn đề chưa chốt
-- Không có DISCUSS_STATE.md → bắt đầu lại
+### Plan --discuss interrupted
+- State saved to `.planning/milestones/[version]/phase-[phase]/DISCUSS_STATE.md`
+- Re-run → read DISCUSS_STATE.md → resume unresolved issues
+- No DISCUSS_STATE.md → start over
 
-### Lỗi giữa chừng
-- Build fail → giữ 🔄, không đánh ✅
-- `.planning/` corrupt → `/pd:what-next` phát hiện thiếu file → gợi ý command
-- Phiên bị ngắt → STATE.md + CURRENT_MILESTONE.md giữ context → `/pd:what-next`
+### Mid-process error
+- Build fails → keep 🔄, don't mark ✅
+- `.planning/` corrupt → `/pd:what-next` detects missing files → suggest command
+- Session interrupted → STATE.md + CURRENT_MILESTONE.md keep context → `/pd:what-next`
 
 ### Circular dependency
-- Tasks phụ thuộc lẫn nhau → `/pd:write-code` phát hiện → thông báo user
-- KHÔNG tự pick task khi tất cả bị chặn
-- **DỪNG** flow — user sửa TASKS.md (xóa/đảo dependency) rồi chạy lại
+- Tasks depend on each other → `/pd:write-code` detects → notify user
+- DO NOT auto-pick task when all are blocked
+- **STOP** flow — user fixes TASKS.md (remove/reorder dependency) then re-run

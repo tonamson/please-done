@@ -1,285 +1,285 @@
-# Bảng kiểm bảo mật khi viết code
+# Security Checklist for Writing Code
 
-> Dùng bởi: write-code (Bước 2 + 4 + 6.5b), fix-bug, test
-> (1) Phân tích ngữ cảnh bảo mật TRƯỚC khi viết, (2) Kiểm tra lỗ hổng TRƯỚC khi commit — MỌI stack
-
----
-
-## Phần A: Phân tích ngữ cảnh bảo mật (Bước 2 — trước khi viết code)
-
-Xác định 3 yếu tố ngữ cảnh cho mỗi task/endpoint/feature. Ghi vào CODE_REPORT mục "Ngữ cảnh bảo mật".
-
-### A1. Loại endpoint
-
-| Loại | Mô tả | Giả định |
-|------|-------|----------|
-| **PUBLIC** | Bất kỳ ai trên internet có thể gọi | Mọi input đều có thể độc hại. Kẻ tấn công có hiểu biết một phần về hệ thống |
-| **ADMIN** | Chỉ người quản trị đã xác thực | Vẫn cần phòng thủ — admin có thể bị chiếm tài khoản, hoặc insider threat |
-| **INTERNAL** | Giao tiếp service-to-service | Không tin tưởng dữ liệu client cung cấp. Phòng sai cấu hình và lạm dụng nội bộ |
-
-### A2. Mức độ nhạy cảm dữ liệu
-
-| Mức | Ví dụ | Yêu cầu |
-|-----|-------|---------|
-| **CAO** | Mật khẩu, token, thông tin thanh toán, private key, dữ liệu y tế/pháp lý | Tối thiểu hóa lộ lọt trong response/log/error. Mã hóa nếu cần. Kiểm soát truy cập chặt |
-| TRUNG BÌNH | Email, số điện thoại, lịch sử giao dịch, nội dung riêng tư | Bảo vệ truy cập, tránh lộ lọt không cần thiết |
-| THẤP | Dữ liệu công khai, nội dung hiển thị chung | Vẫn tuân thủ mặc định an toàn, không tin user input |
-
-### A3. Loại xác thực
-
-| Loại | Quy tắc kiểm tra |
-|------|------------------|
-| **JWT** | Verify chữ ký, hạn (exp), issuer (iss), audience (aud). KHÔNG tin token chưa verify hoặc verify yếu |
-| **SESSION** | Phòng session fixation, CSRF, cookie flags (httpOnly, Secure, SameSite), hủy session khi logout |
-| **API_KEY** | Validate scope + quyền của key. KHÔNG lộ key trong log hoặc response |
-| **SIGNATURE** | Verify chữ ký, nonce, timestamp, replay protection, message binding (chainid + address cho blockchain) |
-| **NONE** | PHẢI có lý do rõ ràng tại sao không cần xác thực — ghi vào CODE_REPORT |
+> Used by: write-code (Step 2 + 4 + 6.5b), fix-bug, test
+> (1) Analyze security context BEFORE writing, (2) Check vulnerabilities BEFORE commit — ALL stacks
 
 ---
 
-## Phần B: Quy tắc bảo mật theo ngữ cảnh (Bước 4 — khi viết code)
+## Part A: Security Context Analysis (Step 2 — before writing code)
 
-Áp dụng quy tắc tương ứng ngữ cảnh Phần A.
+Identify 3 context factors for each task/endpoint/feature. Record in CODE_REPORT under "Security context".
 
-### B1. Theo loại endpoint
+### A1. Endpoint Type
+
+| Type | Description | Assumption |
+|------|-------------|------------|
+| **PUBLIC** | Anyone on the internet can call | All input may be malicious. Attacker has partial knowledge of the system |
+| **ADMIN** | Only authenticated administrators | Still needs defense — admin accounts can be compromised, or insider threat |
+| **INTERNAL** | Service-to-service communication | Don't trust client-provided data. Defend against misconfiguration and internal abuse |
+
+### A2. Data Sensitivity Level
+
+| Level | Examples | Requirements |
+|-------|---------|-------------|
+| **HIGH** | Passwords, tokens, payment information, private keys, medical/legal data | Minimize exposure in response/log/error. Encrypt if needed. Strict access control |
+| **MEDIUM** | Email, phone number, transaction history, private content | Protect access, avoid unnecessary exposure |
+| **LOW** | Public data, general display content | Still follow safe defaults, don't trust user input |
+
+### A3. Authentication Type
+
+| Type | Check Rules |
+|------|-------------|
+| **JWT** | Verify signature, expiration (exp), issuer (iss), audience (aud). DO NOT trust unverified or weakly verified tokens |
+| **SESSION** | Defend against session fixation, CSRF, cookie flags (httpOnly, Secure, SameSite), invalidate session on logout |
+| **API_KEY** | Validate scope + permissions of key. DO NOT expose key in logs or response |
+| **SIGNATURE** | Verify signature, nonce, timestamp, replay protection, message binding (chainid + address for blockchain) |
+| **NONE** | MUST have clear reason why authentication is not needed — record in CODE_REPORT |
+
+---
+
+## Part B: Context-Based Security Rules (Step 4 — while writing code)
+
+Apply rules corresponding to Part A context.
+
+### B1. By Endpoint Type
 
 **PUBLIC:**
-- MỌI input → validate + sanitize
-- Ngăn chặn mọi injection (SQL, NoSQL, Command, XSS, Template)
-- KHÔNG lộ lỗi nội bộ ra response (stack trace, tên bảng DB, đường dẫn server)
-- Rate limiting + chống brute force, spam, enumeration
-- Response chỉ trả field cần thiết
+- ALL input → validate + sanitize
+- Prevent all injection (SQL, NoSQL, Command, XSS, Template)
+- DO NOT expose internal errors in response (stack trace, DB table names, server paths)
+- Rate limiting + anti brute force, spam, enumeration
+- Response returns only necessary fields
 
 **ADMIN:**
-- Bắt buộc xác thực + RBAC cho MỌI hành động
-- Validate quyền từng thao tác — KHÔNG chỉ check "đã đăng nhập"
-- Phòng leo quyền: user thường không tự nâng role
-- Audit log cho hành động quan trọng (tạo/sửa/xóa user, thay đổi quyền/cấu hình)
-- Deny-by-default: mặc định từ chối, chỉ cho phép khi có quyền rõ ràng
+- Mandatory authentication + RBAC for ALL actions
+- Validate permissions per operation — DO NOT just check "logged in"
+- Defend against privilege escalation: regular user cannot self-elevate role
+- Audit log for critical actions (create/edit/delete user, change permissions/config)
+- Deny-by-default: default deny, only allow when explicit permission exists
 
 **INTERNAL:**
-- Vẫn validate input — service khác có thể gửi sai do bug
-- Không tin dữ liệu client qua service trung gian
-- Xác thực service-to-service rõ ràng (API key, mTLS, service token)
+- Still validate input — other services may send incorrect data due to bugs
+- Don't trust client data through intermediary services
+- Explicit service-to-service authentication (API key, mTLS, service token)
 
-### B2. Theo mức nhạy cảm dữ liệu
+### B2. By Data Sensitivity Level
 
-**CAO:**
-- Response chỉ trả field bắt buộc
-- Mask/redact trong log (password → `***`, token → `...xxxx`)
-- KHÔNG lưu dữ liệu nhạy cảm vào log
-- Validation + authorization + audit chặt hơn bình thường
-- Cân nhắc mã hóa, quản lý secret, phòng replay attack
+**HIGH:**
+- Response returns only required fields
+- Mask/redact in logs (password → `***`, token → `...xxxx`)
+- DO NOT store sensitive data in logs
+- Validation + authorization + audit stricter than normal
+- Consider encryption, secret management, replay attack prevention
 
-**TRUNG BÌNH:** Bảo vệ truy cập, tránh lộ lọt không cần thiết trong response/log.
+**MEDIUM:** Protect access, avoid unnecessary exposure in response/log.
 
-**THẤP:** Vẫn tuân thủ mặc định an toàn, KHÔNG tin user input.
+**LOW:** Still follow safe defaults, DO NOT trust user input.
 
 ---
 
-## Phần C: Yêu cầu bảo mật toàn cục (MỌI ngữ cảnh)
+## Part C: Global Security Requirements (ALL contexts)
 
-### C1. Phòng chống tấn công (OWASP Top 10+)
+### C1. Attack Prevention (OWASP Top 10+)
 
-| Loại tấn công | Yêu cầu |
-|---------------|---------|
-| Injection (SQL, NoSQL, Command, XSS, CSRF, SSRF) | Xem chi tiết Phần D (bảng kiểm kỹ thuật) |
-| Unsafe patterns | CẤM `eval()`, raw queries nối chuỗi, unsafe deserialization, `Function()` |
-| Hardcode secrets | CẤM — PHẢI dùng biến môi trường |
-| DoS / Resource exhaustion | Giới hạn kích thước input, phân trang, timeout, giới hạn batch size |
-| Race conditions | Transaction/lock cho thao tác đọc-ghi trên cùng resource |
-| Replay attacks | Nonce + timestamp + message binding cho thao tác nhạy cảm (đặc biệt blockchain) |
-| Timing attacks | Constant-time comparison cho password/token/signature |
-| Business logic abuse | Kiểm tra luồng nghiệp vụ: bỏ qua thanh toán? Lạm dụng coupon? Tự vote? |
+| Attack Type | Requirement |
+|-------------|------------|
+| Injection (SQL, NoSQL, Command, XSS, CSRF, SSRF) | See Part D details (technical checklist) |
+| Unsafe patterns | FORBIDDEN `eval()`, raw string-concatenated queries, unsafe deserialization, `Function()` |
+| Hardcoded secrets | FORBIDDEN — MUST use environment variables |
+| DoS / Resource exhaustion | Limit input size, pagination, timeout, limit batch size |
+| Race conditions | Transaction/lock for read-write operations on same resource |
+| Replay attacks | Nonce + timestamp + message binding for sensitive operations (especially blockchain) |
+| Timing attacks | Constant-time comparison for password/token/signature |
+| Business logic abuse | Check business flow: bypassing payment? Coupon abuse? Self-voting? |
 
-### C2. Nguyên tắc thiết kế
+### C2. Design Principles
 
-- **Quyền tối thiểu**: code/service/user chỉ có quyền vừa đủ
-- **Mặc định từ chối**: deny by default
-- **Ưu tiên thư viện an toàn**: KHÔNG tự implement crypto/auth/sanitize
-- **Logging**: ghi sự kiện bảo mật (login fail, truy cập bị từ chối, thay đổi quyền) — KHÔNG log dữ liệu nhạy cảm
+- **Least privilege**: code/service/user only has minimum necessary permissions
+- **Deny by default**: deny by default
+- **Prefer safe libraries**: DO NOT self-implement crypto/auth/sanitize
+- **Logging**: record security events (login failure, access denied, permission changes) — DO NOT log sensitive data
 
-### C3. Phân tích bảo mật nâng cao
+### C3. Advanced Security Analysis
 
-Áp dụng khi logic phức tạp, dữ liệu nhạy cảm, hoặc tương tác nhiều hệ thống.
+Apply when logic is complex, data is sensitive, or multiple systems interact.
 
 **Trust Boundaries:**
-- Ranh giới: client ↔ API ↔ database ↔ dịch vụ ngoài
-- Dữ liệu qua ranh giới PHẢI validate lại — KHÔNG tin dữ liệu từ service nội bộ
-- Ngăn trust escalation: dữ liệu từ nguồn ít tin cậy KHÔNG tự động đáng tin qua service trung gian
+- Boundaries: client ↔ API ↔ database ↔ external services
+- Data crossing boundaries MUST be re-validated — DO NOT trust data from internal services
+- Prevent trust escalation: data from less trusted source does NOT automatically become trusted through intermediary services
 
 **State Consistency:**
-- Phòng race condition: 2 request đồng thời không gây sai trạng thái
-- Idempotency key cho thao tác thay đổi trạng thái (thanh toán, tạo đơn, gửi email)
-- Transaction/atomic — 1 bước fail → rollback tất cả
-- Kiểm tra: "Request gửi 2 lần → kết quả đúng?"
+- Defend against race conditions: 2 concurrent requests must not cause incorrect state
+- Idempotency key for state-changing operations (payment, order creation, email sending)
+- Transaction/atomic — 1 step fails → rollback all
+- Verify: "Request sent twice → correct result?"
 
 **Response Data Minimization:**
-- Chỉ trả field client cần — dùng DTO/select
-- KHÔNG trả thừa field — mỗi field thừa = rủi ro lộ lọt
-- KHÔNG lộ thông tin nội bộ qua error message
-- Kiểm tra: "Response bị lộ → có thông tin nhạy cảm?"
+- Return only fields client needs — use DTO/select
+- DO NOT return extra fields — each extra field = data exposure risk
+- DO NOT expose internal information via error messages
+- Verify: "Response leaked → contains sensitive information?"
 
 **Third-Party Risk:**
-- Giả định thư viện ngoài có thể có lỗ hổng
-- Ít dependency = ít bề mặt tấn công
-- Chức năng bảo mật (crypto, auth, sanitize) → PHẢI dùng thư viện chuẩn, KHÔNG tự viết
+- Assume external libraries may have vulnerabilities
+- Fewer dependencies = smaller attack surface
+- Security functions (crypto, auth, sanitize) → MUST use standard libraries, DO NOT self-implement
 
 **Secure-by-Default:**
-- Mọi truy cập PHẢI bị từ chối trừ khi cho phép rõ ràng
-- Giá trị mặc định PHẢI an toàn khi bị cấu hình sai
-- Kiểm tra: "Developer quên config → hệ thống vẫn an toàn?"
+- All access MUST be denied unless explicitly allowed
+- Default values MUST be safe when misconfigured
+- Verify: "Developer forgets config → system still secure?"
 
 **Operational Security:**
-- Log KHÔNG chứa dữ liệu nhạy cảm
-- Log PHẢI có: ai, làm gì, khi nào, kết quả
-- Cân nhắc monitoring: đếm login fail, request lỗi 4xx/5xx, spike bất thường
+- Logs MUST NOT contain sensitive data
+- Logs MUST have: who, what, when, outcome
+- Consider monitoring: count login failures, 4xx/5xx error requests, unusual spikes
 
 **Human Error & Misuse:**
-- Admin function PHẢI có confirmation cho hành động hủy diệt
-- Phòng gọi nhầm endpoint production, script nhầm môi trường
-- API KHÔNG dựa vào client "gửi đúng" — validate tất cả
-- Kiểm tra: "Developer mới gọi API không đọc docs → điều tồi tệ nhất?"
+- Admin functions MUST have confirmation for destructive actions
+- Defend against accidental production endpoint calls, wrong-environment scripts
+- API MUST NOT rely on client "sending correctly" — validate everything
+- Verify: "New developer calls API without reading docs → worst case scenario?"
 
 ---
 
-## Phần D: Bảng kiểm kỹ thuật (Bước 6.5b — trước khi commit)
+## Part D: Technical Checklist (Step 6.5b — before commit)
 
-Chạy bảng kiểm cho files vừa tạo/sửa. Chỉ kiểm mục liên quan stack đang dùng.
-Phát hiện lỗ hổng → sửa ngay (Quy tắc sai lệch 1-2), ghi CODE_REPORT mục "Sai lệch".
+Run checklist on files just created/modified. Only check items relevant to current stack.
+Vulnerability found → fix immediately (Deviation Rules 1-2), record in CODE_REPORT under "Deviations".
 
-### 1. Secrets — mọi stack
+### 1. Secrets — all stacks
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| Hardcode mật khẩu/key/token trong code | Grep `password\|secret\|api_key\|token\|private_key` trong source — nếu gán giá trị chuỗi cố định (không phải biến env) | Chuyển sang biến môi trường + thêm key vào `.env.example` |
-| Commit file nhạy cảm | Kiểm tra `git diff --cached` có chứa `.env`, `*.pem`, `*.key` | Bỏ khỏi staging, thêm vào `.gitignore` |
-| Log chứa dữ liệu nhạy cảm | Grep `console.log\|logger\.\|print\(` gần biến password/token | Xóa hoặc thay bằng `***` |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| Hardcoded password/key/token in code | Grep `password\|secret\|api_key\|token\|private_key` in source — if assigning fixed string value (not env variable) | Move to environment variable + add key to `.env.example` |
+| Committing sensitive files | Check `git diff --cached` contains `.env`, `*.pem`, `*.key` | Remove from staging, add to `.gitignore` |
+| Logs containing sensitive data | Grep `console.log\|logger\.\|print\(` near password/token variables | Remove or replace with `***` |
 
 ### 2. Injection — backend + database
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| SQL injection | Query nối chuỗi user input: `` `SELECT * FROM ${table} WHERE id = ${id}` `` | Dùng parameterized: `$wpdb->prepare()` (WP), `@Param` (TypeORM), `$1` (Prisma raw) |
-| NoSQL injection | MongoDB query nhận object từ user: `{ username: req.body.username }` mà không validate type | Validate type trước: `typeof input === 'string'` |
-| Command injection | `exec()`, `execSync()`, `child_process` nhận user input | Dùng `execFile()` với mảng args, KHÔNG nối chuỗi |
-| `eval()` / `Function()` | Grep `eval\(\|new Function\(` nhận input động | Thay bằng JSON.parse, switch-case, hoặc cách khác |
-| SSRF | `fetch()`/`axios`/`http.get()` nhận URL từ user input | Validate URL: whitelist domains, block private IPs (127.0.0.1, 10.x, 192.168.x, 169.254.x), chỉ HTTPS |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| SQL injection | Query concatenating user input: `` `SELECT * FROM ${table} WHERE id = ${id}` `` | Use parameterized: `$wpdb->prepare()` (WP), `@Param` (TypeORM), `$1` (Prisma raw) |
+| NoSQL injection | MongoDB query receiving object from user: `{ username: req.body.username }` without type validation | Validate type first: `typeof input === 'string'` |
+| Command injection | `exec()`, `execSync()`, `child_process` receiving user input | Use `execFile()` with args array, DO NOT concatenate strings |
+| `eval()` / `Function()` | Grep `eval\(\|new Function\(` receiving dynamic input | Replace with JSON.parse, switch-case, or alternatives |
+| SSRF | `fetch()`/`axios`/`http.get()` receiving URL from user input | Validate URL: whitelist domains, block private IPs (127.0.0.1, 10.x, 192.168.x, 169.254.x), HTTPS only |
 
 ### 3. XSS — frontend + CMS
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| `dangerouslySetInnerHTML` không sanitize | Grep `dangerouslySetInnerHTML` — data từ API/user mà không qua DOMPurify | Thêm `DOMPurify.sanitize()` trước khi render |
-| Echo raw data (WordPress) | Grep `echo \$\|print \$` mà không có `esc_html\|esc_attr\|esc_url` phía trước | Wrap bằng hàm escape phù hợp |
-| Template injection | User input hiển thị trong HTML attribute mà không escape | Dùng `esc_attr()` (WP), template engine auto-escape (React JSX tự escape) |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| `dangerouslySetInnerHTML` without sanitize | Grep `dangerouslySetInnerHTML` — data from API/user without DOMPurify | Add `DOMPurify.sanitize()` before rendering |
+| Echo raw data (WordPress) | Grep `echo \$\|print \$` without `esc_html\|esc_attr\|esc_url` preceding | Wrap with appropriate escape function |
+| Template injection | User input displayed in HTML attribute without escaping | Use `esc_attr()` (WP), template engine auto-escape (React JSX auto-escapes) |
 
 ### 3.5. NextJS / React frontend
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| Server Action nhận input không validate | Grep `'use server'` → kiểm tra function params có validate (zod/class-validator) trước khi xử lý | Thêm schema validation (zod) ở đầu mỗi Server Action |
-| URL query/params injection | `searchParams` hoặc `params` dùng trực tiếp trong query/redirect mà không validate | Validate + sanitize trước khi dùng: `z.string().parse()`, whitelist redirect URLs |
-| Client-side auth bypass | Logic ẩn/hiện UI dựa trên state client mà không check server-side | BẮT BUỘC check quyền ở server (middleware/API), UI chỉ là UX — không phải security |
-| Sensitive data trong client bundle | Grep `process.env` trong files không có `'use server'` — env vars lộ ra client | Chỉ dùng `NEXT_PUBLIC_` prefix cho env client, sensitive vars chỉ trong Server Components/Actions |
-| `fetch` thiếu error handling | `fetch()` không check `response.ok` hoặc thiếu try-catch | Wrap trong try-catch, check `response.ok`, hiển thị error state thay vì crash |
-| Open redirect | `redirect()` hoặc `router.push()` nhận URL từ user input | Validate URL thuộc whitelist domains, hoặc chỉ relative paths |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| Server Action receives unvalidated input | Grep `'use server'` → check if function params are validated (zod/class-validator) before processing | Add schema validation (zod) at start of each Server Action |
+| URL query/params injection | `searchParams` or `params` used directly in query/redirect without validation | Validate + sanitize before use: `z.string().parse()`, whitelist redirect URLs |
+| Client-side auth bypass | UI show/hide logic based on client state without server-side check | MANDATORY server-side permission check (middleware/API), UI is just UX — not security |
+| Sensitive data in client bundle | Grep `process.env` in files without `'use server'` — env vars exposed to client | Only use `NEXT_PUBLIC_` prefix for client env, sensitive vars only in Server Components/Actions |
+| `fetch` without error handling | `fetch()` not checking `response.ok` or missing try-catch | Wrap in try-catch, check `response.ok`, show error state instead of crashing |
+| Open redirect | `redirect()` or `router.push()` receiving URL from user input | Validate URL belongs to whitelisted domains, or use relative paths only |
 
-### 4. Xác thực & phân quyền — backend
+### 4. Authentication & Authorization — backend
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| API endpoint thiếu guard/middleware | Endpoint mới không có `@UseGuards` (NestJS), `current_user_can()` (WP), middleware auth | Thêm guard/middleware phù hợp |
-| Thiếu kiểm tra ownership | Endpoint sửa/xóa resource — chỉ check đăng nhập, không check user sở hữu resource | Thêm check `resource.userId === currentUser.id` |
-| Thiếu rate limiting | Endpoint đăng nhập/đăng ký/quên mật khẩu/OTP không giới hạn tần suất | Thêm throttle: `@Throttle()` (NestJS), plugin (WP), middleware |
-| Password lộ trong response | API trả về object user có trường password | Strip password: `delete user.password`, DTO exclude |
-| Leo quyền (privilege escalation) | User tự thay đổi role/quyền qua API | Tách endpoint thay đổi quyền, chỉ admin gọi được, verify role phía server |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| API endpoint missing guard/middleware | New endpoint without `@UseGuards` (NestJS), `current_user_can()` (WP), auth middleware | Add appropriate guard/middleware |
+| Missing ownership check | Endpoint modifies/deletes resource — only checks login, not user ownership | Add check `resource.userId === currentUser.id` |
+| Missing rate limiting | Login/register/forgot-password/OTP endpoint without rate limiting | Add throttle: `@Throttle()` (NestJS), plugin (WP), middleware |
+| Password exposed in response | API returns user object with password field | Strip password: `delete user.password`, DTO exclude |
+| Privilege escalation | User self-changes role/permissions via API | Separate permission-change endpoint, admin-only, verify role server-side |
 
-### 5. CSRF & token — frontend + backend
+### 5. CSRF & tokens — frontend + backend
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| Token lưu localStorage/sessionStorage | Grep `localStorage.setItem\|sessionStorage.setItem` kèm token/jwt | Chuyển sang httpOnly cookie hoặc memory (Zustand store) |
-| Form thay đổi dữ liệu thiếu CSRF | Form POST/PUT/DELETE không có nonce (WP) hoặc CSRF token | WP: `wp_nonce_field()`. SPA: backend set CSRF cookie + frontend gửi header |
-| Token gửi qua URL query | Grep `\?token=\|&token=` trong API call | Chuyển sang header `Authorization: Bearer` |
-| External link thiếu rel | Grep `target="_blank"` không kèm `rel="noopener noreferrer"` | Thêm `rel="noopener noreferrer"` |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| Token stored in localStorage/sessionStorage | Grep `localStorage.setItem\|sessionStorage.setItem` with token/jwt | Switch to httpOnly cookie or memory (Zustand store) |
+| Data-changing form missing CSRF | POST/PUT/DELETE form without nonce (WP) or CSRF token | WP: `wp_nonce_field()`. SPA: backend sets CSRF cookie + frontend sends header |
+| Token sent via URL query | Grep `\?token=\|&token=` in API calls | Switch to `Authorization: Bearer` header |
+| External link missing rel | Grep `target="_blank"` without `rel="noopener noreferrer"` | Add `rel="noopener noreferrer"` |
 
-### 6. Solidity — smart contract
+### 6. Solidity — smart contracts
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| Transfer thiếu `nonReentrant` | Function có `.call{value:}` hoặc `.safeTransfer` mà không có modifier `nonReentrant` | Thêm `nonReentrant` modifier |
-| Admin function thiếu access control | Function thay đổi state nhạy cảm mà không có `onlyOwner`/`onlyRole` | Thêm modifier phù hợp |
-| `tx.origin` dùng cho xác thực | Grep `tx.origin` | Thay bằng `msg.sender` |
-| Thiếu input validation | Function nhận amount/qty mà không check `> 0`, address mà không check `!= address(0)` | Thêm require checks |
-| Loop unbounded array | Vòng lặp qua storage array không giới hạn length | Thêm `require(arr.length <= MAX)` hoặc phân trang |
-| Thiếu rescue functions | Contract nhận token/ETH mà không có `clearUnknownToken`/`rescueETH` | Thêm rescue functions (xem solidity.md) |
-| Thiếu slippage protection | Swap/trade function không có `_minAmountOut` parameter | Thêm slippage parameter |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| Transfer missing `nonReentrant` | Function has `.call{value:}` or `.safeTransfer` without `nonReentrant` modifier | Add `nonReentrant` modifier |
+| Admin function missing access control | Function changes sensitive state without `onlyOwner`/`onlyRole` | Add appropriate modifier |
+| `tx.origin` used for authentication | Grep `tx.origin` | Replace with `msg.sender` |
+| Missing input validation | Function receives amount/qty without checking `> 0`, address without checking `!= address(0)` | Add require checks |
+| Unbounded array loop | Loop over storage array without length limit | Add `require(arr.length <= MAX)` or pagination |
+| Missing rescue functions | Contract receives token/ETH without `clearUnknownToken`/`rescueETH` | Add rescue functions (see solidity.md) |
+| Missing slippage protection | Swap/trade function without `_minAmountOut` parameter | Add slippage parameter |
 
 ### 7. Flutter / Mobile
 
-| Kiểm tra | Cách phát hiện | Cách sửa |
-|----------|---------------|---------|
-| Token lưu SharedPreferences | Grep `GetStorage\|SharedPreferences` kèm token/password | Chuyển sang `flutter_secure_storage` |
-| Hardcode API URL | Grep `http://\|https://` trực tiếp trong source (không qua env) | Chuyển sang `flutter_dotenv` hoặc `--dart-define` |
-| Notification payload không validate | Navigate trực tiếp từ raw notification data | Validate payload type + giá trị trước khi navigate |
-| Debug mode trong release | Grep `kDebugMode\|debugPrint` trong code production | Wrap trong `if (kDebugMode)` hoặc xóa |
+| Check | How to detect | How to fix |
+|-------|--------------|-----------|
+| Token stored in SharedPreferences | Grep `GetStorage\|SharedPreferences` with token/password | Switch to `flutter_secure_storage` |
+| Hardcoded API URL | Grep `http://\|https://` directly in source (not via env) | Switch to `flutter_dotenv` or `--dart-define` |
+| Notification payload not validated | Navigating directly from raw notification data | Validate payload type + value before navigation |
+| Debug mode in release | Grep `kDebugMode\|debugPrint` in production code | Wrap in `if (kDebugMode)` or remove |
 
-### 8. Thư viện mới
+### 8. New Libraries
 
-Khi thêm package/dependency mới:
+When adding new package/dependency:
 
-| Kiểm tra | Cách xác minh |
-|----------|--------------|
-| Thư viện có được duy trì | Tra Context7 hoặc npm/pub.dev — commit gần đây < 1 năm |
-| Lỗ hổng đã biết | `npm audit` (Node), `pip audit` (Python), pub.dev advisories (Flutter) |
-| Phạm vi quyền | Package yêu cầu quyền bất thường (network, file system, native code) → ghi chú trong CODE_REPORT |
+| Check | How to verify |
+|-------|--------------|
+| Library is maintained | Check Context7 or npm/pub.dev — recent commit < 1 year |
+| Known vulnerabilities | `npm audit` (Node), `pip audit` (Python), pub.dev advisories (Flutter) |
+| Permission scope | Package requires unusual permissions (network, file system, native code) → note in CODE_REPORT |
 
-Không xác minh được → ghi CODE_REPORT: "Thêm thư viện [tên] — chưa kiểm tra CVE, cần user verify."
+Cannot verify → record in CODE_REPORT: "Added library [name] — CVE not checked, needs user verification."
 
 ---
 
-## Phần E: Review bảo mật tổng thể (Bước 6.5b — sau bảng kiểm kỹ thuật)
+## Part E: Overall Security Review (Step 6.5b — after technical checklist)
 
-### E1. Phương pháp review
+### E1. Review Method
 
-1. **Suy nghĩ như kẻ tấn công** theo ngữ cảnh:
+1. **Think like an attacker** according to context:
    - PUBLIC: injection, brute force, enumeration, spam, data scraping
-   - ADMIN: leo quyền, thay đổi cấu hình, xóa dữ liệu
-   - INTERNAL: gửi dữ liệu sai, bypass validation, khai thác sai cấu hình
+   - ADMIN: privilege escalation, configuration changes, data deletion
+   - INTERNAL: sending incorrect data, bypassing validation, exploiting misconfiguration
 
-2. **Kịch bản lạm dụng nghiệp vụ:**
-   - Spam: request lặp lại gây tốn tài nguyên
-   - Bypass: bỏ qua thanh toán/verification
-   - Race condition: 2 request đồng thời → trừ tiền 1 lần, nhận 2 lần
-   - Replay: gửi lại request cũ (đặc biệt blockchain)
-   - Data leakage: lộ qua error message, response thừa field, timing
-   - Enumeration: đoán ID/email qua response khác nhau
+2. **Business logic abuse scenarios:**
+   - Spam: repeated requests consuming resources
+   - Bypass: skipping payment/verification
+   - Race condition: 2 concurrent requests → charged once, received twice
+   - Replay: resending old requests (especially blockchain)
+   - Data leakage: exposure via error messages, extra response fields, timing
+   - Enumeration: guessing ID/email through different responses
 
-3. **Verify phòng thủ khớp ngữ cảnh:**
-   - Phòng thủ PHẢI tương xứng mức rủi ro (PUBLIC + CAO = phòng thủ mạnh nhất)
-   - Kiểm tra cụ thể cho code vừa viết, KHÔNG checklist chung chung
+3. **Verify defenses match context:**
+   - Defenses MUST match risk level (PUBLIC + HIGH = strongest defense)
+   - Check specifically for code just written, NOT generic checklist
 
-### E2. Ngưỡng tối thiểu
+### E2. Minimum Threshold
 
-Review phát hiện <3 rủi ro cho endpoint PUBLIC hoặc dữ liệu CAO → chưa đủ sâu, tiếp tục.
+Review finds <3 risks for PUBLIC endpoint or HIGH data → not deep enough, continue.
 
-### E3. Ghi kết quả vào CODE_REPORT
+### E3. Record Results in CODE_REPORT
 
 ```markdown
-## Review bảo mật
-> Ngữ cảnh: [PUBLIC|ADMIN|INTERNAL] | Dữ liệu: [CAO|TRUNG BÌNH|THẤP] | Auth: [JWT|SESSION|API_KEY|SIGNATURE|NONE]
+## Security Review
+> Context: [PUBLIC|ADMIN|INTERNAL] | Data: [HIGH|MEDIUM|LOW] | Auth: [JWT|SESSION|API_KEY|SIGNATURE|NONE]
 
-### Rủi ro đã xử lý
-| # | Rủi ro | Cách xử lý | Files |
-|---|--------|-----------|-------|
-| 1 | [mô tả] | [biện pháp đã áp dụng] | [files] |
+### Risks Handled
+| # | Risk | How handled | Files |
+|---|------|------------|-------|
+| 1 | [description] | [measures applied] | [files] |
 
-### Giả định + giới hạn còn lại
-- [giả định bảo mật — VD: "giả định API gateway đã rate limit"]
-- [rủi ro chấp nhận — VD: "chưa có audit log, cần bổ sung sau"]
+### Assumptions + Remaining Limitations
+- [security assumption — e.g.: "assumed API gateway already rate limits"]
+- [accepted risk — e.g.: "no audit log yet, needs to be added later"]
 ```
 
 ---
 
-> Bảng kiểm này KHÔNG thay thế rules bảo mật chuyên sâu trong `.planning/rules/[stack].md`. Nó là lớp phân tích ngữ cảnh + kiểm tra nhanh cuối cùng trước khi commit — bắt các lỗ hổng phổ biến mà AI dễ tạo ra.
+> This checklist DOES NOT replace in-depth security rules in `.planning/rules/[stack].md`. It is a context analysis layer + final quick check before commit — catching common vulnerabilities that AI tends to create.

@@ -1,208 +1,208 @@
-# UI & Brand — Hướng dẫn sản phẩm cho Planning & Design
+# UI & Brand — Product Guide for Planning & Design
 
-> Dùng bởi: `/pd:new-milestone`, `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone`
-> 3 lớp: (1) product framing, (2) design continuity, (3) UX cho feature mới chưa có UI
+> Used by: `/pd:new-milestone`, `/pd:plan`, `/pd:write-code`, `/pd:complete-milestone`
+> 3 layers: (1) product framing, (2) design continuity, (3) UX for new features without UI
 
 ---
 
-## Lớp 1: Product Framing
+## Layer 1: Product Framing
 
-> Áp dụng khi: viết REQUIREMENTS, ROADMAP, PLAN, MILESTONE_COMPLETE
+> Apply when: writing REQUIREMENTS, ROADMAP, PLAN, MILESTONE_COMPLETE
 
-### Nguyên tắc cốt lõi
+### Core Principles
 
-**Mọi output phải trả lời: "User được gì?"**
-Luôn framing từ góc nhìn user cuối. Không mô tả được lợi ích → hỏi: "Tại sao user cần?"
+**Every output must answer: "What does the user get?"**
+Always frame from end-user perspective. Cannot describe the benefit → ask: "Why does the user need this?"
 
-### Viết requirements
+### Writing requirements
 
-Format: `[MÃ]-[SỐ]: Người dùng có thể [hành động] để [mục đích/lợi ích]`
+Format: `[CODE]-[NUM]: User can [action] to [purpose/benefit]`
 
-| Xấu (tech-focused) | Tốt (user-focused) |
+| Bad (tech-focused) | Good (user-focused) |
 |-----|-----|
-| "Tạo API endpoint login" | "Người dùng có thể đăng nhập bằng email" |
-| "Setup Redis caching" | "Trang tải trong dưới 2 giây" |
-| "Implement WebSocket" | "Người dùng thấy tin nhắn mới ngay lập tức" |
-| "Thêm middleware xác thực JWT" | "Chỉ người đã đăng nhập mới xem được trang quản lý" |
-| "Triển khai smart contract ERC20" | "Người dùng có thể chuyển token giữa các ví" |
-| "Cấu hình GetX bindings" | "Ứng dụng mở nhanh, chuyển trang mượt mà" |
+| "Create login API endpoint" | "User can log in with email" |
+| "Setup Redis caching" | "Page loads in under 2 seconds" |
+| "Implement WebSocket" | "User sees new messages instantly" |
+| "Add JWT authentication middleware" | "Only logged-in users can view admin pages" |
+| "Deploy ERC20 smart contract" | "User can transfer tokens between wallets" |
+| "Configure GetX bindings" | "App opens fast, smooth page transitions" |
 
-### Tiêu chí thành công
+### Success criteria
 
-Format: `[Ai] có thể [hành động] → [kết quả quan sát được]`
+Format: `[Who] can [action] → [observable result]`
 
-| Xấu | Tốt |
+| Bad | Good |
 |-----|-----|
-| "API trả về 200 OK" | "Đăng nhập thành công → chuyển về trang chủ trong 1 giây" |
-| "Database có đúng schema" | "Tạo tài khoản mới → thấy ngay trong danh sách quản trị" |
-| "Contract deploy thành công" | "Người dùng gửi token → số dư cập nhật đúng trong 15 giây" |
+| "API returns 200 OK" | "Login succeeds → redirects to homepage within 1 second" |
+| "Database has correct schema" | "Create new account → appears immediately in admin list" |
+| "Contract deploys successfully" | "User sends token → balance updates correctly within 15 seconds" |
 
-### Phase = Kết quả sản phẩm
+### Phase = Product outcome
 
-| Xấu | Tốt |
+| Bad | Good |
 |-----|-----|
-| "Setup NestJS modules + entities" | "Quản lý tài khoản cơ bản (đăng ký, đăng nhập, hồ sơ)" |
-| "Implement auth middleware" | "Bảo mật: chỉ người có quyền truy cập chức năng tương ứng" |
+| "Setup NestJS modules + entities" | "Basic account management (register, login, profile)" |
+| "Implement auth middleware" | "Security: only authorized users access corresponding features" |
 
-### Tính nhất quán
+### Consistency
 
-- Giữ nhất quán tên gọi: REQUIREMENTS → ROADMAP → PLAN → TASKS → MILESTONE_COMPLETE
-- Nhóm tính năng theo **luồng người dùng**, KHÔNG theo kiến trúc kỹ thuật
-- CHANGELOG viết ngôn ngữ user — "Sửa lỗi: đăng nhập bị chậm", không phải "Fix: connection pool exhaustion"
+- Keep naming consistent: REQUIREMENTS → ROADMAP → PLAN → TASKS → MILESTONE_COMPLETE
+- Group features by **user flow**, NOT by technical architecture
+- CHANGELOG uses user language — "Fixed: slow login", not "Fix: connection pool exhaustion"
 
 ### Scope control
 
-- Phase 1 = bản tối giản — chỉ chức năng cốt lõi
-- Phase >6 deliverables → quá lớn, chia nhỏ
-- Deliverable chứa "và" → tách 2
-- "Tương lai sẽ cần" → hoãn, ghi "Yêu cầu tương lai"
+- Phase 1 = minimal version — core functionality only
+- Phase >6 deliverables → too large, split
+- Deliverable contains "and" → split into 2
+- "Will need in the future" → defer, note as "Future requirements"
 
 ---
 
-## Lớp 2: Design Continuity — Kế thừa thiết kế có sẵn
+## Layer 2: Design Continuity — Inheriting Existing Design
 
-> Áp dụng khi: dự án ĐÃ CÓ UI/UX, cần mở rộng/nâng cấp
+> Apply when: project ALREADY HAS UI/UX, needs extension/upgrade
 
-### Nguyên tắc
+### Principles
 
-**Kế thừa trước, đề xuất mới sau.**
-Dự án đã có thiết kế → feature mới PHẢI ưu tiên tái sử dụng pattern hiện tại.
+**Inherit first, propose new later.**
+Project already has design → new features MUST prioritize reusing existing patterns.
 
-### Trước khi thiết kế feature mới
+### Before designing new features
 
-| # | Câu hỏi | Hành động |
-|---|---------|-----------|
-| 1 | Feature tương tự đã tồn tại? | Grep/FastCode tìm component/page/flow tương tự → tái sử dụng |
-| 2 | Layout nào đang dùng cho loại trang này? | Đọc code UI → giữ nguyên grid/spacing/hierarchy |
-| 3 | Navigation pattern hiện tại? | Sidebar? Tab? Breadcrumb? → dùng cùng pattern |
-| 4 | Form pattern hiện tại? | Label position, validation display, submit flow → giữ nhất quán |
-| 5 | Bảng/danh sách dùng gì? | Pagination? Infinite scroll? Filter? → tái sử dụng |
-| 6 | Feedback pattern (toast, modal, inline)? | Tìm pattern success/error → dùng lại |
+| # | Question | Action |
+|---|---------|--------|
+| 1 | Does a similar feature already exist? | Grep/FastCode to find similar component/page/flow → reuse |
+| 2 | What layout is used for this page type? | Read UI code → maintain same grid/spacing/hierarchy |
+| 3 | Current navigation pattern? | Sidebar? Tab? Breadcrumb? → use same pattern |
+| 4 | Current form pattern? | Label position, validation display, submit flow → keep consistent |
+| 5 | What do tables/lists use? | Pagination? Infinite scroll? Filter? → reuse |
+| 6 | Feedback pattern (toast, modal, inline)? | Find success/error pattern → reuse |
 
-### Quy tắc
+### Rules
 
-- **KHÔNG tạo component layout mới** nếu đã có tương tự
-- **KHÔNG thay đổi navigation structure** trừ khi user yêu cầu
-- **KHÔNG đổi design system** (colors, spacing, typography) — dùng token/theme hiện có
-- Feature mới BUỘC tạo pattern mới → ghi PLAN.md "Quyết định thiết kế" + giải thích tại sao
+- **DO NOT create new layout component** if similar already exists
+- **DO NOT change navigation structure** unless user requests
+- **DO NOT change design system** (colors, spacing, typography) — use existing tokens/theme
+- New feature REQUIRES new pattern → record in PLAN.md "Design Decision" + explain why
 
-### Ghi nhận design patterns vào PLAN.md
+### Record design patterns in PLAN.md
 
-Khi plan phase có UI, section "Thiết kế kỹ thuật" PHẢI ghi:
+When planning a phase with UI, "Technical Design" section MUST include:
 
 ```markdown
-### UI — Kế thừa patterns
-| Pattern | Tham khảo từ | Áp dụng cho |
-|---------|-------------|-------------|
-| Form layout | src/pages/users/create.tsx | Trang tạo [X] mới |
-| Table + filter | src/components/DataTable.tsx | Danh sách [X] |
-| Detail page | src/pages/orders/[id].tsx | Chi tiết [X] |
+### UI — Inherited Patterns
+| Pattern | Referenced from | Applied to |
+|---------|----------------|-----------|
+| Form layout | src/pages/users/create.tsx | New [X] creation page |
+| Table + filter | src/components/DataTable.tsx | [X] listing |
+| Detail page | src/pages/orders/[id].tsx | [X] detail |
 
-### UI — Pattern mới (nếu có)
-| Pattern | Lý do không tái sử dụng | Mô tả |
-|---------|------------------------|-------|
+### UI — New Patterns (if any)
+| Pattern | Reason for not reusing | Description |
+|---------|----------------------|-------------|
 ```
 
 ---
 
-## Lớp 3: UX Gaps — Feature mới chưa có UI/UX
+## Layer 3: UX Gaps — New Features Without UI/UX
 
-> Áp dụng khi: feature chưa từng tồn tại, chưa có mockup/wireframe
+> Apply when: feature never existed before, no mockup/wireframe
 
-### Nguyên tắc
+### Principles
 
-**Không có designer → AI phải tự xét đủ trạng thái trước khi code.**
+**No designer → AI must consider all states before coding.**
 
-### UX Checklist bắt buộc cho mỗi feature mới
+### Mandatory UX Checklist for each new feature
 
-`/pd:plan` thiết kế feature chưa có UI → PHẢI xét 7 khía cạnh:
+`/pd:plan` designing feature without UI → MUST consider 7 aspects:
 
-| # | Khía cạnh | Câu hỏi cần trả lời | Ghi vào |
-|---|-----------|---------------------|---------|
-| 1 | **Entry point** | User vào feature này từ đâu? Menu? Link? Redirect? Push notification? | PLAN.md — Thiết kế kỹ thuật |
-| 2 | **Main action (CTA)** | Hành động chính trên trang là gì? Nút nào nổi bật nhất? | PLAN.md — Thiết kế kỹ thuật |
-| 3 | **Empty state** | Khi chưa có dữ liệu thì hiện gì? Hướng dẫn user tạo item đầu tiên? | TASKS.md — tiêu chí chấp nhận |
-| 4 | **Loading state** | Khi đang tải dữ liệu hiện gì? Skeleton? Spinner? Placeholder? | TASKS.md — tiêu chí chấp nhận |
-| 5 | **Error state** | Khi lỗi xảy ra hiện gì? Retry? Thông báo cụ thể? Fallback? | TASKS.md — tiêu chí chấp nhận |
-| 6 | **Permission/Role state** | Ai được thấy feature này? Ai không? Khi không có quyền hiện gì? | PLAN.md — Guards/Middleware |
-| 7 | **Responsive** | Mobile khác desktop thế nào? Bảng → stack? Menu → hamburger? | PLAN.md — Thiết kế kỹ thuật |
+| # | Aspect | Question to answer | Record in |
+|---|--------|-------------------|-----------|
+| 1 | **Entry point** | Where does user enter this feature? Menu? Link? Redirect? Push notification? | PLAN.md — Technical Design |
+| 2 | **Main action (CTA)** | What is the main action on the page? Which button is most prominent? | PLAN.md — Technical Design |
+| 3 | **Empty state** | What shows when no data? Guide user to create first item? | TASKS.md — acceptance criteria |
+| 4 | **Loading state** | What shows while loading? Skeleton? Spinner? Placeholder? | TASKS.md — acceptance criteria |
+| 5 | **Error state** | What shows on error? Retry? Specific message? Fallback? | TASKS.md — acceptance criteria |
+| 6 | **Permission/Role state** | Who can see this feature? Who cannot? What shows without permission? | PLAN.md — Guards/Middleware |
+| 7 | **Responsive** | How does mobile differ from desktop? Table → stack? Menu → hamburger? | PLAN.md — Technical Design |
 
-### Điều chỉnh theo stack
+### Stack-specific adjustments
 
-**Backend-only (NestJS API):** Bỏ Lớp 2+3. Lớp 1 vẫn áp dụng.
+**Backend-only (NestJS API):** Skip Layers 2+3. Layer 1 still applies.
 
 **Solidity:**
 
-| # | Khía cạnh | Câu hỏi | Ghi vào |
-|---|-----------|---------|---------|
-| 1 | **Wallet interaction** | User kết nối ví thế nào? MetaMask? WalletConnect? | PLAN.md |
+| # | Aspect | Question | Record in |
+|---|--------|---------|-----------|
+| 1 | **Wallet interaction** | How does user connect wallet? MetaMask? WalletConnect? | PLAN.md |
 | 2 | **Transaction flow** | Approve → send → confirm → receipt? Gas estimation? | PLAN.md |
-| 3 | **Pending state** | Transaction pending hiện gì? Tx hash? Loading? | TASKS.md |
-| 4 | **Revert/Error state** | Tx revert hiện gì? Parse revert reason? | TASKS.md |
-| 5 | **Permission/Role** | Ai gọi function? onlyOwner? Role-based? Wallet rejected? | PLAN.md |
+| 3 | **Pending state** | What shows while transaction pending? Tx hash? Loading? | TASKS.md |
+| 4 | **Revert/Error state** | What shows on tx revert? Parse revert reason? | TASKS.md |
+| 5 | **Permission/Role** | Who calls function? onlyOwner? Role-based? Wallet rejected? | PLAN.md |
 
 **Flutter:**
-- 7 khía cạnh web áp dụng, điều chỉnh:
+- 7 web aspects apply, adjust:
   - **Responsive** → **Platform-specific**: iOS vs Android (navigation bar, back gesture, permissions)
-  - **Entry point** → bao gồm: deep link, push notification, widget/shortcut
-  - Thêm: **Offline state** — mất mạng hiện gì? Cache? Retry?
+  - **Entry point** → includes: deep link, push notification, widget/shortcut
+  - Add: **Offline state** — what shows when offline? Cache? Retry?
 
 **WordPress:**
-- 7 khía cạnh áp dụng, điều chỉnh:
+- 7 aspects apply, adjust:
   - **Entry point** → admin menu position, plugin settings, block inserter
-  - **Empty state** → activation state (plugin vừa activate, chưa config)
-  - Thêm: **Block editor integration** — block preview? Sidebar inspector? Placeholder?
+  - **Empty state** → activation state (plugin just activated, not configured)
+  - Add: **Block editor integration** — block preview? Sidebar inspector? Placeholder?
 
-### Câu hỏi nâng cao (feature phức tạp)
+### Advanced questions (complex features)
 
-| # | Khía cạnh | Câu hỏi |
-|---|-----------|---------|
-| 8 | **Cognitive load** | Feature mới làm trang quá tải? Cần tách trang? |
-| 9 | **Vị trí trong flow** | Nằm đâu trong luồng user? Trước/sau bước nào? |
-| 10 | **Phá pattern** | Phá cách user đã quen? Cần migration path? |
-| 11 | **Onboarding** | User mới hiểu không? Cần tooltip/guide? |
-| 12 | **Undo/Cancel** | Hoàn tác được không? Destructive → confirm dialog |
+| # | Aspect | Question |
+|---|--------|---------|
+| 8 | **Cognitive load** | Does new feature overload the page? Need to split? |
+| 9 | **Position in flow** | Where in user flow? Before/after which step? |
+| 10 | **Breaking pattern** | Breaks what user is used to? Need migration path? |
+| 11 | **Onboarding** | Will new user understand? Need tooltip/guide? |
+| 12 | **Undo/Cancel** | Can it be undone? Destructive → confirm dialog |
 
-### Cách tích hợp vào workflow
+### Workflow integration
 
-**`/pd:plan` (Bước 4):** Feature chưa có UI → xét 7 khía cạnh → ghi PLAN.md `### UX States`. Không quyết định được → "Lưu ý kỹ thuật", gợi ý user cung cấp mockup.
+**`/pd:plan` (Step 4):** Feature without UI → consider 7 aspects → record in PLAN.md `### UX States`. Cannot decide → "Technical Note", suggest user provide mockup.
 
-**`/pd:write-code` (Bước 2):** Đọc `UX States` trong PLAN.md → mỗi state PHẢI có code. PLAN.md thiếu → cảnh báo + tự bổ sung.
+**`/pd:write-code` (Step 2):** Read `UX States` in PLAN.md → each state MUST have code. PLAN.md missing → warn + self-supplement.
 
-**Format trong PLAN.md:**
+**Format in PLAN.md:**
 
 ```markdown
-### UX States — [Tên feature]
-| State | Hiển thị | Hành động user |
-|-------|---------|---------------|
-| Empty | [mô tả: illustration + CTA "Tạo [X] đầu tiên"] | Bấm CTA → form tạo mới |
-| Loading | [mô tả: skeleton/spinner] | Chờ |
-| Error | [mô tả: thông báo + nút "Thử lại"] | Bấm retry |
-| No permission | [mô tả: thông báo "Bạn không có quyền"] | Quay lại trang trước |
-| Success | [mô tả: toast/redirect] | Tiếp tục flow |
+### UX States — [Feature name]
+| State | Display | User action |
+|-------|---------|------------|
+| Empty | [description: illustration + CTA "Create first [X]"] | Click CTA → create form |
+| Loading | [description: skeleton/spinner] | Wait |
+| Error | [description: message + "Retry" button] | Click retry |
+| No permission | [description: message "You don't have permission"] | Go back to previous page |
+| Success | [description: toast/redirect] | Continue flow |
 
-Entry point: [Menu sidebar → mục "Quản lý X"]
-Main CTA: [Nút "Tạo mới" góc phải trên]
-Responsive: [Mobile: bảng → card list, filter → bottom sheet]
+Entry point: [Sidebar menu → "Manage X" item]
+Main CTA: ["Create new" button top-right corner]
+Responsive: [Mobile: table → card list, filter → bottom sheet]
 ```
 
 ---
 
-## Checklist tổng hợp
+## Summary Checklist
 
-### Trước khi duyệt Roadmap
-- [ ] Mỗi requirement hướng user ("Người dùng có thể...")
-- [ ] Tiêu chí thành công demo được
-- [ ] Tên nhất quán xuyên suốt documents
-- [ ] Phase 1 đủ nhỏ
+### Before approving Roadmap
+- [ ] Each requirement is user-oriented ("User can...")
+- [ ] Success criteria are demonstrable
+- [ ] Names consistent throughout documents
+- [ ] Phase 1 is small enough
 
-### Trước khi duyệt Plan
-- [ ] **Lớp 2**: Patterns UI hiện có đã được liệt kê và tái sử dụng
-- [ ] **Lớp 3**: Feature mới có đủ 7 UX states (empty/loading/error/permission/responsive/entry/CTA)
-- [ ] Pattern mới (nếu có) giải thích được lý do không tái sử dụng
-- [ ] Cognitive load không tăng quá mức cho trang hiện tại
+### Before approving Plan
+- [ ] **Layer 2**: Existing UI patterns listed and reused
+- [ ] **Layer 3**: New features have all 7 UX states (empty/loading/error/permission/responsive/entry/CTA)
+- [ ] New patterns (if any) explain why existing ones cannot be reused
+- [ ] Cognitive load does not increase excessively for current page
 
-### Trước khi code
-- [ ] UX States trong PLAN.md đã có code tương ứng
-- [ ] Empty/Loading/Error state không bị bỏ quên
-- [ ] Responsive đã xử lý (nếu có frontend)
+### Before coding
+- [ ] UX States in PLAN.md have corresponding code
+- [ ] Empty/Loading/Error states not forgotten
+- [ ] Responsive handled (if frontend)

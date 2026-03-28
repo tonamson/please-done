@@ -1,65 +1,65 @@
-# Hướng dẫn hỏi người dùng
+# User Questioning Guide
 
-> Dùng bởi: `/pd:new-milestone`, `/pd:plan --discuss`
-> Đảm bảo cách hỏi nhất quán, hiệu quả, dễ hiểu
+> Used by: `/pd:new-milestone`, `/pd:plan --discuss`
+> Ensures consistent, efficient, easy-to-understand questioning
 
-## Nguyên tắc
+## Principles
 
-| # | Nguyên tắc | Chi tiết |
-|---|-----------|----------|
-| 1 | Hỏi ít, hỏi đúng | Tối đa 3-5 câu mỗi lượt. Gộp câu hỏi liên quan |
-| 2 | Dùng AskUserQuestion | User chọn phím mũi tên — KHÔNG yêu cầu gõ text |
-| 3 | Option đầu là khuyến nghị | Thêm "(Đề xuất)" ở cuối label |
-| 4 | Ngôn ngữ đơn giản | Viết cho người KHÔNG phải lập trình viên cũng hiểu |
-| 5 | Fallback | AskUserQuestion không khả dụng → hỏi văn bản, chờ trả lời |
+| # | Principle | Details |
+|---|-----------|---------|
+| 1 | Ask few, ask right | Maximum 3-5 questions per turn. Group related questions |
+| 2 | Use AskUserQuestion | User selects with arrow keys — DO NOT ask to type text |
+| 3 | First option is recommended | Add "(Recommended)" at end of label |
+| 4 | Simple language | Write so non-programmers can understand |
+| 5 | Fallback | AskUserQuestion unavailable → ask in text, wait for response |
 
-## Khi nào hỏi sâu
+## When to ask deeper
 
-- Trả lời mơ hồ ("làm cho đẹp") → hỏi tiêu chí cụ thể
-- Nhiều cách hiểu → đưa ví dụ + options
-- Ràng buộc ngầm (deadline, ngân sách, kỹ thuật) → hỏi thẳng
-- Liệt kê chung chung → hỏi chia nhỏ
+- Vague answer ("make it nice") → ask for specific criteria
+- Multiple interpretations → provide examples + options
+- Implicit constraints (deadline, budget, technical) → ask directly
+- Generic listing → ask to break down
 
-## Khi nào KHÔNG hỏi
+## When NOT to ask
 
-- Đã rõ từ CONTEXT.md, ROADMAP.md, SCAN_REPORT.md
-- Chỉ 1 lựa chọn hợp lý
-- Chi tiết kỹ thuật user không cần quyết định
-- Đã hỏi trong cùng phiên
+- Already clear from CONTEXT.md, ROADMAP.md, SCAN_REPORT.md
+- Only 1 reasonable choice
+- Technical details user doesn't need to decide
+- Already asked in same session
 
-## Cách viết options
+## How to write options
 
 ### Label
-- 3-7 từ, động từ/danh từ rõ nghĩa
-- VD: "Nghiên cứu trước", "Bỏ qua", "Thảo luận thêm"
+- 3-7 words, clear verb/noun
+- E.g.: "Research first", "Skip", "Discuss further"
 
 ### Description
-- Giải thích bằng **kết quả/hệ quả** user cảm nhận được
-- KHÔNG thuật ngữ kỹ thuật trần
+- Explain by **outcome/consequence** user can perceive
+- NO bare technical jargon
 
-| Xấu | Tốt |
-|-----|-----|
-| "httpOnly cookies — không đọc từ JS" | "Lưu đăng nhập an toàn — hacker không đánh cắp được qua lỗi website" |
-| "WebSocket real-time" | "Cập nhật tức thì không cần tải lại trang" |
-| "Server-side rendering" | "Trang tải nhanh hơn, tốt cho tìm kiếm Google" |
-| "Redis cache layer" | "Tốc độ phản hồi nhanh hơn cho trang hay truy cập" |
+| Bad | Good |
+|-----|------|
+| "httpOnly cookies — can't read from JS" | "Store login securely — hackers can't steal via website bugs" |
+| "WebSocket real-time" | "Instant updates without reloading the page" |
+| "Server-side rendering" | "Faster page load, better for Google search" |
+| "Redis cache layer" | "Faster response for frequently visited pages" |
 
-- Thuật ngữ kỹ thuật chỉ khi không có cách đơn giản hơn → kèm giải thích ngắn
-- Ưu/nhược viết ngắn: "Ưu: ..., Nhược: ..."
+- Technical terms only when no simpler alternative → include brief explanation
+- Pros/cons written briefly: "Pros: ..., Cons: ..."
 
-## Nhóm câu hỏi
+## Question Grouping
 
-| Số lượng | Cách hỏi |
-|----------|----------|
-| 1 câu | `multiSelect: false` — 2+ options |
-| 2-4 câu | 1 `AskUserQuestion` với `multiSelect: true` |
-| 5+ câu | Hỏi phạm vi trước ("Thảo luận tất cả / Chọn cụ thể / Bỏ qua"), chia nhóm ≤4 |
+| Count | How to ask |
+|-------|-----------|
+| 1 question | `multiSelect: false` — 2+ options |
+| 2-4 questions | 1 `AskUserQuestion` with `multiSelect: true` |
+| 5+ questions | Ask scope first ("Discuss all / Choose specific / Skip"), group ≤4 |
 
-## Điều hướng
+## Navigation
 
-Sau AskUserQuestion có "Other":
-> Chọn "Other" và gõ "back" để quay lại, hoặc "cancel" để hủy.
+After AskUserQuestion with "Other":
+> Select "Other" and type "back" to go back, or "cancel" to stop.
 
-- `back` → quay lại câu hỏi trước (câu đầu → bước trước)
-- `cancel` → giữ quyết định đã chốt, phần còn lại Claude tự quyết → tóm tắt
-- Nội dung khác → câu trả lời tự do → xác nhận hiểu đúng trước khi tiếp
+- `back` → return to previous question (first question → previous step)
+- `cancel` → keep confirmed decisions, Claude decides the rest → summary
+- Other content → free-form answer → confirm understanding before continuing
