@@ -180,7 +180,7 @@ Full details: `.planning/milestones/v5.1-ROADMAP.md`
 - [x] Phase 67: Agents + Rules + References (2 plans) (completed 2026-03-28)
 - [x] Phase 68: Templates + Docs + Root Files (2 plans) (completed 2026-03-28)
 - [x] Phase 69: JS Source Code + Tests (3 plans)
-- [ ] Phase 70: Final Verification + Cleanup (1 plan)
+- [x] Phase 70: Final Verification + Cleanup (1 plan)
 
 #### Phase 65: Skills + Config Foundation
 
