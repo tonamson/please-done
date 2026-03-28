@@ -1,62 +1,67 @@
 /**
- * Session Delta Module — Doi soat phien audit cu, phan loai ham can quet lai.
+ * Session Delta Module — Compare previous audit sessions, classify functions for re-scanning.
  *
- * Pure function: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Caller truyen evidence content (string) va danh sach changed files.
+ * Pure function: NO file reads, NO require('fs'), NO side effects.
+ * Caller passes evidence content (string) and list of changed files.
  *
- * - classifyDelta(oldEvidence, changedFiles): phan loai tung ham SKIP/RE-SCAN/NEW/KNOWN-UNFIXED
- * - appendAuditHistory(evidenceContent, auditEntry): tao/append dong audit history vao evidence
- * - parseAuditHistory(evidenceContent): doc audit history table tra ve array entries
- * - DELTA_STATUS: 4 trang thai phan loai
+ * - classifyDelta(oldEvidence, changedFiles): classify each function as SKIP/RE-SCAN/NEW/KNOWN-UNFIXED
+ * - appendAuditHistory(evidenceContent, auditEntry): create/append audit history row to evidence
+ * - parseAuditHistory(evidenceContent): read audit history table, return array of entries
+ * - DELTA_STATUS: 4 classification statuses
  */
 
-'use strict';
+"use strict";
 
 // ─── Constants ────────────────────────────────────────────────
 
 /**
- * 4 trang thai phan loai delta cho moi ham trong Function Checklist.
+ * 4 delta classification statuses for each function in the Function Checklist.
  * @enum {string}
  */
 const DELTA_STATUS = {
-  SKIP: 'SKIP',
-  RESCAN: 'RE-SCAN',
-  NEW: 'NEW',
-  KNOWN_UNFIXED: 'KNOWN-UNFIXED',
+  SKIP: "SKIP",
+  RESCAN: "RE-SCAN",
+  NEW: "NEW",
+  KNOWN_UNFIXED: "KNOWN-UNFIXED",
 };
 
 // ─── Helpers ──────────────────────────────────────────────────
 
 /**
- * Normalize duong dan file: thay \\ thanh /, bo ./ dau.
- * @param {string} p - Duong dan file
- * @returns {string} Duong dan da normalize
+ * Normalize file path: replace \\ with /, strip leading ./.
+ * @param {string} p - File path
+ * @returns {string} Normalized path
  */
 function normalizePath(p) {
-  return p.replace(/\\/g, '/').replace(/^\.\//, '');
+  return p.replace(/\\/g, "/").replace(/^\.\//, "");
 }
 
 /**
- * Parse ## Function Checklist table tu evidence content.
- * Tra ve array cac ham voi file, name, line, verdict, detail.
+ * Parse ## Function Checklist table from evidence content.
+ * Returns array of functions with file, name, line, verdict, detail.
  *
- * @param {string} content - Noi dung evidence file
+ * @param {string} content - Evidence file content
  * @returns {Array<{file: string, name: string, line: string, verdict: string, detail: string}>}
  */
 function parseFunctionChecklist(content) {
-  const match = content.match(/## Function Checklist\s*\n([\s\S]*?)(?=\n## |\s*$)/);
+  const match = content.match(
+    /## Function Checklist\s*\n([\s\S]*?)(?=\n## |\s*$)/,
+  );
   if (!match) return [];
 
-  const lines = match[1].split('\n').filter(l => l.trim() !== '');
+  const lines = match[1].split("\n").filter((l) => l.trim() !== "");
   const results = [];
 
   for (const line of lines) {
-    // Bo qua header row va separator row (chi chua | va - va spaces)
+    // Skip header row and separator row (contains only |, -, and spaces)
     if (/^\s*\|[\s-|]+\|$/.test(line)) continue;
-    // Bo qua header row co chu "File" hoac "#"
+    // Skip header row containing "File" or "#"
     if (/\|\s*#\s*\|/.test(line) && /\|\s*File\s*\|/.test(line)) continue;
 
-    const cols = line.split('|').map(c => c.trim()).filter(c => c !== '');
+    const cols = line
+      .split("|")
+      .map((c) => c.trim())
+      .filter((c) => c !== "");
     if (cols.length >= 6) {
       results.push({
         file: normalizePath(cols[1]),
@@ -74,12 +79,12 @@ function parseFunctionChecklist(content) {
 // ─── classifyDelta ────────────────────────────────────────────
 
 /**
- * Phan loai tung ham trong Function Checklist cua evidence cu.
- * Dua tren verdict cu va file co thay doi hay khong de quyet dinh:
- * SKIP, RE-SCAN, NEW, hoac KNOWN-UNFIXED.
+ * Classify each function in the Function Checklist from previous evidence.
+ * Based on previous verdict and whether the file changed, decides:
+ * SKIP, RE-SCAN, NEW, or KNOWN-UNFIXED.
  *
- * @param {string|null} oldEvidence - Noi dung evidence file phien truoc (null/empty = full scan)
- * @param {string[]} changedFiles - Danh sach file da thay doi (tu git diff)
+ * @param {string|null} oldEvidence - Previous evidence file content (null/empty = full scan)
+ * @param {string[]} changedFiles - List of changed files (from git diff)
  * @returns {{
  *   functions: Map<string, string>,
  *   summary: {skip: number, rescan: number, new: number, knownUnfixed: number},
@@ -94,7 +99,11 @@ function classifyDelta(oldEvidence, changedFiles) {
   };
 
   // Validate: null/undefined/empty/non-string -> full scan
-  if (!oldEvidence || typeof oldEvidence !== 'string' || oldEvidence.trim() === '') {
+  if (
+    !oldEvidence ||
+    typeof oldEvidence !== "string" ||
+    oldEvidence.trim() === ""
+  ) {
     return emptyResult;
   }
 
@@ -104,7 +113,7 @@ function classifyDelta(oldEvidence, changedFiles) {
     return emptyResult;
   }
 
-  // Tao Set cac file da thay doi (da normalize)
+  // Create Set of changed files (normalized)
   const changedSet = new Set((changedFiles || []).map(normalizePath));
 
   const functions = new Map();
@@ -117,26 +126,26 @@ function classifyDelta(oldEvidence, changedFiles) {
 
     let status;
 
-    if (verdict === 'SKIP') {
-      // D-06: SKIP verdict -> giu SKIP bat ke file doi hay khong
+    if (verdict === "SKIP") {
+      // D-06: SKIP verdict -> keep SKIP regardless of file change
       status = DELTA_STATUS.SKIP;
     } else if (verdict === 'PASS') {
-      // D-04: PASS + khong doi -> SKIP; D-02: PASS + doi -> RE-SCAN
+      // D-04: PASS + unchanged -> SKIP; D-02: PASS + changed -> RE-SCAN
       status = fileChanged ? DELTA_STATUS.RESCAN : DELTA_STATUS.SKIP;
     } else if (verdict === 'FLAG') {
-      // D-01: FLAG + khong doi -> KNOWN-UNFIXED; FLAG + doi -> RE-SCAN
+      // D-01: FLAG + unchanged -> KNOWN-UNFIXED; FLAG + changed -> RE-SCAN
       status = fileChanged ? DELTA_STATUS.RESCAN : DELTA_STATUS.KNOWN_UNFIXED;
     } else if (verdict === 'FAIL') {
-      // D-05: FAIL + khong doi -> KNOWN-UNFIXED; FAIL + doi -> RE-SCAN
+      // D-05: FAIL + unchanged -> KNOWN-UNFIXED; FAIL + changed -> RE-SCAN
       status = fileChanged ? DELTA_STATUS.RESCAN : DELTA_STATUS.KNOWN_UNFIXED;
     } else {
-      // Verdict khong nhan dien -> RE-SCAN de an toan
+      // Unrecognized verdict -> RE-SCAN for safety
       status = DELTA_STATUS.RESCAN;
     }
 
     functions.set(key, status);
 
-    // Cap nhat summary
+    // Update summary
     if (status === DELTA_STATUS.SKIP) summary.skip++;
     else if (status === DELTA_STATUS.RESCAN) summary.rescan++;
     else if (status === DELTA_STATUS.NEW) summary.new++;
@@ -149,24 +158,24 @@ function classifyDelta(oldEvidence, changedFiles) {
 // ─── appendAuditHistory ───────────────────────────────────────
 
 /**
- * Tao hoac append dong audit history vao evidence content.
- * Neu chua co ## Audit History -> them section moi cuoi file.
- * Neu da co -> append dong moi cuoi table.
+ * Create or append an audit history row to evidence content.
+ * If ## Audit History section does not exist, add a new section at end of file.
+ * If it exists, append new row at end of table.
  *
- * @param {string} evidenceContent - Noi dung evidence file
+ * @param {string} evidenceContent - Evidence file content
  * @param {{date: string, commit: string, verdictSummary: string, deltaSummary: string}} auditEntry
- * @returns {string} Evidence content da cap nhat
+ * @returns {string} Updated evidence content
  */
 function appendAuditHistory(evidenceContent, auditEntry) {
   const { date, commit, verdictSummary, deltaSummary } = auditEntry;
   const newRow = `| ${date} | ${commit} | ${verdictSummary} | ${deltaSummary} |`;
 
-  if (evidenceContent.includes('## Audit History')) {
-    // Tim section Audit History va append row cuoi table
+  if (evidenceContent.includes("## Audit History")) {
+    // Find Audit History section and append row at end of table
     const lines = evidenceContent.split('\n');
     let lastPipeLineIndex = -1;
 
-    // Tim section bat dau tu ## Audit History
+    // Find section starting from ## Audit History
     let inSection = false;
     for (let i = 0; i < lines.length; i++) {
       if (lines[i].trim().startsWith('## Audit History')) {
@@ -174,46 +183,51 @@ function appendAuditHistory(evidenceContent, auditEntry) {
         continue;
       }
       if (inSection && lines[i].trim().startsWith('## ')) {
-        break; // Section tiep theo
+        break; // Next section
       }
-      if (inSection && lines[i].includes('|')) {
+      if (inSection && lines[i].includes("|")) {
         lastPipeLineIndex = i;
       }
     }
 
     if (lastPipeLineIndex >= 0) {
       lines.splice(lastPipeLineIndex + 1, 0, newRow);
-      return lines.join('\n');
+      return lines.join("\n");
     }
   }
 
-  // Khong co section -> them section moi cuoi file
+  // No section found -> add new section at end of file
   const section = `\n## Audit History\n\n| Date | Commit | Verdict | Delta |\n|------|--------|---------|-------|\n${newRow}\n`;
-  return evidenceContent.trimEnd() + '\n' + section;
+  return evidenceContent.trimEnd() + "\n" + section;
 }
 
 // ─── parseAuditHistory ────────────────────────────────────────
 
 /**
- * Doc ## Audit History table tu evidence content.
- * Tra ve array entries voi date, commit, verdict, delta.
+ * Read ## Audit History table from evidence content.
+ * Returns array of entries with date, commit, verdict, delta.
  *
- * @param {string} evidenceContent - Noi dung evidence file
+ * @param {string} evidenceContent - Evidence file content
  * @returns {Array<{date: string, commit: string, verdict: string, delta: string}>}
  */
 function parseAuditHistory(evidenceContent) {
-  const match = evidenceContent.match(/## Audit History\s*\n([\s\S]*?)(?=\n## |\s*$)/);
+  const match = evidenceContent.match(
+    /## Audit History\s*\n([\s\S]*?)(?=\n## |\s*$)/,
+  );
   if (!match) return [];
 
-  const lines = match[1].split('\n').filter(l => l.trim() !== '');
+  const lines = match[1].split("\n").filter((l) => l.trim() !== "");
   const results = [];
 
   for (const line of lines) {
-    // Bo qua header row va separator row
+    // Skip header row and separator row
     if (/^\s*\|[\s-|]+\|$/.test(line)) continue;
     if (/\|\s*Date\s*\|/.test(line) && /\|\s*Commit\s*\|/.test(line)) continue;
 
-    const cols = line.split('|').map(c => c.trim()).filter(c => c !== '');
+    const cols = line
+      .split("|")
+      .map((c) => c.trim())
+      .filter((c) => c !== "");
     if (cols.length >= 4) {
       results.push({
         date: cols[0],
@@ -229,4 +243,10 @@ function parseAuditHistory(evidenceContent) {
 
 // ─── Exports ──────────────────────────────────────────────────
 
-module.exports = { classifyDelta, appendAuditHistory, parseAuditHistory, parseFunctionChecklist, DELTA_STATUS };
+module.exports = {
+  classifyDelta,
+  appendAuditHistory,
+  parseAuditHistory,
+  parseFunctionChecklist,
+  DELTA_STATUS,
+};

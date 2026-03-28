@@ -10,9 +10,9 @@
  * Rules spec: references/verification.md
  */
 
-'use strict';
+"use strict";
 
-const { parseFrontmatter, extractXmlSection } = require('./utils');
+const { parseFrontmatter, extractXmlSection } = require("./utils");
 
 // ─── Helpers ────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ const { parseFrontmatter, extractXmlSection } = require('./utils');
  * Escape regex special chars so requirement IDs like CHECK-01 match literally.
  */
 function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+  return str.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
 }
 
 /**
@@ -31,13 +31,13 @@ function parseRequirements(frontmatterObj) {
   const val = frontmatterObj.requirements;
   if (val === undefined || val === null) return [];
   if (Array.isArray(val)) return val;
-  if (typeof val === 'string') {
+  if (typeof val === "string") {
     const trimmed = val.trim();
-    if (trimmed === '[]' || trimmed === '') return [];
+    if (trimmed === "[]" || trimmed === "") return [];
     // Strip outer brackets
-    const inner = trimmed.replace(/^\[/, '').replace(/\]$/, '').trim();
+    const inner = trimmed.replace(/^\[/, "").replace(/\]$/, "").trim();
     if (!inner) return [];
-    return inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+    return inner.split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
   }
   return [];
 }
@@ -47,15 +47,15 @@ function parseRequirements(frontmatterObj) {
  * Handles: undefined, Array, '[]', '[02-01]', '["05-01"]'
  */
 function parseDependsOn(frontmatterObj) {
-  const val = frontmatterObj.depends_on || frontmatterObj['depends_on'];
+  const val = frontmatterObj.depends_on || frontmatterObj["depends_on"];
   if (val === undefined || val === null) return [];
   if (Array.isArray(val)) return val;
-  if (typeof val === 'string') {
+  if (typeof val === "string") {
     const trimmed = val.trim();
-    if (trimmed === '[]' || trimmed === '') return [];
-    const inner = trimmed.replace(/^\[/, '').replace(/\]$/, '').trim();
+    if (trimmed === "[]" || trimmed === "") return [];
+    const inner = trimmed.replace(/^\[/, "").replace(/\]$/, "").trim();
     if (!inner) return [];
-    return inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, ''));
+    return inner.split(",").map((s) => s.trim().replace(/^["']|["']$/g, ""));
   }
   return [];
 }
@@ -67,12 +67,12 @@ function parseDependsOn(frontmatterObj) {
 function parseMustHavesTruths(rawFrontmatterString) {
   if (!rawFrontmatterString) return [];
   const truthsMatch = rawFrontmatterString.match(
-    /must_haves:\s*\n\s+truths:\s*\n((?:\s+-\s+"[^"]*"\n?)*)/
+    /must_haves:\s*\n\s+truths:\s*\n((?:\s+-\s+"[^"]*"\n?)*)/,
   );
   if (!truthsMatch) return [];
   return [...truthsMatch[1].matchAll(/-\s+"([^"]*)"/g)].map((m, i) => ({
     id: `T${i + 1}`,
-    description: m[1]
+    description: m[1],
   }));
 }
 
@@ -98,11 +98,13 @@ function parseTasksV10(planContent) {
 
     const nameMatch = block.match(/<name>([\s\S]*?)<\/name>/);
     const filesMatch = block.match(/<files>([\s\S]*?)<\/files>/);
-    const hasDescription = /<action>[\s\S]*?<\/action>/.test(block) ||
-                           /<behavior>[\s\S]*?<\/behavior>/.test(block);
-    const hasCriteria = /<verify>[\s\S]*?<\/verify>/.test(block) ||
-                        /<done>[\s\S]*?<\/done>/.test(block) ||
-                        /<acceptance_criteria>[\s\S]*?<\/acceptance_criteria>/.test(block);
+    const hasDescription =
+      /<action>[\s\S]*?<\/action>/.test(block) ||
+      /<behavior>[\s\S]*?<\/behavior>/.test(block);
+    const hasCriteria =
+      /<verify>[\s\S]*?<\/verify>/.test(block) ||
+      /<done>[\s\S]*?<\/done>/.test(block) ||
+      /<acceptance_criteria>[\s\S]*?<\/acceptance_criteria>/.test(block);
     const hasFiles = filesMatch && filesMatch[1].trim().length > 0;
 
     tasks.push({
@@ -110,7 +112,7 @@ function parseTasksV10(planContent) {
       name: nameMatch ? nameMatch[1].trim() : `Task ${taskNum}`,
       hasFiles,
       hasDescription,
-      hasCriteria
+      hasCriteria,
     });
     taskNum++;
   }
@@ -132,7 +134,7 @@ function parseTruthsV11(planContent) {
   while ((match = tableRegex.exec(planContent)) !== null) {
     truths.push({
       id: match[1].trim(),
-      description: match[2].trim()
+      description: match[2].trim(),
     });
   }
   return truths;
@@ -151,15 +153,17 @@ function parseTaskDetailBlocksV11(tasksContent) {
   // blocks alternates: [taskNum, blockContent, taskNum, blockContent, ...]
   for (let i = 0; i < blocks.length; i += 2) {
     const taskId = blocks[i].trim();
-    const block = blocks[i + 1] || '';
+    const block = blocks[i + 1] || "";
 
     const effortMatch = /Effort:\s*(\w+)/.exec(block);
     const filesLine = /^>\s*Files:\s*(.+)$/m.exec(block);
     const truthsLine = /^>\s*Truths:\s*(.+)$/m.exec(block);
 
     // Check for Description section
-    const hasDescription = /###\s*Description/i.test(block) &&
-      (block.split(/###\s*Description/i)[1] || '').split(/^###/m)[0].trim().length > 0;
+    const hasDescription =
+      /###\s*Description/i.test(block) &&
+      (block.split(/###\s*Description/i)[1] || "").split(/^###/m)[0].trim()
+        .length > 0;
 
     // Check for Acceptance Criteria section
     const hasCriteria = /###\s*Acceptance\s*Criteria/i.test(block);
@@ -180,7 +184,7 @@ function parseTaskDetailBlocksV11(tasksContent) {
       hasStatus,
       hasPriority,
       hasDependency,
-      hasType
+      hasType,
     });
   }
   return tasks;
@@ -190,7 +194,7 @@ function parseTaskDetailBlocksV11(tasksContent) {
  * Parse Truth refs from string like "[T1, T2]" or "T1, T2".
  */
 function parseTruthRefs(truthsStr) {
-  return [...truthsStr.matchAll(/T(\d+)/g)].map(m => `T${m[1]}`);
+  return [...truthsStr.matchAll(/T(\d+)/g)].map((m) => `T${m[1]}`);
 }
 
 /**
@@ -199,7 +203,9 @@ function parseTruthRefs(truthsStr) {
 function parseSummaryTableV11(tasksContent) {
   if (!tasksContent) return false;
   // Find header row of summary table
-  const headerMatch = tasksContent.match(/\|[^|]*#[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*Truths[^|]*\|/i);
+  const headerMatch = tasksContent.match(
+    /\|[^|]*#[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*Truths[^|]*\|/i,
+  );
   return !!headerMatch;
 }
 
@@ -223,7 +229,7 @@ function detectCycles(nodes, edges) {
     inDegree[from] = (inDegree[from] || 0) + 1;
   }
 
-  const queue = nodes.filter(n => inDegree[n] === 0);
+  const queue = nodes.filter((n) => inDegree[n] === 0);
   const sorted = [];
 
   while (queue.length > 0) {
@@ -236,7 +242,7 @@ function detectCycles(nodes, edges) {
   }
 
   if (sorted.length < nodes.length) {
-    const inCycle = nodes.filter(n => !sorted.includes(n));
+    const inCycle = nodes.filter((n) => !sorted.includes(n));
     return { hasCycle: true, nodesInCycle: inCycle };
   }
 
@@ -254,7 +260,7 @@ function findInvalidRefs(taskIds, edges) {
       invalid.push({
         message: `Task ${from} depends on "${raw || to}" which does not exist`,
         location: `TASKS.md Task ${from}`,
-        fixHint: `Fix dependency to one of: ${taskIds.join(', ')}`
+        fixHint: `Fix dependency to one of: ${taskIds.join(", ")}`,
       });
     }
   }
@@ -269,14 +275,14 @@ function parseTaskDepsV11(tasksContent) {
   if (!tasksContent) return { nodes: [], edges: [] };
 
   const tasks = parseTaskDetailBlocksV11(tasksContent);
-  const nodes = tasks.map(t => String(t.id));
+  const nodes = tasks.map((t) => String(t.id));
   const edges = [];
 
   // Parse dependencies from detail blocks metadata
   for (const task of tasks) {
     // Find dependency line for this task
     const taskSection = tasksContent.match(
-      new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`)
+      new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`),
     );
     if (!taskSection) continue;
 
@@ -292,7 +298,7 @@ function parseTaskDepsV11(tasksContent) {
       edges.push({
         from: String(task.id),
         to: ref[1],
-        raw: `Task ${ref[1]}`
+        raw: `Task ${ref[1]}`,
       });
     }
   }
@@ -307,7 +313,7 @@ function parseTaskDepsV11(tasksContent) {
  * E.g., "workflows/plan.md (Step 8.1)" -> "workflows/plan.md"
  */
 function normalizeKeyLinkPath(rawPath) {
-  return rawPath.replace(/\s*\(.*?\)\s*$/, '').trim();
+  return rawPath.replace(/\s*\(.*?\)\s*$/, "").trim();
 }
 
 /**
@@ -320,7 +326,7 @@ function parseKeyLinksV11(planContent) {
 
   // Find Key Links section
   const sectionMatch = planContent.match(
-    /###\s*Key\s*Links[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i
+    /###\s*Key\s*Links[^\n]*\n(?:\|[^\n]*\|\n){1,2}((?:\|[^\n]*\|\n?)*)/i,
   );
   if (!sectionMatch) return [];
 
@@ -333,7 +339,7 @@ function parseKeyLinksV11(planContent) {
     const to = match[2].trim();
     const desc = match[3].trim();
     // Skip separator row (---)
-    if (from.startsWith('-')) continue;
+    if (from.startsWith("-")) continue;
     links.push({ from, to, description: desc });
   }
   return links;
@@ -344,10 +350,10 @@ function parseKeyLinksV11(planContent) {
  */
 function countFilesInString(filesStr) {
   if (!filesStr) return 0;
-  return filesStr.split(/[,\n]/)
-    .map(f => f.trim())
-    .filter(f => f.length > 0)
-    .length;
+  return filesStr
+    .split(/[,\n]/)
+    .map((f) => f.trim())
+    .filter((f) => f.length > 0).length;
 }
 
 /**
@@ -355,10 +361,13 @@ function countFilesInString(filesStr) {
  */
 function detectMultiDomain(filesStr) {
   if (!filesStr) return false;
-  const files = filesStr.split(',').map(f => f.trim()).filter(Boolean);
+  const files = filesStr
+    .split(",")
+    .map((f) => f.trim())
+    .filter(Boolean);
   const topDirs = new Set();
   for (const file of files) {
-    const firstSlash = file.indexOf('/');
+    const firstSlash = file.indexOf("/");
     if (firstSlash > 0) {
       topDirs.add(file.substring(0, firstSlash));
     }
@@ -378,7 +387,7 @@ function computeActualEffort(task, tasksContent) {
   let depCount = 0;
   if (tasksContent) {
     const taskSection = tasksContent.match(
-      new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`)
+      new RegExp(`## Task ${task.id}:[\\s\\S]*?(?=## Task \\d+:|$)`),
     );
     if (taskSection) {
       const depLine = taskSection[0].match(/Dependenc(?:y|ies):?\s*([^\n|]*)/i);
@@ -395,15 +404,23 @@ function computeActualEffort(task, tasksContent) {
   const isMultiDomain = detectMultiDomain(task.files);
 
   // Map each signal to effort level
-  const fileEffort = fileCount <= 2 ? 'simple' : fileCount <= 4 ? 'standard' : 'complex';
-  const truthEffort = truthCount <= 1 ? 'simple' : truthCount <= 3 ? 'standard' : 'complex';
-  const depEffort = depCount === 0 ? 'simple' : depCount <= 2 ? 'standard' : 'complex';
-  const domainEffort = isMultiDomain ? 'complex' : 'simple';
+  const fileEffort =
+    fileCount <= 2 ? "simple" : fileCount <= 4 ? "standard" : "complex";
+  const truthEffort =
+    truthCount <= 1 ? "simple" : truthCount <= 3 ? "standard" : "complex";
+  const depEffort =
+    depCount === 0 ? "simple" : depCount <= 2 ? "standard" : "complex";
+  const domainEffort = isMultiDomain ? "complex" : "simple";
 
   // Highest signal wins (D-08 conservative)
   const levels = { simple: 0, standard: 1, complex: 2 };
-  const max = Math.max(levels[fileEffort], levels[truthEffort], levels[depEffort], levels[domainEffort]);
-  return max === 2 ? 'complex' : max === 1 ? 'standard' : 'simple';
+  const max = Math.max(
+    levels[fileEffort],
+    levels[truthEffort],
+    levels[depEffort],
+    levels[domainEffort],
+  );
+  return max === 2 ? "complex" : max === 1 ? "standard" : "simple";
 }
 
 // ─── Main check functions ───────────────────────────────
@@ -415,26 +432,30 @@ function computeActualEffort(task, tasksContent) {
  * unknown: no match
  */
 function detectPlanFormat(planContent) {
-  if (!planContent) return 'unknown';
+  if (!planContent) return "unknown";
 
   // Check v1.0: must_haves in raw frontmatter
   const fmMatch = planContent.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (fmMatch) {
     const rawFm = fmMatch[1];
-    if (/^must_haves:/m.test(rawFm)) return 'v1.0';
+    if (/^must_haves:/m.test(rawFm)) return "v1.0";
   }
 
   // Check v1.0: <tasks> or <task XML tags
-  if (/<tasks>/.test(planContent) || /<task\s/.test(planContent) || /<task>/.test(planContent)) {
-    return 'v1.0';
+  if (
+    /<tasks>/.test(planContent) ||
+    /<task\s/.test(planContent) ||
+    /<task>/.test(planContent)
+  ) {
+    return "v1.0";
   }
 
   // Check v1.1: Truths table pattern
   if (/\|\s*T\d+\s*\|/.test(planContent)) {
-    return 'v1.1';
+    return "v1.1";
   }
 
-  return 'unknown';
+  return "unknown";
 }
 
 /**
@@ -442,7 +463,7 @@ function detectPlanFormat(planContent) {
  * Each requirement ID must appear literally in planContent.
  */
 function checkRequirementCoverage(planContent, requirementIds) {
-  const result = { checkId: 'CHECK-01', status: 'pass', issues: [] };
+  const result = { checkId: "CHECK-01", status: "pass", issues: [] };
 
   if (!requirementIds || requirementIds.length === 0) {
     return result;
@@ -453,13 +474,13 @@ function checkRequirementCoverage(planContent, requirementIds) {
     if (!regex.test(planContent)) {
       result.issues.push({
         message: `Requirement ${reqId} does not appear in PLAN.md`,
-        location: 'PLAN.md',
-        fixHint: `Add ${reqId} to objectives, truths, or task descriptions`
+        location: "PLAN.md",
+        fixHint: `Add ${reqId} to objectives, truths, or task descriptions`,
       });
     }
   }
 
-  result.status = result.issues.length > 0 ? 'block' : 'pass';
+  result.status = result.issues.length > 0 ? "block" : "pass";
   return result;
 }
 
@@ -468,12 +489,12 @@ function checkRequirementCoverage(planContent, requirementIds) {
  * Check that each task has all required fields.
  */
 function checkTaskCompleteness(planContent, tasksContent) {
-  const result = { checkId: 'CHECK-02', status: 'pass', issues: [] };
+  const result = { checkId: "CHECK-02", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
-  if (format === 'unknown') return result;
+  if (format === "unknown") return result;
 
-  if (format === 'v1.0') {
+  if (format === "v1.0") {
     // Parse v1.0 XML tasks
     const tasks = parseTasksV10(planContent);
     if (tasks.length === 0) return result; // No tasks to check
@@ -483,31 +504,31 @@ function checkTaskCompleteness(planContent, tasksContent) {
         result.issues.push({
           message: `Task ${task.id} "${task.name}" missing <files> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Add <files> tag with list of files to create/modify'
+          fixHint: "Add <files> tag with list of files to create/modify",
         });
       }
       if (!task.hasDescription) {
         result.issues.push({
           message: `Task ${task.id} "${task.name}" missing <action> or <behavior> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Add <action> or <behavior> tag describing the work'
+          fixHint: "Add <action> or <behavior> tag describing the work",
         });
       }
       if (!task.hasCriteria) {
         result.issues.push({
           message: `Task ${task.id} "${task.name}" missing <verify>/<done>/<acceptance_criteria> tag`,
           location: `PLAN.md Task ${task.id}`,
-          fixHint: 'Add <verify>, <done>, or <acceptance_criteria> tag'
+          fixHint: "Add <verify>, <done>, or <acceptance_criteria> tag",
         });
       }
     }
-  } else if (format === 'v1.1' && tasksContent) {
+  } else if (format === "v1.1" && tasksContent) {
     // Check summary table has Truths column
     if (!parseSummaryTableV11(tasksContent)) {
       result.issues.push({
-        message: 'Summary table missing Truths column',
-        location: 'TASKS.md summary table',
-        fixHint: 'Add Truths column to summary table'
+        message: "Summary table missing Truths column",
+        location: "TASKS.md summary table",
+        fixHint: "Add Truths column to summary table",
       });
     }
 
@@ -519,21 +540,21 @@ function checkTaskCompleteness(planContent, tasksContent) {
         result.issues.push({
           message: `Task ${task.id} missing Effort field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add Effort: simple|standard|complex to metadata line'
+          fixHint: "Add Effort: simple|standard|complex to metadata line",
         });
       }
       if (!task.files) {
         result.issues.push({
           message: `Task ${task.id} missing Files field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add > Files: [file list] to metadata'
+          fixHint: "Add > Files: [file list] to metadata",
         });
       }
       if (task.truths.length === 0) {
         result.issues.push({
           message: `Task ${task.id} missing Truths field in metadata`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add > Truths: [T1, T2] to metadata'
+          fixHint: "Add > Truths: [T1, T2] to metadata",
         });
       }
 
@@ -542,14 +563,14 @@ function checkTaskCompleteness(planContent, tasksContent) {
         result.issues.push({
           message: `Task ${task.id} missing "Mo ta" section or section is empty`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add ### Mo ta with description content'
+          fixHint: "Add ### Mo ta with description content",
         });
       }
       if (!task.hasCriteria) {
         result.issues.push({
           message: `Task ${task.id} missing "Tieu chi chap nhan" section`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add ### Tieu chi chap nhan with acceptance criteria list'
+          fixHint: "Add ### Tieu chi chap nhan with acceptance criteria list",
         });
       }
     }
@@ -561,28 +582,28 @@ function checkTaskCompleteness(planContent, tasksContent) {
         warnIssues.push({
           message: `Task ${task.id} missing Trang thai field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add Trang thai: to metadata line'
+          fixHint: "Add Trang thai: to metadata line",
         });
       }
       if (!task.hasPriority) {
         warnIssues.push({
           message: `Task ${task.id} missing Uu tien field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add Uu tien: to metadata line'
+          fixHint: "Add Uu tien: to metadata line",
         });
       }
       if (!task.hasDependency) {
         warnIssues.push({
           message: `Task ${task.id} missing Phu thuoc field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add Phu thuoc: to metadata line'
+          fixHint: "Add Phu thuoc: to metadata line",
         });
       }
       if (!task.hasType) {
         warnIssues.push({
           message: `Task ${task.id} missing Loai field (warn)`,
           location: `TASKS.md Task ${task.id}`,
-          fixHint: 'Add Loai: to metadata line'
+          fixHint: "Add Loai: to metadata line",
         });
       }
     }
@@ -590,12 +611,12 @@ function checkTaskCompleteness(planContent, tasksContent) {
   }
 
   // Determine status
-  const hasBlock = result.issues.some(i => !i.message.includes('(warn)'));
-  const hasWarn = result.issues.some(i => i.message.includes('(warn)'));
+  const hasBlock = result.issues.some((i) => !i.message.includes("(warn)"));
+  const hasWarn = result.issues.some((i) => i.message.includes("(warn)"));
   if (hasBlock) {
-    result.status = 'block';
+    result.status = "block";
   } else if (hasWarn) {
-    result.status = 'warn';
+    result.status = "warn";
   }
 
   return result;
@@ -606,11 +627,11 @@ function checkTaskCompleteness(planContent, tasksContent) {
  * Detect circular dependencies and invalid references.
  */
 function checkDependencyCorrectness(planContent, tasksContent) {
-  const result = { checkId: 'CHECK-03', status: 'pass', issues: [] };
+  const result = { checkId: "CHECK-03", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
   // v1.0: graceful PASS (plan-level deps, no task-level deps)
-  if (format === 'v1.0' || format === 'unknown') {
+  if (format === "v1.0" || format === "unknown") {
     return result;
   }
 
@@ -627,19 +648,20 @@ function checkDependencyCorrectness(planContent, tasksContent) {
   }
 
   // Check cycles (only on valid edges)
-  const validEdges = edges.filter(e => nodes.includes(e.to));
+  const validEdges = edges.filter((e) => nodes.includes(e.to));
   if (validEdges.length > 0) {
     const cycleResult = detectCycles(nodes, validEdges);
     if (cycleResult.hasCycle) {
       result.issues.push({
-        message: `Circular dependency detected among: ${cycleResult.nodesInCycle.map(n => `Task ${n}`).join(', ')}`,
-        location: 'TASKS.md dependencies',
-        fixHint: 'Remove circular dependency so tasks can be executed sequentially'
+        message: `Circular dependency detected among: ${cycleResult.nodesInCycle.map((n) => `Task ${n}`).join(", ")}`,
+        location: "TASKS.md dependencies",
+        fixHint:
+          "Remove circular dependency so tasks can be executed sequentially",
       });
     }
   }
 
-  result.status = result.issues.length > 0 ? 'block' : 'pass';
+  result.status = result.issues.length > 0 ? "block" : "pass";
   return result;
 }
 
@@ -648,11 +670,11 @@ function checkDependencyCorrectness(planContent, tasksContent) {
  * Direction 2 (Task without Truth) moved to CHECK-05 checkLogicCoverage.
  */
 function checkTruthTaskCoverage(planContent, tasksContent) {
-  const result = { checkId: 'CHECK-04', status: 'pass', issues: [] };
+  const result = { checkId: "CHECK-04", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
   // v1.0 / unknown: graceful PASS (no Truth-Task mapping)
-  if (format === 'v1.0' || format === 'unknown') {
+  if (format === "v1.0" || format === "unknown") {
     return result;
   }
 
@@ -679,13 +701,13 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
       blockIssues.push({
         message: `Truth ${truth.id} "${truth.description}" has no task mapped to it`,
         location: `PLAN.md Truths table`,
-        fixHint: `Add ${truth.id} to the Truths metadata of a task in TASKS.md`
+        fixHint: `Add ${truth.id} to the Truths metadata of a task in TASKS.md`,
       });
     }
   }
 
   result.issues.push(...blockIssues);
-  result.status = blockIssues.length > 0 ? 'block' : 'pass';
+  result.status = blockIssues.length > 0 ? "block" : "pass";
 
   return result;
 }
@@ -696,11 +718,11 @@ function checkTruthTaskCoverage(planContent, tasksContent) {
  * Default severity: WARN (per D-04). Configurable via options.severity (per D-05).
  */
 function checkLogicCoverage(planContent, tasksContent, options = {}) {
-  const severity = options.severity || 'warn';
-  const result = { checkId: 'CHECK-05', status: 'pass', issues: [] };
+  const severity = options.severity || "warn";
+  const result = { checkId: "CHECK-05", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
-  if (format === 'v1.0' || format === 'unknown') return result;
+  if (format === "v1.0" || format === "unknown") return result;
   if (!tasksContent) return result;
 
   const tasks = parseTaskDetailBlocksV11(tasksContent);
@@ -710,12 +732,12 @@ function checkLogicCoverage(planContent, tasksContent, options = {}) {
       result.issues.push({
         message: `Task ${task.id} has no Truth mapped — technical debt`,
         location: `TASKS.md Task ${task.id}`,
-        fixHint: `Add > Truths: [TX] to metadata of Task ${task.id}`
+        fixHint: `Add > Truths: [TX] to metadata of Task ${task.id}`,
       });
     }
   }
 
-  result.status = result.issues.length > 0 ? severity : 'pass';
+  result.status = result.issues.length > 0 ? severity : "pass";
   return result;
 }
 
@@ -726,26 +748,27 @@ function checkLogicCoverage(planContent, tasksContent, options = {}) {
  * Default severity: WARN. Configurable via options.severity.
  */
 function checkResearchBacking(planContent, options = {}) {
-  const severity = options.severity || 'warn';
-  const result = { checkId: 'CHECK-06', status: 'pass', issues: [] };
+  const severity = options.severity || "warn";
+  const result = { checkId: "CHECK-06", status: "pass", issues: [] };
 
   // No research files -> PASS (nothing to check)
   if (!options.hasResearchFiles) return result;
 
   // Severity off -> PASS
-  if (severity === 'off') return result;
+  if (severity === "off") return result;
 
   // Check if plan references .planning/research/
   const hasRef = /\.planning\/research\//.test(planContent);
   if (!hasRef) {
     result.issues.push({
-      message: 'Plan has no reference to research files',
-      location: 'PLAN.md',
-      fixHint: 'Run pd research to gather evidence, then add Key Links to .planning/research/ files'
+      message: "Plan has no reference to research files",
+      location: "PLAN.md",
+      fixHint:
+        "Run pd research to gather evidence, then add Key Links to .planning/research/ files",
     });
   }
 
-  result.status = result.issues.length > 0 ? severity : 'pass';
+  result.status = result.issues.length > 0 ? severity : "pass";
   return result;
 }
 
@@ -756,12 +779,13 @@ function checkResearchBacking(planContent, options = {}) {
  * Default severity: WARN. Configurable via options.severity.
  */
 function checkHedgingLanguage(planContent, options = {}) {
-  const HEDGING_PATTERNS = /chua ro|can tim hieu|co the.*hoac|khong chac|chua xac dinh|can nghien cuu/gi;
-  const severity = options.severity || 'warn';
-  const result = { checkId: 'CHECK-07', status: 'pass', issues: [] };
+  const HEDGING_PATTERNS =
+    /chua ro|can tim hieu|co the.*hoac|khong chac|chua xac dinh|can nghien cuu/gi;
+  const severity = options.severity || "warn";
+  const result = { checkId: "CHECK-07", status: "pass", issues: [] };
 
   // Severity off -> PASS
-  if (severity === 'off') return result;
+  if (severity === "off") return result;
 
   // Empty/null planContent -> PASS
   if (!planContent) return result;
@@ -769,13 +793,14 @@ function checkHedgingLanguage(planContent, options = {}) {
   const matches = planContent.match(HEDGING_PATTERNS) || [];
   if (matches.length >= 2) {
     result.issues.push({
-      message: `Plan has ${matches.length} hedging patterns (${matches.slice(0, 3).join(', ')}${matches.length > 3 ? '...' : ''}) — run pd research to clarify`,
-      location: 'PLAN.md',
-      fixHint: 'Run pd research to gather evidence replacing ambiguous language'
+      message: `Plan has ${matches.length} hedging patterns (${matches.slice(0, 3).join(", ")}${matches.length > 3 ? "..." : ""}) — run pd research to clarify`,
+      location: "PLAN.md",
+      fixHint:
+        "Run pd research to gather evidence replacing ambiguous language",
     });
   }
 
-  result.status = result.issues.length > 0 ? severity : 'pass';
+  result.status = result.issues.length > 0 ? severity : "pass";
   return result;
 }
 
@@ -786,11 +811,11 @@ function checkHedgingLanguage(planContent, options = {}) {
  * Per D-01, D-02, D-03, D-04, D-12.
  */
 function checkKeyLinks(planContent, tasksContent) {
-  const result = { checkId: 'ADV-01', status: 'pass', issues: [] };
+  const result = { checkId: "ADV-01", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
   // v1.0/unknown: graceful PASS (D-12)
-  if (format === 'v1.0' || format === 'unknown') {
+  if (format === "v1.0" || format === "unknown") {
     return result;
   }
 
@@ -816,7 +841,7 @@ function checkKeyLinks(planContent, tasksContent) {
       tasks.push({
         id: idx + 1,
         files: filesMatch ? filesMatch[1].trim() : null,
-        truths: []
+        truths: [],
       });
       idx++;
     }
@@ -844,27 +869,27 @@ function checkKeyLinks(planContent, tasksContent) {
     if (tasksWithFrom.length === 0) {
       result.issues.push({
         message: `Key Link "from" path "${link.from}" has no task in Files`,
-        location: 'PLAN.md Key Links',
-        fixHint: `Add "${fromNorm}" to Files of a task`
+        location: "PLAN.md Key Links",
+        fixHint: `Add "${fromNorm}" to Files of a task`,
       });
     }
     if (tasksWithTo.length === 0) {
       result.issues.push({
         message: `Key Link "to" path "${link.to}" has no task in Files`,
-        location: 'PLAN.md Key Links',
-        fixHint: `Add "${toNorm}" to Files of a task`
+        location: "PLAN.md Key Links",
+        fixHint: `Add "${toNorm}" to Files of a task`,
       });
     }
     if (tasksWithFrom.length > 0 && tasksWithTo.length > 0 && !taskWithBoth) {
       result.issues.push({
         message: `Key Link "${link.from}" -> "${link.to}": no task touches both ends simultaneously`,
-        location: 'PLAN.md Key Links',
-        fixHint: `Ensure at least 1 task has both "${fromNorm}" and "${toNorm}" in Files`
+        location: "PLAN.md Key Links",
+        fixHint: `Ensure at least 1 task has both "${fromNorm}" and "${toNorm}" in Files`,
       });
     }
   }
 
-  result.status = result.issues.length > 0 ? 'block' : 'pass';
+  result.status = result.issues.length > 0 ? "block" : "pass";
   return result;
 }
 
@@ -874,23 +899,23 @@ function checkKeyLinks(planContent, tasksContent) {
  * Per D-05, D-06, D-13.
  */
 function checkScopeThresholds(planContent, tasksContent) {
-  const result = { checkId: 'ADV-02', status: 'pass', issues: [] };
+  const result = { checkId: "ADV-02", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
   // Unknown format: graceful PASS
-  if (format === 'unknown') return result;
+  if (format === "unknown") return result;
 
   let taskCount = 0;
   let taskFiles = []; // array of { id, files string }
   let truthCount = 0;
 
-  if (format === 'v1.1' && tasksContent) {
+  if (format === "v1.1" && tasksContent) {
     // v1.1: parse from TASKS.md
     const tasks = parseTaskDetailBlocksV11(tasksContent);
     taskCount = tasks.length;
-    taskFiles = tasks.map(t => ({ id: t.id, files: t.files }));
+    taskFiles = tasks.map((t) => ({ id: t.id, files: t.files }));
     truthCount = parseTruthsV11(planContent).length;
-  } else if (format === 'v1.0') {
+  } else if (format === "v1.0") {
     // v1.0: parse from PLAN.md XML (D-13)
     const tasks = parseTasksV10(planContent);
     taskCount = tasks.length;
@@ -901,10 +926,16 @@ function checkScopeThresholds(planContent, tasksContent) {
     let idx = 0;
     while ((match = taskRegex.exec(planContent)) !== null) {
       const attrs = match[1];
-      if (/type\s*=\s*["']checkpoint:/i.test(attrs)) { idx++; continue; }
+      if (/type\s*=\s*["']checkpoint:/i.test(attrs)) {
+        idx++;
+        continue;
+      }
       const block = match[2];
       const filesMatch = block.match(/<files>([\s\S]*?)<\/files>/);
-      taskFiles.push({ id: idx + 1, files: filesMatch ? filesMatch[1].trim() : null });
+      taskFiles.push({
+        id: idx + 1,
+        files: filesMatch ? filesMatch[1].trim() : null,
+      });
       idx++;
     }
 
@@ -923,8 +954,8 @@ function checkScopeThresholds(planContent, tasksContent) {
   if (taskCount > 6) {
     result.issues.push({
       message: `Plan has ${taskCount} tasks (threshold: 6)`,
-      location: 'PLAN.md/TASKS.md',
-      fixHint: 'Split plan into multiple smaller plans'
+      location: "PLAN.md/TASKS.md",
+      fixHint: "Split plan into multiple smaller plans",
     });
   }
 
@@ -935,7 +966,7 @@ function checkScopeThresholds(planContent, tasksContent) {
       result.issues.push({
         message: `Task ${tf.id} has ${fc} files (threshold: 7)`,
         location: `TASKS.md Task ${tf.id}`,
-        fixHint: 'Split task into multiple smaller tasks'
+        fixHint: "Split task into multiple smaller tasks",
       });
     }
   }
@@ -944,14 +975,17 @@ function checkScopeThresholds(planContent, tasksContent) {
   const allFiles = new Set();
   for (const tf of taskFiles) {
     if (!tf.files) continue;
-    const items = tf.files.split(/[,\n]/).map(f => f.trim()).filter(Boolean);
+    const items = tf.files
+      .split(/[,\n]/)
+      .map((f) => f.trim())
+      .filter(Boolean);
     for (const item of items) allFiles.add(item);
   }
   if (allFiles.size > 25) {
     result.issues.push({
       message: `Plan has ${allFiles.size} unique files (threshold: 25)`,
-      location: 'PLAN.md/TASKS.md',
-      fixHint: 'Split plan into multiple smaller plans'
+      location: "PLAN.md/TASKS.md",
+      fixHint: "Split plan into multiple smaller plans",
     });
   }
 
@@ -959,12 +993,12 @@ function checkScopeThresholds(planContent, tasksContent) {
   if (truthCount > 6) {
     result.issues.push({
       message: `Plan has ${truthCount} Truths (threshold: 6)`,
-      location: 'PLAN.md',
-      fixHint: 'Reduce number of Truths or split plan'
+      location: "PLAN.md",
+      fixHint: "Reduce number of Truths or split plan",
     });
   }
 
-  result.status = result.issues.length > 0 ? 'warn' : 'pass';
+  result.status = result.issues.length > 0 ? "warn" : "pass";
   return result;
 }
 
@@ -975,11 +1009,11 @@ function checkScopeThresholds(planContent, tasksContent) {
  * Per D-07, D-08, D-09, D-10, D-11, D-12.
  */
 function checkEffortClassification(planContent, tasksContent) {
-  const result = { checkId: 'ADV-03', status: 'pass', issues: [] };
+  const result = { checkId: "ADV-03", status: "pass", issues: [] };
   const format = detectPlanFormat(planContent);
 
   // v1.0/unknown: graceful PASS (D-12 — no Effort field in v1.0)
-  if (format === 'v1.0' || format === 'unknown') return result;
+  if (format === "v1.0" || format === "unknown") return result;
   if (!tasksContent) return result;
 
   const tasks = parseTaskDetailBlocksV11(tasksContent);
@@ -992,16 +1026,19 @@ function checkEffortClassification(planContent, tasksContent) {
     const labeled = task.effort.toLowerCase();
 
     if (labeled !== actualEffort) {
-      const direction = levels[labeled] < levels[actualEffort] ? 'underestimate' : 'overestimate';
+      const direction =
+        levels[labeled] < levels[actualEffort]
+          ? "underestimate"
+          : "overestimate";
       result.issues.push({
         message: `Task ${task.id} effort "${labeled}" may be ${direction} (signals suggest "${actualEffort}")`,
         location: `TASKS.md Task ${task.id}`,
-        fixHint: `Consider changing Effort to "${actualEffort}" or keep if justified`
+        fixHint: `Consider changing Effort to "${actualEffort}" or keep if justified`,
       });
     }
   }
 
-  result.status = result.issues.length > 0 ? 'warn' : 'pass';
+  result.status = result.issues.length > 0 ? "warn" : "pass";
   return result;
 }
 
@@ -1011,13 +1048,22 @@ function checkEffortClassification(planContent, tasksContent) {
  * 'warn' if any warns but none block,
  * 'pass' if all pass.
  */
-function runAllChecks({ planContent, tasksContent, requirementIds, check05Severity, check06Options, check07Severity }) {
+function runAllChecks({
+  planContent,
+  tasksContent,
+  requirementIds,
+  check05Severity,
+  check06Options,
+  check07Severity,
+}) {
   const checks = [
     checkRequirementCoverage(planContent, requirementIds),
     checkTaskCompleteness(planContent, tasksContent),
     checkDependencyCorrectness(planContent, tasksContent),
     checkTruthTaskCoverage(planContent, tasksContent),
-    checkLogicCoverage(planContent, tasksContent, { severity: check05Severity }),
+    checkLogicCoverage(planContent, tasksContent, {
+      severity: check05Severity,
+    }),
     checkResearchBacking(planContent, check06Options || {}),
     checkHedgingLanguage(planContent, { severity: check07Severity }),
     checkKeyLinks(planContent, tasksContent),
@@ -1025,9 +1071,9 @@ function runAllChecks({ planContent, tasksContent, requirementIds, check05Severi
     checkEffortClassification(planContent, tasksContent),
   ];
 
-  const hasBlock = checks.some(c => c.status === 'block');
-  const hasWarn = checks.some(c => c.status === 'warn');
-  const overall = hasBlock ? 'block' : hasWarn ? 'warn' : 'pass';
+  const hasBlock = checks.some((c) => c.status === "block");
+  const hasWarn = checks.some((c) => c.status === "warn");
+  const overall = hasBlock ? "block" : hasWarn ? "warn" : "pass";
 
   return { overall, checks };
 }

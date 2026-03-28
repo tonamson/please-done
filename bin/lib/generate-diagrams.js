@@ -1,9 +1,9 @@
 /**
  * Diagram Generation Module — Business Logic Flowchart from Truths tables
  *
- * Pure function: nhan planContents array, tra ve Mermaid flowchart TD.
+ * Pure function: receives planContents array, returns Mermaid flowchart TD.
  * Zero file I/O — content passed as args.
- * Validates output bang mermaid-validator.js, retry max 2 lan.
+ * Validates output with mermaid-validator.js, retries max 2 times.
  */
 
 'use strict';
@@ -57,9 +57,9 @@ function parseDependsOnFromFrontmatter(frontmatter) {
  */
 function sanitizeLabel(text) {
   return text
-    .replace(/</g, 'nho hon')
-    .replace(/>/g, 'lon hon')
-    .replace(/&/g, 'va')
+    .replace(/</g, 'less than')
+    .replace(/>/g, 'greater than')
+    .replace(/&/g, 'and')
     .replace(/"/g, "'")
     .trim();
 }
@@ -143,7 +143,7 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
 
   // Empty or invalid input — minimal diagram with Start/End only
   if (!planContents || !Array.isArray(planContents) || planContents.length === 0) {
-    const minimal = 'flowchart TD\n  start(["Bat dau"]) --> done(["Hoan thanh"])';
+    const minimal = 'flowchart TD\n  start(["Start"]) --> done(["Done"])';
     const validation = validateAndRetry(minimal, maxRetries);
     return {
       diagram: validation.diagram,
@@ -173,7 +173,7 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
 
   // If no truths found at all, return minimal diagram
   if (totalTruths === 0) {
-    const minimal = 'flowchart TD\n  start(["Bat dau"]) --> done(["Hoan thanh"])';
+    const minimal = 'flowchart TD\n  start(["Start"]) --> done(["Done"])';
     const validation = validateAndRetry(minimal, maxRetries);
     return {
       diagram: validation.diagram,
@@ -194,13 +194,13 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
   // Build Mermaid text
   let lines = [];
   lines.push('flowchart TD');
-  lines.push('  start(["Bat dau"])');
+  lines.push('  start(["Start"])');
 
   if (useSubgraphs) {
     // ─── Subgraph mode ───
     for (const plan of plansWithTruths) {
       const pn = pad(plan.planNumber);
-      lines.push(`  subgraph Plan${pn}["Ke hoach ${pn}"]`);
+      lines.push(`  subgraph Plan${pn}["Plan ${pn}"]`);
 
       for (const truth of plan.truths) {
         const nodeId = `P${pn}${truth.id}`;
@@ -312,7 +312,7 @@ function generateBusinessLogicDiagram(planContents, options = {}) {
   }
 
   // Add end node
-  lines.push('  done(["Hoan thanh"])');
+  lines.push('  done(["Done"])');
 
   const mermaidText = lines.join('\n');
 
@@ -426,10 +426,10 @@ function basename(filePath) {
  * Generate Architecture Diagram from codebase maps and plan metadata.
  *
  * @param {object} codebaseMaps
- *   - architecture {string} - Noi dung ARCHITECTURE.md
- *   - structure {string} - Noi dung STRUCTURE.md (optional)
+ *   - architecture {string} - ARCHITECTURE.md contents
+ *   - structure {string} - STRUCTURE.md contents (optional)
  * @param {object} planMeta
- *   - filesModified {string[]} - Tat ca files bi thay doi trong milestone
+ *   - filesModified {string[]} - All files modified in the milestone
  * @param {object} [options] - { maxRetries: 2 }
  * @returns {{ diagram: string, valid: boolean, errors: Array, warnings: Array, layerCount: number, nodeCount: number }}
  */
@@ -441,7 +441,7 @@ function generateArchitectureDiagram(codebaseMaps, planMeta, options = {}) {
 
   // Empty filesModified — minimal valid diagram
   if (filesModified.length === 0) {
-    const minimal = 'flowchart LR\n  note["Khong co file thay doi trong milestone"]';
+    const minimal = 'flowchart LR\n  note["No files modified in this milestone"]';
     const validation = validateAndRetry(minimal, maxRetries);
     return {
       diagram: validation.diagram,
@@ -465,11 +465,11 @@ function generateArchitectureDiagram(codebaseMaps, planMeta, options = {}) {
     }
   }
 
-  // Handle unmatched files — "Khac" layer
+  // Handle unmatched files — "Other" layer
   const allMatched = activeLayers.flatMap(l => l.files);
   const unmatched = filesModified.filter(f => !allMatched.includes(f));
   if (unmatched.length > 0) {
-    activeLayers.push({ name: 'Khac', location: '', files: unmatched, dependsOn: '', usedBy: '' });
+    activeLayers.push({ name: 'Other', location: '', files: unmatched, dependsOn: '', usedBy: '' });
   }
 
   // Build Mermaid text

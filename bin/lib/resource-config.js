@@ -1,14 +1,14 @@
 /**
  * Resource Config Module — Tier mapping, parallel limit, heavy lock, degradation logic.
  *
- * Pure functions: KHONG doc file, KHONG require('fs'), KHONG side effects.
- * Day la nen tang config cho toan bo v2.1 Detective Orchestrator.
+ * Pure functions: NO file reads, NO require('fs'), NO side effects.
+ * This is the configuration foundation for the entire v2.1 Detective Orchestrator.
  *
- * - getModelForTier: tra ve model/effort/maxTurns tu tier name
- * - getAgentConfig: tra ve full config cho 1 agent (merged tu registry + tier)
- * - getParallelLimit: tra ve so luong agent chay song song toi da
- * - isHeavyAgent: kiem tra agent co dung heavy tool (fastcode) khong
- * - shouldDegrade: kiem tra error co can ha cap tu parallel sang sequential khong
+ * - getModelForTier: return model/effort/maxTurns from tier name
+ * - getAgentConfig: return full config for an agent (merged from registry + tier)
+ * - getParallelLimit: return max parallel agent count
+ * - isHeavyAgent: check if agent uses heavy tools (fastcode)
+ * - shouldDegrade: check if error requires degradation from parallel to sequential
  */
 
 "use strict";
@@ -16,19 +16,29 @@
 // ─── Constants ────────────────────────────────────────────
 
 /**
- * Tier mapping: ten tier → { model, effort, maxTurns, tokenBudget }
- * scout = haiku (nhe, nhanh), builder = sonnet (trung binh), architect = opus (nang, chinh xac)
- * tokenBudget: gioi han token toi da cho workflow cua tier do
+ * Tier mapping: tier name → { model, effort, maxTurns, tokenBudget }
+ * scout = haiku (light, fast), builder = sonnet (medium), architect = opus (heavy, precise)
+ * tokenBudget: max token limit for that tier's workflow
  */
 const TIER_MAP = {
   scout: { model: "haiku", effort: "low", maxTurns: 15, tokenBudget: 4000 },
-  builder: { model: "sonnet", effort: "medium", maxTurns: 25, tokenBudget: 8000 },
-  architect: { model: "opus", effort: "high", maxTurns: 30, tokenBudget: 12000 },
+  builder: {
+    model: "sonnet",
+    effort: "medium",
+    maxTurns: 25,
+    tokenBudget: 8000,
+  },
+  architect: {
+    model: "opus",
+    effort: "high",
+    maxTurns: 30,
+    tokenBudget: 12000,
+  },
 };
 
 /**
- * Token budget per tier — derived tu TIER_MAP de dam bao nhat quan.
- * Dung cho enforcement va benchmark comparison.
+ * Token budget per tier — derived from TIER_MAP for consistency.
+ * Used for enforcement and benchmark comparison.
  */
 const TOKEN_BUDGET = {
   scout: TIER_MAP.scout.tokenBudget,
@@ -37,15 +47,15 @@ const TOKEN_BUDGET = {
 };
 
 /**
- * Thu tu fallback: architect → builder → scout.
- * Khi platform thieu tier cao, tu dong ha xuong tier thap hon.
+ * Fallback order: architect → builder → scout.
+ * When platform lacks a higher tier, automatically falls back to the next lower tier.
  */
 const FALLBACK_CHAIN = ["architect", "builder", "scout"];
 
 /**
  * Platform-specific model mapping.
- * Keys la generic model names (haiku/sonnet/opus) de match voi TIER_MAP[tier].model.
- * Moi platform map generic name sang model ID thuc te cua platform do.
+ * Keys are generic model names (haiku/sonnet/opus) to match TIER_MAP[tier].model.
+ * Each platform maps generic names to its actual platform-specific model IDs.
  */
 const PLATFORM_MODEL_MAP = {
   claude: {
@@ -61,7 +71,7 @@ const PLATFORM_MODEL_MAP = {
   gemini: {
     haiku: "gemini-2.5-flash",
     sonnet: "gemini-2.5-pro",
-    // khong co opus -> fallback sang builder (gemini-2.5-pro)
+    // no opus -> fallback to builder (gemini-2.5-pro)
   },
   opencode: {
     haiku: "claude-haiku-4-5-20251001",
@@ -86,8 +96,8 @@ const PLATFORM_MODEL_MAP = {
 };
 
 /**
- * Agent registry: ten agent → { tier, tools }
- * Moi agent co 1 tier va danh sach tools duoc phep dung.
+ * Agent registry: agent name → { tier, tools }
+ * Each agent has a tier and list of permitted tools.
  */
 const AGENT_REGISTRY = {
   "pd-bug-janitor": {
@@ -134,10 +144,19 @@ const AGENT_REGISTRY = {
     tier: "scout",
     tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"],
     categories: [
-      "sql-injection", "xss", "cmd-injection", "path-traversal",
-      "secrets", "auth", "deserialization", "misconfig",
-      "prototype-pollution", "crypto", "insecure-design",
-      "vuln-deps", "logging",
+      "sql-injection",
+      "xss",
+      "cmd-injection",
+      "path-traversal",
+      "secrets",
+      "auth",
+      "deserialization",
+      "misconfig",
+      "prototype-pollution",
+      "crypto",
+      "insecure-design",
+      "vuln-deps",
+      "logging",
     ],
   },
   "pd-sec-reporter": {
@@ -162,7 +181,14 @@ const AGENT_REGISTRY = {
   },
   "pd-feature-analyst": {
     tier: "scout",
-    tools: ["Read", "Glob", "Grep", "Bash", "mcp__context7__resolve-library-id", "mcp__context7__query-docs"],
+    tools: [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+    ],
   },
   "pd-research-synthesizer": {
     tier: "architect",
@@ -175,66 +201,66 @@ const AGENT_REGISTRY = {
 };
 
 /**
- * Patterns nhan dien heavy tools — agent co tool match pattern nay se bi gioi han.
- * Hien tai chi co fastcode (indexing toan bo codebase).
+ * Patterns identifying heavy tools — agents with matching tools will be limited.
+ * Currently only fastcode (indexes entire codebase).
  */
 const HEAVY_TOOL_PATTERNS = ["mcp__fastcode__"];
 
-/** So luong agent chay song song toi da (legacy — dung getAdaptiveParallelLimit() thay the). */
+/** Max parallel agent count (legacy — use getAdaptiveParallelLimit() instead). */
 const PARALLEL_LIMIT = 2;
 
-/** Gioi han cung cho adaptive parallel. */
+/** Hard limits for adaptive parallel. */
 const PARALLEL_MIN = 2;
 const PARALLEL_MAX = 4;
 const PARALLEL_DEFAULT = 3;
 
-/** Nguong thoi gian (ms) de coi la timeout can ha cap. */
+/** Time threshold (ms) to consider as timeout requiring degradation. */
 const DEGRADATION_TIMEOUT_MS = 120_000;
 
-/** Error codes bao hieu can ha cap tu parallel sang sequential. */
+/** Error codes signaling degradation from parallel to sequential. */
 const DEGRADATION_CODES = new Set([
   "TIMEOUT",
   "RESOURCE_EXHAUSTED",
   "RATE_LIMIT",
 ]);
 
-/** Regex match message bao hieu agent spawn that bai. */
+/** Regex matching agent spawn failure messages. */
 const AGENT_FAIL_RE = /agent.*fail/i;
 
 // ─── getModelForTier ─────────────────────────────────────────
 
 /**
- * Tra ve model config tu tier name, co the resolve sang platform-specific model.
+ * Return model config from tier name, optionally resolving to platform-specific model.
  *
- * @param {string} tier - Ten tier (scout, builder, architect). Case-insensitive.
- * @param {string} [platform] - Ten platform (claude, codex, gemini, ...). Optional.
+ * @param {string} tier - Tier name (scout, builder, architect). Case-insensitive.
+ * @param {string} [platform] - Platform name (claude, codex, gemini, ...). Optional.
  * @returns {{ model: string, effort: string, maxTurns: number, fallback?: boolean, requestedTier?: string, resolvedTier?: string }}
- * @throws {Error} Khi tier la null/undefined hoac khong hop le
+ * @throws {Error} When tier is null/undefined or invalid
  */
 function getModelForTier(tier, platform) {
   if (tier == null || typeof tier !== "string") {
-    throw new Error("thieu tham so tier");
+    throw new Error("missing tier parameter");
   }
 
   const normalized = tier.toLowerCase();
   const entry = TIER_MAP[normalized];
 
   if (!entry) {
-    throw new Error(`tier khong hop le: ${tier}`);
+    throw new Error(`invalid tier: ${tier}`);
   }
 
-  // Khong co platform -> tra ve generic (backward compatible)
+  // No platform -> return generic (backward compatible)
   if (!platform) {
     return { ...entry };
   }
 
   const platformMap = PLATFORM_MODEL_MAP[platform];
   if (!platformMap) {
-    // Platform khong biet -> tra ve generic
+    // Unknown platform -> return generic
     return { ...entry };
   }
 
-  // Tim model cho tier, neu khong co thi fallback xuong tier thap hon
+  // Find model for tier, if not available then fallback to lower tier
   const startIdx = FALLBACK_CHAIN.indexOf(normalized);
   for (let i = startIdx; i < FALLBACK_CHAIN.length; i++) {
     const fallbackTier = FALLBACK_CHAIN[i];
@@ -253,29 +279,29 @@ function getModelForTier(tier, platform) {
     }
   }
 
-  // Khong nen xay ra — de phong
+  // Should not happen — safety fallback
   return { ...entry };
 }
 
-// ─── getAgentConfig ──────────────────────────────────────────
+// ─── getAgentConfig ──────────────────────────────────
 
 /**
- * Tra ve full config cho 1 agent, merge tu AGENT_REGISTRY va TIER_MAP.
+ * Return full config for an agent, merged from AGENT_REGISTRY and TIER_MAP.
  *
- * @param {string} agentName - Ten agent (vd: 'pd-bug-janitor')
- * @param {string} [platform] - Ten platform (claude, codex, gemini, ...). Optional.
+ * @param {string} agentName - Agent name (e.g. 'pd-bug-janitor')
+ * @param {string} [platform] - Platform name (claude, codex, gemini, ...). Optional.
  * @returns {{ name: string, tier: string, model: string, effort: string, maxTurns: number, tools: string[], ...extra }}
- * @throws {Error} Khi agentName la null/undefined hoac khong ton tai
+ * @throws {Error} When agentName is null/undefined or does not exist
  */
 function getAgentConfig(agentName, platform) {
   if (agentName == null || typeof agentName !== "string") {
-    throw new Error("thieu tham so agentName");
+    throw new Error("missing agentName parameter");
   }
 
   const agent = AGENT_REGISTRY[agentName];
 
   if (!agent) {
-    throw new Error(`agent khong ton tai: ${agentName}`);
+    throw new Error(`agent does not exist: ${agentName}`);
   }
 
   const { tier, tools, ...extra } = agent;
@@ -295,7 +321,7 @@ function getAgentConfig(agentName, platform) {
 // ─── getParallelLimit ────────────────────────────────────────
 
 /**
- * Tra ve so luong agent chay song song toi da (legacy, hardcode).
+ * Return max parallel agent count (legacy, hardcoded).
  *
  * @returns {number}
  */
@@ -306,13 +332,13 @@ function getParallelLimit() {
 // ─── getAdaptiveParallelLimit ────────────────────────────────
 
 /**
- * Tra ve so workers toi uu dua tren CPU/RAM thuc te cua may.
- * Khong dung AI — chay bang os module, ket qua tuc thi.
+ * Return optimal worker count based on actual CPU/RAM of the machine.
+ * No AI involved — uses os module, returns instantly.
  *
  * Logic:
- * - CPU <= 4 cores HOAC RAM trong < 2GB → min (2)
- * - CPU >= 8 cores VA RAM trong > 4GB    → max (4)
- * - Con lai                              → default (3)
+ * - CPU <= 4 cores OR free RAM < 2GB → min (2)
+ * - CPU >= 8 cores AND free RAM > 4GB → max (4)
+ * - Otherwise → default (3)
  *
  * @returns {{ workers: number, reason: string, cpu: number, freeMemGB: string, loadAvg: number }}
  */
@@ -330,19 +356,19 @@ function getAdaptiveParallelLimit() {
     workers = PARALLEL_MIN;
     reason =
       cpuCount <= 4
-        ? `CPU chi co ${cpuCount} cores`
-        : `RAM trong chi con ${freeMemGB}GB`;
+        ? `CPU has only ${cpuCount} cores`
+        : `Free RAM only ${freeMemGB}GB`;
   } else if (cpuCount >= 8 && freeMemBytes > 4 * 1024 ** 3) {
     workers = PARALLEL_MAX;
-    reason = `CPU ${cpuCount} cores, RAM trong ${freeMemGB}GB — du manh`;
+    reason = `CPU ${cpuCount} cores, free RAM ${freeMemGB}GB — powerful enough`;
   } else {
-    reason = `CPU ${cpuCount} cores, RAM trong ${freeMemGB}GB — muc trung binh`;
+    reason = `CPU ${cpuCount} cores, free RAM ${freeMemGB}GB — medium level`;
   }
 
-  // D-10/D-11: loadAvg degradation — giam 1 worker neu he thong qua tai
+  // D-10/D-11: loadAvg degradation — reduce 1 worker if system is overloaded
   if (loadAvg > 0 && loadAvg > cpuCount && workers > PARALLEL_MIN) {
     workers -= 1;
-    reason += ` + loadAvg ${loadAvg.toFixed(1)} vuot ${cpuCount} CPU`;
+    reason += ` + loadAvg ${loadAvg.toFixed(1)} exceeds ${cpuCount} CPUs`;
   }
 
   return { workers, reason, cpu: cpuCount, freeMemGB, loadAvg };
@@ -351,11 +377,11 @@ function getAdaptiveParallelLimit() {
 // ─── isHeavyAgent ────────────────────────────────────────────
 
 /**
- * Kiem tra agent co dung heavy tool khong (vd: mcp__fastcode__).
- * Agent heavy se bi gioi han — khong cho 2 heavy agent chay dong thoi.
+ * Check if agent uses heavy tools (e.g. mcp__fastcode__).
+ * Heavy agents are limited — no two heavy agents run simultaneously.
  *
- * @param {string} agentName - Ten agent
- * @returns {boolean} true neu agent co it nhat 1 tool match HEAVY_TOOL_PATTERNS
+ * @param {string} agentName - Agent name
+ * @returns {boolean} true if agent has at least 1 tool matching HEAVY_TOOL_PATTERNS
  */
 function isHeavyAgent(agentName) {
   const agent = AGENT_REGISTRY[agentName];
@@ -369,14 +395,14 @@ function isHeavyAgent(agentName) {
 // ─── shouldDegrade ───────────────────────────────────────────
 
 /**
- * Kiem tra error co can ha cap tu parallel sang sequential khong.
- * Dieu kien ha cap:
- * - error.code la TIMEOUT, RESOURCE_EXHAUSTED, hoac RATE_LIMIT
- * - error.duration > 120000ms (qua lau)
- * - error.message match pattern "agent.*fail"
+ * Check if error requires degradation from parallel to sequential.
+ * Degradation conditions:
+ * - error.code is TIMEOUT, RESOURCE_EXHAUSTED, or RATE_LIMIT
+ * - error.duration > 120000ms (too slow)
+ * - error.message matches pattern "agent.*fail"
  *
- * @param {object|null|undefined} error - Error object tu agent spawn
- * @returns {boolean} true neu can ha cap
+ * @param {object|null|undefined} error - Error object from agent spawn
+ * @returns {boolean} true if degradation needed
  */
 function shouldDegrade(error) {
   if (!error || typeof error !== "object") return false;

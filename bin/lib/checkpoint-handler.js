@@ -12,9 +12,9 @@
  * - MAX_CONTINUATION_ROUNDS: continuation round limit (2)
  */
 
-'use strict';
+"use strict";
 
-const { parseEvidence } = require('./evidence-protocol');
+const { parseEvidence } = require("./evidence-protocol");
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -33,17 +33,17 @@ function extractCheckpointQuestion(evidenceContent) {
   const warnings = [];
   const parsed = parseEvidence(evidenceContent);
 
-  if (parsed.outcome !== 'checkpoint') {
+  if (parsed.outcome !== "checkpoint") {
     warnings.push(`outcome is not checkpoint: ${parsed.outcome}`);
-    return { question: '', context: '', agentName: null, warnings };
+    return { question: "", context: "", agentName: null, warnings };
   }
 
-  const question = parsed.sections['Câu hỏi cho User'] || '';
-  const context = parsed.sections['Context cho Agent tiếp'] || '';
+  const question = parsed.sections["Question for User"] || "";
+  const context = parsed.sections["Context for Next Agent"] || "";
   const agentName = parsed.agent;
 
   if (!question) {
-    warnings.push('Evidence missing section "Câu hỏi cho User"');
+    warnings.push('Evidence missing section "Question for User"');
   }
 
   return { question, context, agentName, warnings };
@@ -62,12 +62,20 @@ function extractCheckpointQuestion(evidenceContent) {
  * @param {string} params.agentName - Agent name
  * @returns {{ prompt: string, agentName: string, round: number, canContinue: boolean, warnings: string[] }}
  */
-function buildContinuationContext({ evidencePath, userAnswer, sessionDir, currentRound, agentName }) {
+function buildContinuationContext({
+  evidencePath,
+  userAnswer,
+  sessionDir,
+  currentRound,
+  agentName,
+}) {
   const warnings = [];
   const canContinue = currentRound <= MAX_CONTINUATION_ROUNDS;
 
   if (!canContinue) {
-    warnings.push(`Exceeded ${MAX_CONTINUATION_ROUNDS} continuation rounds — manual review needed`);
+    warnings.push(
+      `Exceeded ${MAX_CONTINUATION_ROUNDS} continuation rounds — manual review needed`,
+    );
   }
 
   const prompt = [
@@ -75,7 +83,7 @@ function buildContinuationContext({ evidencePath, userAnswer, sessionDir, curren
     `Session dir: ${sessionDir}`,
     `Previous evidence: ${evidencePath}`,
     `User answer: ${userAnswer}`,
-  ].join('\n');
+  ].join("\n");
 
   return { prompt, agentName, round: currentRound, canContinue, warnings };
 }

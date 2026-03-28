@@ -1,8 +1,8 @@
 /**
- * Repro Test Generator — Tao skeleton test tai hien loi.
+ * Repro Test Generator — Create skeleton test to reproduce a bug.
  *
- * Pure function: nhan params, tra ve test code string.
- * KHONG doc file — tat ca content truyen qua tham so.
+ * Pure function: receives params, returns test code string.
+ * Does NOT read files — all content passed as parameters.
  * Zero dependencies — self-contained.
  */
 
@@ -11,25 +11,25 @@
 // ─── Main Function ────────────────────────────────────────
 
 /**
- * Tao skeleton test tai hien loi tu symptoms va bugTitle.
+ * Create skeleton test to reproduce a bug from symptoms and bugTitle.
  *
  * @param {object} params
  * @param {object} params.symptoms - { expected, actual, errorMessage, timeline, reproduce }
- * @param {string} params.bugTitle - Ten tat cua bug (vi du: 'login-timeout')
- * @param {string} params.filePath - Duong dan file bi loi
- * @param {string} [params.functionName] - Ten function bi loi (optional)
+ * @param {string} params.bugTitle - Short bug name (e.g. 'login-timeout')
+ * @param {string} params.filePath - Path to the buggy file
+ * @param {string} [params.functionName] - Name of the buggy function (optional)
  * @returns {{ testCode: string, testFileName: string }}
  */
 function generateReproTest(params) {
   // ─── Validate ──────────────────────────────────────────
   if (!params) {
-    throw new Error('generateReproTest: thieu params.symptoms hoac params.bugTitle');
+    throw new Error('generateReproTest: missing params.symptoms or params.bugTitle');
   }
   if (!params.symptoms) {
-    throw new Error('generateReproTest: thieu params.symptoms hoac params.bugTitle');
+    throw new Error('generateReproTest: missing params.symptoms or params.bugTitle');
   }
   if (!params.bugTitle) {
-    throw new Error('generateReproTest: thieu params.symptoms hoac params.bugTitle');
+    throw new Error('generateReproTest: missing params.symptoms or params.bugTitle');
   }
 
   // ─── Sanitize bugTitle ─────────────────────────────────
@@ -38,15 +38,15 @@ function generateReproTest(params) {
 
   // ─── Extract params ────────────────────────────────────
   const { symptoms, bugTitle, filePath, functionName } = params;
-  const fnName = functionName || 'chua xac dinh';
+  const fnName = functionName || 'unknown';
 
   // ─── Build test code ───────────────────────────────────
   const testCode = `/**
  * Repro Test — ${bugTitle}
- * File loi: ${filePath || 'chua xac dinh'}
+ * Buggy file: ${filePath || 'unknown'}
  * Function: ${fnName}
  *
- * Test nay la skeleton — AI se dien logic tai hien loi.
+ * This test is a skeleton — AI will fill in the reproduction logic.
  */
 
 'use strict';
@@ -54,20 +54,20 @@ function generateReproTest(params) {
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
-describe('Tai hien: ${bugTitle}', () => {
-  it('phai tai hien duoc loi', () => {
-    // Ket qua mong doi: ${symptoms.expected || ''}
-    // Ket qua thuc te: ${symptoms.actual || ''}
+describe('Reproduce: ${bugTitle}', () => {
+  it('should reproduce the bug', () => {
+    // Expected result: ${symptoms.expected || ''}
+    // Actual result: ${symptoms.actual || ''}
     // Error message: ${symptoms.errorMessage || ''}
 
     // --- Arrange ---
-    // TODO: Thiet lap du lieu va dieu kien
+    // TODO: Set up data and conditions
 
     // --- Act ---
-    // TODO: Goi function hoac thao tac gay loi
+    // TODO: Call function or perform action that causes the bug
 
     // --- Assert ---
-    assert.fail('TODO: Dien logic tai hien loi');
+    assert.fail('TODO: Fill in reproduction logic');
   });
 });
 `;

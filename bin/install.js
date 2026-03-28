@@ -19,19 +19,31 @@
  *   npx please-done --local            # Local install (project-level)
  */
 
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const path = require('path');
-const readline = require('readline');
+const fs = require("fs");
+const path = require("path");
+const readline = require("readline");
 
-const { PLATFORMS, getGlobalDir, getLocalDir, getAllRuntimes } = require('./lib/platforms');
-const { log, isWSL } = require('./lib/utils');
-const { saveLocalPatches, writeManifest, reportLocalPatches, scanLeakedPaths } = require('./lib/manifest');
+const {
+  PLATFORMS,
+  getGlobalDir,
+  getLocalDir,
+  getAllRuntimes,
+} = require("./lib/platforms");
+const { log, isWSL } = require("./lib/utils");
+const {
+  saveLocalPatches,
+  writeManifest,
+  reportLocalPatches,
+  scanLeakedPaths,
+} = require("./lib/manifest");
 
 // ─── Constants ────────────────────────────────────────────
-const SCRIPT_DIR = path.resolve(__dirname, '..');
-const VERSION = fs.readFileSync(path.join(SCRIPT_DIR, 'VERSION'), 'utf8').trim();
+const SCRIPT_DIR = path.resolve(__dirname, "..");
+const VERSION = fs
+  .readFileSync(path.join(SCRIPT_DIR, "VERSION"), "utf8")
+  .trim();
 
 // ─── Arg parsing ──────────────────────────────────────────
 function parseArgs(argv) {
@@ -47,22 +59,50 @@ function parseArgs(argv) {
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     switch (arg) {
-      case '--claude': flags.runtimes.push('claude'); break;
-      case '--codex': flags.runtimes.push('codex'); break;
-      case '--gemini': flags.runtimes.push('gemini'); break;
-      case '--opencode': flags.runtimes.push('opencode'); break;
-      case '--copilot': flags.runtimes.push('copilot'); break;
-      case '--all': flags.runtimes = getAllRuntimes(); break;
-      case '--global': case '-g': flags.isGlobal = true; break;
-      case '--local': case '-l': flags.isGlobal = false; break;
-      case '--uninstall': case '-u': flags.uninstall = true; break;
-      case '--config-dir': case '-c':
-        if (i + 1 < args.length) flags.configDir = args[++i];
-        else { log.error('--config-dir requires a value'); process.exit(1); }
+      case "--claude":
+        flags.runtimes.push("claude");
         break;
-      case '--help': case '-h': flags.help = true; break;
+      case "--codex":
+        flags.runtimes.push("codex");
+        break;
+      case "--gemini":
+        flags.runtimes.push("gemini");
+        break;
+      case "--opencode":
+        flags.runtimes.push("opencode");
+        break;
+      case "--copilot":
+        flags.runtimes.push("copilot");
+        break;
+      case "--all":
+        flags.runtimes = getAllRuntimes();
+        break;
+      case "--global":
+      case "-g":
+        flags.isGlobal = true;
+        break;
+      case "--local":
+      case "-l":
+        flags.isGlobal = false;
+        break;
+      case "--uninstall":
+      case "-u":
+        flags.uninstall = true;
+        break;
+      case "--config-dir":
+      case "-c":
+        if (i + 1 < args.length) flags.configDir = args[++i];
+        else {
+          log.error("--config-dir requires a value");
+          process.exit(1);
+        }
+        break;
+      case "--help":
+      case "-h":
+        flags.help = true;
+        break;
       default:
-        if (arg.startsWith('-')) {
+        if (arg.startsWith("-")) {
           log.warn(`Unknown flag: ${arg}`);
         }
     }
@@ -89,14 +129,14 @@ async function promptRuntime() {
   const rl = createRL();
   const runtimes = getAllRuntimes();
 
-  console.log('');
-  console.log('Choose a platform to install skills:');
-  console.log('');
+  console.log("");
+  console.log("Choose a platform to install skills:");
+  console.log("");
   runtimes.forEach((rt, i) => {
     console.log(`  ${i + 1}. ${PLATFORMS[rt].name}`);
   });
   console.log(`  ${runtimes.length + 1}. All`);
-  console.log('');
+  console.log("");
 
   const answer = await ask(rl, `Choose (1-${runtimes.length + 1}): `);
   rl.close();
@@ -105,33 +145,39 @@ async function promptRuntime() {
   if (num === runtimes.length + 1) return runtimes;
   if (num >= 1 && num <= runtimes.length) return [runtimes[num - 1]];
 
-  log.error('Invalid selection.');
+  log.error("Invalid selection.");
   process.exit(1);
 }
 
 async function promptLocation() {
   const rl = createRL();
-  console.log('');
-  console.log('Installation scope:');
-  console.log('  1. Global (for all projects)');
-  console.log('  2. Local (current project only)');
-  console.log('');
+  console.log("");
+  console.log("Installation scope:");
+  console.log("  1. Global (for all projects)");
+  console.log("  2. Local (current project only)");
+  console.log("");
 
-  const answer = await ask(rl, 'Choose (1-2, default: 1): ');
+  const answer = await ask(rl, "Choose (1-2, default: 1): ");
   rl.close();
 
-  return answer === '2' ? false : true;
+  return answer === "2" ? false : true;
 }
 
 // ─── Installed dirs per platform (for manifest tracking) ──
 function getInstalledDirs(runtime) {
   switch (runtime) {
-    case 'claude': return ['commands/pd'];
-    case 'codex': return ['skills'];
-    case 'gemini': return ['commands/pd'];
-    case 'opencode': return ['command'];
-    case 'copilot': return ['skills'];
-    default: return [];
+    case "claude":
+      return ["commands/pd"];
+    case "codex":
+      return ["skills"];
+    case "gemini":
+      return ["commands/pd"];
+    case "opencode":
+      return ["command"];
+    case "copilot":
+      return ["skills"];
+    default:
+      return [];
   }
 }
 
@@ -144,9 +190,11 @@ async function install(runtime, isGlobal, configDir) {
   const platform = PLATFORMS[runtime];
   const targetDir = configDir
     ? path.resolve(configDir)
-    : (isGlobal ? getGlobalDir(runtime) : getLocalDir(runtime));
+    : isGlobal
+      ? getGlobalDir(runtime)
+      : getLocalDir(runtime);
 
-  console.log('');
+  console.log("");
   log.info(`Installing for ${platform.name} → ${targetDir}`);
 
   // Backup user-modified files before overwrite
@@ -158,9 +206,12 @@ async function install(runtime, isGlobal, configDir) {
   // Load platform-specific installer
   try {
     const installer = require(`./lib/installers/${runtime}`);
-    await installer.install(SCRIPT_DIR, targetDir, { isGlobal, version: VERSION });
+    await installer.install(SCRIPT_DIR, targetDir, {
+      isGlobal,
+      version: VERSION,
+    });
   } catch (err) {
-    if (err.code === 'MODULE_NOT_FOUND') {
+    if (err.code === "MODULE_NOT_FOUND") {
       log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
@@ -172,10 +223,12 @@ async function install(runtime, isGlobal, configDir) {
   writeManifest(targetDir, VERSION, installedDirs);
 
   // Scan leaked paths for non-Claude platforms
-  if (runtime !== 'claude') {
-    const leaked = scanLeakedPaths(targetDir, '~/.claude/');
+  if (runtime !== "claude") {
+    const leaked = scanLeakedPaths(targetDir, "~/.claude/");
     if (leaked.length > 0) {
-      log.warn(`${leaked.length} file(s) still contain ~/.claude/ not yet replaced:`);
+      log.warn(
+        `${leaked.length} file(s) still contain ~/.claude/ not yet replaced:`,
+      );
       for (const f of leaked) log.info(`    ${f}`);
     }
   }
@@ -193,21 +246,23 @@ async function uninstall(runtime, isGlobal, configDir) {
   const platform = PLATFORMS[runtime];
   const targetDir = configDir
     ? path.resolve(configDir)
-    : (isGlobal ? getGlobalDir(runtime) : getLocalDir(runtime));
+    : isGlobal
+      ? getGlobalDir(runtime)
+      : getLocalDir(runtime);
 
-  console.log('');
+  console.log("");
   log.info(`Uninstalling from ${platform.name} → ${targetDir}`);
 
   try {
     const installer = require(`./lib/installers/${runtime}`);
-    if (typeof installer.uninstall === 'function') {
+    if (typeof installer.uninstall === "function") {
       await installer.uninstall(targetDir, { isGlobal });
     } else {
       log.warn(`Uninstaller for ${platform.name} is not yet implemented.`);
       return;
     }
   } catch (err) {
-    if (err.code === 'MODULE_NOT_FOUND') {
+    if (err.code === "MODULE_NOT_FOUND") {
       log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
@@ -261,13 +316,15 @@ async function main() {
 
   // WSL check
   if (isWSL()) {
-    log.warn('WSL detected. Consider running the installer from native Linux, not through Windows.');
+    log.warn(
+      "WSL detected. Consider running the installer from native Linux, not through Windows.",
+    );
   }
 
   // Banner
   log.banner([
     `  Skills Installer v${VERSION}`.padEnd(39),
-    '  Cross-platform AI Coding Skills'.padEnd(39),
+    "  Cross-platform AI Coding Skills".padEnd(39),
   ]);
 
   // Resolve runtimes
@@ -278,7 +335,7 @@ async function main() {
     // Interactive mode
     if (!process.stdin.isTTY) {
       // Non-interactive: default to claude global
-      runtimes = ['claude'];
+      runtimes = ["claude"];
     } else {
       runtimes = await promptRuntime();
       isGlobal = await promptLocation();
@@ -296,27 +353,31 @@ async function main() {
   }
 
   // Summary
-  console.log('');
+  console.log("");
   if (!flags.uninstall) {
-    const platformNames = runtimes.map(r => PLATFORMS[r].name).join(', ');
+    const platformNames = runtimes.map((r) => PLATFORMS[r].name).join(", ");
     const platformLine = `  Platforms: ${platformNames}`;
     const bannerLines = [
-      '  Installation complete!',
+      "  Installation complete!",
       platformLine,
-      '',
-      '  Restart your editor to load skills.',
+      "",
+      "  Restart your editor to load skills.",
     ];
     // If platform names are long → split into multiple lines to fit banner width
     if (platformLine.length > 39) {
-      const names = runtimes.map(r => PLATFORMS[r].name);
-      const prefix = '  Platforms: ';
-      const cont = '             '; // same indent
+      const names = runtimes.map((r) => PLATFORMS[r].name);
+      const prefix = "  Platforms: ";
+      const cont = "             "; // same indent
       const maxLen = 39;
       const lines = [];
       let current = prefix;
       for (let i = 0; i < names.length; i++) {
-        const sep = i === 0 ? '' : ', ';
-        if ((current + sep + names[i]).length > maxLen && current !== prefix && current !== cont) {
+        const sep = i === 0 ? "" : ", ";
+        if (
+          (current + sep + names[i]).length > maxLen &&
+          current !== prefix &&
+          current !== cont
+        ) {
           lines.push(current);
           current = cont + names[i];
         } else {

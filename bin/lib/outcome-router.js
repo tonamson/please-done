@@ -15,10 +15,10 @@
  * - ROOT_CAUSE_CHOICES: constant 3 choices
  */
 
-'use strict';
+"use strict";
 
-const { parseEvidence } = require('./evidence-protocol');
-const { assembleMd } = require('./utils');
+const { parseEvidence } = require("./evidence-protocol");
+const { assembleMd } = require("./utils");
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -29,9 +29,9 @@ const MAX_INCONCLUSIVE_ROUNDS = 3;
  * 3 choices when ROOT CAUSE is found (D-01).
  */
 const ROOT_CAUSE_CHOICES = [
-  { key: 'fix_now',  label: 'Fix now' },
-  { key: 'fix_plan', label: 'Create plan' },
-  { key: 'self_fix', label: 'Self fix' },
+  { key: "fix_now", label: "Fix now" },
+  { key: "fix_plan", label: "Create plan" },
+  { key: "self_fix", label: "Self fix" },
 ];
 
 // ─── buildRootCauseMenu ──────────────────────────────────
@@ -45,18 +45,18 @@ const ROOT_CAUSE_CHOICES = [
 function buildRootCauseMenu(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  if (parsed.outcome !== 'root_cause') {
+  if (parsed.outcome !== "root_cause") {
     return {
-      question: '',
+      question: "",
       choices: [],
-      summary: '',
+      summary: "",
       warnings: [`outcome is not root_cause: ${parsed.outcome}`],
     };
   }
 
-  const rootCause = parsed.sections['Root Cause'] || 'No description available';
+  const rootCause = parsed.sections["Root Cause"] || "No description available";
   const question = `Root cause found:\n${rootCause}\n\nWhat would you like to do?`;
-  const summary = rootCause.split('\n')[0].slice(0, 120);
+  const summary = rootCause.split("\n")[0].slice(0, 120);
 
   return {
     question,
@@ -79,15 +79,15 @@ function buildRootCauseMenu(evidenceContent) {
 function prepareFixNow(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const evidence = parsed.sections['Evidence'] || '';
-  const suggestion = parsed.sections['Suggestion'] || '';
+  const evidence = parsed.sections["Evidence"] || "";
+  const suggestion = parsed.sections["Suggestion"] || "";
 
   return {
-    action: 'fix_now',
-    reusableModules: ['debug-cleanup', 'logic-sync', 'regression-analyzer'],
+    action: "fix_now",
+    reusableModules: ["debug-cleanup", "logic-sync", "regression-analyzer"],
     evidence,
     suggestion,
-    commitPrefix: '[BUG]',
+    commitPrefix: "[BUG]",
     warnings: [],
   };
 }
@@ -105,12 +105,12 @@ function prepareFixNow(evidenceContent) {
 function prepareFixPlan(evidenceContent, sessionDir) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Root Cause'] || '';
-  const evidence = parsed.sections['Evidence'] || '';
-  const suggestion = parsed.sections['Suggestion'] || '';
+  const rootCause = parsed.sections["Root Cause"] || "";
+  const evidence = parsed.sections["Evidence"] || "";
+  const suggestion = parsed.sections["Suggestion"] || "";
 
   const frontmatter = {
-    type: 'fix-plan',
+    type: "fix-plan",
     session: parsed.session,
     created: new Date().toISOString(),
   };
@@ -120,7 +120,7 @@ function prepareFixPlan(evidenceContent, sessionDir) {
   const planContent = assembleMd(frontmatter, body);
 
   return {
-    action: 'fix_plan',
+    action: "fix_plan",
     planContent,
     planPath: `${sessionDir}/FIX-PLAN.md`,
     warnings: [],
@@ -139,15 +139,15 @@ function prepareFixPlan(evidenceContent, sessionDir) {
 function prepareSelfFix(evidenceContent) {
   const parsed = parseEvidence(evidenceContent);
 
-  const rootCause = parsed.sections['Root Cause'] || '';
-  const evidence = parsed.sections['Evidence'] || '';
+  const rootCause = parsed.sections["Root Cause"] || "";
+  const evidence = parsed.sections["Evidence"] || "";
 
   return {
-    action: 'self_fix',
-    sessionUpdate: { status: 'paused' },
-    summary: rootCause.split('\n')[0].slice(0, 200),
+    action: "self_fix",
+    sessionUpdate: { status: "paused" },
+    summary: rootCause.split("\n")[0].slice(0, 200),
     filesForReview: evidence,
-    resumeHint: 'Run pd:fix-bug again to verify after fixing.',
+    resumeHint: "Run pd:fix-bug again to verify after fixing.",
     warnings: [],
   };
 }
@@ -168,19 +168,26 @@ function prepareSelfFix(evidenceContent) {
  * @param {number} params.currentRound - Current round (1-based)
  * @returns {{ prompt: string, eliminationLog: string, round: number, canContinue: boolean, warnings: string[] }}
  */
-function buildInconclusiveContext({ evidenceContent, userInputPath, sessionDir, currentRound }) {
+function buildInconclusiveContext({
+  evidenceContent,
+  userInputPath,
+  sessionDir,
+  currentRound,
+}) {
   const warnings = [];
   const canContinue = currentRound <= MAX_INCONCLUSIVE_ROUNDS;
 
   if (!canContinue) {
-    warnings.push(`Exceeded ${MAX_INCONCLUSIVE_ROUNDS} investigation rounds — needs human review`);
+    warnings.push(
+      `Exceeded ${MAX_INCONCLUSIVE_ROUNDS} investigation rounds — needs human review`,
+    );
   }
 
   const parsed = parseEvidence(evidenceContent);
-  const eliminationLog = parsed.sections['Elimination Log'] || '';
+  const eliminationLog = parsed.sections["Elimination Log"] || "";
 
   if (!eliminationLog) {
-    warnings.push('Evidence missing Elimination Log section');
+    warnings.push("Evidence missing Elimination Log section");
   }
 
   const promptParts = [
@@ -193,7 +200,7 @@ function buildInconclusiveContext({ evidenceContent, userInputPath, sessionDir, 
     promptParts.push(`Additional info from user: ${userInputPath}`);
   }
 
-  const prompt = promptParts.join('\n');
+  const prompt = promptParts.join("\n");
 
   return { prompt, eliminationLog, round: currentRound, canContinue, warnings };
 }

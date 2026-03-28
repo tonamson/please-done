@@ -11,29 +11,32 @@
  * - runLogicSync: orchestrator calling the 3 functions above in a non-blocking pipeline
  */
 
-'use strict';
+"use strict";
 
-const { generateBusinessLogicDiagram } = require('./generate-diagrams');
-const { replaceMermaidBlock } = require('./report-filler');
+const { generateBusinessLogicDiagram } = require("./generate-diagrams");
+const { replaceMermaidBlock } = require("./report-filler");
 
 // ─── Constants ────────────────────────────────────────────
 
 const SIGNALS = {
   condition: {
     pattern: /^\+.*\b(if|else|switch|case|default|\?)\b/,
-    label: 'Condition change',
+    label: "Condition change",
   },
   arithmetic: {
-    pattern: /^\+.*(\b\d+\b.*[+\-*/%<>=!]+|\b(Math\.|parseInt|parseFloat|Number|\.toFixed|\.ceil|\.floor)\b)/,
-    label: 'Arithmetic/threshold change',
+    pattern:
+      /^\+.*(\b\d+\b.*[+\-*/%<>=!]+|\b(Math\.|parseInt|parseFloat|Number|\.toFixed|\.ceil|\.floor)\b)/,
+    label: "Arithmetic/threshold change",
   },
   endpoint: {
-    pattern: /^\+.*\b(router\.|app\.(get|post|put|delete|patch)|@(Get|Post|Put|Delete|Patch|Controller)|fetch\(|axios\.|\.route\(|endpoint|api\/)/i,
-    label: 'Endpoint/API change',
+    pattern:
+      /^\+.*\b(router\.|app\.(get|post|put|delete|patch)|@(Get|Post|Put|Delete|Patch|Controller)|fetch\(|axios\.|\.route\(|endpoint|api\/)/i,
+    label: "Endpoint/API change",
   },
   database: {
-    pattern: /^\+.*\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|\.query\(|\.execute\(|\.findOne|\.findMany|\.create\(|\.update\(|\.delete\(|schema\.|migration|\.model\()/i,
-    label: 'Database/query change',
+    pattern:
+      /^\+.*\b(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|\.query\(|\.execute\(|\.findOne|\.findMany|\.create\(|\.update\(|\.delete\(|schema\.|migration|\.model\()/i,
+    label: "Database/query change",
   },
 };
 
@@ -43,8 +46,9 @@ const IMPORT_RE = /^\+\s*(const|let|var|import)\s+\S+\s*=\s*require\(/;
 const WHITESPACE_ONLY_RE = /^\+\s*$/;
 
 // Patterns to extract bug info from report content
-const ROOT_CAUSE_RE = /(?:nguyen nhan|nguy[eê]n nh[aâ]n|root cause)[:\s]*\n?([\s\S]*?)(?:\n##|\n\*\*|$)/i;
-const CATEGORY_RE = /(?:phan loai|ph[aâ]n lo[aạ]i|category)[:\s]*\n?(.*)/i;
+const ROOT_CAUSE_RE =
+  /(?:root cause)[:\s]*\n?([\s\S]*?)(?:\n##|\n\*\*|$)/i;
+const CATEGORY_RE = /(?:category)[:\s]*\n?(.*)/i;
 
 // ─── detectLogicChanges ───────────────────────────────────
 
@@ -57,13 +61,13 @@ const CATEGORY_RE = /(?:phan loai|ph[aâ]n lo[aạ]i|category)[:\s]*\n?(.*)/i;
  * @throws {Error} When diffText is null/undefined/empty
  */
 function detectLogicChanges(diffText) {
-  if (!diffText || typeof diffText !== 'string') {
-    throw new Error('detectLogicChanges: missing diffText parameter');
+  if (!diffText || typeof diffText !== "string") {
+    throw new Error("detectLogicChanges: missing diffText parameter");
   }
 
   const signals = [];
-  const lines = diffText.split('\n');
-  let currentFile = '';
+  const lines = diffText.split("\n");
+  let currentFile = "";
 
   for (const line of lines) {
     // Track current file from +++ b/path header
@@ -74,7 +78,7 @@ function detectLogicChanges(diffText) {
     }
 
     // Only scan newly added lines (starting with +, not +++)
-    if (!line.startsWith('+') || line.startsWith('+++')) continue;
+    if (!line.startsWith("+") || line.startsWith("+++")) continue;
 
     // Skip whitespace-only, comment-only, import-only
     if (WHITESPACE_ONLY_RE.test(line)) continue;
@@ -92,8 +96,8 @@ function detectLogicChanges(diffText) {
 
   const hasLogicChange = signals.length > 0;
   const summary = hasLogicChange
-    ? `${signals.length} logic signal(s): ${[...new Set(signals.map(s => s.type))].join(', ')}`
-    : 'No logic changes detected';
+    ? `${signals.length} logic signal(s): ${[...new Set(signals.map((s) => s.type))].join(", ")}`
+    : "No logic changes detected";
 
   return { hasLogicChange, signals, summary };
 }
@@ -112,7 +116,7 @@ function detectLogicChanges(diffText) {
  */
 function updateReportDiagram(params) {
   if (!params.reportContent) {
-    throw new Error('updateReportDiagram: missing report content to update');
+    throw new Error("updateReportDiagram: missing report content to update");
   }
 
   const diagramResult = generateBusinessLogicDiagram(params.planContents || []);
@@ -124,8 +128,8 @@ function updateReportDiagram(params) {
 
   const updatedContent = replaceMermaidBlock(
     params.reportContent,
-    '## 3.',
-    diagramResult.diagram
+    "## 3.",
+    diagramResult.diagram,
   );
 
   return { updatedContent, diagramResult };
@@ -145,14 +149,14 @@ function updateReportDiagram(params) {
  */
 function suggestClaudeRules(params) {
   const {
-    sessionContent = '',
-    bugReportContent = '',
-    claudeContent = '',
+    sessionContent = "",
+    bugReportContent = "",
+    claudeContent = "",
   } = params || {};
 
   // No data to analyze
   if (!sessionContent && !bugReportContent) {
-    return { suggestions: [], reasoning: 'No data to analyze' };
+    return { suggestions: [], reasoning: "No data to analyze" };
   }
 
   const combinedContent = `${sessionContent}\n${bugReportContent}`;
@@ -161,18 +165,18 @@ function suggestClaudeRules(params) {
 
   // Extract root cause
   const rootCauseMatch = combinedContent.match(ROOT_CAUSE_RE);
-  const rootCause = rootCauseMatch ? rootCauseMatch[1].trim() : '';
+  const rootCause = rootCauseMatch ? rootCauseMatch[1].trim() : "";
 
   // Extract category
   const categoryMatch = combinedContent.match(CATEGORY_RE);
-  const category = categoryMatch ? categoryMatch[1].trim() : '';
+  const category = categoryMatch ? categoryMatch[1].trim() : "";
 
   // Generate suggestions based on detected patterns
   if (rootCause) {
     // Create rule from root cause
-    const ruleSuggestion = `- Check ${rootCause.split('\n')[0].toLowerCase().slice(0, 80)}`;
+    const ruleSuggestion = `- Check ${rootCause.split("\n")[0].toLowerCase().slice(0, 80)}`;
     suggestions.push(ruleSuggestion);
-    reasons.push(`Root cause: ${rootCause.split('\n')[0].slice(0, 60)}`);
+    reasons.push(`Root cause: ${rootCause.split("\n")[0].slice(0, 60)}`);
   }
 
   if (category) {
@@ -182,22 +186,23 @@ function suggestClaudeRules(params) {
   }
 
   // Check for duplicates against claudeContent (case-insensitive substring match)
-  const claudeLower = (claudeContent || '').toLowerCase();
-  const filteredSuggestions = suggestions.filter(s => {
+  const claudeLower = (claudeContent || "").toLowerCase();
+  const filteredSuggestions = suggestions.filter((s) => {
     // Get content after "- " for checking
-    const content = s.replace(/^- /, '').toLowerCase();
+    const content = s.replace(/^- /, "").toLowerCase();
     // Check if similar content already exists in CLAUDE.md
     // Split into key words (> 4 chars) and check overlap
-    const keywords = content.split(/\s+/).filter(w => w.length > 4);
+    const keywords = content.split(/\s+/).filter((w) => w.length > 4);
     if (keywords.length === 0) return true;
-    const matchCount = keywords.filter(kw => claudeLower.includes(kw)).length;
+    const matchCount = keywords.filter((kw) => claudeLower.includes(kw)).length;
     // If > 60% keywords already exist in claude → consider it a duplicate
     return matchCount / keywords.length <= 0.6;
   });
 
-  const reasoning = reasons.length > 0
-    ? `Bug pattern analysis: ${reasons.join('; ')}`
-    : 'No clear pattern found to suggest';
+  const reasoning =
+    reasons.length > 0
+      ? `Bug pattern analysis: ${reasons.join("; ")}`
+      : "No clear pattern found to suggest";
 
   return { suggestions: filteredSuggestions, reasoning };
 }
@@ -227,7 +232,7 @@ function runLogicSync(params) {
   try {
     logicResult = detectLogicChanges(params.diffText);
   } catch (e) {
-    warnings.push('Logic detection: ' + e.message);
+    warnings.push("Logic detection: " + e.message);
   }
 
   // 2. RPT-01: Update report (ONLY WHEN hasLogicChange = true)
@@ -235,7 +240,7 @@ function runLogicSync(params) {
     try {
       reportResult = updateReportDiagram(params);
     } catch (e) {
-      warnings.push('Report update: ' + e.message);
+      warnings.push("Report update: " + e.message);
     }
   }
 
@@ -243,7 +248,7 @@ function runLogicSync(params) {
   try {
     rulesResult = suggestClaudeRules(params);
   } catch (e) {
-    warnings.push('Rule suggestion: ' + e.message);
+    warnings.push("Rule suggestion: " + e.message);
   }
 
   return { logicResult, reportResult, rulesResult, warnings };
@@ -251,4 +256,9 @@ function runLogicSync(params) {
 
 // ─── Exports ──────────────────────────────────────────────
 
-module.exports = { detectLogicChanges, updateReportDiagram, suggestClaudeRules, runLogicSync };
+module.exports = {
+  detectLogicChanges,
+  updateReportDiagram,
+  suggestClaudeRules,
+  runLogicSync,
+};
