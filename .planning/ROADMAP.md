@@ -274,10 +274,10 @@ Plans:
 4. README.md fully in English
 5. 4 evals files translated (comments/strings/values only)
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 68-01-PLAN.md — Translate 12 template files + 14 docs files
+- [x] 68-01-PLAN.md — Translate 12 template files + 14 docs files
 - [ ] 68-02-PLAN.md — Translate 11 root MD files + 4 evals files
 
 **Plan 01 — Templates + Docs:**
