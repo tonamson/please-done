@@ -23,6 +23,7 @@ Not initialized
 - `/pd:fetch-doc` → cache documentation
 - `/pd:update` → update skills
 - `/pd:audit` → security audit milestone
+- `/pd:test --standalone` → standalone test (no prerequisites)
 
 ## Phase States
 
@@ -48,6 +49,7 @@ Not initialized
 | `/pd:plan` | CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md | Suggest appropriate command |
 | `/pd:write-code` | CONTEXT.md + PLAN.md + TASKS.md | "Run `/pd:plan` first" |
 | `/pd:test` | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅) | "Run `/pd:write-code` first" |
+| `/pd:test --standalone` | — | — |
 | `/pd:fix-bug` | CONTEXT.md | "Run `/pd:init` first" |
 | `/pd:complete-milestone` | CONTEXT.md + CURRENT_MILESTONE.md + all tasks ✅ + bugs closed | List blockers |
 | `/pd:what-next` | — | Suggest `/pd:init` if missing CONTEXT.md |
