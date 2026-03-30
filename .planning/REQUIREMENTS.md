@@ -26,9 +26,9 @@ Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases
 
 ### System Integration
 
-- [ ] **SYNC-01**: `state-machine.md` updated with standalone prerequisites row + side branch
-- [ ] **SYNC-02**: `what-next.md` detects standalone test reports and standalone bugs
-- [ ] **SYNC-03**: `complete-milestone.md` skips standalone bugs (doesn't block milestone completion)
+- [x] **SYNC-01**: `state-machine.md` updated with standalone prerequisites row + side branch
+- [x] **SYNC-02**: `what-next.md` detects standalone test reports and standalone bugs
+- [x] **SYNC-03**: `complete-milestone.md` skips standalone bugs (doesn't block milestone completion)
 
 ### Recovery
 

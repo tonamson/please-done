@@ -47,6 +47,7 @@ completed: 2025-07-15
 - **Files modified:** 1
 
 ## Accomplishments
+
 - argument-hint updated to show `--standalone [path] [--all]` option
 - Conditional guard blocks: standalone mode = soft warnings, standard mode = identical to before
 - Standalone context section with argument parsing info
@@ -57,24 +58,31 @@ completed: 2025-07-15
 1. **Task 1: Update test.md skill file with conditional guards** - `6f832e9` (feat)
 
 ## Files Created/Modified
+
 - `commands/pd/test.md` - Conditional guards, standalone argument-hint, objective, context, output sections
 
 ## Decisions Made
+
 None - followed plan as specified.
 
 ## Deviations from Plan
+
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Skill file ready, workflow (Plan 02) needs Step 0 router and S1-S8 standalone flow
 - Guard references (`@references/guard-*.md`) preserved unchanged
 
 ---
-*Phase: 71-core-standalone-flow*
-*Completed: 2025-07-15*
+
+_Phase: 71-core-standalone-flow_
+_Completed: 2025-07-15_

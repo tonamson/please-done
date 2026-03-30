@@ -18,7 +18,12 @@ affects: [72-standalone-ux-polish, 73-standalone-docs]
 
 tech-stack:
   added: []
-  patterns: [step-0-router, standalone-flow-numbering, insertion-only-workflow-extension]
+  patterns:
+    [
+      step-0-router,
+      standalone-flow-numbering,
+      insertion-only-workflow-extension,
+    ]
 
 key-files:
   created: []
@@ -36,7 +41,8 @@ patterns-established:
   - "S-numbered steps: standalone flow uses Step S1-S8 to avoid collision with standard Steps 1-10"
   - "Insertion-only extension: new features added without modifying existing workflow content"
 
-requirements-completed: [TEST-01, TEST-02, TEST-03, GUARD-01, REPORT-01, REPORT-02, RECOV-01]
+requirements-completed:
+  [TEST-01, TEST-02, TEST-03, GUARD-01, REPORT-01, REPORT-02, RECOV-01]
 
 duration: 8min
 completed: 2025-07-15
@@ -53,6 +59,7 @@ completed: 2025-07-15
 - **Files modified:** 1
 
 ## Accomplishments
+
 - Step 0 routing: `--standalone` → S0.5 recovery → S1; non-standalone → Step 1
 - Recovery check: detects existing reports and uncommitted test files, offers resume/rewrite
 - S1: Parse standalone arguments (path, --all, or prompt)
@@ -71,25 +78,32 @@ completed: 2025-07-15
 3. **Task 3: Verify standard flow unchanged** - verification only (0 deleted lines, all Steps 1-10 present)
 
 ## Files Created/Modified
+
 - `workflows/test.md` - Step 0 router, S0.5 recovery, Steps S1-S8 standalone flow (insertion-only)
 
 ## Decisions Made
+
 None - followed plan as specified.
 
 ## Deviations from Plan
+
 None - plan executed exactly as written.
 
 ## Issues Encountered
+
 None.
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 - Core standalone flow complete — `pd:test --standalone [path]` fully operational
 - Phase 72 can add UX polish (progress indicators, error messages)
 - Phase 73 can add documentation and examples
 
 ---
-*Phase: 71-core-standalone-flow*
-*Completed: 2025-07-15*
+
+_Phase: 71-core-standalone-flow_
+_Completed: 2025-07-15_

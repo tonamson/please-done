@@ -191,7 +191,7 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 ### v7.0 Standalone Test Mode (Phases 71-73)
 
 - [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
-- [ ] Phase 72: System Integration Sync (1 plan)
+- [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
 - [ ] Phase 73: Verification & Edge Cases (1 plan)
 
 #### Phase 71: Core Standalone Flow

@@ -116,6 +116,7 @@ Every workflow step must produce the highest quality code output while consuming
 **Goal:** Add `pd:test --standalone` mode for testing without milestone/plan/write-code prerequisites
 
 **Target features:**
+
 - Standalone test flow (Steps S1–S8) in test.md workflow — auto-detect stack, analyze code, write tests, run, report
 - Conditional guards in test.md — bypass task/CONTEXT.md requirements in standalone mode, soft warnings for FastCode/Context7
 - State-machine sync — new prerequisites row + side branch for standalone
