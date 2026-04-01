@@ -52,6 +52,7 @@ const REPO_ROOT = path.resolve(__dirname, '..');
 const TEST_WORKFLOW = path.join(REPO_ROOT, 'workflows', 'test.md');
 const WHAT_NEXT_WORKFLOW = path.join(REPO_ROOT, 'workflows', 'what-next.md');
 const COMPLETE_MILESTONE_WORKFLOW = path.join(REPO_ROOT, 'workflows', 'complete-milestone.md');
+const STATE_MACHINE_REF = path.join(REPO_ROOT, 'references', 'state-machine.md');
 
 // ─── Setup / Teardown ─────────────────────────────────────────
 
@@ -102,6 +103,22 @@ describe('SC-1: Standard flow routing', () => {
     assert.ok(
       content.includes('Step S0') || content.includes('Step S1'),
       'test.md must define standalone steps (S0 or S1)'
+    );
+  });
+
+  it('Step S0.5 recovery check defines KEEP/NEW and KEEP/REWRITE options (RECOV-01)', () => {
+    const content = fs.readFileSync(TEST_WORKFLOW, 'utf8');
+    assert.ok(
+      content.includes('Step S0.5'),
+      'test.md must define Step S0.5 for standalone recovery check'
+    );
+    assert.ok(
+      content.includes('KEEP') && content.includes('NEW'),
+      'Step S0.5 must offer KEEP/NEW choice for existing reports'
+    );
+    assert.ok(
+      content.includes('REWRITE'),
+      'Step S0.5 must offer REWRITE choice for uncommitted test files'
     );
   });
 });
@@ -238,7 +255,7 @@ describe('SC-4: FastCode/Context7 soft fallback (no block)', () => {
     assert.ok(hasFallback, 'test.md must define Grep/Read fallback when FastCode fails');
   });
 
-  it('FastCode failure must not block flow — DO NOT STOP pattern absent for FastCode', () => {
+  it('FastCode failure must not block flow — DO NOT STOP pattern present for FastCode', () => {
     const content = fs.readFileSync(TEST_WORKFLOW, 'utf8');
     const fastcodeSection = content.split('FastCode')[1] || '';
     const nearDontStop =
@@ -384,6 +401,31 @@ describe('SC-7: Existing tests regression check', () => {
     assert.ok(
       pkg.scripts.test.includes('node') && pkg.scripts.test.includes('test'),
       'test script must use node --test'
+    );
+  });
+});
+
+// ─── SC-8: state-machine.md prerequisites row (SYNC-01) ───────
+
+describe('SC-8: state-machine.md standalone prerequisites row', () => {
+  it('state-machine.md lists /pd:test --standalone in prerequisites table (SYNC-01)', () => {
+    const content = fs.readFileSync(STATE_MACHINE_REF, 'utf8');
+    assert.ok(
+      content.includes('/pd:test --standalone'),
+      'state-machine.md must list /pd:test --standalone in prerequisites table'
+    );
+  });
+
+  it('standalone prerequisites row has em-dashes indicating no requirements', () => {
+    const content = fs.readFileSync(STATE_MACHINE_REF, 'utf8');
+    const lines = content.split('\n');
+    // Find the table row (has pipe | characters), not the side-branch bullet
+    const row = lines.find(l => l.includes('/pd:test --standalone') && l.includes('|'));
+    assert.ok(row, 'standalone prerequisites table row must exist in state-machine.md');
+    const dashCount = (row.match(/—/g) || []).length;
+    assert.ok(
+      dashCount >= 2,
+      `standalone row must have at least 2 em-dashes (—) indicating no prerequisites, found ${dashCount}`
     );
   });
 });
