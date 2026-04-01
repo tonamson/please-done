@@ -194,7 +194,7 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 - [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
 - [x] Phase 73: Verification & Edge Cases (1 plan) (completed 2026-04-01)
 - [x] Phase 74: Smoke Test Coverage Completion (completed 2026-04-01)
-- [ ] Phase 75: Nyquist Validation
+- [x] Phase 75: Nyquist Validation (completed 2026-04-01)
 
 #### Phase 71: Core Standalone Flow
 
@@ -307,7 +307,7 @@ Plans:
 2. Phase 72 `72-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
 3. Phase 73 `73-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
+- [x] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
