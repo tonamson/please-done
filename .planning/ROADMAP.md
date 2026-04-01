@@ -14,7 +14,7 @@
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 - ✅ **v5.1 Agent Sync & Reference Update** — Phases 60-64 (shipped 2026-03-27)
 - ✅ **v6.0 Vietnamese → English Migration** — Phases 65-70 (shipped 2026-03-29)
-- 🔄 **v7.0 Standalone Test Mode** — Phases 71-73
+- 🔄 **v7.0 Standalone Test Mode** — Phases 71-75
 
 ## Progress
 
@@ -188,11 +188,13 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 </details>
 
-### v7.0 Standalone Test Mode (Phases 71-73)
+### v7.0 Standalone Test Mode (Phases 71-75)
 
 - [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
 - [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
 - [x] Phase 73: Verification & Edge Cases (1 plan) (completed 2026-04-01)
+- [ ] Phase 74: Smoke Test Coverage Completion
+- [ ] Phase 75: Nyquist Validation
 
 #### Phase 71: Core Standalone Flow
 
@@ -263,3 +265,45 @@ Plans:
 5. `what-next` shows standalone reports + bugs
 6. `complete-milestone` skips standalone bugs
 7. All existing tests still pass (smoke-integrity, snapshots)
+
+---
+
+#### Phase 74: Smoke Test Coverage Completion
+
+**Goal:** Close smoke test coverage gaps identified in v7.0 audit — add missing tests for RECOV-01 and SYNC-01, fix SC-4 test name typo.
+
+**Requirements:** RECOV-01 (coverage), SYNC-01 (coverage)
+
+**Gap Closure:** Closes tech-debt items from `.planning/v7.0-MILESTONE-AUDIT.md`
+
+**Success criteria:**
+
+1. `smoke-standalone.test.js` has a test asserting Step S0.5 recovery prompt logic in test.md (RECOV-01)
+2. `smoke-standalone.test.js` has a test asserting `state-machine.md` standalone prerequisites row with `— / —` (SYNC-01)
+3. SC-4 test #2 description corrected: "absent" → "present" (cosmetic)
+4. Full suite runs: all new + existing smoke-standalone tests pass
+
+**Plan 01 — Add 2 coverage tests + fix typo:**
+
+- Task 1: Add RECOV-01 and SYNC-01 tests to `test/smoke-standalone.test.js`; fix SC-4 test #2 name
+- Task 2: Run `node --test test/smoke-standalone.test.js` — verify all tests pass
+
+---
+
+#### Phase 75: Nyquist Validation
+
+**Goal:** Complete Nyquist validation for all three v7.0 phases — verify sampling density and coverage thresholds are met, mark VALIDATION.md compliant.
+
+**Gap Closure:** Closes Nyquist tech-debt for Phases 71, 72, 73 from `.planning/v7.0-MILESTONE-AUDIT.md`
+
+**Success criteria:**
+
+1. Phase 71 `71-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
+2. Phase 72 `72-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
+3. Phase 73 `73-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
+
+**Plan 01 — Validate Phase 71, 72, 73:**
+
+- Task 1: Run Nyquist audit for Phase 71, update `71-VALIDATION.md`
+- Task 2: Run Nyquist audit for Phase 72, update `72-VALIDATION.md`
+- Task 3: Run Nyquist audit for Phase 73, update `73-VALIDATION.md`
