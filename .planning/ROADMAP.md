@@ -307,8 +307,7 @@ Plans:
 2. Phase 72 `72-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
 3. Phase 73 `73-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
 
-**Plan 01 — Validate Phase 71, 72, 73:**
+**Plans:** 1 plan
 
-- Task 1: Run Nyquist audit for Phase 71, update `71-VALIDATION.md`
-- Task 2: Run Nyquist audit for Phase 72, update `72-VALIDATION.md`
-- Task 3: Run Nyquist audit for Phase 73, update `73-VALIDATION.md`
+Plans:
+- [ ] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
