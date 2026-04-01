@@ -193,7 +193,7 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 - [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
 - [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
 - [x] Phase 73: Verification & Edge Cases (1 plan) (completed 2026-04-01)
-- [ ] Phase 74: Smoke Test Coverage Completion
+- [x] Phase 74: Smoke Test Coverage Completion (completed 2026-04-01)
 - [ ] Phase 75: Nyquist Validation
 
 #### Phase 71: Core Standalone Flow
@@ -276,10 +276,10 @@ Plans:
 
 **Gap Closure:** Closes tech-debt items from `.planning/v7.0-MILESTONE-AUDIT.md`
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 74-01-PLAN.md — Add RECOV-01 and SYNC-01 smoke tests, fix SC-4 typo
+- [x] 74-01-PLAN.md — Add RECOV-01 and SYNC-01 smoke tests, fix SC-4 typo
 
 **Success criteria:**
 
