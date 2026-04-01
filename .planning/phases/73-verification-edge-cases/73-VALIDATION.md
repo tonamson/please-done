@@ -1,9 +1,9 @@
 ---
 phase: 73
 slug: verification-edge-cases
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: compliant
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-01
 ---
 
@@ -38,13 +38,13 @@ created: 2026-04-01
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 73-01-01 | 01 | 1 | SC-1 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-02 | 01 | 1 | SC-2 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-03 | 01 | 1 | SC-3 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-04 | 01 | 1 | SC-4 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-05 | 01 | 1 | SC-5 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-06 | 01 | 1 | SC-6 | smoke | `node --test test/smoke-standalone.test.js` | ❌ W0 | ⬜ pending |
-| 73-01-07 | 01 | 1 | SC-7 | regression | `npm test` | ✅ existing | ⬜ pending |
+| 73-01-01 | 01 | 1 | SC-1 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-02 | 01 | 1 | SC-2 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-03 | 01 | 1 | SC-3 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-04 | 01 | 1 | SC-4 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-05 | 01 | 1 | SC-5 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-06 | 01 | 1 | SC-6 | smoke | `node --test test/smoke-standalone.test.js` | ✅ | ✅ green |
+| 73-01-07 | 01 | 1 | SC-7 | regression | `npm test` | ✅ existing | ✅ green |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -52,7 +52,7 @@ created: 2026-04-01
 
 ## Wave 0 Requirements
 
-- [ ] `test/smoke-standalone.test.js` — create with stubs for SC-1 through SC-6 before implementation tasks run
+- [x] `test/smoke-standalone.test.js` — ✅ created with 34 tests, all passing
 
 *SC-7 uses existing infrastructure — no Wave 0 work needed for it.*
 
@@ -66,11 +66,11 @@ created: 2026-04-01
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-04-01
