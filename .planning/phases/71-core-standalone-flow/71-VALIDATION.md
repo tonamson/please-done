@@ -1,9 +1,9 @@
 ---
 phase: 71
 slug: core-standalone-flow
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: compliant
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-29
 ---
 
@@ -38,10 +38,10 @@ created: 2026-03-29
 
 | Task ID  | Plan | Wave | Requirement                                                                             | Test Type | Automated Command                                                   | File Exists | Status     |
 | -------- | ---- | ---- | --------------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------- | ----------- | ---------- |
-| 71-01-01 | 01   | 1    | TEST-01, TEST-02, TEST-03, GUARD-01, GUARD-02, GUARD-03, REPORT-01, REPORT-02, RECOV-01 | grep      | `grep "standalone" commands/pd/test.md`                             | ✅          | ⬜ pending |
-| 71-02-01 | 02   | 1    | TEST-01                                                                                 | grep      | `grep "Step 0\|Step S1" workflows/test.md`                          | ✅          | ⬜ pending |
-| 71-02-02 | 02   | 1    | TEST-01, TEST-02, TEST-03                                                               | grep      | `grep "Step S1\|Step S8" workflows/test.md`                         | ✅          | ⬜ pending |
-| 71-02-03 | 02   | 1    | GUARD-01                                                                                | diff      | `git diff HEAD -- workflows/test.md \| grep "^-" \| grep -v "^---"` | ✅          | ⬜ pending |
+| 71-01-01 | 01   | 1    | TEST-01, TEST-02, TEST-03, GUARD-01, GUARD-02, GUARD-03, REPORT-01, REPORT-02, RECOV-01 | grep      | `grep "standalone" commands/pd/test.md`                             | ✅          | ✅ green |
+| 71-02-01 | 02   | 1    | TEST-01                                                                                 | grep      | `grep "Step 0\|Step S1" workflows/test.md`                          | ✅          | ✅ green |
+| 71-02-02 | 02   | 1    | TEST-01, TEST-02, TEST-03                                                               | grep      | `grep "Step S1\|Step S8" workflows/test.md`                         | ✅          | ✅ green |
+| 71-02-03 | 02   | 1    | GUARD-01                                                                                | diff      | `git diff HEAD -- workflows/test.md \| grep "^-" \| grep -v "^---"` | ✅          | ✅ green |
 
 _Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky_
 
@@ -65,11 +65,11 @@ _Existing infrastructure covers all phase requirements — no new test framework
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved 2026-04-01
