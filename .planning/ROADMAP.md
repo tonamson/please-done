@@ -192,7 +192,7 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 - [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
 - [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
-- [ ] Phase 73: Verification & Edge Cases (1 plan)
+- [x] Phase 73: Verification & Edge Cases (1 plan) (completed 2026-04-01)
 
 #### Phase 71: Core Standalone Flow
 
@@ -249,10 +249,10 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 **Requirements:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 (cross-cutting verification)
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 73-01-PLAN.md — Smoke tests for all 7 success criteria
+- [x] 73-01-PLAN.md — Smoke tests for all 7 success criteria
 
 **Success criteria:**
 
