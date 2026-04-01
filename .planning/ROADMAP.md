@@ -247,7 +247,12 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 **Goal:** Verify both flows work correctly end-to-end with all edge cases covered.
 
-**Requirements:** All (cross-cutting verification)
+**Requirements:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 (cross-cutting verification)
+
+**Plans:** 1 plan
+
+Plans:
+- [ ] 73-01-PLAN.md — Smoke tests for all 7 success criteria
 
 **Success criteria:**
 
