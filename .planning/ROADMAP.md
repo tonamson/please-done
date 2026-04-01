@@ -276,6 +276,11 @@ Plans:
 
 **Gap Closure:** Closes tech-debt items from `.planning/v7.0-MILESTONE-AUDIT.md`
 
+**Plans:** 1 plan
+
+Plans:
+- [ ] 74-01-PLAN.md — Add RECOV-01 and SYNC-01 smoke tests, fix SC-4 typo
+
 **Success criteria:**
 
 1. `smoke-standalone.test.js` has a test asserting Step S0.5 recovery prompt logic in test.md (RECOV-01)
