@@ -11,7 +11,7 @@
 - ENGLISH: reports, JSDoc, logger, commit messages, test descriptions
 - English: variable names, functions, classes, files
 - Dates: DD_MM_YYYY
-- **Error reporting policy:** MUST read `.planning/PROJECT.md` to determine the language for UI, Logs, and Exceptions. DO NOT use a different language than the policy defined in Project.
+- **Error reporting policy:** If `.planning/PROJECT.md` exists → read it to determine the language for UI, Logs, and Exceptions. Otherwise → default to English. DO NOT use a different language than the policy defined in Project.
 
 ## Status icons
 ⬜ Not started | 🔄 In progress | ✅ Completed | ❌ Blocked | 🐛 Has bug

@@ -49,6 +49,7 @@ Additional reads:
 </context>
 
 <execution_context>
+@references/state-machine.md (required)
 @workflows/write-code.md (required)
 @references/conventions.md (required)
 @references/prioritization.md (optional)

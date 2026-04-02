@@ -1,2 +1,1 @@
-- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
-- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
+- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**

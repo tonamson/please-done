@@ -1,1 +1,1 @@
-- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
+- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
