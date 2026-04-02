@@ -1,735 +1,439 @@
-# Architecture Patterns
+# Architecture Research — v8.0
 
-**Domain:** OWASP Security Audit — tich hop lenh `pd:audit` vao AI coding skill framework (Please-Done v4.0)
-**Researched:** 2026-03-26
-**Confidence:** HIGH (phan tich truc tiep toan bo codebase v3.0 + 14 scanner agents da ton tai + patterns da chung minh tu 45 phases truoc)
+**Researched:** 2026-04-02
+**Milestone:** v8.0 Developer Experience & Quality Hardening
+**Confidence:** HIGH (based on direct inspection of source code, workflows, and existing lib modules)
 
-## Recommended Architecture
+---
 
-### Tong quan he thong
+## pd:replay Architecture
 
-```
-User
-  |
-  v
-pd:audit (skill) ── flags: --poc, --milestone, --delta
-  |
-  v
-workflows/audit.md (orchestrator)
-  |
-  ├─ Buoc 1: Context + Smart Scanner Selection
-  |     └─ config/security-rules.yaml + CONTEXT.md → chon subset 13 scanners
-  |
-  ├─ Buoc 2: Session Setup
-  |     └─ .planning/security/S{NNN}-audit-{date}/
-  |
-  ├─ Buoc 3: Wave-based Scanner Dispatch (max 2 song song)
-  |     ├─ Wave 1: [pd-sec-sql-injection, pd-sec-xss]
-  |     ├─ Wave 2: [pd-sec-auth (heavy), pd-sec-cmd-injection]
-  |     └─ ... (7 waves cho 13 scanners)
-  |     Moi scanner → evidence_sec_{type}.md
-  |
-  ├─ Buoc 4: Session Delta (--delta)
-  |     └─ compareSessions() → NEW / KNOWN-UNFIXED / RE-VERIFY / RESOLVED
-  |
-  ├─ Buoc 5: Reporter Agent
-  |     └─ pd-sec-reporter → SECURITY_REPORT.md
-  |
-  ├─ Buoc 6: POC Pipeline (--poc)
-  |     └─ Don le + Gadget Chain analysis
-  |
-  └─ Buoc 7: Milestone Integration (--milestone)
-        └─ generateFixPhases() → auto-create phase directories
-```
+### What needs to be checkpointed
 
-### Component Boundaries
+A phase execution in please-done flows through these state-bearing artifacts:
 
-| Component | Trach nhiem | Giao tiep voi |
-|-----------|-------------|---------------|
-| `commands/pd/audit.md` (MOI) | Skill entry point, parse flags, goi workflow | workflows/audit.md |
-| `workflows/audit.md` (MOI) | Orchestrator: session, waves, delta, reporter, POC, fix-phase gen | Scanner agents, reporter agent, JS lib modules |
-| `commands/pd/agents/pd-sec-*.md` (13 DA CO) | Scanner agents — quet 1 OWASP category, ghi evidence file | FastCode MCP, Grep, Glob, Read |
-| `commands/pd/agents/pd-sec-reporter.md` (DA CO) | Tong hop 13 evidence files → SECURITY_REPORT.md | Doc evidence files, ghi report |
-| `config/security-rules.yaml` (MOI) | Mapping scanner → OWASP, stack applicability, wave priority | Workflow doc de route scanners |
-| `bin/lib/security-scanner.js` (MOI) | Pure functions: selectScanners(), buildScanWaves(), parseScanEvidence(), compareSessions() | Workflow goi, resource-config cung cap agent config |
-| `bin/lib/security-reporter.js` (MOI) | Pure functions: generateFixPhases(), buildGadgetChain(), formatSecurityGate() | Workflow goi khi tao fix phases hoac security gate |
-| `templates/security-fix-phase.md` (MOI) | Template cho auto-generated fix phases | Workflow dien template khi --milestone |
-| `bin/lib/resource-config.js` (SUA) | Them 14 pd-sec-* agents vao AGENT_REGISTRY | security-scanner.js goi getAgentConfig() |
-| `workflows/complete-milestone.md` (SUA) | Them Buoc 3.7 Security Gate (non-blocking) | Goi formatSecurityGate() |
-| `workflows/what-next.md` (SUA) | Them priority 0.5 cho CRITICAL findings | Doc SECURITY_REPORT.md |
+| Artifact | Path | Relevance to Replay |
+|----------|------|---------------------|
+| Task status | `.planning/milestones/[v]/phase-[n]/TASKS.md` | Which tasks are checkmark/rotate/square/x |
+| Progress record | `.planning/milestones/[v]/phase-[n]/PROGRESS.md` | What sub-steps completed within a task |
+| Plan | `.planning/milestones/[v]/phase-[n]/PLAN.md` | Technical design to replay against |
+| STATE.md | `.planning/STATE.md` | Current phase/plan cursor |
+| Git state | `git log --oneline -5` | What was committed before interruption |
+| Agent evidence | `.planning/debug/[session]/evidence_*.md` | Captured intermediate reasoning |
 
-### Data Flow
+### Recommended checkpoint schema
 
-```
-1. pd:audit [--poc] [--milestone] [--delta]
-     |
-2. Workflow doc CONTEXT.md → xac dinh stack (NestJS/Next.js/WP/Flutter/Solidity)
-     |
-3. security-scanner.js selectScanners(stack, rulesYAML) → subset cua 13
-     |
-4. security-scanner.js buildScanWaves(selectedScanners, parallelLimit=2) → waves
-     |
-5. Moi wave: spawn 2 Agent tool song song
-     |  Moi agent ghi: .planning/security/S{NNN}/evidence_sec_{type}.md
-     |  Post-wave: kiem tra evidence ton tai, log failures, tiep wave ke
-     |
-6. [--delta] security-scanner.js compareSessions(currentDir, previousDir)
-     |  → findings tagged: NEW / KNOWN-UNFIXED / RE-VERIFY / RESOLVED
-     |
-7. Spawn pd-sec-reporter → doc tat ca evidence → ghi SECURITY_REPORT.md
-     |
-8. [--poc] Workflow doc SECURITY_REPORT → loc CRITICAL → POC_REPORT.md + GADGET_CHAIN.md
-     |
-9. [--milestone] security-reporter.js generateFixPhases(findings, gadgetChains)
-     |  → Tao phase directories voi PLAN.md + TASKS.md tu template
-     |  → Cap nhat ROADMAP.md
-     |
-10. Hien thi tom tat + goi y buoc tiep
+Store in `.planning/checkpoints/[version]-phase-[n]-[timestamp].json`:
+
+```json
+{
+  "schema_version": 1,
+  "captured_at": "ISO-8601",
+  "phase": {
+    "version": "v8.0",
+    "number": 76,
+    "name": "Structured Logging Foundation"
+  },
+  "task_cursor": {
+    "task_id": "TASK-03",
+    "status_at_checkpoint": "in-progress",
+    "progress_stage": "lint"
+  },
+  "files_written": [
+    "bin/lib/log-writer.js",
+    ".planning/phases/76-structured-logging/TASKS.md"
+  ],
+  "git_sha_before": "abc1234",
+  "git_sha_after": null,
+  "partial_output": "optional: last 2000 chars of agent output for context injection",
+  "interruption_reason": "timeout|error|manual|unknown"
+}
 ```
 
-## Chi tiet tung component
+**Why JSON not Markdown:** Checkpoints are machine-read by `pd:replay` to reconstruct context. JSON is unambiguous and maps directly to the data model. Markdown is for humans. Checkpoints are tools.
 
-### 1. Skill Entry — `commands/pd/audit.md` (MOI)
+### Storage location
+
+`.planning/checkpoints/` — one file per interrupted phase. Name pattern:
+`{version}-phase-{n}-{yyyymmddThhmmss}.json`
+
+Keep last 5 checkpoints per phase (rotate on 6th). Each file is ~3-5 KB.
+
+### Replay trigger and flow
+
+`pd:replay [phase-number]` skill:
+
+1. Glob `.planning/checkpoints/{current-version}-phase-{n}-*.json` → sort by `captured_at` desc → take first
+2. Load TASKS.md, find task at `task_cursor.task_id`
+3. If `git_sha_before` != `HEAD` → warn: "Git state has changed since checkpoint. Review diffs before proceeding."
+4. Inject `partial_output` into agent context as `<replay-context>` block
+5. Resume at `progress_stage` within that task (hook into existing PROGRESS.md recovery logic in `write-code.md` Step 1.1)
+6. On completion → delete checkpoint file
+
+### Key insight: PROGRESS.md recovery already exists
+
+`write-code.md` Step 1.1 already has a Case 1 (task rotate + PROGRESS.md exists → resume). `pd:replay` is primarily:
+- A **discovery layer** (find the right checkpoint)
+- A **context injection layer** (reconstruct what the agent was doing)
+- A **redirect** to the existing PROGRESS.md recovery path
+
+This means the replay skill is **medium effort**, not large — the recovery logic already exists.
+
+### Checkpoint write points
+
+Write checkpoint when:
+- Agent output contains `ERROR:` or `FAILED:` patterns
+- `pd:write-code` session exceeds maxTurns limit
+- User manually triggers via `pd:write-code --checkpoint`
+- Any uncaught exception in a spawned sub-agent
+
+---
+
+## pd:diff-milestone Architecture
+
+### Source material
+
+Milestone archives are in `.planning/milestones/`:
+
+```
+v6.0-REQUIREMENTS.md      <- planned requirements
+v6.0-ROADMAP.md           <- planned phases
+v6.0-MILESTONE-AUDIT.md   <- retrospective/actual outcome
+v6.0-phases/              <- per-phase: PLAN.md, TASKS.md, phase reports
+```
+
+### What to diff
+
+Three dimensions with distinct value:
+
+| Dimension | Source Files | What It Reveals |
+|-----------|-------------|-----------------|
+| Requirements drift | `v{a}-REQUIREMENTS.md` vs `v{b}-REQUIREMENTS.md` | What was added/removed/rephrased between milestones |
+| Scope execution | `v{n}-ROADMAP.md` planned phases vs `v{n}-phases/*/TASKS.md` actual | Did planned phases map to actual work? |
+| Cross-milestone evolution | `v{a}-ROADMAP.md` vs `v{b}-ROADMAP.md` | How project direction shifted over time |
+
+**Priority order for MVP:** Requirements diff first (most valuable), then roadmap diff. Phase-level task diff is stretch.
+
+### Diff approach
+
+Do NOT use `git diff` — milestone files are tracked in git but the diff format is meaningless for users. Instead: **semantic diff** that understands the document structure.
+
+For REQUIREMENTS.md (checklist format):
+```
+ADDED:   [ ] LOG-01: Agent errors logged as structured JSON
+REMOVED: [ ] GUARD-03: FastCode soft warning
+CHANGED: [ ] RECOV-01 → "recovery" scope narrowed from session to task level
+STABLE:  [ ] TEST-01, TEST-02, TEST-03 (unchanged)
+```
+
+For ROADMAP.md (phase list format):
+```
+PHASES ADDED:   Phase 75 (Nyquist Validation) — new in v7.0
+PHASES REMOVED: Phase 53 (removed after v5.1)
+PHASES RENAMED: Phase 08 "Wave Execution" → Phase 08 "Parallel Dispatch"
+```
+
+### Output format
+
+Write to `.planning/milestones/diff-{v1}-vs-{v2}-{timestamp}.md`:
 
 ```markdown
+# Milestone Diff: v6.0 → v7.0
+
+**Generated:** 2026-04-02T12:00:00Z
+**Compared:** v6.0-REQUIREMENTS.md vs v7.0-REQUIREMENTS.md, v6.0-ROADMAP.md vs v7.0-ROADMAP.md
+
+## Requirements Changes
+
+### Added (3)
+- [ ] TEST-01: Standalone test without milestone
+- [ ] GUARD-02: Standalone bypasses task guards
+- [ ] RECOV-01: Detect interrupted standalone sessions
+
+### Removed (0)
+
+### Modified (1)
+- GUARD-03: Scope changed from "hard block" to "soft warning with fallback"
+
+### Stable (12)
+ONBOARD-01, REPLAY-01, DIFF-01 (not listed for brevity)
+
+## Roadmap Changes
+
+### Phases Added (5)
+- Phase 71: Core Standalone Flow
+- Phase 72: System Integration Sync
+
+### Phase Count: v6.0 had 6 phases → v7.0 has 5 phases
+```
+
+### Implementation approach
+
+The diff is **pure markdown parsing** — no external diff library needed. The existing `parseFrontmatter` and line-parsing patterns in `bin/lib/utils.js` provide the foundation. The skill agent reads both files, parses checklist items by ID, and categorizes changes.
+
+**Effort: Medium** — parsing logic is straightforward but output formatting needs care.
+
 ---
-name: pd:audit
-description: Quet bao mat OWASP Top 10 — doc lap hoac tich hop milestone
-model: sonnet
-argument-hint: "[--poc] [--milestone] [--delta]"
-allowed-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
-  - Agent
-  - mcp__fastcode__code_qa
----
-```
 
-Pattern chinh xac nhu `commands/pd/research.md`:
-- Skill chi parse args va flags
-- Goi `@workflows/audit.md`
-- Guards: kiem tra CONTEXT.md ton tai (da scan)
-- Hien thi tom tat + goi y `/pd:what-next` khi xong
+## Config Hot-Reload Architecture
 
-### 2. Workflow Orchestrator — `workflows/audit.md` (MOI)
+### Current config.json usage
 
-Ket hop patterns tu 2 workflow da co:
-- `workflows/write-code.md` Buoc 10 --parallel → wave dispatch pattern
-- `workflows/research.md` → agent pipeline pattern (spawn tuần tự)
+After full source inspection, `.planning/config.json` is read in **exactly one place** in the JS layer:
 
-**Buoc 1: Context + Smart Scanner Selection**
-- Doc `.planning/CONTEXT.md` → stack (NestJS, Next.js, WordPress, Flutter, Solidity)
-- Doc `config/security-rules.yaml` → scanner applicability matrix
-- Goi `selectScanners(stack, rules)` conceptually (workflow thuc hien logic nay)
-- Hien thi: "Da chon [N]/13 scanners cho stack [stack]: [list]"
-- User xac nhan hoac chinh sua danh sach
+- **`bin/plan-check.js`** (line ~70): Reads `config?.checks?.research_backing?.severity` and `config?.checks?.hedging_language?.severity` for CHECK-06 and CHECK-07 severity overrides
 
-**Buoc 2: Session Setup**
-- Tim `.planning/security/` → dem sessions hien co → S{max+1}
-- Tao `.planning/security/S{NNN}-audit-{YYYYMMDD}/`
-- Ghi `SESSION.md` metadata: date, stack, flags, scanner list selected
-- Reuse naming pattern tu `session-manager.js` (S{NNN} format)
+In the skill/workflow markdown layer: `.planning/config.json` fields (`mode`, `granularity`, `parallelization`, `model_profile`, `workflow.*`) are referenced by AI agents at **workflow step execution time** — they read the file via `Read` tool when following the workflow steps. This means:
 
-**Buoc 3: Wave-based Scanner Dispatch**
-- Phan nhom scanners thanh waves (logic inline trong workflow, ho tro boi security-rules.yaml):
-  - Sort theo `wave_priority` (1 = chay som nhat)
-  - Max 2 scanners / wave
-  - Max 1 heavy scanner (dung fastcode) / wave
-- Moi wave:
-  1. Spawn 2 Agent tool SONG SONG
-  2. Moi agent nhan: stack context, session dir path, chi dan ghi evidence file
-  3. Cho CA 2 agents hoan thanh
-  4. Kiem tra evidence files ton tai + khong rong
-  5. Agent fail → log warning, tiep tuc (non-blocking)
-- Pattern CHINH XAC nhu write-code.md Buoc 10 --parallel
+**The hot-reload problem is primarily an AI-agent concern, not a Node.js concern.**
 
-**Buoc 4: Session Delta** (chi khi co --delta flag)
-- Tim session truoc: glob `.planning/security/S*-audit-*/SESSION.md`, sort, lay truoc S{NNN}
-- Doc tat ca evidence files tu ca 2 sessions
-- So sanh findings: match bang file + line range (fuzzy ±5 dong) + type
-- Tag: NEW (chi co session moi), KNOWN-UNFIXED (ca 2), RE-VERIFY (co nhung line shift), RESOLVED (chi co session cu)
-- Ghi `DELTA_REPORT.md`
+### Reload strategy: re-read per step
 
-**Buoc 5: Reporter Dispatch**
-- Spawn `pd-sec-reporter` agent
-- Input: session dir path, tat ca evidence files
-- Output: `SECURITY_REPORT.md` (format da dinh nghia trong pd-sec-reporter.md)
-
-**Buoc 6: POC Pipeline** (chi khi co --poc flag)
-- Doc SECURITY_REPORT.md → loc CRITICAL findings
-- Voi moi CRITICAL finding: tao Proof-of-Concept (mo ta cach khai thac)
-- Phan tich gadget chain: finding A enable finding B (VD: SQLi + secrets leak → full DB compromise)
-- Ghi `POC_REPORT.md` (don le) + `GADGET_CHAIN.md` (chuoi)
-
-**Buoc 7: Milestone Integration** (chi khi co --milestone flag)
-- Goi `generateFixPhases(findings, gadgetChains)` conceptually
-- Sap xep fix phases theo:
-  1. Gadget chain order (fix dependency chain tu goc truoc)
-  2. CRITICAL truoc WARNING
-  3. Nhom theo file/module (giam context switching)
-- Tao phase directories: `.planning/milestones/[version]/phase-XX-sec-fix-YY/`
-  - PLAN.md tu `templates/security-fix-phase.md`
-  - TASKS.md tu findings nhom theo phase
-- Cap nhat ROADMAP.md them fix phases
-- Cap nhat CURRENT_MILESTONE.md neu can
-
-### 3. Config — `config/security-rules.yaml` (MOI)
-
-```yaml
-scanners:
-  pd-sec-sql-injection:
-    owasp: [A03]
-    stacks: [nestjs, nextjs, wordpress, python]
-    tier: scout
-    wave_priority: 1
-    uses_fastcode: true
-    evidence_file: evidence_sec_sqli.md
-
-  pd-sec-xss:
-    owasp: [A03, A07]
-    stacks: [nestjs, nextjs, wordpress]
-    tier: scout
-    wave_priority: 1
-    uses_fastcode: true
-    evidence_file: evidence_sec_xss.md
-
-  pd-sec-cmd-injection:
-    owasp: [A03]
-    stacks: [nestjs, nextjs, wordpress, python]
-    tier: scout
-    wave_priority: 1
-    uses_fastcode: true
-    evidence_file: evidence_sec_cmdi.md
-
-  pd-sec-path-traversal:
-    owasp: [A10]
-    stacks: [nestjs, nextjs, wordpress, python]
-    tier: scout
-    wave_priority: 2
-    uses_fastcode: true
-    evidence_file: evidence_sec_pathtr.md
-
-  pd-sec-secrets:
-    owasp: [A02]
-    stacks: [all]
-    tier: scout
-    wave_priority: 1
-    uses_fastcode: false
-    evidence_file: evidence_sec_secrets.md
-
-  pd-sec-auth:
-    owasp: [A01, A07]
-    stacks: [all]
-    tier: builder        # can phan tich sau hon
-    wave_priority: 2
-    uses_fastcode: true
-    evidence_file: evidence_sec_auth.md
-
-  pd-sec-deserialization:
-    owasp: [A08]
-    stacks: [nestjs, nextjs, python]
-    tier: scout
-    wave_priority: 3
-    uses_fastcode: true
-    evidence_file: evidence_sec_deser.md
-
-  pd-sec-misconfig:
-    owasp: [A05]
-    stacks: [all]
-    tier: scout
-    wave_priority: 3
-    uses_fastcode: false
-    evidence_file: evidence_sec_misconfig.md
-
-  pd-sec-prototype-pollution:
-    owasp: [A03, A08]
-    stacks: [nestjs, nextjs]
-    tier: scout
-    wave_priority: 3
-    uses_fastcode: true
-    evidence_file: evidence_sec_pollution.md
-
-  pd-sec-crypto:
-    owasp: [A02]
-    stacks: [all]
-    tier: scout
-    wave_priority: 3
-    uses_fastcode: false
-    evidence_file: evidence_sec_crypto.md
-
-  pd-sec-insecure-design:
-    owasp: [A04]
-    stacks: [all]
-    tier: builder        # can phan tich kien truc
-    wave_priority: 4
-    uses_fastcode: true
-    evidence_file: evidence_sec_design.md
-
-  pd-sec-vuln-deps:
-    owasp: [A06]
-    stacks: [all]
-    tier: scout
-    wave_priority: 2
-    uses_fastcode: false
-    evidence_file: evidence_sec_deps.md
-
-  pd-sec-logging:
-    owasp: [A09]
-    stacks: [all]
-    tier: scout
-    wave_priority: 4
-    uses_fastcode: false
-    evidence_file: evidence_sec_logging.md
-
-# Wave configuration
-waves:
-  parallel_limit: 2
-  heavy_scanner_limit: 1  # scanner dung fastcode chi 1/wave
-  timeout_ms: 180000      # 3 phut / scanner
-
-# Stack detection keywords (match voi CONTEXT.md)
-stack_keywords:
-  nestjs: ["nestjs", "nest", "@nestjs/"]
-  nextjs: ["next.js", "nextjs", "next"]
-  wordpress: ["wordpress", "wp-", "php"]
-  flutter: ["flutter", "dart"]
-  solidity: ["solidity", "hardhat", "foundry"]
-  python: ["python", "django", "flask", "fastapi"]
-```
-
-### 4. JS Library — `bin/lib/security-scanner.js` (MOI)
-
-Pure functions — KHONG doc file, KHONG require('fs'), KHONG side effects. Nhat quan voi 22 modules hien co.
-
-```javascript
-/**
- * selectScanners(stack, rulesConfig) → string[]
- *
- * Chon subset scanners phu hop voi stack.
- * @param {string} stack - Stack name (nestjs, nextjs, wordpress, flutter, solidity, python)
- * @param {object} rulesConfig - Parsed security-rules.yaml content
- * @returns {string[]} - Sorted list scanner names (theo wave_priority)
- *
- * Logic:
- * - Filter scanners co stacks includes stack HOAC stacks includes 'all'
- * - Sort theo wave_priority (thap = chay truoc)
- * - Return names only
- */
-
-/**
- * buildScanWaves(scanners, parallelLimit, heavyLimit) → Wave[]
- *
- * Phan nhom scanners thanh waves.
- * @param {Array<{name, wave_priority, uses_fastcode, tier}>} scanners
- * @param {number} parallelLimit - Max scanners / wave (default 2)
- * @param {number} heavyLimit - Max heavy scanners / wave (default 1)
- * @returns {Array<{wave: number, scanners: Array}>}
- *
- * Logic:
- * - Da sort theo wave_priority (tu selectScanners)
- * - Lap: lay toi da parallelLimit scanners, dam bao max heavyLimit uses_fastcode=true
- * - Builder tier scanners uu tien rieng wave (de khong bi timeout)
- */
-
-/**
- * parseScanEvidence(content) → { findings: Finding[], stats: Stats }
- *
- * Parse evidence file markdown → structured findings.
- * @param {string} content - Noi dung evidence_sec_*.md
- * @returns {{ findings: Finding[], stats: { critical: number, warning: number, safe: number } }}
- *
- * Finding = { file, line, severity ('CRITICAL'|'WARNING'|'SAFE'),
- *             type, owasp, description, suggestion }
- */
-
-/**
- * compareSessions(currentFindings, previousFindings) → TaggedFinding[]
- *
- * So sanh 2 session → tag moi finding.
- * @param {Finding[]} currentFindings
- * @param {Finding[]} previousFindings
- * @returns {Array<Finding & { delta: 'NEW'|'KNOWN-UNFIXED'|'RE-VERIFY'|'RESOLVED' }>}
- *
- * Match logic: same file + same type + line within ±5 range
- * - NEW: chi co current
- * - KNOWN-UNFIXED: co ca 2, cung location
- * - RE-VERIFY: co ca 2, line shifted
- * - RESOLVED: chi co previous (returned separately)
- */
-
-/**
- * buildFunctionChecklist(findings) → ChecklistEntry[]
- *
- * Chuyen findings thanh function-level checklist (evidence format).
- * @param {Finding[]} findings
- * @returns {Array<{ function: string, file: string,
- *   checks: string[], status: 'vulnerable'|'mitigated'|'safe' }>}
- */
-```
-
-### 5. JS Library — `bin/lib/security-reporter.js` (MOI)
-
-Pure functions — KHONG doc file, KHONG require('fs'), KHONG side effects.
-
-```javascript
-/**
- * generateFixPhases(findings, gadgetChains) → Phase[]
- *
- * Tao fix phases tu findings, ordering:
- * 1. Gadget chain dependencies (fix root cause truoc)
- * 2. CRITICAL truoc WARNING
- * 3. Nhom theo file/module (giam context switching)
- *
- * @param {Finding[]} findings
- * @param {Chain[]} gadgetChains
- * @returns {Array<{ name: string, findings: Finding[], priority: number }>}
- */
-
-/**
- * buildGadgetChain(findings) → Chain[]
- *
- * Phan tich chuoi tan cong tu findings.
- * VD: SQLi (A03) + secrets leak (A02) → full DB compromise
- *     Auth bypass (A01) + IDOR (A01) → horizontal privilege escalation
- *
- * @param {Finding[]} findings
- * @returns {Array<{ name: string, steps: Finding[], impact: string, priority: number }>}
- */
-
-/**
- * formatSecurityGate(reportContent) → GateResult
- *
- * Danh gia security gate cho complete-milestone.
- * @param {string} reportContent - Noi dung SECURITY_REPORT.md
- * @returns {{ pass: boolean, summary: string, blockers: string[],
- *             stats: { critical: number, warning: number, safe: number } }}
- *
- * Logic:
- * - BLOCK: con CRITICAL chua fix → pass=false, blockers list
- * - WARN: con WARNING chua fix → pass=true, summary co canh bao
- * - PASS: khong con issue → pass=true
- */
-
-/**
- * fillFixPhaseTemplate(templateContent, phaseData) → string
- *
- * Dien template security-fix-phase.md voi du lieu cu the.
- * @param {string} templateContent
- * @param {{ name, findings, priority, owasp_categories }} phaseData
- * @returns {string} - Filled PLAN.md content
- */
-```
-
-### 6. resource-config.js Update (SUA)
-
-Them 14 agents vao `AGENT_REGISTRY`:
-
-```javascript
-// 12 scanner agents — scout tier
-'pd-sec-sql-injection':     { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-xss':               { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-cmd-injection':     { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-path-traversal':    { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-secrets':           { tier: 'scout', tools: ['Read', 'Glob', 'Grep'] },
-'pd-sec-deserialization':   { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-misconfig':         { tier: 'scout', tools: ['Read', 'Glob', 'Grep'] },
-'pd-sec-prototype-pollution': { tier: 'scout', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-crypto':            { tier: 'scout', tools: ['Read', 'Glob', 'Grep'] },
-'pd-sec-vuln-deps':         { tier: 'scout', tools: ['Read', 'Glob', 'Grep'] },
-'pd-sec-logging':           { tier: 'scout', tools: ['Read', 'Glob', 'Grep'] },
-
-// 2 scanner agents — builder tier (can phan tich sau hon)
-'pd-sec-auth':              { tier: 'builder', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-'pd-sec-insecure-design':   { tier: 'builder', tools: ['Read', 'Glob', 'Grep', 'mcp__fastcode__code_qa'] },
-
-// Reporter agent — builder tier (tong hop, can nhieu context)
-'pd-sec-reporter':          { tier: 'builder', tools: ['Read', 'Write', 'Glob'] },
-```
-
-**HEAVY_TOOL_PATTERNS da co `mcp__fastcode__`** — tu dong ap dung cho scanners dung fastcode. Khong can sua.
-
-### 7. Integration voi Existing Workflows (3 file SUA)
-
-#### 7a. complete-milestone.md — Security Gate (Buoc 3.7 MOI)
-
-Vi tri: sau Buoc 3.6 (bao cao quan ly), truoc Buoc 4 (bao cao tong ket).
-
-```
-## Buoc 3.7: Security Gate (non-blocking)
-
-> QUAN TRONG: Toan bo buoc nay la non-blocking.
-> Bat ky loi nao chi log warning va ghi chu — KHONG BAO GIO chan milestone completion.
-
-1. Glob `.planning/security/S*-audit-*/SECURITY_REPORT.md`
-2. Khong co → bo qua (chua chay pd:audit). Ghi: "Khong co security audit."
-3. Co → doc SECURITY_REPORT.md moi nhat (sort theo session number)
-4. Parse report → dem CRITICAL va WARNING counts
-5. Quyet dinh:
-   - CRITICAL > 0 → CANH BAO:
-     "Con [N] CRITICAL security issues chua fix.
-     (1) Chay `/pd:audit --milestone` de tao fix phases
-     (2) Bo qua (ghi nhan no ky thuat)"
-     → Bo qua → ghi vao MILESTONE_COMPLETE.md section "No ky thuat"
-   - WARNING > 0 → ghi nhan vao MILESTONE_COMPLETE.md
-   - Tat ca SAFE → ghi "Security audit: PASS"
-```
-
-Pattern NHAT QUAN voi Buoc 3.6 (non-blocking, try/catch, chi warning).
-
-#### 7b. what-next.md — Security Priority (Buoc 4 SUA)
-
-Them hang vao bang uu tien:
-
-```
-| Uu tien | Dieu kien | Goi y |
-| 0.5 | SECURITY_REPORT co CRITICAL chua fix | `/pd:audit --milestone` hoac `/pd:fix-bug` |
-```
-
-Logic: Glob `.planning/security/S*-audit-*/SECURITY_REPORT.md` → doc moi nhat → parse CRITICAL count > 0 → goi y.
-
-Security CRITICAL cao hon bugs thuong (uu tien 1) vi co the bi khai thac.
-
-#### 7c. templates/state.md — Them audit events
-
-```
-| Thoi diem | Hanh dong |
-| Audit xong | Hoat dong cuoi: [ngay] — Security audit hoan tat ([N] CRITICAL, [M] WARNING) |
-| Fix phases tao | Hoat dong cuoi: [ngay] — Tao [N] fix phases tu security audit |
-```
-
-### 8. Templates
-
-#### `templates/security-fix-phase.md` (MOI)
+The minimal and correct approach is a **workflow-level instruction** to re-read config at each decision point:
 
 ```markdown
-# Phase {phase_number}: Security Fix — {owasp_category}
-
-## Tiêu chí thành công
-
-### Sự thật phải đạt
-| # | Sự thật | Kiểm tra |
-|---|---------|----------|
-{truths_table}
-
-## Quyết định thiết kế
-- Fix approach: {approach}
-- Không thay đổi: {preserved_behavior}
-
-## Tasks
-{tasks_from_findings}
-
-## Ghi chú bảo mật
-- OWASP Category: {owasp}
-- Severity: {severity}
-- Attack vector: {attack_description}
-- Remediation guidance: {remediation}
+## Config Reading Rule
+At each step that branches on config (parallel mode, model selection, verifier toggle):
+1. Read `.planning/config.json` fresh — do NOT cache from workflow start
+2. If file missing → use defaults: mode=yolo, granularity=fine, parallelization=true
+3. If parse error → warn and use defaults
 ```
 
-#### `templates/security-report.md` (MOI — extract tu pd-sec-reporter.md)
+This is a **markdown workflow change only** — zero Node.js code required.
 
-Extract template SECURITY_REPORT.md ra file rieng de:
-1. Reporter agent reference template thay vi inline
-2. Nhat quan voi pattern templates/management-report.md
+### For plan-check.js (Node.js layer)
 
-## File Organization
+`plan-check.js` already reads config.json synchronously at execution start. Since it is invoked as a subprocess per plan-check run (not a long-running server), it naturally re-reads each invocation. **No change needed here.**
 
-### Session Directory Structure
+### Affected workflows
 
-```
-.planning/security/
-  S001-audit-20260326/
-    SESSION.md              # metadata: date, stack, flags, selected scanners
-    evidence_sec_sqli.md    # ← pd-sec-sql-injection
-    evidence_sec_xss.md     # ← pd-sec-xss
-    evidence_sec_cmdi.md    # ← pd-sec-cmd-injection
-    evidence_sec_pathtr.md  # ← pd-sec-path-traversal
-    evidence_sec_secrets.md # ← pd-sec-secrets
-    evidence_sec_auth.md    # ← pd-sec-auth
-    evidence_sec_deser.md   # ← pd-sec-deserialization
-    evidence_sec_misconfig.md   # ← pd-sec-misconfig
-    evidence_sec_pollution.md   # ← pd-sec-prototype-pollution
-    evidence_sec_crypto.md      # ← pd-sec-crypto
-    evidence_sec_design.md      # ← pd-sec-insecure-design
-    evidence_sec_deps.md        # ← pd-sec-vuln-deps
-    evidence_sec_logging.md     # ← pd-sec-logging
-    SECURITY_REPORT.md      # ← pd-sec-reporter
-    POC_REPORT.md           # (--poc) Proof-of-Concept
-    GADGET_CHAIN.md         # (--poc) Chuoi tan cong
-    DELTA_REPORT.md         # (--delta) So sanh voi session truoc
-  S002-audit-20260327/      # Session tiep theo
-    ...
-```
+Workflows that branch on config fields:
 
-**Ly do dung .planning/security/ (khong phai .planning/research/):**
-- Security audit la hoat dong rieng biet, khong phai research
-- Session-based (chay lai nhieu lan), khong phai entry-based
-- Evidence format khac (findings, severity, OWASP mapping) vs research (claims, confidence, sources)
-- Tuong tu .planning/debug/ (session-based) hon .planning/research/ (entry-based)
+| Workflow | Config Fields Used | Current Behavior |
+|----------|--------------------|-----------------|
+| `write-code.md` | `parallelization`, `model_profile` | Reads once at start (implicit) |
+| `fix-bug.md` | `workflow.verifier`, `parallelization` | Reads once at start |
+| `plan.md` | `workflow.plan_check`, `workflow.research` | Reads once at start |
+| `new-milestone.md` | `workflow.research` | Reads once at start |
+| `write-code.md --parallel` | `parallelization` | Reads once at wave dispatch |
 
-## New vs Modified — Explicit Summary
+### Implementation cost: SMALL
 
-### DA TON TAI — Khong can tao moi
+This is a workflow prose change — add a "re-read config before each decision" instruction to the 4-5 affected workflows. No new JS modules, no file watchers, no event system.
 
-| File | So luong | Ghi chu |
-|------|----------|---------|
-| `commands/pd/agents/pd-sec-*.md` | 13 scanners | Da co day du, co process + rules + evidence format |
-| `commands/pd/agents/pd-sec-reporter.md` | 1 reporter | Da co, co OWASP mapping + report format |
+A file watcher (e.g., `fs.watch`) would be **overengineered** — the AI agent reading the file fresh is free, has no latency cost, and does not require a persistent Node.js process.
 
-### MOI — Can tao (7 files)
+---
 
-| # | File | Loai | Phu thuoc |
-|---|------|------|-----------|
-| N1 | `bin/lib/security-scanner.js` | JS lib (pure functions) | resource-config.js (getAgentConfig) |
-| N2 | `bin/lib/security-reporter.js` | JS lib (pure functions) | security-scanner.js (Finding type) |
-| N3 | `config/security-rules.yaml` | Config | Khong |
-| N4 | `commands/pd/audit.md` | Skill file | workflows/audit.md |
-| N5 | `workflows/audit.md` | Workflow | N1, N2, N3, resource-config.js |
-| N6 | `templates/security-fix-phase.md` | Template | Khong |
-| N7 | `templates/security-report.md` | Template | Khong |
+## Structured Logging Architecture
 
-### SUA — Can chinh sua (3 files)
+### Storage location
 
-| # | File | Thay doi cu the | Do phuc tap |
-|---|------|----------------|-------------|
-| M1 | `bin/lib/resource-config.js` | Them 14 entries vao AGENT_REGISTRY | Thap — chi them dong vao object |
-| M2 | `workflows/complete-milestone.md` | Them Buoc 3.7 Security Gate (non-blocking) | Trung binh — them ~20 dong |
-| M3 | `workflows/what-next.md` | Them priority 0.5 row + SECURITY_REPORT glob | Thap — them ~5 dong |
-
-## Patterns to Follow
-
-### Pattern 1: Pure Function Library (nhat quan voi 22 modules)
-
-**What:** Moi JS module trong bin/lib/ la pure functions — KHONG doc file, KHONG require('fs'), content truyen qua tham so.
-**When:** security-scanner.js va security-reporter.js.
-**Why:** 22 modules hien co deu theo pattern nay. 600+ tests chung minh hieu qua.
-
-### Pattern 2: Wave-based Agent Dispatch (reuse write-code.md --parallel)
-
-**What:** Nhom scanners thanh waves, spawn Agent tool song song, max 2/wave.
-**When:** Buoc 3 cua audit workflow.
-**Why:** Da chung minh trong write-code.md voi conflict detection, post-wave safety net.
-
-### Pattern 3: Agent Communication via Evidence Files (reuse fix-bug pattern)
-
-**What:** Scanner agents ghi evidence file → reporter doc evidence files → SECURITY_REPORT.
-**When:** Scanner → evidence → reporter pipeline.
-**Why:** Pattern da thanh cong trong fix-bug (janitor → evidence → detective). Avoid race condition.
-
-### Pattern 4: Non-blocking Workflow Integration (reuse Buoc 3.6 pattern)
-
-**What:** Security gate CANH BAO nhung khong CHAN milestone completion.
-**When:** complete-milestone.md Buoc 3.7, what-next.md priority.
-**Why:** Nhat quan voi report generation (Buoc 3.6) — optional features KHONG BAO GIO chan core workflow.
-
-### Pattern 5: YAML Config for Scanner Routing (khong hardcode)
-
-**What:** Scanner applicability, wave priority, stack mapping trong YAML — khong inline trong workflow.
-**When:** Smart Scanner Selection.
-**Why:** De test, de review, de mo rong (them scanner = them entry YAML, khong sua workflow).
-
-## Anti-Patterns to Avoid
-
-### Anti-Pattern 1: Dump toan bo codebase cho scanner
-
-**What:** Truyen tat ca source code vao scanner agent context.
-**Why bad:** Token waste. Scanner chi can patterns cu the (regex), khong can doc moi file.
-**Instead:** Scanner tu dung Glob/Grep tim patterns, Read doc context ±15 dong. FastCode cho call chain analysis.
-
-### Anti-Pattern 2: Scanner ghi truc tiep vao SECURITY_REPORT
-
-**What:** Moi scanner append vao 1 file report chung.
-**Why bad:** Race condition khi 2 scanners chay song song. Format khong nhat quan.
-**Instead:** Moi scanner ghi evidence file RIENG. Reporter tong hop SAU KHI tat ca xong.
-
-### Anti-Pattern 3: Blocking security gate
-
-**What:** complete-milestone CHAN khi con CRITICAL.
-**Why bad:** Vi pham non-blocking pattern da thiet lap (Buoc 3.6). User co the co ly do proceed.
-**Instead:** CANH BAO + cho user quyet dinh. Ghi no ky thuat neu bo qua.
-
-### Anti-Pattern 4: Hardcode scanner list trong workflow
-
-**What:** Workflow liet ke 13 scanners bang tay.
-**Why bad:** Them/bot scanner = sua workflow. Kho maintain.
-**Instead:** security-rules.yaml chua danh sach. Workflow doc YAML, filter theo stack.
-
-### Anti-Pattern 5: Tao session dir rieng cho moi scanner
-
-**What:** Moi scanner co session folder rieng.
-**Why bad:** Reporter khong biet doc dau. Delta compare phuc tap.
-**Instead:** 1 session dir / audit run. Tat ca evidence trong cung dir.
-
-## Scalability Considerations
-
-| Concern | Small project (5 scanners) | Full scan (13 scanners) | Full + POC + Delta |
-|---------|---------------------------|------------------------|-------------------|
-| Thoi gian | ~3 phut (3 waves) | ~10 phut (7 waves) | ~15 phut |
-| Token cost | ~50K (scout agents) | ~150K (mixed tiers) | ~200K |
-| Files output | 5 evidence + report | 13 evidence + report | 13 evidence + 3 reports |
-| Waves | 3 | 7 | 7 + reporter + POC |
-
-## Build Order (dependency-aware, suggested phases)
+`.planning/logs/` — one log file per workflow session:
 
 ```
-Phase 1: Foundation (libs + config)
-  Tasks:
-  - security-rules.yaml (N3)
-  - security-scanner.js: selectScanners(), buildScanWaves() (N1 partial)
-  - resource-config.js: them 14 agents (M1)
-  Dependencies: khong (foundation layer)
-  Testable: unit tests cho selectScanners, buildScanWaves
-
-Phase 2: Core Audit Workflow (skill + workflow Buoc 1-3-5)
-  Tasks:
-  - commands/pd/audit.md (N4)
-  - workflows/audit.md: Buoc 1 (context), 2 (session), 3 (waves), 5 (reporter)
-  - templates/security-report.md (N7)
-  Dependencies: Phase 1 (config + lib)
-  Testable: chay pd:audit doc lap, thay evidence files + SECURITY_REPORT
-
-Phase 3: Evidence Parsing + Function Checklist
-  Tasks:
-  - security-scanner.js: parseScanEvidence(), buildFunctionChecklist() (N1 complete)
-  - security-reporter.js: formatSecurityGate() (N2 partial)
-  Dependencies: Phase 2 (co evidence files de parse)
-  Testable: unit tests, parse evidence tu Phase 2
-
-Phase 4: Advanced — Delta + POC + Fix Phases
-  Tasks:
-  - security-scanner.js: compareSessions() (delta)
-  - security-reporter.js: buildGadgetChain(), generateFixPhases() (N2 complete)
-  - templates/security-fix-phase.md (N6)
-  - workflows/audit.md: Buoc 4 (delta), 6 (POC), 7 (milestone)
-  Dependencies: Phase 3 (parseScanEvidence cho delta compare)
-  Testable: delta compare, fix phase generation, gadget chain
-
-Phase 5: Workflow Integration
-  Tasks:
-  - complete-milestone.md: Buoc 3.7 (M2)
-  - what-next.md: priority 0.5 (M3)
-  - STATE.md template update
-  Dependencies: Phase 3 (formatSecurityGate)
-  Testable: end-to-end: pd:audit → pd:complete-milestone voi security gate
+.planning/logs/
+  agents-2026-04-02T120000Z.jsonl   <- append-only JSONL
+  agents-2026-04-01T093000Z.jsonl
+  agents-2026-03-31T150000Z.jsonl
 ```
 
-**Rationale:**
-- Phase 1 truoc tat ca vi moi thu phu thuoc YAML config + AGENT_REGISTRY
-- Phase 2 truoc Phase 3 vi can evidence files thuc te de test parser
-- Phase 3 truoc Phase 4 vi delta compare can parseScanEvidence()
-- Phase 4 va Phase 5 co the SONG SONG (doc lap — integration chi can formatSecurityGate tu Phase 3)
-- 13 scanner agents + 1 reporter DA CO — khong co phase nao can tao agent files
+**Format: JSONL (JSON Lines)** — one JSON object per line. Append-only. Easy to `grep`, `jq`, stream parse, and tail. Avoids JSON array corruption on crash.
+
+### Log entry schema
+
+```json
+{
+  "timestamp": "2026-04-02T12:34:56.789Z",
+  "session_id": "S007-fix-login-crash",
+  "phase": "76",
+  "phase_name": "Structured Logging Foundation",
+  "step": "3",
+  "agent": "pd-code-detective",
+  "tier": "builder",
+  "event": "error",
+  "severity": "warn",
+  "tool_called": "mcp__fastcode__code_qa",
+  "tool_input_summary": "repos=[/abs/path], query=find auth middleware",
+  "error_code": "MCP_TIMEOUT",
+  "error_message": "FastCode MCP did not respond within 30s",
+  "recovery_action": "fallback_to_grep",
+  "context": {
+    "task_id": "TASK-02",
+    "workflow": "fix-bug",
+    "interruption_round": 1
+  }
+}
+```
+
+**Fields:**
+
+| Field | Required | Notes |
+|-------|----------|-------|
+| `timestamp` | YES | ISO-8601 with ms |
+| `session_id` | YES | Debug session folder name or "none" |
+| `phase` | YES | Phase number or "standalone" |
+| `step` | YES | Step number within workflow |
+| `agent` | YES | Agent name or "orchestrator" |
+| `tier` | optional | scout/builder/architect (if known) |
+| `event` | YES | `error`, `warn`, `recovery`, `checkpoint` |
+| `severity` | YES | `debug`, `info`, `warn`, `error`, `fatal` |
+| `tool_called` | optional | Which tool triggered the error |
+| `tool_input_summary` | optional | Truncated to 200 chars — never full content |
+| `error_code` | optional | Machine-readable: `MCP_TIMEOUT`, `LINT_FAIL_3`, etc. |
+| `error_message` | optional | Human-readable, max 500 chars |
+| `recovery_action` | optional | What the agent did after the error |
+| `context` | optional | Catch-all for additional structured data |
+
+### Integration points
+
+**In JS modules** (`bin/lib/` pure functions): These are pure functions with no I/O. They do NOT write logs. Instead:
+
+- Add a `lib/log-schema.js` module: pure functions for `createLogEntry(fields)` and `validateLogEntry(entry)` — validation only, no writes
+- Add a `bin/log-writer.js` script: thin I/O wrapper, called as a subprocess
+
+**In skill workflows** (markdown): Add a "Log errors" step at each error branch.
+
+**In fix-bug.md**: Already has degradation/error paths → add log write at each STOP or degradation branch.
+
+**In write-code.md**: Lint failure (3-strike LINT-01) → log `{ event: "error", error_code: "LINT_FAIL_3" }`.
+
+### Log rotation
+
+Keep last 10 log files. Add to `pd:init`: `ls -t .planning/logs/*.jsonl | tail -n +11 | xargs rm -f`
+
+### Integration with existing audit-logger.js
+
+`bin/lib/audit-logger.js` handles research audit logs (AUDIT_LOG.md markdown format) — entirely separate concern. Do NOT merge. The new structured log is for agent errors and system events, not research provenance.
+
+---
+
+## Staleness Detection Architecture
+
+### Problem definition
+
+`.planning/codebase/STRUCTURE.md` (and siblings) is generated once by `pd-codebase-mapper` at init time. When source files change, the map becomes stale. Currently there is no detection — the agent relies on a human to re-run `pd:init` or `pd:scan`.
+
+### Detection signals (ranked by reliability)
+
+**Signal 1: File-tree hash (RECOMMENDED)**
+
+Hash the set of all source file paths (not contents) in the project:
+
+```bash
+find . -type f \( -name "*.ts" -o -name "*.js" -o -name "*.py" \) \
+  -not -path "*/node_modules/*" -not -path "*/.planning/*" -not -path "*/.git/*" \
+  | sort | sha256sum
+```
+
+Store this hash in `.planning/codebase/META.json`:
+```json
+{
+  "mapped_at": "2026-04-02T10:00:00Z",
+  "tree_hash": "abc123...",
+  "file_count": 47,
+  "schema_version": 1
+}
+```
+
+On each `pd:write-code` or `pd:plan` start, recompute hash. If it differs → stale.
+
+**Signal 2: New/deleted files since `mapped_at`** (simpler, less precise)
+
+Use `git diff --name-only --diff-filter=AD` to count file additions/deletions since map date.
+
+**Signal 3: mtime of STRUCTURE.md vs newest source file** (cheapest, least reliable)
+
+Count files newer than `.planning/codebase/STRUCTURE.md`.
+
+### Recommended approach: META.json + tree hash
+
+- **On map creation** (end of `pd-codebase-mapper` agent): write `.planning/codebase/META.json` with `tree_hash` and `mapped_at`
+- **On each workflow start** (pd:plan, pd:write-code, pd:scan): re-hash, compare to `META.json`
+- **Threshold:** If hash differs → stale. Binary decision — no "slightly stale" grey zone.
+- **Action:** "Codebase map may be outdated. Run `/pd:init` to refresh, or continue with current map."
+- **Non-blocking:** Always a warning, never a hard block. The map is a performance aid, not a correctness requirement.
+
+### Where to put the check
+
+**In `pd-codebase-mapper.md` (agent):** Write `META.json` at the end of the mapping process.
+
+**In `init.md` (workflow Step 3b):** After checking for existing `STRUCTURE.md`, also check `META.json` freshness.
+
+**In `write-code.md` / `plan.md` (workflows):** Add a lightweight staleness probe at Step 1:
+
+```markdown
+## Staleness check (non-blocking)
+If `.planning/codebase/META.json` exists:
+  Run: find . -type f ... | sort | sha256sum
+  Compare to META.json.tree_hash
+  Mismatch → warn: "Codebase map may be outdated. Run /pd:init to refresh."
+  Continue regardless.
+```
+
+### Staleness threshold
+
+**No time-based threshold** — time is unreliable (inactive projects, paused work). Use structural change (hash mismatch) as the sole trigger. A project with 0 file additions/deletions but heavy edits is NOT stale from a structure perspective — STRUCTURE.md documents module layout, not file contents.
+
+### Implementation cost: SMALL
+
+- Add `META.json` write to `pd-codebase-mapper.md` (3 lines)
+- Add hash-recompute+compare to `init.md` and `write-code.md`/`plan.md` (5 lines each)
+- No new JS modules needed — pure bash one-liner
+
+---
+
+## Phase Sizing Estimate
+
+| Feature | Requirement | Effort | Rationale |
+|---------|-------------|--------|-----------|
+| pd:replay skill | REPLAY-01 | **Medium** | Discovery + context injection; recovery logic already exists in write-code.md Step 1.1. New: checkpoint schema, replay skill file + workflow. ~2-3 plans |
+| pd:diff-milestone skill | DIFF-01 | **Medium** | Pure markdown parsing (no external libs). New skill file + workflow + diff output formatter. ~2 plans |
+| Config hot-reload | HOTREL-01 | **Small** | Workflow prose changes only. Add "re-read config" instruction to 4-5 workflows. 0 new JS files. ~1 plan |
+| Structured logging | LOG-01 | **Medium** | New `log-schema.js` (pure, testable), `log-writer.js` (I/O wrapper), + workflow integration in fix-bug/write-code. ~2-3 plans |
+| Staleness detection | STALE-01 | **Small** | Add META.json to mapper agent, add hash-compare to 2-3 workflows. 0 new JS modules. ~1-2 plans |
+
+### Recommended phase groupings
+
+```
+Phase A (Infrastructure Foundation) — Small items that unblock others
+  - HOTREL-01 (config hot-reload prose changes)
+  - STALE-01 (staleness detection + META.json)
+  Rationale: Both are workflow-only changes, no new JS, fast to verify
+
+Phase B (Observability) — Structured logging
+  - LOG-01 (schema module + writer + workflow integration)
+  Rationale: Isolated new module, pure functions, well-tested; stands alone
+
+Phase C (New Skills) — Replay and Diff
+  - REPLAY-01 (pd:replay skill + checkpoint writer)
+  - DIFF-01 (pd:diff-milestone skill)
+  Rationale: Both are new skill files; grouping keeps new-commands work together.
+             Replay benefits from Phase B logs for failure context reconstruction.
+```
+
+**Total estimated plans: 8-10 plans across 3 phases**
+
+**Critical dependency:** LOG-01 (Phase B) should precede REPLAY-01 (Phase C) — replay benefits from structured logs to reconstruct interruption context. All other features are independent of each other.
+
+---
+
+## Architectural Constraints (from source inspection)
+
+1. **Pure functions everywhere** — all `bin/lib/*.js` modules are pure (no `require('fs')`). New modules must follow the same pattern: pure logic in `lib/`, I/O wrappers in `bin/`.
+
+2. **Node 16.7+ compatibility** — no `Array.at()` without fallback, no `structuredClone` (use JSON round-trip).
+
+3. **No external npm dependencies** — only devDeps (`js-tiktoken`, `js-yaml`). New features must use stdlib only (`fs`, `path`, `crypto`).
+
+4. **Skill files are AI-agent instructions** — not executable scripts. Changes to workflows are "prompts to the AI" not "code changes". Testing them is behavioral (evals), not unit tests.
+
+5. **Checkpoint and log files must be gitignore-able** — add `.planning/checkpoints/` and `.planning/logs/` to `.gitignore`. These are ephemeral runtime artifacts.
 
 ## Sources
 
-- Phan tich truc tiep codebase v3.0: 14 pd-sec-* agent files, 22 JS lib modules, 11 workflows — HIGH confidence
-- `bin/lib/resource-config.js` AGENT_REGISTRY pattern (7 agents hien co) — HIGH confidence
-- `bin/lib/parallel-dispatch.js` wave dispatch pattern — HIGH confidence
-- `bin/lib/session-manager.js` session naming pattern — HIGH confidence
-- `workflows/write-code.md` Buoc 10 --parallel wave execution — HIGH confidence
-- `workflows/research.md` agent pipeline pattern — HIGH confidence
-- `workflows/complete-milestone.md` Buoc 3.6 non-blocking pattern — HIGH confidence
-- 14 pd-sec-* agent files: evidence format, OWASP mapping, tool lists — HIGH confidence
+- Direct source inspection: `bin/lib/checkpoint-handler.js`, `bin/lib/audit-logger.js`, `bin/lib/manifest.js`, `bin/lib/session-manager.js`, `bin/lib/resource-config.js`, `bin/plan-check.js`
+- Workflow inspection: `workflows/write-code.md`, `workflows/fix-bug.md`, `workflows/init.md`
+- Planning artifacts: `.planning/REQUIREMENTS.md`, `.planning/STATE.md`, `.planning/codebase/ARCHITECTURE.md`
+- Phase registry: `.planning/phases/` directory listing (999.x backlog items)
+- Confidence: **HIGH** — all findings based on direct file reads, no extrapolation

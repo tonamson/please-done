@@ -1,3 +1,484 @@
+# Feature Research — v8.0 Developer Experience & Quality Hardening
+
+> **IMPORTANT:** This file replaces the v4.0 research. v8.0 is the active milestone.
+> **Researched:** 2026-04-02 | **Confidence:** HIGH (based on reading all source files directly)
+
+---
+
+<!-- ORIGINAL v4.0 content archived below this v8.0 section -->
+
+---
+
+## ONBOARD-01: `pd:onboard`
+
+### What init + scan currently do
+
+| Skill | Output | Gap |
+|-------|--------|-----|
+| `pd:init` | Creates `CONTEXT.md`, copies rules, maps codebase via `pd-codebase-mapper` agent | Does not acknowledge existing history; creates a "blank slate" context |
+| `pd:scan` | Scans source, updates `CONTEXT.md`, writes `SCAN_REPORT.md` | Treats every project as a fresh start — no v0 baseline, no git history ingestion |
+
+**The gap (from `de_xuat_cai_tien.md` P1-1):** When a developer joins a project that already has code but has never used please-done, the correct flow is `init → scan → new-milestone`. `new-milestone` creates a ROADMAP from zero — there is no way to "wrap" existing code into a completed baseline milestone. History is lost, and new agents cannot distinguish old code from new work.
+
+### What `pd:onboard` needs
+
+1. **Git history ingestion** — run `git log --oneline --since="90 days ago"` to extract major commits. Group into logical feature clusters to auto-generate a summary of existing work.
+
+2. **v0.0 baseline milestone** — create `.planning/milestones/0.0/` with:
+   - `PLAN.md` → "Existing codebase — pre-please-done" (summarise from git log + SCAN_REPORT)
+   - `TASKS.md` → all tasks marked ✅ (existing features as completed work)
+   - `TEST_REPORT.md` → "Onboarding checkpoint — existing code, no automated test record"
+
+3. **PROJECT.md bootstrap** — create `.planning/PROJECT.md` with:
+   - Tech stack (from CONTEXT.md)
+   - Milestone 0.0 = "Existing codebase" marked complete
+   - Language policy (default English unless user specifies)
+   - Lessons learned placeholder
+
+4. **Git tag** — `git tag v0.0 -m "Onboarding baseline — existing codebase"` (only if HAS_GIT)
+
+5. **CURRENT_MILESTONE.md** — set to the next version (`v1.0`) so the user can start fresh work immediately
+
+6. **Guard check** — if `.planning/milestones/0.0/` already exists → warn and ask before overwriting
+
+### Differentiators vs init/scan
+
+| Concern | pd:init | pd:scan | pd:onboard |
+|---------|---------|---------|-----------|
+| Creates CONTEXT.md | ✅ | Updates ✅ | Calls both internally |
+| Analyzes code structure | ❌ | ✅ | ✅ (via scan) |
+| Synthesizes git history | ❌ | ❌ | ✅ |
+| Creates baseline milestone | ❌ | ❌ | ✅ (v0.0) |
+| Creates PROJECT.md | ❌ | ❌ | ✅ |
+| Tags existing code | ❌ | ❌ | ✅ (v0.0 tag) |
+| Positions user for v1.0 | ❌ | ❌ | ✅ (sets CURRENT_MILESTONE) |
+
+### Implementation notes
+
+- Model: `sonnet` (needs synthesis + judgment, not just reading)
+- Allowed tools: Read, Write, Bash, Glob, Grep, mcp__fastcode__code_qa (optional)
+- Skip git history step if no git (`HAS_GIT = false`) — create minimal v0.0 from scan only
+- Max git log depth: 500 commits or 6 months, whichever is less
+- `pd:onboard` should call `pd:init` and `pd:scan` internally (or instruct user to run them first as prerequisites)
+
+---
+
+## LINT-01: 3-Strike Lint Recovery
+
+### Current behavior (source: `workflows/write-code.md` Step 5 + Step 6.5b)
+
+```
+Step 5: Lint + Build
+- Fail → fix + rerun. Max 3 times → STOP, notify user + error message
+
+Step 6.5b: Security check
+- Code fixed → rerun lint + build (Step 5). Fail → retry 3 times. Update CODE_REPORT.
+```
+
+**What happens on 3rd failure:**
+- Agent stops and prints error message
+- Task remains in 🔄 state
+- PROGRESS.md exists but has no `lint_fail_count` or `last_lint_error` fields
+- No specific guidance to `pd:fix-bug`, no resume-lint-only mode
+
+### The gap
+
+1. **No persistence of fail count** — PROGRESS.md template (at `templates/progress.md`) tracks stages and files written, but has no field for lint failure count or last error message. If the session closes after a stop, the next session has no way to know a lint recovery was needed.
+
+2. **No targeted recovery path** — user must either re-run `/pd:write-code [N]` from scratch (re-writes code) or manually fix then restart. There is no "just re-lint" mode.
+
+3. **No routing to `pd:fix-bug`** — `pd:fix-bug` is the right tool for persistent build errors (it has agents that investigate root cause), but write-code never suggests it with context.
+
+### What the 3-strike recovery needs
+
+**A. PROGRESS.md schema addition:**
+
+```markdown
+## Lint Recovery (created only when lint fails 3+ times)
+> lint_fail_count: 3
+> last_lint_error: [full error message, max 500 chars]
+> lint_failed_at: [DD_MM_YYYY HH:MM]
+> resume_mode: lint-only
+```
+
+Add a `resume_mode` field. When `resume_mode: lint-only` is set, `write-code.md` Step 1.1 Case 1 should jump to Step 5 (lint/build) instead of re-reading and re-writing code.
+
+**B. Suggestion block on 3rd failure:**
+
+```
+❌ Lint/Build failed 3 times. Error: [last_error_message]
+
+Saved to PROGRESS.md (lint_fail_count: 3).
+
+Options:
+1. Run `/pd:fix-bug` to investigate the root cause
+2. Fix manually, then run `/pd:write-code [task N]` to re-lint only (skips re-writing code)
+3. Run `/pd:write-code [task N] --reset` to rewrite from scratch
+```
+
+**C. Resume-lint-only mode in write-code:**
+
+In Step 1.1 Case 1 recovery logic, add a row to the resume table:
+
+| State | Jump to |
+|-------|---------|
+| PROGRESS has `resume_mode: lint-only` | Step 5 only (skip Steps 2–4) |
+
+**D. `pd:fix-bug` trigger:**
+
+When `pd:fix-bug` is invoked with a lint/build error, it should recognise the PROGRESS.md `lint_fail_count` field and include it in the bug report context. No changes to fix-bug's core flow — just ensure the error message from PROGRESS.md is included in the initial diagnosis prompt.
+
+### Effort estimate
+- PROGRESS.md template update: 30 min
+- write-code.md Step 5 update (persist + suggest): 1 hour
+- write-code.md Step 1.1 recovery table (lint-only resume): 1 hour
+- Total: ~2.5 hours
+
+---
+
+## INTEG-01: Integration Tests
+
+### Existing test patterns (source: `test/` directory)
+
+The project has **40+ smoke tests**, all following the same pattern:
+- Framework: `node:test` (built-in, no Jest/Mocha)
+- Assertion library: `node:assert/strict`
+- Style: pure function tests — no I/O, no file system, no subprocesses
+- Example: `smoke-checkpoint-handler.test.js` tests `extractCheckpointQuestion`, `buildContinuationContext` pure functions
+- Example: `smoke-session-manager.test.js` tests `createSession`, `listSessions`, `getSession` pure functions
+
+**What exists:** Unit-level smoke tests for every lib module (`bin/lib/`).
+**What is missing:** Tests that verify the *contracts between skills* — i.e., that the output file created by skill A is correctly readable by skill B.
+
+### What a full skill chain test needs to verify
+
+The critical "contract files" (files that one skill writes and a downstream skill reads):
+
+| Contract File | Written By | Read By | Key Fields to Verify |
+|--------------|------------|---------|----------------------|
+| `CONTEXT.md` | `pd:init` | `pd:scan`, `pd:plan`, `pd:write-code`, `pd:test` | `Tech Stack:`, `Path:`, `New project:` fields present |
+| `CURRENT_MILESTONE.md` | `pd:new-milestone` | `pd:plan`, `pd:write-code`, `pd:test`, `pd:complete-milestone` | `version:`, `phase:`, `status:` fields present + valid format |
+| `TASKS.md` | `pd:plan` | `pd:write-code`, `pd:test` | Task rows with `Effort:`, `Status:`, `Depends on:` present |
+| `PLAN.md` | `pd:plan` | `pd:write-code`, `pd:test`, `pd:fix-bug` | Required sections: Objective, Technical Design, Success Criteria |
+| `PROGRESS.md` | `pd:write-code` | `pd:write-code` (recovery) | Stage field, Steps checklist, Files Written section |
+| `CODE_REPORT_TASK_N.md` | `pd:write-code` | `pd:test` | Build status header, test references |
+| `SCAN_REPORT.md` | `pd:scan` | Context only (manual) | Required sections present |
+
+### Proposed integration test structure
+
+**File:** `test/integration-skill-chain.test.js`
+
+```javascript
+// Pattern: create minimal .planning/ mock, verify format compliance via regex
+
+describe('CONTEXT.md contract', () => {
+  it('contains required fields for downstream skills', () => {
+    // regex: /Tech Stack:/, /Path:/, /New project:/
+  });
+});
+
+describe('CURRENT_MILESTONE.md contract', () => {
+  it('has valid version format (x.y)', () => { /* regex: /version: \d+\.\d+$/ */ });
+  it('has valid status', () => { /* one of: Not started | In progress | Completed */ });
+});
+
+describe('TASKS.md contract', () => {
+  it('each task has Effort field', () => { /* regex: /Effort: (simple|standard|complex)/ */ });
+  it('status icons are valid', () => { /* ⬜|🔄|✅|❌|🐛 */ });
+});
+
+describe('PROGRESS.md contract', () => {
+  it('has Stage field', () => { /* regex: /> Stage:/ */ });
+  it('has Steps checklist', () => { /* ## Steps section exists */ });
+});
+```
+
+**Chain test (heavier — marks as integration):**
+```javascript
+describe('scan→plan handoff', () => {
+  it('CONTEXT.md from init satisfies scan guard (guard-context.md)', () => { ... });
+  it('CONTEXT.md from scan satisfies plan guard', () => { ... });
+});
+```
+
+### Key design decision for integration tests
+
+Keep them **format-contract tests** (regexp/section presence), NOT end-to-end execution tests. Running actual skills would require spawning agents and is out of scope for a CI test suite. The value is catching template format drift before it breaks downstream consumers.
+
+---
+
+## STALE-01: Staleness Detection
+
+### Current behavior (source: `workflows/init.md` Step 3b)
+
+```
+Check `.planning/codebase/STRUCTURE.md` exists:
+  EXISTS → skip mapper (assume still valid)
+  MISSING → spawn pd-codebase-mapper agent
+```
+
+**The gap (from `de_xuat_cai_tien.md` P1-2):** STRUCTURE.md has **no timestamp or commit SHA metadata**. Once mapped, it is never invalidated — even after multiple phases add new modules, rename directories, or refactor architecture. The `plan.md` and `write-code.md` skills reference stale maps.
+
+Observed in STRUCTURE.md: no `> Mapped at:` line, no commit reference, no file count.
+
+### Staleness signals to implement
+
+| Signal | How to Detect | Threshold | Source |
+|--------|--------------|-----------|--------|
+| **Git commit delta** | `git rev-list [mapped_sha]..HEAD --count` | > 20 commits since map | Best signal — directly tracks code change volume |
+| **File count delta** | `git diff [mapped_sha] --name-only -- '*.ts' '*.tsx' '*.js' '*.jsx' '*.php' '*.dart' '*.sol' \| wc -l` | > 15 changed source files | Proxy for structural change |
+| **Directory structure change** | Count dirs in STRUCTURE.md vs `find . -maxdepth 3 -type d` | > 20% difference | Module-level architectural change |
+| **STRUCTURE.md age** | `stat .planning/codebase/STRUCTURE.md` → mtime | > 14 days old | Time-based fallback when no git |
+
+### Implementation approach
+
+**Step 1: Add metadata to STRUCTURE.md** (via `pd-codebase-mapper` agent update):
+
+```markdown
+# Codebase Structure
+> Mapped at commit: [sha from `git rev-parse HEAD`]
+> Mapped date: [DD_MM_YYYY HH:MM]
+> Source file count: [N]
+```
+
+**Step 2: Add staleness check to `scan.md` Step 0** (new, runs before existing steps):
+
+```
+## Step 0: Check codebase map staleness
+IF .planning/codebase/STRUCTURE.md exists:
+  1. Read "Mapped at commit" → [mapped_sha]
+  2. IF mapped_sha exists:
+     - git rev-list [mapped_sha]..HEAD --count → [commit_delta]
+     - IF commit_delta > 20 → prompt: "Codebase map is [N] commits old. Re-map? (y/n)"
+  3. ELSE (no sha — old format):
+     - stat mtime vs now → > 14 days → prompt: "Codebase map has no timestamp. Re-map? (y/n)"
+  4. User confirms OR auto-flag [--remap] arg → spawn pd-codebase-mapper, update STRUCTURE.md
+  5. User declines → continue with existing map, add warning to SCAN_REPORT: "Codebase map may be stale"
+```
+
+**Step 3: `init.md` Step 3b update** — when STRUCTURE.md exists but has no `Mapped at commit` line → treat as stale → re-map (handles old format gracefully).
+
+### Why git diff HEAD is the right primary signal
+
+- `mtime` is unreliable (git checkout resets it)
+- File count delta is a symptom, not a cause
+- Commit delta (number of commits since last map) is the simplest, most meaningful signal for "how much has the code changed"
+
+---
+
+## STATUS-01: `pd:status` Dashboard
+
+### Current state reading sources
+
+The agent must read from multiple files to assemble a complete picture:
+
+| File | Key Fields | Currently Read By |
+|------|-----------|-------------------|
+| `.planning/CURRENT_MILESTONE.md` | milestone, version, phase, status | pd:what-next, pd:write-code, pd:test |
+| `.planning/STATE.md` | stopped_at, last_updated, progress.completed_phases | pd:what-next |
+| `.planning/milestones/[ver]/phase-[phase]/TASKS.md` | task count by status icon | pd:write-code |
+| `.planning/bugs/*.md` | unresolved bug count | pd:complete-milestone |
+| `.planning/ROADMAP.md` | total phases, completed phases | pd:new-milestone |
+
+### Gap (from `de_xuat_cai_tien.md` P2-2)
+
+`pd:what-next` conflates two concerns: (1) status display and (2) next-step recommendations. Status-only view is currently impossible without reading through advice. For quick status checks during long sessions, this burns unnecessary tokens.
+
+### What `pd:status` should display
+
+**Target output: 8–12 lines max, Haiku-class, no reasoning visible**
+
+```
+📍 Milestone: v8.0 — Developer Experience & Quality Hardening
+📅 Phase: 8.1 | Status: In progress
+📋 Tasks: ✅ 3 / 🔄 1 / ⬜ 4 / ❌ 0 / 🐛 1
+🐛 Open bugs: 1 (BUG_01_04_2026_11_51_09.md)
+🗺  Roadmap: 2/6 phases complete
+⏱  Last activity: 2026-04-02 — Phase 8.1 started
+⚠  Blocker: Task 4 has unresolved bug — run /pd:fix-bug
+```
+
+### Key fields for the dashboard
+
+| Field | Source | Format |
+|-------|--------|--------|
+| Milestone name + version | `CURRENT_MILESTONE.md` | `v[x.y] — [name]` |
+| Current phase | `CURRENT_MILESTONE.md` | `[x.y]` |
+| Phase status | `CURRENT_MILESTONE.md` | `Not started / In progress / Completed` |
+| Task counts by icon | `TASKS.md` | Count each: ✅ 🔄 ⬜ ❌ 🐛 |
+| Open bugs | `bugs/*.md` where `Status: Unresolved` | Count + filenames |
+| Roadmap progress | `ROADMAP.md` | `[completed] / [total] phases` |
+| Last activity | `STATE.md` → `last_updated` | `DD_MM_YYYY` |
+| Active blocker | `TASKS.md` ❌ tasks or `STATE.md` `Blockers/Concerns` | Short description |
+
+### Implementation notes
+
+- Model: `haiku` (pure read + format, no reasoning)
+- Allowed tools: Read, Glob only
+- No arguments needed (reads current milestone automatically)
+- Should NOT suggest next steps (that is `pd:what-next`'s job)
+- Exit fast: if `CURRENT_MILESTONE.md` missing → "Run `/pd:init` first."
+- Output to stdout only, no files written
+
+---
+
+## LOG-01: Structured Agent Error Logging
+
+### Current state
+Agent errors are written as free-text into evidence files (e.g., `evidence_code.md`). No consistent schema. Hard to aggregate failure patterns across sessions.
+
+### What it needs
+Add a standard error section to every agent output (frontmatter-compatible):
+
+```yaml
+## Agent Result
+agent: pd-code-detective
+status: success | partial | failed
+duration: ~45s
+confidence: HIGH | MEDIUM | LOW
+error: null | "short description (max 100 chars)"
+error_context:
+  phase: 8.1
+  step: "Step 3 — root cause analysis"
+  tool: mcp__fastcode__code_qa
+  input_summary: "query: 'What does endpoint /api/users do?'"
+```
+
+Store structured log at: `.planning/logs/agent-errors.jsonl` (append-only JSON Lines).
+
+Each line:
+```json
+{"timestamp":"2026-04-02T10:00:00Z","agent":"pd-code-detective","phase":"8.1","step":"Step 3","status":"failed","tool":"mcp__fastcode__code_qa","error":"FastCode timeout after 30s","input_summary":"query: 'What does...'"  }
+```
+
+**Why JSONL:** Append-only, parseable by any tool, survives partial writes, easy to `grep`.
+
+---
+
+## REPLAY-01: Phase Replay
+
+### What it needs
+
+The requirement says "re-run a failed phase with full context from last checkpoint."
+
+**Key behavior:**
+1. Read `STATE.md` → `stopped_at` to identify the interrupted phase
+2. Locate checkpoint data: `PROGRESS.md` (if exists) + `CODE_REPORT_TASK_*.md` (partial)
+3. Rebuild context: PLAN.md + TASKS.md (current statuses) + last error from PROGRESS.md
+4. Re-invoke the appropriate skill with pre-loaded context (skip re-reading steps already completed)
+
+**Differentiation from `write-code` recovery:** write-code already handles per-task recovery (PROGRESS.md Case 1/2). `pd:replay` is for phase-level recovery — when the session closed *between* tasks or after a hard stop — and needs to stitch together multi-task state.
+
+**Argument:** `pd:replay [phase]` — e.g., `pd:replay 8.1`
+
+**Output:** Summary of recovered state → prompt user to confirm → hand off to `pd:write-code` or `pd:test` at the right resume point.
+
+---
+
+## DIFF-01: Milestone Diff
+
+### What it needs
+
+Compare two completed milestone archives:
+- `pd:diff-milestone v7.0 v8.0`
+- Reads `.planning/milestones/[v1]/` and `.planning/milestones/[v2]/` directories
+- Compares: phases added/removed/deferred, ROADMAP estimates vs actuals, requirements dropped
+
+**Output (plain markdown table):**
+
+```
+## Milestone Diff: v7.0 → v8.0
+
+| Phase | v7.0 Status | v8.0 Status | Change |
+|-------|------------|-------------|--------|
+| 7.1 Security audit | ✅ | n/a | Completed in v7.0 |
+| 8.1 Onboarding | n/a | ✅ | New in v8.0 |
+```
+
+**Calibration insight:** Compare task Effort estimates to actual commit dates (from git log) to surface systematic underestimates.
+
+---
+
+## HOTREL-01: Config Hot-Reload
+
+### What it needs
+
+Currently, changes to `config.json` (if the framework has one) require a full workflow restart. The requirement is to reload without restart.
+
+**For the please-done skill framework context:** The relevant "config" is `.pdconfig` (SKILLS_DIR path). This rarely changes. The more useful hot-reload target is `CONTEXT.md` — skills read it at the start of each invocation, so it is effectively already hot-reloaded per-session.
+
+**Implementation approach:**
+- Skill version check (in `general.md`) already reads `.pdconfig` once per conversation
+- Hot-reload for config changes: add a `--reload` flag to `pd:update` that re-reads `.pdconfig` and re-copies rules without a full re-installation
+- Alternatively: detect `CONTEXT.md` mtime changed since session start → prompt "CONTEXT.md updated, re-read? (y/n)"
+
+**Scope boundary:** This is a low-effort UX improvement, not a fundamental architecture change. The agent reads files on demand — "hot-reload" in this context means "don't require user to close and reopen the agent chat."
+
+---
+
+## Feature Dependency Map
+
+```
+ONBOARD-01 (pd:onboard)
+  └── requires: pd:init, pd:scan (calls them internally)
+  └── produces: PROJECT.md, v0.0 milestone, CURRENT_MILESTONE.md ready for v1.0
+
+LINT-01 (3-strike recovery)
+  └── modifies: PROGRESS.md schema (add lint_fail_count, resume_mode)
+  └── modifies: write-code.md Step 5 (persist on fail) + Step 1.1 (lint-only resume)
+  └── connects to: pd:fix-bug (suggest on 3rd failure)
+
+STALE-01 (staleness detection)
+  └── modifies: pd-codebase-mapper agent (add metadata to STRUCTURE.md)
+  └── modifies: scan.md (add Step 0 staleness check)
+  └── modifies: init.md Step 3b (treat no-SHA structure as stale)
+
+STATUS-01 (pd:status)
+  └── reads: CURRENT_MILESTONE.md, STATE.md, TASKS.md, bugs/*.md, ROADMAP.md
+  └── new skill: commands/pd/status.md + workflows/status.md
+
+INTEG-01 (integration tests)
+  └── new file: test/integration-skill-chain.test.js
+  └── tests: CONTEXT.md, CURRENT_MILESTONE.md, TASKS.md, PLAN.md, PROGRESS.md contracts
+
+LOG-01 (structured logging)
+  └── modifies: all agent output templates (add ## Agent Result block)
+  └── new file: .planning/logs/agent-errors.jsonl (auto-created)
+
+REPLAY-01 (phase replay)
+  └── reads: STATE.md, PROGRESS.md, PLAN.md, TASKS.md
+  └── new skill: commands/pd/replay.md + workflows/replay.md
+  └── depends on: LOG-01 (better context for what failed)
+
+DIFF-01 (milestone diff)
+  └── reads: .planning/milestones/[v]/ directories
+  └── new skill: commands/pd/diff-milestone.md
+
+HOTREL-01 (config hot-reload)
+  └── modifies: pd:update workflow (add --reload flag)
+  └── lightest of all v8.0 requirements
+```
+
+## MVP Recommendation
+
+Prioritize in this order:
+
+1. **LINT-01** — highest impact/effort ratio; touches existing code not new skills; unblocks developers immediately
+2. **STATUS-01** — pure new skill; very low complexity; high daily use value
+3. **STALE-01** — prevents silent bad context; medium complexity
+4. **ONBOARD-01** — highest complexity but highest onboarding value
+5. **INTEG-01** — quality gate; needed before v8.0 ships to catch regressions
+6. **LOG-01** — foundation for REPLAY-01; build first
+7. **REPLAY-01** — depends on LOG-01 being in place
+8. **DIFF-01** — self-contained; can be done in parallel
+9. **HOTREL-01** — lowest priority; partially already solved by file-per-invocation reads
+
+---
+
+<!-- =========================================================== -->
+<!-- ARCHIVED: Original v4.0 OWASP Research (DO NOT DELETE) -->
+<!-- =========================================================== -->
+
 # Feature Landscape: v4.0 OWASP Security Audit
 
 **Domain:** Lenh `pd:audit` quet bao mat OWASP Top 10 tich hop vao AI coding skill framework

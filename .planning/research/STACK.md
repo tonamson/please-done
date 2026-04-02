@@ -1,258 +1,398 @@
-# Technology Stack: v4.0 OWASP Security Audit
+# Stack Research — v8.0
+# Developer Experience & Quality Hardening
 
-**Project:** v4.0 OWASP Security Audit (`pd:audit`)
-**Researched:** 2026-03-26
+**Project:** please-done (cross-platform AI coding skill framework)
+**Milestone:** v8.0 — Developer Experience & Quality Hardening
+**Researched:** 2025-07-14
 **Confidence:** HIGH
-**Scope:** CHI nhung thu CAN THEM cho v4.0. Stack hien tai (Node.js 16.7+, CommonJS, 1 devDep js-tiktoken, 22 JS modules, 13 skills, 11 workflows, 13 pd-sec-* agents, resource-config.js, parallel-dispatch.js, evidence-protocol.js, session-manager.js) da validated va KHONG re-research.
+**Constraints:** Node.js >=16.7.0, CommonJS, pure Node.js (no bundler), zero-to-minimal new runtime deps
 
-## Quyet Dinh Tong Quat
+---
 
-**Them 1 runtime dependency: `js-yaml` ^4.1.0** (22KB, zero transitive deps). Ngoai ra, xay dung hoan toan bang mo rong modules hien co va tao modules moi theo pure function pattern.
+## Developer Onboarding Patterns
 
-Ly do can js-yaml:
-- `security-rules.yaml` co nested objects 3+ cap (category -> patterns -> severity -> file_globs) — `parseFrontmatter()` trong utils.js chi xu ly flat key-value va array 1 cap
-- Tu viet nested YAML parser la loi va ton thoi gian — 22KB dependency la chap nhan duoc
-- js-yaml 4.x la industry standard (25K+ npm dependents), zero transitive deps, stable API tu 2021
+### What the ecosystem uses
 
-Ly do KHONG them gi khac:
-- 13 scanner agents da ton tai (`pd-sec-*.md`) voi Grep/Glob/FastCode MCP — KHONG can them static analysis tool
-- parallel-dispatch.js + resource-config.js da co wave execution — chi can tong quat hoa
-- evidence-protocol.js + session-manager.js da co storage pattern — chi can mo rong
-- Constraint du an: "No Build Step", Node.js 16.7+, backward compatible
+| Tool | Onboarding Library | Notes |
+|------|--------------------|-------|
+| create-turbo | `@inquirer/prompts` v8.x | Modern, composable, ESM-first (requires transpile for CJS) |
+| create-nx-workspace | `enquirer` ~2.3.6 | CJS-compatible, used by NX + PM2, stable since 2019 |
+| create-react-app (legacy) | `prompts` 2.x | Minimal, CJS, low deps (kleur + sisteransi) |
+| GitHub CLI | Go's promptui | N/A for Node |
+| Vite | none (no interactive install) | N/A |
 
-## Recommended Stack
+**@inquirer/prompts** (v8.3.2): Modern API (`await input({message: ...})`), ESM-first so it requires either `import()` or `--experimental-vm-modules`. Does NOT work natively in CommonJS `require()`. Turbo uses it but turbo is ESM.
 
-### Dependency Moi
+**enquirer** (v2.4.1): CJS-compatible, ships `Select`, `Confirm`, `Input`, `MultiSelect` prompts. Deps: `ansi-colors` + `strip-ansi` only. Used by NX and PM2. Works on Node 16+.
 
-| Technology | Version | Purpose | Why |
-|------------|---------|---------|-----|
-| js-yaml | ^4.1.0 | Parse `security-rules.yaml` config file | Nhe nhat trong cac YAML parser (22KB, zero transitive deps). API don gian: `yaml.load(str)` tra ve JS object. 25K+ npm dependents. Tuong thich Node.js >=14. Stable — khong co breaking change ke tu 2021. |
+**@clack/prompts** (v1.2.0): Modern styled prompts with spinners + step groups. CJS-compatible. Deps: `fast-string-width`, `fast-wrap-ansi`, `sisteransi`, `@clack/core`. Excellent UX but newer (less ecosystem validation).
 
-**Tai sao js-yaml thay vi yaml (eemeli)?**
-- `yaml` (eemeli) nang hon (27KB gzip) voi nhieu feature khong can (YAML 1.2 full spec, custom types, comment preservation, document streaming)
-- Du an chi can `yaml.load()` 1 file config — js-yaml du suc
-- js-yaml la dependency gian tiep qua promptfoo ecosystem nen developer da quen API
+**Built-in `readline` + raw mode**: Already used in `bin/install.js` for `promptRuntime()` / `promptLocation()`. `process.stdin.setRawMode(true)` + `readline.emitKeypressEvents()` enables arrow key navigation without any dependency. Pattern used by Yarn classic, npm init. Works on Node 16.7+.
 
-**Tai sao khong mo rong parseFrontmatter()?**
-- `parseFrontmatter()` trong utils.js duoc thiet ke cho flat YAML frontmatter (key: value, key: [array])
-- `security-rules.yaml` can nested objects: `categories.sql-injection.patterns[0]` — 3+ cap
-- Mo rong parseFrontmatter() de xu ly nested = viet lai YAML parser = xau hon dung thu vien chuan
+### Patterns that work in CLI onboarding
 
-### Module Hien Co — Can Mo Rong
+1. **Step-numbered wizard**: `[1/3] Choose platform → [2/3] Choose scope → [3/3] Confirm`. Clear progress reduces abandonment. Used by turbo, create-next-app.
 
-| Module | File | Hien Tai | Mo Rong Cho v4.0 | Backward Compatible? |
-|--------|------|----------|-------------------|---------------------|
-| resource-config.js | `bin/lib/resource-config.js` | AGENT_REGISTRY cho 9 agents (bug 5 + research 2 + evidence 1 + fact 1) | Them 13 sec-scanner agents (tier `scout`) + 1 sec-reporter (tier `builder`) vao registry. Tong: 23 agents. | Co — them entries moi, khong sua entries cu |
-| parallel-dispatch.js | `bin/lib/parallel-dispatch.js` | `buildParallelPlan()` hardcode cho 2 agents (detective + doc-spec) | Them `buildBatchPlan(agents[], maxParallel)` — tong quat hoa cho N agents chia waves. `buildParallelPlan()` van giu nguyen cho backward compat. | Co — them function moi, khong sua function cu |
-| evidence-protocol.js | `bin/lib/evidence-protocol.js` | 3 outcome types: root_cause, checkpoint, inconclusive | Them outcome types: `vulnerability_found`, `no_issue`, `needs_manual_review`. Them `validateSecurityEvidence()` cho evidence_sec_*.md format. | Co — them types moi, khong xoa types cu |
-| session-manager.js | `bin/lib/session-manager.js` | Debug sessions S{NNN}-{slug} | Them `createSecuritySession()` voi prefix `SEC{NNN}` va `session_type: 'security'` metadata. Them `listSecuritySessions()` loc theo type. | Co — them functions moi, session_type field optional |
-| plan-checker.js | `bin/lib/plan-checker.js` | 7 checks (CHECK-01 den CHECK-07) | Them CHECK-08: Security Gate — kiem tra SECURITY_REPORT.md ton tai va khong co CRITICAL unfixed truoc khi complete-milestone. | Co — them check moi vao check registry |
+2. **Sensible defaults with one-shot override**: Interactive when TTY; non-interactive when `--flag` provided. Already implemented in `install.js` (`isTTY` check).
 
-### Module Moi Can Tao
+3. **Post-install instructions block**: Print a formatted box of next steps after install. The existing `log.banner()` in `utils.js` covers this.
 
-| Module | File | Purpose | Pattern | Dependencies |
-|--------|------|---------|---------|-------------|
-| security-rules-loader.js | `bin/lib/security-rules-loader.js` | Load + validate `security-rules.yaml`, tra ve structured config. Validate schema: required fields (agent, owasp, severity), severity enum (CRITICAL/HIGH/MEDIUM/LOW/INFO). | Pure function: nhan YAML string → tra JS object + validation warnings | `js-yaml` (load), khong co dependency khac |
-| security-scanner-dispatch.js | `bin/lib/security-scanner-dispatch.js` | Smart Scanner Selection: phan tich project context (tech stack, file types) de chon scanner lien quan. Chia waves cho batch execution. | Pure function: nhan project context + rules config → tra dispatch plan (waves array) | `security-rules-loader.js`, `resource-config.js` |
-| security-delta.js | `bin/lib/security-delta.js` | Session Delta: so sanh findings phien moi vs phien cu. Phan loai: NEW / KNOWN-UNFIXED / RE-VERIFY / FIXED. | Pure function: nhan 2 arrays findings → tra delta object | Khong co dependency ngoai |
-| security-report-builder.js | `bin/lib/security-report-builder.js` | Gop 13 evidence_sec_*.md files thanh SECURITY_REPORT.md voi OWASP mapping, severity stats, remediation priority. | Pure function: nhan evidence contents map → tra markdown string | `evidence-protocol.js` |
-| security-fix-planner.js | `bin/lib/security-fix-planner.js` | Tu dong tao fix phases theo gadget chain order (che do milestone). Xac dinh dependency giua vulnerabilities. | Pure function: nhan findings + gadget chains → tra phases array | Khong co dependency ngoai |
+4. **Idempotent check before mutating**: Show what WILL change before changing it. `manifest.js` already tracks installed state — use this to show a diff summary.
 
-### Skill va Workflow Moi
+### What this project already has
 
-| File | Purpose | Pattern |
-|------|---------|---------|
-| `commands/pd/audit.md` | Lenh `pd:audit` — entry point skill definition | Tuong tu commands/pd/research.md: YAML frontmatter + guards + 2 che do (doc lap / tich hop milestone) |
-| `workflows/audit.md` | Quy trinh audit day du: analyze context → select scanners → batch dispatch → collect evidence → build report → delta comparison | Tuong tu workflows/research.md: buoc-by-buoc instructions cho AI |
+- `readline.createInterface` + `ask()` helper — functional but sequential (no arrow keys)
+- `log.banner()` — box renderer for post-install messaging
+- `log.step(num, total, msg)` — step indicator
+- `manifest.js` — tracks installation state for idempotent checks
 
-### Config File Moi
+**Gap**: No arrow-key navigation for platform selection. Currently numeric `1-6` input only. For "DX hardening", this is the primary gap.
 
-| File | Purpose | Format | Loaded By |
-|------|---------|--------|-----------|
-| `references/security-rules.yaml` | Dinh nghia 13 OWASP categories: agent mapping, severity defaults, Grep patterns, file globs, skip dirs | YAML (nested objects) | `security-rules-loader.js` via `js-yaml` |
+### Recommendation
 
-**Vi du cau truc security-rules.yaml:**
-
-```yaml
-version: "1.0"
-categories:
-  sql-injection:
-    agent: pd-sec-sql-injection
-    owasp: ["A03"]
-    default_severity: CRITICAL
-    patterns:
-      - "\\$\\{.*\\}.*(?:SELECT|INSERT|UPDATE|DELETE)"
-      - "req\\.(body|params|query).*(?:find|where|query)"
-    file_globs: ["**/*.{js,ts,py,php,rb}"]
-    skip_dirs: ["node_modules", "vendor", "dist", ".next", "build"]
-    relevance_signals:
-      - "package.json:sequelize|knex|prisma|mongoose|pg|mysql"
-      - "*.py:sqlalchemy|django|flask"
-  xss:
-    agent: pd-sec-xss
-    owasp: ["A03", "A07"]
-    default_severity: HIGH
-    patterns:
-      - "innerHTML\\s*="
-      - "dangerouslySetInnerHTML"
-      - "v-html"
-    file_globs: ["**/*.{jsx,tsx,vue,svelte,html,ejs,hbs,pug,php}"]
-    skip_dirs: ["node_modules", "vendor", "dist"]
-    relevance_signals:
-      - "package.json:react|vue|svelte|angular"
-      - "*.php:echo|print"
-  # ... 11 categories con lai tuong tu
-```
-
-### Infrastructure Hien Co — Dung Nguyen, KHONG Thay Doi
-
-| Component | Vai Tro Trong v4.0 | Thay Doi? |
-|-----------|---------------------|-----------|
-| FastCode MCP (`mcp__fastcode__code_qa`) | Scanner agents goi de hieu code context. Da co trong allowed-tools cua 13 pd-sec-* agents. | KHONG |
-| Context7 MCP | Khong dung truc tiep — security audit khong can tra cuu library docs. | KHONG |
-| `confidence-scorer.js` | Tinh confidence cho security findings — reuse `scoreConfidence()` hien co. | KHONG |
-| `audit-logger.js` | Ghi audit trail cho security scan sessions. | KHONG |
-| `index-generator.js` | Generate INDEX.md cho security evidence files. | KHONG |
-| Wave-based execution (resource-config.js) | `getAdaptiveParallelLimit()` da co — security waves dung cung logic. | KHONG (chi parallel-dispatch.js can mo rong) |
-| `utils.js` parseFrontmatter/buildFrontmatter | Parse agent .md files, evidence .md files — khong can thay doi. | KHONG |
-
-## Agent Registry Update Chi Tiet
+**Enhance with raw mode readline** (zero new deps) for arrow-key selection in `promptRuntime()`. Pattern:
 
 ```javascript
-// Them vao AGENT_REGISTRY trong resource-config.js
-// Tat ca 13 scanner la tier "scout" (haiku) — scan nhanh, re
-// Reporter la tier "builder" (sonnet) — can tong hop phuc tap hon
-
-"pd-sec-sql-injection":      { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-xss":                { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-cmd-injection":      { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-path-traversal":     { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-secrets":            { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
-"pd-sec-auth":               { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-deserialization":    { tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-misconfig":          { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
-"pd-sec-prototype-pollution":{ tier: "scout",   tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-crypto":             { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
-"pd-sec-insecure-design":    { tier: "builder", tools: ["Read", "Glob", "Grep", "mcp__fastcode__code_qa"] },
-"pd-sec-vuln-deps":          { tier: "scout",   tools: ["Read", "Glob", "Grep", "Bash"] },
-"pd-sec-logging":            { tier: "scout",   tools: ["Read", "Glob", "Grep"] },
-"pd-sec-reporter":           { tier: "builder", tools: ["Read", "Write", "Glob"] },
+// Raw mode arrow-key select — pure readline, no deps
+function createArrowSelect(rl, items) {
+  process.stdin.setRawMode(true);
+  readline.emitKeypressEvents(process.stdin);
+  let idx = 0;
+  // render + listen for up/down/enter
+  // CTRL+C → cleanup raw mode → exit(1)
+}
 ```
 
-**Ghi chu:**
-- `pd-sec-insecure-design` la tier `builder` (khong phai scout) vi can suy luan ve design patterns, khong chi grep patterns
-- `pd-sec-vuln-deps` co Bash de chay `npm audit --json` (neu co)
-- `pd-sec-secrets`, `pd-sec-misconfig`, `pd-sec-crypto`, `pd-sec-logging` KHONG can FastCode vi chi dung Grep pattern matching
+If team prefers a polished library, **use `enquirer`** — CJS, works Node 16+, NX/PM2 validated, 2 small deps.
 
-## Batch Execution Pattern
+**Do NOT use `@inquirer/prompts`** — ESM-only, breaks CommonJS require chain without dynamic `import()` shim.
 
+---
+
+## Config Hot-Reload Patterns
+
+### How major tools implement it
+
+| Tool | Approach | Library |
+|------|----------|---------|
+| webpack | fs.watch on config file, restart compilation | chokidar (was v3, now v4/v5) |
+| vite | fsevents (macOS) + chokidar internally | chokidar + fsevents optional |
+| nodemon | chokidar v3 (still on v3 for Node 14+ compat) | chokidar |
+| PM2 | chokidar for `--watch` mode | chokidar |
+| Jest (watch mode) | chokidar v3 | chokidar |
+
+### chokidar version landscape (HIGH confidence)
+
+- **chokidar v3.x**: Node >=8, CJS, `fsevents` optional, most widely used. nodemon, Jest still use it.
+- **chokidar v4.x**: Node >=14, dropped `fsevents`, uses native `fs.watch`. Lighter.
+- **chokidar v5.x**: Node >=20.19.0, ESM-only, single dep (`readdirp`). **NOT compatible with this project** (requires Node 20+ and ESM).
+
+### Native `fs.watch` capabilities by Node version
+
+| Node | Recursive watch | Async iteration | Notes |
+|------|-----------------|-----------------|-------|
+| 16.7 | macOS/Windows only (non-recursive still works) | No | `fs.promises.watch` available as preview |
+| 18.x | macOS/Windows | No stable | Still platform-inconsistent |
+| 19.9+ | All platforms | Yes (`for await`) | Added recursive on Linux |
+| 20+ | Stable recursive | Yes | Solid cross-platform |
+
+**For Node 16.7+**: `fs.watch(filename, callback)` on a **single file** is reliable on all platforms. The `recursive: true` option is NOT reliable at Node 16.7 on Linux. But watching a single config file (not a directory) works fine everywhere.
+
+### What config hot-reload means for this project
+
+The v8.0 scope likely means:
+1. **Skill config files** (`references/security-rules.yaml`, `resource-config.js`) — reload when changed without restarting the process
+2. **Agent definition files** — detect edits during a session
+3. **Workflow YAML/MD** — reload workflow when modified mid-session
+
+Pattern used in practice:
+
+```javascript
+// Watch a single config file — pure Node.js, zero deps, Node 16.7+ compatible
+function watchConfig(filePath, onReload, debounceMs = 150) {
+  let timer;
+  const watcher = fs.watch(filePath, (eventType) => {
+    if (eventType === 'change' || eventType === 'rename') {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        try {
+          const fresh = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+          onReload(fresh);
+        } catch (err) {
+          // parse error — skip reload, keep current config
+        }
+      }, debounceMs);
+    }
+  });
+  return watcher; // caller calls watcher.close() to stop
+}
 ```
-Smart Selection (loai bo scanners khong lien quan)
-  |
-  v
-Chia waves theo getAdaptiveParallelLimit() (2-4 parallel)
-  |
-  v
-Wave 1: [sql-injection, xss]           — 2 parallel
-Wave 2: [cmd-injection, path-traversal] — 2 parallel
-Wave 3: [secrets, auth]                 — 2 parallel
-Wave 4: [deserialization, misconfig]    — 2 parallel
-Wave 5: [prototype-pollution, crypto]   — 2 parallel
-Wave 6: [insecure-design, vuln-deps]    — 2 parallel
-Wave 7: [logging]                       — 1 (con lai)
-  |
-  v (doi tat ca waves xong)
-Wave 8: [reporter]                      — 1 (tong hop)
+
+**Why debounce**: editors write files in multiple `change` events (write + truncate + write). 150ms covers all editors.
+
+**Why `rename` event**: some editors (vim, IntelliJ) write to temp file then rename to target. `rename` event fires on the original fd. Solution: re-open `fs.watch` on the new path after rename.
+
+### Recommendation
+
+**Use native `fs.watch` + 150ms debounce** for config hot-reload. Zero deps, works Node 16.7+, sufficient for single-file or small directory watching.
+
+Only add **chokidar v3** if watching a full directory tree (e.g., watching all `commands/pd/**` for skill changes). chokidar v3 is CJS, Node >=8, actively maintained, used by nodemon/Jest.
+
+**Do NOT use chokidar v5** — Node 20+ ESM-only, incompatible with this project's constraints.
+
+---
+
+## Status Dashboard CLI Patterns
+
+### How major tools implement terminal status views
+
+| Tool | Approach | Library |
+|------|----------|---------|
+| `pm2 status` | Full-screen TUI with blessed | `@pm2/blessed` (fork of blessed 0.1.81) + `cli-tableau` |
+| `nx run-many` | Inline task list with spinners | `ora` + ANSI codes |
+| `gh run watch` | Poll + redraw (ANSI erase + reprint) | Go's `glamour` (N/A for JS) |
+| `turbo run` | Log lines per task, grouped | ANSI codes only |
+| `listr2` pattern | Task list with status indicators | `listr2` (requires Node 22.13+) |
+| `log-update` | Overwrite previous output in-place | `log-update` v7 (ESM-only) |
+
+### Terminal status rendering approaches
+
+**Approach 1: Full-screen TUI (blessed/terminal-kit)**
+- Draws boxes, scrollable panels, keyboard nav
+- blessed v0.1.81: last update 2019, no maintenance — HIGH risk
+- terminal-kit: active, feature-rich, but heavy
+- **Use when**: need persistent monitoring dashboard (like PM2 `pm2 monit`)
+- **Not suitable here**: overkill for agent execution status
+
+**Approach 2: In-place line update (log-update / ansi-escapes)**
+- `log-update` v7: ESM-only, won't work in CJS project without shim
+- `log-update` v4: last CJS-compatible version (old)
+- **Pattern**: `process.stdout.write('\x1B[1A\x1B[2K')` — up one line, erase
+- **Works in Node 16.7+**, zero deps if using raw ANSI
+
+**Approach 3: Append-only with status markers**
+- Each line is a permanent log entry: `  ✓ agent-01 complete (1.2s)`
+- No cursor manipulation needed
+- Works everywhere, never breaks in CI/non-TTY
+- **Used by**: webpack build output, tsc --watch
+- **This project already does this** via `log.success/warn/error`
+
+**Approach 4: Periodic redraw (clear screen + reprint)**
+- `process.stdout.write('\x1B[2J\x1B[H')` — clear screen, move to top
+- Print full status table on each tick
+- Used by `gh run watch`, `kubectl get pods --watch`
+- Clean but jarring for users who scroll up
+
+### What's practical for this project
+
+The project needs to show **agent execution status** during multi-wave dispatch. Current pattern: append-only lines. Upgrade options:
+
+**Minimal upgrade** (zero new deps):
+```javascript
+// ANSI in-place update for spinner
+const SPINNER = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+let spinIdx = 0;
+function tickSpinner(label) {
+  if (!process.stdout.isTTY) return;
+  process.stdout.write(`\r  ${SPINNER[spinIdx++ % SPINNER.length]} ${label}`);
+}
+// On complete:
+function completeSpinner(label, success) {
+  if (process.stdout.isTTY) process.stdout.write('\r\x1B[K'); // erase line
+  log[success ? 'success' : 'error'](label);
+}
 ```
 
-**Toi uu hoa Smart Selection:**
-- Phan tich project files: co `.jsx/.tsx` → bat xss, co `.sql`/ORM imports → bat sql-injection
-- Dung `relevance_signals` tu security-rules.yaml
-- Co the giam tu 13 xuong 5-7 scanners cho du an cu the → tiet kiem 40-60% tokens
-
-## Nhung Thu KHONG Can Them
-
-| Thu | Ly Do Khong Can | Dung Thay The |
-|-----|-----------------|---------------|
-| ESLint / Semgrep / CodeQL | Du an la AI agent framework, KHONG phai static analysis tool. 13 agents da dung Grep + FastCode MCP — linh hoat hon, khong can cai tool rieng. | Grep patterns trong agents + FastCode MCP |
-| tree-sitter truc tiep | FastCode MCP da wrap tree-sitter — goi qua MCP thay vi import. Giu nhat quan voi cac agent khac. | `mcp__fastcode__code_qa` |
-| Docker / sandbox | Scanner agents chi READ code (Glob/Grep/Read), khong execute untrusted code. | Khong can sandbox |
-| Database (SQLite, etc) | File-based sessions da du. So luong findings < 100/scan — khong can DB. | session-manager.js + markdown files |
-| Web UI / dashboard | Output la SECURITY_REPORT.md — AI va developer doc truc tiep. | Markdown report |
-| npm audit / Snyk API | `pd-sec-vuln-deps` agent da co — check package.json/lock files. External API them complexity. | Agent-based analysis |
-| SARIF output format | Markdown nhat quan voi toan bo codebase. AI doc markdown tot hon SARIF. | SECURITY_REPORT.md |
-| yaml (eemeli package) | Nang hon js-yaml, nhieu feature khong can. | js-yaml ^4.1.0 |
-| TypeScript | Codebase la pure JS, CommonJS. | JavaScript |
-| Bundler | Constraint du an: "No Build Step". | Pure Node.js scripts |
-
-## Installation
-
-```bash
-# Dependency moi duy nhat
-npm install js-yaml@^4.1.0
+**Table status board** (zero deps — pure ANSI):
+```javascript
+// Render status table with ANSI codes, redraw on state change
+function renderAgentTable(agents) {
+  const lines = agents.map(a => {
+    const icon = {pending:'○', running:'◉', done:'✓', failed:'✗'}[a.status] || '?';
+    const color = {done:'\x1b[32m', failed:'\x1b[31m', running:'\x1b[33m'}[a.status] || '';
+    return `  ${color}${icon}\x1b[0m  ${a.name.padEnd(25)} ${a.elapsed || ''}`;
+  });
+  // Move cursor up N lines, reprint
+  if (process.stdout.isTTY) {
+    process.stdout.write(`\x1B[${agents.length}A`);
+    lines.forEach(l => process.stdout.write(l + '\x1B[K\n'));
+  }
+}
 ```
 
-Khong co dev dependency moi. Test dung `node --test` nhu cu.
+**`ora`** (v9.3.0): CJS-compatible, minimal (no transitive deps from v6+), used by NX. Best option if a polished spinner is needed with one dep. However: ora v9 might be ESM. Check: ora v5.4.1 is last CJS version.
 
-## Node.js Compatibility
+### Recommendation
 
-| Feature | Required | Node 16.7+ Support |
-|---------|----------|---------------------|
-| js-yaml 4.x | Yes | Yes — pure JS, zero native addons |
-| `fs.readFileSync` | Yes (load YAML) | Yes — built-in |
-| Optional chaining `?.` | Yes (code style) | Yes — tu Node 14 |
-| `Set`, `Map` | Yes (delta comparison) | Yes — tu Node 12 |
+**Phase 1 (zero deps)**: Implement spinner + in-place status using raw ANSI codes. Add a `renderStatus(agents[])` function to a new `bin/lib/status-renderer.js` module. Pure ANSI, TTY-gated, graceful fallback to append-only in CI.
 
-## Platform Transpilation Impact
+**If spinner library needed**: Use **ora v5.4.1** (last CJS-compatible ora, stable, widely used). NOT v9 (ESM).
 
-**TUONG TU v2.1/v3.0:** Security agents la Claude Code-specific. Non-Claude platforms:
+**Do NOT use**: blessed (unmaintained), listr2 v10 (Node 22+), log-update v7 (ESM), ink (requires React + Node 20+).
 
-- Agent files (`commands/pd/agents/pd-sec-*.md`) — KHONG can transpile, chi Claude Code dung
-- Audit workflow (`workflows/audit.md`) — transpile, agent dispatch section bi skip tren platform khac
-- Pure function JS modules (`bin/lib/security-*.js`) — platform-independent
-- `security-rules.yaml` — platform-independent config file
-- SECURITY_REPORT.md — platform-independent output
-- Backward compatibility: neu khong co security-rules.yaml, workflow bao loi ro rang thay vi silent fail
+---
 
-## Tong Ket
+## Structured Logging Standards
 
-| Metric | Gia Tri |
-|--------|---------|
-| Runtime dependency moi | 1 (js-yaml ^4.1.0, 22KB, zero transitive deps) |
-| Module JS moi | 5 (rules-loader, scanner-dispatch, delta, report-builder, fix-planner) |
-| Module JS mo rong | 5 (resource-config, parallel-dispatch, evidence-protocol, session-manager, plan-checker) |
-| Skill definition moi | 1 (commands/pd/audit.md) |
-| Workflow file moi | 1 (workflows/audit.md) |
-| Config file moi | 1 (references/security-rules.yaml) |
-| Agent files da co | 14 (13 scanners + 1 reporter — DA TON TAI, chi can wire) |
-| Checks moi trong plan-checker | 1 (CHECK-08 Security Gate) |
+### Industry standard fields (HIGH confidence)
 
-## Confidence Assessment
+**Pino** (v10.3.1) — de facto standard for Node.js structured logging:
+- Default fields: `level` (number: 10=trace, 20=debug, 30=info, 40=warn, 50=error, 60=fatal), `time` (epoch ms), `pid`, `hostname`, `msg`
+- Level names as strings via `pino-pretty` for dev
+- All custom fields merged at top level: `{ level: 30, time: 1720000000000, msg: "agent dispatched", session: "S001", agent: "pd-sec-xss" }`
 
-| Area | Confidence | Notes |
-|------|------------|-------|
-| js-yaml la lua chon dung | HIGH | 25K+ npm dependents, zero deps, stable 4.x, verified npm page |
-| Khong can static analysis tool | HIGH | 13 agents da ton tai voi Grep/FastCode MCP, codebase verified |
-| Mo rong parallel-dispatch cho N agents | MEDIUM | getAdaptiveParallelLimit() da co nhung chi test voi 2 agents — can verify voi 13 |
-| Smart Scanner Selection kha thi | HIGH | relevance_signals pattern don gian — check file existence + package.json grep |
-| Session Delta logic | HIGH | session-manager.js da co pattern, chi them comparison pure function |
-| security-rules.yaml schema | MEDIUM | De xuat — can validate khi implement, co the can dieu chinh fields |
-| CHECK-08 Security Gate | HIGH | plan-checker.js da co check registry + dynamic PASS table — them check la trivial |
+**Winston** (v3.19.0) — older standard:
+- Fields: `level` (string), `message`, `timestamp` (ISO string), `service`
+- More configuration overhead, slower than pino
+- Still widely used but pino is preferred for new projects
+
+**OpenTelemetry logs** (v0.214.0):
+- Fields: `Timestamp`, `ObservedTimestamp`, `TraceId`, `SpanId`, `SeverityNumber`, `SeverityText`, `Body`, `Resource`, `Attributes`
+- Full spec overkill for a CLI tool
+- Relevant if traces/spans are needed across agent calls
+
+### What fields make sense for agent framework logging
+
+For AI agent execution contexts, the relevant fields beyond pino defaults are:
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `session` | string | Session ID (e.g., `S001-fix-auth`) |
+| `agent` | string | Agent name (e.g., `pd-sec-xss`) |
+| `phase` | string | Current milestone phase |
+| `milestone` | string | Milestone version |
+| `tool` | string | Tool being called (Read/Write/Bash/SubAgent) |
+| `wave` | number | Parallel dispatch wave number |
+| `duration_ms` | number | Duration of operation |
+| `outcome` | string | `resolved`/`inconclusive`/`checkpoint` |
+| `confidence` | string | `HIGH`/`MEDIUM`/`LOW` |
+
+### What the project currently does
+
+- `log` in `utils.js`: colored console output, human-readable only — no machine-parseable format
+- `audit-logger.js`: append-only AUDIT_LOG.md markdown table — structured but in markdown, not JSON
+- `session-manager.js`: markdown-based session tracking — not JSON
+
+**No JSON structured logging exists today.** All output is either human-readable ANSI console or markdown files.
+
+### Pino's dependency overhead
+
+Pino v10 has 10 dependencies (`atomic-sleep`, `on-exit-leak-free`, `pino-abstract-transport`, `pino-std-serializers`, `sonic-boom`, `thread-stream`, etc.). For a tool that currently has **zero runtime deps**, adding pino is a significant footprint increase.
+
+### NDJSON alternative (zero deps)
+
+For this project's pattern (pure functions, no bundler, minimal deps), a lightweight structured logger is buildable in ~50 lines:
+
+```javascript
+// bin/lib/structured-logger.js — zero deps NDJSON emitter
+'use strict';
+
+const LEVELS = { trace: 10, debug: 20, info: 30, warn: 40, error: 50 };
+
+function createLogger(defaultFields = {}) {
+  function emit(level, msg, fields = {}) {
+    if (!process.env.PD_STRUCTURED_LOG) return; // opt-in via env var
+    const entry = {
+      time: Date.now(),
+      level: LEVELS[level] || 30,
+      msg,
+      ...defaultFields,
+      ...fields,
+    };
+    process.stderr.write(JSON.stringify(entry) + '\n');
+  }
+  return {
+    trace: (msg, f) => emit('trace', msg, f),
+    debug: (msg, f) => emit('debug', msg, f),
+    info:  (msg, f) => emit('info',  msg, f),
+    warn:  (msg, f) => emit('warn',  msg, f),
+    error: (msg, f) => emit('error', msg, f),
+    child: (extra) => createLogger({ ...defaultFields, ...extra }),
+  };
+}
+
+module.exports = { createLogger };
+```
+
+Usage:
+```javascript
+const { createLogger } = require('./structured-logger');
+const log = createLogger({ service: 'please-done' });
+const sessionLog = log.child({ session: 'S001', phase: '3.2' });
+sessionLog.info('agent dispatched', { agent: 'pd-sec-xss', wave: 2 });
+// → {"time":1720000000,"level":30,"msg":"agent dispatched","service":"please-done","session":"S001","phase":"3.2","agent":"pd-sec-xss","wave":2}
+```
+
+**Write to stderr** (not stdout): structured logs to stderr keeps stdout clean for piped output. Standard pattern used by pino, bunyan.
+
+**Opt-in via `PD_STRUCTURED_LOG=1`**: keeps normal humans unaffected, CI/monitoring systems can enable.
+
+---
+
+## Recommendations
+
+### Priority order for v8.0
+
+#### 1. Structured logging — `bin/lib/structured-logger.js`
+**Build it custom.** Zero new deps, ~50 lines, opt-in via `PD_STRUCTURED_LOG` env var. Write to stderr as NDJSON. Standard fields: `time`, `level`, `msg` + agent-framework fields (`session`, `agent`, `phase`, `tool`, `wave`, `outcome`).
+
+**Do NOT add pino** — 10 transitive deps for a tool that currently has zero runtime deps is unjustifiable.
+
+#### 2. Status renderer — `bin/lib/status-renderer.js`
+**Build with raw ANSI codes.** Zero deps, TTY-gated (degrades to append-only in CI). Implement:
+- `createSpinner(label)` → returns `{tick(), complete(success)}` — in-place line update
+- `renderAgentTable(agents[])` — cursor-up redraw of N-line status table
+- `renderBox(lines[])` — the existing `log.banner()` generalized
+
+**Do NOT add ora/listr2** — ora v9 is ESM, listr2 v10 requires Node 22. If a spinner dep is needed: ora v5.4.1 (last CJS, stable).
+
+#### 3. Onboarding wizard enhancement — enhance `bin/install.js`
+**Enhance with raw mode readline** (zero new deps). Add arrow-key navigation to `promptRuntime()`. Add a numbered "What's new in v8" block using `log.banner()`. Add pre-install diff: "Will install N skills to PATH".
+
+**If arrow-key UX is required without raw mode complexity**: use **enquirer** v2.4.1 — CJS, Node 16+, 2 small deps, NX/PM2 validated. API: `const { Select } = require('enquirer'); await new Select({...}).run()`.
+
+**Do NOT use @inquirer/prompts** — ESM-only, incompatible with CommonJS require.
+
+#### 4. Config hot-reload — `bin/lib/config-watcher.js`
+**Use native `fs.watch` + 150ms debounce.** Zero deps, works Node 16.7+. Pattern: watch single file, debounce, re-open watcher after `rename` event. Sufficient for watching `references/security-rules.yaml`, agent `.md` files, or config JSON.
+
+**Only add chokidar v3** if needing recursive directory watching. chokidar v3 (NOT v5) — CJS, Node >=8, used by nodemon/Jest.
+
+### Dependency decision table
+
+| Need | Solution | New Dep? | Notes |
+|------|----------|----------|-------|
+| Structured JSON logs | Custom NDJSON emitter | **No** | ~50 lines, opt-in |
+| Spinner / in-place status | Raw ANSI + TTY check | **No** | ~60 lines |
+| Arrow-key prompts | raw mode readline | **No** | ~80 lines OR |
+| Arrow-key prompts (polished) | enquirer v2.4.1 | 1 dep | CJS, NX/PM2 validated |
+| Config file hot-reload | `fs.watch` + debounce | **No** | Native Node 16.7+ |
+| Dir tree watching | chokidar v3 | 1 dep | Only if needed |
+
+### What NOT to add
+
+| Library | Why Not |
+|---------|---------|
+| `pino` | 10 transitive deps for a zero-dep project |
+| `@inquirer/prompts` | ESM-only, breaks CommonJS |
+| `chokidar v5` | Requires Node 20+ ESM |
+| `listr2 v10` | Requires Node 22.13+ |
+| `ink` | Requires React + Node 20+ |
+| `blessed` | Unmaintained since 2019 |
+| `log-update v7` | ESM-only |
+| `ora v9` | Likely ESM (verify before using; v5.4.1 is safe CJS) |
+| `winston` | Slow, heavy for what's needed |
+
+---
 
 ## Sources
 
-- [js-yaml npm](https://www.npmjs.com/package/js-yaml) — version 4.1.0, download stats, API — HIGH confidence
-- [js-yaml GitHub](https://github.com/nodeca/js-yaml) — source code, Node.js compatibility — HIGH confidence
-- [yaml npm](https://www.npmjs.com/package/yaml) — alternative considered, size comparison — HIGH confidence
-- Codebase analysis: `bin/lib/resource-config.js` (AGENT_REGISTRY, TIER_MAP, getAdaptiveParallelLimit) — HIGH confidence
-- Codebase analysis: `bin/lib/parallel-dispatch.js` (buildParallelPlan, wave execution) — HIGH confidence
-- Codebase analysis: `bin/lib/evidence-protocol.js` (OUTCOME_TYPES, validateEvidence) — HIGH confidence
-- Codebase analysis: `bin/lib/session-manager.js` (createSession, SESSION_FOLDER_RE) — HIGH confidence
-- Codebase analysis: `bin/lib/utils.js` (parseFrontmatter — flat YAML only) — HIGH confidence
-- Codebase analysis: 13 `commands/pd/agents/pd-sec-*.md` files (da ton tai, tools va process verified) — HIGH confidence
-- Codebase analysis: `commands/pd/agents/pd-sec-reporter.md` (13 scanner mapping, evidence file naming) — HIGH confidence
-- `.planning/PROJECT.md` — v4.0 scope, constraints, key decisions — HIGH confidence
-
----
-*Stack research for: v4.0 OWASP Security Audit trong please-done*
-*Researched: 2026-03-26*
+- `npm show` output: chokidar v5.0.0, @inquirer/prompts v8.3.2, enquirer v2.4.1, @clack/prompts v1.2.0, listr2 v10.2.1, ora v9.3.0, pino v10.3.1, log-update v7.2.0, ink v6.8.0 — HIGH confidence (live npm registry)
+- `create-nx-workspace` deps: enquirer ~2.3.6 — HIGH confidence (live npm)
+- `create-turbo` deps: @inquirer/prompts — HIGH confidence (live npm)
+- `nodemon` deps: chokidar — HIGH confidence (live npm)
+- `pm2` deps: @pm2/blessed, cli-tableau, enquirer — HIGH confidence (live npm)
+- Node.js built-in APIs verified: `process.stdin.setRawMode`, `readline.emitKeypressEvents`, `fs.promises.watch`, `readline/promises` — HIGH confidence (direct runtime check)
+- Codebase analysis: `bin/lib/utils.js` (log, COLORS, readline usage), `bin/install.js` (promptRuntime, promptLocation, readline pattern) — HIGH confidence
+- `bin/lib/audit-logger.js` — markdown-based structured logging, not JSON — HIGH confidence
+- fs.watch platform behavior: Node 16 recursive limitations — HIGH confidence (Node.js docs + runtime verification)
