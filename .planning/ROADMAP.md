@@ -311,3 +311,127 @@ Plans:
 
 Plans:
 - [x] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
+
+---
+
+## Backlog
+
+> Parking lot for unsequenced improvement ideas. Use `/gsd-discuss-phase 999.x` to explore any item.
+> Use `/gsd-review-backlog` to promote to active milestone.
+
+---
+
+### Phase 999.1: pd:onboard — Join existing projects mid-stream (BACKLOG)
+
+**Goal:** New skill `pd:onboard` for developers joining an existing codebase that never used please-done. Scans git history → generates "v0 Existing Codebase" milestone summary → PROJECT.md with pre-existing code context.
+**Priority:** P1-1 (from de_xuat_cai_tien.md)
+**Effort:** ~1 phase (4-6h)
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+---
+
+### Phase 999.2: Codebase mapper staleness detection (BACKLOG)
+
+**Goal:** `scan.md` detects when `.planning/codebase/STRUCTURE.md` is stale (>20% module count drift vs current codebase, or N commits since last map) → warns and offers re-map.
+**Priority:** P1-2 (from de_xuat_cai_tien.md)
+**Effort:** ~2-3h
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.3: 3-strike lint failure recovery path (BACKLOG)
+
+**Goal:** When `write-code.md` hits 3 consecutive lint/build failures → save `lint_fail_count: 3` + last error to PROGRESS.md → suggest `pd:fix-bug` → support resume-mode that skips re-writing code and only re-runs lint.
+**Priority:** P1-3 (from de_xuat_cai_tien.md)
+**Effort:** ~1-2h
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.4: Integration tests for skill chain (BACKLOG)
+
+**Goal:** `test/integration-workflow.test.js` — verifies contract files (CONTEXT.md, CURRENT_MILESTONE.md, TASKS.md) format across skill boundaries. Tests output of skill A is correctly read by skill B. Priority: init→scan→plan→write-code chain.
+**Priority:** P1-5 (from de_xuat_cai_tien.md)
+**Effort:** ~1 phase (6-8h)
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.5: pd:status dashboard skill (BACKLOG)
+
+**Goal:** Lightweight `pd:status` skill (Haiku) — shows milestone/phase/task counts/bugs/version in 5-10 lines. No analysis, no suggestions. Offloads the "quick status check" use case from `pd:what-next`.
+**Priority:** P2-2 (from de_xuat_cai_tien.md)
+**Effort:** ~1-2h
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.6: Agent error structured logging (BACKLOG)
+
+**Goal:** Add `status: success|partial|failed`, `confidence: HIGH|MEDIUM|LOW`, `error: "desc"` fields to all pd-* agent YAML frontmatter. Update `pd-fix-architect` to aggregate from structured format. Add `pd:what-next` scan for repeated agent failure patterns.
+**Priority:** P2-4 (from de_xuat_cai_tien.md)
+**Effort:** ~3-4h
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.7: pd:replay — Design decisions history viewer (BACKLOG)
+
+**Goal:** Browse design decisions across milestones. Reads PLAN.md "Design Decisions" sections + PROJECT.md "Key Decisions" + MILESTONE_COMPLETE.md "Technical Debt". Shows timeline with rationale and outcomes.
+**Priority:** P3-1 (from de_xuat_cai_tien.md)
+**Effort:** TBD
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.8: pd:diff-milestone — Plan vs reality comparison (BACKLOG)
+
+**Goal:** Compare original ROADMAP vs actual execution: phases added/dropped/delayed, effort estimates vs actual commit timeline, requirements dropped. Calibration tool for next milestone planning.
+**Priority:** P3-2 (from de_xuat_cai_tien.md)
+**Effort:** TBD
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 999.9: Hot-reload skill files on update (BACKLOG)
+
+**Goal:** `pd:update` pulls new skill files without requiring session restart. Text-based skill files could be hot-reloaded by resetting internal cache. Reduces friction during long sessions.
+**Priority:** P3-3 (from de_xuat_cai_tien.md)
+**Effort:** TBD
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD
