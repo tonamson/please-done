@@ -102,15 +102,18 @@ Every workflow step must produce the highest quality code output while consuming
 
 ### Active
 
-- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI before starting work on an unfamiliar codebase
-- [ ] **STALE-01**: Codebase mapper staleness detection — auto-refresh when code changes since last map
-- [ ] **LINT-01**: 3-strike lint recovery path — save fail count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode
-- [ ] **INTEG-01**: Integration tests for full skill chain — test scan→plan→write-code→test end-to-end
-- [ ] **STATUS-01**: pd:status dashboard skill — show current phase, plan, and pending tasks at a glance
-- [ ] **LOG-01**: Agent error structured logging — JSON logs with context (phase, step, tool, input) for debugging
-- [ ] **REPLAY-01**: pd:replay skill — re-run a failed phase with full context from last checkpoint
-- [ ] **DIFF-01**: pd:diff-milestone command — compare outputs between two completed milestone archives
-- [ ] **HOTREL-01**: Hot-reload agent config — reload config.json changes without restarting the workflow
+- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI to unfamiliar codebase (calls init+scan internally, creates PROJECT.md baseline)
+- [ ] **LINT-01**: 3-strike lint fail recovery — save lint_fail_count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode
+- [ ] **STATUS-01**: pd:status dashboard — view current phase, plan, pending tasks, blockers at a glance (read-only Haiku skill)
+- [ ] **STALE-01**: Codebase mapper staleness detection — git commit-delta >20 triggers refresh; maps store `Mapped at commit: [sha]`
+- [ ] **INTEG-01**: Integration contract tests — verify CONTEXT.md/TASKS.md/PROGRESS.md schema contracts across skill chain
+- [ ] **LOG-01**: Agent error structured logging — JSONL at `.planning/logs/agent-errors.jsonl` (timestamp, level, phase, step, agent, error)
+
+### Deferred (v9.0)
+
+- ⏸ **REPLAY-01**: pd:replay skill — re-run a failed phase with context *(depends on LOG-01 stable ≥1 milestone)*
+- ⏸ **DIFF-01**: pd:diff-milestone — compare two milestone archive outputs *(depends on archive format definition)*
+- ⏸ **HOTREL-01**: Hot-reload config.json — *(already ~80% free; zero documented user blockers)*
 
 ### Out of Scope
 

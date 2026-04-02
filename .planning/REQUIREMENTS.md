@@ -1,67 +1,50 @@
-# Requirements: Standalone Test Mode
+# Requirements: Developer Experience & Quality Hardening
 
-**Defined:** 2026-03-29
+**Defined:** 2026-04-02
 **Core Value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
-## v7.0 Requirements
+## v8.0 Requirements
 
-Requirements for adding `pd:test --standalone` mode. Each maps to roadmap phases.
+Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.md.
 
-### Standalone Flow
+### New Skills
 
-- [x] **TEST-01**: User can run `pd:test --standalone [path]` to test a specific module without milestone/plan/write-code
-- [x] **TEST-02**: User can run `pd:test --standalone --all` to test entire project source
-- [x] **TEST-03**: Standalone flow auto-detects tech stack when CONTEXT.md is missing (NestJS/WordPress/Solidity/Flutter/Frontend)
+- [ ] **ONBOARD-01**: User can run `pd:onboard` to auto-orient the AI to an unfamiliar codebase before any workflow step (calls init+scan internally, creates PROJECT.md baseline)
 
-### Guards & Routing
+### Developer Experience
 
-- [x] **GUARD-01**: `pd:test` standard flow guards remain unchanged — task ✅ required, CONTEXT.md required
-- [x] **GUARD-02**: `pd:test --standalone` bypasses task status guards + uses conditional CONTEXT.md check
-- [x] **GUARD-03**: FastCode/Context7 changed to soft warnings with fallback (Grep/Read for FastCode, skip for Context7)
+- [ ] **LINT-01**: When lint fails 3 times, the workflow saves the fail count to PROGRESS.md, suggests `pd:fix-bug`, and supports resume-only-lint mode
+- [ ] **STATUS-01**: User can run `pd:status` to view current phase, plan, pending tasks, and blockers at a glance (read-only, Haiku skill)
 
-### Reporting & Bugs
+### Quality & Observability
 
-- [x] **REPORT-01**: Standalone flow creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
-- [x] **REPORT-02**: Standalone bugs use `Patch version: standalone` format — not tied to any milestone
+- [ ] **STALE-01**: Codebase mapper auto-detects staleness via git commit-delta (>20 commits since last map) and prompts refresh; maps store `Mapped at commit: [sha]`
+- [ ] **INTEG-01**: Integration tests verify format contracts between skill chain artifacts (CONTEXT.md, TASKS.md, PROGRESS.md schemas) — not agent execution tests
+- [ ] **LOG-01**: Agent errors are logged as JSONL at `.planning/logs/agent-errors.jsonl` with fields: timestamp, level, phase, step, agent, error, context
 
-### System Integration
+## Future Requirements (v9.0)
 
-- [x] **SYNC-01**: `state-machine.md` updated with standalone prerequisites row + side branch
-- [x] **SYNC-02**: `what-next.md` detects standalone test reports and standalone bugs
-- [x] **SYNC-03**: `complete-milestone.md` skips standalone bugs (doesn't block milestone completion)
-
-### Recovery
-
-- [x] **RECOV-01**: Standalone flow detects interrupted sessions (uncommitted test files, existing reports) and offers resume/rewrite
-
-## Future Requirements
-
-- `pd:onboard` skill for joining existing projects mid-stream (from de_xuat_cai_tien.md P1-1)
-- Integration test for skill chains (from de_xuat_cai_tien.md P1-5)
-- `pd:status` dashboard skill (from de_xuat_cai_tien.md P2-2)
+- **REPLAY-01**: `pd:replay [phase]` — re-run a failed phase with full context. *Deferred: requires LOG-01 stable for ≥1 milestone first.*
+- **DIFF-01**: `pd:diff-milestone [v1] [v2]` — compare two milestone archives. *Deferred: requires milestone archive format definition first.*
+- **HOTREL-01**: Workflow reloads config.json changes without restart. *Deferred: already ~80% free per invocation; zero documented user blockers.*
+- Replay for mid-phase interruptions (not just phase-level)
+- Visual diff for milestone outputs (HTML rendering)
 
 ## Out of Scope
 
-| Feature                              | Reason                                                                                                            |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| Modify standard test flow            | `--standalone` is a parallel flow, standard flow stays 100% unchanged                                             |
-| Modify shared guard files            | `guard-context.md`, `guard-fastcode.md`, `guard-context7.md` are shared — only change how test.md references them |
-| Add new JS library modules           | This milestone only modifies markdown skill/workflow/reference files                                              |
-| Guard fixes for scan/plan/write-code | P0-1 from de_xuat_cai_tien.md — deferred to separate milestone                                                    |
+- New platform targets — focus on workflow quality, not new platforms
+- Breaking changes to existing skill invocation patterns
+- LLM-as-judge review — circular
+- New framework rules (NestJS/WP/Flutter etc.) — out of scope for DX milestone
+- Agent execution integration tests — CI-hostile, requires live LLM; use format-contract tests instead
 
 ## Traceability
 
-| REQ-ID    | Phase | Status |
-| --------- | ----- | ------ |
-| TEST-01   | 71    | —      |
-| TEST-02   | 71    | —      |
-| TEST-03   | 71    | —      |
-| GUARD-01  | 71    | —      |
-| GUARD-02  | 71    | —      |
-| GUARD-03  | 71    | —      |
-| REPORT-01 | 71    | —      |
-| REPORT-02 | 71    | —      |
-| SYNC-01   | 72    | —      |
-| SYNC-02   | 72    | —      |
-| SYNC-03   | 72    | —      |
-| RECOV-01  | 71    | —      |
+| Requirement | Phase | Status  |
+|-------------|-------|---------|
+| LINT-01     | TBD   | pending |
+| STATUS-01   | TBD   | pending |
+| STALE-01    | TBD   | pending |
+| ONBOARD-01  | TBD   | pending |
+| LOG-01      | TBD   | pending |
+| INTEG-01    | TBD   | pending |
