@@ -1,30 +1,32 @@
 ---
 gsd_state_version: 1.0
-milestone: v7.0
-milestone_name: Standalone Test Mode
-status: Milestone complete
-stopped_at: Phase 73 context gathered
-last_updated: "2026-04-01T15:51:13.356Z"
+milestone: v8.0
+milestone_name: Developer Experience & Quality Hardening
+status: defining requirements
+stopped_at: Not started
+last_updated: "2026-04-02T00:00:00.000Z"
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 6
-  completed_plans: 6
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-29)
+See: .planning/PROJECT.md (updated 2026-04-02)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 75 — nyquist-validation
+**Current focus:** v8.0 — defining requirements and roadmap
 
 ## Current Position
 
-Phase: 75
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-02 — Milestone v8.0 started
 
 ## Performance Metrics
 

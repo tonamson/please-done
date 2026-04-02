@@ -93,14 +93,24 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ JS Source Code + Tests — 33 JS source files translated, 12 test files synced — v6.0 (Phase 69)
 - ✓ Final Verification — Zero Vietnamese outside .planning/, 1101/1102 tests pass — v6.0 (Phase 70)
 
+- ✓ **TEST-01**: Standalone test flow — `pd:test --standalone` mode — v7.0 (Phase 71)
+- ✓ **TEST-02**: Conditional guards — bypass task/CONTEXT.md in standalone mode — v7.0 (Phase 71)
+- ✓ **TEST-03**: State-machine sync — new prerequisites row + side branch for standalone — v7.0 (Phase 73)
+- ✓ **TEST-04**: what-next integration — detect standalone test reports and standalone bugs — v7.0 (Phase 74)
+- ✓ **TEST-05**: complete-milestone sync — skip standalone bugs during milestone completion — v7.0 (Phase 74)
+- ✓ **TEST-06**: Recovery path — detect interrupted standalone sessions, resume or rewrite — v7.0 (Phase 75)
+
 ### Active
 
-- [ ] **TEST-01**: Standalone test flow — `pd:test --standalone` analyzes code and writes tests without milestone/plan/write-code prerequisites
-- [ ] **TEST-02**: Conditional guards — bypass task/CONTEXT.md requirements in standalone mode, soft warnings for FastCode/Context7
-- [ ] **TEST-03**: State-machine sync — new prerequisites row + side branch for standalone
-- [ ] **TEST-04**: what-next integration — detect standalone test reports and standalone bugs
-- [ ] **TEST-05**: complete-milestone sync — skip standalone bugs during milestone completion
-- [ ] **TEST-06**: Recovery path — detect interrupted standalone sessions, resume or rewrite
+- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI before starting work on an unfamiliar codebase
+- [ ] **STALE-01**: Codebase mapper staleness detection — auto-refresh when code changes since last map
+- [ ] **LINT-01**: 3-strike lint recovery path — save fail count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode
+- [ ] **INTEG-01**: Integration tests for full skill chain — test scan→plan→write-code→test end-to-end
+- [ ] **STATUS-01**: pd:status dashboard skill — show current phase, plan, and pending tasks at a glance
+- [ ] **LOG-01**: Agent error structured logging — JSON logs with context (phase, step, tool, input) for debugging
+- [ ] **REPLAY-01**: pd:replay skill — re-run a failed phase with full context from last checkpoint
+- [ ] **DIFF-01**: pd:diff-milestone command — compare outputs between two completed milestone archives
+- [ ] **HOTREL-01**: Hot-reload agent config — reload config.json changes without restarting the workflow
 
 ### Out of Scope
 
@@ -111,23 +121,26 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v7.0 Standalone Test Mode
+## Current Milestone: v8.0 Developer Experience & Quality Hardening
 
-**Goal:** Add `pd:test --standalone` mode for testing without milestone/plan/write-code prerequisites
+**Goal:** Implement all 9 improvement proposals from de_xuat_cai_tien.md — strengthen onboarding, DX, and system observability
 
 **Target features:**
 
-- Standalone test flow (Steps S1–S8) in test.md workflow — auto-detect stack, analyze code, write tests, run, report
-- Conditional guards in test.md — bypass task/CONTEXT.md requirements in standalone mode, soft warnings for FastCode/Context7
-- State-machine sync — new prerequisites row + side branch for standalone
-- what-next integration — detect standalone test reports + standalone bugs
-- complete-milestone sync — skip standalone bugs (don't block milestone completion)
-- Recovery path — detect interrupted standalone sessions, resume or rewrite
+- pd:onboard skill — auto-orient AI before new codebase work (P1)
+- Codebase mapper staleness detection — auto-refresh when code changes (P1)
+- 3-strike lint recovery path — save fail count, suggest pd:fix-bug, resume-only-lint mode (P1)
+- Integration tests for full skill chain — test scan→plan→write-code→test chain (P1)
+- pd:status dashboard skill — show current phase/plan/tasks at a glance (P2)
+- Agent error structured logging — JSON error logs with context for debugging (P2)
+- pd:replay — re-run failed phases with full checkpoint context (P3)
+- pd:diff-milestone — compare two milestone archive outputs (P3)
+- Hot-reload agent config — reload config.json without workflow restart (P3)
 
 ## Current State
 
-**Current:** v7.0 Standalone Test Mode — defining requirements
-**Shipped:** v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27), v5.0 Repo Optimization (2026-03-27)
+**Current:** v8.0 Developer Experience & Quality Hardening — defining requirements
+**Shipped:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
 **Previous:** v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
 
 v7.0 scope: Add `pd:test --standalone` for testing legacy/imported projects without going through milestone/plan/write-code. Modifies 5 files (test.md skill+workflow, state-machine.md, what-next.md, complete-milestone.md). Standard flow unchanged.
@@ -194,4 +207,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-03-29 — v7.0 Standalone Test Mode milestone started_
+_Last updated: 2026-04-02 — v8.0 Developer Experience & Quality Hardening milestone started_
