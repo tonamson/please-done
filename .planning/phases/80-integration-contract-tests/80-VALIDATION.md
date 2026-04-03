@@ -1,9 +1,9 @@
 ---
 phase: 80
 slug: integration-contract-tests
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-04-03
 ---
 
@@ -76,11 +76,11 @@ All phase behaviors have automated verification — 28 inline-fixture contract t
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: single task — continuous automated verify
-- [ ] Wave 0 covers all MISSING references (N/A — no Wave 0)
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: single task — continuous automated verify
+- [x] Wave 0 covers all MISSING references (N/A — no Wave 0)
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** ✅ approved — all checks pass, phase verified
