@@ -14,11 +14,12 @@
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 - ✅ **v5.1 Agent Sync & Reference Update** — Phases 60-64 (shipped 2026-03-27)
 - ✅ **v6.0 Vietnamese → English Migration** — Phases 65-70 (shipped 2026-03-29)
-- 🔄 **v7.0 Standalone Test Mode** — Phases 71-75
+- ✅ **v7.0 Standalone Test Mode** — Phases 71-75
+- 🔄 **v9.0 Bug Audit & Robustness** — Phases 81-83 (in progress)
 
 ## Progress
 
-12 milestones shipped. 70 phases, 107 plans completed. v7.0 in progress.
+12 milestones shipped. 80 phases, 117 plans completed. v9.0 in progress.
 
 ## Phases
 
@@ -320,6 +321,46 @@ Plans:
 ## ✅ v8.0 Developer Experience & Quality Hardening — [archived](.planning/milestones/v8.0-ROADMAP.md)
 
 Phases 76–80 | 10 plans | LINT-01, STATUS-01, STALE-01, ONBOARD-01, LOG-01, INTEG-01 | Shipped 2026-04-03
+
+---
+
+## 🔄 v9.0 Bug Audit & Robustness
+
+### Phase 81: Input Robustness — Null/Undefined Guards in utils.js
+
+**Goal:** Add defensive null/undefined input guards to all public-facing utility functions in `bin/lib/utils.js` — specifically `extractReadingRefs()` and `classifyRefs()` — so they return safe defaults instead of throwing on bad input.
+**Requirements:** ROBUST-01, ROBUST-02, ROBUST-03
+**Effort:** Small (2 files, pure defensive code)
+**Plans:** 0 plans
+
+Plans:
+- [ ] Plan 81.1: Add null guards + unit tests for extractReadingRefs and classifyRefs
+
+---
+
+### Phase 82: Error Handling & Nyquist Debt
+
+**Goal:** (1) Wrap unguarded `fs.readFileSync()` calls in `fileHash()` and `inlineWorkflow()` with try-catch + descriptive errors; (2) create missing VALIDATION.md for phases 77+78 and update `nyquist_compliant: false` flags in phases 76/79/80.
+**Requirements:** ERR-01, ERR-02, NYQUIST-01 through NYQUIST-05
+**Effort:** Small (targeted file edits + 5 VALIDATION.md docs)
+**Plans:** 0 plans
+
+Plans:
+- [ ] Plan 82.1: Try-catch hardening for fileHash and inlineWorkflow
+- [ ] Plan 82.2: VALIDATION.md docs for phases 77/78 + update existing compliant flags
+
+---
+
+### Phase 83: Log-Writer Wiring
+
+**Goal:** Wire `appendLogEntry()` from Phase 79's log infrastructure into the `write-code.md` and `fix-bug.md` agent paths. Log `agent_start` and `agent_complete` events so every execution leaves a JSONL audit trail.
+**Requirements:** LOG-WIRE-01 through LOG-WIRE-04
+**Effort:** Medium (workflow file edits + integration test updates)
+**Plans:** 0 plans
+
+Plans:
+- [ ] Plan 83.1: Wire appendLogEntry into write-code.md
+- [ ] Plan 83.2: Wire appendLogEntry into fix-bug.md + verify no test regressions
 
 ---
 
