@@ -12,6 +12,18 @@ Read WHEN needed (analyze task description first):
 
 <process>
 
+## Step 0: Check codebase map freshness (non-blocking)
+- Read `.planning/codebase/META.json` → if file does not exist → skip to Step 1.
+- Extract the `mapped_at_commit` field → if missing or empty → skip to Step 1.
+- Run: `git rev-list <mapped_at_commit>..HEAD --count 2>/dev/null`
+  - If command fails (no git, invalid SHA, shallow clone) → skip silently to Step 1.
+- Parse output as integer `N`.
+- If `N > 20`:
+  > ⚠️ **Codebase map is stale** — generated **N commits ago** (where N is the actual count).
+  > Run `/pd:scan` to refresh before continuing for accurate results.
+- If `N ≤ 20` → no output, continue silently.
+- **Always continue to Step 1 regardless of outcome.**
+
 ## Step 1: Determine path
 - `$ARGUMENTS` has path → use it | No → current directory
 - Create `.planning/scan/` if not exists
