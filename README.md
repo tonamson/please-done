@@ -485,7 +485,20 @@ Please Done auto-commits with prefixes (skipped if the project has no git):
 | Mobile     | Flutter (Dart + GetX)      | Local (Hive/SQLite)               | `pubspec.yaml` + `flutter`, `lib/main.dart`              |
 
 
-NestJS, NextJS, WordPress, Solidity, and Flutter have rules + detailed analysis. Other stacks are detected but only list files, applying `general.md`.
+### Supported Tech Stacks
+
+Rules in `commands/pd/rules/` provide framework-specific conventions:
+
+| Stack | Rule File | Description |
+|-------|-----------|-------------|
+| Flutter | `flutter.md` | Dart conventions, GetX state management, Dio HTTP |
+| NestJS | `nestjs.md` | TypeScript decorators, dependency injection, guards |
+| NextJS | `nextjs.md` | App Router patterns, server components, data fetching |
+| Solidity | `solidity.md` | OpenZeppelin v5, SafeERC20, gas optimization |
+| WordPress | `wordpress.md` | WP coding standards, sanitize/escape, REST API |
+| General | `general.md` | Fallback conventions for unlisted frameworks |
+
+> Stacks are auto-detected by `/pd:init` and rules are copied to `.planning/rules/`.
 
 **Extending with a new stack**: Add a `commands/pd/rules/[stack].md` file + detection patterns in `workflows/init.md` Step 4.
 
