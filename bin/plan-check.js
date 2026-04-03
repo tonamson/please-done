@@ -63,7 +63,9 @@ try {
     (fs.existsSync(researchInternalDir) && fs.readdirSync(researchInternalDir).filter(f => f.endsWith('.md')).length > 0) ||
     (fs.existsSync(researchExternalDir) && fs.readdirSync(researchExternalDir).filter(f => f.endsWith('.md')).length > 0)
   );
-} catch {}
+} catch (err) {
+  if (process.env.PD_DEBUG) console.error('[plan-check] research dir read error:', err);
+}
 
 // Doc config.json cho severity overrides (CHECK-06, CHECK-07)
 let check06Severity, check07Severity;
@@ -73,7 +75,9 @@ if (fs.existsSync(configPath)) {
     const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
     check06Severity = config?.checks?.research_backing?.severity;
     check07Severity = config?.checks?.hedging_language?.severity;
-  } catch {}
+  } catch (err) {
+    if (process.env.PD_DEBUG) console.error('[plan-check] config.json parse error:', err);
+  }
 }
 
 const check06Options = { hasResearchFiles, severity: check06Severity || 'warn' };

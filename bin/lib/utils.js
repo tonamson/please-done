@@ -137,7 +137,8 @@ function fileHash(filePath) {
   try {
     const content = fs.readFileSync(filePath);
     return crypto.createHash("sha256").update(content).digest("hex");
-  } catch {
+  } catch (err) {
+    if (process.env.PD_DEBUG) console.error('[fileHash]', err);
     return null;
   }
 }

@@ -393,7 +393,7 @@ async function main() {
 
 main().catch((err) => {
   log.error(err.message);
-  if (process.env.DEBUG) console.error(err.stack);
+  if (process.env.PD_DEBUG) console.error(err.stack);
   process.exit(1);
 });
 
