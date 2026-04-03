@@ -65,7 +65,7 @@ Read ONLY WHEN needed (analyze task description first):
    - Missing any file -> auto-fallback = true
 3. If --single OR auto-fallback:
    Display: "--- Single agent mode: Missing agent configs, using single agent mode ---"
-   Read and execute per content of file `workflows/fix-bug-v1.5.md`. STOP workflow v2.1 here.
+   Read and execute per content of file `workflows/legacy/fix-bug-v1.5.md`. STOP workflow v2.1 here.
 4. If all 5 files present -> continue to Step 0.5 (Resume UI below)
 ## Step 0.5: Resume UI
 `git rev-parse --git-dir 2>/dev/null` -> store `HAS_GIT`
