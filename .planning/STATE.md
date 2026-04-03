@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v10.0
 milestone_name: Skill Repo Audit Fixes
-status: v10.0 in progress — defining requirements
-stopped_at: Defining requirements for v10.0
-last_updated: "2026-04-03T08:30:00.000Z"
-last_activity: 2026-04-03 — v10.0 milestone started
+status: v10.0 in progress — roadmap created, ready to plan Phase 84
+stopped_at: Roadmap created for v10.0 (Phases 84–87)
+last_updated: "2026-04-03T09:00:00.000Z"
+last_activity: 2026-04-03 — v10.0 roadmap created
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,14 +20,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** v10.0 — Skill Repo Audit Fixes
+**Current focus:** v10.0 — Skill Repo Audit Fixes (Phases 84–87)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 84 — Documentation & Version Consistency (not started)
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-03 — Milestone v10.0 started
+Status: Roadmap created, ready for `/gsd-plan-phase 84`
+Last activity: 2026-04-03 — v10.0 roadmap created
+
+## v10.0 Phases
+
+| Phase | Goal | Requirements | Status |
+|-------|------|--------------|--------|
+| 84 | Documentation & Version Consistency | DOC-01–04 | Not started |
+| 85 | Language & Content Cleanup | LANG-01, CLEAN-01–02 | Not started |
+| 86 | Error Handling Hardening | ERR-01–03 | Not started |
+| 87 | Test Coverage | TEST-01–03 | Not started |
 
 ## v9.0 Summary
 
@@ -69,6 +78,7 @@ Last activity: 2026-04-03 — Milestone v10.0 started
 
 ### Decisions
 
+- [v10.0]: Phases 84–86 are independent (no inter-dependencies) — Phase 87 depends on all three (tests verify their changes)
 - [v9.0]: Log schema requires non-empty `error` field — lifecycle events deferred to backlog (999.6)
 - [v9.0]: Guard files are soft-check checklists by design — not stubs
 
@@ -83,4 +93,4 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: v10.0 milestone started — defining requirements
+Stopped at: v10.0 roadmap created — ready to plan Phase 84

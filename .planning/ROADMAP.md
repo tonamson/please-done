@@ -15,11 +15,12 @@
 - ✅ **v5.1 Agent Sync & Reference Update** — Phases 60-64 (shipped 2026-03-27)
 - ✅ **v6.0 Vietnamese → English Migration** — Phases 65-70 (shipped 2026-03-29)
 - ✅ **v7.0 Standalone Test Mode** — Phases 71-75
-- 🔄 **v9.0 Bug Audit & Robustness** — Phases 81-83 (in progress)
+- ✅ **v9.0 Bug Audit & Robustness** — Phases 81-82 (shipped 2026-04-03)
+- 🔄 **v10.0 Skill Repo Audit Fixes** — Phases 84-87 (in progress)
 
 ## Progress
 
-12 milestones shipped. 80 phases, 117 plans completed. v9.0 in progress.
+13 milestones shipped. 82 phases, 117 plans completed. v10.0 in progress.
 
 ## Phases
 
@@ -354,6 +355,78 @@ Plans:
 ### Phase 83: Log-Writer Wiring → **moved to backlog (999.6)**
 
 Phase 83 was deferred. The log schema (`bin/lib/log-schema.js`) requires a non-empty `error` field which doesn't fit lifecycle events (`agent_start`/`agent_complete`). Schema evolution needed before wiring. See Phase 999.6 in Backlog.
+
+---
+
+## 🔄 v10.0 Skill Repo Audit Fixes
+
+### Phase 84: Documentation & Version Consistency
+
+**Goal:** All project documentation is accurate, version-consistent, and complete — no stale badges, dead links, or missing command docs.
+**Depends on:** Nothing (independent of v9.0)
+**Requirements:** DOC-01, DOC-02, DOC-03, DOC-04
+**Effort:** Small (file edits + 4 new doc files)
+**Success Criteria** (what must be TRUE):
+  1. README.md version badge displays the value from the VERSION file (currently 4.0.0)
+  2. Every link in README.md resolves to an existing file — no dead references like `INTEGRATION_GUIDE.md`
+  3. `docs/commands/` contains documentation for all 16 commands — `audit.md`, `conventions.md`, `onboard.md`, `status.md` exist
+  4. CHANGELOG.md has entries covering v3.0 through v9.0, or is explicitly deprecated with a pointer to MILESTONES.md
+**Plans:** TBD
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 85: Language & Content Cleanup
+
+**Goal:** All content files use correct English conventions and only active, wired files remain in the repo tree.
+**Depends on:** Nothing (independent)
+**Requirements:** LANG-01, CLEAN-01, CLEAN-02
+**Effort:** Small (3 targeted file edits/moves)
+**Success Criteria** (what must be TRUE):
+  1. `workflows/write-code.md` line 471 references English convention prefixes — no Vietnamese language mention remains
+  2. `references/mermaid-rules.md` is either imported by a command/workflow or removed from the repo
+  3. `workflows/fix-bug-v1.5.md` is archived to `workflows/legacy/` or removed, and `fix-bug.md` line 32 no longer references a stale path
+**Plans:** TBD
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 86: Error Handling Hardening
+
+**Goal:** All error paths produce observable diagnostic output instead of silently swallowing failures, and no library code calls `process.exit()`.
+**Depends on:** Nothing (independent)
+**Requirements:** ERR-01, ERR-02, ERR-03
+**Effort:** Small-Medium (3 JS files, targeted catch-block edits)
+**Success Criteria** (what must be TRUE):
+  1. `bin/plan-check.js` has zero bare `catch {}` blocks — all catches conditionally log debug info
+  2. `bin/lib/utils.js` has zero bare `catch` blocks — all catches conditionally log debug info
+  3. `bin/lib/installers/claude.js` throws errors instead of calling `process.exit(1)` — exit handling is centralized in `bin/install.js`
+  4. Running with `PD_DEBUG=1` reveals previously-swallowed error details in plan-check and utils
+**Plans:** TBD
+
+Plans:
+- [ ] TBD
+
+---
+
+### Phase 87: Test Coverage
+
+**Goal:** New smoke tests cover the audit gaps (onboard, error-handling) and the entire suite passes with zero regressions after all v10.0 changes.
+**Depends on:** Phase 84, Phase 85, Phase 86 (tests verify those changes)
+**Requirements:** TEST-01, TEST-02, TEST-03
+**Effort:** Small (2 test files + full suite run)
+**Success Criteria** (what must be TRUE):
+  1. `test/smoke-onboard.test.js` exists and verifies skill structure, workflow references, and guard checks for pd:onboard
+  2. `test/smoke-error-handling.test.js` TARGET_FILES includes `bin/plan-check.js` and `bin/lib/utils.js` (or explicit exemption comments)
+  3. Full test suite (1224+ tests) passes with 0 failures after all v10.0 changes
+**Plans:** TBD
+
+Plans:
+- [ ] TBD
 
 ---
 
