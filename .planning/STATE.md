@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening — [archived]
-status: Executing Phase 84
-stopped_at: Completed 84-02-PLAN.md
-last_updated: "2026-04-03T09:38:47.419Z"
+status: Ready to execute
+stopped_at: Completed 84-03-PLAN.md
+last_updated: "2026-04-03T09:40:07.657Z"
 progress:
   total_phases: 69
-  completed_phases: 58
+  completed_phases: 59
   total_plans: 114
-  completed_plans: 112
+  completed_plans: 114
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 ## Current Position
 
 Phase: 84 (documentation-version-consistency) — EXECUTING
-Plan: 1 of 3
+Plan: 2 of 3
 
 ## v10.0 Phases
 
@@ -71,6 +71,7 @@ Plan: 1 of 3
 | v8.0 | 5 | 10 | 2026-04-03 |
 | v9.0 | 2 | 0 | 2026-04-03 |
 | Phase 84 P02 | 111 | 1 tasks | 1 files |
+| Phase 84 P03 | 185s | 4 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Plan: 1 of 3
 - [v9.0]: Log schema requires non-empty `error` field — lifecycle events deferred to backlog (999.6)
 - [v9.0]: Guard files are soft-check checklists by design — not stubs
 - [Phase 84]: INTEGRATION_GUIDE.md created with 5 required sections: fork workflow, stack rules, editing rules, anchor patterns, cross-references
+- [Phase 84]: DOC-03 closed: 4 command docs (audit, conventions, onboard, status) with extended format
 
 ### Pending Todos
 
@@ -91,5 +93,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T09:38:47.403Z
-Stopped at: Completed 84-02-PLAN.md
+Last session: 2026-04-03T09:40:07.641Z
+Stopped at: Completed 84-03-PLAN.md
