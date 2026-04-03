@@ -351,16 +351,9 @@ Plans:
 
 ---
 
-### Phase 83: Log-Writer Wiring
+### Phase 83: Log-Writer Wiring → **moved to backlog (999.6)**
 
-**Goal:** Wire `appendLogEntry()` from Phase 79's log infrastructure into the `write-code.md` and `fix-bug.md` agent paths. Log `agent_start` and `agent_complete` events so every execution leaves a JSONL audit trail.
-**Requirements:** LOG-WIRE-01 through LOG-WIRE-04
-**Effort:** Medium (workflow file edits + integration test updates)
-**Plans:** 0 plans
-
-Plans:
-- [ ] Plan 83.1: Wire appendLogEntry into write-code.md
-- [ ] Plan 83.2: Wire appendLogEntry into fix-bug.md + verify no test regressions
+Phase 83 was deferred. The log schema (`bin/lib/log-schema.js`) requires a non-empty `error` field which doesn't fit lifecycle events (`agent_start`/`agent_complete`). Schema evolution needed before wiring. See Phase 999.6 in Backlog.
 
 ---
 
@@ -368,6 +361,19 @@ Plans:
 
 > Parking lot for unsequenced improvement ideas. Use `/gsd-discuss-phase 999.x` to explore any item.
 > Use `/gsd-review-backlog` to promote to active milestone.
+
+---
+
+### Phase 999.6: Log lifecycle event wiring (BACKLOG)
+
+**Goal:** Wire lifecycle events (`agent_start`, `agent_complete`) into `write-code.md` and `fix-bug.md` agent paths. Requires schema evolution first: the current log schema (`bin/lib/log-schema.js`) has a required non-empty `error` field that doesn't fit lifecycle events. Needs: (1) add `event_type` field, (2) make `error` optional for non-error levels, (3) then add shell/node logging steps to workflow instruction files.
+**Deferred from:** v9.0 Phase 83 — scope exceeds simple wiring; requires schema evolution
+**Requirements:** LOG-WIRE-01 through LOG-WIRE-04
+**Effort:** Medium-High
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD — depends on schema evolution decisions
 
 ---
 
