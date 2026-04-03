@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v9.0
-milestone_name: Bug Audit & Robustness
-status: v9.0 in progress — requirements defined
-stopped_at: v9.0 requirements defined — ready for /gsd-audit-milestone
-last_updated: "2026-04-03T15:00:00.000Z"
-last_activity: 2026-04-03 — v8.0 archived (5 phases, 6 requirements, 0 regressions)
+milestone: v10.0
+milestone_name: Skill Repo Audit Fixes
+status: v10.0 in progress — defining requirements
+stopped_at: Defining requirements for v10.0
+last_updated: "2026-04-03T08:30:00.000Z"
+last_activity: 2026-04-03 — v10.0 milestone started
 progress:
   total_phases: 0
   completed_phases: 0
@@ -20,36 +20,30 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** v9.0 — requirements TBD (run `/gsd-new-milestone`)
+**Current focus:** v10.0 — Skill Repo Audit Fixes
 
 ## Current Position
 
-Phase: Not started (Phase 81 next)
+Phase: Not started (defining requirements)
 Plan: —
-Status: Phases 81+82 complete — 9/13 req done, 4 deferred (LOG-WIRE-01-04)
-Last activity: 2026-04-03 — v9.0 milestone started
+Status: Defining requirements
+Last activity: 2026-04-03 — Milestone v10.0 started
 
-## v8.0 Summary
+## v9.0 Summary
 
-- **Phases:** 76–80 (5 phases, 10 plans)
-- **Requirements:** LINT-01, STATUS-01, STALE-01, ONBOARD-01, LOG-01, INTEG-01
-- **Tests:** +79 new tests (0 regressions, 1216 passing)
-- **Archive:** `.planning/milestones/v8.0-ROADMAP.md`
+- **Phases:** 81–82 (2 phases)
+- **Requirements:** ROBUST-01/02/03, ERR-01, NYQUIST-01–05 (9 done, 4 LOG-WIRE deferred)
+- **Tests:** 1224 passing, 0 regressions
+- **Key fixes:** Null guards in utils.js, fileHash try-catch, 5 VALIDATION.md created/updated
 
-## Deferred to v9.0
+## Deferred Items
 
-- REPLAY-01: `pd:replay [phase]` (LOG-01 now stable — prerequisite met)
+- REPLAY-01: `pd:replay [phase]` (LOG-01 now stable)
 - DIFF-01: `pd:diff-milestone`
 - HOTREL-01: Hot-reload config.json
-- `appendLogEntry` call-site wiring in agent workflows
+- LOG-WIRE-01–04: Log lifecycle wiring (schema evolution needed first)
 
 ## Performance Metrics
-
-**Velocity:**
-
-- Total plans completed: 105 (95 prior + 10 v8.0)
-- Average duration: ~3 min
-- Total execution time: ~10 hours across 12 milestones
 
 **Milestone History:**
 
@@ -69,22 +63,14 @@ Last activity: 2026-04-03 — v9.0 milestone started
 | v6.0 | 6 | 14 | 2026-03-28–29 |
 | v7.0 | 5 | 10 | 2026-04-02 |
 | v8.0 | 5 | 10 | 2026-04-03 |
+| v9.0 | 2 | 0 | 2026-04-03 |
 
 ## Accumulated Context
 
 ### Decisions
 
-Decisions are logged in PROJECT.md Key Decisions table.
-
-- [Phase 67]: Language convention in general.md updated from Vietnamese to English
-- [Phase 76]: 3-strike lint counter with PROGRESS.md persistence added to write-code.md Step 5 + recovery routing in Step 1.1 Case 1
-- [Phase 76]: Used Haiku model for pd:status — cheaper model appropriate for read-only dashboard
-- [Phase 77]: Step 6 in pd-codebase-mapper.md: skip META.json silently when git unavailable; never write null SHA
-- [Phase 77]: Step 0 is non-blocking — all paths continue to Step 1 via silent skip or informational warning
-- [Phase 78]: model: sonnet for onboard — complex git analysis + multi-step orchestration requires more capable model
-- [Phase 79]: appendLogEntry uses optional second arg for logFile to enable test isolation
-- [Phase 79]: JSDoc comments must not contain literal require('fs') strings — purity test uses plain string match
-- [Phase 80]: validateLogEntry imported from bin/lib/log-schema.js rather than hand-rolling 7-field check
+- [v9.0]: Log schema requires non-empty `error` field — lifecycle events deferred to backlog (999.6)
+- [v9.0]: Guard files are soft-check checklists by design — not stubs
 
 ### Pending Todos
 
@@ -97,4 +83,4 @@ None.
 ## Session Continuity
 
 Last session: 2026-04-03
-Stopped at: v8.0 complete-milestone (archived, tagged, ready for v9.0)
+Stopped at: v10.0 milestone started — defining requirements
