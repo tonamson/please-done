@@ -133,9 +133,9 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Fix README version badge (2.8.0 → 4.0.0) and update CHANGELOG — DOC-01 (Validated in Phase 84: Documentation & Version Consistency)
 - ✓ Create missing `INTEGRATION_GUIDE.md` or remove dead references — DOC-02 (Validated in Phase 84)
 - ✓ Create 4 missing command docs (`audit`, `conventions`, `onboard`, `status`) — DOC-03 (Validated in Phase 84)
-- Fix Vietnamese commit message rule in `write-code.md` — LANG-01
+- ✓ Fix Vietnamese commit message rule in `write-code.md` — LANG-01 (Validated in Phase 85)
 - Add debug logging to bare `catch {}` blocks in `plan-check.js` and `utils.js` — ERR-01
-- Remove orphaned files (`mermaid-rules.md`, `fix-bug-v1.5.md`) — CLEAN-01
+- ✓ Remove orphaned files (`mermaid-rules.md` wired confirmed, `fix-bug-v1.5.md` archived to legacy) — CLEAN-01, CLEAN-02 (Validated in Phase 85)
 - Create `smoke-onboard.test.js` — TEST-01
 - Refactor `process.exit()` in `installers/claude.js` to throw — ERR-02
 - Expand `smoke-error-handling.test.js` scope — TEST-02
@@ -210,4 +210,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-03 — Phase 84 complete: documentation & version consistency shipped (DOC-01/02/03/04 validated)_
+_Last updated: 2026-04-03 — Phase 85 complete: language & content cleanup shipped (LANG-01, CLEAN-01, CLEAN-02 validated)_
