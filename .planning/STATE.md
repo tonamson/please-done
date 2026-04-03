@@ -33,10 +33,6 @@ v10.0 — archived. Ready for v11.0.
 
 ## Deferred Items
 
-- REPLAY-01: `pd:replay [phase]` (LOG-01 now stable)
-- DIFF-01: `pd:diff-milestone`
-- HOTREL-01: Hot-reload config.json
-- LOG-WIRE-01–04: Log lifecycle wiring (schema evolution needed first)
 - plan-check.js Vietnamese user-facing strings (lines 6/21/30/34) — flag for v11.0 language sweep
 
 ## Performance Metrics
