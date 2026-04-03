@@ -12,9 +12,8 @@ Repeat until the user confirms success. Create a patch version for completed mil
 Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
 - [ ] A bug description was provided -> "Please provide a bug description or investigation session name."
-- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
-- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
-- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
+- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using search/read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
 </guards>
 <context>
 User input: $ARGUMENTS

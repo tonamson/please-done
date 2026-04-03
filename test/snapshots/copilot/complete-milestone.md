@@ -71,6 +71,7 @@ Check:
 Scan `.planning/bugs/BUG_*.md` → line `> Status:`.
 Match rules: see [SKILLS_DIR]/references/conventions.md → "Version filtering"
 - Skip bugs from other milestones
+- Skip standalone bugs: match `> Patch version: standalone` → exclude from milestone blocker count. Log: "Skipped [N] standalone bug(s) — not tied to milestone v[x.x]."
 - Has **Unresolved/In progress** → **BLOCK**: "Still [X] unresolved bugs for v[x.x]. Run `/pd:fix-bug`."
 - All **Resolved** → allow
 ## Step 3.5: Goal-backward verification + cross-phase integration

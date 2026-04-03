@@ -31,7 +31,7 @@ Read ONLY WHEN needed (analyze task description first):
 ## Step 1: Check foundation
 Read in order (stop at first MISSING):
 1. `.planning/CONTEXT.md` → not found → suggest `/pd-init`, **STOP**
-1.5. `.planning/PROJECT.md` (if exists) → vision + milestone history
+   1.5. `.planning/PROJECT.md` (if exists) → vision + milestone history
 2. `.planning/scan/SCAN_REPORT.md` → not found → note (secondary suggestion Step 5), DO NOT STOP
 3. `.planning/ROADMAP.md` → not found → suggest `/pd-new-milestone`, **STOP**
 4. `.planning/CURRENT_MILESTONE.md` → `version`, `phase`, `status`
@@ -42,6 +42,7 @@ Read in order (stop at first MISSING):
 Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In progress) + `> Patch version:` → filter current milestone per [SKILLS_DIR]/references/conventions.md → "Version filtering"
 - HAS open bugs → note
 - Bugs from other milestones → note separately, secondary suggestion
+- Standalone bugs: match `> Patch version: standalone` → count separately, note: "Standalone bugs: [N] (not blocking milestone)."
 ## Step 3: Check phase progress
 1. Glob `.planning/milestones/[version]/phase-[phase]/TASKS.md` → not found → suggest `/pd-plan`, **STOP**
 2. Read TASKS.md → count: 🔄 ⬜ 🐛 ✅ ❌. Empty TASKS.md (0 tasks) → "TASKS.md empty, run `/pd-plan` again." **STOP**
@@ -50,20 +51,22 @@ Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In progress) + `
 5. `phase-[phase]/TEST_REPORT.md` exists?
 6. **Scan untested old phases**: each `milestones/[version]/phase-*/` → ALL tasks ✅ + NO TEST_REPORT → note (Priority 5.6)
 7. `VERIFICATION_REPORT.md` exists? → `Passed`/`Has gaps`/`Needs manual testing`
+8. **Scan standalone reports**: Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → count reports, check for failures → note (Priority 5.7)
 ## Step 4: Analyze + suggest (1 main action, priority order)
-| Priority | Condition | Suggestion |
-|---------|-----------|-------|
-| 1 | Open bugs | `/pd-fix-bug` |
-| 2 | Task 🔄 (check PROGRESS.md if exists) | `/pd-write-code [N]` continue |
-| 3 | Task 🐛 (check corresponding bug report) | `/pd-fix-bug` |
-| 4 | Remaining tasks ⬜ | `/pd-write-code` or `--parallel` |
-| 5 | All remaining ❌/🐛 | `/pd-fix-bug` or check blocking reason |
-| 5.5 | VERIFICATION_REPORT `Has gaps` | `/pd-fix-bug` or `/pd-write-code` re-verify |
-| 5.6 | Completed old phase not tested | `/pd-test` (auto-detect phase) |
-| 6 | All ✅, not tested/test fail | `/pd-test` or `/pd-fix-bug` |
-| 7 | Phase complete, more phases ahead | `/pd-plan [y.y]` |
-| 7.5 | All phases ✅ + no `.planning/audit/SECURITY_REPORT.md` | `/pd-audit` — "No security audit yet. Run `/pd-audit` before closing milestone." |
-| 8 | All phases completed | `/pd-complete-milestone` |
+| Priority | Condition                                                | Suggestion                                                                       |
+| -------- | -------------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1        | Open bugs                                                | `/pd-fix-bug`                                                                    |
+| 2        | Task 🔄 (check PROGRESS.md if exists)                    | `/pd-write-code [N]` continue                                                    |
+| 3        | Task 🐛 (check corresponding bug report)                 | `/pd-fix-bug`                                                                    |
+| 4        | Remaining tasks ⬜                                       | `/pd-write-code` or `--parallel`                                                 |
+| 5        | All remaining ❌/🐛                                      | `/pd-fix-bug` or check blocking reason                                           |
+| 5.5      | VERIFICATION_REPORT `Has gaps`                           | `/pd-fix-bug` or `/pd-write-code` re-verify                                      |
+| 5.6      | Completed old phase not tested                           | `/pd-test` (auto-detect phase)                                                   |
+| 5.7      | Standalone reports with failures or open standalone bugs | `/pd-fix-bug` — standalone                                                       |
+| 6        | All ✅, not tested/test fail                             | `/pd-test` or `/pd-fix-bug`                                                      |
+| 7        | Phase complete, more phases ahead                        | `/pd-plan [y.y]`                                                                 |
+| 7.5      | All phases ✅ + no `.planning/audit/SECURITY_REPORT.md`  | `/pd-audit` — "No security audit yet. Run `/pd-audit` before closing milestone." |
+| 8        | All phases completed                                     | `/pd-complete-milestone`                                                         |
 ## Step 5: Display report
 ```
 ╔══════════════════════════════════════╗
@@ -74,6 +77,7 @@ Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In progress) + `
 ║ Phase: [x.x]                        ║
 ║ Status: ✅[N] 🔄[N] ⬜[N] 🐛[N] ❌[N] ║
 ║ Requirements: [X]/[Y] | Open bugs: [N] ║
+║ Standalone tests: [N] report(s) | Standalone bugs: [M] open ║
 ║ Blocking issues: [from STATE.md]    ║
 ╠══════════════════════════════════════╣
 ║ SUGGESTION: [command] — [reason]    ║

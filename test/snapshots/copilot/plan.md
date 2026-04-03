@@ -11,9 +11,8 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
 - [ ] `.planning/ROADMAP.md` exists -> "Run `/pd:new-milestone` first."
 - [ ] `.planning/CURRENT_MILESTONE.md` exists -> "CURRENT_MILESTONE.md is missing. Run `/pd:new-milestone` to create it."
-- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
-- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
-- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
+- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using search/read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
 </guards>
 <context>
 User input: $ARGUMENTS

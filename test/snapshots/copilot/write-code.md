@@ -14,9 +14,8 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
 - [ ] Valid task number or `--auto`/`--parallel` flag provided -> "Provide a task number or a mode flag."
 - [ ] `PLAN.md` and `TASKS.md` exist for the current phase -> "Run `/pd:plan` first to create the plan."
-- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
-- [ ] Context7 MCP connected successfully -> "Check that Context7 MCP is configured."
-- [ ] Context7 MCP working (try resolve-library-id "react") -> "Context7 not responding. Check MCP connection."
+- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using search/read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
 </guards>
 <context>
 User input: $ARGUMENTS
@@ -33,6 +32,7 @@ read .pdconfig → get SKILLS_DIR, then read the following files before starting
 (Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
 read before starting:
 - [SKILLS_DIR]/references/conventions.md → icons, commit prefixes, version, language
+- [SKILLS_DIR]/references/state-machine.md
 </required_reading>
 <conditional_reading>
 read ONLY WHEN needed (analyze task description first):
@@ -94,6 +94,13 @@ Path: `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`
    - Not committed → revert TASKS.md to 🔄 → jump to Step 7
 **Case 1: Task 🔄 + PROGRESS.md exists** (resume after network loss/session close):
 1. read PROGRESS.md → last stage + files already written
+1.5. **Lint-fail check (before stage-based routing):**
+   - read `lint_fail_count` from PROGRESS.md header
+   - If `lint_fail_count >= 3` → offer user a choice:
+     - **(A) Lint-only resume:** Skip Steps 2–4 (research, logic-validate, code-write), jump directly to Step 5 with previously written files
+     - **(B) Fresh start:** Delete PROGRESS.md, start from Step 2
+   - User picks A → jump to Step 5. User picks B → delete PROGRESS.md → Step 2
+   - If `lint_fail_count < 3` or field not present → continue to step 2 below (standard stage-based routing)
 2. Verify actual state on disk:
    - Each file in "Files written" → glob check existence, read check content (not empty, not truncated — missing `}`, unfinished class)
    - CODE_REPORT: `reports/CODE_REPORT_TASK_[N].md` exists?
@@ -225,7 +232,14 @@ CONTEXT.md → Tech Stack → directory + build tool.
 - Has rules file → read **Build & Lint** section → get commands
 - None → `package.json`/`composer.json` scripts → `npm run lint`/`npm run build` or skip
 - Run in correct directory. Appropriate timeout
-- Fail → fix + rerun. Max 3 times → **STOP**, notify user + error message
+- Fail → fix + rerun. Track consecutive failures:
+  1. Increment `lint_fail_count` in PROGRESS.md (update `> lint_fail_count:` line)
+  2. Save error output to `> last_lint_error:` in PROGRESS.md (first 500 chars, single line)
+  3. If `lint_fail_count < 3` → retry fix + rerun
+  4. If `lint_fail_count` reaches 3 → save PROGRESS.md → **STOP** with message:
+     "❌ Lint/Build failed 3 times. Last error: [last_lint_error]
+      → Run `/pd:fix-bug` to investigate root cause
+      → Run `/pd:write-code` to resume (will offer lint-only retry)"
 - No lint/build config → skip, note in report
 ---
 ## Step 6: Create report

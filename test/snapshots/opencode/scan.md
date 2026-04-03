@@ -16,13 +16,24 @@ Scan the project: analyze code structure, dependencies, architecture, and securi
 Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd-init` first."
 - [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."
-- [ ] FastCode MCP connected successfully -> "Check that Docker is running and FastCode MCP is configured."
+- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
 </guards>
 <context>
 User input: $ARGUMENTS
 Read `.planning/CONTEXT.md` (from /pd-init). No rules are needed here - only scanning and reporting.
 </context>
 <process>
+## Step 0: Check codebase map freshness (non-blocking)
+- Read `.planning/codebase/META.json` → if file does not exist → skip to Step 1.
+- Extract the `mapped_at_commit` field → if missing or empty → skip to Step 1.
+- Run: `git rev-list <mapped_at_commit>..HEAD --count 2>/dev/null`
+  - If command fails (no git, invalid SHA, shallow clone) → skip silently to Step 1.
+- Parse output as integer `N`.
+- If `N > 20`:
+  > ⚠️ **Codebase map is stale** — generated **N commits ago** (where N is the actual count).
+  > Run `/pd-scan` to refresh before continuing for accurate results.
+- If `N ≤ 20` → no output, continue silently.
+- **Always continue to Step 1 regardless of outcome.**
 ## Step 1: Determine path
 - `$ARGUMENTS` has path → use it | No → current directory
 - Create `.planning/scan/` if not exists
