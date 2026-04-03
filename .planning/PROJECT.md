@@ -124,31 +124,24 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v8.0 Developer Experience & Quality Hardening
+## Current Milestone: v9.0 (TBD)
 
-**Goal:** Implement all 9 improvement proposals from de_xuat_cai_tien.md — strengthen onboarding, DX, and system observability
+**Goal:** To be defined — run `/gsd-new-milestone` to start requirements gathering for v9.0.
 
-**Target features:**
-
-- pd:onboard skill — auto-orient AI before new codebase work (P1)
-- Codebase mapper staleness detection — auto-refresh when code changes (P1)
-- 3-strike lint recovery path — save fail count, suggest pd:fix-bug, resume-only-lint mode (P1)
-- Integration tests for full skill chain — test scan→plan→write-code→test chain (P1)
-- pd:status dashboard skill — show current phase/plan/tasks at a glance (P2)
-- Agent error structured logging — JSON error logs with context for debugging (P2)
-- pd:replay — re-run failed phases with full checkpoint context (P3)
-- pd:diff-milestone — compare two milestone archive outputs (P3)
-- Hot-reload agent config — reload config.json without workflow restart (P3)
+**Deferred from v8.0 (good starting candidates):**
+- REPLAY-01: `pd:replay [phase]` — re-run failed phase with full context (LOG-01 now stable)
+- DIFF-01: `pd:diff-milestone` — compare two milestone archives
+- HOTREL-01: Hot-reload config.json without session restart
 
 ## Current State
 
-**Current:** v8.0 Developer Experience & Quality Hardening — defining requirements
-**Shipped:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
-**Previous:** v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
+**Current:** v9.0 — not yet started (run `/gsd-new-milestone` to begin)
+**Shipped:** v8.0 Developer Experience & Quality Hardening (2026-04-03), v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29)
+**Previous:** v5.1 Agent Sync & Reference Update (2026-03-27), v4.0 OWASP Security Audit (2026-03-27), v3.0 Research Squad (2026-03-26)
 
-v7.0 scope: Add `pd:test --standalone` for testing legacy/imported projects without going through milestone/plan/write-code. Modifies 5 files (test.md skill+workflow, state-machine.md, what-next.md, complete-milestone.md). Standard flow unchanged.
+v8.0 scope: Delivered 6 DX/quality requirements — pd:onboard, pd:status, STALE-01 staleness detection, LINT-01 3-strike recovery, LOG-01 JSONL error logging infrastructure, INTEG-01 contract tests. 5 phases, 10 plans, +79 tests, 0 regressions.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 14 skills, 13 workflows, 29 JS library modules, 27,493 LOC JavaScript.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
 
 ## Constraints
 
@@ -210,4 +203,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-02 — v8.0 Developer Experience & Quality Hardening milestone started_
+_Last updated: 2026-04-03 — v8.0 Developer Experience & Quality Hardening shipped (5 phases, 6 requirements, 0 regressions)_
