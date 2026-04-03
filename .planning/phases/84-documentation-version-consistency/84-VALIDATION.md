@@ -2,7 +2,7 @@
 phase: 84
 slug: documentation-version-consistency
 status: draft
-nyquist_compliant: false
+nyquist_compliant: true
 wave_0_complete: false
 created: 2026-04-03
 ---
@@ -39,9 +39,13 @@ created: 2026-04-03
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
 | 84-01-01 | 01 | 1 | DOC-01 | shell | `grep -q "version-4.0.0" README.md && echo PASS` | ✅ | ⬜ pending |
-| 84-01-02 | 01 | 1 | DOC-02 | shell | `test -f INTEGRATION_GUIDE.md && echo PASS` | ❌ W0 | ⬜ pending |
-| 84-01-03 | 01 | 1 | DOC-03 | shell | `test -f docs/commands/audit.md && test -f docs/commands/conventions.md && test -f docs/commands/onboard.md && test -f docs/commands/status.md && echo PASS` | ❌ W0 | ⬜ pending |
-| 84-01-04 | 01 | 1 | DOC-04 | shell | `grep -q "frozen at v2.8.0" CHANGELOG.md && echo PASS` | ✅ | ⬜ pending |
+| 84-01-02 | 01 | 1 | D-04 | shell | `grep -q "### Supported Tech Stacks" README.md && grep -A 20 "### Supported Tech Stacks" README.md \| grep -q "flutter.md" && echo PASS` | ✅ | ⬜ pending |
+| 84-01-03 | 01 | 1 | DOC-04 | shell | `grep -q "frozen at v2.8.0" CHANGELOG.md && echo PASS` | ✅ | ⬜ pending |
+| 84-02-01 | 02 | 1 | DOC-02 | shell | `test -f INTEGRATION_GUIDE.md && grep -q "Fork Workflow" INTEGRATION_GUIDE.md && echo PASS` | ❌ W0 | ⬜ pending |
+| 84-03-01 | 03 | 1 | DOC-03 | shell | `test -f docs/commands/audit.md && grep -q "## Arguments" docs/commands/audit.md && echo PASS` | ❌ W0 | ⬜ pending |
+| 84-03-02 | 03 | 1 | DOC-03 | shell | `test -f docs/commands/conventions.md && grep -q "## Arguments" docs/commands/conventions.md && echo PASS` | ❌ W0 | ⬜ pending |
+| 84-03-03 | 03 | 1 | DOC-03 | shell | `test -f docs/commands/onboard.md && grep -q "## Arguments" docs/commands/onboard.md && echo PASS` | ❌ W0 | ⬜ pending |
+| 84-03-04 | 03 | 1 | DOC-03 | shell | `test -f docs/commands/status.md && grep -q "## Arguments" docs/commands/status.md && echo PASS` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -70,11 +74,11 @@ created: 2026-04-03
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 5s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 5s
+- [x] `nyquist_compliant: true` set in frontmatter
 
 **Approval:** pending

@@ -371,11 +371,12 @@ Phase 83 was deferred. The log schema (`bin/lib/log-schema.js`) requires a non-e
   2. Every link in README.md resolves to an existing file — no dead references like `INTEGRATION_GUIDE.md`
   3. `docs/commands/` contains documentation for all 16 commands — `audit.md`, `conventions.md`, `onboard.md`, `status.md` exist
   4. CHANGELOG.md has entries covering v3.0 through v9.0, or is explicitly deprecated with a pointer to MILESTONES.md
-**Plans:** 2 plans
+**Plans:** 3 plans
 
 Plans:
 - [ ] 84-01-PLAN.md — Fix README.md badge and add Supported Stacks section; add CHANGELOG.md deprecation notice
-- [ ] 84-02-PLAN.md — Create INTEGRATION_GUIDE.md and 4 missing command docs
+- [ ] 84-02-PLAN.md — Create INTEGRATION_GUIDE.md
+- [ ] 84-03-PLAN.md — Create 4 missing command docs (audit, conventions, onboard, status)
 
 ---
 
