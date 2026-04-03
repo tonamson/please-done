@@ -432,7 +432,10 @@ Plans:
 3. The suite includes at least one contract test covering each new v8.0 artifact (PROGRESS.md lint fields, META.json, agent-errors.jsonl schema)
 4. All contract tests pass cleanly; a deliberately malformed fixture triggers a test failure
 
-**Plans:** TBD
+**Plans:** 1 plan
+
+Plans:
+- [ ] 80-01-PLAN.md — Create integration-contracts.test.js (6 describe blocks, 28 tests)
 
 ---
 
