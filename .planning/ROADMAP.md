@@ -323,9 +323,9 @@ Plans:
 
 - [x] **Phase 76: Lint Recovery & Status Dashboard** — 3-strike lint fail recovery + pd:status read-only dashboard (completed 2026-04-03)
 - [x] **Phase 77: Codebase Map Staleness Detection** — auto-detect stale maps via git commit-delta (completed 2026-04-03)
-- [ ] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases
+- [x] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases (completed 2026-04-03)
   Plans:
-  - [ ] 78-01-PLAN.md — Create pd:onboard command + workflow (both files atomically)
+  - [x] 78-01-PLAN.md — Create pd:onboard command + workflow (both files atomically)
 - [ ] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl
 - [ ] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats
 
@@ -389,7 +389,7 @@ Plans:
 2. The skill generates a `PROJECT.md` baseline populated from git history analysis (top-level summary, existing modules detected, no milestone assumed)
 3. After `pd:onboard` completes, the `.planning/` directory is in a state ready for `pd:plan` — all prerequisite files exist
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 **UI hint**: no
 

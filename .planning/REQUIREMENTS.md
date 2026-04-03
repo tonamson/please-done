@@ -9,7 +9,7 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 
 ### New Skills
 
-- [ ] **ONBOARD-01**: User can run `pd:onboard` to auto-orient the AI to an unfamiliar codebase before any workflow step (calls init+scan internally, creates PROJECT.md baseline)
+- [x] **ONBOARD-01**: User can run `pd:onboard` to auto-orient the AI to an unfamiliar codebase before any workflow step (calls init+scan internally, creates PROJECT.md baseline)
 
 ### Developer Experience
 
@@ -45,6 +45,6 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 | LINT-01     | TBD   | Complete |
 | STATUS-01   | TBD   | Complete |
 | STALE-01    | TBD   | Complete |
-| ONBOARD-01  | TBD   | pending |
+| ONBOARD-01  | TBD   | Complete |
 | LOG-01      | TBD   | pending |
 | INTEG-01    | TBD   | pending |

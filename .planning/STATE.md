@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening
-status: Phase 77 complete — ready for Phase 78
-stopped_at: Phase 77 verified PASS (4/4 criteria)
-last_updated: "2026-04-03T11:00:00.000Z"
-last_activity: 2026-04-03 — Phase 77 complete (STALE-01 delivered)
+status: Defining requirements
+stopped_at: Completed 78-pd-onboard-skill-01-PLAN.md
+last_updated: "2026-04-03T03:15:20.916Z"
+last_activity: 2026-04-02 — Milestone v8.0 started
 progress:
-  total_phases: 5
-  completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_phases: 8
+  completed_phases: 3
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -60,6 +60,7 @@ Last activity: 2026-04-02 — Milestone v8.0 started
 | Phase 77 P03 | 3 | 1 tasks | 1 files |
 | Phase 77 P01 | 2 | 1 tasks | 1 files |
 | Phase 77 P02 | 60 | 1 tasks | 1 files |
+| Phase 78-pd-onboard-skill P01 | 2 | 1 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -84,6 +85,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 77]: Wave 0 TDD scaffold: 11 tests intentionally RED for prose contracts, GREEN for fixture suites
 - [Phase 77]: Step 6 in pd-codebase-mapper.md: skip META.json silently when git unavailable; never write null SHA
 - [Phase 77]: Step 0 is non-blocking — all paths continue to Step 1 via silent skip or informational warning
+- [Phase 78-pd-onboard-skill]: model: sonnet for onboard — complex git analysis + multi-step orchestration requires more capable model than haiku
 
 ### Pending Todos
 
@@ -95,5 +97,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T02:50:19.092Z
-Stopped at: Completed 77-02-PLAN.md
+Last session: 2026-04-03T03:15:20.911Z
+Stopped at: Completed 78-pd-onboard-skill-01-PLAN.md
