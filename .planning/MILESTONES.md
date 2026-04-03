@@ -1,6 +1,17 @@
 # Milestones
 
-## v8.0 Developer Experience & Quality Hardening (Shipped: 2026-04-03)
+## v10.0 Skill Repo Audit Fixes (Shipped: 2026-04-03)
+
+**Phases completed:** 4 phases (84–87), 8 plans, 13 requirements
+
+**Key accomplishments:**
+- README.md version badge corrected (2.8.0 → 4.0.0), INTEGRATION_GUIDE.md created, 4 missing command docs added (audit, conventions, onboard, status) — DOC-01–04
+- Vietnamese commit convention in write-code.md replaced with English; fix-bug-v1.5.md archived to workflows/legacy/ — LANG-01, CLEAN-01, CLEAN-02
+- All bare catch blocks in plan-check.js and utils.js replaced with PD_DEBUG conditional logging; all 6 process.exit(1) calls in claude.js replaced with throw new Error() — ERR-01–03
+- smoke-onboard.test.js (6 tests) + smoke-error-handling.test.js expanded to 8 tests; full suite: 1232 tests, 0 failures — TEST-01–03
+- Integration verified: ERR-03 propagation chain (claude.js → install.js → main().catch()) intact
+
+
 
 **Phases completed:** 5 phases (76–80), 10 plans, 6 requirements
 **Key deliverables:**

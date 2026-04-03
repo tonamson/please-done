@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v8.0
-milestone_name: Developer Experience & Quality Hardening — [archived]
-status: Ready to plan
-stopped_at: Completed 84-01-PLAN.md
-last_updated: "2026-04-03T14:40:44.951Z"
+milestone: v10.0
+milestone_name: Skill Repo Audit Fixes — [archived]
+status: Complete
+stopped_at: v10.0 milestone archived
+last_updated: "2026-04-03"
 progress:
-  total_phases: 72
-  completed_phases: 62
-  total_plans: 119
-  completed_plans: 119
+  total_phases: 87
+  completed_phases: 87
+  total_plans: 125
+  completed_plans: 125
 ---
 
 # Project State
@@ -19,28 +19,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 86 — error-handling-hardening
 
 ## Current Position
 
-Phase: 999.1
-Plan: Not started
+v10.0 — archived. Ready for v11.0.
 
-## v10.0 Phases
+## v10.0 Summary
 
-| Phase | Goal | Requirements | Status |
-|-------|------|--------------|--------|
-| 84 | Documentation & Version Consistency | DOC-01–04 | Not started |
-| 85 | Language & Content Cleanup | LANG-01, CLEAN-01–02 | Not started |
-| 86 | Error Handling Hardening | ERR-01–03 | Not started |
-| 87 | Test Coverage | TEST-01–03 | Not started |
-
-## v9.0 Summary
-
-- **Phases:** 81–82 (2 phases)
-- **Requirements:** ROBUST-01/02/03, ERR-01, NYQUIST-01–05 (9 done, 4 LOG-WIRE deferred)
-- **Tests:** 1224 passing, 0 regressions
-- **Key fixes:** Null guards in utils.js, fileHash try-catch, 5 VALIDATION.md created/updated
+- **Phases:** 84–87 (4 phases)
+- **Requirements:** DOC-01–04, LANG-01, CLEAN-01–02, ERR-01–03, TEST-01–03 (13 done)
+- **Tests:** 1232 passing, 0 regressions
+- **Key fixes:** Version badge, INTEGRATION_GUIDE.md, 4 command docs, English convention, mermaid-rules wired, fix-bug-v1.5 archived, bare catches fixed (PD_DEBUG), process.exit → throw in claude.js, smoke-onboard + smoke-error-handling expanded
 
 ## Deferred Items
 
@@ -48,6 +37,7 @@ Plan: Not started
 - DIFF-01: `pd:diff-milestone`
 - HOTREL-01: Hot-reload config.json
 - LOG-WIRE-01–04: Log lifecycle wiring (schema evolution needed first)
+- plan-check.js Vietnamese user-facing strings (lines 6/21/30/34) — flag for v11.0 language sweep
 
 ## Performance Metrics
 

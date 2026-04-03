@@ -124,29 +124,17 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v10.0 Skill Repo Audit Fixes
+## Current Milestone: v11.0 (Not yet started)
 
-**Goal:** Fix all issues identified in the full skill repo audit — version/documentation consistency, stale Vietnamese references, orphaned files, error handling gaps, missing command docs, and test coverage holes.
-
-**Target features:**
-
-- ✓ Fix README version badge (2.8.0 → 4.0.0) and update CHANGELOG — DOC-01 (Validated in Phase 84: Documentation & Version Consistency)
-- ✓ Create missing `INTEGRATION_GUIDE.md` or remove dead references — DOC-02 (Validated in Phase 84)
-- ✓ Create 4 missing command docs (`audit`, `conventions`, `onboard`, `status`) — DOC-03 (Validated in Phase 84)
-- ✓ Fix Vietnamese commit message rule in `write-code.md` — LANG-01 (Validated in Phase 85)
-- Add debug logging to bare `catch {}` blocks in `plan-check.js` and `utils.js` — ERR-01
-- ✓ Remove orphaned files (`mermaid-rules.md` wired confirmed, `fix-bug-v1.5.md` archived to legacy) — CLEAN-01, CLEAN-02 (Validated in Phase 85)
-- Create `smoke-onboard.test.js` — TEST-01
-- Refactor `process.exit()` in `installers/claude.js` to throw — ERR-02
-- Expand `smoke-error-handling.test.js` scope — TEST-02
+**Goal:** TBD — run `/gsd-new-milestone` to define requirements and roadmap.
 
 ## Current State
 
-**Current:** v10.0 — in progress
-**Shipped:** v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03), v7.0 Standalone Test Mode (2026-04-02)
-**Previous:** v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27), v4.0 OWASP Security Audit (2026-03-27)
+**Current:** v10.0 — shipped 2026-04-03
+**Shipped:** v10.0 Skill Repo Audit Fixes (2026-04-03), v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)
+**Previous:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
 
-v9.0 scope: Null guards in utils.js (ROBUST-01/02), fileHash error handling (ERR-01), Nyquist validation debt for 5 phases (NYQUIST-01–05). 2 phases, 1224 tests, 0 regressions.
+v10.0 scope: Skill repo audit fixes — docs, language cleanup, error handling hardening, test coverage. 4 phases, 8 plans, 13 requirements, 1232 tests passing, 0 regressions.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
 
@@ -210,4 +198,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-03 — Phase 85 complete: language & content cleanup shipped (LANG-01, CLEAN-01, CLEAN-02 validated)_
+_Last updated: 2026-04-03 — v10.0 complete: Skill Repo Audit Fixes shipped (13/13 requirements, 1232 tests, 0 regressions)_
