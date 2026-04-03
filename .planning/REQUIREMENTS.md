@@ -1,34 +1,51 @@
 # Requirements: please-done
 
 **Defined:** 2026-04-03
-**Core Value:** Reliability — skills run without silent failures or uncaught exceptions
+**Core Value:** Consistency — all documentation, error handling, and test coverage follow established patterns
 
-## v9.0 Requirements — Bug Audit & Robustness
+## v10.0 Requirements — Skill Repo Audit Fixes
 
-Requirements for the v9.0 milestone. Each maps to roadmap phases (81–83).
+Requirements from `SKILL_REPO_AUDIT.md`. Each maps to roadmap phases (84–87).
 
-### Input Robustness (Phase 81)
+### Documentation & Version Consistency (Phase 84)
 
-- [x] **ROBUST-01**: `extractReadingRefs(content)` in `utils.js` guards against null/undefined `content` input — returns `[]` instead of throwing
-- [x] **ROBUST-02**: `classifyRefs(executionContext)` in `utils.js` guards against null/undefined `executionContext` — returns `[]` instead of throwing
-- [x] **ROBUST-03**: All public-facing utility functions in `utils.js` have consistent input validation for required string parameters
+- [ ] **DOC-01**: README.md version badge updated from `2.8.0` to match `VERSION` file (`4.0.0`)
+- [ ] **DOC-02**: `INTEGRATION_GUIDE.md` reference in README.md either resolves to a real file or is removed
+- [ ] **DOC-03**: Command docs exist in `docs/commands/` for all 16 commands — currently missing: `audit.md`, `conventions.md`, `onboard.md`, `status.md`
+- [ ] **DOC-04**: CHANGELOG.md updated with entries for v3.0 through v9.0 (or deprecated in favor of MILESTONES.md)
 
-### Error Handling (Phase 82)
+### Language & Content Cleanup (Phase 85)
 
-- [x] **ERR-01**: `fileHash()` in `manifest.js`/`utils.js` wraps `fs.readFileSync()` with try-catch; returns `null` and logs warning on I/O failure
-- [x] **ERR-02**: `inlineWorkflow()` wraps `fs.readFileSync()` calls with try-catch; throws descriptive error on missing file instead of crashing with raw ENOENT
+- [ ] **LANG-01**: `workflows/write-code.md` line 471 changed from "Vietnamese with diacritics" to "English following conventions.md prefixes"
+- [ ] **CLEAN-01**: `references/mermaid-rules.md` either wired into a command or removed
+- [ ] **CLEAN-02**: `workflows/fix-bug-v1.5.md` archived to `workflows/legacy/` or removed, with reference in `fix-bug.md:32` updated accordingly
 
-### Nyquist Validation Debt (Phase 82)
+### Error Handling Hardening (Phase 86)
 
-- [x] **NYQUIST-01**: VALIDATION.md created for Phase 77 (3-strike lint recovery) with `nyquist_compliant: true`
-- [x] **NYQUIST-02**: VALIDATION.md created for Phase 78 (codebase map staleness) with `nyquist_compliant: true`
-- [x] **NYQUIST-03**: Phase 76 VALIDATION.md updated — `nyquist_compliant: false` → `true` after test coverage confirmed
-- [x] **NYQUIST-04**: Phase 79 VALIDATION.md updated — `nyquist_compliant: false` → `true` after test coverage confirmed
-- [x] **NYQUIST-05**: Phase 80 VALIDATION.md updated — `nyquist_compliant: false` → `true` after test coverage confirmed
+- [ ] **ERR-01**: `bin/plan-check.js` bare `catch {}` blocks (lines 66, 76) replaced with conditional debug logging
+- [ ] **ERR-02**: `bin/lib/utils.js` bare `catch` blocks (lines 140, 169, 200) replaced with conditional debug logging
+- [ ] **ERR-03**: `bin/lib/installers/claude.js` — all 6 `process.exit(1)` calls replaced with `throw new Error(...)`, exit handling moved to `bin/install.js`
 
-### Log Infrastructure Wiring (Phase 83)
+### Test Coverage (Phase 87)
 
-- [ ] **LOG-WIRE-01** *(deferred — schema evolution required)*: `appendLogEntry()` called at execution start in `write-code.md` agent path (log event: `agent_start`)
-- [ ] **LOG-WIRE-02** *(deferred — schema evolution required)*: `appendLogEntry()` called at execution end in `write-code.md` agent path (log event: `agent_complete`)
-- [ ] **LOG-WIRE-03** *(deferred — schema evolution required)*: `appendLogEntry()` called at execution start + end in `fix-bug.md` agent path
-- [ ] **LOG-WIRE-04** *(deferred — schema evolution required)*: Log wiring does not break any existing test (1224 passing baseline preserved)
+- [ ] **TEST-01**: `test/smoke-onboard.test.js` created with skill structure + workflow reference + guard checks
+- [ ] **TEST-02**: `test/smoke-error-handling.test.js` `TARGET_FILES` expanded to include `bin/plan-check.js` and `bin/lib/utils.js` (or explicit exemptions documented)
+- [ ] **TEST-03**: All 1224+ existing tests still pass after all changes (0 regressions)
+
+## Traceability
+
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| DOC-01 | 84 | pending |
+| DOC-02 | 84 | pending |
+| DOC-03 | 84 | pending |
+| DOC-04 | 84 | pending |
+| LANG-01 | 85 | pending |
+| CLEAN-01 | 85 | pending |
+| CLEAN-02 | 85 | pending |
+| ERR-01 | 86 | pending |
+| ERR-02 | 86 | pending |
+| ERR-03 | 86 | pending |
+| TEST-01 | 87 | pending |
+| TEST-02 | 87 | pending |
+| TEST-03 | 87 | pending |
