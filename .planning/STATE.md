@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening
 status: Defining requirements
-stopped_at: Completed 79-01-PLAN.md
-last_updated: "2026-04-03T03:38:20.517Z"
+stopped_at: Completed 79-02-PLAN.md
+last_updated: "2026-04-03T03:40:28.295Z"
 last_activity: 2026-04-02 — Milestone v8.0 started
 progress:
   total_phases: 8
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -63,6 +63,7 @@ Last activity: 2026-04-02 — Milestone v8.0 started
 | Phase 78-pd-onboard-skill P01 | 2 | 1 tasks | 6 files |
 | Phase 79-structured-agent-error-logging P03 | 72 | 2 tasks | 2 files |
 | Phase 79 P01 | 5 | 1 tasks | 1 files |
+| Phase 79 P02 | 4 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -90,6 +91,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 78-pd-onboard-skill]: model: sonnet for onboard — complex git analysis + multi-step orchestration requires more capable model than haiku
 - [Phase 79-structured-agent-error-logging]: TDD RED: test stubs define contracts for log-schema.js and log-writer.js before implementation
 - [Phase 79]: JSDoc comments must not contain literal require('fs') strings — purity test uses plain string match on source
+- [Phase 79]: appendLogEntry uses optional second arg for logFile to enable test isolation without polluting .planning/logs/
 
 ### Pending Todos
 
@@ -101,5 +103,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T03:38:20.512Z
-Stopped at: Completed 79-01-PLAN.md
+Last session: 2026-04-03T03:40:28.290Z
+Stopped at: Completed 79-02-PLAN.md

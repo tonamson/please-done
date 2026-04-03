@@ -326,7 +326,7 @@ Plans:
 - [x] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases (completed 2026-04-03)
   Plans:
   - [x] 78-01-PLAN.md — Create pd:onboard command + workflow (both files atomically)
-- [ ] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl
+- [x] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl (completed 2026-04-03)
 - [ ] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats
 
 ### Phase Details
@@ -409,12 +409,12 @@ Plans:
 3. Every written entry contains all seven required fields: `timestamp`, `level`, `phase`, `step`, `agent`, `error`, `context`
 4. `validateLogEntry()` rejects entries missing required fields — they are never written to disk
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 79-03-PLAN.md — RED test stubs for log-schema and log-writer (Wave 1)
 - [x] 79-01-PLAN.md — Pure-function log schema module bin/lib/log-schema.js (Wave 2)
-- [ ] 79-02-PLAN.md — Thin I/O wrapper bin/log-writer.js (Wave 3)
+- [x] 79-02-PLAN.md — Thin I/O wrapper bin/log-writer.js (Wave 3)
 
 ---
 
