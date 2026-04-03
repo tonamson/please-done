@@ -390,10 +390,10 @@ Plans:
   1. `workflows/write-code.md` line 471 references English convention prefixes — no Vietnamese language mention remains
   2. `references/mermaid-rules.md` is either imported by a command/workflow or removed from the repo
   3. `workflows/fix-bug-v1.5.md` is archived to `workflows/legacy/` or removed, and `fix-bug.md` line 32 no longer references a stale path
-**Plans:** TBD
+**Plans:** 1 plan
 
 Plans:
-- [ ] TBD
+- [ ] 85-01-PLAN.md — Fix Vietnamese reference, verify mermaid-rules wiring, archive fix-bug-v1.5.md
 
 ---
 
