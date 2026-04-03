@@ -327,7 +327,7 @@ Plans:
   Plans:
   - [x] 78-01-PLAN.md — Create pd:onboard command + workflow (both files atomically)
 - [x] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl (completed 2026-04-03)
-- [ ] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats
+- [x] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats (completed 2026-04-03)
 
 ### Phase Details
 
@@ -432,10 +432,10 @@ Plans:
 3. The suite includes at least one contract test covering each new v8.0 artifact (PROGRESS.md lint fields, META.json, agent-errors.jsonl schema)
 4. All contract tests pass cleanly; a deliberately malformed fixture triggers a test failure
 
-**Plans:** 1 plan
+**Plans:** 1/1 plans complete
 
 Plans:
-- [ ] 80-01-PLAN.md — Create integration-contracts.test.js (6 describe blocks, 28 tests)
+- [x] 80-01-PLAN.md — Create integration-contracts.test.js (6 describe blocks, 28 tests)
 
 ---
 
