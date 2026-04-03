@@ -426,10 +426,11 @@ Plans:
   1. `test/smoke-onboard.test.js` exists and verifies skill structure, workflow references, and guard checks for pd:onboard
   2. `test/smoke-error-handling.test.js` TARGET_FILES includes `bin/plan-check.js` and `bin/lib/utils.js` (or explicit exemption comments)
   3. Full test suite (1224+ tests) passes with 0 failures after all v10.0 changes
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD
+- [ ] 87-01-PLAN.md — Create test/smoke-onboard.test.js (skill structure, workflow reference, guard checks)
+- [ ] 87-02-PLAN.md — Update smoke-error-handling.test.js TARGET_FILES + full regression run
 
 ---
 
