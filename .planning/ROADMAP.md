@@ -14,13 +14,14 @@
 - ✅ **v5.0 Repo Optimization** — Phases 52-59 (shipped 2026-03-27)
 - ✅ **v5.1 Agent Sync & Reference Update** — Phases 60-64 (shipped 2026-03-27)
 - ✅ **v6.0 Vietnamese → English Migration** — Phases 65-70 (shipped 2026-03-29)
-- ✅ **v7.0 Standalone Test Mode** — Phases 71-75
+- ✅ **v7.0 Standalone Test Mode** — Phases 71-75 (shipped 2026-04-02)
 - ✅ **v9.0 Bug Audit & Robustness** — Phases 81-82 (shipped 2026-04-03)
 - ✅ **v10.0 Skill Repo Audit Fixes** — Phases 84-87 (complete)
+- 🔄 **v11.0 Developer Tooling & Observability** — Phases 88-102 (in progress)
 
 ## Progress
 
-14 milestones shipped. 87 phases, 125 plans completed. v11.0 not yet started.
+15 milestones shipped. 87 phases, 125 plans completed. v11.0 in progress (Phase 88).
 
 ## Phases
 
@@ -67,7 +68,7 @@ Full details: `.planning/milestones/v1.2-ROADMAP.md`
 <details>
 <summary>✅ v1.3 Truth-Driven Development (Phases 17-20) — SHIPPED 2026-03-24</summary>
 
-- [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-23
+- [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-24
 - [x] Phase 18: Logic-First Execution (1/1 plans) — completed 2026-03-24
 - [x] Phase 19: Knowledge Correction (1/1 plans) — completed 2026-03-24
 - [x] Phase 20: Logic Audit (1/1 plans) — completed 2026-03-24
@@ -199,133 +200,21 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 - [x] Phase 74: Smoke Test Coverage Completion (completed 2026-04-01)
 - [x] Phase 75: Nyquist Validation (completed 2026-04-01)
 
-#### Phase 71: Core Standalone Flow
-
-**Goal:** Add `--standalone` mode to `pd:test` skill and workflow — the main feature.
-
-**Requirements:** TEST-01, TEST-02, TEST-03, GUARD-01, GUARD-02, GUARD-03, REPORT-01, REPORT-02, RECOV-01
-
-**Success criteria:**
-
-1. `pd:test --standalone [path]` runs standalone flow (Steps S1–S8) without requiring milestone/plan/write-code
-2. `pd:test --standalone --all` scans all source and tests everything
-3. Standard flow (`pd:test 1`, `pd:test --all`) remains 100% unchanged
-4. Guards are conditional — standard flow keeps hard guards, standalone uses soft warnings
-5. Auto-detect stack when CONTEXT.md is missing
-6. Creates `STANDALONE_TEST_REPORT_[timestamp].md` in `.planning/reports/`
-7. Standalone bugs use `Patch version: standalone`
-8. Recovery detects interrupted sessions and offers resume/rewrite
-
-**Plan 01 — Update test.md skill file:**
-
-- Task 1: Update frontmatter (argument-hint), objective, guards (conditional), context, output sections
-
-**Plan 02 — Update test.md workflow:**
-
-- Task 1: Add Step 0 (route by mode) before Step 1
-- Task 2: Add standalone flow Steps S1–S8 after standard flow
-- Task 3: Verify standard flow Steps 1–10 are NOT modified
-
----
-
-#### Phase 72: System Integration Sync
-
-**Goal:** Update cross-referenced files so the rest of the system recognizes standalone mode.
-
-**Requirements:** SYNC-01, SYNC-02, SYNC-03
-
-**Success criteria:**
-
-1. `state-machine.md` has standalone prerequisites row + side branch entry
-2. `what-next.md` detects standalone test reports and shows standalone bugs separately
-3. `complete-milestone.md` skips standalone bugs during milestone completion
-
-**Plan 01 — Sync 3 reference/workflow files:**
-
-- Task 1: Update `state-machine.md` — add prerequisites row + side branch
-- Task 2: Update `what-next.md` — add sub-step 8 (standalone reports), standalone bug handling, Priority 5.7
-- Task 3: Update `complete-milestone.md` — add 1 line to skip standalone bugs
-
----
-
-#### Phase 73: Verification & Edge Cases
-
-**Goal:** Verify both flows work correctly end-to-end with all edge cases covered.
-
-**Requirements:** SC-1, SC-2, SC-3, SC-4, SC-5, SC-6, SC-7 (cross-cutting verification)
-
-**Plans:** 1/1 plans complete
-
-Plans:
-- [x] 73-01-PLAN.md — Smoke tests for all 7 success criteria
-
-**Success criteria:**
-
-1. Standard flow: `pd:test 1` with ✅ task works, `pd:test` without ✅ task still blocks
-2. Standalone flow: `pd:test --standalone [path]` creates report, handles no-code error
-3. No CONTEXT.md + has code → auto-detect stack, warn
-4. FastCode/Context7 errors → soft fallback (no block)
-5. `what-next` shows standalone reports + bugs
-6. `complete-milestone` skips standalone bugs
-7. All existing tests still pass (smoke-integrity, snapshots)
-
----
-
-#### Phase 74: Smoke Test Coverage Completion
-
-**Goal:** Close smoke test coverage gaps identified in v7.0 audit — add missing tests for RECOV-01 and SYNC-01, fix SC-4 test name typo.
-
-**Requirements:** RECOV-01 (coverage), SYNC-01 (coverage)
-
-**Gap Closure:** Closes tech-debt items from `.planning/v7.0-MILESTONE-AUDIT.md`
-
-**Plans:** 1/1 plans complete
-
-Plans:
-- [x] 74-01-PLAN.md — Add RECOV-01 and SYNC-01 smoke tests, fix SC-4 typo
-
-**Success criteria:**
-
-1. `smoke-standalone.test.js` has a test asserting Step S0.5 recovery prompt logic in test.md (RECOV-01)
-2. `smoke-standalone.test.js` has a test asserting `state-machine.md` standalone prerequisites row with `— / —` (SYNC-01)
-3. SC-4 test #2 description corrected: "absent" → "present" (cosmetic)
-4. Full suite runs: all new + existing smoke-standalone tests pass
-
-**Plan 01 — Add 2 coverage tests + fix typo:**
-
-- Task 1: Add RECOV-01 and SYNC-01 tests to `test/smoke-standalone.test.js`; fix SC-4 test #2 name
-- Task 2: Run `node --test test/smoke-standalone.test.js` — verify all tests pass
-
----
-
-#### Phase 75: Nyquist Validation
-
-**Goal:** Complete Nyquist validation for all three v7.0 phases — verify sampling density and coverage thresholds are met, mark VALIDATION.md compliant.
-
-**Gap Closure:** Closes Nyquist tech-debt for Phases 71, 72, 73 from `.planning/v7.0-MILESTONE-AUDIT.md`
-
-**Success criteria:**
-
-1. Phase 71 `71-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
-2. Phase 72 `72-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
-3. Phase 73 `73-VALIDATION.md` — `nyquist_compliant: true`, `wave_0_complete: true`
-
-**Plans:** 1/1 plans complete
-
-Plans:
-- [x] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
+Full details: `.planning/milestones/v7.0-ROADMAP.md`
 
 </details>
 
----
-
-## ✅ v8.0 Developer Experience & Quality Hardening — [archived](.planning/milestones/v8.0-ROADMAP.md)
+<details>
+<summary>✅ v8.0 Developer Experience & Quality Hardening — [archived](.planning/milestones/v8.0-ROADMAP.md)</summary>
 
 Phases 76–80 | 10 plans | LINT-01, STATUS-01, STALE-01, ONBOARD-01, LOG-01, INTEG-01 | Shipped 2026-04-03
 
----
+Full details: `.planning/milestones/v8.0-ROADMAP.md`
 
-## 🔄 v9.0 Bug Audit & Robustness
+</details>
+
+<details>
+<summary>✅ v9.0 Bug Audit & Robustness</summary>
 
 ### Phase 81: Input Robustness — Null/Undefined Guards in utils.js
 
@@ -356,18 +245,279 @@ Plans:
 
 Phase 83 was deferred. The log schema (`bin/lib/log-schema.js`) requires a non-empty `error` field which doesn't fit lifecycle events (`agent_start`/`agent_complete`). Schema evolution needed before wiring. See Phase 999.6 in Backlog.
 
+</details>
+
 ---
 
 ## ✅ v10.0 Skill Repo Audit Fixes — [archived](.planning/milestones/v10.0-ROADMAP.md)
 
+Phases 84–87 | 8 plans | 13 requirements | Shipped 2026-04-03
+
 Full details: `.planning/milestones/v10.0-ROADMAP.md`
+
+---
+
+## 🔄 v11.0 Developer Tooling & Observability
+
+**Goal:** Improve developer experience and observability with onboarding, status dashboards, lint recovery, staleness detection, integration contracts, and structured logging.
+
+**Requirements:** ONBOARD-01, STATUS-01, LINT-01, STALE-01, INTEG-01, LOG-01
+
+**Phases:** 15 phases | **Estimated Plans:** 20-25 plans
+
+### Phase 88: LOG-01 — Agent Error Logging Foundation
+
+**Goal:** Create structured logging infrastructure and log-writer utility.
+
+**Requirements:** LOG-01
+
+**Success Criteria:**
+1. `.planning/logs/` directory created with `.gitignore` rules
+2. `bin/lib/log-writer.js` pure function for JSONL logging
+3. Log format: `{timestamp, level, phase, step, agent, error, context}`
+4. Unit tests for log-writer with 90%+ coverage
+
+**Plan 88.1:** Create log infrastructure and writer utility
+
+---
+
+### Phase 89: LOG-01 — Integration & Workflow Wiring
+
+**Goal:** Wire log-writer into all 16 skills and update state machine.
+
+**Requirements:** LOG-01
+
+**Success Criteria:**
+1. All 16 skills call log-writer on caught errors
+2. State machine updated with logging prerequisites
+3. what-next.md shows recent errors from logs
+4. Zero regressions in existing error handling
+
+**Plan 89.1:** Wire logging into skills and workflows
+
+**Status**: 📝 Planned (10 tasks defined)
+
+**Files**:
+- `RESEARCH.md` - Framework analysis complete
+- `PLAN.md` - 10 tasks with detailed steps
+- `VALIDATION.md` - Nyquist verification criteria
+
+**Next Step**: Execute with `/gsd:execute-phase 89`
+
+---
+
+### Phase 90: STATUS-01 — Status Dashboard Core
+
+**Goal:** Create `pd:status` skill with project overview parsing.
+
+**Requirements:** STATUS-01
+
+**Success Criteria:**
+1. `skills/pd/status.md` skill file created (Haiku tier)
+2. Parses STATE.md, ROADMAP.md, TASKS.md
+3. Shows: current phase, milestone progress, pending tasks, blockers
+4. Pretty-printed dashboard with colors/symbols
+
+**Plan 90.1:** Implement status dashboard parsing and display
+
+---
+
+### Phase 91: STATUS-01 — Workflow Integration
+
+**Goal:** Integrate status skill into state machine and add refresh logic.
+
+**Requirements:** STATUS-01
+
+**Success Criteria:**
+1. State machine updated with status prerequisites
+2. what-next.md suggests `pd:status` when idle
+3. Auto-refresh option for staleness detection
+4. Documentation updated with status examples
+
+**Plan 91.1:** Wire status into workflows and documentation
+
+---
+
+### Phase 92: ONBOARD-01 — Onboarding Skill Foundation
+
+**Goal:** Create `pd:onboard` skill with init+scan orchestration.
+
+**Requirements:** ONBOARD-01
+
+**Success Criteria:**
+1. `skills/pd/onboard.md` skill file created (Sonnet tier)
+2. Calls `init` workflow internally
+3. Calls `scan` workflow internally
+4. Generates PROJECT.md baseline with stack detection
+
+**Plan 92.1:** Implement onboard skill with init+scan
+
+---
+
+### Phase 93: ONBOARD-01 — Context Generation & Summary
+
+**Goal:** Add CONTEXT.md generation and onboarding summary output.
+
+**Requirements:** ONBOARD-01
+
+**Success Criteria:**
+1. Generates initial CONTEXT.md with key files
+2. Creates onboarding summary with next steps
+3. Shows detected stack and frameworks
+4. Links to relevant documentation
+
+**Plan 93.1:** Add context generation and summary output
+
+---
+
+### Phase 94: ONBOARD-01 — Workflow Integration & Testing
+
+**Goal:** Integrate onboard into state machine and test end-to-end.
+
+**Requirements:** ONBOARD-01
+
+**Success Criteria:**
+1. State machine updated with onboard flow
+2. what-next.md suggests onboard for new projects
+3. Smoke tests verify onboard → init → scan chain
+4. Zero regressions in existing init/scan flows
+
+**Plan 94.1:** Wire onboard into workflows and add tests
+
+---
+
+### Phase 95: LINT-01 — Lint Failure Tracking
+
+**Goal:** Implement lint_fail_count tracking in PROGRESS.md.
+
+**Requirements:** LINT-01
+
+**Success Criteria:**
+1. PROGRESS.md schema updated with lint_fail_count
+2. `bin/lib/progress-tracker.js` utility created
+3. All 12 skills increment counter on lint failures
+4. Counter resets on successful lint
+
+**Plan 95.1:** Implement lint failure tracking system
+
+---
+
+### Phase 96: LINT-01 — Recovery Workflow & UI
+
+**Goal:** Add 3-strike logic and resume-only-lint mode.
+
+**Requirements:** LINT-01
+
+**Success Criteria:**
+1. After 3 failures, suggest `pd:fix-bug` workflow
+2. Add resume-only-lint mode to bypass planning
+3. Status dashboard shows lint failure count
+4. Soft guard implementation (guides, doesn't block)
+
+**Plan 96.1:** Implement recovery workflow and UI enhancements
+
+---
+
+### Phase 97: STALE-01 — Staleness Detection Core
+
+**Goal:** Create staleness detection for codebase maps.
+
+**Requirements:** STALE-01
+
+**Success Criteria:**
+1. `bin/lib/staleness-detector.js` pure function
+2. Compares git commit-delta >20 commits
+3. Returns staleness score and refresh recommendation
+4. Unit tests with mock git history
+
+**Plan 97.1:** Implement staleness detection logic
+
+---
+
+### Phase 98: STALE-01 — Map Metadata & Refresh
+
+**Goal:** Add commit metadata to maps and refresh workflow.
+
+**Requirements:** STALE-01
+
+**Success Criteria:**
+1. Codebase maps store "Mapped at commit: [sha]" metadata
+2. `pd:map-codebase` checks staleness before running
+3. Auto-refresh suggestion in status dashboard
+4. User prompt for refresh (non-blocking)
+
+**Plan 98.1:** Add metadata and refresh workflow
+
+---
+
+### Phase 99: INTEG-01 — Contract Test Foundation
+
+**Goal:** Create schema validation for CONTEXT.md/TASKS.md/PROGRESS.md.
+
+**Requirements:** INTEG-01
+
+**Success Criteria:**
+1. `bin/lib/schema-validator.js` with JSON Schema definitions
+2. Validates all 3 artifact types
+3. Returns detailed error messages
+4. 90%+ unit test coverage
+
+**Plan 99.1:** Implement schema validator
+
+---
+
+### Phase 100: INTEG-01 — Cross-Skill Contract Tests
+
+**Goal:** Test all 12 skills produce valid artifacts.
+
+**Requirements:** INTEG-01
+
+**Success Criteria:**
+1. Contract tests for all 12 skills
+2. CI integration or pre-commit hook option
+3. Fail fast on schema violations
+4. Documentation for contract testing
+
+**Plan 100.1:** Create cross-skill contract tests
+
+---
+
+### Phase 101: Integration & System Testing
+
+**Goal:** End-to-end integration testing of all v11.0 features.
+
+**Requirements:** All v11.0 requirements
+
+**Success Criteria:**
+1. All 6 new skills work together
+2. State machine transitions verified
+3. what-next.md suggestions accurate
+4. Zero regressions in existing functionality
+
+**Plan 101.1:** Integration testing across all features
+
+---
+
+### Phase 102: Documentation & Final Verification
+
+**Goal:** Update documentation and verify v11.0 completeness.
+
+**Requirements:** All v11.0 requirements
+
+**Success Criteria:**
+1. All new skills documented in COMMANDS.md
+2. Workflow diagrams updated
+3. Integration guide includes new features
+4. v11.0 milestone audit passes
+
+**Plan 102.1:** Documentation updates and final verification
 
 ---
 
 ## Backlog
 
 > Parking lot for unsequenced improvement ideas. Use `/gsd-discuss-phase 999.x` to explore any item.
-> Use `/gsd-review-backlog` to promote to active milestone.
+> Use `/gsd:review-backlog` to promote to active milestone.
 
 ---
 

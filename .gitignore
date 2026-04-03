@@ -21,3 +21,6 @@ Thumbs.db
 
 # Eval benchmarks (local data)
 evals/benchmarks/
+
+# GSD logs
+.planning/logs/*.jsonl

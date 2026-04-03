@@ -80,7 +80,6 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Runtime DRY — installer-utils.js with 6 shared utilities, 4 installers DRY — v5.0 (Phase 57)
 - ✓ Token Budget — TOKEN_BUDGET per tier (4K/8K/12K), baseline v5.0 (86,305 tokens), 10 workflows conditional_reading, eval pipeline verified — v5.0 (Phase 58)
 - ✓ Integration Wiring + Verification Gaps — Platform wiring production caller, pd-sec-scanner path, Phase 52/53 verification — v5.0 (Phase 59)
-
 - ✓ Agent Consolidation — 16 agents into commands/pd/agents/ as single source of truth — v5.1 (Phase 60)
 - ✓ Symlink Architecture — 16 symlinks in .claude/agents/ pointing to commands/pd/agents/ — v5.1 (Phase 61)
 - ✓ Reference Migration — smoke-agent-files.test.js and fix-bug.md updated — v5.1 (Phase 62)
@@ -92,7 +91,6 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ Templates + Docs + Root Files — 41 files (templates, docs, root MDs, evals) translated — v6.0 (Phase 68)
 - ✓ JS Source Code + Tests — 33 JS source files translated, 12 test files synced — v6.0 (Phase 69)
 - ✓ Final Verification — Zero Vietnamese outside .planning/, 1101/1102 tests pass — v6.0 (Phase 70)
-
 - ✓ **TEST-01**: Standalone test flow — `pd:test --standalone` mode — v7.0 (Phase 71)
 - ✓ **TEST-02**: Conditional guards — bypass task/CONTEXT.md in standalone mode — v7.0 (Phase 71)
 - ✓ **TEST-03**: State-machine sync — new prerequisites row + side branch for standalone — v7.0 (Phase 73)
@@ -100,16 +98,16 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **TEST-05**: complete-milestone sync — skip standalone bugs during milestone completion — v7.0 (Phase 74)
 - ✓ **TEST-06**: Recovery path — detect interrupted standalone sessions, resume or rewrite — v7.0 (Phase 75)
 
-### Active
+### Active (v11.0)
 
-- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI to unfamiliar codebase (calls init+scan internally, creates PROJECT.md baseline)
-- [ ] **LINT-01**: 3-strike lint fail recovery — save lint_fail_count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode
-- [ ] **STATUS-01**: pd:status dashboard — view current phase, plan, pending tasks, blockers at a glance (read-only Haiku skill)
-- [ ] **STALE-01**: Codebase mapper staleness detection — git commit-delta >20 triggers refresh; maps store `Mapped at commit: [sha]`
-- [ ] **INTEG-01**: Integration contract tests — verify CONTEXT.md/TASKS.md/PROGRESS.md schema contracts across skill chain
-- [ ] **LOG-01**: Agent error structured logging — JSONL at `.planning/logs/agent-errors.jsonl` (timestamp, level, phase, step, agent, error)
+- [ ] **LOG-01**: Agent error structured logging — JSONL at `.planning/logs/agent-errors.jsonl` (timestamp, level, phase, step, agent, error) — Phase 88-89
+- [ ] **STATUS-01**: pd:status dashboard — view current phase, plan, pending tasks, blockers at a glance (read-only Haiku skill) — Phase 90-91
+- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI to unfamiliar codebase (calls init+scan internally, creates PROJECT.md baseline) — Phase 92-94
+- [ ] **LINT-01**: 3-strike lint fail recovery — save lint_fail_count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode — Phase 95-96
+- [ ] **STALE-01**: Codebase mapper staleness detection — git commit-delta >20 triggers refresh; maps store `Mapped at commit: [sha]` — Phase 97-98
+- [ ] **INTEG-01**: Integration contract tests — verify CONTEXT.md/TASKS.md/PROGRESS.md schema contracts across skill chain — Phase 99-100
 
-### Deferred (v9.0)
+### Deferred (Future Milestones)
 
 - ⏸ **REPLAY-01**: pd:replay skill — re-run a failed phase with context *(depends on LOG-01 stable ≥1 milestone)*
 - ⏸ **DIFF-01**: pd:diff-milestone — compare two milestone archive outputs *(depends on archive format definition)*
@@ -124,17 +122,21 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v11.0 (Not yet started)
+## Current Milestone: v11.0 (In Progress)
 
-**Goal:** TBD — run `/gsd-new-milestone` to define requirements and roadmap.
+**Goal:** Developer Tooling & Observability — improve developer experience with onboarding assistance, status dashboards, lint recovery, staleness detection, integration contracts, and structured logging.
+
+**Status:** Phase 88 planning — LOG-01 Agent Error Logging Foundation
+
+**Scope:** 6 requirements, 15 phases, ~20-25 plans
 
 ## Current State
 
-**Current:** v10.0 — shipped 2026-04-03
-**Shipped:** v10.0 Skill Repo Audit Fixes (2026-04-03), v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)
+**Current:** v11.0 — started 2026-04-03  
+**Shipped:** v10.0 Skill Repo Audit Fixes (2026-04-03), v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)  
 **Previous:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
 
-v10.0 scope: Skill repo audit fixes — docs, language cleanup, error handling hardening, test coverage. 4 phases, 8 plans, 13 requirements, 1232 tests passing, 0 regressions.
+v11.0 scope: Developer tooling & observability — logs, status, onboarding, lint recovery, staleness detection, contract tests. 6 requirements, 15 phases, ~20-25 plans.
 
 Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
 
@@ -155,7 +157,7 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills
 | Parallel execution priority                      | User specifically requested parallel tasks for speed             | ✓ Good — wave-based execution with conflict detection              |
 | Template method over class inheritance           | Codebase uses pure functions, no classes                         | ✓ Good — base.js config-driven, easy to extend                     |
 | Snapshot testing for converter refactoring       | 48 comparisons guarantee zero behavioral regression              | ✓ Good — caught no regressions, high confidence                    |
-| Pure functions for plan checker                  | No file I/O in check functions — content passed as args          | ✓ Good — testable, composable, no side effects                     |
+| Pure functions for plan checker                  | No file I/O in check functions — content passed as args         | ✓ Good — testable, composable, no side effects                     |
 | Historical validation gate (D-17)                | Zero false positives on all 22 v1.0 plans required               | ✓ Good — caught regressions early, built confidence                |
 | Dynamic PASS table over hardcoded                | Future checks auto-included via name mapping                     | ✓ Good — Phase 13 was needed to fix Phase 11's hardcoded table     |
 | Audit + fix in same milestone (v1.2)             | Scan first (Phase 14-15), fix after (Phase 16)                   | ✓ Good — found 27 issues, fixed 22, deferred 5 with docs           |
@@ -198,4 +200,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-03 — v10.0 complete: Skill Repo Audit Fixes shipped (13/13 requirements, 1232 tests, 0 regressions)_
+_Last updated: 2026-04-03 — v11.0 started: Developer Tooling & Observability (6 requirements, 15 phases)_
