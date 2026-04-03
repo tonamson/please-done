@@ -468,7 +468,7 @@ STOP after each task:
 - MUST read PLAN.md + task detail + docs before coding
 - PLAN.md `Design decisions` → code MUST adhere. CANNOT adhere → **STOP**, notify user
 - MUST lint + build after coding, AND rerun if fixed in 6.5b
-- MUST commit after build pass, message in Vietnamese with diacritics
+- MUST commit after build pass, message in English following conventions.md prefixes
 - Use Context7 for complex patterns
 - Reuse existing code/libraries
 - Blocked tasks → NOTIFY user, DO NOT pick randomly
