@@ -408,10 +408,11 @@ Plans:
   2. `bin/lib/utils.js` has zero bare `catch` blocks — all catches conditionally log debug info
   3. `bin/lib/installers/claude.js` throws errors instead of calling `process.exit(1)` — exit handling is centralized in `bin/install.js`
   4. Running with `PD_DEBUG=1` reveals previously-swallowed error details in plan-check and utils
-**Plans:** TBD
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD
+- [ ] 86-01-PLAN.md — Fix bare catches in plan-check.js + utils.js (fileHash); align install.js to PD_DEBUG (ERR-01, ERR-02)
+- [ ] 86-02-PLAN.md — Replace all 6 process.exit(1) calls in claude.js with throw new Error() (ERR-03)
 
 ---
 
