@@ -16,21 +16,21 @@ Requirements from `SKILL_REPO_AUDIT.md`. Each maps to roadmap phases (84–87).
 
 ### Language & Content Cleanup (Phase 85)
 
-- [ ] **LANG-01**: `workflows/write-code.md` line 471 changed from "Vietnamese with diacritics" to "English following conventions.md prefixes"
-- [ ] **CLEAN-01**: `references/mermaid-rules.md` either wired into a command or removed
-- [ ] **CLEAN-02**: `workflows/fix-bug-v1.5.md` archived to `workflows/legacy/` or removed, with reference in `fix-bug.md:32` updated accordingly
+- [x] **LANG-01**: `workflows/write-code.md` line 471 changed from "Vietnamese with diacritics" to "English following conventions.md prefixes"
+- [x] **CLEAN-01**: `references/mermaid-rules.md` either wired into a command or removed
+- [x] **CLEAN-02**: `workflows/fix-bug-v1.5.md` archived to `workflows/legacy/` or removed, with reference in `fix-bug.md:32` updated accordingly
 
 ### Error Handling Hardening (Phase 86)
 
-- [ ] **ERR-01**: `bin/plan-check.js` bare `catch {}` blocks (lines 66, 76) replaced with conditional debug logging
-- [ ] **ERR-02**: `bin/lib/utils.js` bare `catch` blocks (lines 140, 169, 200) replaced with conditional debug logging
-- [ ] **ERR-03**: `bin/lib/installers/claude.js` — all 6 `process.exit(1)` calls replaced with `throw new Error(...)`, exit handling moved to `bin/install.js`
+- [x] **ERR-01**: `bin/plan-check.js` bare `catch {}` blocks (lines 66, 76) replaced with conditional debug logging
+- [x] **ERR-02**: `bin/lib/utils.js` bare `catch` blocks (lines 140, 169, 200) replaced with conditional debug logging
+- [x] **ERR-03**: `bin/lib/installers/claude.js` — all 6 `process.exit(1)` calls replaced with `throw new Error(...)`, exit handling moved to `bin/install.js`
 
 ### Test Coverage (Phase 87)
 
-- [ ] **TEST-01**: `test/smoke-onboard.test.js` created with skill structure + workflow reference + guard checks
-- [ ] **TEST-02**: `test/smoke-error-handling.test.js` `TARGET_FILES` expanded to include `bin/plan-check.js` and `bin/lib/utils.js` (or explicit exemptions documented)
-- [ ] **TEST-03**: All 1224+ existing tests still pass after all changes (0 regressions)
+- [x] **TEST-01**: `test/smoke-onboard.test.js` created with skill structure + workflow reference + guard checks
+- [x] **TEST-02**: `test/smoke-error-handling.test.js` `TARGET_FILES` expanded to include `bin/plan-check.js` and `bin/lib/utils.js` (or explicit exemptions documented)
+- [x] **TEST-03**: All 1224+ existing tests still pass after all changes (0 regressions)
 
 ## Traceability
 
@@ -40,12 +40,12 @@ Requirements from `SKILL_REPO_AUDIT.md`. Each maps to roadmap phases (84–87).
 | DOC-02 | 84 | Complete |
 | DOC-03 | 84 | Complete |
 | DOC-04 | 84 | Complete |
-| LANG-01 | 85 | pending |
-| CLEAN-01 | 85 | pending |
-| CLEAN-02 | 85 | pending |
-| ERR-01 | 86 | pending |
-| ERR-02 | 86 | pending |
-| ERR-03 | 86 | pending |
-| TEST-01 | 87 | pending |
-| TEST-02 | 87 | pending |
-| TEST-03 | 87 | pending |
+| LANG-01 | 85 | Complete |
+| CLEAN-01 | 85 | Complete |
+| CLEAN-02 | 85 | Complete |
+| ERR-01 | 86 | Complete |
+| ERR-02 | 86 | Complete |
+| ERR-03 | 86 | Complete |
+| TEST-01 | 87 | Complete |
+| TEST-02 | 87 | Complete |
+| TEST-03 | 87 | Complete |
