@@ -10,7 +10,7 @@ Requirements from `SKILL_REPO_AUDIT.md`. Each maps to roadmap phases (84–87).
 ### Documentation & Version Consistency (Phase 84)
 
 - [ ] **DOC-01**: README.md version badge updated from `2.8.0` to match `VERSION` file (`4.0.0`)
-- [ ] **DOC-02**: `INTEGRATION_GUIDE.md` reference in README.md either resolves to a real file or is removed
+- [x] **DOC-02**: `INTEGRATION_GUIDE.md` reference in README.md either resolves to a real file or is removed
 - [ ] **DOC-03**: Command docs exist in `docs/commands/` for all 16 commands — currently missing: `audit.md`, `conventions.md`, `onboard.md`, `status.md`
 - [ ] **DOC-04**: CHANGELOG.md updated with entries for v3.0 through v9.0 (or deprecated in favor of MILESTONES.md)
 
@@ -37,7 +37,7 @@ Requirements from `SKILL_REPO_AUDIT.md`. Each maps to roadmap phases (84–87).
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
 | DOC-01 | 84 | pending |
-| DOC-02 | 84 | pending |
+| DOC-02 | 84 | Complete |
 | DOC-03 | 84 | pending |
 | DOC-04 | 84 | pending |
 | LANG-01 | 85 | pending |
