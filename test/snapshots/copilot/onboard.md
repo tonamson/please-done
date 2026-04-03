@@ -8,7 +8,7 @@ Single command to orient AI to an unfamiliar codebase. Calls pd:init and pd:scan
 <guards>
 Stop and instruct the user if any of the following conditions fail:
 - [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."
-- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using search/read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using search/read fallback (slower)." **Do NOT stop — continue with fallback.**
 </guards>
 <context>
 User input: $ARGUMENTS (project path, defaults to the current directory)

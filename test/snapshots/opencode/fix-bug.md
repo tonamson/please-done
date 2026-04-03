@@ -22,8 +22,9 @@ Repeat until the user confirms success. Create a patch version for completed mil
 Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd-init` first."
 - [ ] A bug description was provided -> "Please provide a bug description or investigation session name."
-- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
-- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] Context7 MCP connected and available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 </guards>
 <context>
 User input: $ARGUMENTS

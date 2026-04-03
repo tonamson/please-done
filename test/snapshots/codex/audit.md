@@ -32,7 +32,7 @@ Automatically detect the operating mode BEFORE running guards:
 Stop and instruct the user if any guard fails:
 @references/guard-context.md (integrated mode only)
 - [ ] Path parameter valid (if provided) -> "Path does not exist or is not a directory."
-- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
 </guards>
 <context>
 User input: {{GSD_ARGS}}

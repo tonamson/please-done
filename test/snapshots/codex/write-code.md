@@ -33,8 +33,9 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `$pd-init` first."
 - [ ] Valid task number or `--auto`/`--parallel` flag provided -> "Provide a task number or a mode flag."
 - [ ] `PLAN.md` and `TASKS.md` exist for the current phase -> "Run `$pd-plan` first to create the plan."
-- [ ] FastCode MCP available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
-- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
+- [ ] Context7 MCP connected and available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 </guards>
 <context>
 User input: {{GSD_ARGS}}

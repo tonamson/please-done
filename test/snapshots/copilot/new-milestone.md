@@ -10,7 +10,8 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/CONTEXT.md` exists -> "Run `/pd:init` first."
 - [ ] `.planning/rules/general.md` exists -> "Rules are missing. Run `/pd:init` to recreate them."
 - [ ] A milestone name is provided, or the user will be asked if it is missing
-- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Context7 MCP connected and available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 - [ ] search_web is available when research is needed -> "search_web is unavailable. Check the network connection."
 </guards>
 <context>

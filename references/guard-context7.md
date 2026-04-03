@@ -1,1 +1,2 @@
-- [ ] Context7 MCP available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Context7 MCP connected and available (soft check) → If unavailable: warn "Context7 unavailable — skipping library docs lookup." **Do NOT stop — continue without library docs.**
+- [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
