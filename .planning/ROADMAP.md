@@ -322,7 +322,7 @@ Plans:
 ### Phases
 
 - [x] **Phase 76: Lint Recovery & Status Dashboard** — 3-strike lint fail recovery + pd:status read-only dashboard (completed 2026-04-03)
-- [ ] **Phase 77: Codebase Map Staleness Detection** — auto-detect stale maps via git commit-delta
+- [x] **Phase 77: Codebase Map Staleness Detection** — auto-detect stale maps via git commit-delta (completed 2026-04-03)
 - [ ] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases
 - [ ] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl
 - [ ] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats
@@ -365,12 +365,12 @@ Plans:
 3. The warning message names the exact commit count and prompts the user to re-run `pd:scan` before continuing
 4. Projects with no prior `META.json` or no git history skip the check without error
 
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [x] 77-03-PLAN.md — Wave 0: test scaffold (smoke-codebase-staleness.test.js)
 - [x] 77-01-PLAN.md — META.json write step in pd-codebase-mapper.md
-- [ ] 77-02-PLAN.md — Step 0 staleness check in scan.md
+- [x] 77-02-PLAN.md — Step 0 staleness check in scan.md
 
 ---
 
