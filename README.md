@@ -1,6 +1,6 @@
 # Please Done — Cross-Platform AI Coding Skills
 
-[![Version](https://img.shields.io/badge/version-2.8.0-blue.svg)](https://github.com/tonamson/please-done/releases)
+[![Version](https://img.shields.io/badge/version-4.0.0-blue.svg)](https://github.com/tonamson/please-done/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
 [![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#supported-platforms)
@@ -11,7 +11,7 @@ Please Done is a skills suite (`/pd:*`) for AI coding CLIs — a structured deve
 >
 > If you are already familiar with agentic coding workflows and want the full feature set, the original work rhythm, and the fastest upstream updates, [GSD](https://github.com/gsd-build/get-shit-done) is still the better choice.
 
-**Current version: v2.8.0**
+**Current version: v4.0.0**
 
 ## Table of Contents
 
