@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
 milestone: v9.0
-milestone_name: TBD
-status: v8.0 ARCHIVED — ready for v9.0 requirements
-stopped_at: v8.0 complete-milestone done — run /gsd-new-milestone to start v9.0
+milestone_name: Bug Audit & Robustness
+status: v9.0 in progress — requirements defined
+stopped_at: v9.0 requirements defined — ready for /gsd-plan-phase 81
 last_updated: "2026-04-03T15:00:00.000Z"
 last_activity: 2026-04-03 — v8.0 archived (5 phases, 6 requirements, 0 regressions)
 progress:
@@ -24,10 +24,10 @@ See: .planning/PROJECT.md (updated 2026-04-03)
 
 ## Current Position
 
-Phase: Not started
+Phase: Not started (Phase 81 next)
 Plan: —
-Status: Awaiting v9.0 milestone definition
-Last activity: 2026-04-03 — v8.0 archived
+Status: Requirements defined
+Last activity: 2026-04-03 — v9.0 milestone started
 
 ## v8.0 Summary
 

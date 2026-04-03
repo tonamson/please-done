@@ -1,5 +1,17 @@
 # Milestones
 
+## v8.0 Developer Experience & Quality Hardening (Shipped: 2026-04-03)
+
+**Phases completed:** 5 phases (76–80), 10 plans, 6 requirements
+**Key deliverables:**
+- pd:status read-only 8-field dashboard (Haiku) — STATUS-01
+- 3-strike lint recovery path with PROGRESS.md persistence — LINT-01
+- Codebase map staleness detection via git commit-delta — STALE-01
+- pd:onboard single-command AI orientation skill — ONBOARD-01
+- JSONL structured error logging infrastructure (log-schema + log-writer) — LOG-01
+- 28-test integration contract test suite for all v8.0 artifacts — INTEG-01
+- +79 new tests (1140 → 1216 passing), 0 regressions
+
 ## v7.0 Standalone Test Mode (Shipped: 2026-04-02)
 
 **Phases completed:** 5 phases, 6 plans, 7 tasks

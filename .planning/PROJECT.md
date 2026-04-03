@@ -124,14 +124,16 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v9.0 (TBD)
+## Current Milestone: v9.0 Bug Audit & Robustness
 
-**Goal:** To be defined — run `/gsd-new-milestone` to start requirements gathering for v9.0.
+**Goal:** Fix all bugs identified in the v8.0 post-release audit — null-safety guards in JS utility modules, missing error handling in file I/O paths, Nyquist validation debt from phases 77/78, and wiring the Phase 79 log infrastructure into live agent workflows.
 
-**Deferred from v8.0 (good starting candidates):**
-- REPLAY-01: `pd:replay [phase]` — re-run failed phase with full context (LOG-01 now stable)
-- DIFF-01: `pd:diff-milestone` — compare two milestone archives
-- HOTREL-01: Hot-reload config.json without session restart
+**Target features:**
+
+- Null/undefined input guards in `extractReadingRefs()`, `classifyRefs()` and other public utils — ROBUST-01
+- try-catch around `fileHash()` and unprotected `fs.readFileSync()` call sites — ROBUST-02
+- Create missing VALIDATION.md for phases 77 and 78; update `nyquist_compliant: false → true` for phases 76/79/80 — NYQUIST-01
+- Wire `appendLogEntry()` from Phase 79 into at least `write-code.md` and `fix-bug.md` agent paths — LOG-WIRE-01
 
 ## Current State
 
