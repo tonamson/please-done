@@ -1,3 +1,5 @@
+> **Note:** This changelog is frozen at v2.8.0. For history from v3.0 onward, see [MILESTONES.md](.planning/MILESTONES.md).
+
 # Skills Changelog
 
 ## [2.8.0] - 21_03_2026
