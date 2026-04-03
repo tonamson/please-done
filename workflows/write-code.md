@@ -77,6 +77,13 @@ Path: `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`
 
 **Case 1: Task 🔄 + PROGRESS.md exists** (resume after network loss/session close):
 1. Read PROGRESS.md → last stage + files already written
+1.5. **Lint-fail check (before stage-based routing):**
+   - Read `lint_fail_count` from PROGRESS.md header
+   - If `lint_fail_count >= 3` → offer user a choice:
+     - **(A) Lint-only resume:** Skip Steps 2–4 (research, logic-validate, code-write), jump directly to Step 5 with previously written files
+     - **(B) Fresh start:** Delete PROGRESS.md, start from Step 2
+   - User picks A → jump to Step 5. User picks B → delete PROGRESS.md → Step 2
+   - If `lint_fail_count < 3` or field not present → continue to step 2 below (standard stage-based routing)
 2. Verify actual state on disk:
    - Each file in "Files written" → Glob check existence, Read check content (not empty, not truncated — missing `}`, unfinished class)
    - CODE_REPORT: `reports/CODE_REPORT_TASK_[N].md` exists?
@@ -251,7 +258,14 @@ CONTEXT.md → Tech Stack → directory + build tool.
 - Has rules file → read **Build & Lint** section → get commands
 - None → `package.json`/`composer.json` scripts → `npm run lint`/`npm run build` or skip
 - Run in correct directory. Appropriate timeout
-- Fail → fix + rerun. Max 3 times → **STOP**, notify user + error message
+- Fail → fix + rerun. Track consecutive failures:
+  1. Increment `lint_fail_count` in PROGRESS.md (update `> lint_fail_count:` line)
+  2. Save error output to `> last_lint_error:` in PROGRESS.md (first 500 chars, single line)
+  3. If `lint_fail_count < 3` → retry fix + rerun
+  4. If `lint_fail_count` reaches 3 → save PROGRESS.md → **STOP** with message:
+     "❌ Lint/Build failed 3 times. Last error: [last_lint_error]
+      → Run `/pd:fix-bug` to investigate root cause
+      → Run `/pd:write-code` to resume (will offer lint-only retry)"
 - No lint/build config → skip, note in report
 
 ---

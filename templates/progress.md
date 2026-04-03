@@ -13,6 +13,8 @@ Recovery checkpoint when a coding session is interrupted. Stored at `.planning/m
 > Updated: [DD_MM_YYYY HH:MM]
 > Task: [N] — [Task name]
 > Stage: [Started | Reading context | Writing code | Lint/Build | Creating report | Commit]
+> lint_fail_count: 0
+> last_lint_error: ""
 
 ## Steps
 - [x] Select task
@@ -42,3 +44,4 @@ Recovery checkpoint when a coding session is interrupted. Stored at `.planning/m
 - Task 🔄 has PROGRESS.md → recover (Step 1.1 Case 1)
 - Task 🔄 has NO PROGRESS.md → Step 2, create new
 - No logic change → DO NOT create "Logic Changes" section (D-14)
+- `lint_fail_count` tracks consecutive lint/build failures (0–3); `last_lint_error` stores the last error output. Both reset naturally when PROGRESS.md is deleted after successful commit
