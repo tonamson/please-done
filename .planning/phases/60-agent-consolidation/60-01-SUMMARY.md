@@ -55,6 +55,7 @@ completed: 2026-03-27
 - **Files modified:** 14 (6 overwritten, 8 new)
 
 ## Accomplishments
+
 - Copy 14 agent files từ `.claude/agents/` sang `commands/pd/agents/`
 - 6 files đè chồng (bản mới có Knowledge Recall, FastCode, Regression check, v.v.)
 - 8 files mới thêm (evidence-collector, fact-checker, codebase-mapper, v.v.)
@@ -67,6 +68,7 @@ completed: 2026-03-27
 2. **Task 2: Verify all 16 agents** - verification only, no commit needed
 
 ## Files Created/Modified
+
 - `commands/pd/agents/pd-evidence-collector.md` - Agent mới
 - `commands/pd/agents/pd-fact-checker.md` - Agent mới
 - `commands/pd/agents/pd-codebase-mapper.md` - Agent mới
@@ -83,20 +85,26 @@ completed: 2026-03-27
 - `commands/pd/agents/pd-sec-scanner.md` - Đè chồng bản mới (Function Checklist + POC)
 
 ## Decisions Made
+
 Thực hiện đúng kế hoạch — copy nguyên bản, không chỉnh sửa.
 
 ## Deviations from Plan
+
 None - plan executed exactly as written
 
 ## Issues Encountered
+
 None
 
 ## User Setup Required
+
 None - no external service configuration required.
 
 ## Next Phase Readiness
+
 16 agents đã sẵn sàng tại `commands/pd/agents/`. Bước tiếp theo có thể cập nhật các references trong skills/workflows để trỏ tới source of truth mới.
 
 ---
-*Phase: 60-agent-consolidation*
-*Completed: 2026-03-27*
+
+_Phase: 60-agent-consolidation_
+_Completed: 2026-03-27_

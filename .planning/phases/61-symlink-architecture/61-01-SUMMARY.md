@@ -57,6 +57,7 @@ completed: 2026-03-27
 - **Files modified:** 16 (14 chuyển file→symlink, 2 symlink mới)
 
 ## Accomplishments
+
 - Xoá 14 file thật trong `.claude/agents/`
 - Tạo 16 relative symlinks trỏ `../../commands/pd/agents/{name}.md`
 - 3 test thực tế đều pass:
