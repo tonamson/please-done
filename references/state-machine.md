@@ -42,21 +42,51 @@ Not initialized
 
 ## Prerequisites
 
-| Command                  | Required to exist                                              | If missing                               |
-| ------------------------ | -------------------------------------------------------------- | ---------------------------------------- |
-| `/pd:init`               | —                                                              | Always runnable                          |
-| `/pd:scan`               | CONTEXT.md                                                     | "Run `/pd:init` first"                   |
-| `/pd:new-milestone`      | CONTEXT.md + rules/general.md                                  | "Run `/pd:init` first"                   |
-| `/pd:plan`               | CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md                 | Suggest appropriate command              |
-| `/pd:write-code`         | CONTEXT.md + PLAN.md + TASKS.md                                | "Run `/pd:plan` first"                   |
-| `/pd:test`               | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅)                   | "Run `/pd:write-code` first"             |
-| `/pd:test --standalone`  | —                                                              | —                                        |
-| `/pd:fix-bug`            | CONTEXT.md                                                     | "Run `/pd:init` first"                   |
-| `/pd:complete-milestone` | CONTEXT.md + CURRENT_MILESTONE.md + all tasks ✅ + bugs closed | List blockers                            |
-| `/pd:what-next`          | —                                                              | Suggest `/pd:init` if missing CONTEXT.md |
-| `/pd:fetch-doc`          | CONTEXT.md                                                     | "Run `/pd:init` first"                   |
-| `/pd:update`             | —                                                              | Always runnable                          |
-| `/pd:audit`              | CONTEXT.md                                                     | "Run `/pd:init` first"                   |
+| Command                  | Required to exist                                              | Logging readiness check                                  | If missing                               |
+| ------------------------ | -------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------- |
+| `/pd:init`               | —                                                              | Create `.planning/logs/` directory                       | Always runnable                          |
+| `/pd:scan`               | CONTEXT.md                                                     | Verify log-writer can write to `.planning/logs/`         | "Run `/pd:init` first"                   |
+| `/pd:new-milestone`      | CONTEXT.md + rules/general.md                                  | Verify log directory exists                              | "Run `/pd:init` first"                   |
+| `/pd:plan`               | CONTEXT.md + ROADMAP.md + CURRENT_MILESTONE.md                 | Verify log directory exists                              | Suggest appropriate command              |
+| `/pd:write-code`         | CONTEXT.md + PLAN.md + TASKS.md                                | Check available disk space for logs (warn if < 100MB)    | "Run `/pd:plan` first"                   |
+| `/pd:test`               | CONTEXT.md + PLAN.md + TASKS.md (≥1 task ✅)                   | Check available disk space for logs                      | "Run `/pd:write-code` first"             |
+| `/pd:test --standalone`  | —                                                              | Create `.planning/logs/` if missing                      | —                                        |
+| `/pd:fix-bug`            | CONTEXT.md                                                     | Verify debug directory exists for investigation state    | "Run `/pd:init` first"                   |
+| `/pd:complete-milestone` | CONTEXT.md + CURRENT_MILESTONE.md + all tasks ✅ + bugs closed | Check log rotation status (warn if > 50MB)               | List blockers                            |
+| `/pd:what-next`          | —                                                              | Read error logs to display recent errors                 | Suggest `/pd:init` if missing CONTEXT.md |
+| `/pd:fetch-doc`          | CONTEXT.md                                                     | Verify log directory exists                              | "Run `/pd:init` first"                   |
+| `/pd:update`             | —                                                              | Verify log directory exists                              | Always runnable                          |
+| `/pd:audit`              | CONTEXT.md                                                     | Check available disk space (security scans generate logs)| "Run `/pd:init` first"                   |
+
+### Logging Readiness Checks
+
+Before executing any command, the state machine validates:
+
+1. **Log Directory Exists**: `.planning/logs/` directory is present and writable
+   - Check: `fs.existsSync('.planning/logs') && fs.accessSync('.planning/logs', fs.constants.W_OK)`
+   - Auto-creates if missing (with gitignore entry)
+
+2. **Log Writer Available**: `bin/lib/log-writer.js` can be imported
+   - Check: `require('./bin/lib/log-writer.js')` succeeds
+   - Prevents silent failures
+
+3. **Disk Space Available**: Sufficient space for log files
+   - Warn if < 100MB available in partition
+   - Prevents log write failures
+
+4. **Error Handler Registered**: Skill error logger is initialized
+   - Check: Handler can be created for the skill
+   - Ensures errors will be captured
+
+### Logging Failure Handling
+
+If logging readiness checks fail:
+- **Missing log directory**: Auto-create with appropriate permissions
+- **Permission denied**: Log to console with warning, continue execution
+- **Disk full**: Rotate logs automatically, delete oldest entries
+- **Corrupt log file**: Create new file with timestamp suffix
+
+The system ensures: **Skills always execute even if logging fails** - errors are still displayed to user via console.
 
 ## Phase Transition (Auto-advance)
 
