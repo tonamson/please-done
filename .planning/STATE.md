@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening
-status: Defining requirements
-stopped_at: Completed 80-01-PLAN.md
-last_updated: "2026-04-03T03:58:40.664Z"
-last_activity: 2026-04-02 — Milestone v8.0 started
+status: v8.0 COMPLETE — all 5 phases delivered
+stopped_at: Phase 80 verified PASS (7/7 criteria) — milestone complete
+last_updated: "2026-04-03T14:00:00.000Z"
+last_activity: 2026-04-03 — v8.0 milestone complete (all 5 phases, 6 requirements)
 progress:
-  total_phases: 8
+  total_phases: 5
   completed_phases: 5
   total_plans: 10
   completed_plans: 10
