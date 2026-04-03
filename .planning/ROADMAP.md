@@ -343,10 +343,10 @@ Plans:
 3. After the 3rd failure the workflow surfaces a `pd:fix-bug` suggestion so the user has a clear recovery path
 4. `pd:status` prints a read-only 8–12 line dashboard (milestone, phase, plan, task counts, blockers) using the Haiku model and makes zero writes to any planning file
 
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
-- [ ] 76-01-PLAN.md — Lint failure tracking (write-code.md Step 5 counter + Step 1.1 recovery + progress.md template)
+- [x] 76-01-PLAN.md — Lint failure tracking (write-code.md Step 5 counter + Step 1.1 recovery + progress.md template)
 - [ ] 76-02-PLAN.md — pd:status skill (commands/pd/status.md + workflows/status.md dashboard)
 
 ---
