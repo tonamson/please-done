@@ -321,7 +321,7 @@ Plans:
 
 ### Phases
 
-- [ ] **Phase 76: Lint Recovery & Status Dashboard** — 3-strike lint fail recovery + pd:status read-only dashboard
+- [x] **Phase 76: Lint Recovery & Status Dashboard** — 3-strike lint fail recovery + pd:status read-only dashboard (completed 2026-04-03)
 - [ ] **Phase 77: Codebase Map Staleness Detection** — auto-detect stale maps via git commit-delta
 - [ ] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases
 - [ ] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl
@@ -343,11 +343,11 @@ Plans:
 3. After the 3rd failure the workflow surfaces a `pd:fix-bug` suggestion so the user has a clear recovery path
 4. `pd:status` prints a read-only 8–12 line dashboard (milestone, phase, plan, task counts, blockers) using the Haiku model and makes zero writes to any planning file
 
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
 - [x] 76-01-PLAN.md — Lint failure tracking (write-code.md Step 5 counter + Step 1.1 recovery + progress.md template)
-- [ ] 76-02-PLAN.md — pd:status skill (commands/pd/status.md + workflows/status.md dashboard)
+- [x] 76-02-PLAN.md — pd:status skill (commands/pd/status.md + workflows/status.md dashboard)
 
 ---
 

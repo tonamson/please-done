@@ -14,7 +14,7 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 ### Developer Experience
 
 - [x] **LINT-01**: When lint fails 3 times, the workflow saves the fail count to PROGRESS.md, suggests `pd:fix-bug`, and supports resume-only-lint mode
-- [ ] **STATUS-01**: User can run `pd:status` to view current phase, plan, pending tasks, and blockers at a glance (read-only, Haiku skill)
+- [x] **STATUS-01**: User can run `pd:status` to view current phase, plan, pending tasks, and blockers at a glance (read-only, Haiku skill)
 
 ### Quality & Observability
 
@@ -43,7 +43,7 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 | Requirement | Phase | Status  |
 |-------------|-------|---------|
 | LINT-01     | TBD   | Complete |
-| STATUS-01   | TBD   | pending |
+| STATUS-01   | TBD   | Complete |
 | STALE-01    | TBD   | pending |
 | ONBOARD-01  | TBD   | pending |
 | LOG-01      | TBD   | pending |
