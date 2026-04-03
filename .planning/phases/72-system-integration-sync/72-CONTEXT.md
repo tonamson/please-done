@@ -41,6 +41,7 @@ Update cross-referenced system files (`state-machine.md`, `what-next.md`, `compl
 </decisions>
 
 <canonical_refs>
+
 ## Canonical References
 
 **Downstream agents MUST read these before planning or implementing.**
@@ -63,6 +64,7 @@ Update cross-referenced system files (`state-machine.md`, `what-next.md`, `compl
 </canonical_refs>
 
 <code_context>
+
 ## Existing Code Insights
 
 ### Reusable Assets
@@ -107,5 +109,5 @@ None — discussion stayed within phase scope.
 
 ---
 
-*Phase: 72-system-integration-sync*
-*Context gathered: 2026-03-30*
+_Phase: 72-system-integration-sync_
+_Context gathered: 2026-03-30_

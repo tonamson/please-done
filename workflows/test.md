@@ -3,14 +3,16 @@ Write + run test files by stack (Jest+Supertest/PHPUnit/Hardhat|Foundry/flutter_
 </purpose>
 
 <required_reading>
+
 - @references/conventions.md → status icons, commit prefixes, patch version
-</required_reading>
+  </required_reading>
 
 <conditional_reading>
 Read WHEN needed:
+
 - @references/context7-pipeline.md — WHEN test uses third-party libraries
 - @references/security-checklist.md — WHEN test involves authentication, encryption
-</conditional_reading>
+  </conditional_reading>
 
 <process>
 
@@ -43,16 +45,17 @@ Check for interrupted standalone sessions:
 ---
 
 ## Step 1: Determine scope + read context
+
 - Read `.planning/CONTEXT.md` → Tech Stack → determine test framework:
 
-| Stack | Framework | Test location | Run command |
-|-------|-----------|-------------|------------|
-| NestJS | Jest + Supertest | alongside source `*.spec.ts` | `npm test` |
-| WordPress | PHPUnit + WP_UnitTestCase | `tests/test-*.php` | `composer test` |
-| Solidity | Hardhat `npx hardhat test` / Foundry `forge test -vvv` | `test/*.ts` / `test/*.t.sol` | read `.planning/docs/solidity/audit-checklist.md` |
-| Flutter | flutter_test + mocktail | `test/unit/`, `test/widget/` | `flutter test` |
-| Other framework | — | — | notify NestJS/WP/Solidity/Flutter supported |
-| Frontend-only | manual testing | — | list features + expectations, user confirms |
+| Stack           | Framework                                              | Test location                | Run command                                       |
+| --------------- | ------------------------------------------------------ | ---------------------------- | ------------------------------------------------- |
+| NestJS          | Jest + Supertest                                       | alongside source `*.spec.ts` | `npm test`                                        |
+| WordPress       | PHPUnit + WP_UnitTestCase                              | `tests/test-*.php`           | `composer test`                                   |
+| Solidity        | Hardhat `npx hardhat test` / Foundry `forge test -vvv` | `test/*.ts` / `test/*.t.sol` | read `.planning/docs/solidity/audit-checklist.md` |
+| Flutter         | flutter_test + mocktail                                | `test/unit/`, `test/widget/` | `flutter test`                                    |
+| Other framework | —                                                      | —                            | notify NestJS/WP/Solidity/Flutter supported       |
+| Frontend-only   | manual testing                                         | —                            | list features + expectations, user confirms       |
 
 - All stacks: display results → user confirms → TEST_REPORT (Step 7) → bug report if fail (Step 8) → commit (Step 10)
 - `git rev-parse --git-dir 2>/dev/null` → save `HAS_GIT`
@@ -61,7 +64,7 @@ Check for interrupted standalone sessions:
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md` → not found → **STOP**: "No plan yet. Run `/pd:plan`."
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md` → not found → **STOP**: "No tasks yet. Run `/pd:plan`."
 - Read PLAN.md → technical design, API endpoints, request/response format
-- `$ARGUMENTS` contains `--all` → read PLAN.md, TASKS.md, CODE_REPORT_TASK_*.md from ALL phases (`milestones/[version]/phase-*/`). Run entire test suite (all ✅ tasks), not just current phase.
+- `$ARGUMENTS` contains `--all` → read PLAN.md, TASKS.md, CODE*REPORT_TASK*_.md from ALL phases (`milestones/[version]/phase-_/`). Run entire test suite (all ✅ tasks), not just current phase.
 - `$ARGUMENTS` specifies task → check status:
   - Task number applies to current phase. Not found → search other phases in same milestone → notify: "Task [N] belongs to phase [x.x], not current phase."
   - ✅ → test that specific task
@@ -72,6 +75,7 @@ Check for interrupted standalone sessions:
 
 **Effort routing for test:**
 Test mirrors effort of the task being tested:
+
 - Read `Effort:` from task metadata in TASKS.md
 - Missing Effort field → default `standard` (sonnet)
 - Notify: "Spawning {model} agent for test ({effort})..."
@@ -105,18 +109,20 @@ Test mirrors effort of the task being tested:
 
 ## Step 2: Check test infrastructure
 
-| Stack | Check | Install if missing |
-|-------|----------|----------------|
-| NestJS | Jest config + `@nestjs/testing`, `supertest`, `jest` | `npm install --save-dev @nestjs/testing supertest @types/supertest` |
-| WordPress | PHPUnit + WP test suite | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + create `phpunit.xml` if missing |
-| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` or `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox` |
-| Solidity/Foundry | `lib/forge-std/` | `forge install foundry-rs/forge-std` |
-| Flutter | `flutter_test` + `mocktail` in `dev_dependencies` | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget` |
+| Stack            | Check                                                 | Install if missing                                                                               |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| NestJS           | Jest config + `@nestjs/testing`, `supertest`, `jest`  | `npm install --save-dev @nestjs/testing supertest @types/supertest`                              |
+| WordPress        | PHPUnit + WP test suite                               | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + create `phpunit.xml` if missing |
+| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` or `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox`                                        |
+| Solidity/Foundry | `lib/forge-std/`                                      | `forge install foundry-rs/forge-std`                                                             |
+| Flutter          | `flutter_test` + `mocktail` in `dev_dependencies`     | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget`                              |
 
 ---
 
 ## Step 3: Read code to understand logic
+
 `mcp__fastcode__code_qa` (repos: path from CONTEXT.md):
+
 - "What does endpoint [X] do? Request/response format? Validations? Error cases?"
 - Prioritize reading actual code (FastCode/Grep) — PLAN.md is for compliance checking only, NOT source-of-truth for tests.
 - FastCode error → Grep/Read. Warn: "FastCode error — run `/pd:init`."
@@ -126,15 +132,16 @@ Test mirrors effort of the task being tested:
 ---
 
 ## Step 4: Write test files (NestJS — .spec.ts)
+
 Place alongside source: `src/modules/users/users.controller.spec.ts`
 
 ```typescript
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from '../../app.module';
+import { Test, TestingModule } from "@nestjs/testing";
+import { INestApplication } from "@nestjs/common";
+import * as request from "supertest";
+import { AppModule } from "../../app.module";
 
-describe('UsersController', () => {
+describe("UsersController", () => {
   let app: INestApplication;
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -143,17 +150,29 @@ describe('UsersController', () => {
     app = moduleFixture.createNestApplication();
     await app.init();
   });
-  afterAll(async () => { await app.close(); });
+  afterAll(async () => {
+    await app.close();
+  });
 
-  describe('POST /api/users', () => {
-    it('returns 201 with valid data', async () => {
-      const inputData = { email: `test_${Date.now()}@test.com`, name: 'Test User', password: 'Password123!' };
-      const response = await request(app.getHttpServer()).post('/api/users').send(inputData).expect(201);
+  describe("POST /api/users", () => {
+    it("returns 201 with valid data", async () => {
+      const inputData = {
+        email: `test_${Date.now()}@test.com`,
+        name: "Test User",
+        password: "Password123!",
+      };
+      const response = await request(app.getHttpServer())
+        .post("/api/users")
+        .send(inputData)
+        .expect(201);
       expect(response.body.email).toBe(inputData.email);
       expect(response.body.password).toBeUndefined();
     });
-    it('returns 400 when required field missing', async () => {
-      await request(app.getHttpServer()).post('/api/users').send({ name: 'Missing email' }).expect(400);
+    it("returns 400 when required field missing", async () => {
+      await request(app.getHttpServer())
+        .post("/api/users")
+        .send({ name: "Missing email" })
+        .expect(400);
     });
   });
 });
@@ -164,14 +183,18 @@ Rules: each test case has CLEAR input + SPECIFIC expected output. Test data uses
 ---
 
 ## Step 5: Run tests
+
 Read CONTEXT.md → backend directory (Glob `**/nest-cli.json`):
+
 ```bash
 cd [backend-path] && npm test -- --verbose --testPathPattern=[pattern] 2>&1
 ```
+
 - Default: regex match `.spec.ts` of current phase
 - `--all` (regression): remove `--testPathPattern`, run all `.spec.ts`
 
 Display results table:
+
 ```
 ╔═══╦═════════════════════╦════╦══════════════╦═════════════════╗
 ║ # ║ Test case           ║ KQ ║ Input        ║ Output          ║
@@ -184,6 +207,7 @@ Total: X/Y passed
 ---
 
 ## Step 6: User confirms database + UI
+
 > 1. Database: [tables to check, expected data]
 > 2. API responses: [endpoint manual test, expected data]
 > 3. UI: [ONLY if CONTEXT.md has Frontend]
@@ -194,32 +218,40 @@ No Frontend → omit UI section. Allow batch confirmation.
 ---
 
 ## Step 7: TEST_REPORT.md
+
 Write `.planning/milestones/[version]/phase-[phase]/TEST_REPORT.md`:
+
 ```markdown
 # Test Report
+
 > Date: [DD_MM_YYYY HH:MM]
 > Milestone: [name] (v[x.x])
 > Total: [X] tests | ✅ [Y] passed | ❌ [Z] failed
 
 ## Results [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Manual Testing]
+
 | Test case | Input | Expected | Actual | Result |
 
 ## UI Confirmation (omit if no Frontend)
+
 | Feature | Result | Notes |
 
 ## Data Confirmation (omit if no Database/On-chain)
+
 | Table/Collection/Contract | Result | Notes |
 ```
 
 ---
 
 ## Step 8: Bug Report (if failures)
+
 Create `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 
 See @references/conventions.md → 'Patch version'
 
 ```markdown
 # Bug Report (from testing)
+
 > Date: [DD_MM_YYYY HH:MM:SS] | Severity: [Critical/High/Medium/Low]
 > Status: Unresolved | Feature: [Name] | Task: [N]
 > Patch version: [x.x.x] | Fix attempts: 0
@@ -227,18 +259,23 @@ See @references/conventions.md → 'Patch version'
 > Patch version ALWAYS 3 numbers (x.y.z). Determine version from TASKS.md containing failed task (`milestones/[version]/phase-*/TASKS.md`), DO NOT default to CURRENT_MILESTONE. Bug belongs to version → `[version].0`. Previous patch version → increment.
 
 ## Bug Description
+
 Test case: [name] | Input: [...] | Expected: [...] | Actual: [...]
 
 ## References
+
 > TEST_REPORT: .planning/milestones/[version]/phase-[phase]/TEST_REPORT.md
 > Test framework: [Jest|PHPUnit|Hardhat|Foundry|FlutterTest]
 ```
+
 Header MUST have `Status` + `Patch version` for complete-milestone to filter.
 
 ---
 
 ## Step 9: Update TASKS.md
+
 See @references/conventions.md → 'Task Status Icons'
+
 - All pass → keep ✅
 - Has test fail → change to 🐛 ONLY for tasks with failing tests (keep ✅ for passing tasks). Update BOTH: (1) Overview table, (2) task detail `> Status:`. Suggest `/pd:fix-bug`
 - Test fail due to shared code → write BUG report: `> Suspected root cause: Task [M] (shared service [name])`. Change 🐛 for task with failing test, note suspected tasks.
@@ -246,6 +283,7 @@ See @references/conventions.md → 'Task Status Icons'
 ---
 
 ## Step 10: Git commit (ONLY if HAS_GIT = true)
+
 ```
 git add [test files — *.spec.ts | test-*.php | test/*.ts or test/*.t.sol | test/**/*_test.dart]
 git add .planning/milestones/[version]/phase-[phase]/TASKS.md
@@ -291,15 +329,15 @@ Parse `$ARGUMENTS` after removing the `--standalone` flag:
 
 **If `.planning/CONTEXT.md` does NOT exist:** Auto-detect from file markers in this priority order:
 
-| Priority | Check | Stack | Test Framework |
-|----------|-------|-------|----------------|
-| 1 | `nest-cli.json` exists OR `package.json` contains `@nestjs/core` | NestJS | Jest + Supertest |
-| 2 | `composer.json` contains `wordpress` dependency OR `wp-content/` directory exists | WordPress | PHPUnit + WP_UnitTestCase |
-| 3 | `hardhat.config.js` or `hardhat.config.ts` exists | Solidity (Hardhat) | Hardhat test (`npx hardhat test`) |
-| 3b | `foundry.toml` exists | Solidity (Foundry) | Foundry test (`forge test -vvv`) |
-| 4 | `pubspec.yaml` exists AND contains `flutter` in sdk | Flutter | flutter_test + mocktail |
-| 5 | `package.json` contains `react` or `vue` or `angular` or `next` | Frontend-only | Manual test checklist |
-| 6 | No match | N/A | **STOP**: "Cannot auto-detect tech stack. Create `.planning/CONTEXT.md` with `/pd:init` or specify stack manually." |
+| Priority | Check                                                                             | Stack              | Test Framework                                                                                                      |
+| -------- | --------------------------------------------------------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| 1        | `nest-cli.json` exists OR `package.json` contains `@nestjs/core`                  | NestJS             | Jest + Supertest                                                                                                    |
+| 2        | `composer.json` contains `wordpress` dependency OR `wp-content/` directory exists | WordPress          | PHPUnit + WP_UnitTestCase                                                                                           |
+| 3        | `hardhat.config.js` or `hardhat.config.ts` exists                                 | Solidity (Hardhat) | Hardhat test (`npx hardhat test`)                                                                                   |
+| 3b       | `foundry.toml` exists                                                             | Solidity (Foundry) | Foundry test (`forge test -vvv`)                                                                                    |
+| 4        | `pubspec.yaml` exists AND contains `flutter` in sdk                               | Flutter            | flutter_test + mocktail                                                                                             |
+| 5        | `package.json` contains `react` or `vue` or `angular` or `next`                   | Frontend-only      | Manual test checklist                                                                                               |
+| 6        | No match                                                                          | N/A                | **STOP**: "Cannot auto-detect tech stack. Create `.planning/CONTEXT.md` with `/pd:init` or specify stack manually." |
 
 Announce: "Detected stack: **[stack]** → using [test framework]."
 
@@ -309,13 +347,13 @@ Announce: "Detected stack: **[stack]** → using [test framework]."
 
 Use the same infrastructure table as standard flow Step 2:
 
-| Stack | Check | Install if missing |
-|-------|----------|----------------|
-| NestJS | Jest config + `@nestjs/testing`, `supertest`, `jest` | `npm install --save-dev @nestjs/testing supertest @types/supertest` |
-| WordPress | PHPUnit + WP test suite | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + create `phpunit.xml` if missing |
-| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` or `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox` |
-| Solidity/Foundry | `lib/forge-std/` | `forge install foundry-rs/forge-std` |
-| Flutter | `flutter_test` + `mocktail` in `dev_dependencies` | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget` |
+| Stack            | Check                                                 | Install if missing                                                                               |
+| ---------------- | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| NestJS           | Jest config + `@nestjs/testing`, `supertest`, `jest`  | `npm install --save-dev @nestjs/testing supertest @types/supertest`                              |
+| WordPress        | PHPUnit + WP test suite                               | `composer require --dev phpunit/phpunit wp-phpunit/wp-phpunit` + create `phpunit.xml` if missing |
+| Solidity/Hardhat | `@nomicfoundation/hardhat-toolbox` or `chai`+`ethers` | `npm install --save-dev @nomicfoundation/hardhat-toolbox`                                        |
+| Solidity/Foundry | `lib/forge-std/`                                      | `forge install foundry-rs/forge-std`                                                             |
+| Flutter          | `flutter_test` + `mocktail` in `dev_dependencies`     | `flutter pub add --dev mocktail` + `mkdir -p test/unit test/widget`                              |
 
 ---
 
@@ -350,6 +388,7 @@ Write test files using the same patterns as standard flow Step 4 (per detected s
 - Frontend-only → manual test checklist (no test files)
 
 Rules (same as standard flow):
+
 - Each test case has CLEAR input + SPECIFIC expected output
 - Test data uses `Date.now()` or unique identifiers for uniqueness
 - Group: happy path → validation → auth → edge cases
@@ -361,20 +400,20 @@ Rules (same as standard flow):
 
 Run tests per stack:
 
-| Stack | Command |
-|-------|---------|
-| NestJS | `cd [backend-path] && npm test -- --verbose --testPathPattern=[pattern] 2>&1` |
-| WordPress | `cd [project-path] && composer test 2>&1` |
-| Solidity/Hardhat | `cd [project-path] && npx hardhat test [test-files] 2>&1` |
-| Solidity/Foundry | `cd [project-path] && forge test -vvv --match-path [pattern] 2>&1` |
-| Flutter | `cd [project-path] && flutter test [test-files] 2>&1` |
-| Frontend-only | Display manual test checklist → ask user to confirm each item |
+| Stack            | Command                                                                       |
+| ---------------- | ----------------------------------------------------------------------------- |
+| NestJS           | `cd [backend-path] && npm test -- --verbose --testPathPattern=[pattern] 2>&1` |
+| WordPress        | `cd [project-path] && composer test 2>&1`                                     |
+| Solidity/Hardhat | `cd [project-path] && npx hardhat test [test-files] 2>&1`                     |
+| Solidity/Foundry | `cd [project-path] && forge test -vvv --match-path [pattern] 2>&1`            |
+| Flutter          | `cd [project-path] && flutter test [test-files] 2>&1`                         |
+| Frontend-only    | Display manual test checklist → ask user to confirm each item                 |
 
 Display results table:
 
-| # | Test case | Result | Input | Output |
-|---|-----------|--------|-------|--------|
-| 1 | [name]    | pass/fail | [input] | [output] |
+| #   | Test case | Result    | Input   | Output   |
+| --- | --------- | --------- | ------- | -------- |
+| 1   | [name]    | pass/fail | [input] | [output] |
 
 Total: X/Y passed
 
@@ -402,10 +441,11 @@ Write `.planning/reports/STANDALONE_TEST_REPORT_[YYYYMMDD_HHMMSS].md`:
 ## Results [Jest|PHPUnit|Hardhat|Foundry|FlutterTest|Manual Testing]
 
 | Test case | Input | Expected | Actual | Result |
-|-----------|-------|----------|--------|--------|
+| --------- | ----- | -------- | ------ | ------ |
 | [name]    | [in]  | [exp]    | [act]  | ✅/❌  |
 
 ## Notes
+
 - Tested via: `pd:test --standalone [arguments]`
 - Stack detection: [auto-detected / from CONTEXT.md]
 ```
@@ -426,10 +466,12 @@ Create `.planning/bugs/BUG_[DD_MM_YYYY_HH_MM_SS].md`:
 > Patch version: standalone | Fix attempts: 0
 
 ## Bug Description
+
 Test case: [name] | Input: [...] | Expected: [...] | Actual: [...]
 
 ## References
-> Test report: .planning/reports/STANDALONE_TEST_REPORT_[timestamp].md
+
+> Test report: .planning/reports/STANDALONE*TEST_REPORT*[timestamp].md
 > Test framework: [Jest|PHPUnit|Hardhat|Foundry|FlutterTest]
 ```
 

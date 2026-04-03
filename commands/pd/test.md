@@ -37,11 +37,12 @@ Stop and instruct the user if any of the following conditions fail:
 **Otherwise (standard mode — default):**
 
 @references/guard-context.md
+
 - [ ] Valid task number or `--all` flag provided -> "Provide a task number or use `--all`."
-@references/guard-fastcode.md
-@references/guard-context7.md
+      @references/guard-fastcode.md
+      @references/guard-context7.md
 - [ ] At least one task is in `done` state -> "No completed tasks yet. Run `/pd:write-code` first."
-</guards>
+      </guards>
 
 <context>
 User input: $ARGUMENTS
@@ -50,6 +51,7 @@ User input: $ARGUMENTS
 - No input -> test all done tasks in the current phase
 
 Additional reads:
+
 - `.planning/rules/general.md` -> general rules
 - `.planning/rules/{nestjs,wordpress,solidity,flutter}.md` -> build & lint rules (ONLY if they exist)
 
@@ -59,7 +61,7 @@ Standalone mode additional context:
 - `--standalone --all` → test all project source files
 - `--standalone` alone (no path, no --all) → prompt user for target
 - No `.planning/CONTEXT.md` required — auto-detect tech stack from file markers
-</context>
+  </context>
 
 <execution_context>
 @workflows/test.md (required)
@@ -80,11 +82,13 @@ Execute @workflows/test.md from start to finish.
 **Next step:** `/pd:write-code`, `/pd:fix-bug`, or `/pd:complete-milestone`
 
 **Success when:**
+
 - Test files were created and run successfully
 - The user confirmed the result
 - The testing work was committed
 
 **Common errors:**
+
 - Tests fail -> read the failure, fix the test or the code, then run again
 - Test framework not found -> check `package.json` and the configuration
 - MCP is not connected -> check Docker and configuration
@@ -94,7 +98,7 @@ Execute @workflows/test.md from start to finish.
 - `STANDALONE_TEST_REPORT_[YYYYMMDD_HHMMSS].md` in `.planning/reports/`
 - Bug reports with `Patch version: standalone` in `.planning/bugs/`
 - **Next step:** Fix bugs manually or re-test with `/pd:test --standalone`
-</output>
+  </output>
 
 <rules>
 - All output MUST be in English.

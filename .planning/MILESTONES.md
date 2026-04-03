@@ -1,5 +1,17 @@
 # Milestones
 
+## v7.0 Standalone Test Mode (Shipped: 2026-04-02)
+
+**Phases completed:** 5 phases, 6 plans, 7 tasks
+
+**Key accomplishments:**
+
+- Dual-mode guard structure in pd:test skill — standalone soft warnings for FastCode/Context7, standard mode guards byte-for-byte preserved
+- Step 0 router + S0.5 recovery + S1-S8 standalone flow with auto-detection for 5 tech stacks, report generation, and bug tracking
+- Closed v7.0 Nyquist tech-debt: all 3 VALIDATION.md files updated to compliant, 14 task rows verified ✅ green.
+
+---
+
 ## v6.0 Vietnamese → English Migration (Shipped: 2026-03-28)
 
 **Phases completed:** 6 phases, 12 plans, 12 tasks

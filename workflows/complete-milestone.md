@@ -3,21 +3,24 @@ Check closed bugs, create summary report, commit, create git tag, update trackin
 </purpose>
 
 <required_reading>
+
 - @references/conventions.md → version filtering, commit prefixes, status icons
-</required_reading>
+  </required_reading>
 
 <conditional_reading>
 Read ONLY WHEN needed (analyze task description first):
+
 - @references/state-machine.md -> state flow, milestone transition conditions -- WHEN need to understand state transitions
 - @references/ui-brand.md -> writing product-oriented reports -- WHEN milestone has UI deliverables
 - @references/verification.md -> multi-level verification -- WHEN complex verification needed
 - @templates/current-milestone.md -> CURRENT_MILESTONE.md format -- WHEN need to update milestone state
 - @templates/state.md -> STATE.md update rules -- WHEN need to update state
-</conditional_reading>
+  </conditional_reading>
 
 <process>
 
 ## Step 1: Get version + check git
+
 - `.planning/CURRENT_MILESTONE.md` → `version` + `status`. DO NOT ask user for input.
 - Not found → **STOP**: "Run `/pd:new-milestone`."
 - status = `All completed` → **STOP**: "All milestones completed."
@@ -25,7 +28,9 @@ Read ONLY WHEN needed (analyze task description first):
 - `git rev-parse --git-dir 2>/dev/null` → save `HAS_GIT`
 
 ## Step 1.5: Analyze milestone — determine reference documents
+
 Determine from milestone context:
+
 - Need to understand state flow? → read @references/state-machine.md
 - Milestone has UI deliverables? → read @references/ui-brand.md
 - Need complex verification? → read @references/verification.md
@@ -33,7 +38,9 @@ Determine from milestone context:
 If unclear → SKIP. If discovered mid-process → read when needed.
 
 ## Step 2: Check status
+
 Scan ALL `.planning/milestones/[version]/phase-*/`:
+
 - `phase-*/TASKS.md` (REQUIRED — each phase must have ≥1 task)
 - `phase-*/TEST_REPORT.md` (REQUIRED — backend auto test, frontend-only manual testing)
 - `phase-*/reports/CODE_REPORT_TASK_*.md` (REQUIRED)
@@ -41,6 +48,7 @@ Scan ALL `.planning/milestones/[version]/phase-*/`:
 **Cross-check CODE_REPORT**: each ✅ task in `phase-X/TASKS.md` MUST have `phase-X/reports/CODE_REPORT_TASK_[N].md` in the SAME phase. Missing → warn: "Missing CODE_REPORT for task [N] in phase [X]. Run `/pd:write-code [N]`."
 
 Check:
+
 - All tasks across all phases ✅?
 - TEST_REPORT for each phase?
   - Missing + has Backend → warn: "Phase [X] missing TEST_REPORT. Run `/pd:test`."
@@ -53,6 +61,7 @@ Check:
 **Cross-check ROADMAP**: read ROADMAP.md → milestone phases vs actual phase directories. Missing phase → "ROADMAP has [N] phases, only [M] implemented. Missing phases: [...]. (1) `/pd:plan [phase]` (2) Skip (type 'skip')" → skip → note in MILESTONE_COMPLETE.md
 
 **Security check** (non-blocking): glob `.planning/audit/SECURITY_REPORT.md`
+
 - Exists → continue
 - NOT exists → warn: "No security audit for this milestone."
   - (1) Run `/pd:audit` now → after done, return to complete-milestone
@@ -60,8 +69,10 @@ Check:
   - User chooses (2) → write to MILESTONE_COMPLETE.md: "Security: not audited"
 
 ## Step 3: Check bugs
+
 Scan `.planning/bugs/BUG_*.md` → line `> Status:`.
 Match rules: see @references/conventions.md → "Version filtering"
+
 - Skip bugs from other milestones
 - Skip standalone bugs: match `> Patch version: standalone` → exclude from milestone blocker count. Log: "Skipped [N] standalone bug(s) — not tied to milestone v[x.x]."
 - Has **Unresolved/In progress** → **BLOCK**: "Still [X] unresolved bugs for v[x.x]. Run `/pd:fix-bug`."
@@ -70,7 +81,9 @@ Match rules: see @references/conventions.md → "Version filtering"
 ## Step 3.5: Goal-backward verification + cross-phase integration
 
 ### 3.5a — Per-phase success criteria (4-level verification)
+
 For EACH `phase-*/`:
+
 1. Read `PLAN.md` → "Success criteria → Must-have truths"
 2. No such section → skip, note: "Phase [X] has no criteria (old plan format)"
 3. **Has VERIFICATION_REPORT.md** → `Passed` → ✅ skip | `Has gaps`/`Needs manual testing` → re-verify
@@ -84,11 +97,13 @@ For EACH `phase-*/`:
 Verification tool failure (tool error, timeout) → record failure in report, continue with manual verification flag: "[Level N] — manual verification due to tool failure."
 
 ### 3.5b — Cross-phase integration
+
 1. Collect "Key Links" from all phases
 2. Cross-phase links: check export ↔ import match
 3. No Key Links → scan `TASKS.md` → cross-phase dependencies → check output file exists + correct import
 
 ### Step 3.5 Results
+
 ```
 ### Goal-backward verification:
 | Phase | Truths | Passed | Not passed | Details |
@@ -96,6 +111,7 @@ Verification tool failure (tool error, timeout) → record failure in report, co
 ### Cross-phase integration:
 | From phase | To phase | Link | Status |
 ```
+
 - ALL passed → Step 3.6
 - Has issues → **WARNING** (non-blocking): "(1) Fix first (`/pd:fix-bug`/`/pd:write-code`) (2) Skip (technical debt)" → note in MILESTONE_COMPLETE.md
 
@@ -107,11 +123,14 @@ Verification tool failure (tool error, timeout) → record failure in report, co
 > Any error only logs warning and notes — NEVER blocks milestone completion.
 
 Variables for results:
+
 - `reportPath` = null
 - `reportWarnings` = []
 
 ### 3.6a — Collect data and generate diagrams
+
 In try/catch:
+
 1. Read all `.planning/phases/*/XX-*-PLAN.md` for current milestone
 2. Call `generateBusinessLogicDiagram(planContents)` from `bin/lib/generate-diagrams.js` -> save result
 3. Read `.planning/codebase/ARCHITECTURE.md`
@@ -120,7 +139,9 @@ In try/catch:
 6. IF error -> write reportWarnings, diagram will use original placeholder from template
 
 ### 3.6b — Fill report template
+
 In try/catch:
+
 1. Read `templates/management-report.md`
 2. Read `.planning/STATE.md`
 3. Read all `*-SUMMARY.md` files for milestone
@@ -129,14 +150,18 @@ In try/catch:
 6. IF error -> write reportWarnings, skip
 
 ### 3.6c — Export PDF
+
 In try/catch:
+
 1. Run: `node bin/generate-pdf-report.js .planning/reports/management-report-v{version}.md`
 2. Check `.planning/reports/management-report-v{version}.pdf` exists
 3. `reportPath` = pdf path (or md fallback path)
 4. IF error -> `reportPath` = md path (fallback), write reportWarnings
 
 ### 3.6d — Write results to MILESTONE_COMPLETE.md
+
 Add to MILESTONE_COMPLETE.md (Step 4):
+
 ```
 ## Management Report
 - {reportPath ? "Path: " + reportPath : "Could not generate report (see warnings)"}
@@ -146,48 +171,67 @@ Add to MILESTONE_COMPLETE.md (Step 4):
 ---
 
 ## Step 4: Summary report
+
 Read ALL `phase-*/reports/CODE_REPORT_TASK_*.md` → compile features.
 
 Write `.planning/milestones/[version]/MILESTONE_COMPLETE.md`:
+
 ```markdown
 # Milestone Complete
+
 > Version: v[x.x] | Name: [name] | Date: [DD_MM_YYYY]
 
 ## Summary
+
 - Tasks: [X] completed | Bugs: [Y] found, [Z] fixed
 
 ## Implemented Features
+
 ### [Feature 1]
+
 - Description | API | Files
 
 ## API / Smart Contracts / WordPress / Flutter Summary
+
 (ONLY sections with data)
 
 ## Fixed Bugs
+
 | # | Description | Root Cause | Report File |
 
 ## Goal-backward verification
+
 | Phase | Truths | Passed | Notes |
 
 ## Cross-phase integration
+
 | Link | Status | Notes |
 
 ## Technical Debt (if any)
 ```
+
 > Write product-oriented — see @references/ui-brand.md → "Milestone summary"
 
 ## Step 5: CHANGELOG.md
+
 Create/update `.planning/CHANGELOG.md` (newest on top — prepend after `# Changelog`):
+
 ```markdown
 ## [x.x] - DD_MM_YYYY
+
 ### Added
+
 ### Changed
+
 ### Fixed
+
 - [Bug]: [root cause] → [fix]
 ```
+
 > CHANGELOG written product-oriented — see @references/ui-brand.md
 
 ## Step 6: Update ROADMAP.md
+
 Current milestone: `Status: 🔄` → `Status: ✅`
 
 ## Step 6.5: Update REQUIREMENTS.md + STATE.md + PROJECT.md
@@ -195,22 +239,27 @@ Current milestone: `Status: 🔄` → `Status: ✅`
 **REQUIREMENTS.md** (if exists): `Pending`/`In progress` → `Completed` for requirements in this milestone. Update statistics.
 
 **STATE.md** (if exists): see @templates/state.md → "Update rules" — close milestone
+
 - Status → `Milestone v[X.Y] completed`
 - Last activity → `[DD_MM_YYYY] — Completed milestone v[X.Y]`
 
 **PROJECT.md** (if exists):
+
 - Add row to "Milestone History" table: `| v[X.Y] | [Name] | [DD_MM_YYYY] | [Summary] |`
 - Ask: "Any lessons learned?" → add if provided
 - Update `> Updated: [DD_MM_YYYY]`
 
 ## Step 7: Update CURRENT_MILESTONE.md
+
 See @templates/current-milestone.md → "Update rules" — close milestone
 
 Read ROADMAP.md → next milestone (⬜/🔄, smallest version not yet completed). Compare semver (split major.minor into numbers). FIRST phase.
 
 Has next milestone:
+
 ```markdown
 # Current Milestone
+
 - milestone: [next name]
 - version: [next version]
 - phase: [first phase]
@@ -218,8 +267,10 @@ Has next milestone:
 ```
 
 No more milestones:
+
 ```markdown
 # Current Milestone
+
 - milestone: All completed
 - version: [last version]
 - phase: -
@@ -227,11 +278,13 @@ No more milestones:
 ```
 
 ## Step 8: Update project version
+
 - `VERSION` at root → `[x.y]`
 - `package.json` → `"version": "[x.y].0"`
 - No file → skip
 
 ## Step 9: Git commit + tag (ONLY if HAS_GIT = true)
+
 See @references/conventions.md → commit prefix `[VERSION]`
 
 ```bash
@@ -252,6 +305,7 @@ Bugs fixed: [...]"
 ```
 
 ## Step 10: Notification
+
 - Summarize milestone + features + bugs fixed
 - Git tag created
 - Ask push: `git push origin v[x.x]`
