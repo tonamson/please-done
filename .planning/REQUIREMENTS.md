@@ -18,7 +18,7 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 
 ### Quality & Observability
 
-- [ ] **STALE-01**: Codebase mapper auto-detects staleness via git commit-delta (>20 commits since last map) and prompts refresh; maps store `Mapped at commit: [sha]`
+- [x] **STALE-01**: Codebase mapper auto-detects staleness via git commit-delta (>20 commits since last map) and prompts refresh; maps store `Mapped at commit: [sha]`
 - [ ] **INTEG-01**: Integration tests verify format contracts between skill chain artifacts (CONTEXT.md, TASKS.md, PROGRESS.md schemas) — not agent execution tests
 - [ ] **LOG-01**: Agent errors are logged as JSONL at `.planning/logs/agent-errors.jsonl` with fields: timestamp, level, phase, step, agent, error, context
 
@@ -44,7 +44,7 @@ Requirements for implementing all 9 improvement proposals from de_xuat_cai_tien.
 |-------------|-------|---------|
 | LINT-01     | TBD   | Complete |
 | STATUS-01   | TBD   | Complete |
-| STALE-01    | TBD   | pending |
+| STALE-01    | TBD   | Complete |
 | ONBOARD-01  | TBD   | pending |
 | LOG-01      | TBD   | pending |
 | INTEG-01    | TBD   | pending |

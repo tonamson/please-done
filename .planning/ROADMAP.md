@@ -365,10 +365,10 @@ Plans:
 3. The warning message names the exact commit count and prompts the user to re-run `pd:scan` before continuing
 4. Projects with no prior `META.json` or no git history skip the check without error
 
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
-- [ ] 77-03-PLAN.md — Wave 0: test scaffold (smoke-codebase-staleness.test.js)
+- [x] 77-03-PLAN.md — Wave 0: test scaffold (smoke-codebase-staleness.test.js)
 - [ ] 77-01-PLAN.md — META.json write step in pd-codebase-mapper.md
 - [ ] 77-02-PLAN.md — Step 0 staleness check in scan.md
 
