@@ -37,6 +37,19 @@ Scan the entire codebase to create a structure map (modules, files, dependencies
    - `TECH_STACK.md` — detected tech stack
    - `ENTRY_POINTS.md` — main entry points
    - `DEPENDENCIES.md` — internal dependency graph
+
+6. **Write META.json.** Record the current git commit SHA for staleness detection:
+   - Run `git rev-parse HEAD 2>/dev/null` — if the command fails (no git repo), skip this step entirely. Do NOT write META.json without a valid SHA.
+   - If the command succeeds, write `.planning/codebase/META.json`:
+     ```json
+     {
+       "schema_version": 1,
+       "mapped_at_commit": "<output of git rev-parse HEAD>",
+       "mapped_at": "<current ISO-8601 timestamp>"
+     }
+     ```
+   - The `mapped_at_commit` value MUST be the full 40-character SHA hex string.
+   - The `mapped_at` value MUST be an ISO-8601 timestamp (e.g., `2026-04-02T10:00:00.000Z`).
 </process>
 
 <rules>
