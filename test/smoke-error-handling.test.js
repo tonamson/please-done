@@ -7,8 +7,22 @@ const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
 
-// Files that were targeted for error handling fixes (D-09)
+// Files targeted for error handling fixes (D-09) — checked for bare catch blocks.
+// Includes bin/plan-check.js and bin/lib/utils.js added in Phase 87 (TEST-02).
 const TARGET_FILES = [
+  'bin/lib/manifest.js',
+  'bin/lib/installers/claude.js',
+  'bin/lib/installers/gemini.js',
+  'bin/plan-check.js',
+  'bin/lib/utils.js',
+];
+
+// Files that use the log module for catch-block error reporting.
+// bin/plan-check.js and bin/lib/utils.js are intentionally excluded here:
+// they are CLI/utility scripts that use the PD_DEBUG pattern (console.error)
+// instead of the log module — this is by design per Phase 86 decisions D-01/D-03.
+// They are verified for bare-catch absence in the loop above.
+const LOG_TARGET_FILES = [
   'bin/lib/manifest.js',
   'bin/lib/installers/claude.js',
   'bin/lib/installers/gemini.js',
@@ -28,23 +42,37 @@ describe('Error handling — no silent catches (D-09)', () => {
       const bareMatches = content.match(bareCatch) || [];
       const ignoreMatches = content.match(ignoreCatch) || [];
 
-      assert.equal(bareMatches.length, 0,
-        `${relPath} has ${bareMatches.length} bare catch {} block(s)`);
-      assert.equal(ignoreMatches.length, 0,
-        `${relPath} has ${ignoreMatches.length} catch { /* ignore */ } block(s)`);
+      assert.equal(
+        bareMatches.length,
+        0,
+        `${relPath} has ${bareMatches.length} bare catch {} block(s)`,
+      );
+      assert.equal(
+        ignoreMatches.length,
+        0,
+        `${relPath} has ${ignoreMatches.length} catch { /* ignore */ } block(s)`,
+      );
     });
+  }
+
+  for (const relPath of LOG_TARGET_FILES) {
+    const absPath = path.join(ROOT, relPath);
 
     it(`${relPath} uses log.warn() in all catch blocks`, () => {
       const content = fs.readFileSync(absPath, 'utf8');
       // Find all catch blocks with a variable (err) — these should have logging
-      const catchBlocks = content.match(/catch\s*\((\w+)\)\s*\{[^}]*\}/g) || [];
+      const catchBlocks =
+        content.match(/catch\s*\((\w+)\)\s*\{[^}]*\}/g) || [];
 
       for (const block of catchBlocks) {
-        const hasLogging = block.includes('log.warn') || block.includes('throw');
+        const hasLogging =
+          block.includes('log.warn') || block.includes('throw');
         // Allow: catch blocks that call exec() as fallback (claude.js pip3/uv venv)
         const hasFallback = block.includes('exec(');
-        assert.ok(hasLogging || hasFallback,
-          `catch block in ${relPath} has no log.warn/throw/fallback:\n${block.slice(0, 200)}`);
+        assert.ok(
+          hasLogging || hasFallback,
+          `catch block in ${relPath} has no log.warn/throw/fallback:\n${block.slice(0, 200)}`,
+        );
       }
     });
   }
