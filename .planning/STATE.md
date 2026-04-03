@@ -4,12 +4,12 @@ milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening — [archived]
 status: Ready to plan
 stopped_at: Completed 84-01-PLAN.md
-last_updated: "2026-04-03T09:46:42.687Z"
+last_updated: "2026-04-03T13:27:18.760Z"
 progress:
-  total_phases: 69
-  completed_phases: 59
-  total_plans: 114
-  completed_plans: 114
+  total_phases: 70
+  completed_phases: 60
+  total_plans: 115
+  completed_plans: 115
 ---
 
 # Project State
@@ -19,7 +19,7 @@ progress:
 See: .planning/PROJECT.md (updated 2026-04-03)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
-**Current focus:** Phase 84 — documentation-version-consistency
+**Current focus:** Phase 85 — language-content-cleanup
 
 ## Current Position
 
