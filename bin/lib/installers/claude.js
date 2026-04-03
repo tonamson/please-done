@@ -31,10 +31,7 @@ async function install(skillsDir, targetDir, options = {}) {
   log.step(1, TOTAL_STEPS, "Checking prerequisites...");
 
   if (!commandExists("claude")) {
-    log.error(
-      "Claude Code CLI not installed. Install first: https://claude.ai/download",
-    );
-    process.exit(1);
+    throw new Error("Claude Code CLI not installed. Install first: https://claude.ai/download");
   }
   log.success("Claude Code CLI");
 
@@ -44,8 +41,7 @@ async function install(skillsDir, targetDir, options = {}) {
   else if (commandExists("python")) pythonCmd = "python";
 
   if (!pythonCmd) {
-    log.error("Python not installed. Requires Python 3.12+");
-    process.exit(1);
+    throw new Error("Python not installed. Requires Python 3.12+");
   }
 
   const pyVersion = exec(`${pythonCmd} --version`, {
@@ -53,8 +49,7 @@ async function install(skillsDir, targetDir, options = {}) {
   }).replace("Python ", "");
   const [pyMajor, pyMinor] = pyVersion.split(".").map(Number);
   if (pyMajor < 3 || (pyMajor === 3 && pyMinor < 12)) {
-    log.error(`Python 3.12+ required (currently ${pyVersion})`);
-    process.exit(1);
+    throw new Error(`Python 3.12+ required (currently ${pyVersion})`);
   }
   log.success(`Python ${pyVersion} (${pythonCmd})`);
 
@@ -82,8 +77,7 @@ async function install(skillsDir, targetDir, options = {}) {
   log.success("uv package manager");
 
   if (!commandExists("git")) {
-    log.error("Git not installed.");
-    process.exit(1);
+    throw new Error("Git not installed.");
   }
   log.success("Git");
 
@@ -97,8 +91,7 @@ async function install(skillsDir, targetDir, options = {}) {
 
   const mcpServerPath = path.join(fastcodeDir, "mcp_server.py");
   if (!fs.existsSync(mcpServerPath)) {
-    log.error("FastCode submodule missing. Run: git submodule update --init");
-    process.exit(1);
+    throw new Error("FastCode submodule missing. Run: git submodule update --init");
   }
   log.success("FastCode source ready");
 
@@ -330,9 +323,7 @@ async function promptGeminiKey(envFile) {
   rl.close();
 
   if (!key) {
-    log.error("Gemini API Key not entered! FastCode MCP requires this key.");
-    log.error("Re-run the installer when you have a key.");
-    process.exit(1);
+    throw new Error("Gemini API Key not entered! FastCode MCP requires this key. Re-run the installer when you have a key.");
   }
 
   // Update .env file
