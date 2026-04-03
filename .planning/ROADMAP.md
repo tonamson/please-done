@@ -409,7 +409,12 @@ Plans:
 3. Every written entry contains all seven required fields: `timestamp`, `level`, `phase`, `step`, `agent`, `error`, `context`
 4. `validateLogEntry()` rejects entries missing required fields — they are never written to disk
 
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 79-03-PLAN.md — RED test stubs for log-schema and log-writer (Wave 1)
+- [ ] 79-01-PLAN.md — Pure-function log schema module bin/lib/log-schema.js (Wave 2)
+- [ ] 79-02-PLAN.md — Thin I/O wrapper bin/log-writer.js (Wave 3)
 
 ---
 
