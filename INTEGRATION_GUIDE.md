@@ -110,6 +110,50 @@ Skills (`commands/pd/*.md`) call workflows (`workflows/*.md`) via the `<executio
 
 Skills define WHAT to do. Workflows define HOW to do it. Rules define WHAT CONVENTIONS to follow.
 
+## Error Logging System
+
+Please Done includes comprehensive error logging for debugging and monitoring.
+
+### Log Files
+
+- Location: `.planning/logs/agent-errors.jsonl`
+- Format: JSONL (JSON Lines)
+- Contains: Timestamp, level, phase, step, agent, error message, and context
+
+### Viewing Logs
+
+```bash
+# View recent errors
+tail -f .planning/logs/agent-errors.jsonl
+
+# Pretty print with jq
+tail -n 20 .planning/logs/agent-errors.jsonl | jq '.'
+
+# Filter errors by skill
+grep '"agent":"pd:fix-bug"' .planning/logs/agent-errors.jsonl | jq '.'
+```
+
+### Log Management
+
+Logs are automatically managed:
+- **Rotation**: Files rotate at 10MB, keeping last 10 rotations
+- **Directory**: Auto-created on first run
+- **Cleanup**: Old entries deleted by age (configurable)
+- **Git**: Log files are git-ignored automatically
+
+See `docs/logging.md` for full API documentation and examples.
+
+### Integration with skills
+
+Skills automatically log errors to the system. Error context helps diagnose issues:
+- **Critical skills** (fix-bug, plan, write-code, test, audit) log rich context
+- **Other skills** log basic error information
+- Errors appear in `/pd:what-next` dashboard
+
+### Disabling logging
+
+Logging is on by default and gracefully degrades if the log directory is unavailable. To fully disable, remove write permissions from `.planning/logs/` or set the directory to read-only.
+
 ***
 
 See [README.md](README.md) for installation and usage. See [docs/commands/](docs/commands/) for individual command documentation.

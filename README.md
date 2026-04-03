@@ -397,6 +397,88 @@ All skills follow security rules in `rules/general.md`:
 
 
 | Rule                          | Description                                                                       |
+
+
+## Error Logging & Debugging
+
+Please Done includes comprehensive error logging to help diagnose issues and monitor skill execution.
+
+### Log Files
+
+- **Location**: `.planning/logs/agent-errors.jsonl`
+- **Format**: JSONL (JSON Lines), one entry per error
+- **Contents**: Timestamp, error level, skill name, phase, step, error message, and rich context
+
+### Viewing Logs
+
+```bash
+# View recent errors
+tail -f .planning/logs/agent-errors.jsonl
+
+# Pretty print with jq
+tail -n 20 .planning/logs/agent-errors.jsonl | jq '.'
+
+# Filter by specific skill
+grep '"agent":"pd:fix-bug"' .planning/logs/agent-errors.jsonl | jq '.'
+
+# Check error statistics by skill
+node -e "const {getErrorStatsByAgent} = require('./bin/lib/log-reader'); console.log(JSON.stringify(getErrorStatsByAgent('./.planning/logs/agent-errors.jsonl', {sinceHours: 24}), null, 2))"
+```
+
+### What Gets Logged
+
+**All errors are automatically logged**, including:
+- Skill execution failures
+- MCP connection issues
+- Build/lint errors
+- Test failures
+- File system errors
+- Missing prerequisites
+
+**Critical skills** (fix-bug, plan, write-code, test, audit) log rich context:
+- fix-bug: bug description, session ID, investigation step, agents invoked
+- plan: phase number, requirements, research status, tasks created
+- write-code: task number, files modified, lint/build status, execution mode
+- test: test type, files, pass/fail counts
+- audit: audit type, scanners used, findings count
+
+### Log Management
+
+Logs are automatically managed:
+- **Rotation**: Files rotate at 10MB, keeping the last 10 rotations
+- **Directory**: Auto-created on first use
+- **Git**: Log files are automatically git-ignored
+- **Cleanup**: Old log entries can be removed by age
+
+See `docs/logging.md` for complete API documentation, examples, and troubleshooting.
+
+### Integration with what-next
+
+The `/pd:what-next` command displays recent errors:
+
+```
+╔══════════════════════════════════════╗
+║      RECENT ERRORS (Last 10)         ║
+╠══════════════════════════════════════╣
+║ Error count by skill:                ║
+║   pd:fix-bug    [N] errors           ║
+║   pd:write-code [N] errors           ║
+║   ...                                 ║
+║                                       ║
+║ Most recent error:                   ║
+║   [timestamp] [skill] [error]        ║
+║   Run `/pd:fix-bug` to investigate   ║
+╚══════════════════════════════════════╝
+```
+
+### Error Recovery
+
+Common errors and recovery steps are documented in `docs/error-recovery.md`, organized by skill with specific error patterns and solutions.
+
+## Security
+
+
+| Rule                          | Description                                                                       |
 | ----------------------------- | --------------------------------------------------------------------------------- |
 | **FORBIDDEN to read/display** | `.env`, `.env.*`, `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`  |
 | **Log key names only**        | When scanning/reporting encounters env variables → log key name, NOT value        |
