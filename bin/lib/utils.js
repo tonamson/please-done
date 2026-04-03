@@ -134,8 +134,12 @@ function assembleMd(frontmatter, body) {
  * SHA256 hash for file content.
  */
 function fileHash(filePath) {
-  const content = fs.readFileSync(filePath);
-  return crypto.createHash("sha256").update(content).digest("hex");
+  try {
+    const content = fs.readFileSync(filePath);
+    return crypto.createHash("sha256").update(content).digest("hex");
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -215,6 +219,7 @@ function extractXmlSection(content, tagName) {
  * Returns unique array in order of appearance.
  */
 function extractReadingRefs(content) {
+  if (content == null) return [];
   const refs = [];
   const seen = new Set();
 
@@ -277,6 +282,7 @@ const CONDITIONAL_LOADING_MAP = {
  * Returns { required: string[], optional: string[] } where strings are 'references/X.md' or 'templates/X.md'.
  */
 function classifyRefs(executionContext) {
+  if (executionContext == null) return { required: [], optional: [] };
   const required = [];
   const optional = [];
 
