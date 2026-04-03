@@ -47,6 +47,28 @@ Glob `.planning/bugs/BUG_*.md` → grep `> Status:` (Unresolved/In progress) + `
 7. `VERIFICATION_REPORT.md` exists? → `Passed`/`Has gaps`/`Needs manual testing`
 8. **Scan standalone reports**: Glob `.planning/reports/STANDALONE_TEST_REPORT_*.md` → count reports, check for failures → note (Priority 5.7)
 
+## Step 3.5: Display recent errors from logs
+
+Read `.planning/logs/agent-errors.jsonl` → parse last 10 entries via `readJsonlLastN(filePath, 10)` from `bin/lib/log-reader.js` → if errors exist → display error dashboard:
+
+```
+╔══════════════════════════════════════╗
+║      RECENT ERRORS (Last 10)         ║
+╠══════════════════════════════════════╣
+║ Error count by skill:                ║
+║   pd:fix-bug    [N] errors           ║
+║   pd:write-code [N] errors           ║
+║   pd:test       [N] errors           ║
+║   ...                                 ║
+║                                       ║
+║ Most recent error:                   ║
+║   [timestamp] [skill] [error]        ║
+║   Run `/pd:fix-bug` to investigate   ║
+╚══════════════════════════════════════╝
+```
+
+If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (last 24h)"
+
 ## Step 4: Analyze + suggest (1 main action, priority order)
 
 | Priority | Condition                                                | Suggestion                                                                       |
