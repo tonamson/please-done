@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v8.0
 milestone_name: Developer Experience & Quality Hardening
 status: Defining requirements
-stopped_at: Completed 77-03-PLAN.md
-last_updated: "2026-04-03T02:48:10.457Z"
+stopped_at: Completed 77-01-PLAN.md
+last_updated: "2026-04-03T02:49:54.777Z"
 last_activity: 2026-04-02 — Milestone v8.0 started
 progress:
   total_phases: 8
   completed_phases: 1
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -58,6 +58,7 @@ Last activity: 2026-04-02 — Milestone v8.0 started
 | Phase 76 P01 | 10 | 1 tasks | 2 files |
 | Phase 76 P02 | 10m | 2 tasks | 6 files |
 | Phase 77 P03 | 3 | 1 tasks | 1 files |
+| Phase 77 P01 | 2 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,7 @@ Decisions are logged in PROJECT.md Key Decisions table.
 - [Phase 76]: Used Haiku model for pd:status — cheaper model appropriate for read-only dashboard
 - [Phase 76]: pd:status has no next-step suggestions — display-only, pd:what-next handles recommendations
 - [Phase 77]: Wave 0 TDD scaffold: 11 tests intentionally RED for prose contracts, GREEN for fixture suites
+- [Phase 77]: Step 6 in pd-codebase-mapper.md: skip META.json silently when git unavailable; never write null SHA
 
 ### Pending Todos
 
@@ -91,5 +93,5 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-03T02:48:10.453Z
-Stopped at: Completed 77-03-PLAN.md
+Last session: 2026-04-03T02:49:54.771Z
+Stopped at: Completed 77-01-PLAN.md
