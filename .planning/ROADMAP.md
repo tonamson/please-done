@@ -188,7 +188,8 @@ Full details: `.planning/milestones/v6.0-ROADMAP.md`
 
 </details>
 
-### v7.0 Standalone Test Mode (Phases 71-75)
+<details>
+<summary>✅ v7.0 Standalone Test Mode (5 phases, shipped 2026-04-02)</summary>
 
 - [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
 - [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
@@ -312,90 +313,121 @@ Plans:
 Plans:
 - [x] 75-01-PLAN.md — Update all three VALIDATION.md files to nyquist_compliant: true
 
+</details>
+
+---
+
+## v8.0 Developer Experience & Quality Hardening
+
+### Phases
+
+- [ ] **Phase 76: Lint Recovery & Status Dashboard** — 3-strike lint fail recovery + pd:status read-only dashboard
+- [ ] **Phase 77: Codebase Map Staleness Detection** — auto-detect stale maps via git commit-delta
+- [ ] **Phase 78: pd:onboard Skill** — new pd:onboard command for orienting AI to unfamiliar codebases
+- [ ] **Phase 79: Structured Agent Error Logging** — JSONL error log at .planning/logs/agent-errors.jsonl
+- [ ] **Phase 80: Integration Contract Tests** — schema validation tests for cross-skill artifact formats
+
+### Phase Details
+
+#### Phase 76: Lint Recovery & Status Dashboard
+
+**Goal:** Developers can recover from repeated lint failures without manual intervention, and get an instant project status view with a single command.
+
+**Depends on:** Nothing (first v8.0 phase, self-contained workflow changes)
+
+**Requirements:** LINT-01, STATUS-01
+
+**Success Criteria** (what must be TRUE):
+1. After 3 consecutive lint failures in `write-code.md`, `lint_fail_count: 3` and `last_lint_error` are saved to PROGRESS.md
+2. When `lint_fail_count >= 3`, resuming `write-code.md` offers a lint-only mode that skips code re-generation and re-runs lint directly
+3. After the 3rd failure the workflow surfaces a `pd:fix-bug` suggestion so the user has a clear recovery path
+4. `pd:status` prints a read-only 8–12 line dashboard (milestone, phase, plan, task counts, blockers) using the Haiku model and makes zero writes to any planning file
+
+**Plans:** 2 plans
+
+Plans:
+- [ ] 76-01-PLAN.md — Lint failure tracking (write-code.md Step 5 counter + Step 1.1 recovery + progress.md template)
+- [ ] 76-02-PLAN.md — pd:status skill (commands/pd/status.md + workflows/status.md dashboard)
+
+---
+
+#### Phase 77: Codebase Map Staleness Detection
+
+**Goal:** Developers are always warned before using a stale codebase map, so code generation never silently reads outdated structure data.
+
+**Depends on:** Nothing (workflow-only change, no code dependency)
+
+**Requirements:** STALE-01
+
+**Success Criteria** (what must be TRUE):
+1. After every `pd-codebase-mapper` run, a `META.json` file is written alongside the map containing a `mapped_at_commit` SHA field
+2. `scan.md` Step 0 reads `META.json`, runs `git log --oneline <sha>..HEAD`, and emits a warning when commit-delta exceeds 20
+3. The warning message names the exact commit count and prompts the user to re-run `pd:scan` before continuing
+4. Projects with no prior `META.json` or no git history skip the check without error
+
+**Plans:** TBD
+
+---
+
+#### Phase 78: pd:onboard Skill
+
+**Goal:** A developer joining an unfamiliar codebase can orient the AI assistant with a single command, producing a ready-to-use `.planning/` directory without manual setup.
+
+**Depends on:** Phase 77 (onboard calls scan internally; scan now performs the staleness check from Phase 77)
+
+**Requirements:** ONBOARD-01
+
+**Success Criteria** (what must be TRUE):
+1. `pd:onboard` invokes `pd:init` and `pd:scan` internally in sequence with no manual steps between them
+2. The skill generates a `PROJECT.md` baseline populated from git history analysis (top-level summary, existing modules detected, no milestone assumed)
+3. After `pd:onboard` completes, the `.planning/` directory is in a state ready for `pd:plan` — all prerequisite files exist
+
+**Plans:** TBD
+
+**UI hint**: no
+
+---
+
+#### Phase 79: Structured Agent Error Logging
+
+**Goal:** Every agent error produces a machine-readable JSONL record so failures can be queried, aggregated, and fed into future tooling (REPLAY-01, v9.0).
+
+**Depends on:** Nothing (new pure module + I/O wrapper, no upstream dependency)
+
+**Requirements:** LOG-01
+
+**Success Criteria** (what must be TRUE):
+1. `bin/lib/log-schema.js` exports `createLogEntry()` and `validateLogEntry()` as pure functions with zero `require('fs')` calls
+2. `bin/log-writer.js` appends validated JSONL entries to `.planning/logs/agent-errors.jsonl` on each error event
+3. Every written entry contains all seven required fields: `timestamp`, `level`, `phase`, `step`, `agent`, `error`, `context`
+4. `validateLogEntry()` rejects entries missing required fields — they are never written to disk
+
+**Plans:** TBD
+
+---
+
+#### Phase 80: Integration Contract Tests
+
+**Goal:** Format-contract violations between skills are caught automatically in CI before they can silently break downstream workflows.
+
+**Depends on:** Phases 76–79 (tests validate artifacts produced by all v8.0 phases)
+
+**Requirements:** INTEG-01
+
+**Success Criteria** (what must be TRUE):
+1. `test/integration-contracts.test.js` runs with `node --test` and zero external dependencies (no LLM calls, no live filesystem writes)
+2. The test suite validates required field presence and shape for CONTEXT.md, TASKS.md, and PROGRESS.md fixture files
+3. The suite includes at least one contract test covering each new v8.0 artifact (PROGRESS.md lint fields, META.json, agent-errors.jsonl schema)
+4. All contract tests pass cleanly; a deliberately malformed fixture triggers a test failure
+
+**Plans:** TBD
+
 ---
 
 ## Backlog
 
 > Parking lot for unsequenced improvement ideas. Use `/gsd-discuss-phase 999.x` to explore any item.
 > Use `/gsd-review-backlog` to promote to active milestone.
-
----
-
-### Phase 999.1: pd:onboard — Join existing projects mid-stream (BACKLOG)
-
-**Goal:** New skill `pd:onboard` for developers joining an existing codebase that never used please-done. Scans git history → generates "v0 Existing Codebase" milestone summary → PROJECT.md with pre-existing code context.
-**Priority:** P1-1 (from de_xuat_cai_tien.md)
-**Effort:** ~1 phase (4-6h)
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promote with /gsd-review-backlog when ready)
-
----
-
-### Phase 999.2: Codebase mapper staleness detection (BACKLOG)
-
-**Goal:** `scan.md` detects when `.planning/codebase/STRUCTURE.md` is stale (>20% module count drift vs current codebase, or N commits since last map) → warns and offers re-map.
-**Priority:** P1-2 (from de_xuat_cai_tien.md)
-**Effort:** ~2-3h
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD
-
----
-
-### Phase 999.3: 3-strike lint failure recovery path (BACKLOG)
-
-**Goal:** When `write-code.md` hits 3 consecutive lint/build failures → save `lint_fail_count: 3` + last error to PROGRESS.md → suggest `pd:fix-bug` → support resume-mode that skips re-writing code and only re-runs lint.
-**Priority:** P1-3 (from de_xuat_cai_tien.md)
-**Effort:** ~1-2h
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD
-
----
-
-### Phase 999.4: Integration tests for skill chain (BACKLOG)
-
-**Goal:** `test/integration-workflow.test.js` — verifies contract files (CONTEXT.md, CURRENT_MILESTONE.md, TASKS.md) format across skill boundaries. Tests output of skill A is correctly read by skill B. Priority: init→scan→plan→write-code chain.
-**Priority:** P1-5 (from de_xuat_cai_tien.md)
-**Effort:** ~1 phase (6-8h)
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD
-
----
-
-### Phase 999.5: pd:status dashboard skill (BACKLOG)
-
-**Goal:** Lightweight `pd:status` skill (Haiku) — shows milestone/phase/task counts/bugs/version in 5-10 lines. No analysis, no suggestions. Offloads the "quick status check" use case from `pd:what-next`.
-**Priority:** P2-2 (from de_xuat_cai_tien.md)
-**Effort:** ~1-2h
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD
-
----
-
-### Phase 999.6: Agent error structured logging (BACKLOG)
-
-**Goal:** Add `status: success|partial|failed`, `confidence: HIGH|MEDIUM|LOW`, `error: "desc"` fields to all pd-* agent YAML frontmatter. Update `pd-fix-architect` to aggregate from structured format. Add `pd:what-next` scan for repeated agent failure patterns.
-**Priority:** P2-4 (from de_xuat_cai_tien.md)
-**Effort:** ~3-4h
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD
 
 ---
 
