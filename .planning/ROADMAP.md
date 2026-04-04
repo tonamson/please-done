@@ -398,7 +398,7 @@ Full details: `.planning/milestones/v10.0-ROADMAP.md`
 
 ---
 
-### Phase 95: LINT-01 — Lint Failure Tracking
+### Phase 95: LINT-01 — Lint Failure Tracking 📝 Planned
 
 **Goal:** Implement lint_fail_count tracking in PROGRESS.md.
 
@@ -411,6 +411,15 @@ Full details: `.planning/milestones/v10.0-ROADMAP.md`
 4. Counter resets on successful lint
 
 **Plan 95.1:** Implement lint failure tracking system
+
+**Status**: 📝 **PLANNED** — Ready for execution
+
+**Files**:
+- `95-CONTEXT.md` — Context gathered with API design decisions
+- `95-PLAN.md` — 8 tasks defined with execution order
+- `95-DISCUSSION-LOG.md` — Discussion history
+
+**Next Step**: Execute with `/gsd:execute-phase 95`
 
 ---
 
@@ -426,7 +435,15 @@ Full details: `.planning/milestones/v10.0-ROADMAP.md`
 3. Status dashboard shows lint failure count
 4. Soft guard implementation (guides, doesn't block)
 
-**Plan 96.1:** Implement recovery workflow and UI enhancements
+**Plan 96.1:** Implement recovery workflow and UI enhancements — **PLANNED**
+
+**Status**: 📝 **PLANNED** — Ready for execution
+
+**Files**:
+- `96-CONTEXT.md` — Context gathered with recovery workflow decisions
+- `96-PLAN.md` — 6 tasks covering 3-strike logic, resume-only-lint, status dashboard, soft guard
+
+**Next Step**: Execute with `/gsd:execute-phase 96`
 
 ---
 
