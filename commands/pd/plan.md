@@ -84,3 +84,17 @@ Execute @workflows/plan.md from start to finish.
 - DO NOT write source code during the planning step, only design and task breakdown.
 - The research section MUST check existing libraries before proposing any new dependency.
 </rules>
+
+<script type="error-handler">
+const { createPlanErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+
+// Create error handler for plan skill
+const errorHandler = createPlanErrorHandler('$CURRENT_PHASE', {
+  phaseNumber: typeof $ARGUMENTS !== 'undefined' ? $ARGUMENTS : 'unknown',
+  requirements: [],
+  researchComplete: false
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

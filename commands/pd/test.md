@@ -106,3 +106,18 @@ Execute @workflows/test.md from start to finish.
 - You MUST run the tests and confirm they pass before committing.
 - You MUST ask the user for confirmation before finishing.
 </rules>
+
+<script type="error-handler">
+const { createTestErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+
+// Create error handler for test skill
+const errorHandler = createTestErrorHandler('$CURRENT_PHASE', {
+  testType: 'standard',
+  testFiles: [],
+  testsRun: 0,
+  testsPassed: 0
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

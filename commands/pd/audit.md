@@ -66,3 +66,18 @@ Execute @workflows/audit.md from start to finish. Pass $ARGUMENTS to the workflo
 - When `--poc` is passed: pass the `--poc` flag to the scanner in the B5 dispatch prompt.
 - When `--auto-fix` is passed: report "Not supported in this version yet" and continue.
 </rules>
+
+<script type="error-handler">
+const { createAuditErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+
+// Create error handler for audit skill
+const errorHandler = createAuditErrorHandler('$CURRENT_PHASE', {
+  auditType: 'security',
+  scannersUsed: [],
+  findingsCount: 0,
+  sessionDelta: null
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

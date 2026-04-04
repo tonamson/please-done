@@ -78,3 +78,17 @@ Execute @workflows/fix-bug.md from start to finish.
 - You MUST repeat the loop until the user confirms success.
 - You MUST NOT change code unrelated to the bug.
 </rules>
+
+<script type="error-handler">
+const { createFixBugErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+
+// Create error handler for fix-bug skill
+const errorHandler = createFixBugErrorHandler('$CURRENT_PHASE', {
+  bugDescription: typeof $ARGUMENTS !== 'undefined' ? $ARGUMENTS : 'unknown',
+  sessionId: new Date().toISOString(),
+  currentStep: 'initialization'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>
