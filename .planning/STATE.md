@@ -30,6 +30,7 @@ v11.0 — In Progress (Phase 91: STATUS-02 — Status Dashboard Polish)
 
 - **Phases:** 88–102 (15 phases)
 - **Requirements:** ONBOARD-01, STATUS-01, LINT-01, STALE-01, INTEG-01, LOG-01 (6 requirements)
+  - ✅ STATUS-01: Status dashboard + workflow integration (Phases 90-91)
 - **Tests:** 1289 passing, 0 regressions (+57 new tests in Phase 89)
 - **Key features:**
   - ✅ Agent error logging (structured JSONL)
@@ -155,6 +156,35 @@ None.
 ### Blockers/Concerns
 
 None.
+
+## Current Capabilities
+
+### Available Skills
+
+| Skill | Prerequisites | Description |
+|-------|--------------|-------------|
+| `pd:init` | None | Initialize new project with GSD workflow |
+| `pd:scan` | None | Analyze codebase and create PROJECT.md |
+| `pd:plan` | PROJECT.md | Create PLAN.md with tasks |
+| `pd:write-code` | PLAN.md, TASKS.md | Execute plan tasks |
+| `pd:test` | Code written | Run test suite |
+| `pd:fix-bug` | Tests failing | Debug and fix issues |
+| `pd:complete-milestone` | All phases complete | Archive milestone |
+| `pd:status` | **None** | Read-only status dashboard with auto-refresh (Phase 90-91) |
+| `pd:research` | Internal/external context | Research squad pipeline |
+| `pd:audit` | Codebase | Security audit with OWASP |
+
+### State Machine Transitions
+
+```
+idle → pd:status (read-only, no state change)
+idle → pd:init → planning → pd:plan → ready → pd:write-code → executing → ...
+```
+
+**Notes:**
+- `pd:status` can run anytime — no blocking dependencies
+- `pd:status` is read-only and never modifies state
+- When idle for >10 minutes, what-next suggests `pd:status`
 
 ## Session Continuity
 

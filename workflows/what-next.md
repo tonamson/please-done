@@ -85,6 +85,12 @@ If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (
 | 7        | Phase complete, more phases ahead                        | `/pd:plan [y.y]`                                                                 |
 | 7.5      | All phases ✅ + no `.planning/audit/SECURITY_REPORT.md`  | `/pd:audit` — "No security audit yet. Run `/pd:audit` before closing milestone." |
 | 8        | All phases completed                                     | `/pd:complete-milestone`                                                         |
+| 9        | No active task/progress for >10 minutes (idle)           | `/pd:status` — "Check current status with auto-refresh"                            |
+
+**Idle Detection Logic:**
+- Check STATE.md `last_updated` timestamp vs current time
+- If >10 minutes elapsed and no tasks in progress (no 🔄 tasks) → idle state
+- Suggest `/pd:status` with optional `--auto-refresh` flag
 
 ## Step 5: Display report
 
@@ -105,6 +111,24 @@ If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (
 ```
 
 Missing SCAN_REPORT → secondary suggestion `/pd:scan`
+
+**Status Suggestion Example (when idle):**
+```
+╔══════════════════════════════════════╗
+║         IDLE DETECTED                ║
+╠══════════════════════════════════════╣
+║ No activity for 12 minutes           ║
+║                                       ║
+║ Quick status check:                 ║
+║   /pd:status                        ║
+║                                       ║
+║ With auto-refresh (stale data alert): ║
+║   /pd:status --auto-refresh         ║
+║                                       ║
+║ Set custom threshold (minutes):       ║
+║   /pd:status --refresh-threshold=5  ║
+╚══════════════════════════════════════╝
+```
 
 ## Step 6: Check Skills version
 
