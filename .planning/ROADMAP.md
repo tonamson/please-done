@@ -129,13 +129,13 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 1. 16 files `docs/skills/*.vi.md`
 2. Index `docs/skills/index.vi.md`
 3. Cấu trúc giống bản gốc
-**Plans:** 4 plans | 4 waves
+**Plans:** 4/4 plans complete
 
 **Plan List:**
-- [ ] 110-01-PLAN.md — Translate index, onboard, init, scan (Wave 1: Core Skills)
-- [ ] 110-02-PLAN.md — Translate plan, write-code, test, new-milestone (Wave 2: Project Skills)
-- [ ] 110-03-PLAN.md — Translate fix-bug, complete-milestone, audit, research (Wave 3: Debug + Complete)
-- [ ] 110-04-PLAN.md — Translate what-next, status, conventions, fetch-doc, update (Wave 4: Utility Skills)
+- [x] 110-01-PLAN.md — Translate index, onboard, init, scan (Wave 1: Core Skills)
+- [x] 110-02-PLAN.md — Translate plan, write-code, test, new-milestone (Wave 2: Project Skills)
+- [x] 110-03-PLAN.md — Translate fix-bug, complete-milestone, audit, research (Wave 3: Debug + Complete)
+- [x] 110-04-PLAN.md — Translate what-next, status, conventions, fetch-doc, update (Wave 4: Utility Skills)
 
 ### Phase 111: I18N-06 — Error Troubleshooting Tiếng Việt
 **Goal:** Dịch error troubleshooting guide.
