@@ -3,6 +3,9 @@
 
 ---
 
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](CLAUDE.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](CLAUDE.vi.md)
+
 ## Common Workflows
 
 This section provides practical workflow examples showing how to use PD commands in real-world scenarios. Each workflow includes context, command sequence, step-by-step instructions, and decision points for handling common situations.
