@@ -1,5 +1,8 @@
 # Please Done Command Cheat Sheet
 
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](cheatsheet.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](cheatsheet.vi.md)
+
 Quick reference for all 16 Please Done (PD) commands. Each command follows the `/pd:command` syntax with optional flags and arguments.
 
 ## How to Read This Cheat Sheet
