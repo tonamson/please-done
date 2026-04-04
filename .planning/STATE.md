@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v10.0
 milestone_name: Skill Repo Audit Fixes — [archived]
-status: executing
+status: planning
 stopped_at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
-last_updated: "2026-04-04T14:42:29.653Z"
+last_updated: "2026-04-04T14:46:47.349Z"
 progress:
   total_phases: 75
-  completed_phases: 73
+  completed_phases: 74
   total_plans: 131
-  completed_plans: 131
+  completed_plans: 132
 ---
 
 # Project State
@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 96 (lint-01-recovery-workflow-ui) — EXECUTING
+Phase: 96
 Plan: 1 of 1
 Summary: 96-SUMMARY.md
 Next: Phase 97 ready for planning (STALE-01 — Staleness Detection Core)
@@ -345,7 +345,7 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 - **Files created:** Reused existing `test/smoke/onboard-smoke.test.js`
 - **Files modified:** 8 snapshot files (regenerated)
 - **Tests:** 49 tests passing (37 integration + 12 smoke)
-- **Status:** Executing Phase 95
+- **Status:** Ready to plan
 
 **Tasks Completed:**
 
