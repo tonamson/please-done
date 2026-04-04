@@ -275,3 +275,15 @@ Spawn pd-sec-fixer agent to analyze findings and create fix phase proposals.
 - Previous wave MUST complete before starting next wave — follow backpressure
 - Failed scanner writes inconclusive, does not stop the entire audit
 </rules>
+<script type="error-handler">
+const { createAuditErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+// Create error handler for audit skill
+const errorHandler = createAuditErrorHandler('$CURRENT_PHASE', {
+  auditType: 'security',
+  scannersUsed: [],
+  findingsCount: 0,
+  sessionDelta: null
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

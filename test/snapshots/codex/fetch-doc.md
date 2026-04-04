@@ -115,3 +115,12 @@ Create `.planning/docs/[name].md`:
 - Maximum 10 pages, and fetch only technical pages on the same domain
 - Preserve code examples exactly
 </rules>
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+// Create error handler for fetch-doc skill
+const errorHandler = createBasicErrorHandler('pd:fetch-doc', '$CURRENT_PHASE', {
+  operation: 'fetch-doc'
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

@@ -448,3 +448,15 @@ STOP after each task:
 - Anti-analysis-paralysis: read 5+ times without writing → STOP, write or report blocked
 **Recovery (PROGRESS.md):** create on start, update per file, delete after commit. Task 🔄 with PROGRESS → check disk+git, keep good code, only write missing. No PROGRESS → Step 2.
 </rules>
+<script type="error-handler">
+const { createWriteCodeErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+// Create error handler for write-code skill
+const errorHandler = createWriteCodeErrorHandler('$CURRENT_PHASE', {
+  taskNumber: typeof {{GSD_ARGS}} !== 'undefined' ? {{GSD_ARGS}} : 'unknown',
+  filesModified: [],
+  lintPassed: null,
+  buildPassed: null
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

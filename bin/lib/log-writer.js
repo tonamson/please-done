@@ -3,13 +3,29 @@
  * @module log-writer
  */
 
-import { appendFileSync } from 'fs';
+import { appendFileSync, mkdirSync, existsSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = join(__dirname, '../..');
 const LOGS_DIR = join(PROJECT_ROOT, '.planning/logs');
+
+/**
+ * Ensures the logs directory exists
+ * @returns {boolean} - True if directory exists or was created
+ */
+function ensureLogDirectory() {
+  try {
+    if (!existsSync(LOGS_DIR)) {
+      mkdirSync(LOGS_DIR, { recursive: true });
+    }
+    return true;
+  } catch (err) {
+    console.error('[log-writer] Failed to create logs directory:', err.message);
+    return false;
+  }
+}
 
 /**
  * Writes a structured log entry to agent-errors.jsonl
@@ -42,6 +58,12 @@ export function writeLog(entry) {
     error: entry.error,
     context: entry.context || {}
   };
+
+  // Ensure logs directory exists before writing
+  if (!ensureLogDirectory()) {
+    console.error('[log-writer] Entry:', JSON.stringify(logEntry, null, 2));
+    return false;
+  }
 
   try {
     const logLine = JSON.stringify(logEntry) + '\n';

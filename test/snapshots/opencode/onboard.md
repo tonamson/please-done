@@ -216,3 +216,12 @@ Display onboarding result:
 - Date format: DD_MM_YYYY per [SKILLS_DIR]/references/conventions.md
 - Output MUST be in English
 </rules>
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+// Create error handler for onboard skill
+const errorHandler = createBasicErrorHandler('pd:onboard', '$CURRENT_PHASE', {
+  operation: 'onboard'
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

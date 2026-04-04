@@ -28,21 +28,25 @@ test('createFixBugErrorHandler - logs error with rich context', () => {
     currentStep: 'collecting-symptoms'
   });
 
+  const error = new Error('Failed to collect symptoms');
   try {
-    throw new Error('Failed to collect symptoms');
-  } catch (error) {
     handler.handle(error, {
       evidenceCollected: true,
       agentsInvoked: ['janitor', 'detective']
     });
+  } catch (e) {
+    // Error is re-thrown, which is expected
   }
 
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
 
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === 'Failed to collect symptoms');
+  assert.ok(entry, 'Expected log entry for fix-bug error');
   assert.strictEqual(entry.agent, 'pd:fix-bug');
   assert.strictEqual(entry.phase, '89');
-  assert.strictEqual(entry.error, 'Failed to collect symptoms');
   assert.strictEqual(entry.context.bugDescription, 'Login timeout bug');
   assert.strictEqual(entry.context.sessionId, 'S001');
   assert.strictEqual(entry.context.currentStep, 'collecting-symptoms');
@@ -60,18 +64,23 @@ test('createPlanErrorHandler - logs planning errors with context', () => {
     researchComplete: true
   });
 
+  const error = new Error('Failed to create tasks');
   try {
-    throw new Error('Failed to create tasks');
-  } catch (error) {
     handler.handle(error, {
       planningMode: 'auto',
       tasksCreated: 5
     });
+  } catch (e) {
+    // Error is re-thrown, which is expected
   }
 
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
 
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === 'Failed to create tasks');
+  assert.ok(entry, 'Expected log entry for plan error');
   assert.strictEqual(entry.agent, 'pd:plan');
   assert.strictEqual(entry.context.phaseNumber, '89');
   assert.strictEqual(entry.context.requirementsCount, 2);
@@ -90,17 +99,22 @@ test('createWriteCodeErrorHandler - logs code writing errors with context', () =
     buildPassed: true
   });
 
+  const error = new Error('Linting failed due to syntax error');
   try {
-    throw new Error('Linting failed due to syntax error');
-  } catch (error) {
     handler.handle(error, {
       executionMode: 'parallel'
     });
+  } catch (e) {
+    // Error is re-thrown, which is expected
   }
 
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
 
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === 'Linting failed due to syntax error');
+  assert.ok(entry, 'Expected log entry for write-code error');
   assert.strictEqual(entry.agent, 'pd:write-code');
   assert.strictEqual(entry.context.taskNumber, 3);
   assert.strictEqual(entry.context.filesModifiedCount, 2);
@@ -120,17 +134,22 @@ test('createTestErrorHandler - logs testing errors with context', () => {
     testsPassed: 48
   });
 
+  const error = new Error('2 tests failed: auth middleware tests');
   try {
-    throw new Error('2 tests failed: auth middleware tests');
-  } catch (error) {
     handler.handle(error, {
       testRunner: 'jest'
     });
+  } catch (e) {
+    // Error is re-thrown, which is expected
   }
 
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
 
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === '2 tests failed: auth middleware tests');
+  assert.ok(entry, 'Expected log entry for test error');
   assert.strictEqual(entry.agent, 'pd:test');
   assert.strictEqual(entry.context.testType, 'integration');
   assert.strictEqual(entry.context.testFilesCount, 2);
@@ -149,17 +168,22 @@ test('createAuditErrorHandler - logs audit errors with context', () => {
     sessionDelta: { newFindings: 3 }
   });
 
+  const error = new Error('Scanner sql-injection failed to execute');
   try {
-    throw new Error('Scanner sql-injection failed to execute');
-  } catch (error) {
     handler.handle(error, {
       auditMode: 'milestone'
     });
+  } catch (e) {
+    // Error is re-thrown, which is expected
   }
 
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
 
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === 'Scanner sql-injection failed to execute');
+  assert.ok(entry, 'Expected log entry for audit error');
   assert.strictEqual(entry.agent, 'pd:audit');
   assert.strictEqual(entry.context.auditType, 'security');
   assert.strictEqual(entry.context.scannersUsedCount, 3);
@@ -188,8 +212,14 @@ test('Enhanced error handlers - wrap functions and re-throw', async () => {
 
   assert.strictEqual(errorCaught, true);
 
+  // Verify log was written - check for multiple entries due to other tests
   const content = fs.readFileSync(AGENT_ERRORS_LOG, 'utf8');
-  const entry = JSON.parse(content.trim());
-  assert.strictEqual(entry.context.currentStep, 'test-step');
+  const lines = content.trim().split('\n').filter(line => line.trim());
+  const entries = lines.map(line => JSON.parse(line));
+
+  // Find the entry from this test
+  const entry = entries.find(e => e.error === 'Async error in execution');
+  assert.ok(entry, 'Expected log entry for async error');
+  assert.strictEqual(entry.context.step, 'test-step');
   assert.strictEqual(entry.context.bugDescription, 'Test bug');
 });

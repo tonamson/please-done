@@ -37,14 +37,20 @@ function createFixBugErrorHandler(phase, context = {}) {
      * Wrap a function with error handling
      */
     wrap(fn, step = 'execution') {
-      return handler.wrap(fn, step);
+      return async (...args) => {
+        try {
+          return await fn(...args);
+        } catch (error) {
+          this.handle(error, { step, args });
+        }
+      };
     },
 
     /**
      * Execute a function with error handling
      */
     execute(fn, step, ...args) {
-      return handler.execute(fn, step, ...args);
+      return this.wrap(fn, step)(...args);
     }
   };
 }

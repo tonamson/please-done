@@ -427,3 +427,15 @@ Target: [TARGET_PATH]"
 - Uncommitted test files → ask user keep or rewrite.
 - DO NOT overwrite test files/report without asking user.
 </rules>
+<script type="error-handler">
+const { createTestErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+// Create error handler for test skill
+const errorHandler = createTestErrorHandler('$CURRENT_PHASE', {
+  testType: 'standard',
+  testFiles: [],
+  testsRun: 0,
+  testsPassed: 0
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

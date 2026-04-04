@@ -393,3 +393,14 @@ Ask: "Fixed {description}. Please check and confirm."
 - Resuming old session -> read SESSION.md FIRST, do not start over
 - DO NOT let agent spawn agent — only orchestrator (this workflow) spawns agents
 </rules>
+<script type="error-handler">
+const { createFixBugErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+// Create error handler for fix-bug skill
+const errorHandler = createFixBugErrorHandler('$CURRENT_PHASE', {
+  bugDescription: typeof {{GSD_ARGS}} !== 'undefined' ? {{GSD_ARGS}} : 'unknown',
+  sessionId: new Date().toISOString(),
+  currentStep: 'initialization'
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

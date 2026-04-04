@@ -447,3 +447,14 @@ Print plan + tasks summary.
 - ONLY PLAN.md → allow creating TASKS.md from existing PLAN.md
 - Keep as-is → jump to Step 8 for tracking update
 </rules>
+<script type="error-handler">
+const { createPlanErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+// Create error handler for plan skill
+const errorHandler = createPlanErrorHandler('$CURRENT_PHASE', {
+  phaseNumber: typeof $ARGUMENTS !== 'undefined' ? $ARGUMENTS : 'unknown',
+  requirements: [],
+  researchComplete: false
+});
+// Export for skill executor
+module.exports = { errorHandler };
+</script>
