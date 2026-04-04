@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v11.1
 milestone_name: Documentation Improvements
 status: completed
-stopped_at: Phase 104 Plan 01 complete — Workflow Walkthrough Guides
-last_updated: "2026-04-04T22:50:00.000Z"
-last_activity: 2026-04-04 — Phase 104 planned
+stopped_at: Phase 105 COMPLETE — Skill Reference Cards created
+last_updated: "2026-04-04T23:15:00.000Z"
+last_activity: 2026-04-04 — Phase 105 completed with 17 files
 progress:
-  total_phases: 4
-  completed_phases: 4
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 6
+  completed_phases: 6
+  total_plans: 6
+  completed_plans: 6
 ---
 
 # Project State
@@ -23,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 104 (Documentation Improvements)
-Plan: 01 — Workflow Walkthrough Guides
-Status: ✅ COMPLETE — 3 comprehensive workflow guides created
-Last activity: 2026-04-04 — Phase 104 Plan 01 complete
+Phase: 105 (Documentation Improvements)
+Plan: 01 — Skill Reference Cards
+Status: ✅ COMPLETED — All 7 tasks executed
+Last activity: 2026-04-04 — Phase 105 completed with 16 skill reference cards
 
 ## v11.0 Summary
 
@@ -172,6 +172,36 @@ Last activity: 2026-04-04 — Phase 104 Plan 01 complete
   - Legend explaining flag notation
 - **Commits:** 1 commit with cheatsheet documentation
 - **Requirement:** DOC-02 — Command Cheat Sheet ✅
+
+## Phase 105 Complete: DOC-06 — Skill Reference Cards
+
+- **Plan:** 105-PLAN.md (7 tasks)
+- **Goal:** Create quick reference cards for all 16 skills — ✅ COMPLETE
+- **Files created:** 17 files
+  - `docs/skills/onboard.md` — Core skill card (226 words)
+  - `docs/skills/init.md` — Core skill card (225 words)
+  - `docs/skills/scan.md` — Core skill card (209 words)
+  - `docs/skills/plan.md` — Core skill card (226 words)
+  - `docs/skills/new-milestone.md` — Project skill card (211 words)
+  - `docs/skills/write-code.md` — Project skill card (238 words)
+  - `docs/skills/test.md` — Project skill card (203 words)
+  - `docs/skills/fix-bug.md` — Project skill card (209 words)
+  - `docs/skills/complete-milestone.md` — Project skill card (219 words)
+  - `docs/skills/audit.md` — Debug skill card (209 words)
+  - `docs/skills/research.md` — Debug skill card (200 words)
+  - `docs/skills/status.md` — Utility skill card (206 words)
+  - `docs/skills/what-next.md` — Utility skill card (205 words)
+  - `docs/skills/conventions.md` — Utility skill card (206 words)
+  - `docs/skills/fetch-doc.md` — Utility skill card (203 words)
+  - `docs/skills/update.md` — Utility skill card (210 words)
+  - `docs/skills/index.md` — Navigation index (408 words)
+- **Content:**
+  - Consistent 6-section structure for all cards
+  - Each card 200-300 words (concise and scannable)
+  - Cross-references to related skills
+  - Links to full documentation and workflow guides
+- **Requirement:** DOC-06 — Skill Reference Cards ✅
+- **v11.1 Milestone:** All documentation requirements complete (DOC-01 through DOC-06)
 
 ## Deferred Items
 
