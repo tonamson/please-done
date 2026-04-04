@@ -215,6 +215,37 @@ Display onboarding result:
 ╚══════════════════════════════════════╝
 ```
 
+## Step 7: Display Summary
+
+Call `lib/onboard-summary.js` to display formatted summary.
+
+**Implementation:**
+```javascript
+const { generateSummary } = require('./lib/onboard-summary');
+
+const context = {
+  techStack: detectedStack,
+  keyFiles: selectedFiles,
+  sourceDir: projectRoot,
+  fileCount: totalFiles
+};
+
+console.log(generateSummary(context));
+```
+
+**Output:** Display to stdout (not file)
+
+**What this displays:**
+- Tech stack detection results (e.g., "NestJS + TypeScript + Prisma")
+- Key files summary (top files by importance)
+- Source directory path and total file count
+- Next steps for user (/pd:new-milestone, /pd:plan)
+
+**Notes:**
+- Uses the `generateSummary()` function from Task 3
+- Handles edge cases: unknown stack shows "Unknown", no files shows "None detected"
+- Summary is colorized for terminal display (cyan borders)
+
 </process>
 
 <rules>
