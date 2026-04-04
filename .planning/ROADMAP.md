@@ -138,11 +138,15 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 - [x] 110-04-PLAN.md — Translate what-next, status, conventions, fetch-doc, update (Wave 4: Utility Skills)
 
 ### Phase 111: I18N-06 — Error Troubleshooting Tiếng Việt
+**Status:** Planned | **Plans:** 1/1 plans complete
 **Goal:** Dịch error troubleshooting guide.
 **Success Criteria:**
 1. `docs/error-troubleshooting.vi.md`
 2. Dịch error messages và suggested actions
 3. Giữ nguyên commands
+
+**Plans:**
+- [x] 111-01-PLAN.md — Create docs/error-troubleshooting.vi.md with full Vietnamese translation and language switcher
 
 ---
 
