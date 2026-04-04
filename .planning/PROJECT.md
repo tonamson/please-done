@@ -97,6 +97,12 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **TEST-04**: what-next integration — detect standalone test reports and standalone bugs — v7.0 (Phase 74)
 - ✓ **TEST-05**: complete-milestone sync — skip standalone bugs during milestone completion — v7.0 (Phase 74)
 - ✓ **TEST-06**: Recovery path — detect interrupted standalone sessions, resume or rewrite — v7.0 (Phase 75)
+- ✓ **LOG-01**: Agent Error Structured Logging — log-writer.js với structured JSONL, 16 skills wired — v11.0 (Phase 88-89)
+- ✓ **STATUS-01**: Status Dashboard Core — read-only dashboard với auto-refresh, staleness detection — v11.0 (Phase 90-91)
+- ✓ **ONBOARD-01**: Auto-Onboarding Skill — pd:onboard với CONTEXT.md generation, 35 doc mappings — v11.0 (Phase 92-94)
+- ✓ **LINT-01**: Lint Fail Recovery — progress-tracker.js, 3-strike threshold, soft guards — v11.0 (Phase 95-96)
+- ✓ **STALE-01**: Codebase Mapper Staleness — staleness-detector.js với 3-level detection — v11.0 (Phase 97-98)
+- ✓ **INTEG-01**: Integration Contract Tests — contract test foundation cho skill chain — v11.0 (Phase 99)
 
 ### Active (v11.0)
 
