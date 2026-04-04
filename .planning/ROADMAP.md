@@ -23,7 +23,7 @@
 
 ## Progress
 
-17 milestones shipped. 105 phases, 138 plans completed.
+17 milestones shipped. 106 phases, 139 plans completed.
 
 ## Phases
 
@@ -82,13 +82,14 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 
 **Phases:** 6 phases | **Estimated Plans:** 6 plans
 
-### Phase 106: I18N-01 — README Song Ngữ
-**Status:** Planned | **Plans:** 1 plan
+### Phase 106: I18N-01 — README Song Ngữ ✅
+**Status:** Complete | **Plans:** 1 plan
+**Date:** 2026-04-04
 **Goal:** Tạo phiên bản README tiếng Việt song song với bản tiếng Anh.
 **Success Criteria:**
-1. File `README.vi.md` với nội dung đầy đủ
-2. Liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
-3. Giữ nguyên cấu trúc và format
+1. ✅ File `README.vi.md` với nội dung đầy đủ (758 lines)
+2. ✅ Liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
+3. ✅ Giữ nguyên cấu trúc và format
 
 **Plans:**
 - [x] 106-01-PLAN.md — Create README.vi.md with full Vietnamese translation and language switcher
