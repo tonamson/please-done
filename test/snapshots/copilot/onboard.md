@@ -18,6 +18,7 @@ Templates (for creating planning files):
 - @templates/current-milestone.md → CURRENT_MILESTONE.md format
 - @templates/state.md → STATE.md format
 - @templates/requirements.md → REQUIREMENTS.md format
+- @templates/context-template.md → CONTEXT.md format
 </context>
 <process>
 ## Step 1: Guard — check for existing onboard
@@ -174,6 +175,29 @@ Display onboarding result:
 ║   or: /pd:plan (if reqs are set)    ║
 ╚══════════════════════════════════════╝
 ```
+## Step 7: Display Summary
+Call `lib/onboard-summary.js` to display formatted summary.
+**Implementation:**
+```javascript
+const { generateSummary } = require('./lib/onboard-summary');
+const context = {
+  techStack: detectedStack,
+  keyFiles: selectedFiles,
+  sourceDir: projectRoot,
+  fileCount: totalFiles
+};
+console.log(generateSummary(context));
+```
+**Output:** Display to stdout (not file)
+**What this displays:**
+- Tech stack detection results (e.g., "NestJS + TypeScript + Prisma")
+- Key files summary (top files by importance)
+- Source directory path and total file count
+- Next steps for user (/pd:new-milestone, /pd:plan)
+**Notes:**
+- Uses the `generateSummary()` function from Task 3
+- Handles edge cases: unknown stack shows "Unknown", no files shows "None detected"
+- Summary is colorized for terminal display (cyan borders)
 </process>
 <output>
 **Create/Update:**
@@ -212,10 +236,15 @@ Display onboarding result:
 - Output MUST be in English
 </rules>
 <script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for onboard skill
-const errorHandler = createBasicErrorHandler('pd:onboard', '$CURRENT_PHASE', {
-  operation: 'onboard'
+const { createEnhancedErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
+/**
+ * Enhanced error handler for onboard skill
+ * Logs structured errors to .planning/logs/agent-errors.jsonl
+ * Includes git analysis context and stack trace
+ */
+const errorHandler = createEnhancedErrorHandler('pd:onboard', '$CURRENT_PHASE', {
+  operation: 'onboard',
+  contextFields: ['gitAvailable', 'projectPath', 'stepCompleted']
 });
 // Export for skill executor
 module.exports = { errorHandler };
