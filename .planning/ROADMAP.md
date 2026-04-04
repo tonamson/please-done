@@ -95,11 +95,15 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 - [x] 106-01-PLAN.md — Create README.vi.md with full Vietnamese translation and language switcher
 
 ### Phase 107: I18N-02 — CLAUDE.md Song Ngữ
+**Status:** Planned | **Plans:** 1 plan
 **Goal:** Tạo phiên bản CLAUDE.md tiếng Việt.
 **Success Criteria:**
 1. File `CLAUDE.vi.md` với toàn bộ nội dung
 2. Dịch chuẩn xác các thuật ngữ kỹ thuật
 3. Giữ nguyên tất cả ví dụ và workflow
+
+**Plans:**
+- [ ] 107-01-PLAN.md — Create CLAUDE.vi.md with full Vietnamese translation and language switcher
 
 ### Phase 108: I18N-03 — Command Cheat Sheet Tiếng Việt
 **Goal:** Tạo cheat sheet tiếng Việt.
