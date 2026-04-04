@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v11.0
+milestone: v10.0
 milestone_name: Skill Repo Audit Fixes — [archived]
-status: Phase 94 Complete
-stopped_at: Phase 94 complete — onboard workflow integrated and tested
+status: executing
+stopped_at: Completed Phase 93 — Context Generation & Summary
 last_updated: "2026-04-04T14:30:00.000Z"
 progress:
-  total_phases: 68
-  completed_phases: 68
-  total_plans: 125
-  completed_plans: 126
+  total_phases: 72
+  completed_phases: 70
+  total_plans: 128
+  completed_plans: 128
 ---
 
 # Project State
@@ -22,16 +22,16 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 94
-Plan: Planned, ready for execution
-v11.0 — In Progress (Phase 94: ONBOARD-01 — Workflow Integration & Testing)
+Phase: 93 (onboard-01-context) — ✅ COMPLETE
+Plan: 1 of 1 — SUMMARY: 93-SUMMARY.md
+Next: Phase 94 planned, ready for execution
 
 ## v11.0 Summary
 
 - **Phases:** 88–102 (15 phases)
 - **Requirements:** ONBOARD-01, STATUS-01, LINT-01, STALE-01, INTEG-01, LOG-01 (6 requirements)
   - ✅ STATUS-01: Status dashboard + workflow integration (Phases 90-91)
-- **Tests:** 1289 passing, 0 regressions (+57 new tests in Phase 89)
+- **Tests:** 1338 passing, 0 regressions (+49 new tests in Phase 93)
 - **Key features:**
   - ✅ Agent error logging (structured JSONL)
   - ✅ Enhanced error context for critical skills
@@ -131,6 +131,14 @@ v11.0 — In Progress (Phase 94: ONBOARD-01 — Workflow Integration & Testing)
 | v11.0 P88 | 1 plan | 4 tasks | 3 files | ✅ |
 | v11.0 P89 | 1 plan | 10 tasks | 15 files | ✅ |
 | v11.0 P89.1 | 1 gap plan | 4 tasks | 22 files | ✅ |
+| v11.0 P93 | 1 plan | 8 tasks | 8 files | ✅ |
+
+**Phase 93 Stats:**
+
+- Lines of code: ~1,150 (6 files)
+- Test coverage: 49 new tests (37 integration + 12 smoke)
+- Documentation: 300+ lines in SUMMARY.md
+- Zero regressions, zero deviations
 
 **Phase 89/89.1 Stats:**
 
@@ -154,6 +162,9 @@ v11.0 — In Progress (Phase 94: ONBOARD-01 — Workflow Integration & Testing)
 - [Phase 89]: Log rotation at 10MB with 10 retained files prevents disk space issues
 - [Phase 89]: Error recovery guide enables self-service debugging
 - [Phase 89.1]: All 16 skill files must import error handlers for structured logging to work
+- [Phase 93]: Key file selector uses 3-tier priority (entry → config → core) with max 15 files
+- [Phase 93]: Doc link mapper includes 35 technology mappings with graceful fallback for unknowns
+- [Phase 93]: Onboard summary uses terminal box-drawing for visual clarity
 
 ### Pending Todos
 
@@ -316,7 +327,7 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 - **Files created:** Reused existing `test/smoke/onboard-smoke.test.js`
 - **Files modified:** 8 snapshot files (regenerated)
 - **Tests:** 49 tests passing (37 integration + 12 smoke)
-- **Status:** ✅ Complete
+- **Status:** Executing Phase 93
 
 **Tasks Completed:**
 
@@ -336,5 +347,41 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 
 ## Session Continuity
 
-Last session: 2026-04-04T14:00:00.000Z
-Stopped at: Phase 94 planned, ready for execution
+Last session: 2026-04-04T14:30:00.000Z
+Stopped at: Completed Phase 93 — All 8 tasks committed, SUMMARY.md created
+
+## Phase 95 Complete: LINT-01 — Lint Failure Tracking
+
+- **Plan:** 95-PLAN.md (8 tasks)
+- **Goal:** Implement `bin/lib/progress-tracker.js` utility library for lint failure tracking in PROGRESS.md — ✅ COMPLETE
+- **Files created:**
+  - `bin/lib/progress-tracker.js` - Lint failure tracking utility with 3 primary functions (238 lines)
+  - `test/progress-tracker.test.js` - 43 unit tests with 90%+ coverage
+  - `test/lint-failure-tracking.integration.test.js` - 17 integration tests
+- **Files modified:**
+  - `workflows/write-code.md` - Step 5 updated to use `incrementLintFail()`, Step 1.1 updated to use `getLintFailCount()`
+- **Tests:** 60 new tests (43 unit + 17 integration), all passing
+- **Commits:** 4 commits
+
+**Delivered:**
+
+1. ✅ `bin/lib/progress-tracker.js` utility with 3 primary functions:
+   - `incrementLintFail(errorMsg)` - Increment counter, save to PROGRESS.md, return status
+   - `getLintFailCount()` - Read current count (return 0 if file doesn't exist)
+   - `resetLintFail()` - Reset count to 0, clear last_lint_error
+2. ✅ Unit tests with 90%+ coverage (43 tests)
+3. ✅ `workflows/write-code.md` Step 5 updated to call `incrementLintFail()`
+4. ✅ `workflows/write-code.md` Step 1.1 updated to call `getLintFailCount()`
+5. ✅ Threshold logic (3 times) working correctly — STOP after 3 failures
+6. ✅ `resetLintFail()` called when lint succeeds
+7. ✅ Graceful degradation when PROGRESS.md doesn't exist
+8. ✅ Integration tests for lint failure tracking workflow (17 tests)
+
+**Key Features:**
+
+- Threshold-based circuit breaker (3 failures = suggest fix-bug)
+- Automatic error message truncation (max 500 chars)
+- Multiline error message normalization
+- Pure functions with defensive programming
+- Follows existing patterns from `refresh-detector.js`
+- Full backward compatibility with existing workflows
