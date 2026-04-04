@@ -13,15 +13,51 @@ Please Done is a skills suite (`/pd:*`) for AI coding CLIs — a structured deve
 
 **Current version: v4.0.0**
 
+## Quick Start
+
+Get started with Please Done in 5 commands:
+
+| Step | Command | What it does |
+|------|---------|--------------|
+| 1 | `/pd:onboard` | Orient AI to your codebase, analyze git history |
+| 2 | `/pd:init` | Check MCP, detect tech stack, create CONTEXT.md |
+| 3 | `/pd:plan` | Research and create technical design for a phase |
+| 4 | `/pd:write-code` | Execute tasks, lint check, build, auto-commit |
+| 5 | `/pd:status` | Check project progress and next steps |
+
+See [Skills Reference](#skills-reference) for all 16 commands.
+
+## Prerequisites Checklist
+
+Before using Please Done, ensure you have:
+
+- [ ] **Claude Code CLI** (or another supported platform) installed
+  - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — recommended
+  - [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [OpenCode](https://github.com/opencode-ai/opencode), or [GitHub Copilot](https://github.com/features/copilot)
+
+- [ ] **Node.js** 16+ (`node --version`)
+
+- [ ] **Python** 3.12+ (`python3 --version`)
+
+- [ ] **Git** repository initialized (`git --version`)
+
+- [ ] **Gemini API Key** (for FastCode MCP — prompts during `/pd:init`)
+  - Get free key at [Google AI Studio](https://aistudio.google.com/apikey)
+
+Run `/pd:init` after installation to verify everything is working.
+
 ## Table of Contents
 
+- [Quick Start](#quick-start)
+- [Prerequisites Checklist](#prerequisites-checklist)
 - [Supported Platforms](#supported-platforms)
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Uninstallation](#uninstallation)
 - [Updating Please Done](#updating-please-done)
 - [After Installation](#after-installation)
-- [Skills List](#skills-list)
+- [Skills Reference](#skills-reference)
+- [Workflow Diagram](#workflow-diagram)
 - [`.planning/` Structure](#planning-structure)
 - [Cross-Platform Architecture](#cross-platform-architecture)
 - [MCP Servers](#mcp-servers)
@@ -175,35 +211,45 @@ $pd-init        # Codex
 /pd-init        # OpenCode
 ```
 
-## Skills List
+## Skills Reference
 
-### Main Workflow (in order)
+Please Done provides 16 skills organized into 4 categories.
 
+### Core — Project Foundation
 
-| #   | Skill                | Description                                                                                                       | Prerequisite   |
-| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------- |
-| 1   | `init`               | Check FastCode MCP, index project, detect tech stack, create CONTEXT.md + copy rules                              | -              |
-| 2   | `scan`               | Scan code structure, dependencies, architecture, security checks, create SCAN_REPORT                              | init           |
-| 3   | `new-milestone`      | Plan milestones + phases + dependencies                                                                           | init, scan (*) |
-| 4   | `plan`               | Research project, create technical design, split task list for phase                                               | new-milestone  |
-| 5   | `write-code`         | Execute tasks from TASKS.md, lint check, build, commit `[TASK-N]`                                                 | plan           |
-| 6   | `test`               | Write tests (Jest/Supertest, PHPUnit, Hardhat/Foundry, flutter_test), run, request confirmation                   | write-code     |
-| 7   | `fix-bug`            | Research bug, analyze, fix, commit `[BUG]`, loop until user confirms                                              | init           |
-| 8   | `complete-milestone` | Check for errors, summarize, commit `[VERSION]`, create git tag                                                   | all tasks ✅   |
+| Skill | Command | Description |
+|-------|---------|-------------|
+| onboard | `/pd:onboard` | Orient AI to an unfamiliar codebase in one command |
+| init | `/pd:init` | Initialize project: check MCP, detect stack, create CONTEXT.md |
+| scan | `/pd:scan` | Scan code structure, dependencies, security checks |
+| plan | `/pd:plan` | Research and create technical design for a phase |
 
+### Project — Development Workflow
 
-(*) New project without code: `new-milestone` allows skipping scan.
+| Skill | Command | Description |
+|-------|---------|-------------|
+| new-milestone | `/pd:new-milestone` | Plan milestones + phases + dependencies |
+| write-code | `/pd:write-code` | Execute tasks from TASKS.md, lint check, build, commit |
+| test | `/pd:test` | Write and run tests (Jest, PHPUnit, Hardhat, flutter_test) |
+| fix-bug | `/pd:fix-bug` | Research bug, analyze, fix, commit, loop until confirmed |
+| complete-milestone | `/pd:complete-milestone` | Check errors, summarize, commit, create git tag |
 
-### Utilities
+### Debug — Analysis & Research
 
+| Skill | Command | Description |
+|-------|---------|-------------|
+| audit | `/pd:audit` | Comprehensive code audits (security, performance, dependency) |
+| research | `/pd:research` | Research a technical topic with structured output |
 
-| Skill         | Description                                                                         |
-| ------------- | ----------------------------------------------------------------------------------- |
-| `what-next`   | Scan .planning/ status, show progress, suggest next command                         |
-| `conventions` | Analyze code, detect patterns, ask user → create project-specific CLAUDE.md         |
-| `fetch-doc`   | Download documentation from URL, save markdown locally with version + section TOC   |
-| `update`      | Check + update skills from GitHub, show changelog, suggest restart                    |
-| `status`      | Display project status dashboard (milestone, phase, tasks, errors, blockers)      |
+### Utility — Helper Commands
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| status | `/pd:status` | Display project status dashboard (milestone, phase, tasks) |
+| conventions | `/pd:conventions` | Analyze code patterns, create project-specific CLAUDE.md |
+| fetch-doc | `/pd:fetch-doc` | Download documentation from URL, save as markdown |
+| update | `/pd:update` | Check and update skills from GitHub |
+| what-next | `/pd:what-next` | Scan status, show progress, suggest next command |
 
 **Status Command Usage:**
 
@@ -227,6 +273,39 @@ The status dashboard displays:
 - Recent errors from logs (last 10 entries)
 - Blocking issues from STATE.md
 - Workflow suggestions
+
+
+## Workflow Diagram
+
+Typical Please Done workflow:
+
+```
+    +-----------+        +-----------+        +-------------+
+    |  onboard  |------->|   init    |------->|    plan     |
+    |  (once)   |        |  (setup)  |        |  (design)   |
+    +-----------+        +-----------+        +-------------+
+                                                    |
+                                                    v
+    +-------------------+      +-------------+   +-------------+
+    |  complete-milestone|<-----|    test     |<--| write-code  |
+    |   (release)       |      | (verify)    |   | (implement) |
+    +-------------------+      +------+------+   +-------------+
+           ^                          |
+           |                     (fails?)
+           |                          |
+           +------------------+       v
+                              |  +----------+
+                              +--| fix-bug  |
+                                 | (repair) |
+                                 +----------+
+```
+
+**Legend:** `->` Normal flow  `-->` Feedback loop (test fails → fix → retest)
+
+The diagram shows:
+- **Main flow**: onboard → init → plan → write-code → test → complete-milestone
+- **Decision point**: Failing tests trigger the fix-bug loop
+- **Feedback loop**: After fixing, return to test for verification
 
 
 ### Convention System (Rules + CLAUDE.md)
