@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v10.0
 milestone_name: Skill Repo Audit Fixes — [archived]
 status: planning
-stopped_at: Completed Phase 93 — All 8 tasks committed, SUMMARY.md created
-last_updated: "2026-04-04T14:03:05.633Z"
+stopped_at: Completed Phase 97 — Staleness Detection Core (23 tests passing)
+last_updated: "2026-04-04T21:15:00.000Z"
 progress:
-  total_phases: 72
-  completed_phases: 70
-  total_plans: 128
-  completed_plans: 128
+  total_phases: 73
+  completed_phases: 71
+  total_plans: 129
+  completed_plans: 129
 ---
 
 # Project State
@@ -22,9 +22,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 94
-Plan: 1 of 1 — SUMMARY: 93-SUMMARY.md
-Next: Phase 94 planned, ready for execution
+Phase: 98 Complete: STALE-01 — Map Metadata & Refresh
+Plan: 1 of 1 — Complete
+Summary: 98-SUMMARY.md
+Next: Phase 99 ready for planning (Integration Contract Tests)
 
 ## v11.0 Summary
 
@@ -43,8 +44,10 @@ Next: Phase 94 planned, ready for execution
   - ✅ Auto-onboarding — State machine + error handler + what-next (Phase 92)
   - ✅ Context generation + summary (Phase 93)
   - ✅ Workflow integration & E2E testing (Phase 94 — Complete)
-  - 🔄 Lint recovery (Phase 95-96)
-  - 🔄 Staleness detection (Phase 97-98)
+  - ✅ Lint failure tracking (Phase 95 — Complete)
+  - ✅ Lint recovery workflow UI (Phase 96 — Complete)
+  - ✅ Staleness detection core (Phase 97 — Complete)
+  - ✅ Map metadata & refresh (Phase 98 — Complete)
   - 🔄 Integration contracts (Phase 99-100)
 
 ## Phase 88 Complete: LOG-01 — Agent Error Logging Foundation
@@ -101,6 +104,21 @@ Next: Phase 94 planned, ready for execution
   - ✅ All 16 skills now import appropriate error handlers
   - ✅ Error logs written to .planning/logs/agent-errors.jsonl
   - ✅ what-next displays actual errors from logs
+
+## Phase 97 Complete: STALE-01 — Staleness Detection Core
+
+- **Plan:** 97-PLAN.md (2 tasks)
+- **Context:** 97-CONTEXT.md
+- **Goal:** Create staleness detection for codebase maps — ✅ COMPLETE
+- **Files created:**
+  - `bin/lib/staleness-detector.js` - Pure function for staleness detection
+  - `test/staleness-detector.test.js` - 23 unit tests
+- **Tests:** 23/23 pass
+- **Features:**
+  - Detects staleness based on git commit delta (default threshold: 20)
+  - Three staleness levels: fresh, aging, stale
+  - Returns structured result with recommendation
+  - Handles errors gracefully (invalid SHA, not git repo)
 
 ## Deferred Items
 

@@ -48,8 +48,23 @@ Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (exclude node_modules, .venv, .
 `mcp__fastcode__code_qa` (repos: absolute path): "List modules, tech stack, database type."
 Pre-warm index — response discarded. Error → warning, continue to Step 3b.
 ### Step 3b: Map codebase (ONLY when isNewProject = false)
+#### Step 3b.1: Check map staleness
+Read `.planning/codebase/META.json`:
+- **EXISTS**:
+  - Extract `mapped_at_commit` (40-character SHA)
+  - Run `node -e "const {detectStaleness} = require('./bin/lib/staleness-detector.js'); console.log(JSON.stringify(detectStaleness('COMMIT_SHA')))"`
+  - Parse result to get `level` and `commitDelta`
+  - If `level === 'aging'` or `level === 'stale'`:
+    - question: "Codebase map is [level] ([commitDelta] commits behind). Refresh now?"
+    - Options: ["Yes, refresh now", "Skip this time"]
+    - **"Yes" selected**: Remove `STRUCTURE.md` check constraint (proceed to mapping)
+    - **"Skip" selected**: Continue to Step 3b.2
+  - If `level === 'fresh'`: "Map is current ([commitDelta] commits behind). Skipping map." Jump to Step 4.
+- **MISSING**: Continue to Step 3b.2 (normal mapping flow)
+**Error handling:** If staleness detection fails (not git repo, invalid SHA), log warning and continue to Step 3b.2 — DO NOT block init.
+#### Step 3b.2: Check for existing map and spawn mapper
 Check `.planning/codebase/STRUCTURE.md` exists:
-- **EXISTS** → "Codebase already mapped. Skipping." Jump to Step 4.
+- **EXISTS** (and user didn't choose "Yes" in 3b.1) → "Codebase already mapped. Skipping." Jump to Step 4.
 - **NOT EXISTS** → Create directory and spawn mapper:
 ```bash
 mkdir -p .planning/codebase
