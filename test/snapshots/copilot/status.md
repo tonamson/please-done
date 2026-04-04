@@ -1,9 +1,9 @@
 ---
 name: pd:status
-description: Display a read-only project status dashboard showing milestone, phase, tasks, bugs, lint state, and blockers
+description: Display a read-only project status dashboard showing milestone, phase, tasks, bugs, errors, and blockers with optional staleness detection
 ---
 <objective>
-Display an 8-field read-only project status dashboard.
+Display an 8-field read-only project status dashboard with optional auto-refresh detection.
 READ ONLY. DO NOT edit files. DO NOT call FastCode MCP.
 </objective>
 <guards>
@@ -11,7 +11,10 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `/pd:init` first."
 </guards>
 <context>
-User input: $ARGUMENTS (no arguments)
+User input: $ARGUMENTS
+- No arguments: Display basic status
+- `--auto-refresh`: Enable staleness detection and show refresh recommendation
+- `--refresh-threshold=N`: Set staleness threshold in minutes (default: 10)
 No rules or FastCode MCP needed - only read planning files.
 </context>
 <required_reading>
@@ -61,17 +64,23 @@ Last commit: [hash] [message]
 - All 8 dashboard fields are displayed
 - Zero files were written or modified
 - Output is 8–12 lines of formatted status
+- With `--auto-refresh`: Staleness indicator shown
 **Common errors:**
 - `.planning/` does not exist -> run `/pd:init`
 - `STATE.md` is missing or broken -> run `/pd:new-milestone` to recreate it
+- Invalid threshold value -> use positive integer (e.g., `--refresh-threshold=5`)
 </output>
 <rules>
 - All output MUST be in English
 - READ ONLY. DO NOT edit any files
 - DO NOT call FastCode MCP or Context7 MCP
 - DO NOT suggest next steps — that is pd:what-next's job
-- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Lint, Blockers, Last commit
-- If PROGRESS.md does not exist → Lint field shows "✓ no active task"
+- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Errors, Blockers, Last commit
+- If PROGRESS.md does not exist → show "✓ no active task"
+- With `--auto-refresh`, append staleness indicator:
+  - Fresh: "Data current (X min ago)"
+  - Aging: "Data aging (X min ago)"
+  - Stale: "⚠ Data stale (X min ago) — Run `/pd:status --auto-refresh`"
 - DO NOT call FastCode MCP — use only read/glob/execute
 - DO NOT modify files — read and display only
 - DO NOT suggest next steps — pd:status is display-only (pd:what-next handles suggestions)
