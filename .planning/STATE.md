@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v10.0
-milestone_name: Skill Repo Audit Fixes — [archived]
-status: completed
-stopped_at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
-last_updated: "2026-04-04T14:50:01.689Z"
+milestone: v11.1
+milestone_name: Documentation Improvements
+status: planning
+stopped_at: Milestone v11.1 started — defining requirements
+last_updated: "2026-04-04T22:00:00.000Z"
 progress:
-  total_phases: 75
-  completed_phases: 74
-  total_plans: 131
-  completed_plans: 132
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 96
-Plan: 1 of 1
-Summary: 96-SUMMARY.md
-Next: Phase 97 ready for planning (STALE-01 — Staleness Detection Core)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements for v11.1
+Last activity: 2026-04-04 — Milestone v11.1 started
 
 ## v11.0 Summary
 

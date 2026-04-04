@@ -128,17 +128,36 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v11.0 (In Progress)
+## Current Milestone: v11.1 Documentation Improvements
 
-**Goal:** Developer Tooling & Observability — improve developer experience with onboarding assistance, status dashboards, lint recovery, staleness detection, integration contracts, and structured logging.
+**Goal:** Cải thiện tài liệu hướng dẫn sử dụng các command skill hiện có trong repo để developer dễ dàng sử dụng.
 
-**Status:** Phase 88 planning — LOG-01 Agent Error Logging Foundation
+**Target features:**
+- Cải thiện README.md với hướng dẫn sử dụng rõ ràng cho các skill chính
+- Tạo command cheat sheet nhanh cho các lệnh thường dùng
+- Cập nhật CLAUDE.md với ví dụ sử dụng thực tế
+- Tạo text-based walkthrough guides cho workflow phổ biến
+- Cải thiện error messages để user biết cách khắc phục
 
-**Scope:** 6 requirements, 15 phases, ~20-25 plans
+**Status:** Defining requirements
+
+**Scope:** 4-6 requirements, 4-6 phases, ~4-6 plans
+
+## Previous Milestone: v11.0 Developer Tooling & Observability
+
+**Shipped:** 2026-04-04 | **Phases:** 12 (88-99) | **Plans:** 12
+
+**Key accomplishments:**
+- Agent Error Structured Logging (LOG-01) — log-writer.js với JSONL
+- Status Dashboard Core (STATUS-01) — read-only dashboard
+- Auto-Onboarding Skill (ONBOARD-01) — pd:onboard với CONTEXT.md
+- Lint Fail Recovery (LINT-01) — progress-tracker.js
+- Staleness Detection (STALE-01) — staleness-detector.js
+- Contract Test Foundation (INTEG-01) — schema validation
 
 ## Current State
 
-**Current:** v11.0 — started 2026-04-03  
+**Current:** v11.1 — started 2026-04-04  
 **Shipped:** v10.0 Skill Repo Audit Fixes (2026-04-03), v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)  
 **Previous:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
 
