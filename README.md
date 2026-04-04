@@ -202,7 +202,8 @@ $pd-init        # Codex
 | `what-next`   | Scan .planning/ status, show progress, suggest next command                         |
 | `conventions` | Analyze code, detect patterns, ask user → create project-specific CLAUDE.md         |
 | `fetch-doc`   | Download documentation from URL, save markdown locally with version + section TOC   |
-| `update`      | Check + update skills from GitHub, show changelog, suggest restart                  |
+| `update`      | Check + update skills from GitHub, show changelog, suggest restart                    |
+| `status`      | Display project status dashboard (milestone, phase, tasks, errors, blockers)        |
 
 
 ### Convention System (Rules + CLAUDE.md)
