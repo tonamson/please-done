@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v11.0
 milestone_name: Developer Tooling & Observability
-status: Phase 90 Complete, ready for Phase 91
-stopped_at: Completed Phase 90 — STATUS-01 Status Dashboard
-last_updated: "2026-04-04T09:35:00.000Z"
+status: Phase 91 Complete, ready for Phase 92
+stopped_at: Completed Phase 91 — STATUS-01 Workflow Integration
+last_updated: "2026-04-04T09:55:00.000Z"
 progress:
   total_phases: 15
-  completed_phases: 3
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 4
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -22,9 +22,9 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 90 — ✅ COMPLETE (STATUS-01 — Status Dashboard)
-Plan: 2 of 2 (100% complete)
-v11.0 — In Progress (Phase 91: STATUS-02 — Status Dashboard Polish)
+Phase: 91 — ✅ COMPLETE (STATUS-02 — Workflow Integration)
+Plan: 7 of 7 (100% complete)
+v11.0 — In Progress (Phase 92: ONBOARD-01 — Auto-onboarding)
 
 ## v11.0 Summary
 
@@ -39,6 +39,7 @@ v11.0 — In Progress (Phase 91: STATUS-02 — Status Dashboard Polish)
   - ✅ Error recovery guide
   - ✅ **Gap Closure Complete:** All 16 skills wired to error handlers
   - ✅ Status dashboard (Phase 90)
+  - ✅ Status workflow integration (Phase 91)
   - 🔄 Auto-onboarding (Phase 92-94)
   - 🔄 Lint recovery (Phase 95-96)
   - 🔄 Staleness detection (Phase 97-98)
@@ -188,5 +189,43 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 
 ## Session Continuity
 
-Last session: 2026-04-04T06:00:00.000Z
-Stopped at: Completed Phase 89, ready for Phase 90
+## Phase 91 Complete: STATUS-01 — Workflow Integration
+
+- **Plan:** 91-PLAN.md (7 tasks)
+- **Summary:** 91-SUMMARY.md
+- **Goal:** Integrate pd:status into state machine and workflow system — ✅ COMPLETE
+- **Files created:** 3 files
+  - `bin/lib/refresh-detector.js` - Pure function library for staleness detection
+  - `test/refresh-detector.test.js` - 32 unit tests with 100% coverage
+  - `test/pd-status-workflow.integration.test.js` - 17 integration tests
+- **Files modified:** 12 files
+  - `.planning/STATE.md` - Added Current Capabilities section
+  - `workflows/what-next.md` - Added idle detection and status suggestions
+  - `README.md` - Status command usage examples
+  - `CLAUDE.md` - Command reference documentation
+  - `docs/commands/status.md` - Auto-refresh documentation
+  - `commands/pd/status.md` - Updated skill definition
+  - Platform snapshots (64 total across 4 platforms)
+- **Tests:** 49 new tests, all passing
+- **Commits:** 3 commits
+
+**Delivered:**
+
+1. ✅ State machine updated with pd:status prerequisites (none)
+2. ✅ what-next suggests pd:status when idle (>10 minutes)
+3. ✅ Auto-refresh logic implemented with configurable threshold
+4. ✅ Documentation updated with usage examples
+5. ✅ Integration tests for workflow integration
+6. ✅ Skill registry verified (pd:status discoverable)
+7. ✅ Smoke tests pass (snapshots regenerated)
+
+**Key Features:**
+
+- `checkStaleness()` - Pure function to detect stale data
+- `shouldAutoRefresh()` - Respects active tasks, configurable threshold
+- `getRefreshRecommendation()` - Clear messages for user guidance
+- Default threshold: 10 minutes
+- Staleness levels: fresh, aging, stale
+
+Last session: 2026-04-04T09:55:00.000Z
+Stopped at: Completed Phase 91, ready for Phase 92

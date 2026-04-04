@@ -322,19 +322,31 @@ Full details: `.planning/milestones/v10.0-ROADMAP.md`
 
 ---
 
-### Phase 91: STATUS-01 — Workflow Integration
+### Phase 91: STATUS-01 — Workflow Integration ✅
 
 **Goal:** Integrate status skill into state machine and add refresh logic.
 
 **Requirements:** STATUS-01
 
 **Success Criteria:**
-1. State machine updated with status prerequisites
-2. what-next.md suggests `pd:status` when idle
-3. Auto-refresh option for staleness detection
-4. Documentation updated with status examples
+1. ✅ State machine updated with status prerequisites
+2. ✅ what-next.md suggests `pd:status` when idle
+3. ✅ Auto-refresh option for staleness detection
+4. ✅ Documentation updated with status examples
 
-**Plan 91.1:** Wire status into workflows and documentation
+**Plan 91.1:** Wire status into workflows and documentation — **COMPLETE**
+
+**Delivered:**
+- `bin/lib/refresh-detector.js` — Pure function library for staleness detection
+- `test/refresh-detector.test.js` — 32 unit tests with 100% coverage
+- `test/pd-status-workflow.integration.test.js` — 17 integration tests
+- Updated `.planning/STATE.md` with Current Capabilities section
+- Updated `workflows/what-next.md` with idle detection and status suggestions
+- Updated documentation (README.md, CLAUDE.md, docs/commands/status.md)
+- Updated skill definition (commands/pd/status.md)
+- Regenerated 64 platform snapshots
+
+**Status**: ✅ **COMPLETE** — 7/7 tasks, 49 new tests, 0 regressions
 
 ---
 
