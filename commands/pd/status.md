@@ -75,8 +75,12 @@ Execute @workflows/status.md from start to finish.
 - READ ONLY. DO NOT edit any files
 - DO NOT call FastCode MCP or Context7 MCP
 - DO NOT suggest next steps — that is pd:what-next's job
-- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Errors, Blockers, Last commit
-- If PROGRESS.md does not exist → show "✓ no active task"
+- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Lint, Blockers, Last commit
+- **Lint field** shows lint_fail_count from PROGRESS.md:
+  - ✓ No lint failures (count = 0 or no PROGRESS.md)
+  - ✗ [count]/3 lint failure(s) (count > 0)
+  - Includes last error message (first 100 chars) when count > 0
+  - Suggests `/pd:fix-bug` when count > 0
 - With `--auto-refresh`, append staleness indicator:
   - Fresh: "Data current (X min ago)"
   - Aging: "Data aging (X min ago)"

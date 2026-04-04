@@ -19,14 +19,15 @@ Read ONLY WHEN needed:
 
 Read in order (stop at first MISSING):
 
-1. `.planning/CONTEXT.md` → not found → suggest `/pd:init`, **STOP**
+1. `.planning/` directory → not found → suggest `/pd:onboard` (new project — runs init+scan automatically), **STOP**
+2. `.planning/CONTEXT.md` → not found → suggest `/pd:init`, **STOP**
    1.5. `.planning/PROJECT.md` (if exists) → vision + milestone history
-2. `.planning/scan/SCAN_REPORT.md` → not found → note (secondary suggestion Step 5), DO NOT STOP
-3. `.planning/ROADMAP.md` → not found → suggest `/pd:new-milestone`, **STOP**
-4. `.planning/CURRENT_MILESTONE.md` → `version`, `phase`, `status`
+3. `.planning/scan/SCAN_REPORT.md` → not found → note (secondary suggestion Step 5), DO NOT STOP
+4. `.planning/ROADMAP.md` → not found → suggest `/pd:new-milestone`, **STOP**
+5. `.planning/CURRENT_MILESTONE.md` → `version`, `phase`, `status`
    - status = `All completed` → "All milestones completed!", **STOP**
-5. `.planning/REQUIREMENTS.md` (if exists) → coverage statistics
-6. `.planning/STATE.md` (if exists) → blocking issues, context, last activity
+6. `.planning/REQUIREMENTS.md` (if exists) → coverage statistics
+7. `.planning/STATE.md` (if exists) → blocking issues, context, last activity
 
 ## Step 2: Check open bugs
 

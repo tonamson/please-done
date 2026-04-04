@@ -70,6 +70,22 @@ Notify: "Spawning {model} agent for {task_id} ({effort})..."
 ### Step 1.1: Recovery point — resume after interruption
 Path: `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`
 
+**Import for lint failure check:**
+```javascript
+import { getLintFailCount, resetLintFail } from '../../../bin/lib/progress-tracker.js';
+```
+
+**Auto-detect resume-only-lint mode (--resume flag):**
+When `--resume` flag is provided AND `getLintFailCount() > 0`:
+```javascript
+// Detect resume-only-lint intent from flag + lint state
+if (flags.resume && getLintFailCount() > 0) {
+  // Skip Steps 2-4, jump directly to Step 5 with previously written files
+  currentStep = 5;
+  // Use file list from PROGRESS.md "Files written" section
+}
+```
+
 **Case 0: Task ✅ + PROGRESS.md exists** (interruption between 7a and 7b):
 1. `git log --oneline -5 --grep="TASK-[N]"` → already committed?
    - Already committed → delete PROGRESS.md → done
@@ -78,12 +94,30 @@ Path: `.planning/milestones/[version]/phase-[phase]/PROGRESS.md`
 **Case 1: Task 🔄 + PROGRESS.md exists** (resume after network loss/session close):
 1. Read PROGRESS.md → last stage + files already written
 1.5. **Lint-fail check (before stage-based routing):**
-   - Read `lint_fail_count` from PROGRESS.md header
-   - If `lint_fail_count >= 3` → offer user a choice:
-     - **(A) Lint-only resume:** Skip Steps 2–4 (research, logic-validate, code-write), jump directly to Step 5 with previously written files
-     - **(B) Fresh start:** Delete PROGRESS.md, start from Step 2
-   - User picks A → jump to Step 5. User picks B → delete PROGRESS.md → Step 2
-   - If `lint_fail_count < 3` or field not present → continue to step 2 below (standard stage-based routing)
+   - Call `getLintFailCount()` → returns current failure count (0 if no PROGRESS.md)
+   - If count > 0 → display warning: "Previous lint failures: [count]"
+   - If count >= 3 → display **soft guard** (user can still continue):
+     ```
+     ┌─────────────────────────────────────────┐
+     │ ⚠️  3 lint failures detected             │
+     │                                         │
+     │ Continuing may compound issues.         │
+     │                                         │
+     │ Options:                                │
+     │ (A) Switch to `/pd:fix-bug`             │
+     │ (B) Continue anyway                     │
+     │ (C) Stop and preserve state             │
+     └─────────────────────────────────────────┘
+     ```
+     - User picks A → **STOP**: "Run `/pd:fix-bug` to investigate root cause."
+     - User picks B → jump to Step 5 with existing files (do NOT reset lint count)
+     - User picks C → **exit workflow**, preserve PROGRESS.md and lint_fail_count
+   - If 0 < count < 3 → offer standard choices:
+     - **(A) Resume lint-only:** Skip Steps 2–4, jump to Step 5 with previously written files
+     - **(B) Fresh start:** Delete PROGRESS.md, call `resetLintFail()`, start from Step 2
+     - **(C) Fix bug:** Run `/pd:fix-bug` first to investigate root cause
+   - User picks A → jump to Step 5. User picks B → delete PROGRESS.md → resetLintFail() → Step 2. User picks C → STOP, suggest `/pd:fix-bug`
+   - If count == 0 → continue to step 2 below (standard stage-based routing)
 2. Verify actual state on disk:
    - Each file in "Files written" → Glob check existence, Read check content (not empty, not truncated — missing `}`, unfinished class)
    - CODE_REPORT: `reports/CODE_REPORT_TASK_[N].md` exists?
@@ -255,17 +289,30 @@ Discover business logic needing adjustment during coding (e.g.: new edge case, t
 ## Step 5: Lint + Build
 CONTEXT.md → Tech Stack → directory + build tool.
 
+**Import lint tracking utility:**
+```javascript
+import { incrementLintFail, resetLintFail } from '../../../bin/lib/progress-tracker.js';
+```
+
 - Has rules file → read **Build & Lint** section → get commands
 - None → `package.json`/`composer.json` scripts → `npm run lint`/`npm run build` or skip
 - Run in correct directory. Appropriate timeout
 - Fail → fix + rerun. Track consecutive failures:
-  1. Increment `lint_fail_count` in PROGRESS.md (update `> lint_fail_count:` line)
-  2. Save error output to `> last_lint_error:` in PROGRESS.md (first 500 chars, single line)
-  3. If `lint_fail_count < 3` → retry fix + rerun
-  4. If `lint_fail_count` reaches 3 → save PROGRESS.md → **STOP** with message:
-     "❌ Lint/Build failed 3 times. Last error: [last_lint_error]
-      → Run `/pd:fix-bug` to investigate root cause
-      → Run `/pd:write-code` to resume (will offer lint-only retry)"
+  1. Call `incrementLintFail(errorOutput)` → returns `{count, thresholdReached, lastError}`
+  2. If `thresholdReached` is true → **STOP** with boxed banner message:
+     ```
+     ┌─────────────────────────────────────────┐
+     │ ⚠️  3 lint failures detected             │
+     │                                         │
+     │ Consider running `/pd:fix-bug` to      │
+     │ investigate the root cause.             │
+     └─────────────────────────────────────────┘
+     Last error: [lastError]
+     → Run `/pd:fix-bug` to investigate root cause
+     → Run `/pd:write-code --resume` to retry lint only
+     ```
+  3. If `thresholdReached` is false → retry fix + rerun (count: [count]/3)
+- Success → call `resetLintFail()` to clear failure counter
 - No lint/build config → skip, note in report
 
 ---

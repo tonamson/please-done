@@ -2,7 +2,7 @@
 name: pd:write-code
 description: Write code for tasks already planned in TASKS.md, lint, build, commit, and report back (requires PLAN.md + TASKS.md first)
 model: sonnet
-argument-hint: "[task number] [--auto | --parallel]"
+argument-hint: "[task number] [--auto | --parallel | --resume]"
 allowed-tools:
   - Read
   - Write
@@ -39,8 +39,12 @@ Stop and instruct the user if any of the following conditions fail:
 <context>
 User input: $ARGUMENTS
 - Task number (e.g. `3`) -> execute that specific task.
-- `--auto` -> execute sequentially | `--parallel` -> execute in parallel | Combination example: `3 --auto`.
+- `--auto` -> execute sequentially | `--parallel` -> execute in parallel | `--resume` -> resume with lint-only mode if lint_fail_count > 0
+- Combination examples: `3 --auto`, `--resume`, `3 --resume`.
 - No input -> choose the next unchecked task, and after finishing one task, STOP to ask the user.
+
+**Flag behaviors:**
+- `--resume`: When PROGRESS.md exists with lint_fail_count > 0, skip Steps 2-4 (context, planning, coding) and jump directly to Step 5 (lint/build). Resets lint count on success.
 
 Additional reads:
 - `.planning/PROJECT.md` -> project vision and constraints.
@@ -62,6 +66,12 @@ Additional reads:
 
 <process>
 Execute @workflows/write-code.md from start to finish. Task selection, coding, validation, security checks, commits, and status updates are defined inside that workflow.
+
+**If `--resume` flag is used:**
+1. Check if PROGRESS.md exists with lint_fail_count > 0
+2. If yes, skip to Step 5 (lint/build) directly, bypassing Steps 1.6–1.7 (context reading, logic validation) and Step 4 (code writing)
+3. If lint succeeds in resume mode, reset lint_fail_count to 0
+4. If no PROGRESS.md or lint_fail_count is 0, resume from last saved stage normally
 </process>
 
 <output>
