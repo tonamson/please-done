@@ -60,3 +60,15 @@ Execute @workflows/status.md from start to finish.
 - Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Lint, Blockers, Last commit
 - If PROGRESS.md does not exist → Lint field shows "✓ no active task"
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for status skill
+const errorHandler = createBasicErrorHandler('pd:status', '$CURRENT_PHASE', {
+  operation: 'status'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

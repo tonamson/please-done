@@ -56,3 +56,15 @@ Execute @workflows/conventions.md from start to finish.
 - You MUST ask the user about personal preferences before creating `CLAUDE.md`
 - `CLAUDE.md` MUST reflect the current codebase reality and must not impose new conventions
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for conventions skill
+const errorHandler = createBasicErrorHandler('pd:conventions', '$CURRENT_PHASE', {
+  operation: 'conventions'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

@@ -59,3 +59,15 @@ Execute @workflows/what-next.md from start to finish.
 - DO NOT call FastCode MCP or Context7 MCP
 - The suggested command MUST be based on the actual current state, never guessed
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for what-next skill
+const errorHandler = createBasicErrorHandler('pd:what-next', '$CURRENT_PHASE', {
+  operation: 'what-next'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

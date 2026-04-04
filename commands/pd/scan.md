@@ -60,3 +60,15 @@ Execute @workflows/scan.md from start to finish.
 - Only read and analyze, DO NOT change project source code
 - The report must include: structure, dependencies, architecture, and security
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for scan skill
+const errorHandler = createBasicErrorHandler('pd:scan', '$CURRENT_PHASE', {
+  operation: 'scan'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

@@ -69,3 +69,15 @@ Execute @workflows/research.md from start to finish.
 - You MUST run the full pipeline: route -> collect -> verify
 - DO NOT skip Fact Checker when Collector fails - run it with confidence LOW
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for research skill
+const errorHandler = createBasicErrorHandler('pd:research', '$CURRENT_PHASE', {
+  operation: 'research'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

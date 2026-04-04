@@ -75,3 +75,15 @@ Execute @workflows/onboard.md from start to finish.
 - Default language policy: all English (UI, Logs, Exceptions) unless codebase indicates otherwise
 - If git is unavailable, skip git history analysis and derive PROJECT.md from CONTEXT.md alone
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for onboard skill
+const errorHandler = createBasicErrorHandler('pd:onboard', '$CURRENT_PHASE', {
+  operation: 'onboard'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>

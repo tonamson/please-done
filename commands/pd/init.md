@@ -62,3 +62,15 @@ Execute @workflows/init.md from start to finish.
 - You MUST confirm FastCode MCP is connected before taking any action
 - DO NOT change files outside `.planning/`
 </rules>
+
+<script type="error-handler">
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+
+// Create error handler for init skill
+const errorHandler = createBasicErrorHandler('pd:init', '$CURRENT_PHASE', {
+  operation: 'init'
+});
+
+// Export for skill executor
+module.exports = { errorHandler };
+</script>
