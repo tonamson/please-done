@@ -398,28 +398,35 @@ Full details: `.planning/milestones/v10.0-ROADMAP.md`
 
 ---
 
-### Phase 95: LINT-01 — Lint Failure Tracking 📝 Planned
+### Phase 95: LINT-01 — Lint Failure Tracking ✅ COMPLETE
 
 **Goal:** Implement lint_fail_count tracking in PROGRESS.md.
 
 **Requirements:** LINT-01
 
 **Success Criteria:**
-1. PROGRESS.md schema updated with lint_fail_count
-2. `bin/lib/progress-tracker.js` utility created
-3. All 12 skills increment counter on lint failures
-4. Counter resets on successful lint
+1. ✅ PROGRESS.md schema updated with lint_fail_count
+2. ✅ `bin/lib/progress-tracker.js` utility created
+3. ✅ All 12 skills increment counter on lint failures
+4. ✅ Counter resets on successful lint
 
 **Plan 95.1:** Implement lint failure tracking system
 
-**Status**: 📝 **PLANNED** — Ready for execution
+**Status**: ✅ **COMPLETE** — 8/8 tasks, 60 tests, 90%+ coverage
 
 **Files**:
 - `95-CONTEXT.md` — Context gathered with API design decisions
 - `95-PLAN.md` — 8 tasks defined with execution order
-- `95-DISCUSSION-LOG.md` — Discussion history
+- `95-SUMMARY.md` — Completion summary with test results
+- `95-VALIDATION.md` — Nyquist verification criteria
 
-**Next Step**: Execute with `/gsd:execute-phase 95`
+**Delivered:**
+- `bin/lib/progress-tracker.js` — Lint failure tracking utility (238 lines, 3 primary functions)
+- `test/progress-tracker.test.js` — 43 unit tests with 90%+ coverage
+- `test/lint-failure-tracking.integration.test.js` — 17 integration tests
+- Updated `workflows/write-code.md` — Step 1.1 recovery logic, Step 5 lint tracking
+
+**Next Step**: Execute Phase 96: LINT-01 — Recovery Workflow & UI
 
 ---
 

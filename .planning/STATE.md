@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v10.0
 milestone_name: Skill Repo Audit Fixes — [archived]
-status: planning
-stopped_at: Completed Phase 97 — Staleness Detection Core (23 tests passing)
-last_updated: "2026-04-04T21:15:00.000Z"
+status: executing
+stopped_at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
+last_updated: "2026-04-04T14:42:29.653Z"
 progress:
-  total_phases: 73
-  completed_phases: 71
-  total_plans: 129
-  completed_plans: 129
+  total_phases: 75
+  completed_phases: 73
+  total_plans: 131
+  completed_plans: 131
 ---
 
 # Project State
@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 99 Complete: INTEG-01 — Contract Test Foundation
-Plan: 1 of 1 — Complete
-Summary: 99-SUMMARY.md
-Next: Phase 100 ready for planning (Cross-Skill Contract Tests)
+Phase: 96 (lint-01-recovery-workflow-ui) — EXECUTING
+Plan: 1 of 1
+Summary: 96-SUMMARY.md
+Next: Phase 97 ready for planning (STALE-01 — Staleness Detection Core)
 
 ## v11.0 Summary
 
@@ -345,7 +345,7 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 - **Files created:** Reused existing `test/smoke/onboard-smoke.test.js`
 - **Files modified:** 8 snapshot files (regenerated)
 - **Tests:** 49 tests passing (37 integration + 12 smoke)
-- **Status:** Ready to plan
+- **Status:** Executing Phase 95
 
 **Tasks Completed:**
 
@@ -365,8 +365,8 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 
 ## Session Continuity
 
-Last session: 2026-04-04T14:30:00.000Z
-Stopped at: Completed Phase 93 — All 8 tasks committed, SUMMARY.md created
+Last session: 2026-04-04T20:45:00.000Z
+Stopped at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
 
 ## Phase 95 Complete: LINT-01 — Lint Failure Tracking
 
