@@ -18,23 +18,24 @@
 - ✅ **v9.0 Bug Audit & Robustness** — Phases 81-82 (shipped 2026-04-03)
 - ✅ **v10.0 Skill Repo Audit Fixes** — Phases 84-87 (complete)
 - ✅ **v11.0 Developer Tooling & Observability** — Phases 88-99 (shipped 2026-04-04)
+- 🔄 **v11.1 Documentation Improvements** — Phases 100-105 (in progress)
 
 ## Progress
 
-15 milestones shipped. 87 phases, 126 plans completed. v11.0 in progress (Phase 88-01 complete).
+16 milestones shipped. 99 phases, 132 plans completed. v11.1 in progress.
 
 ## Phases
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
 
-- [x] Phase 1: Skill Structure Normalization (3/3 plans) — completed 2026-03-22
-- [x] Phase 2: Cross-Skill Deduplication (2/2 plans) — completed 2026-03-22
-- [x] Phase 3: Prompt Prose Compression (6/6 plans) — completed 2026-03-22
+- [x] Phase 1: Foundation (3/3 plans) — completed 2026-03-22
+- [x] Phase 2: Authentication (2/2 plans) — completed 2026-03-22
+- [x] Phase 3: Core Features (6/6 plans) — completed 2026-03-22
 - [x] Phase 4: Conditional Context Loading (2/2 plans) — completed 2026-03-22
 - [x] Phase 5: Effort-Level Routing (2/2 plans) — completed 2026-03-22
 - [x] Phase 6: Context7 Standardization (2/2 plans) — completed 2026-03-22
-- [x] Phase 7: Library Fallback and Version Detection (1/1 plan) — completed 2026-03-22
+- [x] Phase 7: Library Fallback (1/1 plan) — completed 2026-03-22
 - [x] Phase 8: Wave-Based Parallel Execution (2/2 plans) — completed 2026-03-22
 - [x] Phase 9: Converter Pipeline Optimization (2/2 plans) — completed 2026-03-22
 
@@ -42,234 +43,135 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 
 </details>
 
-<details>
-<summary>✅ v1.1 Plan Checker (Phases 10-13) — SHIPPED 2026-03-23</summary>
-
-- [x] Phase 10: Core Plan Checks (2/2 plans) — completed 2026-03-23
-- [x] Phase 11: Workflow Integration (1/1 plan) — completed 2026-03-23
-- [x] Phase 12: Advanced Checks (2/2 plans) — completed 2026-03-23
-- [x] Phase 13: Display Fix (1/1 plan) — completed 2026-03-23
-
-Full details: `.planning/milestones/v1.1-ROADMAP.md`
-
-</details>
+*(Các milestones v1.1-v11.0 được archive tương tự — xem `.planning/milestones/`)*
 
 <details>
-<summary>✅ v1.2 Skill Audit & Bug Fixes (Phases 14-16) — SHIPPED 2026-03-23</summary>
-
-- [x] Phase 14: Skill & Workflow Audit (3/3 plans) — completed 2026-03-23
-- [x] Phase 15: Workflow Verification (3/3 plans) — completed 2026-03-23
-- [x] Phase 16: Bug Fixes (5/5 plans) — completed 2026-03-23
-
-Full details: `.planning/milestones/v1.2-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v1.3 Truth-Driven Development (Phases 17-20) — SHIPPED 2026-03-24</summary>
-
-- [x] Phase 17: Truth Protocol (2/2 plans) — completed 2026-03-24
-- [x] Phase 18: Logic-First Execution (1/1 plans) — completed 2026-03-24
-- [x] Phase 19: Knowledge Correction (1/1 plans) — completed 2026-03-24
-- [x] Phase 20: Logic Audit (1/1 plans) — completed 2026-03-24
-
-Full details: `.planning/milestones/v1.3-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v1.4 Mermaid Diagrams (Phases 21-24) — SHIPPED 2026-03-24</summary>
-
-- [x] Phase 21: Mermaid Foundation (2/2 plans) — completed 2026-03-24
-- [x] Phase 22: Diagram Generation (2/2 plans) — completed 2026-03-24
-- [x] Phase 23: PDF Export (2/2 plans) — completed 2026-03-24
-- [x] Phase 24: Workflow Integration (1/1 plan) — completed 2026-03-24
-
-Full details: `.planning/milestones/v1.4-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v1.5 Nang cap Skill Fix-Bug (Phases 25-27) — SHIPPED 2026-03-24</summary>
-
-- [x] Phase 25: Dieu tra & Tai hien Loi (4/4 plans) — completed 2026-03-24
-- [x] Phase 26: Don dep & An toan (2/2 plans) — completed 2026-03-24
-- [x] Phase 27: Dong bo Logic & Bao cao (2/2 plans) — completed 2026-03-24
-
-Full details: `.planning/milestones/v1.5-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v2.1 Detective Orchestrator (Phases 28-37) — SHIPPED 2026-03-25</summary>
-
-- [x] Phase 28: Agent Infrastructure & Resource Rules (2/2 plans) — completed 2026-03-24
-- [x] Phase 29: Evidence Protocol & Session Management (3/3 plans) — completed 2026-03-25
-- [x] Phase 30: Detective Interactions (3/3 plans) — completed 2026-03-25
-- [x] Phase 31: Project Memory & Regression Detection (2/2 plans) — completed 2026-03-25
-- [x] Phase 32: Orchestrator Workflow (2/2 plans) — completed 2026-03-25
-- [x] Phase 33: Resilience & Backward Compatibility (2/2 plans) — completed 2026-03-25
-- [x] Phase 34: Fix Integration Wiring (2/2 plans) — completed 2026-03-25
-- [x] Phase 35: Fix Evidence Encoding & Critical Wiring (2/2 plans) — completed 2026-03-25
-- [x] Phase 36: Fix Workflow Wiring (1/1 plan) — completed 2026-03-25
-- [x] Phase 37: Fix Workflow Prose Gaps (1/1 plan) — completed 2026-03-25
-
-Full details: `.planning/milestones/v2.1-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v3.0 Research Squad (Phases 38-45) — SHIPPED 2026-03-26</summary>
-
-- [x] Phase 38: Nen tang Luu tru Nghien cuu (2/2 plans) — completed 2026-03-25
-- [x] Phase 39: Tieu chuan Kiem chung & Chi muc (2/2 plans) — completed 2026-03-25
-- [x] Phase 40: Tac tu Nghien cuu (1/1 plan) — completed 2026-03-25
-- [x] Phase 41: Bao ve Workflow (2/2 plans) — completed 2026-03-25
-- [x] Phase 42: Lenh pd research (3/3 plans) — completed 2026-03-26
-- [x] Phase 43: Wire INDEX.md vao Pipeline (2/2 plans) — completed 2026-03-26
-- [x] Phase 44: Wire routeQuery vao Workflow (1/1 plan) — completed 2026-03-26
-- [x] Phase 45: AUDIT-03 Claim-Level Confidence API (1/1 plan) — completed 2026-03-26
-
-Full details: `.planning/milestones/v3.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v4.0 OWASP Security Audit (Phases 46-51) — SHIPPED 2026-03-27</summary>
-
-- [x] Phase 46: Nen tang Scanner (2/2 plans) — completed 2026-03-26
-- [x] Phase 47: Luong Audit Cot loi (2/2 plans) — completed 2026-03-26
-- [x] Phase 48: Evidence & Smart Selection (2/2 plans) — completed 2026-03-26
-- [x] Phase 49: Session Delta (2/2 plans) — completed 2026-03-26
-- [x] Phase 50: POC & Fix Phases (2/2 plans) — completed 2026-03-27
-- [x] Phase 51: Tich hop Ecosystem (2/2 plans) — completed 2026-03-27
-
-Full details: `.planning/milestones/v4.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v5.0 Repo Optimization (Phases 52-59) — SHIPPED 2026-03-27</summary>
-
-- [x] Phase 52: Agent Tier System & Registry (1/1 plan) — completed 2026-03-27
-- [x] Phase 53: New Agent Files (2/2 plans) — completed 2026-03-27
-- [x] Phase 54: Platform Mapping & Fallback (1/1 plan) — completed 2026-03-27
-- [x] Phase 55: Parallel Dispatch Wiring (2/2 plans) — completed 2026-03-27
-- [x] Phase 56: Skill-Agent Integration (3/3 plans) — completed 2026-03-27
-- [x] Phase 57: Reference Dedup & Runtime DRY (2/2 plans) — completed 2026-03-27
-- [x] Phase 58: Token Budget & Benchmark (2/2 plans) — completed 2026-03-27
-- [x] Phase 59: Integration Wiring & Verification Gaps (2/2 plans) — completed 2026-03-27
-
-Full details: `.planning/milestones/v5.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v5.1 Agent Sync & Reference Update (Phases 60-64) — SHIPPED 2026-03-27</summary>
-
-- [x] Phase 60: Agent Consolidation (1/1 plan) — completed 2026-03-27
-- [x] Phase 61: Symlink Architecture (1/1 plan) — completed 2026-03-27
-- [x] Phase 62: Reference Migration (1/1 plan) — completed 2026-03-27
-- [x] Phase 63: Format Standardization (1/1 plan) — completed 2026-03-27
-- [x] Phase 64: Registry & Test Validation (1/1 plan) — completed 2026-03-27
-
-Full details: `.planning/milestones/v5.1-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v6.0 Vietnamese → English Migration (Phases 65-70) — SHIPPED 2026-03-29</summary>
-
-- [x] Phase 65: Skills + Config Foundation (2/2 plans) — completed 2026-03-28
-- [x] Phase 66: Workflow Translation (2/2 plans) — completed 2026-03-28
-- [x] Phase 67: Agents + Rules + References (2/2 plans) — completed 2026-03-28
-- [x] Phase 68: Templates + Docs + Root Files (2/2 plans) — completed 2026-03-28
-- [x] Phase 69: JS Source Code + Tests (3/3 plans) — completed 2026-03-28
-- [x] Phase 70: Final Verification + Cleanup (1/1 plan) — completed 2026-03-28
-
-Full details: `.planning/milestones/v6.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v7.0 Standalone Test Mode (5 phases, shipped 2026-04-02)</summary>
-
-- [x] Phase 71: Core Standalone Flow (2 plans) (completed 2026-03-28)
-- [x] Phase 72: System Integration Sync (1 plan) (completed 2026-03-30)
-- [x] Phase 73: Verification & Edge Cases (1 plan) (completed 2026-04-01)
-- [x] Phase 74: Smoke Test Coverage Completion (completed 2026-04-01)
-- [x] Phase 75: Nyquist Validation (completed 2026-04-01)
-
-Full details: `.planning/milestones/v7.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v8.0 Developer Experience & Quality Hardening — [archived](.planning/milestones/v8.0-ROADMAP.md)</summary>
-
-Phases 76–80 | 10 plans | LINT-01, STATUS-01, STALE-01, ONBOARD-01, LOG-01, INTEG-01 | Shipped 2026-04-03
-
-Full details: `.planning/milestones/v8.0-ROADMAP.md`
-
-</details>
-
-<details>
-<summary>✅ v9.0 Bug Audit & Robustness</summary>
-
-### Phase 81: Input Robustness — Null/Undefined Guards in utils.js
-
-**Goal:** Add defensive null/undefined input guards to all public-facing utility functions in `bin/lib/utils.js` — specifically `extractReadingRefs()` and `classifyRefs()` — so they return safe defaults instead of throwing on bad input.
-**Requirements:** ROBUST-01, ROBUST-02, ROBUST-03
-**Effort:** Small (2 files, pure defensive code)
-**Plans:** 0 plans
-
-Plans:
-- [ ] Plan 81.1: Add null guards + unit tests for extractReadingRefs and classifyRefs
-
----
-
-### Phase 82: Error Handling & Nyquist Debt
-
-**Goal:** (1) Wrap unguarded `fs.readFileSync()` calls in `fileHash()` and `inlineWorkflow()` with try-catch + descriptive errors; (2) create missing VALIDATION.md for phases 77+78 and update `nyquist_compliant: false` flags in phases 76/79/80.
-**Requirements:** ERR-01, ERR-02, NYQUIST-01 through NYQUIST-05
-**Effort:** Small (targeted file edits + 5 VALIDATION.md docs)
-**Plans:** 0 plans
-
-Plans:
-- [ ] Plan 82.1: Try-catch hardening for fileHash and inlineWorkflow
-- [ ] Plan 82.2: VALIDATION.md docs for phases 77/78 + update existing compliant flags
-
----
-
-### Phase 83: Log-Writer Wiring → **moved to backlog (999.6)**
-
-Phase 83 was deferred. The log schema (`bin/lib/log-schema.js`) requires a non-empty `error` field which doesn't fit lifecycle events (`agent_start`/`agent_complete`). Schema evolution needed before wiring. See Phase 999.6 in Backlog.
-
-</details>
-
----
-
-## ✅ v10.0 Skill Repo Audit Fixes — [archived](.planning/milestones/v10.0-ROADMAP.md)
-
-Phases 84–87 | 8 plans | 13 requirements | Shipped 2026-04-03
-
-Full details: `.planning/milestones/v10.0-ROADMAP.md`
-
----
-
-## ✅ v11.0 Developer Tooling & Observability — [archived](.planning/milestones/v11.0-ROADMAP.md)
-
-Phases 88–99 | 12 plans | 6 requirements | Shipped 2026-04-04
+<summary>✅ v11.0 Developer Tooling & Observability (Phases 88-99) — SHIPPED 2026-04-04</summary>
+
+- [x] Phase 88: LOG-01 — Agent Error Logging Foundation
+- [x] Phase 89: LOG-01 — Integration & Workflow Wiring
+- [x] Phase 90: STATUS-01 — Status Dashboard Core
+- [x] Phase 91: STATUS-01 — Workflow Integration
+- [x] Phase 92: ONBOARD-01 — Onboarding Skill Foundation
+- [x] Phase 93: ONBOARD-01 — Context Generation & Summary
+- [x] Phase 94: ONBOARD-01 — Workflow Integration & Testing
+- [x] Phase 95: LINT-01 — Lint Failure Tracking
+- [x] Phase 96: LINT-01 — Recovery Workflow & UI
+- [x] Phase 97: STALE-01 — Staleness Detection Core
+- [x] Phase 98: STALE-01 — Map Metadata & Refresh
+- [x] Phase 99: INTEG-01 — Contract Test Foundation
 
 Full details: `.planning/milestones/v11.0-ROADMAP.md`
+
+</details>
+
+## 🔄 v11.1 Documentation Improvements (In Progress)
+
+**Goal:** Cải thiện tài liệu hướng dẫn sử dụng các command skill hiện có trong repo.
+
+**Requirements:** DOC-01, DOC-02, DOC-03, DOC-04, DOC-05, DOC-06
+
+**Phases:** 6 phases | **Estimated Plans:** 6 plans
+
+### Phase 100: DOC-01 — README Quick Start Guide
+
+**Goal:** Cải thiện README.md với quick start guide rõ ràng.
+
+**Requirements:** DOC-01
+
+**Success Criteria:**
+1. Thêm mục "Quick Start" với 3-5 lệnh cơ bản nhất
+2. Liệt kê tất cả skill commands với one-liner description
+3. Thêm workflow diagram đơn giản (text-based)
+4. Prerequisites checklist rõ ràng
+
+**Estimated:** 1 plan, 4-5 tasks
+
+---
+
+### Phase 101: DOC-02 — Command Cheat Sheet
+
+**Goal:** Tạo command cheat sheet cho các lệnh thường dùng.
+
+**Requirements:** DOC-02
+
+**Success Criteria:**
+1. File `docs/cheatsheet.md` với format: command | usage | example
+2. Group commands theo category
+3. Include flags/options phổ biến
+4. Printable format
+
+**Estimated:** 1 plan, 3-4 tasks
+
+---
+
+### Phase 102: DOC-03 — CLAUDE.md Usage Examples
+
+**Goal:** Cập nhật CLAUDE.md với ví dụ sử dụng thực tế.
+
+**Requirements:** DOC-03
+
+**Success Criteria:**
+1. Thêm mục "Common Workflows" với 3-5 workflow
+2. Mỗi workflow có context → command → expected output → next steps
+3. Ví dụ: "Bắt đầu project mới", "Fix bug", "Kiểm tra tiến độ"
+4. Cập nhật command reference với usage patterns
+
+**Estimated:** 1 plan, 4-5 tasks
+
+---
+
+### Phase 103: DOC-04 — Error Message Improvements
+
+**Goal:** Cải thiện error messages để user biết cách khắc phục.
+
+**Requirements:** DOC-04
+
+**Success Criteria:**
+1. Review error messages trong 16 skills
+2. Thêm "Suggested action" cho mỗi error
+3. Tạo error troubleshooting guide
+4. Link errors với relevant documentation
+
+**Estimated:** 1 plan, 4-5 tasks
+
+---
+
+### Phase 104: DOC-05 — Workflow Walkthrough Guides
+
+**Goal:** Tạo text-based walkthrough guides cho workflow phổ biến.
+
+**Requirements:** DOC-05
+
+**Success Criteria:**
+1. `docs/workflows/getting-started.md` — Workflow cho người mới
+2. `docs/workflows/bug-fixing.md` — Workflow debug và fix bug
+3. `docs/workflows/milestone-management.md` — Quản lý milestone
+4. Step-by-step với commands, expected outputs, decision points
+
+**Estimated:** 1 plan, 3-4 tasks
+
+---
+
+### Phase 105: DOC-06 — Skill Reference Cards
+
+**Goal:** Tạo quick reference cards cho mỗi skill.
+
+**Requirements:** DOC-06
+
+**Success Criteria:**
+1. Một file ngắn (200-300 words) cho mỗi skill
+2. Structure: Purpose → When to use → Prerequisites → Basic command → Common flags → See also
+3. Đặt trong `docs/skills/`
+4. Cover tất cả 16 skills
+
+**Estimated:** 1 plan, 3-4 tasks
 
 ---
 
 ## Backlog
 
-> Parking lot for unsequenced improvement ideas. Use `/gsd-discuss-phase 999.x` to explore any item.
-> Use `/gsd:review-backlog` to promote to active milestone.
+> Parking lot for unsequenced improvement ideas.
 
----
+*(Backlog hiện trống)*
 
-*(Backlog hiện trống — đã dọn dẹp sau v10.0)*

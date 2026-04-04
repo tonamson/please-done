@@ -63,16 +63,17 @@ Cải thiện tài liệu hướng dẫn sử dụng các command skill hiện c
 - Rewriting skills from scratch — improve docs only
 - Breaking changes to commands — maintain backward compatibility
 - New platform targets — focus on Claude Code
+- New framework rules — focus on documentation
 
 ## Traceability
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| DOC-01 | 100 | Not started |
-| DOC-02 | 101 | Not started |
-| DOC-03 | 102 | Not started |
-| DOC-04 | 103 | Not started |
-| DOC-05 | 104 | Not started |
-| DOC-06 | 105 | Not started |
+| DOC-01 | 100 | Planned |
+| DOC-02 | 101 | Planned |
+| DOC-03 | 102 | Planned |
+| DOC-04 | 103 | Planned |
+| DOC-05 | 104 | Planned |
+| DOC-06 | 105 | Planned |
 
-*Traceability sẽ được cập nhật trong ROADMAP.md*
+*Traceability được cập nhật từ ROADMAP.md*
