@@ -83,11 +83,15 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 **Phases:** 6 phases | **Estimated Plans:** 6 plans
 
 ### Phase 106: I18N-01 — README Song Ngữ
+**Status:** Planned | **Plans:** 1 plan
 **Goal:** Tạo phiên bản README tiếng Việt song song với bản tiếng Anh.
 **Success Criteria:**
 1. File `README.vi.md` với nội dung đầy đủ
 2. Liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
 3. Giữ nguyên cấu trúc và format
+
+**Plans:**
+- [x] 106-01-PLAN.md — Create README.vi.md with full Vietnamese translation and language switcher
 
 ### Phase 107: I18N-02 — CLAUDE.md Song Ngữ
 **Goal:** Tạo phiên bản CLAUDE.md tiếng Việt.
