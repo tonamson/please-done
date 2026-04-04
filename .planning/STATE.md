@@ -2,14 +2,15 @@
 gsd_state_version: 1.0
 milestone: v11.1
 milestone_name: Documentation Improvements
-status: planning
-stopped_at: Milestone v11.1 started — defining requirements
-last_updated: "2026-04-04T22:00:00.000Z"
+status: completed
+stopped_at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
+last_updated: "2026-04-04T15:14:41.472Z"
+last_activity: 2026-04-04 — Milestone v11.1 started
 progress:
-  total_phases: 0
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
+  total_phases: 6
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
 ---
 
 # Project State
@@ -22,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
-Status: Defining requirements for v11.1
-Last activity: 2026-04-04 — Milestone v11.1 started
+Phase: 101 (Documentation Improvements)
+Plan: 01 — Command Cheat Sheet
+Status: ✅ COMPLETE — docs/cheatsheet.md created with 16 commands
+Last activity: 2026-04-04 — Phase 101 Plan 01 complete
 
 ## v11.0 Summary
 
@@ -120,6 +121,24 @@ Last activity: 2026-04-04 — Milestone v11.1 started
   - Returns structured result with recommendation
   - Handles errors gracefully (invalid SHA, not git repo)
 
+## Phase 101 Complete: DOC-02 — Command Cheat Sheet
+
+- **Plan:** 101-PLAN.md (7 tasks)
+- **Summary:** 101-01-SUMMARY.md
+- **Goal:** Create comprehensive command cheat sheet for all 16 Please Done skills — ✅ COMPLETE
+- **Files created:** 1 file
+  - `docs/cheatsheet.md` — 201 lines, 16 commands across 5 categories
+- **Content:**
+  - Project Commands (5): onboard, init, scan, new-milestone, complete-milestone
+  - Planning Commands (1): plan
+  - Execution Commands (2): write-code, test
+  - Debug Commands (3): fix-bug, audit, research
+  - Utility Commands (5): status, conventions, fetch-doc, update, what-next
+  - Popular Flags Reference (16 flags)
+  - Legend explaining flag notation
+- **Commits:** 1 commit with cheatsheet documentation
+- **Requirement:** DOC-02 — Command Cheat Sheet ✅
+
 ## Deferred Items
 
 - plan-check.js Vietnamese user-facing strings (lines 6/21/30/34) — flag for v11.0 language sweep
@@ -165,10 +184,13 @@ Last activity: 2026-04-04 — Milestone v11.1 started
 - Documentation: 700+ lines across 3 files
 - Zero regressions, zero deviatons
 
+| Phase 101 P01 | 15 | 7 tasks | 1 files |
+
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 101]: DOC-02: Command Cheat Sheet created at docs/cheatsheet.md with all 16 commands across 5 categories
 - [v10.0]: Phases 84–86 are independent (no inter-dependencies) — Phase 87 depends on all three (tests verify their changes)
 - [v9.0]: Log schema requires non-empty `error` field — lifecycle events deferred to backlog (999.6)
 - [v9.0]: Guard files are soft-check checklists by design — not stubs
@@ -183,6 +205,7 @@ Last activity: 2026-04-04 — Milestone v11.1 started
 - [Phase 93]: Key file selector uses 3-tier priority (entry → config → core) with max 15 files
 - [Phase 93]: Doc link mapper includes 35 technology mappings with graceful fallback for unknowns
 - [Phase 93]: Onboard summary uses terminal box-drawing for visual clarity
+- [Phase 101]: DOC-02: Command Cheat Sheet created at docs/cheatsheet.md with all 16 commands across 5 categories
 
 ### Pending Todos
 
