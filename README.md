@@ -203,7 +203,30 @@ $pd-init        # Codex
 | `conventions` | Analyze code, detect patterns, ask user → create project-specific CLAUDE.md         |
 | `fetch-doc`   | Download documentation from URL, save markdown locally with version + section TOC   |
 | `update`      | Check + update skills from GitHub, show changelog, suggest restart                    |
-| `status`      | Display project status dashboard (milestone, phase, tasks, errors, blockers)        |
+| `status`      | Display project status dashboard (milestone, phase, tasks, errors, blockers)      |
+
+**Status Command Usage:**
+
+```bash
+# Basic status check
+/pd:status
+
+# With auto-refresh (alerts if data is stale)
+/pd:status --auto-refresh
+
+# Set custom staleness threshold (in minutes)
+/pd:status --refresh-threshold=5
+
+# Combined options
+/pd:status --auto-refresh --refresh-threshold=15
+```
+
+The status dashboard displays:
+- Current milestone and phase
+- Task progress (✅ completed, 🔄 in progress, ⬜ pending, 🐛 bugs)
+- Recent errors from logs (last 10 entries)
+- Blocking issues from STATE.md
+- Workflow suggestions
 
 
 ### Convention System (Rules + CLAUDE.md)

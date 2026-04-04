@@ -1,8 +1,8 @@
 ---
 name: pd:status
-description: Display a read-only project status dashboard showing milestone, phase, tasks, bugs, lint state, and blockers
+description: Display a read-only project status dashboard showing milestone, phase, tasks, bugs, errors, and blockers with optional staleness detection
 model: haiku
-argument-hint: "(no arguments needed)"
+argument-hint: "[--auto-refresh] [--refresh-threshold=MINUTES]"
 allowed-tools:
   - Read
   - Glob
@@ -10,7 +10,7 @@ allowed-tools:
 ---
 
 <objective>
-Display an 8-field read-only project status dashboard.
+Display an 8-field read-only project status dashboard with optional auto-refresh detection.
 READ ONLY. DO NOT edit files. DO NOT call FastCode MCP.
 </objective>
 
@@ -21,7 +21,11 @@ Stop and instruct the user if any of the following conditions fail:
 </guards>
 
 <context>
-User input: $ARGUMENTS (no arguments)
+User input: $ARGUMENTS
+- No arguments: Display basic status
+- `--auto-refresh`: Enable staleness detection and show refresh recommendation
+- `--refresh-threshold=N`: Set staleness threshold in minutes (default: 10)
+
 No rules or FastCode MCP needed - only read planning files.
 </context>
 
@@ -32,6 +36,18 @@ No rules or FastCode MCP needed - only read planning files.
 
 <process>
 Execute @workflows/status.md from start to finish.
+
+**If `--auto-refresh` flag is set:**
+1. Load `refresh-detector.js` library
+2. Check `STATE.md` `last_updated` timestamp
+3. Determine staleness level (fresh/aging/stale)
+4. Display staleness indicator in dashboard
+5. Show refresh recommendation if stale
+
+**If `--refresh-threshold` flag is set:**
+1. Parse threshold value (must be positive integer)
+2. Use custom threshold instead of default (10 minutes)
+3. Apply to staleness detection
 </process>
 
 <output>
@@ -45,11 +61,13 @@ Execute @workflows/status.md from start to finish.
 - All 8 dashboard fields are displayed
 - Zero files were written or modified
 - Output is 8–12 lines of formatted status
+- With `--auto-refresh`: Staleness indicator shown
 
 **Common errors:**
 
 - `.planning/` does not exist -> run `/pd:init`
 - `STATE.md` is missing or broken -> run `/pd:new-milestone` to recreate it
+- Invalid threshold value -> use positive integer (e.g., `--refresh-threshold=5`)
 </output>
 
 <rules>
@@ -57,8 +75,12 @@ Execute @workflows/status.md from start to finish.
 - READ ONLY. DO NOT edit any files
 - DO NOT call FastCode MCP or Context7 MCP
 - DO NOT suggest next steps — that is pd:what-next's job
-- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Lint, Blockers, Last commit
-- If PROGRESS.md does not exist → Lint field shows "✓ no active task"
+- Display exactly 8 fields in order: Milestone, Phase, Plan, Tasks, Bugs, Errors, Blockers, Last commit
+- If PROGRESS.md does not exist → show "✓ no active task"
+- With `--auto-refresh`, append staleness indicator:
+  - Fresh: "Data current (X min ago)"
+  - Aging: "Data aging (X min ago)"
+  - Stale: "⚠ Data stale (X min ago) — Run `/pd:status --auto-refresh`"
 </rules>
 
 <script type="error-handler">
