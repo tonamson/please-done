@@ -4,6 +4,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
 [![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#supported-platforms)
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](README.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](README.vi.md)
 
 Please Done is a skills suite (`/pd:*`) for AI coding CLIs — a structured development workflow, from initialization to release.
 
