@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v11.1
 milestone_name: Documentation Improvements
-status: completed
-stopped_at: Phase 105 COMPLETE — Skill Reference Cards created
-last_updated: "2026-04-04T23:15:00.000Z"
-last_activity: 2026-04-04 — Phase 105 completed with 17 files
+status: archived
+stopped_at: Milestone COMPLETE — v11.1 archived
+last_updated: "2026-04-04T23:30:00.000Z"
+last_activity: 2026-04-04 — Milestone v11.1 archived, 6 phases completed
 progress:
   total_phases: 6
   completed_phases: 6

@@ -128,20 +128,19 @@ Every workflow step must produce the highest quality code output while consuming
 - Code-level verification — plan checker only checks plan documents, not code
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
-## Current Milestone: v11.1 Documentation Improvements
+## Current State
 
-**Goal:** Cải thiện tài liệu hướng dẫn sử dụng các command skill hiện có trong repo để developer dễ dàng sử dụng.
+**Latest Shipped:** v11.1 Documentation Improvements (2026-04-04)
 
-**Target features:**
-- Cải thiện README.md với hướng dẫn sử dụng rõ ràng cho các skill chính
-- Tạo command cheat sheet nhanh cho các lệnh thường dùng
-- Cập nhật CLAUDE.md với ví dụ sử dụng thực tế
-- Tạo text-based walkthrough guides cho workflow phổ biến
-- Cải thiện error messages để user biết cách khắc phục
+v11.1 delivered comprehensive documentation improvements including:
+- README Quick Start Guide with 5 basic commands
+- Command Cheat Sheet covering all 16 skills
+- CLAUDE.md Common Workflows section (~290 lines)
+- Error Troubleshooting Guide
+- 3 Workflow Walkthrough Guides (getting-started, bug-fixing, milestone-management)
+- 16 Skill Reference Cards with consistent structure
 
-**Status:** Defining requirements
-
-**Scope:** 4-6 requirements, 4-6 phases, ~4-6 plans
+See `.planning/milestones/v11.1-ROADMAP.md` for full details.
 
 ## Previous Milestone: v11.0 Developer Tooling & Observability
 
