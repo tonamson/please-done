@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v10.0
-milestone_name: Skill Repo Audit Fixes — [archived]
-status: Completed Phase 89.1
-stopped_at: Completed Gap Closure Plan 89.1
-last_updated: "2026-04-04T02:02:06.268Z"
+milestone: v11.0
+milestone_name: Developer Tooling & Observability
+status: Phase 89 + 89.1 Complete, ready for Phase 90
+stopped_at: Completed Phase 89 + Gap Closure 89.1, ready for Phase 90
+last_updated: "2026-04-04T09:30:00.000Z"
 progress:
-  total_phases: 74
-  completed_phases: 63
-  total_plans: 121
-  completed_plans: 120
+  total_phases: 15
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
 ---
 
 # Project State
@@ -22,8 +22,8 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 89.1 (log-01-gap-closure) — COMPLETED
-Plan: 1 of 1 (All tasks complete)
+Phase: 89 (log-01-integration-workflow-wiring) — ✅ COMPLETE (with gap closure 89.1)
+Plan: 2 of 2 (100% complete)
 v11.0 — In Progress (Phase 90: STATUS-01 — Status Dashboard)
 
 ## v11.0 Summary
@@ -36,6 +36,7 @@ v11.0 — In Progress (Phase 90: STATUS-01 — Status Dashboard)
   - ✅ Enhanced error context for critical skills
   - ✅ Log rotation and management
   - ✅ Error recovery guide
+  - ✅ **Gap Closure Complete:** All 16 skills wired to error handlers
   - 🔄 Status dashboard (Phase 90)
   - 🔄 Auto-onboarding (Phase 92-94)
   - 🔄 Lint recovery (Phase 95-96)
@@ -78,6 +79,22 @@ v11.0 — In Progress (Phase 90: STATUS-01 — Status Dashboard)
 7. ✅ Integration testing (10 end-to-end scenarios)
 8. ✅ Documentation update (logging.md, README, INTEGRATION_GUIDE)
 
+## Phase 89.1 Complete: Gap Closure — Wire Skills to Error Handlers
+
+- **Plan:** 89.1-GAP-CLOSURE-PLAN.md (4 tasks)
+- **Summary:** 89.1-GAP-CLOSURE-SUMMARY.md
+- **Goal:** Wire error handlers into all 16 skill files — ✅ COMPLETE
+- **Files modified:** 22 files
+  - 16 skill files updated with error handler imports
+  - 2 library fixes (log-writer, enhanced-error-handler)
+  - 5 test file updates
+  - 64 regenerated snapshots
+- **Commits:** 5 commits
+- **Gaps resolved:**
+  - ✅ All 16 skills now import appropriate error handlers
+  - ✅ Error logs written to .planning/logs/agent-errors.jsonl
+  - ✅ what-next displays actual errors from logs
+
 ## Deferred Items
 
 - plan-check.js Vietnamese user-facing strings (lines 6/21/30/34) — flag for v11.0 language sweep
@@ -106,8 +123,9 @@ v11.0 — In Progress (Phase 90: STATUS-01 — Status Dashboard)
 | v10.0 | 4 | 8 | 2026-04-03 | ✅ |
 | v11.0 P88 | 1 plan | 4 tasks | 3 files | ✅ |
 | v11.0 P89 | 1 plan | 10 tasks | 15 files | ✅ |
+| v11.0 P89.1 | 1 gap plan | 4 tasks | 22 files | ✅ |
 
-**Phase 89 Stats:**
+**Phase 89/89.1 Stats:**
 
 - Lines of code: ~2,700 (15 files)
 - Test coverage: 57 new tests
@@ -128,6 +146,7 @@ v11.0 — In Progress (Phase 90: STATUS-01 — Status Dashboard)
 - [Phase 89]: Error logging integrated across all 16 skills with rich context for debugging
 - [Phase 89]: Log rotation at 10MB with 10 retained files prevents disk space issues
 - [Phase 89]: Error recovery guide enables self-service debugging
+- [Phase 89.1]: All 16 skill files must import error handlers for structured logging to work
 
 ### Pending Todos
 
