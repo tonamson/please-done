@@ -95,7 +95,7 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 - [x] 106-01-PLAN.md — Create README.vi.md with full Vietnamese translation and language switcher
 
 ### Phase 107: I18N-02 — CLAUDE.md Song Ngữ
-**Status:** Planned | **Plans:** 1 plan
+**Status:** Planned | **Plans:** 1/1 plans complete
 **Goal:** Tạo phiên bản CLAUDE.md tiếng Việt.
 **Success Criteria:**
 1. File `CLAUDE.vi.md` với toàn bộ nội dung
@@ -103,14 +103,18 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 3. Giữ nguyên tất cả ví dụ và workflow
 
 **Plans:**
-- [ ] 107-01-PLAN.md — Create CLAUDE.vi.md with full Vietnamese translation and language switcher
+- [x] 107-01-PLAN.md — Create CLAUDE.vi.md with full Vietnamese translation and language switcher
 
 ### Phase 108: I18N-03 — Command Cheat Sheet Tiếng Việt
+**Status:** Planned | **Plans:** 1/1 plans complete
 **Goal:** Tạo cheat sheet tiếng Việt.
 **Success Criteria:**
 1. File `docs/cheatsheet.vi.md`
 2. Dịch descriptions và explanations
 3. Giữ nguyên commands và flags
+
+**Plans:**
+- [x] 108-01-PLAN.md — Create docs/cheatsheet.vi.md with full Vietnamese translation and language switchers
 
 ### Phase 109: I18N-04 — Workflow Guides Tiếng Việt
 **Goal:** Dịch các workflow guides sang tiếng Việt.
@@ -125,6 +129,13 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 1. 16 files `docs/skills/*.vi.md`
 2. Index `docs/skills/index.vi.md`
 3. Cấu trúc giống bản gốc
+**Plans:** 4 plans | 4 waves
+
+**Plan List:**
+- [ ] 110-01-PLAN.md — Translate index, onboard, init, scan (Wave 1: Core Skills)
+- [ ] 110-02-PLAN.md — Translate plan, write-code, test, new-milestone (Wave 2: Project Skills)
+- [ ] 110-03-PLAN.md — Translate fix-bug, complete-milestone, audit, research (Wave 3: Debug + Complete)
+- [ ] 110-04-PLAN.md — Translate what-next, status, conventions, fetch-doc, update (Wave 4: Utility Skills)
 
 ### Phase 111: I18N-06 — Error Troubleshooting Tiếng Việt
 **Goal:** Dịch error troubleshooting guide.
