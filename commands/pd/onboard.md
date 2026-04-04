@@ -31,6 +31,7 @@ Templates (for creating planning files):
 - @templates/current-milestone.md → CURRENT_MILESTONE.md format
 - @templates/state.md → STATE.md format
 - @templates/requirements.md → REQUIREMENTS.md format
+- @templates/context-template.md → CONTEXT.md format
 </context>
 
 <execution_context>
@@ -40,6 +41,42 @@ Templates (for creating planning files):
 
 <process>
 Execute @workflows/onboard.md from start to finish.
+
+### Step 1: Initialize Planning Directory
+Run `pd:init` to create `.planning/` structure and framework rules.
+
+### Step 2: Validate Project Path
+Ensure the target path exists and contains a valid project.
+
+### Step 3: Analyze Git History
+Extract project vision, tech stack, and language policy from git commits.
+
+### Step 4: Create PROJECT.md
+Generate project overview with vision derived from git analysis.
+
+### Step 5: Scan Codebase
+Run `pd:scan` to analyze code structure and create SCAN_REPORT.md.
+
+### Step 6: Generate CONTEXT.md
+
+Generate `.planning/CONTEXT.md` using:
+1. Tech stack from scan results
+2. Key files (select top 10-15 using `lib/key-file-selector.js`)
+3. Framework patterns detected
+4. Documentation links mapped from stack using `lib/doc-link-mapper.js`
+
+Use template: `templates/context-template.md`
+
+**Error handling:**
+- If generation fails, log error but continue
+- Missing data should not block completion
+- Gracefully handle missing template
+
+### Step 7: Create Supporting Files
+Generate ROADMAP.md, CURRENT_MILESTONE.md, STATE.md, and REQUIREMENTS.md.
+
+### Step 8: Display Summary
+Output onboarding summary with tech stack, key files, and next steps.
 </process>
 
 <output>
@@ -77,11 +114,16 @@ Execute @workflows/onboard.md from start to finish.
 </rules>
 
 <script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+const { createEnhancedErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
 
-// Create error handler for onboard skill
-const errorHandler = createBasicErrorHandler('pd:onboard', '$CURRENT_PHASE', {
-  operation: 'onboard'
+/**
+ * Enhanced error handler for onboard skill
+ * Logs structured errors to .planning/logs/agent-errors.jsonl
+ * Includes git analysis context and stack trace
+ */
+const errorHandler = createEnhancedErrorHandler('pd:onboard', '$CURRENT_PHASE', {
+  operation: 'onboard',
+  contextFields: ['gitAvailable', 'projectPath', 'stepCompleted']
 });
 
 // Export for skill executor
