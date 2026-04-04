@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v11.1
 milestone_name: Documentation Improvements
 status: completed
-stopped_at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
-last_updated: "2026-04-04T15:14:41.472Z"
-last_activity: 2026-04-04 — Milestone v11.1 started
+stopped_at: Completed Phase 102 Plan 01 — CLAUDE.md Usage Examples
+last_updated: "2026-04-04T16:00:00.000Z"
+last_activity: 2026-04-04 — Phase 102 Plan 01 complete
 progress:
   total_phases: 6
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
+  completed_phases: 3
+  total_plans: 3
+  completed_plans: 3
 ---
 
 # Project State
@@ -23,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 101 (Documentation Improvements)
-Plan: 01 — Command Cheat Sheet
-Status: ✅ COMPLETE — docs/cheatsheet.md created with 16 commands
-Last activity: 2026-04-04 — Phase 101 Plan 01 complete
+Phase: 102 (Documentation Improvements)
+Plan: 01 — CLAUDE.md Usage Examples
+Status: ✅ COMPLETE — Common Workflows and Command Usage Patterns added
+Last activity: 2026-04-04 — Phase 102 Plan 01 complete
 
 ## v11.0 Summary
 
@@ -121,6 +121,22 @@ Last activity: 2026-04-04 — Phase 101 Plan 01 complete
   - Returns structured result with recommendation
   - Handles errors gracefully (invalid SHA, not git repo)
 
+## Phase 102 Complete: DOC-03 — CLAUDE.md Usage Examples
+
+- **Plan:** 102-PLAN.md (9 tasks)
+- **Summary:** 102-01-SUMMARY.md
+- **Goal:** Update CLAUDE.md with Common Workflows section and Command Usage Patterns — ✅ COMPLETE
+- **Files modified:** 1 file
+  - `CLAUDE.md` — Added Common Workflows section (~290 lines)
+- **Content:**
+  - 5 workflows documented (Start Project, Fix Bug, Check Progress, Plan Feature, Complete Milestone)
+  - Each workflow has: When to use, Command Sequence, Steps (4-column table), Decision Points
+  - Command Usage Patterns with flag combinations (10 flags)
+  - Error Recovery Patterns (7 error scenarios)
+  - Quick Reference table with 5 command categories
+- **Commits:** 1 commit with documentation update
+- **Requirement:** DOC-03 — CLAUDE.md Usage Examples ✅
+
 ## Phase 101 Complete: DOC-02 — Command Cheat Sheet
 
 - **Plan:** 101-PLAN.md (7 tasks)
@@ -185,11 +201,13 @@ Last activity: 2026-04-04 — Phase 101 Plan 01 complete
 - Zero regressions, zero deviatons
 
 | Phase 101 P01 | 15 | 7 tasks | 1 files |
+| Phase 102 P01 | 15 | 9 tasks | 1 files |
 
 ## Accumulated Context
 
 ### Decisions
 
+- [Phase 102]: DOC-03: Common Workflows added to CLAUDE.md with 5 practical examples and Command Usage Patterns section
 - [Phase 101]: DOC-02: Command Cheat Sheet created at docs/cheatsheet.md with all 16 commands across 5 categories
 - [v10.0]: Phases 84–86 are independent (no inter-dependencies) — Phase 87 depends on all three (tests verify their changes)
 - [v9.0]: Log schema requires non-empty `error` field — lifecycle events deferred to backlog (999.6)
@@ -388,8 +406,8 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 
 ## Session Continuity
 
-Last session: 2026-04-04T20:45:00.000Z
-Stopped at: Completed Phase 95 — All 8 tasks committed, SUMMARY.md created, 60 tests passing
+Last session: 2026-04-04T16:00:00.000Z
+Stopped at: Completed Phase 102 Plan 01 — CLAUDE.md Usage Examples
 
 ## Phase 95 Complete: LINT-01 — Lint Failure Tracking
 
