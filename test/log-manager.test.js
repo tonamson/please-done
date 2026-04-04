@@ -104,10 +104,10 @@ test('cleanupOldRotations - keeps only MAX_LOG_FILES rotations', () => {
 
   assert.strictEqual(remainingFiles.length, maxFiles);
 
-  // Check that the highest numbered files remain
-  for (let i = 6; i <= 15; i++) {
+  // Check that the highest numbered files remain (15 down to 6, keeping 10 newest)
+  for (let i = 1; i <= 15; i++) {
     const exists = fs.existsSync(path.join(LOGS_DIR, `${baseName}.${i}.jsonl`));
-    if (i > 10) {
+    if (i <= 5) {
       assert.strictEqual(exists, false, `File ${i} should be deleted`);
     } else {
       assert.strictEqual(exists, true, `File ${i} should be kept`);
