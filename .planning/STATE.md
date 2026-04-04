@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v11.0
-milestone_name: Developer Tooling & Observability
-status: Phase 91 Complete, ready for Phase 92
-stopped_at: Completed Phase 91 — STATUS-01 Workflow Integration
-last_updated: "2026-04-04T09:55:00.000Z"
+milestone: v10.0
+milestone_name: Skill Repo Audit Fixes — [archived]
+status: Executing Phase 88
+stopped_at: Completed Phase 92, ready for Phase 93
+last_updated: "2026-04-04T05:37:22.019Z"
 progress:
-  total_phases: 15
-  completed_phases: 4
-  total_plans: 7
-  completed_plans: 7
+  total_phases: 68
+  completed_phases: 66
+  total_plans: 124
+  completed_plans: 124
 ---
 
 # Project State
@@ -22,8 +22,8 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 91 — ✅ COMPLETE (STATUS-02 — Workflow Integration)
-Plan: 7 of 7 (100% complete)
+Phase: 88 (log-01-logging-foundation) — EXECUTING
+Plan: 1 of 1
 v11.0 — In Progress (Phase 92: ONBOARD-01 — Auto-onboarding)
 
 ## v11.0 Summary
@@ -40,7 +40,7 @@ v11.0 — In Progress (Phase 92: ONBOARD-01 — Auto-onboarding)
   - ✅ **Gap Closure Complete:** All 16 skills wired to error handlers
   - ✅ Status dashboard (Phase 90)
   - ✅ Status workflow integration (Phase 91)
-  - 🔄 Auto-onboarding (Phase 92-94)
+  - ✅ Auto-onboarding — State machine + error handler + what-next (Phase 92)
   - 🔄 Lint recovery (Phase 95-96)
   - 🔄 Staleness detection (Phase 97-98)
   - 🔄 Integration contracts (Phase 99-100)
@@ -48,12 +48,15 @@ v11.0 — In Progress (Phase 92: ONBOARD-01 — Auto-onboarding)
 ## Phase 88 Complete: LOG-01 — Agent Error Logging Foundation
 
 - **Plan:** 88-01-PLAN.md (4 tasks)
+- **Summary:** 88-01-SUMMARY.md
+- **Goal:** Create structured logging infrastructure and log-writer utility — ✅ COMPLETE
 - **Files created:**
   - `bin/lib/log-writer.js` - Pure logging utility with writeLog() and createLogBuilder()
   - `test/log-writer.test.js` - 8 unit tests with 100% coverage
   - `.planning/logs/` - Gitignored log directory
 - **Tests:** 8/8 pass, 1172 regression tests pass
 - **Validation:** 88-VALIDATION.md (Nyquist compliant)
+- **Commits:** 1 commit (summary documentation)
 
 ## Phase 89 Complete: LOG-01 — Integration & Workflow Wiring
 
@@ -164,6 +167,7 @@ None.
 
 | Skill | Prerequisites | Description |
 |-------|--------------|-------------|
+| `pd:onboard` | **None** | Auto-orient AI to new codebase — runs init+scan internally (Phase 92) |
 | `pd:init` | None | Initialize new project with GSD workflow |
 | `pd:scan` | None | Analyze codebase and create PROJECT.md |
 | `pd:plan` | PROJECT.md | Create PLAN.md with tasks |
@@ -179,13 +183,17 @@ None.
 
 ```
 idle → pd:status (read-only, no state change)
+idle → pd:onboard → planning-ready (runs init+scan automatically)
 idle → pd:init → planning → pd:plan → ready → pd:write-code → executing → ...
 ```
 
 **Notes:**
+
 - `pd:status` can run anytime — no blocking dependencies
 - `pd:status` is read-only and never modifies state
+- `pd:onboard` is the entry point for new projects — no `.planning/` required
 - When idle for >10 minutes, what-next suggests `pd:status`
+- When no `.planning/` exists, what-next suggests `pd:onboard`
 
 ## Session Continuity
 
@@ -227,5 +235,39 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 - Default threshold: 10 minutes
 - Staleness levels: fresh, aging, stale
 
-Last session: 2026-04-04T09:55:00.000Z
-Stopped at: Completed Phase 91, ready for Phase 92
+## Phase 92 Complete: ONBOARD-01 — Onboarding Skill Foundation
+
+- **Plan:** 92-PLAN.md (6 tasks)
+- **Summary:** 92-SUMMARY.md
+- **Goal:** Integrate existing pd:onboard skill with v11.0 infrastructure — ✅ COMPLETE
+- **Files created:** 1 file
+  - `test/pd-onboard-integration.test.js` - Integration tests
+- **Files modified:** 4 files
+  - `commands/pd/onboard.md` - Enhanced error handler
+  - `.planning/STATE.md` - State machine updated
+  - `workflows/what-next.md` - Onboard suggestion for new projects
+  - `CLAUDE.md` - Command reference documentation
+- **Tests:** 13 new tests, all passing
+- **Commits:** 1 commit
+
+**Delivered:**
+
+1. ✅ State machine updated with pd:onboard prerequisites (none)
+2. ✅ Error handler wired for structured logging (enhanced handler)
+3. ✅ what-next suggests pd:onboard for new projects (no .planning/)
+4. ✅ Documentation updated with onboard reference
+5. ✅ Integration tests for state machine, logging, what-next
+6. ✅ Snapshots regenerated (64 files)
+7. ✅ Zero regressions in existing flows
+
+**Key Features:**
+
+- Entry point skill — no prerequisites
+- Enhanced error logging with context fields
+- what-next detection of new projects
+- Sonnet tier with full automation
+
+## Session Continuity
+
+Last session: 2026-04-04T12:40:00.000Z
+Stopped at: Completed Phase 92, ready for Phase 93
