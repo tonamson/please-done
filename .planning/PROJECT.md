@@ -130,6 +130,14 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
+**Active:** v11.2 Vietnamese Documentation (defining)
+
+v11.2 goal: Create bilingual English-Vietnamese documentation for the entire project.
+- Approach: Bilingual (keep English, add Vietnamese parallel)
+- 6 requirements: I18N-01 (README) through I18N-06 (Error Troubleshooting)
+- High priority — needed immediately for Vietnamese team
+- Files: README.vi.md, CLAUDE.vi.md, docs/*.vi.md, etc.
+
 **Latest Shipped:** v11.1 Documentation Improvements (2026-04-04)
 
 v11.1 delivered comprehensive documentation improvements including:

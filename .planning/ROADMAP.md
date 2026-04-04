@@ -19,6 +19,7 @@
 - ✅ **v10.0 Skill Repo Audit Fixes** — Phases 84-87 (complete)
 - ✅ **v11.0 Developer Tooling & Observability** — Phases 88-99 (shipped 2026-04-04)
 - ✅ **v11.1 Documentation Improvements** — Phases 100-105 ([shipped 2026-04-04](milestones/v11.1-ROADMAP.md))
+- 🔄 **v11.2 Vietnamese Documentation** — Phases 106-111 (in progress)
 
 ## Progress
 
@@ -64,6 +65,66 @@ Full details: `.planning/milestones/v1.0-ROADMAP.md`
 Full details: `.planning/milestones/v11.0-ROADMAP.md`
 
 </details>
+
+## Backlog
+
+> Parking lot for unsequenced improvement ideas.
+
+*(Backlog hiện trống)*
+
+---
+
+## 🔄 v11.2 Vietnamese Documentation (In Progress)
+
+**Goal:** Tạo phiên bản song ngữ Anh-Việt cho toàn bộ tài liệu hướng dẫn.
+
+**Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06
+
+**Phases:** 6 phases | **Estimated Plans:** 6 plans
+
+### Phase 106: I18N-01 — README Song Ngữ
+**Goal:** Tạo phiên bản README tiếng Việt song song với bản tiếng Anh.
+**Success Criteria:**
+1. File `README.vi.md` với nội dung đầy đủ
+2. Liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
+3. Giữ nguyên cấu trúc và format
+
+### Phase 107: I18N-02 — CLAUDE.md Song Ngữ
+**Goal:** Tạo phiên bản CLAUDE.md tiếng Việt.
+**Success Criteria:**
+1. File `CLAUDE.vi.md` với toàn bộ nội dung
+2. Dịch chuẩn xác các thuật ngữ kỹ thuật
+3. Giữ nguyên tất cả ví dụ và workflow
+
+### Phase 108: I18N-03 — Command Cheat Sheet Tiếng Việt
+**Goal:** Tạo cheat sheet tiếng Việt.
+**Success Criteria:**
+1. File `docs/cheatsheet.vi.md`
+2. Dịch descriptions và explanations
+3. Giữ nguyên commands và flags
+
+### Phase 109: I18N-04 — Workflow Guides Tiếng Việt
+**Goal:** Dịch các workflow guides sang tiếng Việt.
+**Success Criteria:**
+1. `docs/workflows/getting-started.vi.md`
+2. `docs/workflows/bug-fixing.vi.md`
+3. `docs/workflows/milestone-management.vi.md`
+
+### Phase 110: I18N-05 — Skill Reference Cards Tiếng Việt
+**Goal:** Dịch 16 skill cards sang tiếng Việt.
+**Success Criteria:**
+1. 16 files `docs/skills/*.vi.md`
+2. Index `docs/skills/index.vi.md`
+3. Cấu trúc giống bản gốc
+
+### Phase 111: I18N-06 — Error Troubleshooting Tiếng Việt
+**Goal:** Dịch error troubleshooting guide.
+**Success Criteria:**
+1. `docs/error-troubleshooting.vi.md`
+2. Dịch error messages và suggested actions
+3. Giữ nguyên commands
+
+---
 
 ## Backlog
 

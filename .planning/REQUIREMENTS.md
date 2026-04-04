@@ -1,0 +1,90 @@
+# v11.2 Requirements: Vietnamese Documentation
+
+**Status:** In Progress  
+**Priority:** High  
+**Approach:** Bilingual (English + Vietnamese)
+
+---
+
+## Goal
+
+Tạo phiên bản song ngữ Anh-Việt cho toàn bộ tài liệu hướng dẫn, giúp team Việt Nam dễ dàng sử dụng framework.
+
+---
+
+## Requirements
+
+### I18N-01: README Song Ngữ
+**Requirement:** Tạo phiên bản README tiếng Việt song song với bản tiếng Anh  
+**Chi tiết:**
+- File `README.vi.md` với nội dung đầy đủ tương đương README.md
+- Thêm liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
+- Giữ nguyên cấu trúc và format
+
+### I18N-02: CLAUDE.md Song Ngữ
+**Requirement:** Tạo phiên bản CLAUDE.md tiếng Việt  
+**Chi tiết:**
+- File `CLAUDE.vi.md` với toàn bộ nội dung
+- Giữ nguyên tất cả các ví dụ và workflow
+- Dịch chuẩn xác các thuật ngữ kỹ thuật
+
+### I18N-03: Command Cheat Sheet Tiếng Việt
+**Requirement:** Tạo cheat sheet tiếng Việt  
+**Chi tiết:**
+- File `docs/cheatsheet.vi.md`
+- Dịch descriptions và explanations
+- Giữ nguyên commands và flags (không dịch)
+
+### I18N-04: Workflow Guides Tiếng Việt
+**Requirement:** Dịch các workflow guides sang tiếng Việt  
+**Chi tiết:**
+- `docs/workflows/getting-started.vi.md`
+- `docs/workflows/bug-fixing.vi.md`
+- `docs/workflows/milestone-management.vi.md`
+- Giữ ngữ cảnh và ví dụ thực tế
+
+### I18N-05: Skill Reference Cards Tiếng Việt
+**Requirement:** Dịch 16 skill cards sang tiếng Việt  
+**Chi tiết:**
+- 16 files `docs/skills/*.vi.md`
+- Index `docs/skills/index.vi.md`
+- Cấu trúc giống bản gốc
+
+### I18N-06: Error Troubleshooting Tiếng Việt
+**Requirement:** Dịch error troubleshooting guide  
+**Chi tiết:**
+- `docs/error-troubleshooting.vi.md`
+- Dịch error messages và suggested actions
+- Giữ nguyên commands
+
+---
+
+## Deferred (Future Milestones)
+
+- Video tutorials voiceover tiếng Việt
+- Interactive documentation đa ngôn ngữ
+- Auto-detect language từ system locale
+
+## Out of Scope
+
+- Thay đổi code hoặc logic (chỉ dịch tài liệu)
+- Dịch comments trong code
+- Dịch test files
+- Thay đổi tên file gốc tiếng Anh
+
+---
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| I18N-01 | 106 | Planned |
+| I18N-02 | 107 | Planned |
+| I18N-03 | 108 | Planned |
+| I18N-04 | 109 | Planned |
+| I18N-05 | 110 | Planned |
+| I18N-06 | 111 | Planned |
+
+---
+
+*Created: 2026-04-04*
