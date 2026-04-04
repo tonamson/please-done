@@ -18,6 +18,7 @@
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 const { validateLogEntry } = require('../bin/lib/log-schema');
+const { validateContext, validateTasks, validateProgress } = require('../bin/lib/schema-validator');
 
 // ─── Inline Fixtures ────────────────────────────────────────
 
@@ -254,5 +255,31 @@ describe('Malformed fixture detection', () => {
   it('malformed PROGRESS.md missing lint_fail_count is detected', () => {
     assert.ok(!/^> lint_fail_count:/m.test(MALFORMED_PROGRESS),
       'malformed fixture must NOT have lint_fail_count — proves detection works');
+  });
+});
+
+// ─── 7. Schema Validator Integration ─────────────────────
+
+describe('Schema Validator Integration', () => {
+  it('CONTEXT.md fixture passes validateContext()', () => {
+    const result = validateContext(VALID_CONTEXT);
+    assert.strictEqual(result.ok, true, `Expected valid but got: ${result.error}`);
+  });
+
+  it('TASKS.md fixture passes validateTasks()', () => {
+    const result = validateTasks(VALID_TASKS);
+    assert.strictEqual(result.ok, true, `Expected valid but got: ${result.error}`);
+  });
+
+  it('PROGRESS.md fixture passes validateProgress()', () => {
+    const result = validateProgress(VALID_PROGRESS);
+    assert.strictEqual(result.ok, true, `Expected valid but got: ${result.error}`);
+  });
+
+  it('Malformed PROGRESS fails validateProgress()', () => {
+    const result = validateProgress(MALFORMED_PROGRESS);
+    assert.strictEqual(result.ok, false);
+    assert.ok(result.error.includes('missing required field'));
+    assert.ok(result.error.includes('lint_fail_count'));
   });
 });

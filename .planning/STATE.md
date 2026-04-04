@@ -22,10 +22,10 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 98 Complete: STALE-01 — Map Metadata & Refresh
+Phase: 99 Complete: INTEG-01 — Contract Test Foundation
 Plan: 1 of 1 — Complete
-Summary: 98-SUMMARY.md
-Next: Phase 99 ready for planning (Integration Contract Tests)
+Summary: 99-SUMMARY.md
+Next: Phase 100 ready for planning (Cross-Skill Contract Tests)
 
 ## v11.0 Summary
 

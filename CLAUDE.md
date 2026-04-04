@@ -97,3 +97,33 @@ The `pd:status` skill displays a read-only project status dashboard.
   - `aging`: 20-49 commits behind
   - `stale`: 50+ commits behind
 - Recommendation shown in Map field of status dashboard
+
+---
+
+### Schema Validation
+
+The `bin/lib/schema-validator.js` module validates artifact files produced by the skill chain.
+
+**Functions:**
+- `validateContext(content)` — Validate CONTEXT.md structure
+- `validateTasks(content)` — Validate TASKS.md structure
+- `validateProgress(content)` — Validate PROGRESS.md structure
+- `validateArtifact(type, content)` — Generic validation by type
+
+**Return format:**
+- Success: `{ ok: true }`
+- Failure: `{ ok: false, error: 'CONTEXT.md: missing required field: Initialized' }`
+
+**Usage:**
+```javascript
+const { validateContext } = require('./bin/lib/schema-validator');
+const result = validateContext(content);
+if (!result.ok) {
+  console.error(result.error);
+}
+```
+
+**Validated Artifacts:**
+- **CONTEXT.md**: `# Project Context`, `> Initialized:`, `> New project:`, `## Tech Stack`, `## Rules`
+- **TASKS.md**: `# Task List`, `> Milestone:`, `## Overview` table, `## Task N:` sections
+- **PROGRESS.md**: `# Execution Progress`, `> Updated:`, `> Task:`, `> Stage:`, `> lint_fail_count:`, `> last_lint_error:`
