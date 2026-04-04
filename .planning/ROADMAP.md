@@ -21,7 +21,7 @@
 
 ## Progress
 
-15 milestones shipped. 87 phases, 125 plans completed. v11.0 in progress (Phase 88).
+15 milestones shipped. 87 phases, 126 plans completed. v11.0 in progress (Phase 88-01 complete).
 
 ## Phases
 
