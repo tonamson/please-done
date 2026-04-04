@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v10.0
 milestone_name: Skill Repo Audit Fixes — [archived]
-status: executing
-stopped_at: Completed Phase 93 — Context Generation & Summary
-last_updated: "2026-04-04T14:30:00.000Z"
+status: planning
+stopped_at: Completed Phase 93 — All 8 tasks committed, SUMMARY.md created
+last_updated: "2026-04-04T14:03:05.633Z"
 progress:
   total_phases: 72
   completed_phases: 70
@@ -22,7 +22,7 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 93 (onboard-01-context) — ✅ COMPLETE
+Phase: 94
 Plan: 1 of 1 — SUMMARY: 93-SUMMARY.md
 Next: Phase 94 planned, ready for execution
 
@@ -327,7 +327,7 @@ idle → pd:init → planning → pd:plan → ready → pd:write-code → execut
 - **Files created:** Reused existing `test/smoke/onboard-smoke.test.js`
 - **Files modified:** 8 snapshot files (regenerated)
 - **Tests:** 49 tests passing (37 integration + 12 smoke)
-- **Status:** Executing Phase 93
+- **Status:** Ready to plan
 
 **Tasks Completed:**
 
