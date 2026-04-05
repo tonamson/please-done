@@ -9,6 +9,7 @@ const { ServiceDiscovery } = require('./service-discovery');
 const { ReconCache } = require('./recon-cache');
 const { AssetDiscoverer } = require('./asset-discoverer');
 const { AuthAnalyzer } = require('./auth-analyzer');
+const { WorkflowMapper } = require('./workflow-mapper');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -21,6 +22,7 @@ class ReconAggregator {
     this.serviceDiscovery = new ServiceDiscovery({ cache: this.cache });
     this.assetDiscoverer = new AssetDiscoverer({ cache: this.cache });
     this.authAnalyzer = new AuthAnalyzer({ cache: this.cache });
+    this.workflowMapper = new WorkflowMapper({ cache: this.cache });
     this.results = null;
   }
 
@@ -65,16 +67,25 @@ class ReconAggregator {
       authInfo = await this.authAnalyzer.analyze(projectPath, targetInfo, options);
     }
 
+    // Phase 115: Business Logic Mapping (deep/redteam tiers)
+    let workflowInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Mapping business logic workflows...');
+      const workflowFiles = await this.findSourceFiles(projectPath);
+      workflowInfo = await this.runWorkflowAnalysis(workflowFiles);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
       assetInfo,
       authInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo)
+      workflowInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -139,11 +150,49 @@ class ReconAggregator {
   }
 
   /**
+   * Run workflow analysis on multiple files
+   * Phase 115: RECON-06 Business Logic Mapping
+   */
+  async runWorkflowAnalysis(files) {
+    const allWorkflows = [];
+    const allFlaws = [];
+
+    // Limit to 50 files for expensive AST analysis (per RESEARCH.md Pitfall 4)
+    const analysisFiles = files.slice(0, 50);
+
+    for (const file of analysisFiles) {
+      try {
+        const result = await this.workflowMapper.analyze(file);
+        if (result.workflows.states.length > 0) {
+          allWorkflows.push(result);
+        }
+        if (result.flaws.length > 0) {
+          allFlaws.push(...result.flaws);
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    return {
+      workflows: allWorkflows,
+      flaws: allFlaws,
+      summary: {
+        filesAnalyzed: analysisFiles.length,
+        workflowsDetected: allWorkflows.length,
+        flawsFound: allFlaws.length,
+        criticalFlaws: allFlaws.filter(f => f.severity === 'CRITICAL').length,
+        highFlaws: allFlaws.filter(f => f.severity === 'HIGH').length
+      }
+    };
+  }
+
+  /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
     return {
-      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
+      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
       vulnerableDependencies: serviceInfo?.vulnerabilities?.length || 0,
       outdatedDependencies: serviceInfo?.summary?.outdatedCount || 0,
@@ -161,14 +210,17 @@ class ReconAggregator {
       authPatterns: authInfo?.authPatterns?.length || 0,
       jwtVulnerabilities: authInfo?.jwtAnalysis?.length || 0,
       hardcodedCredentials: authInfo?.hardcodedCredentials?.length || 0,
-      bypassCandidates: authInfo?.coverageMatrix?.bypassCandidates?.length || 0
+      bypassCandidates: authInfo?.coverageMatrix?.bypassCandidates?.length || 0,
+      workflowsDetected: workflowInfo?.workflows?.length || 0,
+      logicFlaws: workflowInfo?.flaws?.length || 0,
+      criticalLogicFlaws: workflowInfo?.summary?.criticalFlaws || 0
     };
   }
 
   /**
    * Calculate overall risk level
    */
-  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
+  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
     let score = 0;
 
     // Vulnerable dependencies (max 30 points)
@@ -201,6 +253,11 @@ class ReconAggregator {
     const bypassCandidates = authInfo?.coverageMatrix?.bypassCandidates?.length || 0;
     score += Math.min(jwtVulns * 3 + hardcodedCreds * 5 + bypassCandidates * 2, 10);
 
+    // Phase 115: Business logic flaws (max 10 points)
+    const criticalLogicFlaws = workflowInfo?.flaws?.filter(f => f.severity === 'CRITICAL').length || 0;
+    const highLogicFlaws = workflowInfo?.flaws?.filter(f => f.severity === 'HIGH').length || 0;
+    score += criticalLogicFlaws * 5 + Math.min(highLogicFlaws * 2, 10);
+
     if (score >= 60) return 'CRITICAL';
     if (score >= 40) return 'HIGH';
     if (score >= 20) return 'MEDIUM';
@@ -210,7 +267,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
     const risks = [];
 
     // Service risks
@@ -371,6 +428,20 @@ class ReconAggregator {
       }
     }
 
+    // Phase 115: Business logic risks
+    if (workflowInfo?.flaws?.length > 0) {
+      const criticalFlaws = workflowInfo.flaws.filter(f => f.severity === 'CRITICAL');
+      if (criticalFlaws.length > 0) {
+        risks.push({
+          severity: 'CRITICAL',
+          category: 'Business Logic',
+          title: `${criticalFlaws.length} critical business logic flaws`,
+          description: 'Missing state validation, TOCTOU, or workflow bypass vulnerabilities',
+          affected: criticalFlaws.slice(0, 5).map(f => `${f.location.file}:${f.location.line}`)
+        });
+      }
+    }
+
     return risks.sort((a, b) => {
       const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
@@ -380,7 +451,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -485,6 +556,19 @@ class ReconAggregator {
         description: `${candidates.length} sensitive routes lack authentication - add middleware to protect admin, user, and API endpoints`,
         affected: candidates.slice(0, 3).map(c => c.path)
       });
+    }
+
+    // Phase 115: Business logic recommendations
+    if (workflowInfo?.flaws?.length > 0) {
+      const criticalFlaws = workflowInfo.flaws.filter(f => f.severity === 'CRITICAL');
+      if (criticalFlaws.length > 0) {
+        recommendations.push({
+          priority: 'URGENT',
+          title: 'Fix critical business logic flaws',
+          description: `${criticalFlaws.length} critical logic flaws - implement atomic validation and state machine enforcement`,
+          affected: criticalFlaws.slice(0, 3).map(f => `${f.location.file}:${f.location.line}`)
+        });
+      }
     }
 
     return recommendations;
