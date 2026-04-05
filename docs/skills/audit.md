@@ -63,6 +63,32 @@ Reconnaissance results are cached with a key derived from **git commit + tracked
 - LRU eviction (max 50 JSON entries)
 - On hit: `[Token Save] Reusing cached recon (0 AI tokens)`
 
+## OSINT Support
+
+The audit skill supports optional OSINT (Open Source Intelligence) gathering for external reconnaissance.
+
+### OSINT Flags
+
+| Flag | Description |
+|------|-------------|
+| `--osint` | Quick OSINT scan (passive reconnaissance) |
+| `--osint-full` | Comprehensive OSINT with all available sources |
+| `--osint-output` | Output format: `json`, `table`, or `markdown` |
+| `--osint-timeout` | Timeout per source in seconds (default: 10) |
+
+### OSINT Examples
+
+```bash
+# Quick OSINT scan
+/pd:audit --osint
+
+# Comprehensive OSINT with JSON output
+/pd:audit --osint-full --osint-output json
+
+# OSINT with custom timeout
+/pd:audit --osint --osint-timeout 30
+```
+
 ## What It Does
 
 1. Optionally runs PTES Step 0 (recon) when flags demand it
@@ -78,9 +104,13 @@ Reconnaissance results are cached with a key derived from **git commit + tracked
 |------|-------------|---------|
 | `--full` | All 13 categories | `/pd:audit --full` |
 | `--only` | Subset of categories | `/pd:audit --only sql-injection,xss` |
-| `--poc` | POC sections in evidence | `/pd:audit --poc` |
+| `--recon-light` | Code-only reconnaissance (free tier) | `/pd:audit --recon-light` |
 | `--recon` | Standard recon + SAST | `/pd:audit --recon` |
+| `--recon-full` | Deep recon + taint analysis | `/pd:audit --recon-full` |
 | `--redteam` | Full red-team style run | `/pd:audit --redteam` |
+| `--poc` | POC sections in evidence | `/pd:audit --poc` |
+| `--osint` | Quick OSINT scan | `/pd:audit --osint` |
+| `--osint-full` | Comprehensive OSINT | `/pd:audit --osint-full` |
 
 ## PTES Examples
 
@@ -91,11 +121,20 @@ Reconnaissance results are cached with a key derived from **git commit + tracked
 # Code-only recon (0 AI tokens for recon cache miss path — tier free)
 /pd:audit --recon-light
 
+# Deep reconnaissance with taint-style analysis
+/pd:audit --recon-full
+
 # Full Red Team assessment
 /pd:audit --redteam
 
 # Reconnaissance + DAST-style POC sections
 /pd:audit --recon --poc
+
+# Quick OSINT scan
+/pd:audit --osint
+
+# Comprehensive OSINT with JSON output
+/pd:audit --osint-full --osint-output json
 ```
 
 ## See Also
