@@ -517,10 +517,11 @@ class OsintAggregator {
     if (!this.cache) return null;
 
     try {
-      const cacheKey = this._getCacheKey(target, scope);
-      const cached = this.cache.get(cacheKey);
-      if (cached && cached.osintReport) {
-        return cached.osintReport;
+      // ReconCache uses git-based key internally
+      const cached = this.cache.get();
+      if (cached && cached.osintReports) {
+        const key = `${target}:${scope}`;
+        return cached.osintReports[key] || null;
       }
     } catch (err) {
       // Ignore cache errors
@@ -539,22 +540,21 @@ class OsintAggregator {
     if (!this.cache) return;
 
     try {
-      const cacheKey = this._getCacheKey(target, scope);
-      this.cache.set(cacheKey, { osintReport: report });
+      // Get existing cache data or create new
+      const existing = this.cache.get() || {};
+      if (!existing.osintReports) {
+        existing.osintReports = {};
+      }
+
+      // Store OSINT report under target:scope key
+      const key = `${target}:${scope}`;
+      existing.osintReports[key] = report;
+
+      // Save back to cache
+      this.cache.set(existing);
     } catch (err) {
       // Ignore cache errors
     }
-  }
-
-  /**
-   * Generate cache key
-   * @param {string} target
-   * @param {string} scope
-   * @returns {string}
-   * @private
-   */
-  _getCacheKey(target, scope) {
-    return `osint-aggregator:${target}:${scope}`;
   }
 }
 
