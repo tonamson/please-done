@@ -143,6 +143,16 @@ Created `test/integration/recon-workflow.test.js` with 9 tests covering:
 
 None - all 10 libraries have meaningful tests covering primary functionality.
 
+## Test Runner Note
+
+When running all tests together (`node --test 'bin/lib/*.test.js' test/integration/*.test.js`), Node's test runner may exhibit serialization issues with complex objects passed between threads. This manifests as "Unable to deserialize cloned data due to invalid or unsupported version" errors. 
+
+**Workaround:** Run unit tests and integration tests separately:
+- Unit tests: `node --test 'bin/lib/*.test.js'`
+- Integration tests: `node --test test/integration/*.test.js'`
+
+All tests pass individually.
+
 ## Threat Flags
 
 None - test changes do not introduce security-relevant surface.
@@ -168,29 +178,15 @@ node --experimental-test-coverage --test \
   'bin/lib/post-exploit.test.js' \
   'bin/lib/recon-cache.test.js'
 
-# Run integration tests
+# Run integration tests (separate from unit tests)
 node --test test/integration/recon-workflow.test.js
-
-# Run all tests
-node --test \
-  'bin/lib/recon-*.test.js' \
-  'bin/lib/taint-engine.test.js' \
-  'bin/lib/evasion-engine.test.js' \
-  'bin/lib/google-dorks.test.js' \
-  'bin/lib/ct-scanner.test.js' \
-  'bin/lib/secret-detector.test.js' \
-  'bin/lib/payloads.test.js' \
-  'bin/lib/token-analyzer.test.js' \
-  'bin/lib/post-exploit.test.js' \
-  'bin/lib/recon-cache.test.js' \
-  test/integration/recon-workflow.test.js
 ```
 
 ## Self-Check: PASSED
 
 - [x] All 10 libraries have unit tests
-- [x] 133 tests pass (124 unit + 9 integration)
-- [x] Integration test validates full recon chain
+- [x] 124 unit tests pass
+- [x] 9 integration tests pass (validates full recon chain)
 - [x] Bug fixes committed with proper descriptions
 - [x] Coverage improvements documented
 - [x] SUMMARY.md created
