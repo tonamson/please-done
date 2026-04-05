@@ -1,72 +1,38 @@
-/**
- * React useState fixture - Form status state machine
- * Demonstrates useState pattern for form submission workflow
- */
-
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 
 /**
- * Form component with useState-based state machine
- * States: 'idle' | 'submitting' | 'success' | 'error'
+ * Form component with state machine pattern
+ * States: idle, submitting, success, error
  */
 export function ContactForm() {
   const [status, setStatus] = useState('idle');
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
-  const [errorMessage, setErrorMessage] = useState('');
+  const [data, setData] = useState({ name: '', email: '', message: '' });
 
-  const handleInputChange = useCallback((field) => (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  }, []);
-
-  const handleSubmit = useCallback(async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Transition: idle -> submitting
     setStatus('submitting');
-    setErrorMessage('');
 
     try {
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(data)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      if (response.ok) {
+        setStatus('success');
+        setData({ name: '', email: '', message: '' });
+      } else {
+        setStatus('error');
       }
-
-      // Transition: submitting -> success
-      setStatus('success');
-      setFormData({ name: '', email: '', message: '' });
-    } catch (error) {
-      // Transition: submitting -> error
+    } catch (err) {
       setStatus('error');
-      setErrorMessage(error.message);
     }
-  }, [formData]);
+  };
 
-  const handleReset = useCallback(() => {
-    // Transition: success/error -> idle
-    setStatus('idle');
-    setErrorMessage('');
-    setFormData({ name: '', email: '', message: '' });
-  }, []);
-
-  const handleRetry = useCallback(() => {
-    // Transition: error -> idle (allows resubmission)
-    setStatus('idle');
-    setErrorMessage('');
-  }, []);
-
-  // State machine visualization:
-  // idle --(submit)--> submitting --(success)--> success --(reset)--> idle
-  //                       |
-  //                       +--(error)--> error --(retry)--> idle
-  //                                  +--(reset)--> idle
+  const handleChange = (field) => (e) => {
+    setData(prev => ({ ...prev, [field]: e.target.value }));
+  };
 
   return (
     <form onSubmit={handleSubmit}>
@@ -74,45 +40,110 @@ export function ContactForm() {
         <>
           <input
             type="text"
-            value={formData.name}
-            onChange={handleInputChange('name')}
+            value={data.name}
+            onChange={handleChange('name')}
             placeholder="Name"
           />
           <input
             type="email"
-            value={formData.email}
-            onChange={handleInputChange('email')}
+            value={data.email}
+            onChange={handleChange('email')}
             placeholder="Email"
           />
           <textarea
-            value={formData.message}
-            onChange={handleInputChange('message')}
+            value={data.message}
+            onChange={handleChange('message')}
             placeholder="Message"
           />
           <button type="submit">Submit</button>
         </>
       )}
-
-      {status === 'submitting' && (
-        <div>Submitting...</div>
-      )}
-
-      {status === 'success' && (
-        <>
-          <div>Thank you for your submission!</div>
-          <button onClick={handleReset}>Send another message</button>
-        </>
-      )}
-
-      {status === 'error' && (
-        <>
-          <div>Error: {errorMessage}</div>
-          <button onClick={handleRetry}>Retry</button>
-          <button onClick={handleReset}>Cancel</button>
-        </>
-      )}
+      {status === 'submitting' && <div>Loading...</div>}
+      {status === 'success' && <div>Message sent successfully!</div>}
+      {status === 'error' && <div>Error sending message. Please try again.</div>}
     </form>
   );
 }
 
-export default ContactForm;
+/**
+ * Payment flow component
+ * States: cart, checkout, processing, complete, failed
+ */
+export function PaymentFlow() {
+  const [step, setStep] = useState('cart');
+  const [paymentInfo, setPaymentInfo] = useState(null);
+
+  const startCheckout = () => {
+    setStep('checkout');
+  };
+
+  const processPayment = async (info) => {
+    setPaymentInfo(info);
+    setStep('processing');
+
+    const result = await fetch('/api/payment', {
+      method: 'POST',
+      body: JSON.stringify(info)
+    });
+
+    if (result.ok) {
+      setStep('complete');
+    } else {
+      setStep('failed');
+    }
+  };
+
+  return (
+    <div>
+      {step === 'cart' && <button onClick={startCheckout}>Checkout</button>}
+      {step === 'checkout' && (
+        <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          processPayment(Object.fromEntries(formData));
+        }}>
+          <input name="cardNumber" placeholder="Card Number" />
+          <input name="expiry" placeholder="MM/YY" />
+          <input name="cvv" placeholder="CVV" />
+          <button type="submit">Pay Now</button>
+        </form>
+      )}
+      {step === 'processing' && <div>Processing payment...</div>}
+      {step === 'complete' && <div>Payment successful!</div>}
+      {step === 'failed' && <div>Payment failed. Try again.</div>}
+    </div>
+  );
+}
+
+/**
+ * User profile editing component
+ * States: view, edit, saving
+ */
+export function UserProfile() {
+  const [mode, setMode] = useState('view');
+
+  const enterEditMode = () => setMode('edit');
+  const saveProfile = async () => {
+    setMode('saving');
+    await fetch('/api/profile', { method: 'PUT' });
+    setMode('view');
+  };
+
+  return (
+    <div>
+      {mode === 'view' && (
+        <>
+          <div>Profile content...</div>
+          <button onClick={enterEditMode}>Edit</button>
+        </>
+      )}
+      {mode === 'edit' && (
+        <>
+          <input defaultValue="Current name" />
+          <button onClick={saveProfile}>Save</button>
+        </>
+      )}
+      {mode === 'saving' && <div>Saving...</div>}
+    </div>
+  );
+}

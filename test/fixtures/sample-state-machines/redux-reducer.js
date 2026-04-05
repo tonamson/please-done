@@ -1,143 +1,169 @@
 /**
- * Redux reducer fixture - Shopping cart state machine
- * Demonstrates reducer pattern with switch statement for state transitions
+ * Cart Reducer - Redux state machine example
+ * States: empty, has-items, checkout, payment, complete
+ * Actions: ADD_ITEM, REMOVE_ITEM, CHECKOUT, PAYMENT_SUCCESS, PAYMENT_FAILED, CLEAR_CART
  */
 
-// Action Types
-const ADD_ITEM = 'cart/ADD_ITEM';
-const REMOVE_ITEM = 'cart/REMOVE_ITEM';
-const CHECKOUT = 'cart/CHECKOUT';
-const CONFIRM = 'cart/CONFIRM';
-const RESET = 'cart/RESET';
-const CLEAR_CART = 'cart/CLEAR_CART';
-
-// Action Creators
-export const addItem = (item) => ({
-  type: ADD_ITEM,
-  payload: item
-});
-
-export const removeItem = (itemId) => ({
-  type: REMOVE_ITEM,
-  payload: { id: itemId }
-});
-
-export const checkout = () => ({
-  type: CHECKOUT
-});
-
-export const confirm = (paymentDetails) => ({
-  type: CONFIRM,
-  payload: paymentDetails
-});
-
-export const reset = () => ({
-  type: RESET
-});
-
-export const clearCart = () => ({
-  type: CLEAR_CART
-});
-
-// Initial State
 const initialState = {
-  status: 'empty', // 'empty' | 'has-items' | 'checkout' | 'confirmed'
   items: [],
+  status: 'empty',
   total: 0,
-  paymentInfo: null
+  error: null
 };
 
-/**
- * Cart reducer - State machine with 4 states
- * States: 'empty', 'has-items', 'checkout', 'confirmed'
- */
-export function cartReducer(state = initialState, action) {
+function cartReducer(state = initialState, action) {
   switch (action.type) {
-    case ADD_ITEM: {
-      // Transition: empty/has-items -> has-items
-      const newItems = [...state.items, action.payload];
-      const newTotal = newItems.reduce((sum, item) => sum + item.price, 0);
-
+    case 'ADD_ITEM':
       return {
         ...state,
+        items: [...state.items, action.payload],
         status: 'has-items',
-        items: newItems,
-        total: newTotal
+        total: state.total + (action.payload.price * action.payload.quantity)
       };
-    }
 
-    case REMOVE_ITEM: {
-      // Transition: has-items -> has-items (or empty if last item)
-      const newItems = state.items.filter(item => item.id !== action.payload.id);
-      const newTotal = newItems.reduce((sum, item) => sum + item.price, 0);
-
+    case 'REMOVE_ITEM':
+      const updatedItems = state.items.filter(item => item.id !== action.payload);
+      const newTotal = updatedItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       return {
         ...state,
-        status: newItems.length > 0 ? 'has-items' : 'empty',
-        items: newItems,
+        items: updatedItems,
+        status: updatedItems.length === 0 ? 'empty' : 'has-items',
         total: newTotal
       };
-    }
 
-    case CHECKOUT: {
-      // Transition: has-items -> checkout
-      // Security note: This should validate items exist before allowing checkout
-      if (state.items.length === 0) {
-        return state; // Invalid transition - no items to checkout
-      }
-
+    case 'CHECKOUT':
       return {
         ...state,
         status: 'checkout'
       };
-    }
 
-    case CONFIRM: {
-      // Transition: checkout -> confirmed
-      // Security note: This should validate payment before confirming
-      if (state.status !== 'checkout') {
-        return state; // Invalid transition - must be in checkout state
-      }
-
+    case 'PROCESS_PAYMENT':
       return {
         ...state,
-        status: 'confirmed',
-        paymentInfo: action.payload
+        status: 'payment'
       };
-    }
 
-    case RESET: {
-      // Transition: confirmed -> empty
-      return {
-        ...initialState
-      };
-    }
-
-    case CLEAR_CART: {
-      // Transition: has-items/empty -> empty
+    case 'PAYMENT_SUCCESS':
       return {
         ...state,
-        status: 'empty',
+        status: 'complete',
         items: [],
         total: 0
       };
-    }
+
+    case 'PAYMENT_FAILED':
+      return {
+        ...state,
+        status: 'has-items',
+        error: action.payload
+      };
+
+    case 'CLEAR_CART':
+      return initialState;
 
     default:
       return state;
   }
 }
 
-// State machine visualization:
-// empty --(ADD_ITEM)--> has-items --(REMOVE_ITEM* [last])--> empty
-//       <--(REMOVE_ITEM)--|
-//                     |
-//                     +--(CHECKOUT)--> checkout --(CONFIRM)--> confirmed --(RESET)--> empty
-//                                  <--(invalid)--|
-//
-// * Security considerations:
-// * - CHECKOUT requires items.length > 0 (enforced in reducer)
-// * - CONFIRM requires status === 'checkout' (enforced in reducer)
-// * - Direct state modification outside actions would bypass validation
+/**
+ * Auth Reducer - Authentication state machine
+ * States: logged-out, authenticating, logged-in, error
+ */
+const authInitialState = {
+  user: null,
+  isAuthenticated: false,
+  status: 'logged-out',
+  error: null
+};
 
-export default cartReducer;
+function authReducer(state = authInitialState, action) {
+  switch (action.type) {
+    case 'LOGIN_START':
+      return {
+        ...state,
+        status: 'authenticating',
+        error: null
+      };
+
+    case 'LOGIN_SUCCESS':
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: true,
+        status: 'logged-in'
+      };
+
+    case 'LOGIN_FAILURE':
+      return {
+        ...state,
+        status: 'error',
+        error: action.payload
+      };
+
+    case 'LOGOUT':
+      return authInitialState;
+
+    case 'UPDATE_PROFILE':
+      return {
+        ...state,
+        user: { ...state.user, ...action.payload }
+      };
+
+    default:
+      return state;
+  }
+}
+
+/**
+ * Order Reducer - Order workflow state machine
+ * States: pending, confirmed, shipped, delivered, cancelled
+ */
+const orderInitialState = {
+  orders: [],
+  currentOrder: null,
+  status: 'pending'
+};
+
+function orderReducer(state = orderInitialState, action) {
+  switch (action.type) {
+    case 'CREATE_ORDER':
+      return {
+        ...state,
+        currentOrder: action.payload,
+        status: 'pending'
+      };
+
+    case 'CONFIRM_ORDER':
+      return {
+        ...state,
+        status: 'confirmed'
+      };
+
+    case 'SHIP_ORDER':
+      return {
+        ...state,
+        status: 'shipped'
+      };
+
+    case 'DELIVER_ORDER':
+      return {
+        ...state,
+        status: 'delivered',
+        orders: state.currentOrder
+          ? [...state.orders, { ...state.currentOrder, status: 'delivered' }]
+          : state.orders
+      };
+
+    case 'CANCEL_ORDER':
+      return {
+        ...state,
+        status: 'cancelled'
+      };
+
+    default:
+      return state;
+  }
+}
+
+module.exports = { cartReducer, authReducer, orderReducer };

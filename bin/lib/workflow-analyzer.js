@@ -216,6 +216,41 @@ class WorkflowAnalyzer {
             this.addWorkflowEdge(currentWorkflow.entryNodeId, nodeId, 'entry');
           }
         }
+      },
+
+      // Detect data sources (req.body, req.query, etc.)
+      MemberExpression: (path) => {
+        const dataStep = this.extractDataSourceStep(path, filePath);
+        if (dataStep && currentWorkflow) {
+          // Check if similar step already exists (avoid duplicates)
+          const exists = currentWorkflow.steps.some(s =>
+            s.type === 'data-source' &&
+            s.source === dataStep.source &&
+            s.line === dataStep.line
+          );
+
+          if (!exists) {
+            currentWorkflow.steps.push(dataStep);
+
+            const nodeId = this.addWorkflowNode({
+              type: dataStep.type,
+              file: filePath,
+              line: dataStep.line,
+              async: false,
+              metadata: dataStep.metadata
+            });
+
+            dataStep.nodeId = nodeId;
+
+            // Connect to previous step
+            const prevStep = currentWorkflow.steps[currentWorkflow.steps.length - 2];
+            if (prevStep?.nodeId) {
+              this.addWorkflowEdge(prevStep.nodeId, nodeId, 'sequence');
+            } else if (currentWorkflow.entryNodeId) {
+              this.addWorkflowEdge(currentWorkflow.entryNodeId, nodeId, 'entry');
+            }
+          }
+        }
       }
     });
 
@@ -380,6 +415,108 @@ class WorkflowAnalyzer {
             risk: 'tainted-input'
           }
         };
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Extract data source step from MemberExpression
+   * Detects req.body, req.query, req.params, req.headers, req.cookies
+   */
+  extractDataSourceStep(path, filePath) {
+    const { node } = path;
+    const loc = node.loc;
+
+    // Check for req.body, req.query, req.params patterns
+    if (node.object?.type === 'Identifier') {
+      const objectName = node.object.name;
+      const propertyName = node.property?.name || node.property?.value;
+
+      if (!propertyName) return null;
+
+      // Express request patterns
+      if (objectName === 'req' || objectName === 'request') {
+        const dataSourceProps = ['body', 'query', 'params', 'headers', 'cookies', 'files', 'ip', 'hostname'];
+
+        if (dataSourceProps.includes(propertyName)) {
+          return {
+            type: 'data-source',
+            source: propertyName,
+            object: objectName,
+            line: loc?.start?.line || 0,
+            column: loc?.start?.column || 0,
+            async: false,
+            metadata: {
+              code: this.truncateCode(path.toString(), 60),
+              risk: 'tainted-input'
+            }
+          };
+        }
+      }
+
+      // URL/URLSearchParams patterns
+      if (objectName === 'url' || objectName === 'URLSearchParams') {
+        const urlProps = ['searchParams', 'pathname', 'search', 'hash'];
+        if (urlProps.includes(propertyName)) {
+          return {
+            type: 'data-source',
+            source: `${objectName}.${propertyName}`,
+            object: objectName,
+            line: loc?.start?.line || 0,
+            column: loc?.start?.column || 0,
+            async: false,
+            metadata: {
+              code: this.truncateCode(path.toString(), 60),
+              risk: 'tainted-input'
+            }
+          };
+        }
+      }
+
+      // document/location patterns (browser)
+      if (objectName === 'document' || objectName === 'location') {
+        const docProps = ['location', 'cookie', 'referrer', 'URL'];
+        if (docProps.includes(propertyName)) {
+          return {
+            type: 'data-source',
+            source: `${objectName}.${propertyName}`,
+            object: objectName,
+            line: loc?.start?.line || 0,
+            column: loc?.start?.column || 0,
+            async: false,
+            metadata: {
+              code: this.truncateCode(path.toString(), 60),
+              risk: 'tainted-input'
+            }
+          };
+        }
+      }
+    }
+
+    // Nested member expressions like req.body.name
+    if (node.object?.type === 'MemberExpression') {
+      const outerObject = node.object.object?.name;
+      const outerProp = node.object.property?.name;
+
+      if (outerObject === 'req' || outerObject === 'request') {
+        const dataSourceProps = ['body', 'query', 'params', 'headers', 'cookies'];
+        if (dataSourceProps.includes(outerProp)) {
+          return {
+            type: 'data-source',
+            source: `${outerProp}.${node.property?.name || 'property'}`,
+            object: outerObject,
+            line: loc?.start?.line || 0,
+            column: loc?.start?.column || 0,
+            async: false,
+            metadata: {
+              code: this.truncateCode(path.toString(), 60),
+              risk: 'tainted-input',
+              nested: true
+            }
+          };
+        }
       }
     }
 
