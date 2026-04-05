@@ -323,6 +323,10 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   3. MITRE technique mappings complete
 **Estimated Plans:** 2
 
+**Plan List:**
+- [ ] 122-01-PLAN.md — Create 5 wordlist files (common-paths.txt, parameters.txt, dorks.txt, waf-bypass.txt, encodings.txt) (Wave 1: DATA-01 to DATA-05)
+- [ ] 122-02-PLAN.md — Create MITRE ATT&CK techniques.yaml mapping file (Wave 1: DATA-06)
+
 ### Phase 123: Integration
 **Goal:** Wire reconnaissance, DAST, and red team capabilities into pd:audit workflow
 **Depends on:** Phase 119, Phase 121, Phase 122
