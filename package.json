@@ -60,6 +60,9 @@
     "url": "https://github.com/tonamson/please-done.git"
   },
   "devDependencies": {
+    "@babel/parser": "^7.29.2",
+    "@babel/traverse": "^7.29.0",
+    "glob": "^13.0.6",
     "js-tiktoken": "^1.0.21",
     "js-yaml": "^4.1.1"
   }

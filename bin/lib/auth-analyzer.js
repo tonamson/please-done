@@ -622,19 +622,10 @@ class AuthAnalyzer {
   }
 }
 
-/**
- * Convenience function for standalone auth analysis
- * @param {string} projectPath - Path to project
- * @param {Array} targetInfo - Routes from target-enumerator
- * @param {Object} options - Analysis options
- * @returns {Promise<Object>} Analysis results
- */
-async function generateAuthCoverageMatrix(routes, authPatterns) {
-  const analyzer = new AuthAnalyzer();
-  return analyzer.generateAuthCoverageMatrix(routes, authPatterns);
-}
-
 module.exports = {
   AuthAnalyzer,
-  generateAuthCoverageMatrix,
+  generateAuthCoverageMatrix: (routes, authPatterns) => {
+    const analyzer = new AuthAnalyzer();
+    return analyzer.generateAuthCoverageMatrix(routes, authPatterns);
+  },
 };

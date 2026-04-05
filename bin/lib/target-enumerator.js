@@ -405,7 +405,7 @@ class TargetEnumerator {
         paths[route.path][method.toLowerCase()] = {
           operationId: `${method.toLowerCase()}${route.path.replace(/[^a-zA-Z0-9]/g, '_')}`,
           security: route.authRequired ? [{ bearerAuth: [] }] : [],
-          x-internal: !route.isDocumented,
+          'x-internal': !route.isDocumented,
           'x-middleware': route.middleware,
           'x-file': route.file,
           'x-line': route.line
