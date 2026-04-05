@@ -1,5 +1,20 @@
 # Milestones
 
+## v11.2 Vietnamese Documentation (Shipped: 2026-04-05)
+
+**Phases completed:** 6 phases, 9 plans, 1 tasks
+
+**Key accomplishments:**
+
+- Translation completed:
+- One-liner:
+- One-liner:
+- One-liner:
+- Task 3 (conventions.vi.md):
+- Status:
+
+---
+
 ## v11.0 Developer Tooling & Observability (Shipped: 2026-04-04)
 
 **Phases completed:** 75 phases, 132 plans, 157 tasks

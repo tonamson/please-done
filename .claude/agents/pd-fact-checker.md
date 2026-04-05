@@ -1,1 +1,0 @@
-../../commands/pd/agents/pd-fact-checker.md

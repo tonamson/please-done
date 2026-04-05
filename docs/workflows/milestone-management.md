@@ -1,5 +1,8 @@
 # Milestone Management Workflow Guide
 
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](milestone-management.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](milestone-management.vi.md)
+
 > **Difficulty:** 🔴 Advanced  
 > **Time:** Depends on milestone scope  
 > **Prerequisites:** Understanding of phases, tasks, and milestones

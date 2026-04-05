@@ -1,1 +1,0 @@
-../../commands/pd/agents/pd-security-researcher.md

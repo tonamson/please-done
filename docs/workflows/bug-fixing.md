@@ -1,5 +1,8 @@
 # Bug Fixing Workflow Guide
 
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](bug-fixing.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](bug-fixing.vi.md)
+
 > **Difficulty:** 🟡 Intermediate  
 > **Time:** Varies by bug complexity  
 > **Prerequisites:** `.planning/` directory exists, bug description ready

@@ -1,1 +1,0 @@
-../../commands/pd/agents/pd-bug-janitor.md

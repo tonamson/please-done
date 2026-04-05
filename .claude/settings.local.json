@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(gsd-verify-work)",
+      "Skill(gsd-plan-phase)",
+      "Skill(gsd-execute-phase)",
+      "WebFetch(domain:attack.mitre.org)",
+      "Skill(gsd-complete-milestone)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}

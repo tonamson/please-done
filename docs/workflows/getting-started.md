@@ -1,5 +1,8 @@
 # Getting Started Workflow Guide
 
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](getting-started.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](getting-started.vi.md)
+
 > **Difficulty:** 🟢 Beginner  
 > **Time:** ~15 minutes  
 > **Prerequisites:** Node.js 16+, Python 3.12+, Git, Claude Code CLI
