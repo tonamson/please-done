@@ -233,7 +233,7 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   3. Multi-layer encoding supports base64, URL, hex, HTML, Unicode
   4. XSS/SQLi evasion variants generated
   5. Double file extension masquerading detected (T1036.007)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 **Wave Structure:**
 - Wave 1: payloads.js + payloads.test.js (encoding utilities, obfuscation, evasion) - PAYLOAD-02 to PAYLOAD-05
@@ -241,7 +241,7 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 
 **Plan List:**
 - [x] 117-01-PLAN.md — Core payload generation module (encoding, obfuscation, evasion, detection)
-- [ ] 117-02-PLAN.md — Integration with ReconAggregator at deep/redteam tiers
+- [x] 117-02-PLAN.md — Integration with ReconAggregator at deep/redteam tiers
 
 ### Phase 118: Token Analysis
 **Goal:** Analyze JWT, session cookies, and tokens for vulnerabilities
@@ -253,6 +253,14 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   3. Token extraction patterns identified (T1528)
   4. Credential access analysis completed
 **Estimated Plans:** 2
+
+**Wave Structure:**
+- Wave 1: token-analyzer.js + token-analyzer.test.js (TOKEN-01 to TOKEN-04)
+- Wave 2: ReconAggregator integration + resource-config (TOKEN-01 to TOKEN-04)
+
+**Plan List:**
+- [ ] 118-01-PLAN.md — Core token analysis module (JWT, cookie, credential analysis)
+- [ ] 118-02-PLAN.md — Integration with ReconAggregator at deep/redteam tiers
 
 ### Phase 119: Post-Exploitation
 **Goal:** Plan persistence, exfiltration, and lateral movement strategies
