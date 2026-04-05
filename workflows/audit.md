@@ -30,11 +30,32 @@ Run this step only when PTES-related work applies: `parsePtesFlags($ARGUMENTS)` 
    b. Call: `await runRecon(projectPath, $ARGUMENTS)`
    c. Pass result to step 5 for writing
 
-5. Log token budget: `[Token Budget] Used: X/Y (Z%)` using `getPtesTier` / `tokenBudget`.
+   **Redteam tier:** If `parsed.redteam === true`, also run OSINT and post-exploit modules after ReconAggregator:
+   ```javascript
+   if (parsed.redteam) {
+     // Run OSINT module
+     const { OsintAggregator } = require('../lib/osint-aggregator');
+     const osint = new OsintAggregator({ cache });
+     const osintResults = await osint.gather(target, { scope: 'full' });
+     
+     // Run Post-Exploit module
+     const { PostExploitAnalyzer } = require('../lib/post-exploit');
+     const postExploit = new PostExploitAnalyzer({ cache });
+     // Note: analyze() takes (content, filePath) - run on project files
+     // For full analysis, iterate source files
+     
+     // Merge into results
+     results.osintInfo = osintResults;
+   }
+   ```
 
-6. Write `{session_dir}/00-recon.md` with: tier, cache hit/miss, token_used, short recon summary.
+5. **POC generation:** If `parsed.poc === true`, set `poc_enabled=true` flag that flows to Step 6 dispatch prompt (see Step 6: "--poc: Create ## POC section for each FAIL/FLAG finding").
 
-7. Later steps: Step 6 (dispatch) should mention `{session_dir}/00-recon.md` and cached context when present.
+6. Log token budget: `[Token Budget] Used: X/Y (Z%)` using `getPtesTier` / `tokenBudget`.
+
+7. Write `{session_dir}/00-recon.md` with: tier, cache hit/miss, token_used, short recon summary.
+
+8. Later steps: Step 6 (dispatch) should mention `{session_dir}/00-recon.md` and cached context when present.
 
 ## Step 2: Detect mode
 
