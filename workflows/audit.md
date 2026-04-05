@@ -25,11 +25,16 @@ Run this step only when PTES-related work applies: `parsePtesFlags($ARGUMENTS)` 
 
 3. **Cache:** Instantiate `ReconCache` (default `.planning/recon-cache`). Call `get()` — on hit, log `[Token Save] Reusing cached recon (0 AI tokens)` and use cached payload; on miss, run tier-appropriate recon (code-only for `free`, AI-assisted for higher tiers per CONTEXT) then `set(reconData)`.
 
-4. Log token budget: `[Token Budget] Used: X/Y (Z%)` using `getPtesTier` / `tokenBudget`.
+4. **Run Reconnaissance:** If `parsed.recon === true` and tier !== 'none':
+   a. Require wrapper: `const {runRecon}=require('./bin/commands/pd-audit-wrapper')`
+   b. Call: `await runRecon(projectPath, $ARGUMENTS)`
+   c. Pass result to step 5 for writing
 
-5. Write `{session_dir}/00-recon.md` with: tier, cache hit/miss, token_used, short recon summary.
+5. Log token budget: `[Token Budget] Used: X/Y (Z%)` using `getPtesTier` / `tokenBudget`.
 
-6. Later steps: Step 6 (dispatch) should mention `{session_dir}/00-recon.md` and cached context when present.
+6. Write `{session_dir}/00-recon.md` with: tier, cache hit/miss, token_used, short recon summary.
+
+7. Later steps: Step 6 (dispatch) should mention `{session_dir}/00-recon.md` and cached context when present.
 
 ## Step 2: Detect mode
 
