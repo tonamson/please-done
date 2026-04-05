@@ -16,8 +16,7 @@
       "Bash(break)",
       "Bash(echo \"... vẫn đang chạy \\($i/6\\)\")",
       "Bash(done)",
-      "Skill(gsd-discuss-phase)",
-      "WebSearch"
+      "Skill(gsd-discuss-phase)"
     ]
   }
 }

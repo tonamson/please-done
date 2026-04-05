@@ -5,7 +5,7 @@
 
 "use strict";
 
-const { describe, it, before, after } = require("node:test");
+const { describe, it } = require("node:test");
 const assert = require("node:assert");
 const path = require("path");
 const fs = require("fs").promises;
@@ -365,14 +365,12 @@ describe("AuthAnalyzer", () => {
   describe("analyze", () => {
     let tempDir;
 
-    before(async () => {
+    beforeEach(async () => {
       tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "auth-analyzer-test-"));
     });
 
-    after(async () => {
-      if (tempDir) {
-        await fs.rm(tempDir, { recursive: true, force: true });
-      }
+    afterEach(async () => {
+      await fs.rm(tempDir, { recursive: true, force: true });
     });
 
     it("should return complete analysis results", async () => {

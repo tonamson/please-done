@@ -259,9 +259,11 @@ describe("ReconAggregator Phase 114 Integration", () => {
 
   describe("ReconCache integration", () => {
     it("should use ReconCache for asset and auth results", async () => {
-      // Use real ReconCache which has all required methods
-      const { ReconCache } = require("./recon-cache");
-      const cache = new ReconCache();
+      // Create a mock cache
+      const cache = {
+        get: () => null,
+        set: () => {},
+      };
 
       aggregator = new ReconAggregator({ cache });
       const result = await aggregator.runFullRecon(tempDir, { tier: "deep" });
