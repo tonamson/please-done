@@ -10,6 +10,7 @@ const { ReconCache } = require('./recon-cache');
 const { AssetDiscoverer } = require('./asset-discoverer');
 const { AuthAnalyzer } = require('./auth-analyzer');
 const { WorkflowMapper } = require('./workflow-mapper');
+const { TaintEngine } = require('./taint-engine');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -23,6 +24,7 @@ class ReconAggregator {
     this.assetDiscoverer = new AssetDiscoverer({ cache: this.cache });
     this.authAnalyzer = new AuthAnalyzer({ cache: this.cache });
     this.workflowMapper = new WorkflowMapper({ cache: this.cache });
+    this.taintEngine = new TaintEngine({ cache: this.cache });
     this.results = null;
   }
 
@@ -75,17 +77,26 @@ class ReconAggregator {
       workflowInfo = await this.runWorkflowAnalysis(workflowFiles);
     }
 
+    // Phase 115: Taint Analysis (deep/redteam tiers)
+    let taintInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Running taint analysis...');
+      const taintFiles = await this.findSourceFiles(projectPath);
+      taintInfo = await this.runTaintAnalysis(taintFiles);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
       assetInfo,
       authInfo,
       workflowInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo)
+      taintInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -188,9 +199,61 @@ class ReconAggregator {
   }
 
   /**
+   * Run taint analysis on multiple files
+   * Phase 115: RECON-07 Taint Analysis
+   */
+  async runTaintAnalysis(files) {
+    const allTaintResults = [];
+
+    // Limit to 50 files for expensive AST analysis (consistent with runWorkflowAnalysis)
+    const analysisFiles = files.slice(0, 50);
+
+    for (const file of analysisFiles) {
+      try {
+        const result = await this.taintEngine.analyze(file);
+        if (result.summary && (result.summary.totalSources > 0 || result.summary.totalSinks > 0)) {
+          allTaintResults.push(result);
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    // Aggregate data flow graphs
+    const dataFlowGraphs = allTaintResults
+      .filter(r => r.dataFlowGraph?.graph)
+      .map(r => r.dataFlowGraph.graph);
+
+    // Aggregate taint reports
+    const taintReports = allTaintResults.map(r => this.taintEngine.generateTaintReport(r));
+
+    // Calculate totals
+    const totalSources = allTaintResults.reduce((sum, r) => sum + (r.summary?.totalSources || 0), 0);
+    const totalSinks = allTaintResults.reduce((sum, r) => sum + (r.summary?.totalSinks || 0), 0);
+    const riskyFlows = allTaintResults.reduce((sum, r) => sum + (r.summary?.riskyFlows || 0), 0);
+    const sanitizedFlows = allTaintResults.reduce((sum, r) => sum + (r.summary?.sanitizedFlows || 0), 0);
+
+    return {
+      results: allTaintResults,
+      dataFlowGraphs,
+      taintReports,
+      summary: {
+        filesAnalyzed: analysisFiles.length,
+        totalSources,
+        totalSinks,
+        riskyFlows,
+        sanitizedFlows,
+        sanitizationCoverage: riskyFlows > 0
+          ? ((sanitizedFlows / riskyFlows) * 100).toFixed(1) + '%'
+          : '0%'
+      }
+    };
+  }
+
+  /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
     return {
       overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
@@ -213,7 +276,12 @@ class ReconAggregator {
       bypassCandidates: authInfo?.coverageMatrix?.bypassCandidates?.length || 0,
       workflowsDetected: workflowInfo?.workflows?.length || 0,
       logicFlaws: workflowInfo?.flaws?.length || 0,
-      criticalLogicFlaws: workflowInfo?.summary?.criticalFlaws || 0
+      criticalLogicFlaws: workflowInfo?.summary?.criticalFlaws || 0,
+      taintSources: taintInfo?.summary?.totalSources || 0,
+      taintSinks: taintInfo?.summary?.totalSinks || 0,
+      riskyFlows: taintInfo?.summary?.riskyFlows || 0,
+      sanitizedFlows: taintInfo?.summary?.sanitizedFlows || 0,
+      sanitizationCoverage: taintInfo?.summary?.sanitizationCoverage || '0%'
     };
   }
 
@@ -267,7 +335,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
     const risks = [];
 
     // Service risks
@@ -442,6 +510,21 @@ class ReconAggregator {
       }
     }
 
+    // Phase 115: Taint analysis risks
+    if (taintInfo?.summary?.riskyFlows > 0) {
+      const riskyFlows = taintInfo.summary.riskyFlows;
+      const criticalFlows = riskyFlows - taintInfo.summary.sanitizedFlows;
+      if (criticalFlows > 0) {
+        risks.push({
+          severity: 'HIGH',
+          category: 'Injection',
+          title: `${criticalFlows} unsanitized injection paths`,
+          description: 'Untrusted input flows to dangerous sinks without sanitization',
+          affected: taintInfo.results?.slice(0, 3).map(r => r.sources?.[0]?.location?.file).filter(Boolean) || []
+        });
+      }
+    }
+
     return risks.sort((a, b) => {
       const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
@@ -451,7 +534,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -567,6 +650,19 @@ class ReconAggregator {
           title: 'Fix critical business logic flaws',
           description: `${criticalFlaws.length} critical logic flaws - implement atomic validation and state machine enforcement`,
           affected: criticalFlaws.slice(0, 3).map(f => `${f.location.file}:${f.location.line}`)
+        });
+      }
+    }
+
+    // Phase 115: Taint analysis recommendations
+    if (taintInfo?.summary?.riskyFlows > 0) {
+      const unsanitizedFlows = taintInfo.summary.riskyFlows - taintInfo.summary.sanitizedFlows;
+      if (unsanitizedFlows > 0) {
+        recommendations.push({
+          priority: 'HIGH',
+          title: 'Implement input sanitization',
+          description: `${unsanitizedFlows} unsanitized source-to-sink paths need validation/sanitization`,
+          affected: taintInfo.results?.slice(0, 3).map(r => r.sources?.[0]?.location?.file).filter(Boolean) || []
         });
       }
     }
