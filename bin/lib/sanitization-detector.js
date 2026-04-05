@@ -388,7 +388,7 @@ class SanitizationDetector {
       const valuesArg = args[1];
 
       if (queryArg?.type === 'StringLiteral' &&
-          (queryArg.value.includes('?') || queryArg.value.includes('$1')) {
+          (queryArg.value.includes('?') || queryArg.value.includes('$1'))) {
         if (valuesArg?.type === 'ArrayExpression') {
           return { type: 'parameterized', library: 'mysql/pg', confidence: 'high' };
         }
