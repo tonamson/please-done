@@ -250,8 +250,8 @@ const PTES_TIER_MAP = {
   deep: {
     name: "Recon Full",
     tokenBudget: 6000,
-    features: ["standard-features", "taint-analysis", "business-logic", "payloads", "token-analysis"],
-    description: "Deep reconnaissance with taint analysis, business logic, and token analysis (D-14)",
+    features: ["standard-features", "taint-analysis", "business-logic", "payloads", "token-analysis", "post-exploit"],
+    description: "Deep reconnaissance with taint analysis, business logic, token analysis, and post-exploitation (D-14)",
   },
   redteam: {
     name: "Red Team",
@@ -477,8 +477,8 @@ function shouldDegrade(error) {
 const TIER_CONFIG = {
   free: { ...PTES_TIER_MAP.free },
   standard: { ...PTES_TIER_MAP.standard },
-  deep: { ...PTES_TIER_MAP.deep, TOKEN_ANALYSIS: true },
-  redteam: { ...PTES_TIER_MAP.redteam, TOKEN_ANALYSIS: true }
+  deep: { ...PTES_TIER_MAP.deep, TOKEN_ANALYSIS: true, POST_EXPLOIT: true },
+  redteam: { ...PTES_TIER_MAP.redteam, TOKEN_ANALYSIS: true, POST_EXPLOIT: true }
 };
 
 module.exports = {
