@@ -274,8 +274,8 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 **Estimated Plans:** 2
 
 **Plan List:**
-- [ ] 119-01-PLAN.md — Core post-exploitation module (web shells, persistence, exfiltration, lateral movement)
-- [ ] 119-02-PLAN.md — ReconAggregator integration + resource-config update
+- [x] 119-01-PLAN.md — Core post-exploitation module (web shells, persistence, exfiltration, lateral movement)
+- [x] 119-02-PLAN.md — ReconAggregator integration + resource-config update
 
 ### Phase 120: Code Libraries
 **Goal:** Build shared libraries for reconnaissance, taint tracking, evasion, and caching
@@ -286,6 +286,14 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   2. Libraries integrated with skill workflows
   3. Documentation for each library API
 **Estimated Plans:** 4
+**Status:** Planned
+
+**Wave Structure:**
+- Wave 1: recon-scanner.js (LIB-01) + evasion-engine.js (LIB-03) - parallel, independent
+
+**Plan List:**
+- [ ] 120-01-PLAN.md — Create recon-scanner.js (LIB-01) with URL parsing, header analysis, path enumeration
+- [ ] 120-02-PLAN.md — Create evasion-engine.js (LIB-03) with timing bypass, rate limit evasion
 
 ### Phase 121: AI Agents
 **Goal:** Create specialized agents for reconnaissance, taint analysis, OSINT, payload, post-exploitation
