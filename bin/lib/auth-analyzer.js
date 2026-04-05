@@ -629,7 +629,7 @@ class AuthAnalyzer {
  * @param {Object} options - Analysis options
  * @returns {Promise<Object>} Analysis results
  */
-async function generateAuthCoverageMatrix(routes, authPatterns) {
+function generateAuthCoverageMatrix(routes, authPatterns) {
   const analyzer = new AuthAnalyzer();
   return analyzer.generateAuthCoverageMatrix(routes, authPatterns);
 }

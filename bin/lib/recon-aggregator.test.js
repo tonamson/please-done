@@ -5,7 +5,7 @@
 
 "use strict";
 
-const { describe, it, before, after } = require("node:test");
+const { describe, it, before, after, beforeEach, afterEach } = require("node:test");
 const assert = require("node:assert");
 const path = require("path");
 const fs = require("fs").promises;
@@ -259,10 +259,11 @@ describe("ReconAggregator Phase 114 Integration", () => {
 
   describe("ReconCache integration", () => {
     it("should use ReconCache for asset and auth results", async () => {
-      // Create a mock cache
+      // Create a mock cache that implements the full cache interface
       const cache = {
         get: () => null,
         set: () => {},
+        getKey: (suffix) => `test:${suffix}`,
       };
 
       aggregator = new ReconAggregator({ cache });
