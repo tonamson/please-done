@@ -292,18 +292,26 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 - Wave 1: recon-scanner.js (LIB-01) + evasion-engine.js (LIB-03) - parallel, independent
 
 **Plan List:**
-- [ ] 120-01-PLAN.md — Create recon-scanner.js (LIB-01) with URL parsing, header analysis, path enumeration
-- [ ] 120-02-PLAN.md — Create evasion-engine.js (LIB-03) with timing bypass, rate limit evasion
+- [x] 120-01-PLAN.md — Create recon-scanner.js (LIB-01) with URL parsing, header analysis, path enumeration
+- [x] 120-02-PLAN.md — Create evasion-engine.js (LIB-03) with timing bypass, rate limit evasion
 
 ### Phase 121: AI Agents
 **Goal:** Create specialized agents for reconnaissance, taint analysis, OSINT, payload, post-exploitation
 **Depends on:** Phase 120
 **Requirements:** AGENT-01 to AGENT-05 (5 agents)
+**Status:** Planned | **Plans:** 2/2 plans
 **Success Criteria:**
   1. All 5 agents created with agent files
   2. Agents wired into pd:audit workflows
   3. Agent configuration tested across platforms
-**Estimated Plans:** 2
+
+**Wave Structure:**
+- Wave 1: pd-recon-analyzer, pd-taint-tracker, pd-osint-intel (AGENT-01 to AGENT-03) - depends on Phase 120
+- Wave 2: pd-payload-dev, pd-post-exploit (AGENT-04, AGENT-05) - depends on Wave 1
+
+**Plan List:**
+- [x] 121-01-PLAN.md — Create pd-recon-analyzer, pd-taint-tracker, pd-osint-intel agents (Wave 1: AGENT-01, AGENT-02, AGENT-03)
+- [x] 121-02-PLAN.md — Create pd-payload-dev, pd-post-exploit agents (Wave 2: AGENT-04, AGENT-05)
 
 ### Phase 122: Data Files
 **Goal:** Create wordlists and reference data for reconnaissance and pentesting
