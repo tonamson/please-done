@@ -226,6 +226,7 @@ const DEGRADATION_CODES = new Set([
 
 /**
  * PTES Reconnaissance Tier Mapping — maps command flags to token budgets (D-12–D-15, PTES-04).
+ * payloads: WAF-evasion test payload generation (Phase 117)
  */
 const PTES_TIER_MAP = {
   none: {
@@ -249,7 +250,7 @@ const PTES_TIER_MAP = {
   deep: {
     name: "Recon Full",
     tokenBudget: 6000,
-    features: ["standard-features", "taint-analysis", "business-logic"],
+    features: ["standard-features", "taint-analysis", "business-logic", "payloads"],
     description: "Deep reconnaissance with taint analysis (D-14)",
   },
   redteam: {
