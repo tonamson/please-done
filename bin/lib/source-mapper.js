@@ -97,7 +97,7 @@ class SourceMapper {
     ];
 
     traverse(ast, {
-      MemberExpression(nodePath) {
+      MemberExpression: (nodePath) => {
         const code = nodePath.toString();
         const loc = nodePath.node.loc;
 
@@ -117,7 +117,7 @@ class SourceMapper {
         }
       },
 
-      CallExpression(nodePath) {
+      CallExpression: (nodePath) => {
         const { callee } = nodePath.node;
         if (callee.type === 'Identifier' && callee.name === 'fetch') {
           const loc = nodePath.node.loc;
@@ -162,7 +162,7 @@ class SourceMapper {
     ];
 
     traverse(ast, {
-      CallExpression(nodePath) {
+      CallExpression: (nodePath) => {
         const code = nodePath.toString();
         const loc = nodePath.node.loc;
 
@@ -182,7 +182,7 @@ class SourceMapper {
         }
       },
 
-      AssignmentExpression(nodePath) {
+      AssignmentExpression: (nodePath) => {
         const code = nodePath.toString();
         const loc = nodePath.node.loc;
 
@@ -215,7 +215,7 @@ class SourceMapper {
 
     // Track variable assignments
     traverse(ast, {
-      VariableDeclarator(nodePath) {
+      VariableDeclarator: (nodePath) => {
         const { id, init } = nodePath.node;
         if (id.type === 'Identifier' && init) {
           variableDeclarations.set(id.name, nodePath.toString());
@@ -275,13 +275,13 @@ class SourceMapper {
 
     // First pass: collect all function declarations
     traverse(ast, {
-      FunctionDeclaration(nodePath) {
+      FunctionDeclaration: (nodePath) => {
         const name = nodePath.node.id?.name;
         if (name) {
           functionDeclarations.set(name, nodePath);
         }
       },
-      VariableDeclarator(nodePath) {
+      VariableDeclarator: (nodePath) => {
         if (nodePath.node.id?.type === 'Identifier' &&
             (nodePath.node.init?.type === 'FunctionExpression' ||
              nodePath.node.init?.type === 'ArrowFunctionExpression')) {
@@ -293,7 +293,7 @@ class SourceMapper {
 
     // Second pass: collect function calls
     traverse(ast, {
-      CallExpression(nodePath) {
+      CallExpression: (nodePath) => {
         const callee = nodePath.node.callee;
         let funcName = null;
 

@@ -27,13 +27,6 @@ class TaintEngine {
    * @returns {Promise<Object>} Analysis results with data flow graph
    */
   async analyze(filePath) {
-    // Check cache
-    const cacheKey = this.cache.getKey(`taint:${filePath}`);
-    const cached = await this.cache.get(cacheKey);
-    if (cached) {
-      return cached;
-    }
-
     // Read file
     const code = await fs.readFile(filePath, 'utf-8');
     const ast = this.sourceMapper.parseAST(code, filePath);
@@ -72,9 +65,6 @@ class TaintEngine {
         graphWarnings: graphResult.warnings?.length || 0
       }
     };
-
-    // Cache result
-    await this.cache.set(cacheKey, result);
 
     return result;
   }
