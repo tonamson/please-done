@@ -13,6 +13,7 @@ const { WorkflowMapper } = require('./workflow-mapper');
 const { TaintEngine } = require('./taint-engine');
 const { PayloadGenerator } = require('./payloads');
 const { TokenAnalyzer } = require('./token-analyzer');
+const { PostExploitAnalyzer } = require('./post-exploit');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -29,6 +30,7 @@ class ReconAggregator {
     this.taintEngine = new TaintEngine({ cache: this.cache });
     this.payloadGenerator = new PayloadGenerator({ cache: this.cache });
     this.tokenAnalyzer = new TokenAnalyzer({ cache: this.cache });
+    this.postExploitAnalyzer = new PostExploitAnalyzer({ cache: this.cache });
     this.results = null;
   }
 
@@ -103,9 +105,16 @@ class ReconAggregator {
       tokenInfo = await this.runTokenAnalysis(projectPath);
     }
 
+    // Phase 119: Post-Exploitation (deep/redteam tiers)
+    let postExploitInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Analyzing post-exploitation vectors...');
+      postExploitInfo = await this.runPostExploitAnalysis(projectPath);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
@@ -115,8 +124,9 @@ class ReconAggregator {
       taintInfo,
       payloadInfo,
       tokenInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo)
+      postExploitInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -348,11 +358,49 @@ class ReconAggregator {
   }
 
   /**
+   * Run post-exploitation analysis on source files
+   * Phase 119: POST-01 to POST-04
+   */
+  async runPostExploitAnalysis(projectPath) {
+    const fs = require('fs');
+    const files = await this.findSourceFiles(projectPath);
+    const allFindings = {
+      webShells: [],
+      persistence: [],
+      exfiltration: [],
+      lateralMovement: []
+    };
+
+    for (const file of files.slice(0, 50)) {
+      try {
+        const content = fs.readFileSync(file, 'utf8');
+        const result = this.postExploitAnalyzer.analyze(content, file);
+        if (result.webShells?.length > 0) {
+          allFindings.webShells.push(...result.webShells.map(w => ({ ...w, location: file })));
+        }
+        if (result.persistence?.length > 0) {
+          allFindings.persistence.push(...result.persistence.map(p => ({ ...p, location: file })));
+        }
+        if (result.exfiltration?.length > 0) {
+          allFindings.exfiltration.push(...result.exfiltration.map(e => ({ ...e, location: file })));
+        }
+        if (result.lateralMovement?.length > 0) {
+          allFindings.lateralMovement.push(...result.lateralMovement.map(l => ({ ...l, location: file })));
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    return allFindings;
+  }
+
+  /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo) {
     return {
-      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo),
+      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo, postExploitInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
       vulnerableDependencies: serviceInfo?.vulnerabilities?.length || 0,
       outdatedDependencies: serviceInfo?.summary?.outdatedCount || 0,
@@ -386,14 +434,19 @@ class ReconAggregator {
       jwtVulnerabilitiesAnalyzed: tokenInfo?.summary?.jwtVulnerabilities || 0,
       sessionCookiesAnalyzed: tokenInfo?.summary?.sessionCookies || 0,
       exposedTokens: tokenInfo?.summary?.exposedTokens || 0,
-      criticalTokenVulnerabilities: tokenInfo?.summary?.criticalVulnerabilities || 0
+      criticalTokenVulnerabilities: tokenInfo?.summary?.criticalVulnerabilities || 0,
+      // Phase 119: Post-exploitation analysis
+      webShellsDetected: postExploitInfo?.webShells?.length || 0,
+      persistenceRisks: postExploitInfo?.persistence?.length || 0,
+      exfiltrationChannels: postExploitInfo?.exfiltration?.length || 0,
+      lateralMovementPaths: postExploitInfo?.lateralMovement?.length || 0
     };
   }
 
   /**
    * Calculate overall risk level
    */
-  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo) {
+  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo, postExploitInfo) {
     let score = 0;
 
     // Vulnerable dependencies (max 30 points)
@@ -436,6 +489,14 @@ class ReconAggregator {
     const jwtVulnsAnalyzed = tokenInfo?.summary?.jwtVulnerabilities || 0;
     score += criticalTokenVulns * 5 + Math.min(jwtVulnsAnalyzed, 15);
 
+    // Phase 119: Post-exploitation indicators (max 15 points)
+    const webShells = postExploitInfo?.webShells?.length || 0;
+    const criticalWebShells = postExploitInfo?.webShells?.filter(w => w.severity === 'CRITICAL').length || 0;
+    const persistence = postExploitInfo?.persistence?.length || 0;
+    const exfiltration = postExploitInfo?.exfiltration?.length || 0;
+    const lateralMovement = postExploitInfo?.lateralMovement?.length || 0;
+    score += criticalWebShells * 5 + Math.min(webShells * 2, 15) + Math.min(persistence, 5) + Math.min(exfiltration, 5) + Math.min(lateralMovement, 5);
+
     if (score >= 60) return 'CRITICAL';
     if (score >= 40) return 'HIGH';
     if (score >= 20) return 'MEDIUM';
@@ -445,7 +506,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo) {
     const risks = [];
 
     // Service risks
@@ -660,6 +721,50 @@ class ReconAggregator {
       });
     }
 
+    // Phase 119: Post-Exploitation risks
+    if (postExploitInfo?.webShells?.length > 0) {
+      const criticalWebShells = postExploitInfo.webShells.filter(w => w.severity === 'CRITICAL');
+      if (criticalWebShells.length > 0) {
+        risks.push({
+          severity: 'CRITICAL',
+          category: 'Persistence',
+          title: `${criticalWebShells.length} web shell backdoors detected`,
+          description: 'Code execution backdoors found in source (T1505.003)',
+          affected: criticalWebShells.slice(0, 3).map(w => w.location)
+        });
+      }
+    }
+
+    if (postExploitInfo?.persistence?.length > 0) {
+      risks.push({
+        severity: 'HIGH',
+        category: 'Persistence',
+        title: `${postExploitInfo.persistence.length} persistence mechanisms detected`,
+        description: 'Cron jobs, startup scripts, or SSH key configurations found (T1053)',
+        affected: postExploitInfo.persistence.slice(0, 3).map(p => p.location)
+      });
+    }
+
+    if (postExploitInfo?.exfiltration?.length > 0) {
+      risks.push({
+        severity: 'HIGH',
+        category: 'Exfiltration',
+        title: `${postExploitInfo.exfiltration.length} data exfiltration channels detected`,
+        description: 'DNS tunneling, HTTP exfiltration, or cloud storage paths found (T1560)',
+        affected: postExploitInfo.exfiltration.slice(0, 3).map(e => e.location)
+      });
+    }
+
+    if (postExploitInfo?.lateralMovement?.length > 0) {
+      risks.push({
+        severity: 'HIGH',
+        category: 'Lateral Movement',
+        title: `${postExploitInfo.lateralMovement.length} lateral movement paths detected`,
+        description: 'Network scanning, pass-the-hash, or SSH tunneling patterns found (T1021)',
+        affected: postExploitInfo.lateralMovement.slice(0, 3).map(l => l.location)
+      });
+    }
+
     return risks.sort((a, b) => {
       const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
@@ -669,7 +774,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo, postExploitInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -837,6 +942,43 @@ class ReconAggregator {
         title: 'Secure session cookies',
         description: `${insecureCookies.length} cookies missing security flags - add HttpOnly and Secure flags`,
         affected: insecureCookies.slice(0, 3).map(c => c.name)
+      });
+    }
+
+    // Phase 119: Post-exploitation recommendations
+    if (postExploitInfo?.webShells?.length > 0) {
+      recommendations.push({
+        priority: 'URGENT',
+        title: 'Remove web shell backdoors',
+        description: `${postExploitInfo.webShells.length} web shell patterns detected - remove immediately`,
+        affected: postExploitInfo.webShells.slice(0, 3).map(w => w.location)
+      });
+    }
+
+    if (postExploitInfo?.persistence?.length > 0) {
+      recommendations.push({
+        priority: 'HIGH',
+        title: 'Review persistence mechanisms',
+        description: `${postExploitInfo.persistence.length} persistence patterns found - verify legitimacy or remove`,
+        affected: postExploitInfo.persistence.slice(0, 3).map(p => p.location)
+      });
+    }
+
+    if (postExploitInfo?.exfiltration?.length > 0) {
+      recommendations.push({
+        priority: 'HIGH',
+        title: 'Investigate data exfiltration channels',
+        description: `${postExploitInfo.exfiltration.length} exfiltration patterns detected - block or monitor these channels`,
+        affected: postExploitInfo.exfiltration.slice(0, 3).map(e => e.location)
+      });
+    }
+
+    if (postExploitInfo?.lateralMovement?.length > 0) {
+      recommendations.push({
+        priority: 'HIGH',
+        title: 'Block lateral movement paths',
+        description: `${postExploitInfo.lateralMovement.length} lateral movement patterns found - restrict network access`,
+        affected: postExploitInfo.lateralMovement.slice(0, 3).map(l => l.location)
       });
     }
 
