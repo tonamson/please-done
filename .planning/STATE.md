@@ -2,11 +2,11 @@
 gsd_state_version: 1.0
 milestone: v12.0
 milestone_name: Pentest & Red Team Enhancement
-status: defining
-last_updated: "2026-04-05T06:00:00.000Z"
+status: defined
+last_updated: "2026-04-05T06:30:00.000Z"
 last_activity: 2026-04-05
 progress:
-  total_phases: 0
+  total_phases: 13
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -17,51 +17,66 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-04-04)
+See: .planning/PROJECT.md (updated 2026-04-05)
+See: .planning/ROADMAP.md (v12.0 - created 2026-04-05)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
+---
+
 ## Current Position
 
-Phase: Not started (defining requirements)
-Plan: —
+Phase: Defining (ROADMAP created)
+Plan: -
 Milestone: v12.0 (Pentest & Red Team Enhancement)
-Status: Defining requirements
-Last activity: 2026-04-05 — Milestone v12.0 started
+Status: Ready for planning
+Last activity: 2026-04-05 — ROADMAP.md created with 13 phases
 
-## v11.2 Summary
+---
 
-**Goal:** Tạo phiên bản song ngữ Anh-Việt cho toàn bộ tài liệu hướng dẫn.
+## v12.0 Summary
 
-**Requirements:** I18N-01 đến I18N-06 (6 requirements)
+**Goal:** Bổ sung Reconnaissance Phase đầy đủ theo chuẩn Web Pentest (PTES/OWASP) và Red Team TTPs cho skill `pd:audit`
 
-**Approach:** Bilingual (giữ bản tiếng Anh, thêm bản tiếng Việt song song)
+**Requirements:** 47 total across 10 categories (PTES, RECON, OSINT, PAYLOAD, TOKEN, POST, LIB, AGENT, DATA, INT)
 
-**Priority:** Cao — cần dùng ngay cho team Việt Nam
+**Approach:** Foundation → Reconnaissance → OSINT → Payload → Token → Post-Exploit → Libraries → Agents → Data → Integration → Testing
 
-## Requirements
+**Standards:** PTES v2.0, OWASP Testing Guide v4.2, MITRE ATT&CK v14.0
 
-| ID | Requirement | Phase | Status |
-|----|-------------|-------|--------|
-| I18N-01 | README Song Ngữ | 106 | Done |
-| I18N-02 | CLAUDE.md Song Ngữ | 107 | Planned |
-| I18N-03 | Command Cheat Sheet Tiếng Việt | 108 | Planned |
-| I18N-04 | Workflow Guides Tiếng Việt | 109 | Planned |
-| I18N-05 | Skill Reference Cards Tiếng Việt | 110 | Planned |
-| I18N-06 | Error Troubleshooting Tiếng Việt | 111 | Planned |
+---
 
-## Previous Milestone: v11.1 Documentation Improvements
+## Phase Overview
 
-**Shipped:** 2026-04-04 | **Phases:** 6 (100-105) | **Plans:** 6
+| Phase | Name | Requirements | Status |
+|-------|------|--------------|--------|
+| 112 | PTES Foundation | PTES-01 to PTES-04 | Pending |
+| 113 | Intelligence Gathering Core | RECON-01 to RECON-03 | Pending |
+| 114 | Intelligence Gathering Extended | RECON-04 to RECON-05 | Pending |
+| 115 | Advanced Reconnaissance | RECON-06 to RECON-07 | Pending |
+| 116 | OSINT Intelligence | OSINT-01 to OSINT-04 | Pending |
+| 117 | Payload Development | PAYLOAD-01 to PAYLOAD-05 | Pending |
+| 118 | Token Analysis | TOKEN-01 to TOKEN-04 | Pending |
+| 119 | Post-Exploitation | POST-01 to POST-04 | Pending |
+| 120 | Code Libraries | LIB-01 to LIB-10 | Pending |
+| 121 | AI Agents | AGENT-01 to AGENT-05 | Pending |
+| 122 | Data Files | DATA-01 to DATA-06 | Pending |
+| 123 | Integration | INT-01 to INT-03 | Pending |
+| 124 | Testing & Documentation | INT-04 to INT-06 | Pending |
 
-**Key accomplishments:**
+**Total:** 13 phases | 47 requirements | 0 plans complete
 
-- README Quick Start Guide với 5 basic commands
-- Command Cheat Sheet với 16 commands
-- CLAUDE.md Common Workflows section (~290 lines)
-- Error Troubleshooting Guide
-- 3 Workflow Walkthrough Guides
-- 16 Skill Reference Cards
+---
+
+## Previous Milestone: v11.2 Vietnamese Documentation
+
+**Status:** Defined (ROADMAP exists) | **Phases:** 106-111 (6 phases)
+
+**Requirements:** I18N-01 to I18N-06 (6 requirements) - bilingual documentation
+
+**Note:** v11.2 can proceed in parallel or be completed before v12.0 execution begins.
+
+---
 
 ## Performance Metrics
 
@@ -87,7 +102,10 @@ Last activity: 2026-04-05 — Milestone v12.0 started
 | v10.0 | 4 | 8 | 2026-04-03 | ✅ |
 | v11.0 | 12 | 12 | 2026-04-04 | ✅ |
 | v11.1 | 6 | 6 | 2026-04-04 | ✅ |
-| v11.2 | 0 | 0 | — | 🔄 |
+| v11.2 | 6 | - | - | 🔄 |
+| **v12.0** | **13** | **-** | **-** | **📋** |
+
+---
 
 ## Current Capabilities
 
@@ -105,17 +123,54 @@ Last activity: 2026-04-05 — Milestone v12.0 started
 | `pd:complete-milestone` | All phases complete | Archive milestone |
 | `pd:status` | **None** | Read-only status dashboard with auto-refresh (Phase 90-91) |
 | `pd:research` | Internal/external context | Research squad pipeline |
-| `pd:audit` | Codebase | Security audit with OWASP |
+| `pd:audit` | Codebase | Security audit with OWASP — **v12.0 adds --recon, --poc, --redteam** |
+
+---
+
+## Key Target Features (v12.0)
+
+### Reconnaissance Capabilities
+- Source Mapping (untrusted data sources, input vectors)
+- Target Enumeration (endpoints, hidden APIs)
+- Service Discovery (tech stack fingerprinting)
+- Hidden Asset Discovery (admin panels, debug endpoints)
+- Authentication Analysis (mechanisms, bypass vectors)
+- Business Logic Mapping (workflows, state machines)
+- Taint Analysis (data flow tracking)
+
+### OSINT Intelligence
+- Google Dorks generation (T1593.002)
+- Certificate Transparency log scanning (T1596.003)
+- Repository secret detection (T1552)
+- Subdomain discovery
+
+### Payload & Token Analysis
+- WAF evasion for major WAFs (Cloudflare, ModSecurity, Akamai, AWS WAF)
+- Command obfuscation (T1027.010)
+- Multi-layer encoding (base64, URL, hex, HTML, Unicode)
+- JWT vulnerability analysis (T1606.001)
+- Session cookie security analysis (T1539)
+
+### Post-Exploitation
+- Web shell pattern detection (T1505.003)
+- Persistence strategy planning
+- Data exfiltration channel planning (T1560)
+- Lateral movement path mapping
+
+---
 
 ## Blockers/Concerns
 
 None.
 
+---
+
 ## Session Continuity
 
-Last session: 2026-04-04T23:49:32.859Z
-Milestone transition: v11.1 → v11.2
+Last session: 2026-04-05T06:30:00.000Z
+Milestone: v12.0 ROADMAP created
+Next: Phase 112 planning (PTES Foundation)
 
 ---
 
-_Last updated: 2026-04-04 — v11.2 Vietnamese Documentation milestone created_
+_Last updated: 2026-04-05 — v12.0 ROADMAP defined (13 phases, 47 requirements)_
