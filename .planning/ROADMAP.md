@@ -338,8 +338,8 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 **Estimated Plans:** 2
 
 **Plan List:**
-- [ ] 123-01-PLAN.md — Wire ReconAggregator into Step 0 for --recon/--recon-light/--recon-full (INT-01)
-- [ ] 123-02-PLAN.md — Wire --poc DAST and --redteam Red Team workflows (INT-02, INT-03)
+- [x] 123-01-PLAN.md — Wire ReconAggregator into Step 0 for --recon/--recon-light/--recon-full (INT-01)
+- [x] 123-02-PLAN.md — Wire --poc DAST and --redteam Red Team workflows (INT-02, INT-03)
 
 ### Phase 124: Testing & Documentation
 **Goal:** Validate all components with unit/integration tests and update documentation
@@ -350,6 +350,11 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   2. Integration tests validate full reconnaissance chain
   3. Documentation updated with new flags
 **Estimated Plans:** 2
+**Status:** Planned | **Plans:** 2/2 planned
+
+**Plans:**
+- [ ] 124-01-PLAN.md — Unit tests (>80% coverage) + integration tests for recon chain (INT-04, INT-05)
+- [ ] 124-02-PLAN.md — Documentation updates for PTES/OSINT flags + smoke-snapshot fix (INT-06)
 
 **Full details:** See `.planning/milestones/v12.0-ROADMAP.md`
 
