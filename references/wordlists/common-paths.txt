@@ -1,20 +1,34 @@
+# Common Web Paths for Content Discovery
+# Format: One path per line
+# Used for recon and pentesting
+
 # Admin Panels
 admin
 administrator
 admin/login
 admin/dashboard
-dashboard
+admin/index
+admin/panel
+wp-admin
+wp-login.php
+phpmyadmin
+phpMyAdmin
+pma
+api/admin
+backend
+panel
 manage
 management
-panel
-backend
 control
-wp-admin
-phpmyadmin
-api/admin
-internal/admin
+dashboard
+cpanel
+horde
+webmail
+roundcube
+ajax
+console
 
-# Debug Endpoints
+# Debug & Development Endpoints
 debug
 __debug__
 test
@@ -25,19 +39,169 @@ staging
 api-docs
 swagger
 openapi
+/actuator
+/actuator/health
+/actuator/info
+/actuator/metrics
+/actuator/env
+/health
+/info
+/metrics
+/env
+/.git/HEAD
+/.git/config
+/.git/credentials
+/.git/logs/HEAD
+/.git/index
 
-# Config Exposures
+# Config & Secrets Exposure
 .env
 .env.local
 .env.production
+.env.staging
+.env.development
 config.json
 database.yml
-.git/config
-.git/HEAD
+database.yaml
+credentials.json
+secrets.json
+secrets.yml
+vault
+settings.py
+settings.php
+config.php
+wp-config.php
+configuration
 
 # Source Maps
 main.js.map
 bundle.js.map
 app.js.map
-styles.css.map
 main.css.map
+vendor.js.map
+chunk-vendors.js.map
+
+# Backup Files
+backup.sql
+db.sql
+database.sql
+dump.sql
+backup.tar.gz
+backup.zip
+backup.tar
+.bak
+.old
+.backup
+database.sql.gz
+database.sql.bz2
+backup.sql.gz
+
+# API Paths
+api/
+/v1
+/v2
+/v3
+/api/v1
+/api/v2
+/api/v3
+/rest
+/graphql
+/graphql/schema
+/soap
+/ws
+/websocket
+/api/graphql
+/api/users
+/api/login
+api/token
+api/config
+
+# Authentication Paths
+login
+signin
+sign-in
+auth
+authenticate
+auth/login
+auth/signin
+auth/register
+token
+oauth
+oauth2
+/oauth2
+/authorize
+/access_token
+/userinfo
+logout
+register
+signup
+password/reset
+forgot-password
+reset-password
+
+# File Upload & Handling
+upload
+upload.php
+file-upload
+file-upload.php
+files
+download
+downloads
+/storage
+/uploads
+/uploads/media
+/images
+/img
+/avatars
+/profile
+attachment
+attachments
+
+# Documentation
+docs
+documentation
+api-docs
+/swagger-ui
+/swagger-ui.html
+/redoc
+/api/documentation
+readme.md
+README.md
+CHANGELOG.md
+LICENSE.md
+
+# Monitoring & Status
+/status
+/healthcheck
+/ping
+/ready
+/metrics
+/prometheus
+/n metrics
+/server-status
+/up
+health
+info
+version
+
+# CMS Specific
+wp-content/
+wp-includes/
+joomla/
+drupal/
+magento/
+shopify/
+wordpress/
+ghost/
+
+# Cloud & DevOps
+/.aws/credentials
+/.aws/config
+/.docker/config.json
+/.kube/config
+kubernetes/
+docker/
+.terraform/
+terraform.tfstate
+ansible/
+jenkins/
