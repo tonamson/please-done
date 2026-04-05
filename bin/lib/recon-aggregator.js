@@ -12,6 +12,7 @@ const { AuthAnalyzer } = require('./auth-analyzer');
 const { WorkflowMapper } = require('./workflow-mapper');
 const { TaintEngine } = require('./taint-engine');
 const { PayloadGenerator } = require('./payloads');
+const { TokenAnalyzer } = require('./token-analyzer');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -27,6 +28,7 @@ class ReconAggregator {
     this.workflowMapper = new WorkflowMapper({ cache: this.cache });
     this.taintEngine = new TaintEngine({ cache: this.cache });
     this.payloadGenerator = new PayloadGenerator({ cache: this.cache });
+    this.tokenAnalyzer = new TokenAnalyzer({ cache: this.cache });
     this.results = null;
   }
 
@@ -94,9 +96,16 @@ class ReconAggregator {
       payloadInfo = this.runPayloadGeneration(projectPath);
     }
 
+    // Phase 118: Token Analysis (deep/redteam tiers)
+    let tokenInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Analyzing tokens and credentials...');
+      tokenInfo = await this.runTokenAnalysis(projectPath);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
@@ -105,8 +114,9 @@ class ReconAggregator {
       workflowInfo,
       taintInfo,
       payloadInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo)
+      tokenInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -275,11 +285,74 @@ class ReconAggregator {
   }
 
   /**
+   * Run token analysis on source files
+   * Phase 118: TOKEN-01 to TOKEN-04
+   */
+  async runTokenAnalysis(projectPath) {
+    const fs = require('fs');
+    const files = await this.findSourceFiles(projectPath);
+    const allTokens = [];
+    const allCookies = [];
+    const allVulnerabilities = [];
+
+    for (const file of files.slice(0, 50)) {
+      try {
+        const content = fs.readFileSync(file, 'utf8');
+        const result = this.tokenAnalyzer.analyze(content);
+        if (result.jwtAnalysis) {
+          for (const jwt of result.jwtAnalysis) {
+            if (jwt.vulnerabilities?.length > 0) {
+              allVulnerabilities.push(...jwt.vulnerabilities.map(v => ({ ...v, location: file, type: 'jwt' })));
+            }
+          }
+        }
+        if (result.cookieAnalysis) {
+          for (const cookie of result.cookieAnalysis) {
+            if (cookie.vulnerabilities?.length > 0) {
+              allCookies.push({ ...cookie, location: file });
+            }
+          }
+        }
+        if (result.tokenFindings) {
+          const findings = result.tokenFindings;
+          if (findings.bearerTokens?.length > 0) {
+            allTokens.push(...findings.bearerTokens.map(t => ({ ...t, location: file, secret: false })));
+          }
+          if (findings.apiKeys?.length > 0) {
+            allTokens.push(...findings.apiKeys.map(t => ({ ...t, location: file, secret: true })));
+          }
+          if (findings.basicAuth?.length > 0) {
+            allTokens.push(...findings.basicAuth.map(t => ({ ...t, location: file, secret: true })));
+          }
+          if (findings.environmentCredentials?.length > 0) {
+            allTokens.push(...findings.environmentCredentials.map(t => ({ ...t, location: file, secret: true })));
+          }
+        }
+      } catch (err) {
+        continue;
+      }
+    }
+
+    return {
+      vulnerabilities: allVulnerabilities,
+      tokens: allTokens,
+      cookies: allCookies,
+      summary: {
+        filesAnalyzed: Math.min(files.length, 50),
+        jwtVulnerabilities: allVulnerabilities.filter(v => v.type === 'jwt').length,
+        sessionCookies: allCookies.length,
+        exposedTokens: allTokens.length,
+        criticalVulnerabilities: allVulnerabilities.filter(v => v.severity === 'CRITICAL').length
+      }
+    };
+  }
+
+  /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
     return {
-      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
+      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
       vulnerableDependencies: serviceInfo?.vulnerabilities?.length || 0,
       outdatedDependencies: serviceInfo?.summary?.outdatedCount || 0,
@@ -308,14 +381,19 @@ class ReconAggregator {
       sanitizationCoverage: taintInfo?.summary?.sanitizationCoverage || '0%',
       commandInjectionPayloads: payloadInfo?.commandInjection?.length || 0,
       xssEvasionPayloads: payloadInfo?.xssEvasion?.length || 0,
-      sqliEvasionPayloads: payloadInfo?.sqliEvasion?.length || 0
+      sqliEvasionPayloads: payloadInfo?.sqliEvasion?.length || 0,
+      // Phase 118: Token analysis
+      jwtVulnerabilitiesAnalyzed: tokenInfo?.summary?.jwtVulnerabilities || 0,
+      sessionCookiesAnalyzed: tokenInfo?.summary?.sessionCookies || 0,
+      exposedTokens: tokenInfo?.summary?.exposedTokens || 0,
+      criticalTokenVulnerabilities: tokenInfo?.summary?.criticalVulnerabilities || 0
     };
   }
 
   /**
    * Calculate overall risk level
    */
-  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo) {
+  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, tokenInfo) {
     let score = 0;
 
     // Vulnerable dependencies (max 30 points)
@@ -353,6 +431,11 @@ class ReconAggregator {
     const highLogicFlaws = workflowInfo?.flaws?.filter(f => f.severity === 'HIGH').length || 0;
     score += criticalLogicFlaws * 5 + Math.min(highLogicFlaws * 2, 10);
 
+    // Phase 118: Token vulnerabilities (max 15 points)
+    const criticalTokenVulns = tokenInfo?.summary?.criticalVulnerabilities || 0;
+    const jwtVulnsAnalyzed = tokenInfo?.summary?.jwtVulnerabilities || 0;
+    score += criticalTokenVulns * 5 + Math.min(jwtVulnsAnalyzed, 15);
+
     if (score >= 60) return 'CRITICAL';
     if (score >= 40) return 'HIGH';
     if (score >= 20) return 'MEDIUM';
@@ -362,7 +445,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
     const risks = [];
 
     // Service risks
@@ -552,6 +635,31 @@ class ReconAggregator {
       }
     }
 
+    // Phase 118: Token risks
+    if (tokenInfo?.vulnerabilities?.length > 0) {
+      const criticalTokens = tokenInfo.vulnerabilities.filter(v => v.severity === 'CRITICAL');
+      if (criticalTokens.length > 0) {
+        risks.push({
+          severity: 'CRITICAL',
+          category: 'Token',
+          title: `${criticalTokens.length} critical token vulnerabilities`,
+          description: 'JWT alg:none, weak secrets, or predictable session IDs detected',
+          affected: criticalTokens.slice(0, 3).map(v => v.location)
+        });
+      }
+    }
+
+    // Exposed credentials in source
+    if (tokenInfo?.tokens?.some(t => t.secret)) {
+      risks.push({
+        severity: 'CRITICAL',
+        category: 'Credentials',
+        title: 'Exposed credentials in source code',
+        description: 'API keys, tokens, or secrets found in source files',
+        affected: tokenInfo.tokens.filter(t => t.secret).slice(0, 3).map(t => t.location)
+      });
+    }
+
     return risks.sort((a, b) => {
       const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
@@ -561,7 +669,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo, tokenInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -706,6 +814,30 @@ class ReconAggregator {
           description: `Generated ${totalPayloads} WAF-evasion test payloads (${payloadInfo.commandInjection?.length || 0} command injection, ${payloadInfo.xssEvasion?.length || 0} XSS, ${payloadInfo.sqliEvasion?.length || 0} SQLi). Test your WAF against these to verify detection coverage.`
         });
       }
+    }
+
+    // Phase 118: Token security recommendations
+    if (tokenInfo?.vulnerabilities?.length > 0) {
+      const jwtAlgNone = tokenInfo.vulnerabilities.filter(v => v.type === 'alg_none');
+      if (jwtAlgNone.length > 0) {
+        recommendations.push({
+          priority: 'URGENT',
+          title: 'Fix JWT algorithm vulnerabilities',
+          description: `${jwtAlgNone.length} JWTs with alg:none - remove unsigned tokens or use RS256/HS256 with secure secrets`,
+          affected: jwtAlgNone.slice(0, 3).map(v => v.location)
+        });
+      }
+    }
+
+    // Cookie security
+    const insecureCookies = tokenInfo?.cookies?.filter(c => !c.flags?.secure || !c.flags?.httpOnly);
+    if (insecureCookies?.length > 0) {
+      recommendations.push({
+        priority: 'HIGH',
+        title: 'Secure session cookies',
+        description: `${insecureCookies.length} cookies missing security flags - add HttpOnly and Secure flags`,
+        affected: insecureCookies.slice(0, 3).map(c => c.name)
+      });
     }
 
     return recommendations;

@@ -250,14 +250,14 @@ const PTES_TIER_MAP = {
   deep: {
     name: "Recon Full",
     tokenBudget: 6000,
-    features: ["standard-features", "taint-analysis", "business-logic", "payloads"],
-    description: "Deep reconnaissance with taint analysis (D-14)",
+    features: ["standard-features", "taint-analysis", "business-logic", "payloads", "token-analysis"],
+    description: "Deep reconnaissance with taint analysis, business logic, and token analysis (D-14)",
   },
   redteam: {
     name: "Red Team",
     tokenBudget: 8000,
-    features: ["deep-features", "osint", "payloads", "post-exploit", "evasion"],
-    description: "Full Red Team TTPs (D-15)",
+    features: ["deep-features", "osint", "payloads", "post-exploit", "evasion", "token-analysis"],
+    description: "Full Red Team TTPs with token analysis (D-15)",
   },
 };
 
@@ -470,6 +470,17 @@ function shouldDegrade(error) {
 
 // ─── Exports ──────────────────────────────────────────────
 
+/**
+ * TIER_CONFIG for backward compatibility - mirrors PTES_TIER_MAP structure
+ * Phase 118: Adds TOKEN_ANALYSIS to deep/redteam tiers
+ */
+const TIER_CONFIG = {
+  free: { ...PTES_TIER_MAP.free },
+  standard: { ...PTES_TIER_MAP.standard },
+  deep: { ...PTES_TIER_MAP.deep, TOKEN_ANALYSIS: true },
+  redteam: { ...PTES_TIER_MAP.redteam, TOKEN_ANALYSIS: true }
+};
+
 module.exports = {
   getModelForTier,
   getAgentConfig,
@@ -479,6 +490,7 @@ module.exports = {
   shouldDegrade,
   PTES_TIER_MAP,
   getPtesTier,
+  TIER_CONFIG,
   TIER_MAP,
   AGENT_REGISTRY,
   PARALLEL_LIMIT,
