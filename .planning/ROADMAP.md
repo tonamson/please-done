@@ -259,8 +259,8 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 - Wave 2: ReconAggregator integration + resource-config (TOKEN-01 to TOKEN-04)
 
 **Plan List:**
-- [ ] 118-01-PLAN.md — Core token analysis module (JWT, cookie, credential analysis)
-- [ ] 118-02-PLAN.md — Integration with ReconAggregator at deep/redteam tiers
+- [x] 118-01-PLAN.md — Core token analysis module (JWT, cookie, credential analysis)
+- [x] 118-02-PLAN.md — Integration with ReconAggregator at deep/redteam tiers
 
 ### Phase 119: Post-Exploitation
 **Goal:** Plan persistence, exfiltration, and lateral movement strategies
@@ -272,6 +272,10 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   3. Data exfiltration channels identified (T1560)
   4. Lateral movement paths mapped
 **Estimated Plans:** 2
+
+**Plan List:**
+- [ ] 119-01-PLAN.md — Core post-exploitation module (web shells, persistence, exfiltration, lateral movement)
+- [ ] 119-02-PLAN.md — ReconAggregator integration + resource-config update
 
 ### Phase 120: Code Libraries
 **Goal:** Build shared libraries for reconnaissance, taint tracking, evasion, and caching
