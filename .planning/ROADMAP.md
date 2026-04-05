@@ -205,11 +205,12 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   1. User can view workflow diagrams showing application state machines
   2. System identifies potential business logic flaws
   3. Data flow graph shows source-to-sink taint paths
-**Plans:** 2 plans in 1 wave
+**Plans:** 3/3 plans (2 complete, 1 gap closure)
 
 **Plan List:**
-- [ ] 115-01-PLAN.md — Business Logic Mapping: workflow-mapper.js (state machine, flaw detection, Mermaid diagrams) + recon-aggregator wiring (Wave 1: RECON-06)
-- [ ] 115-02-PLAN.md — Taint Analysis: extend source-mapper.js (inter-procedural, sanitization edges) + taint-engine.js (data flow graph) (Wave 1: RECON-07)
+- [x] 115-01-PLAN.md — Business Logic Mapping: workflow-mapper.js (state machine, flaw detection, Mermaid diagrams) + recon-aggregator wiring (Wave 1: RECON-06)
+- [x] 115-02-PLAN.md — Taint Analysis: extend source-mapper.js (inter-procedural, sanitization edges) + taint-engine.js (data flow graph) (Wave 1: RECON-07)
+- [ ] 115-03-PLAN.md — Gap Closure: Wire TaintEngine into ReconAggregator (RECON-07)
 
 ### Phase 116: OSINT Intelligence
 **Goal:** Gather external intelligence using OSINT techniques per MITRE ATT&CK
