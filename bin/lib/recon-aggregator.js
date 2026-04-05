@@ -7,6 +7,8 @@ const { SourceMapper } = require('./source-mapper');
 const { TargetEnumerator } = require('./target-enumerator');
 const { ServiceDiscovery } = require('./service-discovery');
 const { ReconCache } = require('./recon-cache');
+const { AssetDiscoverer } = require('./asset-discoverer');
+const { AuthAnalyzer } = require('./auth-analyzer');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -17,6 +19,8 @@ class ReconAggregator {
     this.sourceMapper = new SourceMapper({ cache: this.cache });
     this.targetEnumerator = new TargetEnumerator();
     this.serviceDiscovery = new ServiceDiscovery({ cache: this.cache });
+    this.assetDiscoverer = new AssetDiscoverer({ cache: this.cache });
+    this.authAnalyzer = new AuthAnalyzer({ cache: this.cache });
     this.results = null;
   }
 
@@ -50,14 +54,27 @@ class ReconAggregator {
       targetInfo = await this.targetEnumerator.discoverRoutes(projectPath);
     }
 
+    // Phase 114 modules (deep/redteam tiers)
+    let assetInfo = null;
+    let authInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Discovering hidden assets...');
+      assetInfo = await this.assetDiscoverer.discoverHiddenAssets(projectPath, options);
+
+      console.log('  → Analyzing authentication...');
+      authInfo = await this.authAnalyzer.analyze(projectPath, targetInfo, options);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo)
+      assetInfo,
+      authInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -124,9 +141,9 @@ class ReconAggregator {
   /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
     return {
-      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo),
+      overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
       vulnerableDependencies: serviceInfo?.vulnerabilities?.length || 0,
       outdatedDependencies: serviceInfo?.summary?.outdatedCount || 0,
@@ -138,14 +155,20 @@ class ReconAggregator {
         : 0,
       internalRoutes: Array.isArray(targetInfo)
         ? targetInfo.filter(r => !r.isDocumented).length
-        : 0
+        : 0,
+      hiddenAssets: assetInfo?.length || 0,
+      criticalAssets: assetInfo?.filter(a => a.severity === 'CRITICAL').length || 0,
+      authPatterns: authInfo?.authPatterns?.length || 0,
+      jwtVulnerabilities: authInfo?.jwtAnalysis?.length || 0,
+      hardcodedCredentials: authInfo?.hardcodedCredentials?.length || 0,
+      bypassCandidates: authInfo?.coverageMatrix?.bypassCandidates?.length || 0
     };
   }
 
   /**
    * Calculate overall risk level
    */
-  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo) {
+  calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
     let score = 0;
 
     // Vulnerable dependencies (max 30 points)
@@ -167,6 +190,17 @@ class ReconAggregator {
     const unprotectedRoutes = routes.filter(r => !r.authRequired).length;
     score += internalRoutes * 3 + Math.min(unprotectedRoutes, 20);
 
+    // Phase 114: Hidden assets (max 10 points)
+    const criticalAssets = assetInfo?.filter(a => a.severity === 'CRITICAL').length || 0;
+    const highAssets = assetInfo?.filter(a => a.severity === 'HIGH').length || 0;
+    score += criticalAssets * 5 + Math.min(highAssets * 2, 10);
+
+    // Phase 114: Auth vulnerabilities (max 10 points)
+    const jwtVulns = authInfo?.jwtAnalysis?.length || 0;
+    const hardcodedCreds = authInfo?.hardcodedCredentials?.length || 0;
+    const bypassCandidates = authInfo?.coverageMatrix?.bypassCandidates?.length || 0;
+    score += Math.min(jwtVulns * 3 + hardcodedCreds * 5 + bypassCandidates * 2, 10);
+
     if (score >= 60) return 'CRITICAL';
     if (score >= 40) return 'HIGH';
     if (score >= 20) return 'MEDIUM';
@@ -176,7 +210,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
     const risks = [];
 
     // Service risks
@@ -267,6 +301,76 @@ class ReconAggregator {
       }
     }
 
+    // Phase 114: Hidden asset risks
+    if (assetInfo?.length > 0) {
+      const criticalAssets = assetInfo.filter(a => a.severity === 'CRITICAL');
+      if (criticalAssets.length > 0) {
+        risks.push({
+          severity: 'CRITICAL',
+          category: 'Exposure',
+          title: `${criticalAssets.length} critical hidden asset exposures`,
+          description: `Found ${criticalAssets.length} CRITICAL severity exposed assets (admin panels, debug endpoints)`,
+          affected: criticalAssets.slice(0, 5).map(a => a.path)
+        });
+      }
+
+      const highAssets = assetInfo.filter(a => a.severity === 'HIGH');
+      if (highAssets.length > 0) {
+        risks.push({
+          severity: 'HIGH',
+          category: 'Exposure',
+          title: `${highAssets.length} high-risk exposed assets`,
+          description: `Found ${highAssets.length} HIGH severity exposed assets (config files, backups)`,
+          affected: highAssets.slice(0, 5).map(a => a.path)
+        });
+      }
+    }
+
+    // Phase 114: Authentication risks
+    if (authInfo) {
+      // JWT vulnerabilities
+      if (authInfo.jwtAnalysis?.length > 0) {
+        const jwtVulns = authInfo.jwtAnalysis;
+        const algorithmConfusion = jwtVulns.filter(v => v.type === 'jwt-algorithm-not-pinned');
+        if (algorithmConfusion.length > 0) {
+          risks.push({
+            severity: 'HIGH',
+            category: 'Authentication',
+            title: 'JWT algorithm confusion vulnerability',
+            description: 'JWT verification without explicit algorithm pinning - vulnerable to algorithm confusion (CVE-2024-54150)',
+            affected: algorithmConfusion.slice(0, 3).map(v => `${v.file}:${v.line}`)
+          });
+        }
+      }
+
+      // Hardcoded credentials
+      if (authInfo.hardcodedCredentials?.length > 0) {
+        const creds = authInfo.hardcodedCredentials;
+        const criticalCreds = creds.filter(c => c.severity === 'CRITICAL');
+        if (criticalCreds.length > 0) {
+          risks.push({
+            severity: 'CRITICAL',
+            category: 'Credentials',
+            title: `${criticalCreds.length} hardcoded credentials found`,
+            description: 'Hardcoded credentials in source code are a critical security risk',
+            affected: criticalCreds.slice(0, 5).map(c => `${c.file}:${c.line}`)
+          });
+        }
+      }
+
+      // Bypass candidates
+      if (authInfo.coverageMatrix?.bypassCandidates?.length > 0) {
+        const candidates = authInfo.coverageMatrix.bypassCandidates;
+        risks.push({
+          severity: 'HIGH',
+          category: 'Authentication',
+          title: `${candidates.length} authentication bypass candidates`,
+          description: 'Sensitive routes without authentication that may allow unauthorized access',
+          affected: candidates.slice(0, 5).map(c => c.path)
+        });
+      }
+    }
+
     return risks.sort((a, b) => {
       const severityOrder = { CRITICAL: 4, HIGH: 3, MEDIUM: 2, LOW: 1 };
       return severityOrder[b.severity] - severityOrder[a.severity];
@@ -276,7 +380,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -333,6 +437,54 @@ class ReconAggregator {
           affected: internal.slice(0, 3).map(r => r.path)
         });
       }
+    }
+
+    // Phase 114: Hidden asset recommendations
+    if (assetInfo?.length > 0) {
+      const criticalAssets = assetInfo.filter(a => a.severity === 'CRITICAL');
+      if (criticalAssets.length > 0) {
+        recommendations.push({
+          priority: 'URGENT',
+          title: 'Remove or secure exposed critical assets',
+          description: `${criticalAssets.length} CRITICAL assets exposed - admin panels, debug endpoints, and backup files should not be publicly accessible`,
+          affected: criticalAssets.slice(0, 3).map(a => a.path)
+        });
+      }
+    }
+
+    // Phase 114: JWT security recommendations
+    if (authInfo?.jwtAnalysis?.length > 0) {
+      const jwtVulns = authInfo.jwtAnalysis.filter(v => v.type === 'jwt-algorithm-not-pinned');
+      if (jwtVulns.length > 0) {
+        recommendations.push({
+          priority: 'HIGH',
+          title: 'Pin JWT verification algorithms',
+          description: `Add explicit { algorithms: ['RS256'] } option to jwt.verify() calls to prevent algorithm confusion attacks (CVE-2024-54150)`,
+          affected: jwtVulns.slice(0, 3).map(v => `${v.file}:${v.line}`)
+        });
+      }
+    }
+
+    // Phase 114: Hardcoded credential recommendations
+    if (authInfo?.hardcodedCredentials?.length > 0) {
+      const creds = authInfo.hardcodedCredentials;
+      recommendations.push({
+        priority: 'URGENT',
+        title: 'Move credentials to environment variables',
+        description: `${creds.length} hardcoded credentials found - use environment variables or secret management instead`,
+        affected: creds.slice(0, 3).map(c => `${c.file}:${c.line}`)
+      });
+    }
+
+    // Phase 114: Auth bypass mitigation
+    if (authInfo?.coverageMatrix?.bypassCandidates?.length > 0) {
+      const candidates = authInfo.coverageMatrix.bypassCandidates;
+      recommendations.push({
+        priority: 'HIGH',
+        title: 'Add authentication to sensitive routes',
+        description: `${candidates.length} sensitive routes lack authentication - add middleware to protect admin, user, and API endpoints`,
+        affected: candidates.slice(0, 3).map(c => c.path)
+      });
     }
 
     return recommendations;
