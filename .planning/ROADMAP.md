@@ -299,7 +299,7 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 **Goal:** Create specialized agents for reconnaissance, taint analysis, OSINT, payload, post-exploitation
 **Depends on:** Phase 120
 **Requirements:** AGENT-01 to AGENT-05 (5 agents)
-**Status:** Planned | **Plans:** 2/2 plans
+**Status:** Planned | **Plans:** 2/2 plans complete
 **Success Criteria:**
   1. All 5 agents created with agent files
   2. Agents wired into pd:audit workflows
@@ -324,8 +324,8 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 **Estimated Plans:** 2
 
 **Plan List:**
-- [ ] 122-01-PLAN.md — Create 5 wordlist files (common-paths.txt, parameters.txt, dorks.txt, waf-bypass.txt, encodings.txt) (Wave 1: DATA-01 to DATA-05)
-- [ ] 122-02-PLAN.md — Create MITRE ATT&CK techniques.yaml mapping file (Wave 1: DATA-06)
+- [x] 122-01-PLAN.md — Create 5 wordlist files (common-paths.txt, parameters.txt, dorks.txt, waf-bypass.txt, encodings.txt) (Wave 1: DATA-01 to DATA-05)
+- [x] 122-02-PLAN.md — Create MITRE ATT&CK techniques.yaml mapping file (Wave 1: DATA-06)
 
 ### Phase 123: Integration
 **Goal:** Wire reconnaissance, DAST, and red team capabilities into pd:audit workflow
@@ -336,6 +336,10 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   2. `pd:audit --poc` triggers DAST verification workflow
   3. `pd:audit --redteam` triggers red team workflow
 **Estimated Plans:** 2
+
+**Plan List:**
+- [ ] 123-01-PLAN.md — Wire ReconAggregator into Step 0 for --recon/--recon-light/--recon-full (INT-01)
+- [ ] 123-02-PLAN.md — Wire --poc DAST and --redteam Red Team workflows (INT-02, INT-03)
 
 ### Phase 124: Testing & Documentation
 **Goal:** Validate all components with unit/integration tests and update documentation
