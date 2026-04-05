@@ -46,6 +46,14 @@ const {
 
 console.log("Running encoding round-trip tests...");
 
+// Unicode normalize
+assert.strictEqual(
+  typeof unicodeNormalize("test"),
+  "string",
+  "unicodeNormalize should return a string"
+);
+console.log("  ✓ unicode normalize");
+
 // Base64 round-trip
 assert.strictEqual(
   base64Decode(base64Encode("Hello World")),

@@ -61,6 +61,23 @@ function assert(name, cond) {
   assert("parseQueryString encoded - email decoded", result[1].decoded === "john@example.com");
 })();
 
+// Test 4a: parseQueryString - edge cases
+(function t4a() {
+  assert("parseQueryString empty string", parseQueryString("").length === 0);
+  assert("parseQueryString null", parseQueryString(null).length === 0);
+  assert("parseQueryString undefined", parseQueryString(undefined).length === 0);
+  assert("parseQueryString number", parseQueryString(123).length === 0);
+  assert("parseQueryString object", parseQueryString({}).length === 0);
+})();
+
+// Test 4b: parseQueryString - empty pairs
+(function t4b() {
+  const result = parseQueryString("foo=bar&&baz=qux");
+  assert("parseQueryString empty pairs - count", result.length === 2);
+  assert("parseQueryString empty pairs - first key", result[0].key === "foo");
+  assert("parseQueryString empty pairs - second key", result[1].key === "baz");
+})();
+
 // Test 5: parseHeaders - normal headers
 (function t5() {
   const raw = "Content-Type: application/json\nUser-Agent: Mozilla/5.0";
@@ -69,6 +86,39 @@ function assert(name, cond) {
   assert("parseHeaders normal - no suspicious", result.suspicious.length === 0);
   assert("parseHeaders normal - first header name", result.headers[0].name === "Content-Type");
   assert("parseHeaders normal - first header risk", result.headers[0].risk === "none");
+})();
+
+// Test 5a: parseHeaders - edge cases
+(function t5a() {
+  const resultNull = parseHeaders(null);
+  assert("parseHeaders null - returns empty headers", resultNull.headers.length === 0);
+  const resultUndefined = parseHeaders(undefined);
+  assert("parseHeaders undefined - returns empty headers", resultUndefined.headers.length === 0);
+  const resultFalse = parseHeaders(false);
+  assert("parseHeaders false - returns empty headers", resultFalse.headers.length === 0);
+  const resultNumber = parseHeaders(123);
+  assert("parseHeaders number - returns empty headers", resultNumber.headers.length === 0);
+})();
+
+// Test 5b: parseHeaders - array format
+(function t5b() {
+  const result = parseHeaders(["Content-Type: application/json", "User-Agent: Mozilla/5.0"]);
+  assert("parseHeaders array - count", result.headers.length === 2);
+})();
+
+// Test 5c: parseHeaders - object format
+(function t5c() {
+  const result = parseHeaders({ "Content-Type": "application/json", "User-Agent": "Mozilla/5.0" });
+  assert("parseHeaders object - count", result.headers.length === 2);
+  assert("parseHeaders object - first value", result.headers[0].value === "application/json");
+})();
+
+// Test 5d: parseQueryString - pair without equals
+(function t5d() {
+  const result = parseQueryString("foo&bar&baz");
+  assert("parseQueryString no equals - count", result.length === 3);
+  assert("parseQueryString no equals - first key", result[0].key === "foo");
+  assert("parseQueryString no equals - first value empty", result[0].value === "");
 })();
 
 // Test 6: parseHeaders - suspicious headers

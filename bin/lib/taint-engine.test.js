@@ -229,6 +229,46 @@ describe("TaintEngine", () => {
     });
   });
 
+  describe("buildTaintPaths", () => {
+    it("should build paths from sanitizationEdges", () => {
+      const engine = new TaintEngine();
+      const sources = [
+        { type: "req.body", variable: "body", location: { line: 1 } },
+        { type: "req.query", variable: "query", location: { line: 2 } }
+      ];
+      const sinks = [
+        { type: "sql.query", code: "db.query()", location: { line: 3 } },
+        { type: "eval", code: "eval()", location: { line: 4 } }
+      ];
+      const sanitizationEdges = new Map([
+        ["0-db.query()", { sanitized: true, sanitizer: "validator.isEmail", location: { line: 2 } }]
+      ]);
+
+      const result = engine.buildTaintPaths(sources, sinks, sanitizationEdges);
+      assert.ok(Array.isArray(result));
+      assert.ok(result.length > 0);
+      assert.ok(result[0].sanitized === true);
+      assert.ok(result[0].sanitizer === "validator.isEmail");
+    });
+
+    it("should handle unsanitized flows", () => {
+      const engine = new TaintEngine();
+      const sources = [
+        { type: "req.body", variable: "body", location: { line: 1 } }
+      ];
+      const sinks = [
+        { type: "eval", code: "eval()", location: { line: 2 } }
+      ];
+      const sanitizationEdges = new Map([
+        ["0-eval()", { sanitized: false, sanitizer: null, location: null }]
+      ]);
+
+      const result = engine.buildTaintPaths(sources, sinks, sanitizationEdges);
+      assert.ok(Array.isArray(result));
+      assert.ok(result[0].sanitized === false);
+    });
+  });
+
   describe("generateTaintReport", () => {
     it("should calculate sanitizationCoverage percentage", () => {
       const engine = new TaintEngine();

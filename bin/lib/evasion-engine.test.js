@@ -59,6 +59,22 @@ function assert(name, condition) {
     assert("sleepJitter - returns variance", typeof result.variance === "number");
   })();
 
+  // Test 3a: timingBypass - adaptive method
+  (function testTimingBypassAdaptive() {
+    const result = timingBypass({ baseDelay: 100, jitter: 20, method: "adaptive" });
+    assert("timingBypass adaptive - returns delay > 0", result.delay > 0);
+    assert("timingBypass adaptive - has formula", typeof result.formula === "string");
+    assert("timingBypass adaptive - formula contains adaptive", result.formula.includes("adaptive"));
+  })();
+
+  // Test 3b: timingBypass - default/unknown method
+  (function testTimingBypassDefault() {
+    const result = timingBypass({ baseDelay: 100, method: "unknown_method" });
+    assert("timingBypass default - returns delay", result.delay === 100);
+    assert("timingBypass default - has formula", typeof result.formula === "string");
+    assert("timingBypass default - formula contains fixed", result.formula.includes("fixed"));
+  })();
+
   // Test 4: rateLimitEvade - exponential backoff
   (function testRateLimitEvadeExponential() {
     const result = rateLimitEvade(10, 1000, "exponential_backoff");
