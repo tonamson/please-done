@@ -188,7 +188,7 @@ class DataFlowGraph {
 
     // Edge definitions
     for (const edge of this.edges) {
-      const labelAttr = edge.label ? ` [label="${edge.label}"]` : '';
+      const labelAttr = edge.label ? ` [label="${this.escapeLabel(edge.label)}"]` : '';
       lines.push(`  "${edge.from}" -> "${edge.to}"${labelAttr};`);
     }
 

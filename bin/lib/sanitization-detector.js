@@ -6,6 +6,7 @@
  * to identify where taint propagation should stop.
  */
 
+const { parse } = require('@babel/parser');
 const traverse = require('@babel/traverse').default;
 
 /**
@@ -528,6 +529,132 @@ class SanitizationDetector {
     }
 
     return { stop: false };
+  }
+
+  /**
+   * Detect sanitization patterns in code string
+   * @param {string} code - Source code to analyze
+   * @returns {Object} Detection results with patterns array
+   */
+  detect(code) {
+    if (!code || typeof code !== 'string') {
+      return { patterns: [] };
+    }
+
+    const patterns = [];
+    const self = this;
+
+    try {
+      const ast = parse(code, {
+        sourceType: 'module',
+        allowImportExportEverywhere: true,
+        plugins: [
+          'jsx',
+          'classProperties',
+          'decorators-legacy',
+          'dynamicImport',
+          'optionalChaining',
+          'nullishCoalescingOperator'
+        ]
+      });
+
+      traverse(ast, {
+        CallExpression(path) {
+          const node = path.node;
+          const callee = node.callee;
+
+          // Check for validation library calls
+          const validation = self.isValidationLibraryCall(path);
+          if (validation) {
+            patterns.push({
+              type: validation.type || 'validation-library',
+              library: validation.library,
+              confidence: validation.confidence,
+              location: self.getLocation(path)
+            });
+            return;
+          }
+
+          // Check for parameterized queries
+          const parameterized = self.isParameterizedQuery(path);
+          if (parameterized) {
+            patterns.push({
+              type: 'parameterized-query',
+              library: parameterized.library,
+              confidence: parameterized.confidence,
+              location: self.getLocation(path)
+            });
+            return;
+          }
+
+          // Check for sanitization functions
+          if (callee) {
+            const calleeName = self.getMemberChain(callee);
+            if (self.isSanitizationFunction(calleeName)) {
+              patterns.push({
+                type: 'manual-sanitization',
+                function: calleeName,
+                confidence: 'medium',
+                location: self.getLocation(path)
+              });
+            }
+          }
+        },
+
+        MemberExpression(path) {
+          // Check for regex-based sanitization like str.replace(/pattern/, '')
+          const node = path.node;
+          if (node.property?.name === 'replace') {
+            const parent = path.parent;
+            if (parent?.type === 'CallExpression') {
+              const args = parent.arguments;
+              if (args.length >= 2 && args[0]?.type === 'RegExpLiteral') {
+                patterns.push({
+                  type: 'regex-sanitization',
+                  confidence: 'medium',
+                  location: self.getLocation(path)
+                });
+              }
+            }
+          }
+        },
+
+        // Detect whitelist validation patterns
+        IfStatement(path) {
+          const test = path.node.test;
+          if (test?.type === 'CallExpression' &&
+              test.callee?.property?.name === 'test') {
+            const object = test.callee.object;
+            if (object?.type === 'RegExpLiteral') {
+              patterns.push({
+                type: 'whitelist-validation',
+                confidence: 'low',
+                location: self.getLocation(path)
+              });
+            }
+          }
+        }
+      });
+
+    } catch (error) {
+      // Parse error - return empty patterns
+      return { patterns: [] };
+    }
+
+    return { patterns };
+  }
+
+  /**
+   * Get location information from a path
+   * @param {Object} path - Babel path
+   * @returns {Object} Location info
+   */
+  getLocation(path) {
+    const loc = path.node?.loc;
+    return {
+      line: loc?.start?.line || 0,
+      column: loc?.start?.column || 0
+    };
   }
 
   /**

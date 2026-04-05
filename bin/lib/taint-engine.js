@@ -402,11 +402,11 @@ class TaintEngine {
 
       // Function calls: fn(tainted) or tainted.method()
       CallExpression(nodePath) {
-        const args = nodePath.node.arguments;
+        const args = nodePath.node.arguments || [];
         const callee = nodePath.node.callee;
 
         // Check if any argument is tainted
-        const isTaintedArg = args.some(arg => self.isVariableReference(arg, variable, scopeId));
+        const isTaintedArg = args && Array.isArray(args) && args.some(arg => self.isVariableReference(arg, variable, scopeId));
 
         // Check if this is a method call on tainted object: tainted.method()
         const isMethodOnTainted = callee.type === 'MemberExpression' &&
@@ -631,10 +631,32 @@ class TaintEngine {
       /^strip_tags/i,
       /^purify/i,
       /^clean/i,
-      /^normalize/i
+      /^normalize/i,
+      // Joi validation patterns
+      /^Joi\./i,
+      /\.validate$/i,
+      /\.validateAsync$/i,
+      // Yup patterns
+      /^yup\./i,
+      // Zod patterns
+      /^z\./i,
+      /^zod\./i
     ];
 
-    return patterns.some(p => p.test(name));
+    // Check patterns
+    if (patterns.some(p => p.test(name))) {
+      return true;
+    }
+
+    // Check for validation library method chains
+    if (name.includes('.validate') || name.includes('.assert') || name.includes('.attempt')) {
+      return true;
+    }
+    if (/^(Joi|joi|yup|z|zod)\./i.test(name)) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
