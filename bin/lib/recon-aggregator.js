@@ -11,6 +11,7 @@ const { AssetDiscoverer } = require('./asset-discoverer');
 const { AuthAnalyzer } = require('./auth-analyzer');
 const { WorkflowMapper } = require('./workflow-mapper');
 const { TaintEngine } = require('./taint-engine');
+const { PayloadGenerator } = require('./payloads');
 
 /**
  * Aggregates reconnaissance data from all sources
@@ -25,6 +26,7 @@ class ReconAggregator {
     this.authAnalyzer = new AuthAnalyzer({ cache: this.cache });
     this.workflowMapper = new WorkflowMapper({ cache: this.cache });
     this.taintEngine = new TaintEngine({ cache: this.cache });
+    this.payloadGenerator = new PayloadGenerator({ cache: this.cache });
     this.results = null;
   }
 
@@ -85,9 +87,16 @@ class ReconAggregator {
       taintInfo = await this.runTaintAnalysis(taintFiles);
     }
 
+    // Phase 117: Payload Generation (deep/redteam tiers)
+    let payloadInfo = null;
+    if (tier === 'deep' || tier === 'redteam') {
+      console.log('  → Generating WAF-evasion test payloads...');
+      payloadInfo = this.runPayloadGeneration(projectPath);
+    }
+
     // Compile results
     this.results = {
-      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo),
+      summary: this.generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo),
       serviceInfo,
       sourceInfo,
       targetInfo,
@@ -95,8 +104,9 @@ class ReconAggregator {
       authInfo,
       workflowInfo,
       taintInfo,
-      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo),
-      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo)
+      payloadInfo,
+      risks: this.generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo),
+      recommendations: this.generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo)
     };
 
     console.log('  ✓ Reconnaissance complete\n');
@@ -251,9 +261,23 @@ class ReconAggregator {
   }
 
   /**
+   * Generate WAF-evasion test payloads
+   * Phase 117: PAYLOAD-01 to PAYLOAD-05
+   */
+  runPayloadGeneration(projectPath) {
+    const payloads = {
+      commandInjection: this.payloadGenerator.generateCommandInjectionPayloads(),
+      xssEvasion: this.payloadGenerator.generateXssEvasionPayloads(),
+      sqliEvasion: this.payloadGenerator.generateSqliEvasionPayloads(),
+      doubleExtension: this.payloadGenerator.generateDoubleExtensionTestFiles()
+    };
+    return payloads;
+  }
+
+  /**
    * Generate summary statistics
    */
-  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
+  generateSummary(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
     return {
       overallRisk: this.calculateOverallRisk(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo),
       techStack: serviceInfo?.framework?.name || 'Unknown',
@@ -281,7 +305,10 @@ class ReconAggregator {
       taintSinks: taintInfo?.summary?.totalSinks || 0,
       riskyFlows: taintInfo?.summary?.riskyFlows || 0,
       sanitizedFlows: taintInfo?.summary?.sanitizedFlows || 0,
-      sanitizationCoverage: taintInfo?.summary?.sanitizationCoverage || '0%'
+      sanitizationCoverage: taintInfo?.summary?.sanitizationCoverage || '0%',
+      commandInjectionPayloads: payloadInfo?.commandInjection?.length || 0,
+      xssEvasionPayloads: payloadInfo?.xssEvasion?.length || 0,
+      sqliEvasionPayloads: payloadInfo?.sqliEvasion?.length || 0
     };
   }
 
@@ -335,7 +362,7 @@ class ReconAggregator {
   /**
    * Generate risk findings
    */
-  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
+  generateRisks(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
     const risks = [];
 
     // Service risks
@@ -534,7 +561,7 @@ class ReconAggregator {
   /**
    * Generate recommendations
    */
-  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo) {
+  generateRecommendations(serviceInfo, sourceInfo, targetInfo, assetInfo, authInfo, workflowInfo, taintInfo, payloadInfo) {
     const recommendations = [];
 
     // Dependency recommendations
@@ -663,6 +690,20 @@ class ReconAggregator {
           title: 'Implement input sanitization',
           description: `${unsanitizedFlows} unsanitized source-to-sink paths need validation/sanitization`,
           affected: taintInfo.results?.slice(0, 3).map(r => r.sources?.[0]?.location?.file).filter(Boolean) || []
+        });
+      }
+    }
+
+    // Phase 117: WAF testing recommendations
+    if (payloadInfo) {
+      const totalPayloads = (payloadInfo.commandInjection?.length || 0) +
+        (payloadInfo.xssEvasion?.length || 0) +
+        (payloadInfo.sqliEvasion?.length || 0);
+      if (totalPayloads > 0) {
+        recommendations.push({
+          priority: 'MEDIUM',
+          title: 'Test WAF effectiveness with evasion payloads',
+          description: `Generated ${totalPayloads} WAF-evasion test payloads (${payloadInfo.commandInjection?.length || 0} command injection, ${payloadInfo.xssEvasion?.length || 0} XSS, ${payloadInfo.sqliEvasion?.length || 0} SQLi). Test your WAF against these to verify detection coverage.`
         });
       }
     }
