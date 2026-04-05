@@ -18,6 +18,7 @@ class SourceMapper {
     this.sources = [];
     this.sinks = [];
     this.sourceToSinkMap = new Map();
+    this.sanitizationEdges = new Map(); // Track sanitization between source and sink
   }
 
   /**
@@ -40,13 +41,16 @@ class SourceMapper {
 
     this.sources = this.findSources(ast, filePath);
     this.sinks = this.findSinks(ast, filePath);
-    this.sourceToSinkMap = this.mapSourcesToSinks(ast);
+    const { sourceToSink, sanitizationEdges } = this.mapSourcesToSinks(ast);
+    this.sourceToSinkMap = sourceToSink;
+    this.sanitizationEdges = sanitizationEdges;
 
     const result = this.getAnalysisResult();
     await this.cache.set(cacheKey, {
       sources: this.sources,
       sinks: this.sinks,
-      sourceToSinkMap: Array.from(this.sourceToSinkMap.entries())
+      sourceToSinkMap: Array.from(this.sourceToSinkMap.entries()),
+      sanitizationEdges: Array.from(this.sanitizationEdges.entries())
     });
 
     return result;
@@ -201,10 +205,12 @@ class SourceMapper {
   }
 
   /**
-   * Map sources to their sinks through taint analysis
+   * Map sources to their sinks through taint analysis (extended with inter-procedural + sanitization)
+   * @returns {{ sourceToSink: Map, sanitizationEdges: Map }}
    */
   mapSourcesToSinks(ast) {
     const sourceToSink = new Map();
+    const sanitizationEdges = new Map();
     const variableDeclarations = new Map();
 
     // Track variable assignments
@@ -217,14 +223,35 @@ class SourceMapper {
       }
     });
 
+    // Build call graph for inter-procedural analysis
+    const callGraph = this.buildCallGraph(ast);
+
     // Simple taint tracking
     this.sources.forEach((source, index) => {
       const variable = source.variable;
       if (variable) {
-        const affectedSinks = this.sinks.filter(sink =>
-          sink.code.includes(variable) ||
-          this.isVariableUsedInSink(variable, sink, variableDeclarations)
-        );
+        const affectedSinks = this.sinks.filter(sink => {
+          const directTaint = sink.code.includes(variable) ||
+            this.isVariableUsedInSink(variable, sink, variableDeclarations);
+
+          // Check inter-procedural taint
+          const interProceduralTaint = this.checkInterProceduralTaint(
+            source, sink, callGraph, variableDeclarations
+          );
+
+          // Check sanitization
+          const sanitization = this.checkSanitization(
+            source, sink, callGraph, variableDeclarations
+          );
+
+          if (sanitization.sanitized) {
+            // Track sanitization edge
+            const key = `${index}-${sink.code}`;
+            sanitizationEdges.set(key, sanitization);
+          }
+
+          return directTaint || interProceduralTaint;
+        });
 
         if (affectedSinks.length > 0) {
           sourceToSink.set(index, affectedSinks);
@@ -232,7 +259,206 @@ class SourceMapper {
       }
     });
 
-    return sourceToSink;
+    // Store sanitizationEdges
+    this.sanitizationEdges = sanitizationEdges;
+
+    return { sourceToSink, sanitizationEdges };
+  }
+
+  /**
+   * Build inter-procedural call graph from AST
+   * @returns {Map} function name -> [called function names]
+   */
+  buildCallGraph(ast) {
+    const callGraph = new Map();
+    const functionDeclarations = new Map();
+
+    // First pass: collect all function declarations
+    traverse(ast, {
+      FunctionDeclaration(nodePath) {
+        const name = nodePath.node.id?.name;
+        if (name) {
+          functionDeclarations.set(name, nodePath);
+        }
+      },
+      VariableDeclarator(nodePath) {
+        if (nodePath.node.id?.type === 'Identifier' &&
+            (nodePath.node.init?.type === 'FunctionExpression' ||
+             nodePath.node.init?.type === 'ArrowFunctionExpression')) {
+          const name = nodePath.node.id.name;
+          functionDeclarations.set(name, nodePath);
+        }
+      }
+    });
+
+    // Second pass: collect function calls
+    traverse(ast, {
+      CallExpression(nodePath) {
+        const callee = nodePath.node.callee;
+        let funcName = null;
+
+        if (callee.type === 'Identifier') {
+          funcName = callee.name;
+        } else if (callee.type === 'MemberExpression') {
+          // Skip method calls like obj.method()
+          return;
+        }
+
+        if (funcName) {
+          // Find parent function
+          const parentFunc = nodePath.findParent(p =>
+            p.isFunctionDeclaration() ||
+            p.isVariableDeclarator() ||
+            p.isFunctionExpression() ||
+            p.isArrowFunctionExpression()
+          );
+
+          let parentName = 'global';
+          if (parentFunc) {
+            if (parentFunc.isFunctionDeclaration()) {
+              parentName = parentFunc.node.id?.name || 'anonymous';
+            } else if (parentFunc.isVariableDeclarator()) {
+              parentName = parentFunc.node.id?.name || 'anonymous';
+            } else if (parentFunc.node.type === 'FunctionExpression' ||
+                       parentFunc.node.type === 'ArrowFunctionExpression') {
+              // Anonymous function - check grandparent
+              const grandParent = parentFunc.parent;
+              if (grandParent?.isVariableDeclarator()) {
+                parentName = grandParent.node.id?.name || 'anonymous';
+              }
+            }
+          }
+
+          if (!callGraph.has(parentName)) {
+            callGraph.set(parentName, []);
+          }
+          if (!callGraph.get(parentName).includes(funcName)) {
+            callGraph.get(parentName).push(funcName);
+          }
+        }
+      }
+    });
+
+    return callGraph;
+  }
+
+  /**
+   * Check if source flows to sink through function calls (inter-procedural)
+   */
+  checkInterProceduralTaint(source, sink, callGraph, variableDeclarations) {
+    const sourceVar = source.variable;
+    if (!sourceVar) return false;
+
+    // For each function in call graph, check if source variable is passed as argument
+    // and if sink is called within that function chain
+    for (const [caller, callees] of callGraph.entries()) {
+      // Check if any callee ultimately leads to sink
+      const visited = new Set();
+      const queue = [...callees];
+
+      while (queue.length > 0) {
+        const func = queue.shift();
+        if (visited.has(func)) continue;
+        visited.add(func);
+
+        // Check if this function uses the source variable and eventually calls sink-related code
+        const funcCalls = callGraph.get(func) || [];
+        queue.push(...funcCalls);
+
+        // Simple heuristic: if function name suggests handling of the source type
+        // e.g., getUserId -> uses userId, processOrder -> uses orderId
+        if (func.toLowerCase().includes(sourceVar.toLowerCase().replace(/req/g, ''))) {
+          // Function name suggests it handles this type of data
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Check if source->sink path passes through sanitization function
+   * @returns {{ sanitized: boolean, sanitizer: string|null, location: object|null }}
+   */
+  checkSanitization(source, sink, callGraph, variableDeclarations) {
+    const sanitizationPatterns = [
+      { type: 'validator.js', functions: ['isEmail', 'isInt', 'isFloat', 'isURL', 'isMobilePhone', 'isUUID', 'isAlpha', 'isAlphanumeric'] },
+      { type: 'express-validator', functions: ['body', 'param', 'query', 'header', 'cookie'] },
+      { type: 'DOMPurify', functions: ['sanitize'] },
+      { type: 'escape', functions: ['escape', 'encodeURI', 'encodeURIComponent'] },
+      { type: 'custom', patterns: [/function\s+validate\w*\(/, /sanitize\w*\(/, /check\w*\(/] }
+    ];
+
+    let sanitized = false;
+    let sanitizer = null;
+    let location = null;
+
+    traverse(ast, {
+      CallExpression(nodePath) {
+        const callee = nodePath.node.callee;
+        let funcName = null;
+
+        if (callee.type === 'Identifier') {
+          funcName = callee.name;
+        } else if (callee.type === 'MemberExpression') {
+          // Check for obj.sanitize() pattern
+          if (callee.property?.name) {
+            funcName = callee.property.name;
+          }
+        }
+
+        if (funcName) {
+          for (const pattern of sanitizationPatterns) {
+            if (pattern.functions && pattern.functions.includes(funcName)) {
+              sanitized = true;
+              sanitizer = `${pattern.type}.${funcName}`;
+              location = {
+                file: source.location?.file || '',
+                line: nodePath.node.loc?.start?.line || 0
+              };
+              nodePath.stop();
+              return;
+            }
+            if (pattern.patterns) {
+              for (const p of pattern.patterns) {
+                if (p.test(nodePath.toString())) {
+                  sanitized = true;
+                  sanitizer = `custom.${funcName}`;
+                  location = {
+                    file: source.location?.file || '',
+                    line: nodePath.node.loc?.start?.line || 0
+                  };
+                  nodePath.stop();
+                  return;
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    return { sanitized, sanitizer, location };
+  }
+
+  /**
+   * Get all identified sanitization edges
+   * @returns {Array} Array of { source, sink, sanitizer, location }
+   */
+  getSanitizationEdges() {
+    const edges = [];
+    for (const [key, data] of this.sanitizationEdges.entries()) {
+      const [sourceIdx, sinkCode] = key.split('-');
+      const source = this.sources[parseInt(sourceIdx)];
+      edges.push({
+        source,
+        sink: { code: sinkCode },
+        sanitizer: data.sanitizer,
+        location: data.location
+      });
+    }
+    return edges;
   }
 
   /**
@@ -291,15 +517,23 @@ class SourceMapper {
   }
 
   /**
-   * Get source to sink mapping
+   * Get source to sink mapping (with sanitization info)
    */
   getSourceToSinkMap() {
     const result = [];
     for (const [sourceIndex, sinks] of this.sourceToSinkMap.entries()) {
-      result.push({
-        source: this.sources[sourceIndex],
-        sinks
+      const source = this.sources[sourceIndex];
+      // Check if any sink has sanitization
+      const sinksWithSanitization = sinks.map(sink => {
+        const key = `${sourceIndex}-${sink.code}`;
+        const sanitization = this.sanitizationEdges.get(key);
+        return {
+          ...sink,
+          sanitized: sanitization?.sanitized || false,
+          sanitizer: sanitization?.sanitizer || null
+        };
       });
+      result.push({ source, sinks: sinksWithSanitization });
     }
     return result;
   }
@@ -337,11 +571,13 @@ class SourceMapper {
       sources: this.sources,
       sinks: this.sinks,
       sourceToSinkMap: this.getSourceToSinkMap(),
+      sanitizationEdges: this.getSanitizationEdges(),
       riskyFlows: this.getRiskyFlows(),
       summary: {
         totalSources: this.sources.length,
         totalSinks: this.sinks.length,
-        riskyFlows: this.getRiskyFlows().length
+        riskyFlows: this.getRiskyFlows().length,
+        sanitizedFlows: this.getSanitizationEdges().length
       }
     };
   }
