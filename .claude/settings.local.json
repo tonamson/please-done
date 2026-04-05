@@ -7,7 +7,16 @@
       "WebFetch(domain:attack.mitre.org)",
       "Skill(gsd-complete-milestone)",
       "Bash(git add:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Skill(gsd-progress)",
+      "Skill(gsd-do)",
+      "Bash(ls -la /Volumes/Code/Nodejs/please-done/.planning/phases/112-ptes-foundation/*-SUMMARY.md)",
+      "Bash(git:*)",
+      "Bash(ls:*)",
+      "Bash(break)",
+      "Bash(echo \"... vẫn đang chạy \\($i/6\\)\")",
+      "Bash(done)",
+      "Skill(gsd-discuss-phase)"
     ]
   }
 }

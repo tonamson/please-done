@@ -25,7 +25,7 @@ OWASP mapping:
 
 <process>
 1. **Read all evidence files from session dir using Glob:**
-   - Glob pattern: `{session_dir}/03-dispatch/evidence_sec_*.md`
+   - Glob pattern: `{session_dir}/06-dispatch/evidence_sec_*.md`
    - DO NOT hardcode 13 file names — evidence count depends on smart selection
    - If no evidence files found: report error and stop
    - Record the number of evidence files found

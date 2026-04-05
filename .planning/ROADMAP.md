@@ -155,9 +155,10 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
 
 **Phases:** 13 phases | **Estimated Plans:** 26-28 plans
 
-### Phase 112: PTES Foundation
+### Phase 112: PTES Foundation ✅
 **Goal:** Establish PTES-compliant workflow architecture with tiered command system
 **Depends on:** Nothing (first phase)
+**Status:** Complete (2026-04-05)
 **Requirements:** PTES-01, PTES-02, PTES-03, PTES-04
 **Success Criteria:**
   1. User can run `pd:audit --recon` for reconnaissance mode
@@ -165,7 +166,16 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   3. User can run `pd:audit --redteam` for red team mode
   4. Reconnaissance cache system optimizes token usage across phases
   5. Tiered commands support FREE, STANDARD, DEEP, and RED TEAM levels
-**Estimated Plans:** 2
+
+**Plans:** 2 plans in 2 waves
+
+**Wave Structure:**
+- Wave 1: Foundation libraries (recon-cache.js, flag-parser.js) - can run first
+- Wave 2: Integration (audit.md, workflow.md, resource-config.js) - depends on Wave 1
+
+**Plan List:**
+- [x] 112-01-PLAN.md — Create recon-cache.js and flag-parser.js libraries with unit tests (Wave 1: PTES-02, PTES-03)
+- [x] 112-02-PLAN.md — Integrate PTES workflow into pd:audit with tiered commands (Wave 2: PTES-01, PTES-02, PTES-04)
 
 ### Phase 113: Intelligence Gathering Core
 **Goal:** Implement foundational reconnaissance: source mapping, target enumeration, service discovery

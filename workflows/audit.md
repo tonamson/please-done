@@ -1,7 +1,6 @@
 <purpose>
-9-step workflow for pd:audit. Execute sequentially from Step 1 to Step 9.
-Input: $ARGUMENTS from skill pd:audit.
-References: references/security-rules.yaml, bin/lib/parallel-dispatch.js (buildScannerPlan, mergeScannerResults), bin/lib/resource-config.js (getAgentConfig), bin/lib/smart-selection.js (selectScanners), bin/lib/session-delta.js (classifyDelta, appendAuditHistory).
+10-step workflow for pd:audit (optional Step 0 PTES reconnaissance + Steps 2–10). Execute sequentially. Input: $ARGUMENTS from skill pd:audit.
+References: references/security-rules.yaml, bin/lib/parallel-dispatch.js (buildScannerPlan, mergeScannerResults), bin/lib/resource-config.js (getAgentConfig, getPtesTier, PTES_TIER_MAP), bin/lib/flag-parser.js (parsePtesFlags), bin/lib/recon-cache.js (ReconCache), bin/lib/smart-selection.js (selectScanners), bin/lib/session-delta.js (classifyDelta, appendAuditHistory).
 </purpose>
 
 <conditional_reading>
@@ -12,7 +11,27 @@ Read WHEN needed (analyze task description first):
 
 <process>
 
-## Step 1: Detect mode
+## Step 0: PTES Reconnaissance (Conditional)
+
+Run this step only when PTES-related work applies: `parsePtesFlags($ARGUMENTS)` yields `recon`, `poc`, or `redteam` true (e.g. `--recon`, `--recon-light`, `--recon-full`, `--poc`, `--redteam`). If all are false and tier is `none`, **skip** Step 0 and go to Step 2.
+
+1. Parse flags (project root):
+   ```bash
+   node -e "const {parsePtesFlags}=require('./bin/lib/flag-parser');console.log(JSON.stringify(parsePtesFlags(process.env.PD_AUDIT_ARGS||'')))"
+   ```
+   Pass `$ARGUMENTS` via env in wrapper, or inline: substitute the arguments string for the parser.
+
+2. Resolve tier config: `getPtesTier(parsed.tier)` from `bin/lib/resource-config.js` for token budget and features.
+
+3. **Cache:** Instantiate `ReconCache` (default `.planning/recon-cache`). Call `get()` — on hit, log `[Token Save] Reusing cached recon (0 AI tokens)` and use cached payload; on miss, run tier-appropriate recon (code-only for `free`, AI-assisted for higher tiers per CONTEXT) then `set(reconData)`.
+
+4. Log token budget: `[Token Budget] Used: X/Y (Z%)` using `getPtesTier` / `tokenBudget`.
+
+5. Write `{session_dir}/00-recon.md` with: tier, cache hit/miss, token_used, short recon summary.
+
+6. Later steps: Step 6 (dispatch) should mention `{session_dir}/00-recon.md` and cached context when present.
+
+## Step 2: Detect mode
 
 Automatically detect operating mode:
 
@@ -25,10 +44,10 @@ Automatically detect operating mode:
    SESSION_DIR="/tmp/pd-audit-${SESSION_HASH}"
    mkdir -p "$SESSION_DIR"
    ```
-5. Write `{session_dir}/01-detect.md` with content: mode, output_dir, ISO timestamp
+5. Write `{session_dir}/02-detect.md` with content: mode, output_dir, ISO timestamp
 6. Log: "Mode: {mode} — output will be written to {output_dir}"
 
-## Step 2: Delta-aware
+## Step 3: Delta-aware
 
 Classify functions from prior session evidence to only re-scan what has changed.
 
@@ -39,8 +58,8 @@ Classify functions from prior session evidence to only re-scan what has changed.
 2. If NO prior evidence found:
    - delta_mode = "full-scan"
    - Log: "No prior session evidence found — running full scan"
-   - Write `{session_dir}/02-delta.md` with: status=full-scan, reason="no prior evidence"
-   - Move to Step 3
+   - Write `{session_dir}/03-delta.md` with: status=full-scan, reason="no prior evidence"
+   - Move to Step 4
 
 3. If prior evidence EXISTS:
    a. For EACH evidence file `evidence_sec_{cat}.md`:
@@ -68,23 +87,24 @@ Classify functions from prior session evidence to only re-scan what has changed.
         console.log(JSON.stringify({...result, functions: fns}));
       "
       ```
-   c. Save classification results to `{session_dir}/02-delta.md`:
+   c. Save classification results to `{session_dir}/03-delta.md`:
       - Per category: count of SKIP, RE-SCAN, KNOWN-UNFIXED functions
       - Total: delta_mode="delta", summary counts
 
-4. Pass classification results to Step 5:
-   - Step 5 dispatches scanner with additional context: list of functions to re-scan (RE-SCAN) and new functions (NEW)
+4. Pass classification results to Step 6:
+   - Step 6 dispatches scanner with additional context: list of functions to re-scan (RE-SCAN) and new functions (NEW)
    - SKIP and KNOWN-UNFIXED functions do not need re-scanning — scanner receives this list to skip them
 
-## Step 3: Scope / parse args
+## Step 4: Scope / parse args
 
 Parse $ARGUMENTS:
 
 1. **path** — path to scan, default "."
 2. **--full** — run all 13 categories
 3. **--only cat1,cat2** — run only specified categories + validate slugs
-4. **--poc** — parse and save poc_enabled=true. This flag will be passed to Step 5 dispatch so scanners create a ## POC section in evidence.
-5. **--auto-fix** — parse but report "Not supported in this version" (per D-04)
+4. **--poc** — parse and save poc_enabled=true. This flag will be passed to Step 6 dispatch so scanners create a ## POC section in evidence.
+5. **PTES flags** — `--recon`, `--recon-light`, `--recon-full`, `--redteam` — use `parsePtesFlags` for tier and token budget (highest flag wins per CONTEXT).
+6. **--auto-fix** — parse but report "Not supported in this version" (per D-04)
 
 Get list of 13 valid slugs via Bash:
 ```bash
@@ -92,15 +112,15 @@ node -e "const {getAgentConfig}=require('./bin/lib/resource-config');console.log
 ```
 
 Determine categories_to_scan:
-- --full → 13 categories, SKIP Step 4
-- --only cat1,cat2 → validate slugs + ADD 3 base (secrets, misconfig, logging) + de-dup, SKIP Step 4 (per D-06, D-15). Invalid slug → warning and skip
-- No flag → move to Step 4 Smart Selection
+- --full → 13 categories, SKIP Step 5
+- --only cat1,cat2 → validate slugs + ADD 3 base (secrets, misconfig, logging) + de-dup, SKIP Step 5 (per D-06, D-15). Invalid slug → warning and skip
+- No flag → move to Step 5 Smart Selection
 
-Write `{session_dir}/02-scope.md` with: scan_path, mode (full|only), categories list, flags (poc/auto-fix status), warnings
+Write `{session_dir}/04-scope.md` with: scan_path, mode (full|only), categories list, flags (poc/auto-fix/PTES), warnings
 
-## Step 4: Smart selection
+## Step 5: Smart selection
 
-If --full or --only: SKIP this step (categories already set from Step 3).
+If --full or --only: SKIP this step (categories already set from Step 4).
 
 No flag → run smart selection (this entire step does NOT spawn AI — only Bash/Glob/Grep):
 
@@ -162,7 +182,7 @@ No flag → run smart selection (this entire step does NOT spawn AI — only Bas
       - If user chooses 2: use ALL_CATEGORIES (13)
       - If no interactive (cannot ask user): default run selected + log warning "Cannot ask user — running {selected.length} selected scanners"
 
-4. **Write {session_dir}/03-selection.md** with:
+4. **Write {session_dir}/05-selection.md** with:
    - status: completed
    - signals: [{id, description, categories}]
    - selected_categories: [...]
@@ -170,11 +190,11 @@ No flag → run smart selection (this entire step does NOT spawn AI — only Bas
    - lowConfidence: true/false
    - user_choice: (if lowConfidence=true)
 
-## Step 5: Dispatch scanners
+## Step 6: Dispatch scanners
 
 This is the main step — dispatch scanners in parallel 2/wave.
 
-1. Get categories_to_scan from Step 3 (--full/--only) or Step 4 (smart selection)
+1. Get categories_to_scan from Step 4 (--full/--only) or Step 5 (smart selection)
 2. Split categories into waves of 2 using buildScannerPlan logic:
    ```bash
    node -e "const {buildScannerPlan}=require('./bin/lib/parallel-dispatch');const plan=buildScannerPlan(categories, 2, scanPath);console.log(JSON.stringify(plan))"
@@ -182,38 +202,38 @@ This is the main step — dispatch scanners in parallel 2/wave.
    13 categories → 7 waves. Example: wave 1 = [sql-injection, xss], wave 2 = [cmd-injection, path-traversal], ...
 3. Initialize variable `scanResults = []` to accumulate results from all waves (array of objects `{category, evidenceContent, error}`)
 4. Agent pd-sec-scanner uses FastCode tool-first, Grep fallback (per D-14 Phase 46)
-5. Create directory `{session_dir}/03-dispatch/` before dispatch:
+5. Create directory `{session_dir}/06-dispatch/` before dispatch:
    ```bash
-   mkdir -p "${SESSION_DIR}/03-dispatch"
+   mkdir -p "${SESSION_DIR}/06-dispatch"
    ```
 
 6. For EACH WAVE (sequential — previous wave MUST complete before starting next):
    a. Spawn up to 2 scanner agents IN PARALLEL using SubAgent tool:
       - Agent name: pd-sec-scanner (per D-12, from getAgentConfig)
       - Parameters for agent: `--category {slug} --path {scanPath}`
-      - Prompt for each scanner: "Scan security category {slug} at path {scanPath}. Session dir: {session_dir}/03-dispatch/. Write evidence file to session dir.{if poc_enabled: ' --poc: Create ## POC section for each FAIL/FLAG finding.'}"
+      - Prompt for each scanner: "Scan security category {slug} at path {scanPath}. Session dir: {session_dir}/06-dispatch/. Reconnaissance context (if any): {session_dir}/00-recon.md. Write evidence file to session dir.{if poc_enabled: ' --poc: Create ## POC section for each FAIL/FLAG finding.'}"
       - Tier: scout / Haiku (per D-13)
       - Each scanner reads references/security-rules.yaml and scans by category
    b. Wait for ALL scanners in wave to complete (backpressure per D-10)
    c. Collect results from each scanner:
       - Success → read evidence file output from scanner, add `{category, evidenceContent: <evidence content>, error: null}` to `scanResults`
       - Failure / timeout → add `{category, evidenceContent: null, error: <error message>}` to `scanResults`, DO NOT stop (per D-11 — failure isolation, write inconclusive)
-   d. Write `{session_dir}/03-dispatch/{category}.md` for each scanner result
+   d. Write `{session_dir}/06-dispatch/{category}.md` for each scanner result
 
 7. Log after each wave: "Wave {N}/{totalWaves} completed: {completed} successful, {failed} failed"
 
 **IMPORTANT:** Wait for ALL scanners in wave to complete before starting next wave (backpressure per D-10). DO NOT dispatch all 13 scanners simultaneously.
 
-## Step 5b: Update evidence metadata
+## Step 6b: Update evidence metadata
 
-After ALL dispatch waves complete (Step 5 done):
+After ALL dispatch waves complete (Step 6 done):
 
 1. Get current commit SHA:
    ```bash
    CURRENT_SHA=$(git rev-parse --short HEAD)
    ```
 
-2. For EACH new evidence file from Step 5 (in session_dir/03-dispatch/):
+2. For EACH new evidence file from Step 6 (in session_dir/06-dispatch/):
    a. Read evidence file content
    b. Add/update `commit_sha: ${CURRENT_SHA}` in YAML frontmatter:
       - If evidence has frontmatter (---...---): add commit_sha field
@@ -237,28 +257,28 @@ After ALL dispatch waves complete (Step 5 done):
 
 3. Log: "Evidence metadata updated: commit_sha=${CURRENT_SHA}, {N} files have audit history"
 
-## Step 6: Reporter
+## Step 7: Reporter
 
 Spawn pd-sec-reporter agent:
-- Input: session_dir (contains all evidence files from Step 5 in 03-dispatch/)
-- Prompt: "Synthesize security report from evidence files in {session_dir}/03-dispatch/. Write SECURITY_REPORT.md to {session_dir}/SECURITY_REPORT.md."
+- Input: session_dir (contains all evidence files from Step 6 in 06-dispatch/)
+- Prompt: "Synthesize security report from evidence files in {session_dir}/06-dispatch/. Write SECURITY_REPORT.md to {session_dir}/SECURITY_REPORT.md."
 - Output: {session_dir}/SECURITY_REPORT.md
-- Reporter reads all {session_dir}/03-dispatch/*.md and synthesizes into 1 report
+- Reporter reads all {session_dir}/06-dispatch/*.md and synthesizes into 1 report
 
 If reporter fails: create a simple SECURITY_REPORT.md listing collected evidence files and basic statistics.
 
-## Step 7: Analyze / merge
+## Step 8: Analyze / merge
 
-Use `scanResults` accumulated from Step 5 (array of `{category, evidenceContent, error}`). Pass to mergeScannerResults(scanResults) to synthesize:
+Use `scanResults` accumulated from Step 6 (array of `{category, evidenceContent, error}`). Pass to mergeScannerResults(scanResults) to synthesize:
 
 1. Count completedCount (successful scanners), failedCount (failed/inconclusive scanners)
 2. List categories with findings (FAIL/FLAG)
 3. List clean categories (PASS)
 4. List inconclusive categories (fail/timeout)
-5. Write {session_dir}/04-analysis.md with: total_scanners, completed, failed, categories_with_findings, categories_clean, categories_inconclusive
+5. Write {session_dir}/07-analysis.md with: total_scanners, completed, failed, categories_with_findings, categories_clean, categories_inconclusive
 6. Log summary statistics for user
 
-## Step 8: Fix routing
+## Step 9: Fix routing
 
 Spawn pd-sec-fixer agent to analyze findings and create fix phase proposals.
 
@@ -277,19 +297,19 @@ Spawn pd-sec-fixer agent to analyze findings and create fix phase proposals.
    - Mode "integrated": display proposal, ask user to approve, if approved write to ROADMAP.md
    - Mode "standalone": write proposal to {session_dir}/fix-phases-proposal.md
 
-4. Write {session_dir}/05-fix-routing.md with:
+4. Write {session_dir}/08-fix-routing.md with:
    - status: completed
    - mode: {mode}
    - chains_detected: {number of chains detected}
    - fix_phases_proposed: {number of fix phases proposed}
    - user_approved: {true/false} (integrated mode only)
 
-5. If pd-sec-fixer fails: write {session_dir}/05-fix-routing.md with status=error, continue to Step 9 (do not block audit)
+5. If pd-sec-fixer fails: write {session_dir}/08-fix-routing.md with status=error, continue to Step 10 (do not block audit)
 
-## Step 9: Save report
+## Step 10: Save report
 
-1. Read {session_dir}/SECURITY_REPORT.md (from Step 6)
-2. Copy to output_dir (from Step 1):
+1. Read {session_dir}/SECURITY_REPORT.md (from Step 7)
+2. Copy to output_dir (from Step 2):
    - mode "standalone" → ./SECURITY_REPORT.md
    - mode "integrated" → .planning/audit/SECURITY_REPORT.md (create .planning/audit/ directory if not exists using `mkdir -p`)
 3. Log: "Security report saved at: {output_path}"
@@ -300,8 +320,9 @@ Spawn pd-sec-fixer agent to analyze findings and create fix phase proposals.
 <rules>
 - All output MUST be in English
 - DO NOT modify project code — scan and report only
-- When --poc is passed: pass --poc flag to scanner in Step 5 dispatch prompt
+- When --poc is passed: pass --poc flag to scanner in Step 6 dispatch prompt
 - When --auto-fix is passed: report "Not supported in this version" and continue
 - Previous wave MUST complete before starting next wave — follow backpressure
 - Failed scanner writes inconclusive, does not stop the entire audit
+- PTES: use `parsePtesFlags`, `ReconCache`, and `getPtesTier` as documented in Step 0
 </rules>

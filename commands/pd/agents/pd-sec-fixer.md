@@ -14,7 +14,7 @@ Analyze SECURITY_REPORT.md and evidence files to create decimal fix phases (N.1,
 <process>
 1. **Read SECURITY_REPORT.md from session dir.** Parse the master table (findings by severity), Gadget Chains section (if any), Remediation priorities (P0, P1, P2).
 
-2. **Read evidence files from session dir using Glob** `{session_dir}/03-dispatch/evidence_sec_*.md`. Parse the Function Checklist from each evidence file. Collect FAIL/FLAG findings with file, function, line, severity, category.
+2. **Read evidence files from session dir using Glob** `{session_dir}/06-dispatch/evidence_sec_*.md`. Parse the Function Checklist from each evidence file. Collect FAIL/FLAG findings with file, function, line, severity, category.
 
 3. **Read gadget chain templates** from `references/gadget-chain-templates.yaml`.
 

@@ -224,6 +224,50 @@ const DEGRADATION_CODES = new Set([
   "RATE_LIMIT",
 ]);
 
+/**
+ * PTES Reconnaissance Tier Mapping — maps command flags to token budgets (D-12–D-15, PTES-04).
+ */
+const PTES_TIER_MAP = {
+  none: {
+    name: "Quick SAST",
+    tokenBudget: 0,
+    features: ["steps-1-9"],
+    description: "Default backward-compatible audit",
+  },
+  free: {
+    name: "Recon Light",
+    tokenBudget: 0,
+    features: ["code-only-recon", "package-analysis", "route-extraction"],
+    description: "Code-only reconnaissance (D-12)",
+  },
+  standard: {
+    name: "Recon Standard",
+    tokenBudget: 2000,
+    features: ["free-features", "ai-attack-surface", "risk-scoring"],
+    description: "Standard reconnaissance with AI analysis (D-13)",
+  },
+  deep: {
+    name: "Recon Full",
+    tokenBudget: 6000,
+    features: ["standard-features", "taint-analysis", "business-logic"],
+    description: "Deep reconnaissance with taint analysis (D-14)",
+  },
+  redteam: {
+    name: "Red Team",
+    tokenBudget: 8000,
+    features: ["deep-features", "osint", "payloads", "post-exploit", "evasion"],
+    description: "Full Red Team TTPs (D-15)",
+  },
+};
+
+/**
+ * @param {string} tierKey - none | free | standard | deep | redteam
+ * @returns {object}
+ */
+function getPtesTier(tierKey) {
+  return PTES_TIER_MAP[tierKey] || PTES_TIER_MAP.none;
+}
+
 /** Regex matching agent spawn failure messages. */
 const AGENT_FAIL_RE = /agent.*fail/i;
 
@@ -432,6 +476,8 @@ module.exports = {
   getAdaptiveParallelLimit,
   isHeavyAgent,
   shouldDegrade,
+  PTES_TIER_MAP,
+  getPtesTier,
   TIER_MAP,
   AGENT_REGISTRY,
   PARALLEL_LIMIT,

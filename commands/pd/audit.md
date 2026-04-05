@@ -1,8 +1,8 @@
 ---
 name: pd:audit
-description: OWASP security audit - dispatch 13 scanners in parallel and consolidate the report
+description: OWASP/PTES security audit - dispatch 13 scanners in parallel and consolidate the report
 model: opus
-argument-hint: "[path] [--full|--only cat1,cat2|--poc|--auto-fix]"
+argument-hint: "[path] [--full|--only cat1,cat2|--recon|--recon-light|--recon-full|--poc|--redteam|--auto-fix]"
 allowed-tools:
   - Read
   - Write
@@ -15,7 +15,7 @@ allowed-tools:
 ---
 
 <objective>
-Run a comprehensive security audit based on the OWASP Top 10. Dispatch 13 scanners in parallel (2 per wave), consolidate the report, and perform cross-analysis.
+Run a comprehensive security audit based on the OWASP Top 10 with optional PTES reconnaissance. Dispatch 13 scanners in parallel (2 per wave), consolidate the report, and perform cross-analysis.
 </objective>
 
 <guards>
@@ -48,6 +48,8 @@ Execute @workflows/audit.md from start to finish. Pass $ARGUMENTS to the workflo
 **Create:**
 - SECURITY_REPORT.md (location depends on mode: standalone -> `./`, integrated -> `.planning/audit/`)
 - Evidence files in a temp directory
+- When PTES/recon flags are used: reconnaissance data may be cached under `.planning/recon-cache/`
+- Token budget line: `[Token Budget] Used: X/Y (Z%)` when a PTES tier applies
 
 **Next step:** Read SECURITY_REPORT.md to review the results
 
@@ -63,8 +65,13 @@ Execute @workflows/audit.md from start to finish. Pass $ARGUMENTS to the workflo
 <rules>
 - All output MUST be in English.
 - DO NOT modify project code - only scan and report.
-- When `--poc` is passed: pass the `--poc` flag to the scanner in the B5 dispatch prompt.
+- When `--poc` is passed: pass the `--poc` flag to the scanner in the Step 6 dispatch prompt.
 - When `--auto-fix` is passed: report "Not supported in this version yet" and continue.
+- When `--recon` is passed: enable reconnaissance phase (Step 0) before SAST.
+- When `--recon-light` is passed: enable code-only reconnaissance (0 tokens).
+- When `--recon-full` is passed: enable deep reconnaissance with taint analysis.
+- When `--redteam` is passed: enable Red Team TTPs (recon + SAST + DAST + evasion).
+- When multiple recon flags are passed: highest tier wins (`--redteam` > `--recon-full` > `--recon` > `--recon-light`).
 </rules>
 
 <script type="error-handler">
