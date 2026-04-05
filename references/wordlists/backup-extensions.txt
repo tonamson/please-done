@@ -1,0 +1,14 @@
+.bak
+.backup
+.old
+.orig
+.zip
+.tar.gz
+.tgz
+.sql
+.sql.gz
+.dump
+.tar
+.gz
+.7z
+.rar

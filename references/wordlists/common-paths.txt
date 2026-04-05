@@ -1,0 +1,43 @@
+# Admin Panels
+admin
+administrator
+admin/login
+admin/dashboard
+dashboard
+manage
+management
+panel
+backend
+control
+wp-admin
+phpmyadmin
+api/admin
+internal/admin
+
+# Debug Endpoints
+debug
+__debug__
+test
+testing
+dev
+development
+staging
+api-docs
+swagger
+openapi
+
+# Config Exposures
+.env
+.env.local
+.env.production
+config.json
+database.yml
+.git/config
+.git/HEAD
+
+# Source Maps
+main.js.map
+bundle.js.map
+app.js.map
+styles.css.map
+main.css.map
