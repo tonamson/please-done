@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v11.2
-milestone_name: Vietnamese Documentation
-status: executing
-last_updated: "2026-04-05T05:02:33.585Z"
+milestone: v12.0
+milestone_name: Pentest & Red Team Enhancement
+status: defining
+last_updated: "2026-04-05T06:00:00.000Z"
 last_activity: 2026-04-05
 progress:
-  total_phases: 6
-  completed_phases: 6
-  total_plans: 9
-  completed_plans: 9
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 ## Current Position
 
-Phase: 111
-Plan: Not started
-Milestone: v11.2 (Vietnamese Documentation)
-Status: Ready to execute
-Last activity: 2026-04-05
+Phase: Not started (defining requirements)
+Plan: —
+Milestone: v12.0 (Pentest & Red Team Enhancement)
+Status: Defining requirements
+Last activity: 2026-04-05 — Milestone v12.0 started
 
 ## v11.2 Summary
 

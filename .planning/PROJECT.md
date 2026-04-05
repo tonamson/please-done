@@ -1,5 +1,24 @@
 # Please-Done Workflow Optimization
 
+## Current Milestone: v12.0 Pentest & Red Team Enhancement
+
+**Goal:** Bổ sung Reconnaissance Phase đầy đủ theo chuẩn Web Pentest (PTES/OWASP) và Red Team TTPs cho skill `pd:audit`.
+
+**Target features:**
+- Source Mapping (untrusted data sources, input vectors)
+- Target Enumeration (endpoints, hidden APIs)
+- Service Discovery (tech stack fingerprinting)
+- Hidden Asset Discovery (admin panels, debug endpoints)
+- Authentication Analysis (mechanisms, bypass vectors)
+- Business Logic Mapping (workflows, state machines)
+- Taint Analysis (data flow tracking)
+- OSINT Intelligence (Google Dorks, CT logs, secrets)
+- Payload Development (WAF evasion, obfuscation)
+- Token Analysis (JWT, session security)
+- Post-Exploitation Planning (persistence, exfiltration)
+
+---
+
 ## What This Is
 
 Please-Done is a cross-platform AI coding skill framework that transpiles workflow skills from Claude Code format to multiple platforms (Codex, Gemini, OpenCode, Copilot). The project provides a complete skill lifecycle (init → scan → plan → write-code → test → fix-bug → complete) with multi-framework rules (NestJS, Next.js, WordPress, Flutter, Solidity), token-optimized prompts, wave-based parallel execution, library-aware code generation via Context7, automated plan quality checking with truth-driven enforcement, verified end-to-end workflow logic with logic re-validation before code changes, automated Mermaid diagram generation with PDF report export, an enhanced fix-bug workflow with automated investigation, a research squad system with structured evidence storage, anti-hallucination audit trails, and automated research pipelines (Evidence Collector → INDEX.md → Fact Checker cross-validation), and an OWASP security audit pipeline with smart scanner selection, session delta, POC/gadget chain analysis, and milestone-integrated security gates.
