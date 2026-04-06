@@ -24,130 +24,133 @@
 
 ## Progress
 
-20 milestones defined. 136 phases completed.
+20 milestones completed. 136 phases completed.
+
+---
+
+## 🔄 v12.2 Developer Experience Improvements (In Progress)
+
+**Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features.
+
+**Requirements:** L-01, L-02, L-03, L-04, L-05, L-06, L-07, L-08
+
+**Phases:** 8 phases (137-144) | **Estimated Plans:** 8 plans
 
 ## Phases
 
+- [ ] **Phase 137: Workflow Command Merge** — Merge pd:next into pd:what-next with auto-execute
+- [ ] **Phase 138: Project Statistics Command** — pd:stats for phase/plan/requirement metrics
+- [ ] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis
+- [ ] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion
+- [ ] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools
+- [ ] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions
+- [ ] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution
+- [ ] **Phase 144: Schema Drift Detection** — Detect and report planning file schema changes
+
+## Phase Details
+
+### Phase 137: Workflow Command Merge
+**Goal**: Users get a unified next-action command that can show suggestions or auto-execute the appropriate workflow step
+**Depends on**: Nothing (first phase)
+**Requirements**: L-02
+**Success Criteria** (what must be TRUE):
+  1. Running `pd:what-next` shows current project state and recommended next action without executing
+  2. Running `pd:what-next --execute` automatically detects state and runs the recommended command
+  3. Advisory mode (default) preserves existing behavior — shows suggestion, waits for user confirmation
+  4. All pd:next behavior is fully subsumed — no functionality lost
+**Plans**: TBD
+
+### Phase 138: Project Statistics Command
+**Goal**: Users can view comprehensive project statistics from the command line for quick status assessment
+**Depends on**: Nothing
+**Requirements**: L-03
+**Success Criteria** (what must be TRUE):
+  1. `pd:stats` displays phase count, plan count, requirement count, and milestone progress as a readable table
+  2. Output includes timeline with milestone start/completion dates
+  3. `--json` flag produces machine-readable JSON output with all metrics
+  4. LOC counts and file counts are included in the statistics summary
+**Plans**: TBD
+
+### Phase 139: Planning Health Diagnostics
+**Goal**: Users can diagnose and fix planning directory issues without manual investigation
+**Depends on**: Nothing
+**Requirements**: L-04
+**Success Criteria** (what must be TRUE):
+  1. `pd:health` scans `.planning/` directory and reports missing files (VERIFICATION.md, SUMMARY.md)
+  2. Issues are classified with severity levels (critical, warning, info) for prioritization
+  3. Each issue includes a suggested fix command or concrete remediation action
+  4. STATE.md structure validation confirms all required fields are present and valid
+**Plans**: TBD
+
+### Phase 140: Version Badge Automation
+**Goal**: Version numbers stay synchronized across all project files without manual updates
+**Depends on**: Nothing
+**Requirements**: L-01
+**Success Criteria** (what must be TRUE):
+  1. Version in README.md, CLAUDE.md, and package.json is kept in sync automatically
+  2. `--check` flag validates version consistency across files without making changes
+  3. Version mismatches are detected and reported with specific file locations and expected vs actual values
+  4. Sync triggers on milestone completion to update all version references
+**Plans**: TBD
+
+### Phase 141: MCP Tool Discovery
+**Goal**: Users can see which MCP tools are available, configured, and functional in their environment
+**Depends on**: Nothing
+**Requirements**: L-05
+**Success Criteria** (what must be TRUE):
+  1. Available MCP tools are auto-discovered and listed with names and descriptions
+  2. Configured tools are distinguished from merely available ones in the output
+  3. Tool inventory includes capability descriptions for debugging configuration
+  4. Output clearly shows which tools are ready to use vs missing setup
+**Plans**: TBD
+
+### Phase 142: Discussion Audit Trail
+**Goal**: Conversation context persists across sessions so users can seamlessly resume paused work
+**Depends on**: Nothing
+**Requirements**: L-06
+**Success Criteria** (what must be TRUE):
+  1. Discussion summaries are automatically stored in `.planning/contexts/` directory
+  2. Paused work can be resumed with full context restoration from stored summaries
+  3. Past discussions are searchable by keyword or date range
+  4. Session history tracks key decisions and outcomes across multiple conversation instances
+**Plans**: TBD
+
+### Phase 143: Scope Reduction Detection
+**Goal**: Users are proactively warned when plan scope shrinks unexpectedly during execution, preventing silent requirement loss
+**Depends on**: Phase 139 (health check patterns)
+**Requirements**: L-07
+**Success Criteria** (what must be TRUE):
+  1. Task counts between plan and execution are compared automatically to detect reduction
+  2. Dropped requirements mid-milestone trigger a visible warning with specific requirement IDs
+  3. Scope changes appear in milestone audit output with before/after comparison
+  4. Warning message includes specifics on what was removed or reduced, not just a generic alert
+**Plans**: TBD
+
+### Phase 144: Schema Drift Detection
+**Goal**: Planning file schema changes are detected early so users can migrate before data loss or corruption
+**Depends on**: Phase 139 (health check patterns)
+**Requirements**: L-08
+**Success Criteria** (what must be TRUE):
+  1. STATE.md structure is validated against the expected schema with field-level comparison
+  2. `gsd_state_version` is checked against supported versions and outdated versions are flagged
+  3. Migration requirements are reported when drift is detected, including which fields changed
+  4. Detection can run standalone or as part of health check diagnostics
+**Plans**: TBD
+
 ---
 
-<details>
-<summary>✅ v12.1 Quality Hardening (Phases 125-136) — SHIPPED 2026-04-06</summary>
+## Progress Table
 
-- [x] Phase 125: Command Reference Fixes (1/1 plan) — completed 2026-04-06
-- [x] Phase 126: Test Infrastructure (1/1 plan) — completed 2026-04-06
-- [x] Phase 127: Documentation Updates (2/2 plans) — completed 2026-04-06
-- [x] Phase 128: Code Quality - Catch Blocks (superseded by Phase 132)
-- [x] Phase 129: Installer Refactor (1/1 plan) — completed 2026-04-06
-- [x] Phase 130: Project Hygiene (1/1 plan) — completed 2026-04-06
-- [x] Phase 131: Universal Runtime Support (1/1 plan) — completed 2026-04-06
-- [x] Phase 132: Complete H-01 Catch Block (1/1 plan) — completed 2026-04-06
-- [x] Phase 133: Add Missing VERIFICATION.md (1/1 plan) — completed 2026-04-06
-- [x] Phase 134: Upgrade VERIFICATION Templates (1/1 plan) — completed 2026-04-06
-- [x] Phase 135: Fix Traceability Table (1/1 plan) — completed 2026-04-06
-- [x] Phase 136: Fix Deprecated Commands (1/1 plan) — completed 2026-04-06
-
-Full details: `.planning/milestones/v12.1-ROADMAP.md`
-
-</details>
-
----
-
-## 🔄 v11.2 Vietnamese Documentation (In Progress)
-
-**Goal:** Tạo phiên bản song ngữ Anh-Việt cho toàn bộ tài liệu hướng dẫn.
-
-**Requirements:** I18N-01, I18N-02, I18N-03, I18N-04, I18N-05, I18N-06
-
-**Phases:** 6 phases | **Estimated Plans:** 6 plans
-
-### Phase 106: I18N-01 — README Song Ngữ ✅
-**Status:** Complete | **Plans:** 1 plan
-**Date:** 2026-04-04
-**Goal:** Tạo phiên bản README tiếng Việt song song với bản tiếng Anh.
-**Success Criteria:**
-1. ✅ File `README.vi.md` với nội dung đầy đủ (758 lines)
-2. ✅ Liên kết chuyển đổi ngôn ngữ ở đầu mỗi file
-3. ✅ Giữ nguyên cấu trúc và format
-
-**Plans:**
-- [x] 106-01-PLAN.md — Create README.vi.md with full Vietnamese translation and language switcher
-
-### Phase 107: I18N-02 — CLAUDE.md Song Ngữ
-**Status:** Planned | **Plans:** 1/1 plans complete
-**Goal:** Tạo phiên bản CLAUDE.md tiếng Việt.
-**Success Criteria:**
-1. File `CLAUDE.vi.md` với toàn bộ nội dung
-2. Dịch chuẩn xác các thuật ngữ kỹ thuật
-3. Giữ nguyên tất cả ví dụ và workflow
-
-**Plans:**
-- [x] 107-01-PLAN.md — Create CLAUDE.vi.md with full Vietnamese translation and language switcher
-
-### Phase 108: I18N-03 — Command Cheat Sheet Tiếng Việt
-**Status:** Planned | **Plans:** 1/1 plans complete
-**Goal:** Tạo cheat sheet tiếng Việt.
-**Success Criteria:**
-1. File `docs/cheatsheet.vi.md`
-2. Dịch descriptions và explanations
-3. Giữ nguyên commands và flags
-
-**Plans:**
-- [x] 108-01-PLAN.md — Create docs/cheatsheet.vi.md with full Vietnamese translation and language switchers
-
-### Phase 109: I18N-04 — Workflow Guides Tiếng Việt
-**Goal:** Dịch các workflow guides sang tiếng Việt.
-**Success Criteria:**
-1. `docs/workflows/getting-started.vi.md`
-2. `docs/workflows/bug-fixing.vi.md`
-3. `docs/workflows/milestone-management.vi.md`
-
-### Phase 110: I18N-05 — Skill Reference Cards Tiếng Việt
-**Goal:** Dịch 16 skill cards sang tiếng Việt.
-**Success Criteria:**
-1. 16 files `docs/skills/*.vi.md`
-2. Index `docs/skills/index.vi.md`
-3. Cấu trúc giống bản gốc
-**Plans:** 4/4 plans complete
-
-**Plan List:**
-- [x] 110-01-PLAN.md — Translate index, onboard, init, scan (Wave 1: Core Skills)
-- [x] 110-02-PLAN.md — Translate plan, write-code, test, new-milestone (Wave 2: Project Skills)
-- [x] 110-03-PLAN.md — Translate fix-bug, complete-milestone, audit, research (Wave 3: Debug + Complete)
-- [x] 110-04-PLAN.md — Translate what-next, status, conventions, fetch-doc, update (Wave 4: Utility Skills)
-
-### Phase 111: I18N-06 — Error Troubleshooting Tiếng Việt
-**Status:** Planned | **Plans:** 1/1 plans complete
-**Goal:** Dịch error troubleshooting guide.
-**Success Criteria:**
-1. `docs/error-troubleshooting.vi.md`
-2. Dịch error messages và suggested actions
-3. Giữ nguyên commands
-
-**Plans:**
-- [x] 111-01-PLAN.md — Create docs/error-troubleshooting.vi.md with full Vietnamese translation and language switcher
-
----
-
-<details>
-<summary>✅ v12.0 Pentest & Red Team Enhancement (Phases 112-124) — SHIPPED 2026-04-06</summary>
-
-- [x] Phase 112: PTES Foundation (2/2 plans) — completed 2026-04-05
-- [x] Phase 113: Intelligence Gathering Core (2/2 plans) — completed 2026-04-06
-- [x] Phase 114: Intelligence Gathering Extended (2/2 plans) — completed 2026-04-06
-- [x] Phase 115: Advanced Reconnaissance (3/3 plans) — completed 2026-04-06
-- [x] Phase 116: OSINT Intelligence (2/2 plans) — completed 2026-04-06
-- [x] Phase 117: Payload Development (2/2 plans) — completed 2026-04-06
-- [x] Phase 118: Token Analysis (2/2 plans) — completed 2026-04-06
-- [x] Phase 119: Post-Exploitation (2/2 plans) — completed 2026-04-06
-- [x] Phase 120: Code Libraries (2/2 plans) — completed 2026-04-06
-- [x] Phase 121: AI Agents (2/2 plans) — completed 2026-04-06
-- [x] Phase 122: Data Files (2/2 plans) — completed 2026-04-06
-- [x] Phase 123: Integration (2/2 plans) — completed 2026-04-06
-- [x] Phase 124: Testing & Documentation (2/2 plans) — completed 2026-04-06
-
-Full details: `.planning/milestones/v12.0-ROADMAP.md`
-
-</details>
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 137. Workflow Command Merge | 0/1 | Not started | - |
+| 138. Project Statistics Command | 0/1 | Not started | - |
+| 139. Planning Health Diagnostics | 0/1 | Not started | - |
+| 140. Version Badge Automation | 0/1 | Not started | - |
+| 141. MCP Tool Discovery | 0/1 | Not started | - |
+| 142. Discussion Audit Trail | 0/1 | Not started | - |
+| 143. Scope Reduction Detection | 0/1 | Not started | - |
+| 144. Schema Drift Detection | 0/1 | Not started | - |
 
 ---
 
@@ -155,12 +158,13 @@ Full details: `.planning/milestones/v12.0-ROADMAP.md`
 
 > Parking lot for unsequenced improvement ideas.
 
-*(Backlog hiện trống)*
+*(Backlog is empty)*
 
 ---
 
 ## Completed Milestones
 
 See `.planning/milestones/` for archived milestone details:
+- [v12.1 Quality Hardening](milestones/v12.1-ROADMAP.md) — 12 phases, 12 plans (command fixes, test infra, catch blocks, AGENTS.md)
 - [v12.0 Pentest & Red Team Enhancement](milestones/v12.0-ROADMAP.md) — 13 phases, 47 requirements (PTES, RECON, OSINT, PAYLOAD, TOKEN, POST, LIB, AGENT, DATA, INT)
 - [v11.1 Documentation Improvements](milestones/v11.1-ROADMAP.md) — 6 phases, 6 requirements (DOC-01 to DOC-06)

@@ -93,19 +93,20 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| L-01 | — | Not started |
-| L-02 | — | Not started |
-| L-03 | — | Not started |
-| L-04 | — | Not started |
-| L-05 | — | Not started |
-| L-06 | — | Not started |
-| L-07 | — | Not started |
-| L-08 | — | Not started |
+| L-01 | Phase 140 | Not started |
+| L-02 | Phase 137 | Not started |
+| L-03 | Phase 138 | Not started |
+| L-04 | Phase 139 | Not started |
+| L-05 | Phase 141 | Not started |
+| L-06 | Phase 142 | Not started |
+| L-07 | Phase 143 | Not started |
+| L-08 | Phase 144 | Not started |
 
 **Coverage:**
 - v12.2 requirements: 8 total
-- Phases: TBD
-- Unmapped: 8
+- Phases: 8 (137-144)
+- Mapped: 8/8 ✓
+- Unmapped: 0
 
 ---
 

@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v12.2
 milestone_name: Developer Experience Improvements
 status: planning
-last_updated: "2026-04-06T18:00:00.000Z"
+last_updated: "2026-04-06T19:00:00.000Z"
 last_activity: 2026-04-06
 progress:
-  total_phases: 0
+  total_phases: 8
   completed_phases: 0
-  total_plans: 0
+  total_plans: 8
   completed_plans: 0
   percent: 0
 ---
@@ -18,7 +18,8 @@ progress:
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-04-06)
-See: `.planning/ROADMAP.md` (milestone v12.1 complete)
+See: `.planning/ROADMAP.md` (v12.2 roadmap defined)
+See: `.planning/REQUIREMENTS.md` (8 requirements, 8 phases mapped)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -26,26 +27,34 @@ See: `.planning/ROADMAP.md` (milestone v12.1 complete)
 
 ## Current Position
 
-Phase: None (defining requirements)
-Plan: None
-Status: Defining requirements for v12.2
+Phase: 137 (Workflow Command Merge)
+Plan: None (ready for planning)
+Status: Roadmap defined, awaiting phase planning
 Last activity: 2026-04-06
 
 ---
 
-## v12.2 Developer Experience Improvements (Planning)
+## v12.2 Developer Experience Improvements
 
 **Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features
 
-**Target features (8 requirements):**
-- L-02: Merge pd:next into pd:what-next (auto-execute logic)
-- L-03: pd:stats command (project statistics)
-- L-04: pd:health command (diagnose planning issues)
-- L-01: Automated version badge sync
-- L-05: MCP Tool Discovery
-- L-06: Discussion Audit Trail
-- L-07: Scope Reduction Detection
-- L-08: Schema Drift Detection
+**Roadmap:** 8 phases (137-144), 8 plans
+
+| Phase | Requirement | Description | Status |
+|-------|-------------|-------------|--------|
+| 137 | L-02 | Workflow Command Merge (pd:next → what-next) | Not started |
+| 138 | L-03 | Project Statistics Command (pd:stats) | Not started |
+| 139 | L-04 | Planning Health Diagnostics (pd:health) | Not started |
+| 140 | L-01 | Version Badge Automation | Not started |
+| 141 | L-05 | MCP Tool Discovery | Not started |
+| 142 | L-06 | Discussion Audit Trail | Not started |
+| 143 | L-07 | Scope Reduction Detection | Not started |
+| 144 | L-08 | Schema Drift Detection | Not started |
+
+**Dependency chain:**
+- Phases 137-142: Independent (can run in any order)
+- Phase 143: Depends on Phase 139 (health check patterns)
+- Phase 144: Depends on Phase 139 (health check patterns)
 
 ---
 
@@ -53,15 +62,19 @@ Last activity: 2026-04-06
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
-| v12.2 | 0 | 0 | — | Planning |
+| v12.2 | 0/8 | 0/8 | — | Planning |
 | v12.1 | 12 | 12 | 2026-04-06 | ✅ Shipped |
 | v12.0 | 13 | 26 | 2026-04-06 | ✅ Shipped |
+| v11.1 | 6 | 6 | 2026-04-04 | ✅ Shipped |
+| v11.0 | 12 | 12 | 2026-04-04 | ✅ Shipped |
 
 ---
 
 ## Decisions Made
 
-(None yet for v12.2)
+- **D-137-01**: 1 requirement per phase for v12.2 — each phase delivers one complete, independently verifiable feature
+- **D-137-02**: Phases 137-142 are independent (no cross-dependencies) — allows flexible execution order
+- **D-137-03**: Phases 143-144 depend on Phase 139 — scope reduction and schema drift reuse health check patterns
 
 ---
 
@@ -71,4 +84,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-06 — v12.2 milestone planning started_
+_Last updated: 2026-04-06 — v12.2 roadmap created_
