@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v12.1
 milestone_name: Quality Hardening
 status: executing
-last_updated: "2026-04-06T04:15:00.000Z"
-last_activity: 2026-04-06 -- Phase 130 (H-06) complete: archived orphaned files
+last_updated: "2026-04-06T11:42:38.000Z"
+last_activity: 2026-04-06 -- Phase 131 (H-07) Plan 01 complete: AGENTS.md and sync script
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 5
-  total_plans: 7
+  total_plans: 8
   completed_plans: 7
-  percent: 100
+  percent: 88
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: `.planning/ROADMAP.md` (pending)
 
 ## Current Position
 
-Phase: 130 — Project Hygiene (H-06)
+Phase: 131 — Universal Runtime Support (H-07)
 Plan: 01 (COMPLETED)
-Status: Ready for next phase
-Last activity: 2026-04-06 -- Phase 130 (H-06) complete: archived orphaned files
+Status: Ready
+Last activity: 2026-04-06 -- Phase 131 (H-07) Plan 01 complete
 
 ---
 
@@ -46,7 +46,7 @@ Last activity: 2026-04-06 -- Phase 130 (H-06) complete: archived orphaned files
 - Refactor process.exit(1) in installers (H-02)
 - Create 4 missing command docs (H-03)
 - Cleanup orphaned files (H-06)
-- Universal Cross-Runtime Support (H-07)
+- Universal Cross-Runtime Support (H-07) ✓ IN PROGRESS
 
 ---
 
@@ -60,10 +60,20 @@ Last activity: 2026-04-06 -- Phase 130 (H-06) complete: archived orphaned files
 
 ---
 
+## Decisions Made
+
+- D-01: Created AGENTS.md as source of truth for cross-runtime agent instructions
+- D-04: Created bin/sync-instructions.js script
+- D-09: Integrated sync into bin/install.js (runs after platform installation)
+- D-10: Added sync to package.json postinstall script
+- D-11: Sync is idempotent (safe to run multiple times)
+
+---
+
 ## Blockers/Concerns
 
 None.
 
 ---
 
-_Last updated: 2026-04-06 — Phase 130 (H-06) complete: archived orphaned files_
+_Last updated: 2026-04-06 — Phase 131 (H-07) Plan 01 complete: AGENTS.md and sync script deployed to 12 runtimes_
