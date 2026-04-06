@@ -149,7 +149,7 @@
 **Gap Closure:** Fixes integration gaps from audit
 
 **Plans:**
-- [ ] 136-01-PLAN.md — Update command references in getting-started docs
+- [x] 136-01-PLAN.md — Update command references in getting-started docs (created 2026-04-06)
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
