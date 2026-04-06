@@ -212,7 +212,7 @@ function incrementLintFail(errorMsg, progressPath = null) {
 
     return result;
   } catch (error) {
-    // Graceful degradation on any error
+    console.warn(`[progress-tracker] incrementLintFail failed: ${error.message}`);
     return {
       count: 0,
       thresholdReached: false,
@@ -241,7 +241,7 @@ function getLintFailCount(progressPath = null) {
 
     return parsed.lint_fail_count || 0;
   } catch (error) {
-    // Graceful degradation: return 0 on any error
+    console.warn(`[progress-tracker] getLintFailCount failed: ${error.message}`);
     return 0;
   }
 }
@@ -274,6 +274,7 @@ function resetLintFail(progressPath = null) {
 
     return true;
   } catch (error) {
+    console.warn(`[progress-tracker] resetLintFail failed: ${error.message}`);
     return false;
   }
 }

@@ -78,6 +78,7 @@ function parseUrl(url) {
       fragment: parsed.hash || "",
     };
   } catch (e) {
+    console.warn(`[recon-scanner] parseGitUrl failed: ${e.message}`);
     return {
       protocol: "",
       host: "",

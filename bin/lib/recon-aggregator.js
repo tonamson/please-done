@@ -171,7 +171,7 @@ class ReconAggregator {
         allSinks.push(...result.sinks);
         riskyFlows.push(...result.riskyFlows);
       } catch (err) {
-        // Skip files that can't be parsed
+        console.warn(`[recon-aggregator] sourceMapper.analyze skipped ${file}: ${err.message}`);
         continue;
       }
     }

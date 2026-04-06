@@ -311,7 +311,7 @@ function generateEvasionVariants(payload, attackType = "xss") {
         });
       }
     } catch (e) {
-      // Skip failing techniques
+      console.warn(`[evasion-engine] applyBaseTechniques failed for ${tech.technique}: ${e.message}`);
     }
   }
 
@@ -345,7 +345,7 @@ function generateEvasionVariants(payload, attackType = "xss") {
         });
       }
     } catch (e) {
-      // Skip failing techniques
+      console.warn(`[evasion-engine] applySpecificTechniques failed for ${attackType}: ${e.message}`);
     }
   }
 
