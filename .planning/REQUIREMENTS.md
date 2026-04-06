@@ -9,7 +9,7 @@
 
 ### Phase 1: Command Reference Fixes
 
-- [ ] **C-01**: Fix 5 broken command references in CLAUDE.md
+- [x] **C-01**: Fix 5 broken command references in CLAUDE.md
   - Replace `pd:map-codebase` with `pd:scan`
   - Replace `pd:verify` with `pd:test`
   - Create lint rule for `pd:fix-bug` usage
@@ -18,7 +18,7 @@
 
 ### Phase 2: Test Infrastructure
 
-- [ ] **C-02**: Fix test script for complete coverage
+- [x] **C-02**: Fix test script for complete coverage
   - Update `package.json` test script to `'test/**/*.test.js'`
   - Add `test:smoke` and `test:integration` scripts
   - Add `c8` coverage tool
@@ -41,13 +41,13 @@
   - Add `log.warn` for consistency across catch blocks
   - Ensure all catch blocks have debug logging
 
-- [ ] **H-02**: Refactor `process.exit(1)` in claude.js installer
+- [x] **H-02**: Refactor `process.exit(1)` in claude.js installer
   - Replace with `throw new Error()`
   - Let `bin/install.js` handle exit
 
 ### Phase 5: Project Hygiene
 
-- [ ] **H-06**: Cleanup orphaned files
+- [x] **H-06**: Cleanup orphaned files
   - Archive `workflows/legacy/fix-bug-v1.5.md`
   - Wire or remove `references/mermaid-rules.md`
   - Archive `de_xuat_cai_tien.md`
@@ -56,7 +56,7 @@
 
 ### Phase 6: Cross-Platform Support
 
-- [ ] **H-07**: Universal Cross-Runtime Support
+- [x] **H-07**: Universal Cross-Runtime Support
   - Create `AGENTS.md` as source of truth
   - Create `bin/sync-instructions.js` script
   - Integrate sync into installer and postinstall
@@ -98,14 +98,19 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| C-01 | Phase 125 | Pending |
-| C-02 | Phase 126 | Pending |
+| C-01 | Phase 125 | Complete |
+| C-02 | Phase 126 | Complete |
 | C-04 | Phase 127 | Complete |
-| H-01 | Phase 128 | Pending |
-| H-02 | Phase 129 | Pending |
-| H-03 | Phase 130 | Complete |
-| H-06 | Phase 131 | Pending |
-| H-07 | Phase 132 | Pending |
+| H-01 | Phase 132 | Pending |
+| H-02 | Phase 86 | Complete |
+| H-03 | Phase 127 | Complete |
+| H-06 | Phase 130 | Complete |
+| H-07 | Phase 131 | Complete |
+
+**Coverage:**
+- v12.1 requirements: 8 total
+- Phases: 125-135 (11 phases)
+- Unmapped: 0
 
 **Coverage:**
 - v12.1 requirements: 8 total

@@ -20,7 +20,7 @@
 - ✅ **v11.0 Developer Tooling & Observability** — Phases 88-99 (shipped 2026-04-04)
 - ✅ **v11.1 Documentation Improvements** — Phases 100-105 ([shipped 2026-04-04](milestones/v11.1-ROADMAP.md))
 - ✅ **v12.0 Pentest & Red Team Enhancement** — Phases 112-124 (shipped 2026-04-06)
-- 🔄 **v12.1 Quality Hardening** — Phases 125-132 (in progress)
+- 🔄 **v12.1 Quality Hardening** — Phases 125-135 (in progress)
 
 ## Progress
 
@@ -101,6 +101,33 @@
 
 **Plans:**
 - [ ] 131-01-PLAN.md — Create AGENTS.md and sync script
+
+### Phase 132: Complete H-01 Catch Block Implementation
+
+**Goal:** Fix bare catch blocks with proper logging
+**Depends on:** Nothing
+**Requirements:** H-01
+**Gap Closure:** Closes H-01 requirement (Phase 128 context gathered but never executed)
+
+### Phase 133: Add Missing VERIFICATION.md
+
+**Goal:** Add gsd-verifier format verification for completed phases
+**Depends on:** Nothing
+**Requirements:** C-01, C-02
+**Gap Closure:** Adds VERIFICATION.md for Phases 125 and 126
+
+### Phase 134: Upgrade VERIFICATION.md Templates
+
+**Goal:** Migrate simple templates to gsd-verifier format
+**Depends on:** Nothing
+**Requirements:** H-06, H-07
+**Gap Closure:** Upgrades Phases 130-131 verification to full gsd-verifier format
+
+### Phase 135: Fix Traceability Table
+
+**Goal:** Correct REQUIREMENTS.md traceability misalignments
+**Depends on:** Nothing
+**Gap Closure:** Fixes H-02→86, H-03→127, H-06→130, H-07→131 phase mappings
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
