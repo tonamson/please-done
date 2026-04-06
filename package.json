@@ -31,7 +31,10 @@
     "uninstall:opencode": "node bin/install.js --uninstall --opencode",
     "uninstall:copilot": "node bin/install.js --uninstall --copilot",
     "uninstall:all": "node bin/install.js --uninstall --all",
-    "test": "node --test 'test/*.test.js'",
+    "test": "node --test 'test/**/*.test.js'",
+    "test:smoke": "node --test 'test/smoke/**/*.test.js'",
+    "test:integration": "node --test 'test/integration/**/*.test.js'",
+    "test:coverage": "c8 --reporter=text node --test 'test/**/*.test.js'",
     "test:converters": "node --test test/smoke-converters.test.js",
     "test:installers": "node --test test/smoke-installers.test.js",
     "test:utils": "node --test test/smoke-utils.test.js",
@@ -60,6 +63,7 @@
     "url": "https://github.com/tonamson/please-done.git"
   },
   "devDependencies": {
+    "c8": "^11.0.0",
     "js-tiktoken": "^1.0.21",
     "js-yaml": "^4.1.1"
   }
