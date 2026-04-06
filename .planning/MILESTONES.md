@@ -1,5 +1,15 @@
 # Milestones
 
+## v12.0 Pentest & Red Team Enhancement (Shipped: 2026-04-06)
+
+**Phases completed:** 0 phases, 0 plans, 0 tasks
+
+**Key accomplishments:**
+
+- (none recorded)
+
+---
+
 ## v11.2 Vietnamese Documentation (Shipped: 2026-04-05)
 
 **Phases completed:** 6 phases, 9 plans, 1 tasks

@@ -122,15 +122,20 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **LINT-01**: Lint Fail Recovery — progress-tracker.js, 3-strike threshold, soft guards — v11.0 (Phase 95-96)
 - ✓ **STALE-01**: Codebase Mapper Staleness — staleness-detector.js với 3-level detection — v11.0 (Phase 97-98)
 - ✓ **INTEG-01**: Integration Contract Tests — contract test foundation cho skill chain — v11.0 (Phase 99)
+- ✓ **PTES-01 to PTES-04**: PTES-compliant workflow — 4-tier (FREE/STANDARD/DEEP/RED TEAM), recon-cache.js, flag-parser.js — v12.0 (Phase 112)
+- ✓ **RECON-01 to RECON-07**: Intelligence Gathering — source-mapper.js, target-enumerator.js, service-discovery.js, asset-discoverer.js, auth-analyzer.js, workflow-mapper.js, taint-engine.js — v12.0 (Phases 113-115)
+- ✓ **OSINT-01 to OSINT-04**: OSINT Intelligence — google-dorks.js, ct-scanner.js, secret-detector.js, subdomain-osint.js, osint-aggregator.js — v12.0 (Phase 116)
+- ✓ **PAYLOAD-01 to PAYLOAD-05**: Payload Development — payloads.js with WAF evasion, obfuscation, multi-layer encoding — v12.0 (Phase 117)
+- ✓ **TOKEN-01 to TOKEN-04**: Token Analysis — token-analyzer.js with JWT, session cookie, credential analysis — v12.0 (Phase 118)
+- ✓ **POST-01 to POST-04**: Post-Exploitation Planning — post-exploit.js with web shell detection, persistence, exfiltration, lateral movement — v12.0 (Phase 119)
+- ✓ **LIB-01, LIB-03**: Code Libraries — recon-scanner.js, evasion-engine.js with tests — v12.0 (Phase 120)
+- ✓ **AGENT-01 to AGENT-05**: AI Agents — pd-recon-analyzer, pd-taint-tracker, pd-osint-intel, pd-payload-dev, pd-post-exploit — v12.0 (Phase 121)
+- ✓ **DATA-01 to DATA-06**: Data Files — 5 wordlists + MITRE techniques.yaml — v12.0 (Phase 122)
+- ✓ **INT-01 to INT-06**: Integration & Testing — full pd:audit --recon/--poc/--redteam workflows, >80% coverage — v12.0 (Phases 123-124)
 
-### Active (v11.0)
+### Active
 
-- [ ] **LOG-01**: Agent error structured logging — JSONL at `.planning/logs/agent-errors.jsonl` (timestamp, level, phase, step, agent, error) — Phase 88-89
-- [ ] **STATUS-01**: pd:status dashboard — view current phase, plan, pending tasks, blockers at a glance (read-only Haiku skill) — Phase 90-91
-- [ ] **ONBOARD-01**: pd:onboard skill — auto-orient AI to unfamiliar codebase (calls init+scan internally, creates PROJECT.md baseline) — Phase 92-94
-- [ ] **LINT-01**: 3-strike lint fail recovery — save lint_fail_count to PROGRESS.md, suggest pd:fix-bug, resume-only-lint mode — Phase 95-96
-- [ ] **STALE-01**: Codebase mapper staleness detection — git commit-delta >20 triggers refresh; maps store `Mapped at commit: [sha]` — Phase 97-98
-- [ ] **INTEG-01**: Integration contract tests — verify CONTEXT.md/TASKS.md/PROGRESS.md schema contracts across skill chain — Phase 99-100
+*(None — waiting for next milestone)*
 
 ### Deferred (Future Milestones)
 
@@ -149,25 +154,22 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Active:** v11.2 Vietnamese Documentation (defining)
+**Latest Shipped:** v12.0 Pentest & Red Team Enhancement (2026-04-06)
 
-v11.2 goal: Create bilingual English-Vietnamese documentation for the entire project.
-- Approach: Bilingual (keep English, add Vietnamese parallel)
-- 6 requirements: I18N-01 (README) through I18N-06 (Error Troubleshooting)
-- High priority — needed immediately for Vietnamese team
-- Files: README.vi.md, CLAUDE.vi.md, docs/*.vi.md, etc.
+v12.0 delivered comprehensive PTES-compliant reconnaissance capabilities:
+- PTES 4-tier architecture (FREE/STANDARD/DEEP/RED TEAM)
+- 10 reconnaissance libraries (recon-cache, flag-parser, source-mapper, target-enumerator, service-discovery, asset-discoverer, auth-analyzer, workflow-mapper, taint-engine, evasion-engine)
+- 5 OSINT modules (google-dorks, ct-scanner, secret-detector, subdomain-osint, osint-aggregator)
+- Payload development with WAF evasion and multi-layer encoding
+- Token analysis for JWT, session cookies, and credentials
+- Post-exploitation planning module
+- 5 specialized pentest agents
+- 6 data files (5 wordlists + MITRE techniques mapping)
+- Full integration with pd:audit workflow (--recon, --poc, --redteam flags)
 
-**Latest Shipped:** v11.1 Documentation Improvements (2026-04-04)
+See `.planning/milestones/v12.0-ROADMAP.md` for full details.
 
-v11.1 delivered comprehensive documentation improvements including:
-- README Quick Start Guide with 5 basic commands
-- Command Cheat Sheet covering all 16 skills
-- CLAUDE.md Common Workflows section (~290 lines)
-- Error Troubleshooting Guide
-- 3 Workflow Walkthrough Guides (getting-started, bug-fixing, milestone-management)
-- 16 Skill Reference Cards with consistent structure
-
-See `.planning/milestones/v11.1-ROADMAP.md` for full details.
+**Pending Milestone:** v11.2 Vietnamese Documentation (defined but not executed)
 
 ## Previous Milestone: v11.0 Developer Tooling & Observability
 
@@ -251,4 +253,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-03 — v11.0 started: Developer Tooling & Observability (6 requirements, 15 phases)_
+_Last updated: 2026-04-06 — v12.0 shipped: Pentest & Red Team Enhancement (47 requirements, 13 phases)_
