@@ -129,15 +129,15 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **AGENT-01 to AGENT-05**: AI Agents — pd-recon-analyzer, pd-taint-tracker, pd-osint-intel, pd-payload-dev, pd-post-exploit — v12.0 (Phase 121)
 - ✓ **DATA-01 to DATA-06**: Data Files — 5 wordlists + MITRE techniques.yaml — v12.0 (Phase 122)
 - ✓ **INT-01 to INT-06**: Integration & Testing — full pd:audit --recon/--poc/--redteam workflows, >80% coverage — v12.0 (Phases 123-124)
+- ✓ **C-04**: Update CHANGELOG — v3.0-v12.0 milestones documented — v12.1 (Phase 127)
+- ✓ **H-03**: Create 4 missing command docs — audit, conventions, onboard, status — v12.1 (Phase 127)
 
 ### Active (v12.1)
 
 - [ ] **C-01**: Fix 5 broken command references
 - [ ] **C-02**: Fix test script for complete coverage
-- [ ] **C-04**: Update CHANGELOG
 - [ ] **H-01**: Fix bare catch blocks with logging
 - [ ] **H-02**: Refactor process.exit(1) in installers
-- [ ] **H-03**: Create 4 missing command docs
 - [ ] **H-06**: Cleanup orphaned files
 - [ ] **H-07**: Universal Cross-Runtime Support
 
@@ -259,4 +259,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 — v12.0 shipped: Pentest & Red Team Enhancement (47 requirements, 13 phases)_
+_Last updated: 2026-04-06 — v12.1 Phase 127 complete: CHANGELOG updated, 4 command docs created_
