@@ -45,7 +45,7 @@
 **Requirements:** C-01
 
 **Plans:**
-- [ ] 125-01-PLAN.md — Fix broken command references
+- [x] 125-01-PLAN.md — Fix broken command references
 
 ### Phase 126: Test Infrastructure (C-02)
 
