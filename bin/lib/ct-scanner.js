@@ -8,6 +8,7 @@
 
 const https = require("https");
 const { ReconCache } = require("./recon-cache");
+const { log } = require("./utils");
 
 /**
  * Rate limiter with exponential backoff
@@ -92,6 +93,7 @@ class BaseProvider {
               reject(new Error(`HTTP ${res.statusCode}: ${data}`));
             }
           } catch (err) {
+            log.warn(`[ct-scanner] Failed to parse response: ${err.message}`);
             reject(new Error(`Failed to parse response: ${err.message}`));
           }
         });
@@ -130,6 +132,7 @@ class CrtShProvider extends BaseProvider {
       const data = await this.fetchJson(url);
       return this.parseResults(data, domain);
     } catch (err) {
+      log.warn(`[ct-scanner] CrtSh query failed: ${err.message}`);
       if (err.message.includes("Rate limited")) {
         // Retry once after backoff
         await this.rateLimiter.wait();
@@ -244,6 +247,7 @@ class CensysProvider extends BaseProvider {
               reject(new Error(`Censys HTTP ${res.statusCode}`));
             }
           } catch (err) {
+            log.warn(`[ct-scanner] Failed to parse Censys response: ${err.message}`);
             reject(new Error(`Failed to parse Censys response: ${err.message}`));
           }
         });
@@ -359,6 +363,7 @@ class CertSpotterProvider extends BaseProvider {
               reject(new Error(`CertSpotter HTTP ${res.statusCode}`));
             }
           } catch (err) {
+            log.warn(`[ct-scanner] Failed to parse CertSpotter response: ${err.message}`);
             reject(
               new Error(`Failed to parse CertSpotter response: ${err.message}`)
             );
@@ -472,6 +477,7 @@ class CtScanner {
         sources[providerName] = providerResults.length;
         results.push(...providerResults);
       } catch (err) {
+        log.warn(`[ct-scanner] ${providerName} failed: ${err.message}`);
         sources[providerName] = 0;
         // Log error but continue with other providers
         console.warn(`[CT Scanner] ${providerName} failed: ${err.message}`);
@@ -546,6 +552,7 @@ class CtScanner {
         return cached;
       }
     } catch (err) {
+      log.warn(`[ct-scanner] Cache get failed: ${err.message}`);
       // Ignore cache errors
     }
     return null;
@@ -563,6 +570,7 @@ class CtScanner {
       const cacheKey = this.getCacheKey(domain);
       this.cache.set(cacheKey, result);
     } catch (err) {
+      log.warn(`[ct-scanner] Cache set failed: ${err.message}`);
       // Ignore cache errors
     }
   }

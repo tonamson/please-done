@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { log } = require('./utils');
 
 const LOGS_DIR = path.join(process.cwd(), '.planning', 'logs');
 const MAX_LOG_FILES = 10;
@@ -24,7 +25,7 @@ function ensureLogDirectory() {
     }
     return true;
   } catch (error) {
-    console.error('[log-manager] Failed to create log directory:', error.message);
+    log.warn(`[log-manager] Failed to create log directory: ${error.message}`);
     return false;
   }
 }
@@ -48,7 +49,7 @@ function ensureGitignore() {
       fs.appendFileSync(gitignorePath, `${separator}# Log files\n${logsEntry}\n`, 'utf8');
     }
   } catch (error) {
-    console.error('[log-manager] Failed to update .gitignore:', error.message);
+    log.warn(`[log-manager] Failed to update .gitignore: ${error.message}`);
   }
 }
 
@@ -62,6 +63,7 @@ function getFileSize(filePath) {
     const stats = fs.statSync(filePath);
     return stats.size;
   } catch (error) {
+    log.warn(`[log-manager] Failed to get file size: ${error.message}`);
     return 0;
   }
 }
@@ -99,7 +101,7 @@ function rotateLogFile(baseName) {
 
     return true;
   } catch (error) {
-    console.error('[log-manager] Failed to rotate log file:', error.message);
+    log.warn(`[log-manager] Failed to rotate log file: ${error.message}`);
     return false;
   }
 }
@@ -126,11 +128,11 @@ function cleanupOldRotations(baseName) {
       try {
         fs.unlinkSync(filePath);
       } catch (error) {
-        console.warn(`[log-manager] Failed to delete old log ${file}:`, error.message);
+        log.warn(`[log-manager] Failed to delete old log ${file}: ${error.message}`);
       }
     });
   } catch (error) {
-    console.error('[log-manager] Failed to cleanup old rotations:', error.message);
+    log.warn(`[log-manager] Failed to cleanup old rotations: ${error.message}`);
   }
 }
 
@@ -161,7 +163,7 @@ function getDiskUsage() {
       humanReadable: formatBytes(totalSize)
     };
   } catch (error) {
-    console.error('[log-manager] Failed to get disk usage:', error.message);
+    log.warn(`[log-manager] Failed to get disk usage: ${error.message}`);
     return { totalSize: 0, fileCount: 0 };
   }
 }
@@ -193,7 +195,7 @@ function checkDiskSpace(requiredBytes = 100 * 1024 * 1024) {
     // For now, we just check if log directory size is reasonable
     return usage.totalSize < 500 * 1024 * 1024; // Warn if logs > 500MB
   } catch (error) {
-    console.error('[log-manager] Failed to check disk space:', error.message);
+    log.warn(`[log-manager] Failed to check disk space: ${error.message}`);
     return true; // Assume OK if we can't check
   }
 }
@@ -227,6 +229,7 @@ function performMaintenance() {
           });
         }
       } catch (error) {
+        log.warn(`[log-manager] Failed to rotate ${baseName}: ${error.message}`);
         report.errors.push(`Failed to rotate ${baseName}: ${error.message}`);
       }
     });
@@ -240,6 +243,7 @@ function performMaintenance() {
           status: 'cleaned'
         });
       } catch (error) {
+        log.warn(`[log-manager] Failed to cleanup ${baseName}: ${error.message}`);
         report.errors.push(`Failed to cleanup ${baseName}: ${error.message}`);
       }
     });
@@ -253,6 +257,7 @@ function performMaintenance() {
     }
 
   } catch (error) {
+    log.warn(`[log-manager] Maintenance failed: ${error.message}`);
     report.errors.push(`Maintenance failed: ${error.message}`);
   }
 
