@@ -1,79 +1,114 @@
 ---
-phase: "131"
-plan: "01"
-name: "AGENTS.md and Sync Script"
-status: "verified"
-verification_date: "2026-04-06"
+phase: 131-universal-runtime-support-h-07
+verified: 2026-04-06
+status: passed
+score: 4/4 must-haves verified
+gaps: []
+deferred: []
 ---
 
-# Phase 131 Plan 01: Verification Report
+# Phase 131: Universal Runtime Support (H-07) Verification Report
 
-## Acceptance Criteria Verification
+**Phase Goal:** Create AGENTS.md as single source of truth and implement sync script to deploy agent instructions across 12 AI coding runtimes
+**Verified:** 2026-04-06
+**Status:** passed
 
-### Task 1: AGENTS.md Creation ✓
+## Goal Achievement
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| File `AGENTS.md` created at project root | ✓ PASS | File exists at `/Volumes/Code/Nodejs/please-done/AGENTS.md` |
-| Contains ## Runtime Identification section | ✓ PASS | Contains table with all 12 runtimes |
-| Contains ## Core Agent Commands section | ✓ PASS | Contains 6 command category tables |
-| Contains ## Capabilities Matrix section | ✓ PASS | Contains matrix for all 12 runtimes |
-| Contains ## Installation Paths section | ✓ PASS | Lists all 12 runtime paths |
-| Contains ## Sync Requirements section | ✓ PASS | 5 requirements listed |
-| Contains ## Tool Mappings section | ✓ PASS | File and search operations mapped |
-| `grep -c "Claude Code" AGENTS.md` returns ≥1 | ✓ PASS | Returns 5 |
-| `grep -c "Antigravity" AGENTS.md` returns ≥1 | ✓ PASS | Returns 3 |
+### Observable Truths
 
-### Task 2: bin/sync-instructions.js ✓
+| # | Truth | Status | Evidence |
+|---|-------|--------|----------|
+| 1 | AGENTS.md created as source of truth | ✓ VERIFIED | 161 lines, contains all 12 runtimes, command tables, capabilities matrix, installation paths |
+| 2 | bin/sync-instructions.js syncs all 12 runtimes | ✓ VERIFIED | 139 lines, exports RUNTIMES array with 12 configs, sync script functionally verified |
+| 3 | Sync integrated into bin/install.js | ✓ VERIFIED | Line 244 calls sync after platform installation (try-catch wrapped, non-fatal) |
+| 4 | Sync added to package.json scripts | ✓ VERIFIED | Lines contain "sync" and "postinstall" scripts pointing to sync-instructions.js |
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| File created | ✓ PASS | File exists |
-| Starts with `#!/usr/bin/env node` | ✓ PASS | Shebang present |
-| Exports `RUNTIMES` array | ✓ PASS | 12 runtime configs |
-| Exports `syncRuntime`, `expandPath`, `ensureDir` | ✓ PASS | Functions exported |
-| `node bin/sync-instructions.js --help` works | ✓ PASS | Outputs usage info |
-| `node bin/sync-instructions.js --dry-run` works | ✓ PASS | Shows what would be done |
-| `node bin/sync-instructions.js` runs without errors | ✓ PASS | 12 synced, 0 errors |
-| Script is idempotent | ✓ PASS | Multiple runs produce same result |
+**Score:** 4/4 must-haves verified
 
-### Task 3: bin/install.js Integration ✓
+### Required Artifacts
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| `bin/install.js` contains `require('fs')` | ✓ PASS | Line 24 |
-| `bin/install.js` contains `require('path')` | ✓ PASS | Line 25 |
-| `bin/install.js` contains `PROJECT_ROOT` | ✓ PASS | Line 44 |
-| `bin/install.js` contains sync call | ✓ PASS | Line 241 |
-| Sync call wrapped in try-catch | ✓ PASS | Lines 242-247 |
-| `grep -n "sync-instructions" bin/install.js` returns line | ✓ PASS | Line 244 |
-| `grep -n "PROJECT_ROOT" bin/install.js` returns line | ✓ PASS | Line 44 |
+| Artifact | Expected | Status | Details |
+|----------|----------|--------|---------|
+| AGENTS.md | 161 lines, all sections present | ✓ VERIFIED | Contains Runtime Identification, Core Commands, Capabilities Matrix, Installation Paths, Sync Requirements, Tool Mappings |
+| bin/sync-instructions.js | Executable script, 12 runtimes | ✓ VERIFIED | 139 lines, RUNTIMES array, syncRuntime/expandPath/ensureDir exported, shebang present |
+| bin/install.js | Sync call after platform install | ✓ VERIFIED | Lines 241-247 call sync, try-catch wrapped, PROJECT_ROOT defined |
+| package.json | sync and postinstall scripts | ✓ VERIFIED | "sync": "node bin/sync-instructions.js", "postinstall": "node bin/sync-instructions.js" |
 
-### Task 4: package.json Scripts ✓
+### Key Link Verification
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| `package.json` contains `"sync"` script | ✓ PASS | `"sync": "node bin/sync-instructions.js"` |
-| `package.json` contains `"postinstall"` script | ✓ PASS | `"postinstall": "node bin/sync-instructions.js"` |
-| `grep -A1 '"sync"' package.json` outputs definition | ✓ PASS | Shows both scripts |
+| From | To | Via | Status | Details |
+|------|----|----|--------|---------|
+| AGENTS.md (source) | sync-instructions.js | fs.copyFileSync | ✓ WIRED | Source read, copied to 12 destination paths |
+| sync-instructions.js | 12 runtime config paths | ensureDir + copyFileSync | ✓ WIRED | All 12 paths created/populated |
+| bin/install.js | sync-instructions.js | execSync call | ✓ WIRED | Line 244 calls sync after platform installation |
+| package.json postinstall | sync-instructions.js | npm postinstall hook | ✓ WIRED | Runs automatically after npm install |
 
-## Sync Verification
+### Data-Flow Trace (Level 4)
 
-| Runtime | Path | Status |
-|---------|------|--------|
-| Claude Code | `~/.claude/commands/pd/AGENTS.md` | ✓ Synced (5875 bytes) |
-| Codex CLI | `~/.codex/commands/pd/AGENTS.md` | ✓ Synced (5875 bytes) |
-| Gemini CLI | `~/.gemini/commands/pd/AGENTS.md` | ✓ Synced |
-| OpenCode | `~/.opencode/commands/pd/AGENTS.md` | ✓ Synced |
-| GitHub Copilot | `~/.copilot/commands/pd/AGENTS.md` | ✓ Synced |
-| Cursor | `~/.cursor/commands/pd/AGENTS.md` | ✓ Synced |
-| Windsurf | `~/.windsurf/commands/pd/AGENTS.md` | ✓ Synced |
-| Cline | `~/.cline/commands/pd/AGENTS.md` | ✓ Synced |
-| Trae | `~/.trae/commands/pd/AGENTS.md` | ✓ Synced |
-| Augment | `~/.augment/commands/pd/AGENTS.md` | ✓ Synced |
-| Kilo | `~/.kilo/commands/pd/AGENTS.md` | ✓ Synced |
-| Antigravity | `~/.antigravity/commands/pd/AGENTS.md` | ✓ Synced |
+| Source | Data Variable | Destination | Produces Real Data | Status |
+|--------|---------------|-------------|-------------------|--------|
+| AGENTS.md | file content | sync-instructions.js | ✓ 5875 bytes source | ✓ FLOWING |
+| sync-instructions.js | RUNTIMES array (12 configs) | 12 runtime paths | ✓ 12 destinations | ✓ FLOWING |
+| sync-instructions.js | expanded path strings | copyFileSync | ✓ Full paths | ✓ FLOWING |
 
-## Final Status
+**Data Flow:** AGENTS.md (source) → sync-instructions.js (processor) → 12 runtime destination paths (~/.claude/commands/pd/AGENTS.md, ~/.codex/commands/pd/AGENTS.md, etc.)
 
-**All acceptance criteria PASSED.** Phase 131 Plan 01 is complete and verified.
+### Behavioral Spot-Checks
+
+| Behavior | Command | Result | Status |
+|----------|---------|--------|--------|
+| AGENTS.md contains all runtimes | `grep -c "Claude Code" AGENTS.md` + `grep -c "Antigravity" AGENTS.md` | 5 + 3 = 8 matches | ✓ PASS |
+| Sync script help works | `node bin/sync-instructions.js --help` | Usage info displayed | ✓ PASS |
+| Sync script dry-run works | `node bin/sync-instructions.js --dry-run --verbose` | Shows 12 runtime paths | ✓ PASS |
+| Sync script runs without errors | `node bin/sync-instructions.js` | 12 synced, 0 errors | ✓ PASS |
+| installed runtime path exists | `ls -la ~/.claude/commands/pd/AGENTS.md` | File exists (5875 bytes) | ✓ PASS |
+| package.json sync script | `grep -A1 '"sync"' package.json` | Shows sync script definition | ✓ PASS |
+| package.json postinstall script | `grep -A1 '"postinstall"' package.json` | Shows postinstall script | ✓ PASS |
+
+### Requirements Coverage
+
+| Requirement | Source Plan | Description | Status | Evidence |
+|-------------|-------------|-------------|--------|----------|
+| H-07 | Phase 131-01 | Create AGENTS.md as source of truth, create sync script, integrate into installer and package.json | ✓ SATISFIED | AGENTS.md (161 lines), sync script (139 lines), install.js integration (lines 241-247), package.json scripts added |
+
+**Orphaned Requirements:** None — Phase 131 addresses H-07 as stated in REQUIREMENTS.md
+
+### Anti-Patterns Found
+
+| File | Line | Pattern | Severity | Impact |
+|------|------|---------|----------|--------|
+| None | — | — | — | — |
+
+No anti-patterns found:
+- ✓ Idempotent sync (safe to run multiple times)
+- ✓ Non-fatal integration (try-catch in install.js)
+- ✓ All 12 runtimes supported equally
+- ✓ Shebang present (executable script)
+- ✓ No hardcoded paths (uses os.homedir())
+
+### Human Verification Required
+
+None — all verification items are programmatic checks:
+- ✓ File existence verified via ls -la
+- ✓ Script syntax verified via node -c
+- ✓ Content verified via grep
+- ✓ Sync verified via script execution
+- ✓ Integration verified via file search
+
+## Gaps Summary
+
+**No gaps found.** Phase 131 successfully completed H-07 universal runtime support requirement.
+
+**Summary of verification:**
+- ✓ AGENTS.md created with complete cross-runtime documentation
+- ✓ Sync script successfully syncs to all 12 runtimes
+- ✓ Integration into bin/install.js verified
+- ✓ Integration into package.json postinstall verified
+- ✓ Script is idempotent (multiple runs produce same result)
+- ✓ H-07 requirement fully satisfied
+
+---
+
+**Verified:** 2026-04-06
+**Verifier:** GSD Phase Verifier
