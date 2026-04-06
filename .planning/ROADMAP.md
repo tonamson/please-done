@@ -141,6 +141,16 @@
 **Plans:**
 - [x] 135-01-PLAN.md — Remove duplicate coverage section from REQUIREMENTS.md
 
+### Phase 136: Fix Deprecated Command References
+
+**Goal:** Replace deprecated `/pd:map-codebase` references with `/pd:scan` in documentation
+**Depends on:** Nothing
+**Requirements:** None (gap closure)
+**Gap Closure:** Fixes integration gaps from audit
+
+**Plans:**
+- [ ] 136-01-PLAN.md — Update command references in getting-started docs
+
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
 
