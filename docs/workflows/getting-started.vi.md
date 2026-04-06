@@ -221,7 +221,7 @@ Map: fresh
 Hiển thị dashboard view về trạng thái hiện tại của dự án. Đây là read-only và không bao giờ thay đổi state.
 
 **Các Điểm Quyết Định:**
-- Nếu Map hiển thị "stale", chạy `/pd:map-codebase` để refresh
+- Nếu Map hiển thị "stale", chạy `/pd:scan` để refresh
 - Nếu có Blockers, giải quyết chúng trước khi tiếp tục
 - Nếu Bugs > 0, cân nhắc `/pd:fix-bug` trước khi tiếp tục
 
