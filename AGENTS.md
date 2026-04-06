@@ -39,7 +39,7 @@
 | pd:execute-phase | Execute all plans in phase | `/pd:execute-phase 1` |
 | pd:complete-milestone | Finalize milestone | `/pd:complete-milestone` |
 | pd:status | Display project status | `/pd:status` |
-| pd:what-next | Show next task | `/pd:what-next` |
+| pd:what-next | Check progress + auto-execute next step | `/pd:what-next [--execute]` |
 | pd:progress | Show progress | `/pd:progress` |
 
 ### Planning & Research
@@ -73,7 +73,6 @@
 
 | Command | Description | Syntax |
 |---------|-------------|--------|
-| pd:next | Advance to next step | `/pd:next` |
 | pd:ship | Create PR and prepare merge | `/pd:ship` |
 | pd:review | Cross-AI peer review | `/pd:review --phase 1` |
 | pd:list-workspaces | List workspaces | `/pd:list-workspaces` |

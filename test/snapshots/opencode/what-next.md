@@ -5,18 +5,21 @@ tools:
   - Glob
   - Grep
   - Bash
+  - SlashCommand
 ---
 <objective>
 Scan `.planning/` to determine unfinished work and the next logical step, then display progress with a suggested command.
-READ ONLY. DO NOT edit files. DO NOT call FastCode MCP.
+With `--execute` flag, automatically invoke the suggested command instead of just displaying it.
+READ ONLY (advisory mode). EXECUTES COMMANDS (with --execute).
 </objective>
 <guards>
 Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `/pd-init` first."
       </guards>
 <context>
-User input: $ARGUMENTS (no arguments)
-No rules or FastCode MCP needed - only read planning files.
+User input: $ARGUMENTS
+- No arguments: Display progress and suggest next command (advisory mode, READ ONLY)
+- `--execute`: Auto-detect state and invoke the suggested command immediately
 </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
@@ -91,6 +94,22 @@ If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (
 - Check STATE.md `last_updated` timestamp vs current time
 - If >10 minutes elapsed and no tasks in progress (no 🔄 tasks) → idle state
 - Suggest `/pd-status` with optional `--auto-refresh` flag
+## Step 4.5: Execute (if --execute flag)
+
+If `$ARGUMENTS` contains `--execute`:
+
+1. Take the `SUGGESTION` determined in Step 4
+2. Display the progress report (Step 5) FIRST — user needs to see state before execution
+3. Immediately invoke the suggested command via SlashCommand:
+   - Extract command name and arguments from the suggestion
+   - Execute: `SlashCommand(command)`
+   - Do NOT ask for confirmation — the `--execute` flag IS the confirmation
+4. STOP — the invoked command takes over from here
+
+If `$ARGUMENTS` does NOT contain `--execute`:
+- Skip this step entirely
+- Continue to Step 5 (display report) and Step 6 (version check) as normal
+
 ## Step 5: Display report
 ```
 ╔══════════════════════════════════════╗
@@ -133,8 +152,9 @@ Fetch error/same version → skip.
 </process>
 <output>
 **Create/Update:**
-- No files are created or modified, read-only only
-**Next step:** Suggested command based on the actual state
+- No files are created or modified (advisory mode)
+- Commands may be invoked (with --execute flag)
+**Next step:** Suggested command based on the actual state (advisory mode) or auto-executed (--execute)
 **Success when:**
 - Progress is displayed clearly
 - The suggested command matches the real current state
@@ -144,7 +164,8 @@ Fetch error/same version → skip.
   </output>
 <rules>
 - All output MUST be in English
-- READ ONLY. DO NOT edit any files
+- Without --execute: READ ONLY. DO NOT edit any files
+- With --execute: Invokes the suggested command via SlashCommand after displaying the suggestion
 - DO NOT call FastCode MCP or Context7 MCP
 - The suggested command MUST be based on the actual current state, never guessed
 - DO NOT call FastCode MCP — use only Read/Glob (Bash for version check Step 6)

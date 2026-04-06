@@ -9,7 +9,7 @@
 
 ## Mục đích
 
-Đề xuất hành động tiếp theo dựa trên trạng thái dự án hiện tại, các tasks có sẵn, tiến độ workflow, và công việc đang chờ xử lý.
+Đề xuất hành động tiếp theo dựa trên trạng thái dự án hiện tại, các tasks có sẵn, tiến độ workflow, và công việc đang chờ xử lý. Với `--execute`, tự động gọi lệnh được đề xuất.
 
 ## Khi nào dùng
 
@@ -19,6 +19,7 @@
 - **Workflow:** Cần hướng dẫn về tiến trình workflow
 - **New user:** Đang học các pattern lệnh và tùy chọn có sẵn
 - **Return after break:** Quay lại dự án sau thời gian nghỉ
+- **Auto-advance:** Muốn tự động thực thi bước tiếp theo mà không cần xác nhận thủ công
 
 ## Điều kiện tiên quyết
 
@@ -42,10 +43,24 @@
 4. Các hành động thay thế khi bị chặn
 5. Ngữ cảnh để đưa ra quyết định
 
+## Chế độ Auto-Execute
+
+```
+/pd:what-next --execute
+```
+
+**Chức năng:**
+1. Quét trạng thái dự án (giống chế độ advisory)
+2. Hiển thị báo cáo tiến độ để minh bạch
+3. Tự động gọi lệnh được đề xuất
+
+**Dùng khi:** Bạn muốn tiến triển workflow không gián đoạn — lệnh tự quyết định và thực thi.
+
 ## Các cờ phổ biến
 
 | Cờ | Mô tả | Ví dụ |
 |----|-------|-------|
+| `--execute` | Tự động thực thi lệnh được đề xuất | `/pd:what-next --execute` |
 | `--text` | Đầu ra văn bản thuần không có định dạng | `/pd:what-next --text` |
 
 ## Xem thêm
