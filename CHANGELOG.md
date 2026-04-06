@@ -1,6 +1,92 @@
-> **Note:** This changelog is frozen at v2.8.0. For history from v3.0 onward, see [MILESTONES.md](.planning/MILESTONES.md).
-
 # Skills Changelog
+
+All notable changes from v3.0 through v12.0 are documented below. For even earlier versions (pre-v2.8.0), see the frozen section at the bottom.
+
+## [12.0] - 2026-04-06
+### Added
+- **PTES-Compliant Reconnaissance**: Full PTES (Penetration Testing Execution Standard) workflow with 4-tier architecture (FREE/STANDARD/DEEP/RED TEAM)
+- **Intelligence Gathering Core**: source-mapper.js, target-enumerator.js, service-discovery.js, asset-discoverer.js, auth-analyzer.js, workflow-mapper.js, taint-engine.js
+- **OSINT Intelligence**: google-dorks.js, ct-scanner.js, secret-detector.js, subdomain-osint.js, osint-aggregator.js
+- **Payload Development**: payloads.js with WAF evasion, obfuscation, multi-layer encoding
+- **Token Analysis**: token-analyzer.js for JWT, session cookies, and credential analysis
+- **Post-Exploitation Planning**: post-exploit.js with web shell detection, persistence, exfiltration, lateral movement
+- **5 Specialized Pentest Agents**: pd-recon-analyzer, pd-taint-tracker, pd-osint-intel, pd-payload-dev, pd-post-exploit
+- **6 Data Files**: 5 wordlists + MITRE techniques mapping
+- **Full Integration**: pd:audit --recon/--poc/--redteam workflows with >80% coverage
+
+## [11.1] - 2026-04-04
+### Added
+- **Vietnamese Documentation**: Full Vietnamese translation of README, CLAUDE.md, cheat sheet, error troubleshooting
+- **I18N Infrastructure**: Song ngữ Anh-Việt for all user-facing documentation
+
+## [11.0] - 2026-04-04
+### Added
+- **Agent Error Logging (LOG-01)**: log-writer.js with structured JSONL, 16 skills wired
+- **Status Dashboard (STATUS-01)**: read-only dashboard with auto-refresh and staleness detection
+- **Auto-Onboarding (ONBOARD-01)**: pd:onboard with CONTEXT.md generation, 35 doc mappings
+- **Lint Fail Recovery (LINT-01)**: progress-tracker.js with 3-strike threshold and soft guards
+- **Staleness Detection (STALE-01)**: staleness-detector.js with 3-level detection
+- **Integration Contract Tests (INTEG-01)**: schema validation foundation
+
+## [10.0] - 2026-04-03
+### Added
+- **Skill Repo Audit Fixes**: 4 missing command docs (audit, conventions, onboard, status)
+- **Vietnamese Commit Convention**: Replaced with English; fix-bug-v1.5.md archived
+- **Error Handling**: Bare catch blocks replaced with PD_DEBUG conditional logging; process.exit(1) replaced with throw new Error()
+- **Test Infrastructure**: smoke-onboard.test.js, smoke-error-handling.test.js with expanded coverage
+
+## [9.0] - 2026-04-03
+### Added
+- **Bug Audit & Robustness**: Comprehensive bug tracking and resolution system
+
+## [7.0] - 2026-04-02
+### Added
+- **Standalone Test Mode**: pd:test --standalone mode with conditional guards
+- **State-Machine Sync**: new prerequisites row with side branch for standalone
+- **what-next Integration**: detect standalone test reports and standalone bugs
+- **Recovery Path**: detect interrupted standalone sessions, resume or rewrite
+
+## [6.0] - 2026-03-28
+### Added
+- **Vietnamese → English Migration**: All 13 workflow files translated to English
+- **Source Code Translation**: 33 JS source files translated, 12 test files synced
+
+## [5.1] - 2026-03-27
+### Added
+- **Agent Consolidation**: 16 agents into commands/pd/agents/ as single source of truth
+- **Symlink Architecture**: 16 symlinks in .claude/agents/
+- **Reference Migration**: smoke-agent-files.test.js and fix-bug.md updated
+- **Format Standardization**: legacy security agents converted to new YAML frontmatter
+- **Registry Updates**: AGENT_REGISTRY 14→16, all smoke tests pass
+
+## [5.0] - 2026-03-27
+### Added
+- **Agent Reform**: 6 new agents, 3-tier model system, platform-aware getAgentConfig()
+- **Platform-Aware Mapping**: Config-driven tier→model per 7 platforms with automatic fallback
+- **Parallel + Resource Guard**: Adaptive workers, heavy agent detection, backpressure, graceful degradation
+- **Skill-Agent Integration**: pd-codebase-mapper auto-mapping, Research Squad integration
+- **Reference Dedup**: verification-patterns.md + plan-checker.md merged → verification.md
+- **Runtime DRY**: installer-utils.js with 6 shared utilities
+- **Token Budget**: TOKEN_BUDGET per tier (4K/8K/12K), baseline 86,305 tokens
+
+## [4.0] - 2026-03-27
+### Added
+- **OWASP Security Audit Pipeline**: smart scanner selection, session delta, POC/gadget chain analysis
+- **Security Scanner Selection**: selectScanner() pure function with 12 signals, 3 base scanners
+- **POC Pipeline**: gadget-chain.js with 7 chain templates, pd-sec-fixer agent
+- **Template Agent**: pd-sec-scanner.md with 13 OWASP categories
+- **Reporter Agent**: pd-sec-reporter.md for SECURITY_REPORT.md generation
+- **FastCode MCP Integration**: tool-first, AI-last approach
+
+## [3.0] - 2026-03-26
+### Added
+- **Research Squad System**: Evidence Collector (sonnet) + Fact Checker (opus)
+- **Research Store**: research-store.js with 7 pure functions for structured evidence
+- **Audit Modules**: confidence-scorer.js, audit-logger.js, index-generator.js
+- **Workflow Guards**: CHECK-06 Research Backing, CHECK-07 Hedging Language, Strategy Injection
+- **pd:research Command**: auto-detect internal/external, Evidence Collector → INDEX.md → Fact Checker
+
+## [2.8.0] - 21_03_2026
 
 ## [2.8.0] - 21_03_2026
 ### Changed
