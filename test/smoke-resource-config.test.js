@@ -295,8 +295,8 @@ describe('Constants', () => {
     assert.equal(Object.keys(TIER_MAP).length, 3);
   });
 
-  it('AGENT_REGISTRY co 16 agents', () => {
-    assert.equal(Object.keys(AGENT_REGISTRY).length, 16);
+  it('AGENT_REGISTRY co 21 agents', () => {
+    assert.equal(Object.keys(AGENT_REGISTRY).length, 21);
   });
 
   it('PARALLEL_LIMIT la 2', () => {

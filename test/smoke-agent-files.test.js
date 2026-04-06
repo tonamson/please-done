@@ -15,7 +15,7 @@ const { parseFrontmatter } = require("../bin/lib/utils");
 
 // ─── Danh sach agent files ────────────────────────────────
 
-const AGENTS_DIR = join(__dirname, "..", ".claude", "agents");
+const AGENTS_DIR = join(__dirname, "..", "commands", "pd", "agents");
 const AGENT_NAMES = [
   "pd-bug-janitor",
   "pd-code-detective",
@@ -33,6 +33,11 @@ const AGENT_NAMES = [
   "pd-sec-scanner",
   "pd-sec-fixer",
   "pd-sec-reporter",
+  "pd-recon-analyzer",
+  "pd-taint-tracker",
+  "pd-osint-intel",
+  "pd-payload-dev",
+  "pd-post-exploit",
 ];
 
 // ─── Helper: Parse YAML frontmatter ───────────────────────
@@ -276,6 +281,55 @@ describe("Agent files frontmatter", () => {
       "mcp__fastcode__code_qa",
     ]);
   });
+
+  it("pd-recon-analyzer co dung frontmatter", () => {
+    const fm = parseAgentFrontmatter(
+      join(AGENTS_DIR, "pd-recon-analyzer.md"),
+    );
+    assert.equal(fm.name, "pd-recon-analyzer");
+    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.maxTurns, 20);
+    assert.equal(fm.effort, "medium");
+    assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
+  });
+
+  it("pd-taint-tracker co dung frontmatter", () => {
+    const fm = parseAgentFrontmatter(
+      join(AGENTS_DIR, "pd-taint-tracker.md"),
+    );
+    assert.equal(fm.name, "pd-taint-tracker");
+    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.maxTurns, 25);
+    assert.equal(fm.effort, "medium");
+    assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
+  });
+
+  it("pd-osint-intel co dung frontmatter", () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-osint-intel.md"));
+    assert.equal(fm.name, "pd-osint-intel");
+    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.maxTurns, 20);
+    assert.equal(fm.effort, "medium");
+    assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash", "WebFetch"]);
+  });
+
+  it("pd-payload-dev co dung frontmatter", () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-payload-dev.md"));
+    assert.equal(fm.name, "pd-payload-dev");
+    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.maxTurns, 20);
+    assert.equal(fm.effort, "medium");
+    assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
+  });
+
+  it("pd-post-exploit co dung frontmatter", () => {
+    const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-post-exploit.md"));
+    assert.equal(fm.name, "pd-post-exploit");
+    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.maxTurns, 25);
+    assert.equal(fm.effort, "high");
+    assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
+  });
 });
 
 // ─── Test: Agent files body ───────────────────────────────
@@ -378,6 +432,11 @@ const NEW_AGENT_NAMES = [
   "pd-research-synthesizer",
   "pd-planner",
   "pd-regression-analyzer",
+  "pd-recon-analyzer",
+  "pd-taint-tracker",
+  "pd-osint-intel",
+  "pd-payload-dev",
+  "pd-post-exploit",
 ];
 
 describe("New agent files (parseFrontmatter validation)", () => {

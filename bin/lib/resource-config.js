@@ -198,6 +198,26 @@ const AGENT_REGISTRY = {
     tier: "architect",
     tools: ["Read", "Write", "Glob", "Grep", "Bash"],
   },
+  "pd-recon-analyzer": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
+  "pd-taint-tracker": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
+  "pd-osint-intel": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash", "WebFetch"],
+  },
+  "pd-payload-dev": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
+  "pd-post-exploit": {
+    tier: "builder",
+    tools: ["Read", "Glob", "Grep", "Bash"],
+  },
 };
 
 /**
