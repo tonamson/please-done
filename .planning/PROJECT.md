@@ -1,18 +1,18 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.1 Quality Hardening
+## Current Milestone: v12.2 Developer Experience Improvements
 
-**Goal:** Fix critical bugs, improve developer experience, and match GSD quality standards across the please-done project.
+**Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features.
 
 **Target features:**
-- ✓ Fix broken command references (C-01) — v12.1 (Phase 125)
-- ✓ Fix test script for complete test coverage (C-02) — v12.1 (Phase 126)
-- ✓ Update CHANGELOG (C-04) — v12.1 (Phase 127)
-- ✓ Fix bare catch blocks with proper logging (H-01) — v12.1 (Phase 128, 132)
-- ✓ Refactor process.exit(1) in installers (H-02) — v12.0 (Phase 86)
-- ✓ Create 4 missing command docs (H-03) — v12.1 (Phase 127)
-- ✓ Cleanup orphaned files (H-06) — v12.1 (Phase 130)
-- ✓ Universal Cross-Runtime Support (H-07) — v12.1 (Phase 131)
+- [ ] L-02: Merge pd:next into pd:what-next (auto-execute logic)
+- [ ] L-03: pd:stats command (project statistics)
+- [ ] L-04: pd:health command (diagnose planning issues)
+- [ ] L-01: Automated version badge sync (sync version across docs)
+- [ ] L-05: MCP Tool Discovery (auto-discover MCP tools)
+- [ ] L-06: Discussion Audit Trail (track conversation history)
+- [ ] L-07: Scope Reduction Detection (warn when scope shrinks)
+- [ ] L-08: Schema Drift Detection (detect planning file changes)
 
 ---
 
@@ -135,9 +135,16 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **H-06**: Cleanup orphaned files — archived fix-bug-v1.5.md, organized docs/notes/ — v12.1 (Phase 130)
 - ✓ **H-07**: Universal Cross-Runtime Support — AGENTS.md + sync script for 12 platforms — v12.1 (Phase 131)
 
-### Active (Next Milestone)
+### Active (v12.2)
 
-- [ ] **Ready for new requirements** — define next milestone via `/gsd-new-milestone`
+- [ ] **L-02**: Merge pd:next into pd:what-next — auto-execute logic
+- [ ] **L-03**: pd:stats command — project statistics
+- [ ] **L-04**: pd:health command — diagnose planning issues
+- [ ] **L-01**: Automated version badge sync — sync version across docs
+- [ ] **L-05**: MCP Tool Discovery — auto-discover MCP tools
+- [ ] **L-06**: Discussion Audit Trail — track conversation history
+- [ ] **L-07**: Scope Reduction Detection — warn when scope shrinks
+- [ ] **L-08**: Schema Drift Detection — detect planning file changes
 
 ### Deferred (Future Milestones)
 
@@ -260,4 +267,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 after v12.1 milestone completion_
+_Last updated: 2026-04-06 after v12.2 milestone started_

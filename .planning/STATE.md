@@ -1,9 +1,9 @@
 ---
 gsd_state_version: 1.0
-milestone: v13.0
-milestone_name: TBD
+milestone: v12.2
+milestone_name: Developer Experience Improvements
 status: planning
-last_updated: "2026-04-06T17:30:00.000Z"
+last_updated: "2026-04-06T18:00:00.000Z"
 last_activity: 2026-04-06
 progress:
   total_phases: 0
@@ -26,26 +26,26 @@ See: `.planning/ROADMAP.md` (milestone v12.1 complete)
 
 ## Current Position
 
-Phase: None (start new milestone)
+Phase: None (defining requirements)
 Plan: None
-Status: Planning next milestone
+Status: Defining requirements for v12.2
 Last activity: 2026-04-06
 
 ---
 
-## v12.1 Quality Hardening (Shipped)
+## v12.2 Developer Experience Improvements (Planning)
 
-**Goal:** Fix critical bugs, improve developer experience, and match GSD quality standards
+**Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features
 
-**Completed:** 2026-04-06
-
-**All features shipped:**
-- ✓ Fix broken command references (C-01, C-02)
-- ✓ Update CHANGELOG (C-04)
-- ✓ Fix bare catch blocks with logging (H-01)
-- ✓ Create missing command docs (H-03)
-- ✓ Cleanup orphaned files (H-06)
-- ✓ Universal Cross-Runtime Support (H-07)
+**Target features (8 requirements):**
+- L-02: Merge pd:next into pd:what-next (auto-execute logic)
+- L-03: pd:stats command (project statistics)
+- L-04: pd:health command (diagnose planning issues)
+- L-01: Automated version badge sync
+- L-05: MCP Tool Discovery
+- L-06: Discussion Audit Trail
+- L-07: Scope Reduction Detection
+- L-08: Schema Drift Detection
 
 ---
 
@@ -53,19 +53,15 @@ Last activity: 2026-04-06
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
+| v12.2 | 0 | 0 | — | Planning |
 | v12.1 | 12 | 12 | 2026-04-06 | ✅ Shipped |
 | v12.0 | 13 | 26 | 2026-04-06 | ✅ Shipped |
-| v11.1 | 6 | 6 | 2026-04-04 | ✅ Shipped |
 
 ---
 
 ## Decisions Made
 
-- D-136-01: AGENTS.md as source of truth for cross-runtime agent instructions
-- D-136-02: Sync script integration into install/postinstall for automatic deployment
-- D-134-01: Preserved all existing verification evidence in converted tables
-- D-134-02: Added Key Link Verification for integration points
-- D-134-03: Added minimal Data-Flow Trace for sync script flow
+(None yet for v12.2)
 
 ---
 
@@ -75,4 +71,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-06 — v12.1 Quality Hardening milestone complete, ready for next milestone_
+_Last updated: 2026-04-06 — v12.2 milestone planning started_
