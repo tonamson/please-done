@@ -70,7 +70,8 @@
   2. Output includes timeline with milestone start/completion dates
   3. `--json` flag produces machine-readable JSON output with all metrics
   4. LOC counts and file counts are included in the statistics summary
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 138-01-PLAN.md — Create stats-collector library and pd:stats skill with table/JSON output
 
 ### Phase 139: Planning Health Diagnostics
 **Goal**: Users can diagnose and fix planning directory issues without manual investigation
