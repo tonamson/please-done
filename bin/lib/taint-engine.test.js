@@ -379,4 +379,191 @@ describe("TaintEngine", () => {
       }
     });
   });
+
+  describe("buildDataFlowGraph - additional branch coverage", () => {
+    it("should handle critical risk sinks in graph output", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", location: { line: 1 } }];
+      const sinks = [{ type: "eval", risk: "critical", code: "eval()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+
+      const result = engine.buildDataFlowGraph(sources, sinks, sanitizationEdges);
+      assert.ok(result.graph.includes("eval"), "critical sink should be in graph");
+      assert.ok(result.graph.includes("K0"), "should have K0 node");
+    });
+
+    it("should handle high risk sinks in graph output", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", risk: "high", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+
+      const result = engine.buildDataFlowGraph(sources, sinks, sanitizationEdges);
+      assert.ok(result.graph.includes("sql.query"), "high risk sink should be in graph");
+      assert.ok(result.graph.includes("K0"), "should have K0 node");
+    });
+
+    it("should handle unsanitized edges without style", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", risk: "high", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+      sanitizationEdges.set("0-db.query()", {
+        sanitized: false,
+        sanitizer: null,
+        location: null
+      });
+
+      const result = engine.buildDataFlowGraph(sources, sinks, sanitizationEdges);
+      assert.ok(result.graph.includes("-->"), "unsanitized should use -->");
+      assert.ok(!result.graph.includes("--sanitized-->"), "unsanitized should not include sanitized marker");
+    });
+
+    it("should handle sink not found in sanitizationEdges iteration", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", risk: "high", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+      sanitizationEdges.set("0-other.sink()", {
+        sanitized: true,
+        sanitizer: "validator",
+        location: { line: 2 }
+      });
+
+      const result = engine.buildDataFlowGraph(sources, sinks, sanitizationEdges);
+      assert.ok(result.graph.includes("flowchart TD"));
+    });
+
+    it("should handle sanitized edge with style", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", risk: "high", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+      sanitizationEdges.set("0-db.query()", {
+        sanitized: true,
+        sanitizer: "validator.isEmail",
+        location: { line: 2 }
+      });
+
+      const result = engine.buildDataFlowGraph(sources, sinks, sanitizationEdges);
+      assert.ok(result.graph.includes("--sanitized-->"), "sanitized should use --sanitized-->");
+      assert.ok(result.graph.includes("fill:#90EE90"), "sanitized should have green style");
+    });
+  });
+
+  describe("buildTaintPaths - additional branch coverage", () => {
+    it("should handle missing source (returns empty paths)", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", variable: "body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+      sanitizationEdges.set("99-db.query()", {
+        sanitized: true,
+        sanitizer: "validator",
+        location: { line: 2 }
+      });
+
+      const result = engine.buildTaintPaths(sources, sinks, sanitizationEdges);
+      assert.ok(Array.isArray(result));
+      assert.strictEqual(result.length, 0, "should return empty when source not found");
+    });
+
+    it("should handle missing sink (returns empty paths)", () => {
+      const engine = new TaintEngine();
+      const sources = [{ type: "req.body", variable: "body", location: { line: 1 } }];
+      const sinks = [{ type: "sql.query", code: "db.query()", location: { line: 3 } }];
+      const sanitizationEdges = new Map();
+      sanitizationEdges.set("0-nonexistent.sink()", {
+        sanitized: false,
+        sanitizer: null,
+        location: null
+      });
+
+      const result = engine.buildTaintPaths(sources, sinks, sanitizationEdges);
+      assert.ok(Array.isArray(result));
+      assert.strictEqual(result.length, 0, "should return empty when sink not found");
+    });
+  });
+
+  describe("generateTaintReport - additional branch coverage", () => {
+    it("should calculate sanitizationCoverage as 0% when no sanitized flows", () => {
+      const engine = new TaintEngine();
+      const analysisResult = {
+        sources: [{ type: "req.body" }],
+        sinks: [{ type: "eval", risk: "critical" }],
+        sourceToSinkMap: [
+          {
+            source: { type: "req.body" },
+            sinks: [{ type: "eval", risk: "critical", sanitized: false, sanitizer: null }]
+          }
+        ],
+        sanitizationEdges: [],
+        riskyFlows: [{ riskLevel: 4 }],
+        summary: {
+          totalSources: 1,
+          totalSinks: 1,
+          riskyFlows: 1,
+          sanitizedFlows: 0
+        }
+      };
+
+      const report = engine.generateTaintReport(analysisResult);
+      assert.strictEqual(report.sanitizationCoverage, "0%");
+      assert.strictEqual(report.summary.criticalFlows, 1);
+      assert.strictEqual(report.summary.highFlows, 0);
+    });
+
+    it("should count critical and high flows separately", () => {
+      const engine = new TaintEngine();
+      const analysisResult = {
+        sources: [{ type: "req.body" }, { type: "req.query" }],
+        sinks: [{ type: "eval", risk: "critical" }, { type: "sql.query", risk: "high" }],
+        sourceToSinkMap: [
+          {
+            source: { type: "req.body" },
+            sinks: [{ type: "eval", risk: "critical", sanitized: false, sanitizer: null }]
+          },
+          {
+            source: { type: "req.query" },
+            sinks: [{ type: "sql.query", risk: "high", sanitized: true, sanitizer: "escape" }]
+          }
+        ],
+        sanitizationEdges: [{ sanitizer: "escape" }],
+        riskyFlows: [{ riskLevel: 4 }, { riskLevel: 3 }],
+        summary: {
+          totalSources: 2,
+          totalSinks: 2,
+          riskyFlows: 2,
+          sanitizedFlows: 1
+        }
+      };
+
+      const report = engine.generateTaintReport(analysisResult);
+      assert.strictEqual(report.summary.criticalFlows, 1);
+      assert.strictEqual(report.summary.highFlows, 1);
+      assert.strictEqual(report.summary.totalFlows, 2);
+    });
+
+    it("should handle empty sourceToSinkMap", () => {
+      const engine = new TaintEngine();
+      const analysisResult = {
+        sources: [],
+        sinks: [],
+        sourceToSinkMap: [],
+        sanitizationEdges: [],
+        riskyFlows: [],
+        summary: {
+          totalSources: 0,
+          totalSinks: 0,
+          riskyFlows: 0,
+          sanitizedFlows: 0
+        }
+      };
+
+      const report = engine.generateTaintReport(analysisResult);
+      assert.strictEqual(report.summary.totalFlows, 0);
+      assert.strictEqual(report.summary.unsanitizedFlows, 0);
+      assert.strictEqual(report.summary.sanitizedFlows, 0);
+    });
+  });
 });

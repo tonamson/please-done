@@ -143,6 +143,116 @@ function assert(name, condition) {
     assert("analyzeTarget - has summary", typeof result.summary === "string");
   })();
 
+  // Test 10a: rateLimitEvade - jitter strategy
+  (function testRateLimitEvadeJitter() {
+    const result = rateLimitEvade(10, 1000, "jitter");
+    assert("rateLimitEvade jitter - has strategy", result.strategy === "jitter");
+    assert("rateLimitEvade jitter - reduces effectiveRate", result.effectiveRate <= 10);
+    assert("rateLimitEvade jitter - has recommendations", result.recommendations.length > 0);
+  })();
+
+  // Test 10b: rateLimitEvade - burst_then_wait strategy
+  (function testRateLimitEvadeBurst() {
+    const result = rateLimitEvade(10, 1000, "burst_then_wait");
+    assert("rateLimitEvade burst_then_wait - has strategy", result.strategy === "burst_then_wait");
+    assert("rateLimitEvade burst_then_wait - has recommendations", result.recommendations.length > 0);
+    assert("rateLimitEvade burst_then_wait - has nextRequestIn", result.nextRequestIn > 0);
+  })();
+
+  // Test 10c: detectEvasionTechnique - non-string payload
+  (function testDetectNonString() {
+    const result = detectEvasionTechnique(null);
+    assert("detectEvasionTechnique null - returns isEvasion false", result.isEvasion === false);
+    assert("detectEvasionTechnique null - has empty evasions", result.evasions.length === 0);
+    assert("detectEvasionTechnique null - has score 0", result.score === 0);
+
+    const resultUndefined = detectEvasionTechnique(undefined);
+    assert("detectEvasionTechnique undefined - returns isEvasion false", resultUndefined.isEvasion === false);
+
+    const resultNumber = detectEvasionTechnique(123);
+    assert("detectEvasionTechnique number - returns isEvasion false", resultNumber.isEvasion === false);
+  })();
+
+  // Test 10d: generateEvasionVariants - sqli attack type
+  (function testGenerateEvasionVariantsSqli() {
+    const variants = generateEvasionVariants("' OR '1'='1", "sqli");
+    assert("generateEvasionVariants sqli - returns array", Array.isArray(variants));
+    assert("generateEvasionVariants sqli - returns at least one variant", variants.length > 0);
+  })();
+
+  // Test 10e: generateEvasionVariants - command attack type
+  (function testGenerateEvasionVariantsCommand() {
+    const variants = generateEvasionVariants("cat /etc/passwd", "command");
+    assert("generateEvasionVariants command - returns array", Array.isArray(variants));
+    assert("generateEvasionVariants command - returns at least one variant", variants.length > 0);
+  })();
+
+  // Test 10f: generateEvasionVariants - ssrf attack type
+  (function testGenerateEvasionVariantsSsrf() {
+    const variants = generateEvasionVariants("http://localhost:8080", "ssrf");
+    assert("generateEvasionVariants ssrf - returns array", Array.isArray(variants));
+    assert("generateEvasionVariants ssrf - returns at least one variant", variants.length > 0);
+  })();
+
+  // Test 10g: generateEvasionVariants - unknown attack type (default case)
+  (function testGenerateEvasionVariantsUnknown() {
+    const variants = generateEvasionVariants("alert(1)", "unknown_type");
+    assert("generateEvasionVariants unknown - returns array", Array.isArray(variants));
+    assert("generateEvasionVariants unknown - returns at least one variant", variants.length > 0);
+  })();
+
+  // Test 10h: generateEvasionVariants - non-string payload
+  (function testGenerateEvasionVariantsNonString() {
+    const variants = generateEvasionVariants(null, "xss");
+    assert("generateEvasionVariants null - returns empty array", variants.length === 0);
+
+    const variantsUndefined = generateEvasionVariants(undefined, "xss");
+    assert("generateEvasionVariants undefined - returns empty array", variantsUndefined.length === 0);
+  })();
+
+  // Test 10i: EvasionEngine.analyze - high evasion score (>= 50)
+  (function testEvasionEngineAnalyzeHighScore() {
+    const engine = new EvasionEngine();
+    const result = engine.analyze("waf-protected rate-limited captcha bot firewall site.com");
+    assert("EvasionEngine analyze high - evasionScore >= 50", result.evasionScore >= 50);
+    assert("EvasionEngine analyze high - has recommendations", result.recommendations.length > 0);
+    assert("EvasionEngine analyze high - summary is High evasion", result.summary.includes("High"));
+  })();
+
+  // Test 10j: EvasionEngine.analyze - moderate evasion score (>= 30)
+  (function testEvasionEngineAnalyzeModerateScore() {
+    const engine = new EvasionEngine();
+    // "rate-limit" matches /rate.limit|throttle/i = 30
+    const result = engine.analyze("rate-limit site.com");
+    assert("EvasionEngine analyze moderate - evasionScore >= 30", result.evasionScore >= 30);
+    assert("EvasionEngine analyze moderate - evasionScore < 50", result.evasionScore < 50);
+    assert("EvasionEngine analyze moderate - summary is Moderate", result.summary.includes("Moderate"));
+  })();
+
+  // Test 10k: EvasionEngine.analyze - low evasion score (> 0)
+  (function testEvasionEngineAnalyzeLowScore() {
+    const engine = new EvasionEngine();
+    // "500ms timeout" matches /rate.limit|throttle/i = 30
+    const result = engine.analyze("500ms timeout site.com");
+    assert("EvasionEngine analyze low - evasionScore > 0", result.evasionScore > 0);
+    assert("EvasionEngine analyze low - evasionScore < 30", result.evasionScore < 30);
+    assert("EvasionEngine analyze low - summary is Low", result.summary.includes("Low"));
+  })();
+
+  // Test 10l: EvasionEngine.analyze - no evasion (empty target returns early)
+  (function testEvasionEngineAnalyzeEmpty() {
+    const engine = new EvasionEngine();
+    const result = engine.analyze("");
+    assert("EvasionEngine analyze empty - evasionScore is 0", result.evasionScore === 0);
+    assert("EvasionEngine analyze empty - summary is No evasion", result.summary.includes("No evasion"));
+  })();
+
+  // Test 10m: EvasionEngine with cache option
+  (function testEvasionEngineWithCache() {
+    const engine = new EvasionEngine({ cache: { test: true } });
+    assert("EvasionEngine with cache - has cache property", engine.cache !== undefined);
+  })();
+
   // Summary
   console.log(`\n# Summary`);
   console.log(`passed: ${passCount}`);

@@ -252,4 +252,11 @@ class ReconCache {
   }
 }
 
-module.exports = { ReconCache };
+module.exports = {
+  ReconCache,
+  filePathInTrustedDir,
+  gitRevParseHead,
+  gitLsFiles,
+  resolvedCacheJsonPath,
+  resolveCacheRootDir,
+};

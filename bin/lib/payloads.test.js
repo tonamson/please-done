@@ -326,3 +326,232 @@ console.log("  - SQLi evasion variants");
 console.log("  - Double extension detection: T1036.007");
 console.log("  - WAF profiles: Cloudflare, ModSecurity, Akamai, AWS WAF");
 console.log("");
+
+// ============================================================================
+// ADDITIONAL BRANCH COVERAGE TESTS
+// ============================================================================
+
+console.log("\nRunning additional branch coverage tests...\n");
+
+// Test: multiLayerEncode - unknown layer throws error
+(function testMultiLayerEncodeUnknownLayer() {
+  let threw = false;
+  try {
+    multiLayerEncode("test", ["base64", "unknown_layer"]);
+  } catch (e) {
+    threw = true;
+    assert.strictEqual(
+      e.message.includes("Unknown encoding layer"),
+      true,
+      "should throw Unknown encoding layer error"
+    );
+  }
+  assert.strictEqual(threw, true, "multiLayerEncode unknown layer should throw");
+})();
+console.log("  ✓ multiLayerEncode throws on unknown layer");
+
+// Test: generateEncodedVariants - command attack type
+(function testGenerateEncodedVariantsCommand() {
+  const variants = generateEncodedVariants("cat /etc/passwd", "command");
+  assert(
+    variants.length > 0,
+    "generateEncodedVariants command should produce variants"
+  );
+  assert(
+    variants.some(v => v.includes("/**/")),
+    "command variants should include comment injection"
+  );
+})();
+console.log("  ✓ generateEncodedVariants command attack type");
+
+// Test: generateEncodedVariants - sqli attack type
+(function testGenerateEncodedVariantsSqli() {
+  const variants = generateEncodedVariants("' OR '1'='1", "sqli");
+  assert(
+    variants.length > 0,
+    "generateEncodedVariants sqli should produce variants"
+  );
+})();
+console.log("  ✓ generateEncodedVariants sqli attack type");
+
+// Test: PayloadGenerator.generateWafEvasion - default case (unknown profile)
+(function testGenerateWafEvasionUnknown() {
+  const gen = new PayloadGenerator();
+  const variants = gen.generateWafEvasion("test", "unknown_waf");
+  assert(
+    Array.isArray(variants),
+    "generateWafEvasion unknown should return array"
+  );
+  assert(
+    variants.length > 0,
+    "generateWafEvasion unknown should produce variants"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateWafEvasion unknown WAF (default case)");
+
+// Test: PayloadGenerator.generateWafEvasion - modsecurity
+(function testGenerateWafEvasionModsecurity() {
+  const gen = new PayloadGenerator();
+  const variants = gen.generateWafEvasion("test", "modsecurity");
+  assert(
+    Array.isArray(variants),
+    "generateWafEvasion modsecurity should return array"
+  );
+  assert(
+    variants.length > 0,
+    "generateWafEvasion modsecurity should produce variants"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateWafEvasion modsecurity");
+
+// Test: PayloadGenerator.generateWafEvasion - akamai
+(function testGenerateWafEvasionAkamai() {
+  const gen = new PayloadGenerator();
+  const variants = gen.generateWafEvasion("test", "akamai");
+  assert(
+    Array.isArray(variants),
+    "generateWafEvasion akamai should return array"
+  );
+  assert(
+    variants.length > 0,
+    "generateWafEvasion akamai should produce variants"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateWafEvasion akamai");
+
+// Test: PayloadGenerator.generateWafEvasion - aws_waf
+(function testGenerateWafEvasionAwsWaf() {
+  const gen = new PayloadGenerator();
+  const variants = gen.generateWafEvasion("test", "aws_waf");
+  assert(
+    Array.isArray(variants),
+    "generateWafEvasion aws_waf should return array"
+  );
+  assert(
+    variants.length > 0,
+    "generateWafEvasion aws_waf should produce variants"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateWafEvasion aws_waf");
+
+// Test: PayloadGenerator.generateWafProfilePayloads - unknown profile
+(function testGenerateWafProfilePayloadsUnknown() {
+  const gen = new PayloadGenerator();
+  const result = gen.generateWafProfilePayloads("unknown_profile");
+  assert.strictEqual(
+    result.commandInjection.length,
+    0,
+    "unknown profile should have empty commandInjection"
+  );
+  assert.strictEqual(result.xss.length, 0, "unknown profile should have empty xss");
+  assert.strictEqual(result.sqli.length, 0, "unknown profile should have empty sqli");
+})();
+console.log("  ✓ PayloadGenerator.generateWafProfilePayloads unknown profile");
+
+// Test: PayloadGenerator.generateWafProfilePayloads - modsecurity
+(function testGenerateWafProfilePayloadsModsecurity() {
+  const gen = new PayloadGenerator();
+  const result = gen.generateWafProfilePayloads("modsecurity");
+  assert(result.commandInjection.length > 0, "modsecurity should have commandInjection");
+  assert(result.xss.length > 0, "modsecurity should have xss");
+  assert(result.sqli.length > 0, "modsecurity should have sqli");
+})();
+console.log("  ✓ PayloadGenerator.generateWafProfilePayloads modsecurity");
+
+// Test: PayloadGenerator.generateWafProfilePayloads - akamai
+(function testGenerateWafProfilePayloadsAkamai() {
+  const gen = new PayloadGenerator();
+  const result = gen.generateWafProfilePayloads("akamai");
+  assert(result.commandInjection.length > 0, "akamai should have commandInjection");
+  assert(result.xss.length > 0, "akamai should have xss");
+  assert(result.sqli.length > 0, "akamai should have sqli");
+})();
+console.log("  ✓ PayloadGenerator.generateWafProfilePayloads akamai");
+
+// Test: PayloadGenerator.generateWafProfilePayloads - aws_waf
+(function testGenerateWafProfilePayloadsAwsWaf() {
+  const gen = new PayloadGenerator();
+  const result = gen.generateWafProfilePayloads("aws_waf");
+  assert(result.commandInjection.length > 0, "aws_waf should have commandInjection");
+  assert(result.xss.length > 0, "aws_waf should have xss");
+  assert(result.sqli.length > 0, "aws_waf should have sqli");
+})();
+console.log("  ✓ PayloadGenerator.generateWafProfilePayloads aws_waf");
+
+// Test: detectDoubleExtension - single benign extension (not suspicious)
+(function testDetectDoubleExtensionSingle() {
+  const result = detectDoubleExtension("file.txt");
+  assert.strictEqual(
+    result.isSuspicious,
+    false,
+    "single benign extension should not be suspicious"
+  );
+  assert(
+    result.description.includes("No double extension"),
+    "should say no double extension"
+  );
+})();
+console.log("  ✓ detectDoubleExtension single benign extension");
+
+// Test: detectDoubleExtension - dangerous extension only (line 445 path)
+(function testDetectDoubleExtensionDangerousOnly() {
+  const result = detectDoubleExtension("shell.php");
+  assert.strictEqual(
+    result.isSuspicious,
+    true,
+    "dangerous extension alone should be suspicious"
+  );
+  assert(
+    result.description.includes("Dangerous extension"),
+    "description should mention dangerous extension"
+  );
+  assert(
+    Array.isArray(result.detectedExtensions),
+    "should have detectedExtensions array"
+  );
+})();
+console.log("  ✓ detectDoubleExtension dangerous extension only");
+
+// Test: PayloadGenerator.generateCommandInjectionPayloads
+(function testGenerateCommandInjectionPayloads() {
+  const gen = new PayloadGenerator();
+  const payloads = gen.generateCommandInjectionPayloads();
+  assert(Array.isArray(payloads), "should return array");
+  assert(payloads.length > 0, "should have payloads");
+  assert(
+    payloads.some(p => p.includes("cat")),
+    "should include cat command"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateCommandInjectionPayloads");
+
+// Test: PayloadGenerator.generateXssEvasionPayloads
+(function testGenerateXssEvasionPayloads() {
+  const gen = new PayloadGenerator();
+  const payloads = gen.generateXssEvasionPayloads();
+  assert(Array.isArray(payloads), "should return array");
+  assert(payloads.length > 0, "should have payloads");
+})();
+console.log("  ✓ PayloadGenerator.generateXssEvasionPayloads");
+
+// Test: PayloadGenerator.generateSqliEvasionPayloads
+(function testGenerateSqliEvasionPayloads() {
+  const gen = new PayloadGenerator();
+  const payloads = gen.generateSqliEvasionPayloads();
+  assert(Array.isArray(payloads), "should return array");
+  assert(payloads.length > 0, "should have payloads");
+})();
+console.log("  ✓ PayloadGenerator.generateSqliEvasionPayloads");
+
+// Test: PayloadGenerator.generateDoubleExtensionTestFiles
+(function testGenerateDoubleExtensionTestFiles() {
+  const gen = new PayloadGenerator();
+  const files = gen.generateDoubleExtensionTestFiles();
+  assert(Array.isArray(files), "should return array");
+  assert(files.length > 0, "should have file patterns");
+  assert(
+    files.some(f => f.pattern === "shell.php.jpg"),
+    "should include shell.php.jpg pattern"
+  );
+})();
+console.log("  ✓ PayloadGenerator.generateDoubleExtensionTestFiles");

@@ -416,18 +416,35 @@ function detectDoubleExtension(filename) {
     matches.push("." + match[1]);
   }
 
-  // Need at least 2 extensions for double extension
+  if (matches.length === 0) {
+    return {
+      isSuspicious: false,
+      description: "No extension pattern detected",
+    };
+  }
+
+  const lastExt = matches[matches.length - 1];
+
+  // Check if last extension is dangerous (even for single extension)
+  const isLastDangerous = DANGEROUS_EXTENSIONS.includes(lastExt);
+
   if (matches.length < 2) {
+    // Single extension - only flag if dangerous
+    if (isLastDangerous) {
+      return {
+        isSuspicious: true,
+        description: `Dangerous extension '${lastExt}' detected in filename`,
+        detectedExtensions: matches,
+        dangerousExtension: lastExt,
+      };
+    }
     return {
       isSuspicious: false,
       description: "No double extension pattern detected",
     };
   }
 
-  // Check for dangerous extension paired with benign one
-  const lastExt = matches[matches.length - 1];
   const secondLastExt = matches[matches.length - 2];
-
   const isLastBenign = BENIGN_EXTENSIONS.includes(lastExt);
   const isSecondLastDangerous = DANGEROUS_EXTENSIONS.includes(secondLastExt);
 
