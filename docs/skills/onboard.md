@@ -1,3 +1,8 @@
+<!-- Source version: 4.0.0 -->
+
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](onboard.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](onboard.vi.md)
+
 # Skill: onboard
 
 ## Purpose

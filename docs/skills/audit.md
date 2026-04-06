@@ -1,3 +1,8 @@
+<!-- Source version: 4.0.0 -->
+
+[![English](https://img.shields.io/badge/lang-English-blue.svg)](audit.md)
+[![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](audit.vi.md)
+
 # Skill: audit
 
 _Subtitle: OWASP Top 10 and PTES-compliant security auditing._
