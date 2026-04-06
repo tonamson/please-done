@@ -1,5 +1,21 @@
 # Milestones
 
+## v12.2 Developer Experience Improvements (Started: 2026-04-06)
+
+**Status:** Planning — 8 requirements defined
+
+**Target features:**
+- L-02: Merge pd:next into pd:what-next (auto-execute)
+- L-03: pd:stats command (project statistics)
+- L-04: pd:health command (diagnose planning issues)
+- L-01: Automated version badge sync
+- L-05: MCP Tool Discovery
+- L-06: Discussion Audit Trail
+- L-07: Scope Reduction Detection
+- L-08: Schema Drift Detection
+
+---
+
 ## v12.1 Quality Hardening (Shipped: 2026-04-06)
 
 **Phases completed:** 12 phases (125-136), 12 plans, all requirements satisfied
