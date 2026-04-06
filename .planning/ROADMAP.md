@@ -138,6 +138,9 @@
 **Depends on:** Nothing
 **Gap Closure:** Fixes H-02→86, H-03→127, H-06→130, H-07→131 phase mappings
 
+**Plans:**
+- [ ] 135-01-PLAN.md — Remove duplicate coverage section from REQUIREMENTS.md
+
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
 
