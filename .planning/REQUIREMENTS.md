@@ -25,11 +25,11 @@
 
 ### Phase 3: Documentation
 
-- [ ] **C-04**: Update CHANGELOG
+- [x] **C-04**: Update CHANGELOG
   - Unfreeze CHANGELOG.md or auto-generate from MILESTONES.md
   - Document v3.0 through v12.0 milestones
 
-- [ ] **H-03**: Create 4 missing command docs
+- [x] **H-03**: Create 4 missing command docs
   - `docs/skills/audit.md`
   - `docs/skills/conventions.md`
   - `docs/skills/onboard.md`
@@ -100,10 +100,10 @@
 |-------------|-------|--------|
 | C-01 | Phase 125 | Pending |
 | C-02 | Phase 126 | Pending |
-| C-04 | Phase 127 | Pending |
+| C-04 | Phase 127 | Complete |
 | H-01 | Phase 128 | Pending |
 | H-02 | Phase 129 | Pending |
-| H-03 | Phase 130 | Pending |
+| H-03 | Phase 130 | Complete |
 | H-06 | Phase 131 | Pending |
 | H-07 | Phase 132 | Pending |
 

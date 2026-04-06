@@ -63,8 +63,8 @@
 **Requirements:** C-04, H-03
 
 **Plans:**
-- [ ] 127-01-PLAN.md — Update CHANGELOG
-- [ ] 127-02-PLAN.md — Create missing command docs
+- [x] 127-01-PLAN.md — Update CHANGELOG
+- [x] 127-02-PLAN.md — Create missing command docs
 
 ### Phase 128: Code Quality - Catch Blocks (H-01)
 
