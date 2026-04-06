@@ -4,7 +4,7 @@ milestone: v12.1
 milestone_name: Quality Hardening
 status: executing
 last_updated: "2026-04-06T05:00:00.000Z"
-last_activity: 2026-04-06 -- Phase 128 complete
+last_activity: 2026-04-06 -- Phase 129 context gathered (NOTE: H-02 appears duplicate of Phase 86)
 progress:
   total_phases: 7
   completed_phases: 4
