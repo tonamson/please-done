@@ -139,7 +139,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 - [ ] **L-02**: Merge pd:next into pd:what-next — auto-execute logic
 - [ ] **L-03**: pd:stats command — project statistics
-- [ ] **L-04**: pd:health command — diagnose planning issues
+- ✓ **L-04**: pd:health command — diagnose planning issues — v12.2 (Phase 139)
 - [ ] **L-01**: Automated version badge sync — sync version across docs
 - [ ] **L-05**: MCP Tool Discovery — auto-discover MCP tools
 - [ ] **L-06**: Discussion Audit Trail — track conversation history
@@ -163,7 +163,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Active:** Awaiting next milestone (run `/gsd-new-milestone`)
+**Active:** v12.2 Developer Experience Improvements — Phase 139 complete (pd:health)
 
 **Latest Shipped:** v12.1 Quality Hardening (2026-04-06)
 
