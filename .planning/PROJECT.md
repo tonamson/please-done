@@ -259,4 +259,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 — v12.1 Phase 133 complete: VERIFICATION.md added for Phases 125 and 126_
+_Last updated: 2026-04-06 — v12.1 Phase 136 complete: Fixed deprecated command references in documentation_
