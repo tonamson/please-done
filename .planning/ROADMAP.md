@@ -58,7 +58,8 @@
   2. Running `pd:what-next --execute` automatically detects state and runs the recommended command
   3. Advisory mode (default) preserves existing behavior — shows suggestion, waits for user confirmation
   4. All pd:next behavior is fully subsumed — no functionality lost
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 137-01-PLAN.md — Merge auto-execute from pd:next into pd:what-next with --execute flag
 
 ### Phase 138: Project Statistics Command
 **Goal**: Users can view comprehensive project statistics from the command line for quick status assessment
