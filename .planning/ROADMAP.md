@@ -38,7 +38,7 @@
 
 ## Phases
 
-- [ ] **Phase 137: Workflow Command Merge** — Merge pd:next into pd:what-next with auto-execute
+- [x] **Phase 137: Workflow Command Merge** — Merge pd:next into pd:what-next with auto-execute (completed 2026-04-06)
 - [ ] **Phase 138: Project Statistics Command** — pd:stats for phase/plan/requirement metrics
 - [ ] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis
 - [ ] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion
@@ -59,7 +59,7 @@
   3. Advisory mode (default) preserves existing behavior — shows suggestion, waits for user confirmation
   4. All pd:next behavior is fully subsumed — no functionality lost
 **Plans**: 1 plan
-- [ ] 137-01-PLAN.md — Merge auto-execute from pd:next into pd:what-next with --execute flag
+- [x] 137-01-PLAN.md — Merge auto-execute from pd:next into pd:what-next with --execute flag
 
 ### Phase 138: Project Statistics Command
 **Goal**: Users can view comprehensive project statistics from the command line for quick status assessment
@@ -144,7 +144,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 137. Workflow Command Merge | 0/1 | Not started | - |
+| 137. Workflow Command Merge | 1/1 | Complete    | 2026-04-06 |
 | 138. Project Statistics Command | 0/1 | Not started | - |
 | 139. Planning Health Diagnostics | 0/1 | Not started | - |
 | 140. Version Badge Automation | 0/1 | Not started | - |
