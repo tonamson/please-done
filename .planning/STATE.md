@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v12.1
 milestone_name: Quality Hardening
 status: executing
-last_updated: "2026-04-06T04:00:00.000Z"
-last_activity: 2026-04-06 -- Phase 127 complete
+last_updated: "2026-04-06T05:00:00.000Z"
+last_activity: 2026-04-06 -- Phase 128 complete
 progress:
   total_phases: 7
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
-  percent: 43
+  completed_phases: 4
+  total_plans: 5
+  completed_plans: 5
+  percent: 57
 ---
 
 # Project State
@@ -26,10 +26,10 @@ See: `.planning/ROADMAP.md` (pending)
 
 ## Current Position
 
-Phase: 128 — Code Quality - Catch Blocks (H-01)
+Phase: 129 — Installer Refactor (H-02)
 Plan: None yet
 Status: Ready for next phase
-Last activity: 2026-04-06 -- Phase 127 complete
+Last activity: 2026-04-06 -- Phase 128 complete
 
 ---
 
@@ -54,7 +54,7 @@ Last activity: 2026-04-06 -- Phase 127 complete
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
-| v12.1 | 3/7 | 4 | 2026-04-06 | In Progress |
+| v12.1 | 4/7 | 5 | 2026-04-06 | In Progress |
 | v12.0 | 13 | 26 | 2026-04-06 | ✅ Shipped |
 | v11.1 | 6 | 6 | 2026-04-04 | ✅ Shipped |
 
