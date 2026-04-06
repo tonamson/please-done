@@ -110,7 +110,7 @@ Map: fresh
 ```
 
 **Điểm quyết định:**
-- **Nếu map đã cũ:** Chạy `/pd:map-codebase` để làm mới
+- **Nếu map đã cũ:** Chạy `/pd:scan` để làm mới
 - **Nếu bugs > 0:** Xem xét `/pd:fix-bug` trước khi tiếp tục
 - **Nếu có blockers:** Xử lý blockers trước
 
@@ -250,12 +250,12 @@ Skill `pd:onboard` định hướng AI vào codebase không quen thuộc trong m
 
 ---
 
-### Tài Liệu Tham Khảo Lệnh: pd:map-codebase
+### Tài Liệu Tham Khảo Lệnh: pd:scan
 
-Skill `pd:map-codebase` tạo bản đồ cấu trúc codebase để các agent khác tham khảo.
+Skill `pd:scan` tạo bản đồ cấu trúc codebase để các agent khác tham khảo.
 
 **Cách dùng:**
-- `/pd:map-codebase` — Map codebase hiện tại
+- `/pd:scan` — Map codebase hiện tại
 - Tự động trigger bởi `/pd:init` khi codebase chưa được map
 
 **Chức năng:**
