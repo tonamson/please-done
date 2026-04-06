@@ -148,7 +148,7 @@
 |-------|----------------|--------|-----------|
 | 137. Workflow Command Merge | 1/1 | Complete    | 2026-04-06 |
 | 138. Project Statistics Command | 1/1 | Complete    | 2026-04-06 |
-| 139. Planning Health Diagnostics | 1/1 | Complete   | 2026-04-06 |
+| 139. Planning Health Diagnostics | 1/1 | Complete    | 2026-04-06 |
 | 140. Version Badge Automation | 0/1 | Not started | - |
 | 141. MCP Tool Discovery | 0/1 | Not started | - |
 | 142. Discussion Audit Trail | 0/1 | Not started | - |
