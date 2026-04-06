@@ -217,7 +217,7 @@ Map: fresh
 Displays a dashboard view of your project's current state. This is read-only and never modifies state.
 
 **Decision Points:**
-- If Map shows "stale", run `/pd:map-codebase` to refresh
+- If Map shows "stale", run `/pd:scan` to refresh
 - If Blockers exist, resolve them before continuing
 - If Bugs > 0, consider `/pd:fix-bug` before continuing
 
