@@ -103,7 +103,7 @@ Map: fresh
 ```
 
 **Decision Points:**
-- **If map is stale:** Run `/pd:map-codebase` to refresh
+- **If map is stale:** Run `/pd:scan` to refresh
 - **If bugs > 0:** Consider `/pd:fix-bug` before continuing
 - **If blockers exist:** Address blockers first
 
@@ -167,7 +167,7 @@ Map: fresh
 **Decision Points:**
 - **If tests fail:** Run `/pd:fix-bug` before completing
 - **If open bugs exist:** Must resolve first (command will fail)
-- **If verification report missing:** Run `/pd:verify` first
+- **If verification report missing:** Run `/pd:test` first
 
 ---
 
@@ -242,13 +242,13 @@ The `pd:onboard` skill orients AI to an unfamiliar codebase in one command.
 
 ---
 
-### Command Reference: pd:map-codebase
+### Command Reference: pd:scan
 
-The `pd:map-codebase` skill creates a structure map of the codebase for reference by other agents.
+The `pd:scan` skill creates a structure map of the codebase for reference by other agents.
 
 **Usage:**
-- `/pd:map-codebase` — Map current codebase
-- Auto-triggered by `/pd:init` when codebase not yet mapped
+- `/pd:scan` — Scan current codebase
+- Auto-triggered by `/pd:scan` when codebase not yet mapped
 
 **What it does:**
 1. Scans directory structure (up to 3 levels deep)
