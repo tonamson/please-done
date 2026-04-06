@@ -129,17 +129,15 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **AGENT-01 to AGENT-05**: AI Agents — pd-recon-analyzer, pd-taint-tracker, pd-osint-intel, pd-payload-dev, pd-post-exploit — v12.0 (Phase 121)
 - ✓ **DATA-01 to DATA-06**: Data Files — 5 wordlists + MITRE techniques.yaml — v12.0 (Phase 122)
 - ✓ **INT-01 to INT-06**: Integration & Testing — full pd:audit --recon/--poc/--redteam workflows, >80% coverage — v12.0 (Phases 123-124)
-- ✓ **C-04**: Update CHANGELOG — v3.0-v12.0 milestones documented — v12.1 (Phase 127)
-- ✓ **H-03**: Create 4 missing command docs — audit, conventions, onboard, status — v12.1 (Phase 127)
-- ✓ **H-01**: Fix bare catch blocks with logging — 28 catch blocks in 10 files — v12.1 (Phase 132)
+- ✓ **C-01**: Fix broken command references — CLAUDE.md + docs/workflows fixed — v12.1 (Phase 125, 136)
+- ✓ **C-02**: Fix test script coverage — package.json + c8 tool — v12.1 (Phase 126)
+- ✓ **H-02**: Refactor process.exit(1) in installers — removed in Phase 86, verified in Phase 129 — v12.1
+- ✓ **H-06**: Cleanup orphaned files — archived fix-bug-v1.5.md, organized docs/notes/ — v12.1 (Phase 130)
+- ✓ **H-07**: Universal Cross-Runtime Support — AGENTS.md + sync script for 12 platforms — v12.1 (Phase 131)
 
-### Active (v12.1)
+### Active (Next Milestone)
 
-- [ ] **C-01**: Fix 5 broken command references
-- [ ] **C-02**: Fix test script for complete coverage
-- [ ] **H-02**: Refactor process.exit(1) in installers
-- [ ] **H-06**: Cleanup orphaned files
-- [ ] **H-07**: Universal Cross-Runtime Support
+- [ ] **Ready for new requirements** — define next milestone via `/gsd-new-milestone`
 
 ### Deferred (Future Milestones)
 
@@ -158,24 +156,24 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Active:** v12.1 Quality Hardening (9/11 phases complete)
+**Active:** Awaiting next milestone (run `/gsd-new-milestone`)
 
-**Latest Shipped:** v12.0 Pentest & Red Team Enhancement (2026-04-06)
+**Latest Shipped:** v12.1 Quality Hardening (2026-04-06)
 
-v12.0 delivered comprehensive PTES-compliant reconnaissance capabilities:
-- PTES 4-tier architecture (FREE/STANDARD/DEEP/RED TEAM)
-- 10 reconnaissance libraries (recon-cache, flag-parser, source-mapper, target-enumerator, service-discovery, asset-discoverer, auth-analyzer, workflow-mapper, taint-engine, evasion-engine)
-- 5 OSINT modules (google-dorks, ct-scanner, secret-detector, subdomain-osint, osint-aggregator)
-- Payload development with WAF evasion and multi-layer encoding
-- Token analysis for JWT, session cookies, and credentials
-- Post-exploitation planning module
-- 5 specialized pentest agents
-- 6 data files (5 wordlists + MITRE techniques mapping)
-- Full integration with pd:audit workflow (--recon, --poc, --redteam flags)
+v12.1 delivered quality fixes and cross-runtime support:
+- Fixed 5 broken command references (`pd:map-codebase` → `pd:scan`, `pd:verify` → `pd:test`)
+- Updated test infrastructure with nested test patterns and c8 coverage
+- Unfroze CHANGELOG.md with v3.0-v12.0 milestone entries
+- Fixed 28 bare catch blocks with proper logging across 10 JavaScript files
+- Created AGENTS.md and sync script for universal cross-runtime support (12 platforms: Claude Code, Codex, Gemini, OpenCode, Copilot, Cursor, Windsurf, Cline, Trae, Augment, Kilo, Antigravity)
+- Archived orphaned files and organized documentation notes
+- Added gsd-verifier format VERIFICATION.md for phases 125-126
+- Upgraded phases 130-131 verification to full gsd-verifier format
+- Corrected REQUIREMENTS.md traceability table alignment
 
-See `.planning/milestones/v12.0-ROADMAP.md` for full details.
+See `.planning/milestones/v12.1-ROADMAP.md` for full details.
 
-**Pending Milestone:** v11.2 Vietnamese Documentation (defined but not executed)
+**Previously Shipped:** v12.0 Pentest & Red Team Enhancement
 
 ## Previous Milestone: v11.0 Developer Tooling & Observability
 
@@ -237,6 +235,9 @@ Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills
 | Path source of truth: audit.md B9                | .planning/audit/SECURITY_REPORT.md                               | ✓ Good — unified after gap closure 51-02                           |
 | Translation-only migration (v6.0)                | Language-only change, no structural or behavioral modifications  | ✓ Good — zero regressions, all tests pass                          |
 | .planning/ excluded from translation             | Planning artifacts are internal, can stay Vietnamese             | ✓ Good — reduced scope significantly, preserved history            |
+| AGENTS.md as source of truth (D-136-01)          | Single agent instructions file for all 12 runtimes               | ✓ Good — zero duplication, DRY, idempotent sync                    |
+| Sync script integrated into install/postinstall  | Automatic sync on npm install, no manual steps                    | ✓ Good — consistent agent instructions across all platforms       |
+| gsd-verifier format for verification             | Structured verification with observable truths, key links, data-flow | ✓ Good — consistent verification across all phases                 |
 
 ## Evolution
 
@@ -259,4 +260,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 — v12.1 Phase 136 complete: Fixed deprecated command references in documentation_
+_Last updated: 2026-04-06 after v12.1 milestone completion_

@@ -293,6 +293,59 @@ _A living document updated after each milestone. Lessons feed forward into futur
 
 ---
 
+## Milestone: v12.1 — Quality Hardening
+
+**Shipped:** 2026-04-06
+**Phases:** 12 (125-136) | **Plans:** 12 | **Duration:** 1 day
+
+### What Was Built
+
+- Fixed 5 broken command references in CLAUDE.md and documentation
+- Updated test infrastructure with nested test patterns and c8 coverage tool
+- Unfroze CHANGELOG.md with v3.0-v12.0 milestone entries
+- Fixed 28 bare catch blocks with proper logging across 10 JavaScript files
+- Created AGENTS.md as source of truth for cross-runtime agent instructions (12 platforms)
+- Implemented sync script for automatic deployment to Claude Code, Codex, Gemini, OpenCode, Copilot, Cursor, Windsurf, Cline, Trae, Augment, Kilo, Antigravity
+- Archived orphaned files and organized loose documentation notes
+- Added gsd-verifier format VERIFICATION.md for phases 125-126
+- Upgraded phases 130-131 verification to full gsd-verifier format
+- Corrected REQUIREMENTS.md traceability table alignment
+
+### What Worked
+
+- Gap-closure phases (133-136) efficiently addressed audit findings — small, focused fixes
+- AGENTS.md + sync script pattern enables DRY agent instructions across 12 platforms
+- gsd-verifier format standardization improves verification consistency across phases
+- Milestone audit caught Phase 136 gap before archival — prevented shipping incomplete docs
+
+### What Was Inefficient
+
+- Duplicate Phase 128 directories created confusion (superseded by Phase 132)
+- Milestone audit ran before Phase 136 execution, creating false "gaps_found" status
+- VERIFICATION.md format varied across phases until Phase 134 standardized them
+
+### Patterns Established
+
+- AGENTS.md as single source of truth for all runtime agent instructions
+- Sync script integrated into install/postinstall for automatic deployment
+- gsd-verifier format for all new phase verification reports
+- Milestone audit should run AFTER all phases in ROADMAP — not during active execution
+
+### Key Lessons
+
+1. Gap-closure phases are fast and effective — 4 phases (133-136) addressed all audit gaps in <1 day
+2. Duplicate phase directories cause ROADMAP confusion — clean up superseded phases before archival
+3. Milestone audit timing matters — audit after all phases complete, not during execution
+4. Cross-runtime sync pattern is reusable — single file + sync script = 12 platforms
+
+### Cost Observations
+
+- Model mix: ~60% opus (planning + execution), ~40% sonnet (verification)
+- Sessions: 1 (all 12 phases completed in continuous session)
+- Notable: 12 gap-closure phases executed efficiently with clear audit trail
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -305,6 +358,7 @@ _A living document updated after each milestone. Lessons feed forward into futur
 | v1.3      | 2        | 4      | Truth-driven enforcement: logic validation before code, orphan detection          |
 | v1.4      | 1        | 4      | Visual reporting: Mermaid diagrams, PDF export, non-blocking workflow integration |
 | v6.0      | 4+       | 6      | Full Vietnamese → English migration: all file types, 61 commits, 40 audit fixes   |
+| v12.1     | 1        | 12     | Quality hardening: cross-runtime support, verification standardization, gap closure |
 
 ### Cumulative Quality
 

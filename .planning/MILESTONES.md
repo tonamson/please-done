@@ -1,5 +1,26 @@
 # Milestones
 
+## v12.1 Quality Hardening (Shipped: 2026-04-06)
+
+**Phases completed:** 12 phases (125-136), 12 plans, all requirements satisfied
+
+**Key accomplishments:**
+
+- Fixed 5 broken command references (`pd:map-codebase` → `pd:scan`, `pd:verify` → `pd:test`) in CLAUDE.md and docs
+- Updated test infrastructure with nested test patterns and c8 coverage tool
+- Unfroze CHANGELOG.md with v3.0-v12.0 milestone entries documented
+- Fixed 28 bare catch blocks with proper logging across 10 JavaScript files
+- Created AGENTS.md and sync-instructions.js for universal cross-runtime support (12 platforms)
+- Archived orphaned files and organized loose documentation notes
+- Added gsd-verifier format VERIFICATION.md for phases 125-126; upgraded phases 130-131 to full format
+- Corrected REQUIREMENTS.md traceability table alignment
+
+**Tech debt:**
+- Duplicate Phase 128 directories (superseded by Phase 132)
+- Legacy catch blocks outside scope (recon-cache.js, utils.js, claude.js)
+
+---
+
 ## v12.0 Pentest & Red Team Enhancement (Shipped: 2026-04-06)
 
 **Phases completed:** 0 phases, 0 plans, 0 tasks
