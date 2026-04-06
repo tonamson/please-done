@@ -10,6 +10,7 @@ const path = require("path");
 const { parse } = require("@babel/parser");
 const traverse = require("@babel/traverse").default;
 const { ReconCache } = require("./recon-cache");
+const { log } = require("./utils");
 
 /**
  * Analyzes authentication patterns and identifies vulnerabilities
@@ -65,6 +66,7 @@ class AuthAnalyzer {
         const fileCredentials = this.findHardcodedCredentials(ast, filePath);
         this.hardcodedCredentials.push(...fileCredentials);
       } catch (error) {
+        log.warn(`[auth-analyzer] Failed to parse ${filePath}: ${error.message}`);
         // Skip files that can't be parsed
         continue;
       }
@@ -110,6 +112,7 @@ class AuthAnalyzer {
         .map((line) => line.trim())
         .filter((line) => line && !line.startsWith("#"));
     } catch (error) {
+      log.warn(`[auth-analyzer] Failed to load credential patterns: ${error.message}`);
       // Use default patterns if file not available
       this.credentialPatterns = [
         "password",
@@ -596,6 +599,7 @@ class AuthAnalyzer {
       const files = await glob(patterns, { cwd: projectPath, absolute: true });
       return files.slice(0, 100); // Limit to avoid timeout
     } catch (error) {
+      log.warn(`[auth-analyzer] Failed to find source files: ${error.message}`);
       return [];
     }
   }

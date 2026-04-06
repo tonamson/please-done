@@ -15,6 +15,7 @@
 
 const { generateBusinessLogicDiagram } = require("./generate-diagrams");
 const { replaceMermaidBlock } = require("./report-filler");
+const { log } = require("./utils");
 
 // ─── Constants ────────────────────────────────────────────
 
@@ -232,6 +233,7 @@ function runLogicSync(params) {
   try {
     logicResult = detectLogicChanges(params.diffText);
   } catch (e) {
+    log.warn(`[logic-sync] Logic detection failed: ${e.message}`);
     warnings.push("Logic detection: " + e.message);
   }
 
@@ -240,6 +242,7 @@ function runLogicSync(params) {
     try {
       reportResult = updateReportDiagram(params);
     } catch (e) {
+      log.warn(`[logic-sync] Report update failed: ${e.message}`);
       warnings.push("Report update: " + e.message);
     }
   }
@@ -248,6 +251,7 @@ function runLogicSync(params) {
   try {
     rulesResult = suggestClaudeRules(params);
   } catch (e) {
+    log.warn(`[logic-sync] Rule suggestion failed: ${e.message}`);
     warnings.push("Rule suggestion: " + e.message);
   }
 
