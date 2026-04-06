@@ -21,7 +21,7 @@
   - IncludeLOC counts and file counts
   - Format output as table or JSON (with `--json` flag)
 
-- [ ] **L-04**: pd:health command
+- [x] **L-04**: pd:health command
   - Diagnose planning directory issues
   - Check for missing files (VERIFICATION.md, SUMMARY.md)
   - Validate STATE.md structure
@@ -94,8 +94,8 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | L-01 | Phase 140 | Not started |
-| L-02 | Phase 137 | Not started |
-| L-03 | Phase 138 | Not started |
+| L-02 | Phase 137 | Complete |
+| L-03 | Phase 138 | Complete |
 | L-04 | Phase 139 | Not started |
 | L-05 | Phase 141 | Not started |
 | L-06 | Phase 142 | Not started |

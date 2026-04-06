@@ -40,7 +40,7 @@
 
 - [x] **Phase 137: Workflow Command Merge** — Merge pd:next into pd:what-next with auto-execute (completed 2026-04-06)
 - [x] **Phase 138: Project Statistics Command** — pd:stats for phase/plan/requirement metrics (completed 2026-04-06)
-- [ ] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis
+- [x] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis (completed 2026-04-06)
 - [ ] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion
 - [ ] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools
 - [ ] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions
@@ -83,7 +83,7 @@
   3. Each issue includes a suggested fix command or concrete remediation action
   4. STATE.md structure validation confirms all required fields are present and valid
 **Plans**: 1 plan
-- [ ] 139-01-PLAN.md — Create health-checker library, tests, and pd:health skill file
+- [x] 139-01-PLAN.md — Create health-checker library, tests, and pd:health skill file
 
 ### Phase 140: Version Badge Automation
 **Goal**: Version numbers stay synchronized across all project files without manual updates
@@ -148,7 +148,7 @@
 |-------|----------------|--------|-----------|
 | 137. Workflow Command Merge | 1/1 | Complete    | 2026-04-06 |
 | 138. Project Statistics Command | 1/1 | Complete    | 2026-04-06 |
-| 139. Planning Health Diagnostics | 0/1 | Not started | - |
+| 139. Planning Health Diagnostics | 1/1 | Complete   | 2026-04-06 |
 | 140. Version Badge Automation | 0/1 | Not started | - |
 | 141. MCP Tool Discovery | 0/1 | Not started | - |
 | 142. Discussion Audit Trail | 0/1 | Not started | - |
