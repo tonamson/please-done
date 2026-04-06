@@ -41,6 +41,7 @@ const {
 
 // ─── Constants ────────────────────────────────────────────
 const SCRIPT_DIR = path.resolve(__dirname, "..");
+const PROJECT_ROOT = SCRIPT_DIR;
 const VERSION = fs
   .readFileSync(path.join(SCRIPT_DIR, "VERSION"), "utf8")
   .trim();
@@ -235,6 +236,17 @@ async function install(runtime, isGlobal, configDir) {
 
   // Report patches if any
   reportLocalPatches(targetDir);
+
+  // Sync AGENTS.md to all runtimes after successful installation
+  if (fs.existsSync(path.join(PROJECT_ROOT, 'AGENTS.md'))) {
+    const { execSync } = require('child_process');
+    try {
+      execSync('node bin/sync-instructions.js', { cwd: PROJECT_ROOT, stdio: 'pipe' });
+    } catch (err) {
+      log.warn('Failed to sync agent instructions:', err.message);
+      // Non-fatal - installation succeeded
+    }
+  }
 
   log.success(`${platform.name} — done!`);
 }

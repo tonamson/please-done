@@ -19,6 +19,8 @@
     "node": ">=16.7.0"
   },
   "scripts": {
+    "sync": "node bin/sync-instructions.js",
+    "postinstall": "node bin/sync-instructions.js",
     "install:claude": "node bin/install.js --claude",
     "install:codex": "node bin/install.js --codex",
     "install:gemini": "node bin/install.js --gemini",
