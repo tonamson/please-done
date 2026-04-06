@@ -2,17 +2,19 @@
 name: pd:what-next
 description: Check project progress and suggest the next command when work is interrupted or forgotten
 model: haiku
-argument-hint: "(no arguments needed)"
+argument-hint: "[--execute]"
 allowed-tools:
   - Read
   - Glob
   - Grep
   - Bash
+  - SlashCommand
 ---
 
 <objective>
 Scan `.planning/` to determine unfinished work and the next logical step, then display progress with a suggested command.
-READ ONLY. DO NOT edit files. DO NOT call FastCode MCP.
+With `--execute` flag, automatically invoke the suggested command instead of just displaying it.
+READ ONLY (advisory mode). EXECUTES COMMANDS (with --execute).
 </objective>
 
 <guards>
@@ -22,8 +24,9 @@ Stop and instruct the user if any of the following conditions fail:
       </guards>
 
 <context>
-User input: $ARGUMENTS (no arguments)
-No rules or FastCode MCP needed - only read planning files.
+User input: $ARGUMENTS
+- No arguments: Display progress and suggest next command (advisory mode, READ ONLY)
+- `--execute`: Auto-detect state and invoke the suggested command immediately
 </context>
 
 <execution_context>
@@ -34,13 +37,18 @@ No rules or FastCode MCP needed - only read planning files.
 
 <process>
 Execute @workflows/what-next.md from start to finish.
+
+**If `--execute` flag is set:**
+After determining the suggested command in Step 4, immediately invoke it via SlashCommand.
+The advisory display is still shown (for transparency) before execution.
 </process>
 
 <output>
 **Create/Update:**
-- No files are created or modified, read-only only
+- No files are created or modified (advisory mode)
+- Commands may be invoked (with --execute flag)
 
-**Next step:** Suggested command based on the actual state
+**Next step:** Suggested command based on the actual state (advisory mode) or auto-executed (--execute)
 
 **Success when:**
 
@@ -55,7 +63,8 @@ Execute @workflows/what-next.md from start to finish.
 
 <rules>
 - All output MUST be in English
-- READ ONLY. DO NOT edit any files
+- Without --execute: READ ONLY. DO NOT edit any files
+- With --execute: Invokes the suggested command via SlashCommand after displaying the suggestion
 - DO NOT call FastCode MCP or Context7 MCP
 - The suggested command MUST be based on the actual current state, never guessed
 </rules>
