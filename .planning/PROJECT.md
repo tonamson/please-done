@@ -1,21 +1,18 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.0 Pentest & Red Team Enhancement
+## Current Milestone: v12.1 Quality Hardening
 
-**Goal:** Bổ sung Reconnaissance Phase đầy đủ theo chuẩn Web Pentest (PTES/OWASP) và Red Team TTPs cho skill `pd:audit`.
+**Goal:** Fix critical bugs, improve developer experience, and match GSD quality standards across the please-done project.
 
 **Target features:**
-- Source Mapping (untrusted data sources, input vectors)
-- Target Enumeration (endpoints, hidden APIs)
-- Service Discovery (tech stack fingerprinting)
-- Hidden Asset Discovery (admin panels, debug endpoints)
-- Authentication Analysis (mechanisms, bypass vectors)
-- Business Logic Mapping (workflows, state machines)
-- Taint Analysis (data flow tracking)
-- OSINT Intelligence (Google Dorks, CT logs, secrets)
-- Payload Development (WAF evasion, obfuscation)
-- Token Analysis (JWT, session security)
-- Post-Exploitation Planning (persistence, exfiltration)
+- Fix broken command references (C-01)
+- Fix test script for complete test coverage (C-02)
+- Update CHANGELOG (C-04)
+- Fix bare catch blocks with proper logging (H-01)
+- Refactor process.exit(1) in installers (H-02)
+- Create 4 missing command docs (H-03)
+- Cleanup orphaned files (H-06)
+- Universal Cross-Runtime Support (H-07)
 
 ---
 
@@ -133,9 +130,16 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **DATA-01 to DATA-06**: Data Files — 5 wordlists + MITRE techniques.yaml — v12.0 (Phase 122)
 - ✓ **INT-01 to INT-06**: Integration & Testing — full pd:audit --recon/--poc/--redteam workflows, >80% coverage — v12.0 (Phases 123-124)
 
-### Active
+### Active (v12.1)
 
-*(None — waiting for next milestone)*
+- [ ] **C-01**: Fix 5 broken command references
+- [ ] **C-02**: Fix test script for complete coverage
+- [ ] **C-04**: Update CHANGELOG
+- [ ] **H-01**: Fix bare catch blocks with logging
+- [ ] **H-02**: Refactor process.exit(1) in installers
+- [ ] **H-03**: Create 4 missing command docs
+- [ ] **H-06**: Cleanup orphaned files
+- [ ] **H-07**: Universal Cross-Runtime Support
 
 ### Deferred (Future Milestones)
 
@@ -153,6 +157,8 @@ Every workflow step must produce the highest quality code output while consuming
 - LLM-as-judge review — plan already in context, calling another LLM is circular
 
 ## Current State
+
+**Active:** v12.1 Quality Hardening (defining)
 
 **Latest Shipped:** v12.0 Pentest & Red Team Enhancement (2026-04-06)
 
