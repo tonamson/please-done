@@ -131,12 +131,12 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **INT-01 to INT-06**: Integration & Testing — full pd:audit --recon/--poc/--redteam workflows, >80% coverage — v12.0 (Phases 123-124)
 - ✓ **C-04**: Update CHANGELOG — v3.0-v12.0 milestones documented — v12.1 (Phase 127)
 - ✓ **H-03**: Create 4 missing command docs — audit, conventions, onboard, status — v12.1 (Phase 127)
+- ✓ **H-01**: Fix bare catch blocks with logging — 28 catch blocks in 10 files — v12.1 (Phase 132)
 
 ### Active (v12.1)
 
 - [ ] **C-01**: Fix 5 broken command references
 - [ ] **C-02**: Fix test script for complete coverage
-- [ ] **H-01**: Fix bare catch blocks with logging
 - [ ] **H-02**: Refactor process.exit(1) in installers
 - [ ] **H-06**: Cleanup orphaned files
 - [ ] **H-07**: Universal Cross-Runtime Support
@@ -259,4 +259,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 — v12.1 Phase 127 complete: CHANGELOG updated, 4 command docs created_
+_Last updated: 2026-04-06 — v12.1 Phase 132 complete: H-01 catch block logging added (28 blocks in 10 files)_
