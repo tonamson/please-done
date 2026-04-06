@@ -162,6 +162,151 @@ process.on("SIGINT", () => { cleanup(); process.exit(1); });
   assert("same key for same git state", key1 === key2);
 })();
 
+// INT-03.1: --redteam flag implies poc=true and runs deep analysis
+(function int031() {
+  const result = parsePtesFlags("--redteam");
+  assert(
+    "INT-03.1: --redteam implies poc=true",
+    result.poc === true,
+  );
+  assert(
+    "INT-03.1b: --redteam implies recon=true",
+    result.recon === true,
+  );
+  assert(
+    "INT-03.1c: --redteam sets tier=redteam",
+    result.tier === "redteam",
+  );
+  assert(
+    "INT-03.1d: --redteam sets redteam=true",
+    result.redteam === true,
+  );
+  assert(
+    "INT-03.1e: --redteam tokenBudget=8000",
+    result.tokenBudget === 8000,
+  );
+})();
+
+// INT-03.2: PostExploitAnalyzer.analyze() returns expected structure
+(function int032() {
+  const { PostExploitAnalyzer } = require("../../bin/lib/post-exploit");
+  const analyzer = new PostExploitAnalyzer();
+  const testCode = `<?php system($_GET['cmd']); ?>`;
+  const result = analyzer.analyze(testCode, "test.php");
+
+  assert(
+    "INT-03.2: PostExploitAnalyzer.analyze() returns object",
+    typeof result === "object" && result !== null,
+  );
+  assert(
+    "INT-03.2b: PostExploitAnalyzer returns webShells array",
+    Array.isArray(result.webShells),
+  );
+  assert(
+    "INT-03.2c: PostExploitAnalyzer returns persistence array",
+    Array.isArray(result.persistence),
+  );
+  assert(
+    "INT-03.2d: PostExploitAnalyzer returns exfiltration array",
+    Array.isArray(result.exfiltration),
+  );
+  assert(
+    "INT-03.2e: PostExploitAnalyzer returns lateralMovement array",
+    Array.isArray(result.lateralMovement),
+  );
+})();
+
+// INT-03.3: PostExploitAnalyzer detects web shell patterns
+(function int033() {
+  const { PostExploitAnalyzer } = require("../../bin/lib/post-exploit");
+  const analyzer = new PostExploitAnalyzer();
+  const phpShell = `<?php eval(base64_decode($_POST['cmd'])); ?>`;
+  const result = analyzer.analyze(phpShell, "backdoor.php");
+
+  assert(
+    "INT-03.3: PostExploitAnalyzer detects PHP eval base64 web shell",
+    result.webShells.length > 0,
+  );
+  assert(
+    "INT-03.3b: Detected web shell has severity",
+    result.webShells[0] && typeof result.webShells[0].severity === "string",
+  );
+})();
+
+// INT-03.4: --redteam tier should run post-exploitation analysis
+(function int034() {
+  const redteamTier = getPtesTier("redteam");
+  const deepTier = getPtesTier("deep");
+
+  assert(
+    "INT-03.4: redteam tier has deep-features (includes post-exploit)",
+    redteamTier.features.includes("deep-features"),
+  );
+  assert(
+    "INT-03.4b: deep tier also runs post-exploit analysis",
+    deepTier.features.includes("taint-analysis"),
+  );
+})();
+
+// INT-03.5: ReconAggregator has PostExploitAnalyzer for deep/redteam tiers
+(function int035() {
+  const { PostExploitAnalyzer } = require("../../bin/lib/post-exploit");
+  const { ReconAggregator } = require("../../bin/lib/recon-aggregator");
+  const cache = new ReconCache(TEST_DIR, process.cwd());
+  const aggregator = new ReconAggregator({ cache });
+
+  assert(
+    "INT-03.5: ReconAggregator has postExploitAnalyzer instance",
+    aggregator.postExploitAnalyzer instanceof PostExploitAnalyzer,
+  );
+  assert(
+    "INT-03.5b: ReconAggregator has payloadGenerator for POC generation",
+    aggregator.payloadGenerator !== undefined,
+  );
+})();
+
+// INT-03.6: Verify PostExploitAnalyzer runs for both deep and redteam tiers
+(function int036() {
+  const result = parsePtesFlags("--recon-full");
+  assert(
+    "INT-03.6: --recon-full (deep) sets tier=deep",
+    result.tier === "deep",
+  );
+  assert(
+    "INT-03.6b: --recon-full (deep) does NOT set redteam flag",
+    result.redteam === false,
+  );
+  assert(
+    "INT-03.6c: --recon-full (deep) does NOT set poc flag",
+    result.poc === false,
+  );
+
+  const rtResult = parsePtesFlags("--redteam");
+  assert(
+    "INT-03.6d: --redteam sets redteam=true (vs deep which sets redteam=false)",
+    rtResult.redteam === true,
+  );
+  assert(
+    "INT-03.6e: --redteam implies poc=true (vs deep which does NOT)",
+    rtResult.poc === true,
+  );
+})();
+
+// INT-03.7: INT-03 verification - redteam tier enables OsintAggregator (flag check)
+(function int037() {
+  const { OsintAggregator } = require("../../bin/lib/osint-aggregator");
+  const result = parsePtesFlags("--redteam");
+
+  assert(
+    "INT-03.7: --redteam tier configuration enables full OSINT",
+    result.redteam === true,
+  );
+  assert(
+    "INT-03.7b: --redteam tier has highest token budget for OSINT operations",
+    result.tokenBudget === 8000,
+  );
+})();
+
 if (failed) {
   console.error(`\n${failed} test(s) failed`);
   process.exit(1);
