@@ -20,12 +20,87 @@
 - ✅ **v11.0 Developer Tooling & Observability** — Phases 88-99 (shipped 2026-04-04)
 - ✅ **v11.1 Documentation Improvements** — Phases 100-105 ([shipped 2026-04-04](milestones/v11.1-ROADMAP.md))
 - ✅ **v12.0 Pentest & Red Team Enhancement** — Phases 112-124 (shipped 2026-04-06)
+- 🔄 **v12.1 Quality Hardening** — Phases 125-132 (in progress)
 
 ## Progress
 
-18 milestones defined. 106 phases, 139 plans completed.
+19 milestones defined. 124 phases completed.
 
 ## Phases
+
+---
+
+## v12.1 Quality Hardening (In Progress)
+
+**Goal:** Fix critical bugs and improve developer experience
+
+**Requirements:** C-01, C-02, C-04, H-01, H-02, H-03, H-06, H-07
+
+**Phases:** 8 phases | **Estimated Plans:** 8 plans
+
+### Phase 125: Command Reference Fixes (C-01)
+
+**Goal:** Fix 5 broken command references in CLAUDE.md
+**Depends on:** Nothing
+**Requirements:** C-01
+
+**Plans:**
+- [ ] 125-01-PLAN.md — Fix broken command references
+
+### Phase 126: Test Infrastructure (C-02)
+
+**Goal:** Fix test script for complete coverage
+**Depends on:** Nothing
+**Requirements:** C-02
+
+**Plans:**
+- [ ] 126-01-PLAN.md — Fix test script and add coverage
+
+### Phase 127: Documentation Updates (C-04, H-03)
+
+**Goal:** Update CHANGELOG and create missing command docs
+**Depends on:** Nothing
+**Requirements:** C-04, H-03
+
+**Plans:**
+- [ ] 127-01-PLAN.md — Update CHANGELOG
+- [ ] 127-02-PLAN.md — Create missing command docs
+
+### Phase 128: Code Quality - Catch Blocks (H-01)
+
+**Goal:** Fix bare catch blocks with proper logging
+**Depends on:** Nothing
+**Requirements:** H-01
+
+**Plans:**
+- [ ] 128-01-PLAN.md — Fix catch blocks with log.warn
+
+### Phase 129: Installer Refactor (H-02)
+
+**Goal:** Refactor process.exit(1) in claude.js installer
+**Depends on:** Nothing
+**Requirements:** H-02
+
+**Plans:**
+- [ ] 129-01-PLAN.md — Replace process.exit with throw
+
+### Phase 130: Project Hygiene (H-06)
+
+**Goal:** Cleanup orphaned files
+**Depends on:** Nothing
+**Requirements:** H-06
+
+**Plans:**
+- [ ] 130-01-PLAN.md — Archive and cleanup orphaned files
+
+### Phase 131: Universal Runtime Support (H-07)
+
+**Goal:** Implement universal cross-runtime support
+**Depends on:** Nothing
+**Requirements:** H-07
+
+**Plans:**
+- [ ] 131-01-PLAN.md — Create AGENTS.md and sync script
 
 <details>
 <summary>✅ v1.0 Workflow Optimization (Phases 1-9) — SHIPPED 2026-03-22</summary>
