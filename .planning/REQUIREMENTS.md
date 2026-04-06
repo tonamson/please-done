@@ -112,11 +112,6 @@
 - Phases: 125-135 (11 phases)
 - Unmapped: 0
 
-**Coverage:**
-- v12.1 requirements: 8 total
-- Phases: 125-132 (8 phases)
-- Unmapped: 0
-
 ---
 
 *Defined: 2026-04-06*
