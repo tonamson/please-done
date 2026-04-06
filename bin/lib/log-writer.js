@@ -22,7 +22,7 @@ function ensureLogDirectory() {
     }
     return true;
   } catch (err) {
-    console.error('[log-writer] Failed to create logs directory:', err.message);
+    console.error(`[log-writer] Failed to create logs directory: ${err.message}`);
     return false;
   }
 }
@@ -72,7 +72,7 @@ export function writeLog(entry) {
     return true;
   } catch (err) {
     // Fallback to console error
-    console.error('[log-writer] Failed to write log:', err.message);
+    console.error(`[log-writer] Failed to write log: ${err.message}`);
     console.error('[log-writer] Entry:', JSON.stringify(logEntry, null, 2));
     return false;
   }

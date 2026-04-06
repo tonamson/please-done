@@ -9,6 +9,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { log } = require('./utils');
 
 /**
  * Create directory if it does not exist (recursive).
@@ -38,7 +39,8 @@ function validateGitRoot(dir) {
   try {
     const gitDir = path.join(dir, '.git');
     return fs.existsSync(gitDir);
-  } catch {
+  } catch (error) {
+    log.warn(`[installer-utils] Failed to validate git root: ${error.message}`);
     return false;
   }
 }
@@ -135,7 +137,8 @@ function cleanOldFiles(dir, filter) {
       fs.lstatSync(fp);
       fs.unlinkSync(fp);
       count++;
-    } catch {
+    } catch (error) {
+      log.warn(`[installer-utils] Failed to clean old file ${fp}: ${error.message}`);
       /* file does not exist or already removed */
     }
   }

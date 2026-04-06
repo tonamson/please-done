@@ -5,6 +5,7 @@
 
 const { createSkillErrorHandler } = require('./skill-error-logger');
 const { createLogBuilder } = require('./log-writer');
+const { log } = require('./utils');
 
 /**
  * Creates an error handler for fix-bug skill with rich context
@@ -41,6 +42,7 @@ function createFixBugErrorHandler(phase, context = {}) {
         try {
           return await fn(...args);
         } catch (error) {
+          log.warn(`[enhanced-error-handler] Error in ${step}: ${error.message}`);
           this.handle(error, { step, args });
         }
       };

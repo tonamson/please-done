@@ -9,6 +9,7 @@
 const fs = require("fs").promises;
 const path = require("path");
 const { ReconCache } = require("./recon-cache");
+const { log } = require("./utils");
 
 /**
  * Discovers hidden assets through wordlist-based scanning and file system analysis
@@ -93,7 +94,7 @@ class AssetDiscoverer {
 
       return lines;
     } catch (error) {
-      console.warn(`[asset-discoverer] Failed to load wordlist: ${wordlistPath}`, error.message);
+      log.warn(`[asset-discoverer] Failed to load wordlist: ${wordlistPath} - ${error.message}`);
       return [];
     }
   }
@@ -175,7 +176,7 @@ class AssetDiscoverer {
         });
       }
     } catch (error) {
-      console.warn("[asset-discoverer] File system scan error:", error.message);
+      log.warn(`[asset-discoverer] File system scan error: ${error.message}`);
     }
 
     return findings;

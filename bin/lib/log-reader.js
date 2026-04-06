@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { log } = require('./utils');
 
 /**
  * Reads the last N entries from a JSONL file
@@ -29,13 +30,13 @@ function readJsonlLastN(filePath, n = 10) {
         entries.push(entry);
       } catch (error) {
         // Skip invalid JSON lines
-        console.warn(`[log-reader] Skipping invalid JSON at line ${i + 1}:`, error.message);
+        log.warn(`[log-reader] Skipping invalid JSON at line ${i + 1}: ${error.message}`);
       }
     }
 
     return entries;
   } catch (error) {
-    console.error('[log-reader] Failed to read log file:', error.message);
+    log.error(`[log-reader] Failed to read log file: ${error.message}`);
     return [];
   }
 }
@@ -199,7 +200,7 @@ function cleanupOldEntries(filePath, hours) {
       remaining: keptEntries.length
     };
   } catch (error) {
-    console.error('[log-reader] Failed to cleanup old entries:', error.message);
+    log.error(`[log-reader] Failed to cleanup old entries: ${error.message}`);
     return { deleted: 0, remaining: 0, error: error.message };
   }
 }
