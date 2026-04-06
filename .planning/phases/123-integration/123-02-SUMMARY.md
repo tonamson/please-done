@@ -99,3 +99,10 @@ None.
 ---
 *Phase: 123-integration*
 *Completed: 2026-04-06*
+
+---
+
+## Self-Check: PASSED
+- ✅ SUMMARY.md created at expected path
+- ✅ Commit 5940c8b (feat) found - Step 0 wiring
+- ✅ Commit a3de68e (docs) found - summary and state update

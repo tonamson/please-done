@@ -350,11 +350,11 @@ Full details: `.planning/milestones/v11.0-ROADMAP.md`
   2. Integration tests validate full reconnaissance chain
   3. Documentation updated with new flags
 **Estimated Plans:** 2
-**Status:** Planned | **Plans:** 2/2 planned
+**Status:** Planned | **Plans:** 2/2 plans complete
 
 **Plans:**
-- [ ] 124-01-PLAN.md — Unit tests (>80% coverage) + integration tests for recon chain (INT-04, INT-05)
-- [ ] 124-02-PLAN.md — Documentation updates for PTES/OSINT flags + smoke-snapshot fix (INT-06)
+- [x] 124-01-PLAN.md — Unit tests (>80% coverage) + integration tests for recon chain (INT-04, INT-05)
+- [x] 124-02-PLAN.md — Documentation updates for PTES/OSINT flags + smoke-snapshot fix (INT-06)
 
 **Full details:** See `.planning/milestones/v12.0-ROADMAP.md`
 

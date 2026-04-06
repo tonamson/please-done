@@ -71,21 +71,21 @@
 - [ ] **AGENT-01**: `pd-recon-analyzer.md` - Attack surface analysis, risk scoring
 - [ ] **AGENT-02**: `pd-taint-tracker.md` - Deep taint analysis (on-demand)
 - [ ] **AGENT-03**: `pd-osint-intel.md` - OSINT intelligence gathering
-- [ ] **AGENT-04**: `pd-payload-dev.md` - Payload strategy, evasion recommendations
-- [ ] **AGENT-05**: `pd-post-exploit.md` - Post-exploitation planning
+- [x] **AGENT-04**: `pd-payload-dev.md` - Payload strategy, evasion recommendations
+- [x] **AGENT-05**: `pd-post-exploit.md` - Post-exploitation planning
 
 ### Phase 9: Data Files
 
-- [ ] **DATA-01**: `references/wordlists/common-paths.txt`
-- [ ] **DATA-02**: `references/wordlists/parameters.txt`
-- [ ] **DATA-03**: `references/wordlists/dorks.txt`
-- [ ] **DATA-04**: `references/wordlists/waf-bypass.txt`
-- [ ] **DATA-05**: `references/wordlists/encodings.txt`
-- [ ] **DATA-06**: `references/mitremap/techniques.yaml`
+- [x] **DATA-01**: `references/wordlists/common-paths.txt`
+- [x] **DATA-02**: `references/wordlists/parameters.txt`
+- [x] **DATA-03**: `references/wordlists/dorks.txt`
+- [x] **DATA-04**: `references/wordlists/waf-bypass.txt`
+- [x] **DATA-05**: `references/wordlists/encodings.txt`
+- [x] **DATA-06**: `references/mitremap/techniques.yaml`
 
 ### Phase 10: Integration & Testing
 
-- [ ] **INT-01**: Wire reconnaissance into `pd:audit --recon` workflow
+- [x] **INT-01**: Wire reconnaissance into `pd:audit --recon` workflow
 - [ ] **INT-02**: Wire DAST verification into `pd:audit --poc` workflow
 - [ ] **INT-03**: Wire Red Team into `pd:audit --redteam` workflow
 - [ ] **INT-04**: Unit tests for all code libraries
@@ -160,15 +160,15 @@
 | AGENT-01 | Phase 121 | Pending |
 | AGENT-02 | Phase 121 | Pending |
 | AGENT-03 | Phase 121 | Pending |
-| AGENT-04 | Phase 121 | Pending |
-| AGENT-05 | Phase 121 | Pending |
-| DATA-01 | Phase 122 | Pending |
-| DATA-02 | Phase 122 | Pending |
-| DATA-03 | Phase 122 | Pending |
-| DATA-04 | Phase 122 | Pending |
-| DATA-05 | Phase 122 | Pending |
-| DATA-06 | Phase 122 | Pending |
-| INT-01 | Phase 123 | Pending |
+| AGENT-04 | Phase 121 | Complete |
+| AGENT-05 | Phase 121 | Complete |
+| DATA-01 | Phase 122 | Complete |
+| DATA-02 | Phase 122 | Complete |
+| DATA-03 | Phase 122 | Complete |
+| DATA-04 | Phase 122 | Complete |
+| DATA-05 | Phase 122 | Complete |
+| DATA-06 | Phase 122 | Complete |
+| INT-01 | Phase 123 | Complete |
 | INT-02 | Phase 123 | Pending |
 | INT-03 | Phase 123 | Pending |
 | INT-04 | Phase 124 | Pending |
