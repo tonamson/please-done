@@ -5,14 +5,14 @@
 **Goal:** Fix critical bugs, improve developer experience, and match GSD quality standards across the please-done project.
 
 **Target features:**
-- Fix broken command references (C-01)
-- Fix test script for complete test coverage (C-02)
-- Update CHANGELOG (C-04)
-- Fix bare catch blocks with proper logging (H-01)
-- Refactor process.exit(1) in installers (H-02)
-- Create 4 missing command docs (H-03)
-- Cleanup orphaned files (H-06)
-- Universal Cross-Runtime Support (H-07)
+- ✓ Fix broken command references (C-01) — v12.1 (Phase 125)
+- ✓ Fix test script for complete test coverage (C-02) — v12.1 (Phase 126)
+- ✓ Update CHANGELOG (C-04) — v12.1 (Phase 127)
+- ✓ Fix bare catch blocks with proper logging (H-01) — v12.1 (Phase 128, 132)
+- ✓ Refactor process.exit(1) in installers (H-02) — v12.0 (Phase 86)
+- ✓ Create 4 missing command docs (H-03) — v12.1 (Phase 127)
+- ✓ Cleanup orphaned files (H-06) — v12.1 (Phase 130)
+- ✓ Universal Cross-Runtime Support (H-07) — v12.1 (Phase 131)
 
 ---
 
@@ -158,7 +158,7 @@ Every workflow step must produce the highest quality code output while consuming
 
 ## Current State
 
-**Active:** v12.1 Quality Hardening (defining)
+**Active:** v12.1 Quality Hardening (8/8 phases complete)
 
 **Latest Shipped:** v12.0 Pentest & Red Team Enhancement (2026-04-06)
 
@@ -259,4 +259,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-06 — v12.1 Phase 132 complete: H-01 catch block logging added (28 blocks in 10 files)_
+_Last updated: 2026-04-06 — v12.1 Phase 133 complete: VERIFICATION.md added for Phases 125 and 126_
