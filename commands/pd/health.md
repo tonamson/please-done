@@ -45,10 +45,14 @@ No rules or FastCode MCP needed - only read planning files.
      - Build a pair: `{ planContent, summaryContent, label: "Phase {N}" }`
    - Call `checkScopeReductions(pairs)` — returns `scopeIssues` in health-checker issue format
    - Keep `scopeIssues` **separate** from the health issues list — do NOT merge them
-8. If `--json` flag present: output `JSON.stringify({ healthIssues: issues, scopeIssues }, null, 2)` via `log.info()`
-9. Otherwise:
+8. **Schema drift check** (load `detectSchemaDrift` and `formatDriftReport` from `bin/lib/drift-detector.js`):
+   - Call `detectSchemaDrift(stateContent)` → `driftIssues`
+   - Keep `driftIssues` **separate** from both `issues` and `scopeIssues` — do NOT merge
+9. If `--json` flag present: output `JSON.stringify({ healthIssues: issues, scopeIssues, driftIssues }, null, 2)` via `log.info()`
+10. Otherwise:
    - Call `formatHealthReport(issues)` and output via `log.info()`
    - Call `formatScopeReport(scopeIssues)` and output via `log.info()`
+   - Call `formatDriftReport(driftIssues)` and output via `log.info()`
 </process>
 
 <output>
@@ -75,6 +79,7 @@ No rules or FastCode MCP needed - only read planning files.
 - No --fix flag — strictly read-only (D-11)
 - Load health functions from `bin/lib/health-checker.js` using require()
 - Load scope functions from `bin/lib/scope-checker.js` using require() — `checkScopeReductions`, `formatScopeReport`
+- Load drift functions from `bin/lib/drift-detector.js` using require() — `detectSchemaDrift`, `formatDriftReport`
 </rules>
 
 <script type="error-handler">
