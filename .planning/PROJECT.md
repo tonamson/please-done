@@ -1,18 +1,26 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.2 Developer Experience Improvements
+## Current State: v12.2 Shipped ✅
 
-**Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features.
+**Shipped:** 2026-04-07 — 21 milestones, 144 phases, 9 plans in final milestone.
 
-**Target features:**
-- [ ] L-02: Merge pd:next into pd:what-next (auto-execute logic)
-- [ ] L-03: pd:stats command (project statistics)
-- [ ] L-04: pd:health command (diagnose planning issues)
-- [ ] L-01: Automated version badge sync (sync version across docs)
-- [ ] L-05: MCP Tool Discovery (auto-discover MCP tools)
-- [ ] L-06: Discussion Audit Trail (track conversation history)
-- [ ] L-07: Scope Reduction Detection (warn when scope shrinks)
-- [ ] L-08: Schema Drift Detection (detect planning file changes)
+**What was delivered (v12.2 Developer Experience Improvements):**
+- ✅ L-02: `pd:what-next --execute` (SlashCommand auto-execution; pd:next removed)
+- ✅ L-03: `pd:stats` with boxed unicode table + `--json` flag (stats-collector.js)
+- ✅ L-04: `pd:health` with 5 check categories + severity-classified issue reporting (health-checker.js)
+- ✅ L-01: Version badge sync on milestone completion (`pd:sync-version`, version-sync.js)
+- ✅ L-05: MCP Tool Discovery across 12 platforms (`pd:discover`, mcp-discovery.js)
+- ✅ L-06: Discussion audit trail with auto-capture hook (`pd:audit`, audit-trail.js)
+- ✅ L-07: Scope reduction detection in health + milestone workflow (scope-checker.js)
+- ✅ L-08: Schema drift detection with STATE.md validation (drift-detector.js)
+
+## Next Milestone Goals
+
+Start next milestone with `/gsd-new-milestone`. Candidates from deferred backlog:
+- M-01: Wave Execution (parallel plans within a phase)
+- M-07: Verification Debt Tracking (dashboard for outstanding verifications)
+- M-08: Ship Command (PR creation + review workflow)
+- M-05: Context Window Monitoring (token usage alerts)
 
 ---
 
@@ -134,17 +142,14 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **H-02**: Refactor process.exit(1) in installers — removed in Phase 86, verified in Phase 129 — v12.1
 - ✓ **H-06**: Cleanup orphaned files — archived fix-bug-v1.5.md, organized docs/notes/ — v12.1 (Phase 130)
 - ✓ **H-07**: Universal Cross-Runtime Support — AGENTS.md + sync script for 12 platforms — v12.1 (Phase 131)
-
-### Active (v12.2)
-
-- [ ] **L-02**: Merge pd:next into pd:what-next — auto-execute logic
-- [ ] **L-03**: pd:stats command — project statistics
-- ✓ **L-04**: pd:health command — diagnose planning issues — v12.2 (Phase 139)
-- [ ] **L-01**: Automated version badge sync — sync version across docs
-- [ ] **L-05**: MCP Tool Discovery — auto-discover MCP tools
-- [ ] **L-06**: Discussion Audit Trail — track conversation history
-- [ ] **L-07**: Scope Reduction Detection — warn when scope shrinks
-- [ ] **L-08**: Schema Drift Detection — detect planning file changes
+- ✓ **L-01**: Automated version badge sync — version-sync.js (9 exports), complete-milestone integration — v12.2 (Phase 140)
+- ✓ **L-02**: Merge pd:next into pd:what-next — --execute flag + SlashCommand auto-execution — v12.2 (Phase 137)
+- ✓ **L-03**: pd:stats command — stats-collector.js (7 exports), table/JSON output — v12.2 (Phase 138)
+- ✓ **L-04**: pd:health command — health-checker.js (6 exports), 5 check categories — v12.2 (Phase 139)
+- ✓ **L-05**: MCP Tool Discovery — mcp-discovery.js, 12 platforms — v12.2 (Phase 141)
+- ✓ **L-06**: Discussion Audit Trail — audit-trail.js (5 exports), auto-capture hook — v12.2 (Phase 142)
+- ✓ **L-07**: Scope Reduction Detection — scope-checker.js (5 exports), health + milestone — v12.2 (Phase 143)
+- ✓ **L-08**: Schema Drift Detection — drift-detector.js (6 exports), STATE.md validation — v12.2 (Phase 144)
 
 ### Deferred (Future Milestones)
 
