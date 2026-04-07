@@ -155,7 +155,7 @@
 | 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
 | 141. MCP Tool Discovery | 1/1 | Complete    | 2026-04-07 |
 | 142. Discussion Audit Trail | 2/2 | Complete    | 2026-04-07 |
-| 143. Scope Reduction Detection | 0/1 | Not started | - |
+| 143. Scope Reduction Detection | 0/1 | Planned    |  |
 | 144. Schema Drift Detection | 0/1 | Not started | - |
 
 ---
