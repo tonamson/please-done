@@ -43,8 +43,8 @@ No rules or FastCode MCP needed - only read planning files.
    - For each phase directory that has both a PLAN.md (`*-PLAN.md`) and a SUMMARY.md (`*-SUMMARY.md`):
      - Read the PLAN.md and SUMMARY.md file contents
      - Build a pair: `{ planContent, summaryContent, label: "Phase {N}" }`
-   - Call `checkScopeReductions(pairs)` — returns issues in health-checker issue format
-   - Append scope issues to the health issues list, or display separately after the main report
+   - Call `checkScopeReductions(pairs)` — returns `scopeIssues` in health-checker issue format
+   - Keep `scopeIssues` **separate** from the health issues list — do NOT merge them
 8. If `--json` flag present: output `JSON.stringify({ healthIssues: issues, scopeIssues }, null, 2)` via `log.info()`
 9. Otherwise:
    - Call `formatHealthReport(issues)` and output via `log.info()`

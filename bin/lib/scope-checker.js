@@ -131,11 +131,11 @@ function detectReductions(plan, summary, label) {
     });
   }
 
-  // Detect dropped artifact paths
+  // Detect dropped artifact paths — only forward match: delivered token must contain the plan path
   const droppedArtifacts = (plan.artifacts || []).filter(artifact => {
     const path = artifact.path;
     return !(summary.deliveredPaths || []).some(
-      delivered => delivered.includes(path) || path.includes(delivered)
+      delivered => delivered.includes(path)
     );
   });
 
@@ -175,9 +175,10 @@ function checkScopeReductions(pairs) {
  * Format scope reduction issues as a boxed table report.
  * Returns "No scope reductions detected ✓" when issues is empty.
  * @param {object[]} issues - From checkScopeReductions or detectReductions
+ * @param {{ planReqCount?: number, summaryReqCount?: number }} [context] - Optional before/after counts
  * @returns {string}
  */
-function formatScopeReport(issues) {
+function formatScopeReport(issues, context = {}) {
   if (!Array.isArray(issues) || issues.length === 0) {
     return 'No scope reductions detected ✓';
   }
@@ -185,8 +186,13 @@ function formatScopeReport(issues) {
   const W = 70;
   const lines = [];
 
+  // Before/after header line when counts are provided
+  if (context.planReqCount != null && context.summaryReqCount != null) {
+    lines.push(`Plan declared: ${context.planReqCount} req / Summary delivered: ${context.summaryReqCount} req`);
+  }
+
   const warningCount = issues.filter(i => i.severity === SEVERITY_WARNING).length;
-  lines.push(`Scope check: ${issues.length} issue(s) found (${warningCount} warning)`);
+  lines.push(`Scope check: ${issues.length} issue(s) found (${warningCount} ${warningCount !== 1 ? 'warnings' : 'warning'})`);
   lines.push('');
 
   lines.push(`╔${'═'.repeat(W)}╗`);
@@ -197,7 +203,7 @@ function formatScopeReport(issues) {
     const tag = `[${String(issue.severity || 'warning').toUpperCase()}]`;
     lines.push(`║ ${padRight(truncate(`  ${tag} ${issue.issue}`, W - 1), W - 1)}║`);
     lines.push(`║ ${padRight(truncate(`    Location: ${issue.location}`, W - 1), W - 1)}║`);
-    lines.push(`║ ${padRight(truncate(`    Fix: ${issue.fix}`, W - 1), W - 1)}║`);
+    lines.push(`║ ${padRight(truncate(`    Fix: ${issue.fix || '(no fix provided)'}`, W - 1), W - 1)}║`);
     lines.push(`║ ${padRight('', W - 1)}║`);
   }
 

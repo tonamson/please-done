@@ -182,6 +182,15 @@ describe('detectReductions', () => {
     assert.strictEqual(result.issues[0].category, 'scope_reduction');
   });
 
+  test('short filename token does not clear a longer plan artifact path (WR-01 regression)', () => {
+    // deliveredPaths has 'scope-checker.js' (basename only), plan artifact is 'bin/lib/scope-checker.js'
+    // Only forward match: delivered.includes(planPath) — 'scope-checker.js'.includes('bin/lib/scope-checker.js') = false
+    const plan = { requirements: [], artifacts: [{ path: 'bin/lib/scope-checker.js' }], truths: [], phase: '143' };
+    const summary = { mentionedReqs: [], deliveredPaths: ['scope-checker.js'], status: 'completed', phase: '143' };
+    const result = detectReductions(plan, summary);
+    assert.strictEqual(result.droppedArtifacts.length, 1, 'Short-token should not clear a longer plan path');
+  });
+
   test('issue location uses plan phase when available', () => {
     const plan = { requirements: ['L-07'], artifacts: [], truths: [], phase: '143-scope-reduction-detection' };
     const summary = { mentionedReqs: [], deliveredPaths: [], status: 'completed', phase: null };
@@ -284,5 +293,30 @@ describe('formatScopeReport', () => {
     const result = formatScopeReport(issues);
     assert.ok(result.includes('Dropped: L-07'));
     assert.ok(result.includes('Check SUMMARY'));
+  });
+
+  test('renders fallback when fix field is absent (WR-03)', () => {
+    const issues = [{ severity: 'warning', category: 'scope_reduction', location: 'Phase 143', issue: 'Dropped: L-07' }];
+    const result = formatScopeReport(issues);
+    assert.ok(!result.includes('Fix: undefined'), 'Should not render "Fix: undefined"');
+    assert.ok(result.includes('no fix provided'), 'Should show fallback text');
+  });
+
+  test('includes before/after header when context counts are provided (verifier gap)', () => {
+    const issues = [{ severity: 'warning', category: 'scope_reduction', location: 'Phase 143', issue: 'Dropped: L-07', fix: 'Check SUMMARY' }];
+    const context = { planReqCount: 3, summaryReqCount: 2 };
+    const result = formatScopeReport(issues, context);
+    assert.ok(result.includes('Plan declared: 3 req / Summary delivered: 2 req'), 'Should show before/after header');
+  });
+
+  test('pluralizes warnings correctly (IN-01)', () => {
+    const twoIssues = [
+      { severity: 'warning', category: 'scope_reduction', location: 'P1', issue: 'A', fix: 'B' },
+      { severity: 'warning', category: 'scope_reduction', location: 'P1', issue: 'C', fix: 'D' },
+    ];
+    assert.ok(formatScopeReport(twoIssues).includes('2 warnings'), 'Plural for 2 warnings');
+    const oneIssue = [{ severity: 'warning', category: 'scope_reduction', location: 'P1', issue: 'A', fix: 'B' }];
+    assert.ok(formatScopeReport(oneIssue).includes('1 warning'), 'Singular for 1 warning');
+    assert.ok(!formatScopeReport(oneIssue).includes('1 warnings'), 'Should not use plural for 1 warning');
   });
 });
