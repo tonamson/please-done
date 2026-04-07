@@ -20,6 +20,7 @@ const COLORS = {
 };
 
 function colorize(color, text) {
+  if (!process.stdout.isTTY || process.env.NO_COLOR) return text;
   return `${COLORS[color] || ""}${text}${COLORS.reset}`;
 }
 
