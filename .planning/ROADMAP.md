@@ -106,7 +106,8 @@
   2. Configured tools are distinguished from merely available ones in the output
   3. Tool inventory includes capability descriptions for debugging configuration
   4. Output clearly shows which tools are ready to use vs missing setup
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 141-01-PLAN.md — TDD library + skill file for MCP tool discovery across 12 platforms
 
 ### Phase 142: Discussion Audit Trail
 **Goal**: Conversation context persists across sessions so users can seamlessly resume paused work
@@ -151,7 +152,7 @@
 | 138. Project Statistics Command | 1/1 | Complete    | 2026-04-06 |
 | 139. Planning Health Diagnostics | 1/1 | Complete    | 2026-04-06 |
 | 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
-| 141. MCP Tool Discovery | 0/1 | Not started | - |
+| 141. MCP Tool Discovery | 0/1 | Planning | - |
 | 142. Discussion Audit Trail | 0/1 | Not started | - |
 | 143. Scope Reduction Detection | 0/1 | Not started | - |
 | 144. Schema Drift Detection | 0/1 | Not started | - |
