@@ -44,6 +44,7 @@ const TOOL_MAP = {
 const PLATFORMS = {
   claude: {
     name: 'Claude Code',
+    description: 'AI-powered dev assistant by Anthropic',
     dirName: '.claude',
     commandPrefix: '/pd:',
     commandSeparator: ':',
@@ -54,6 +55,7 @@ const PLATFORMS = {
   },
   codex: {
     name: 'Codex CLI',
+    description: "OpenAI's terminal coding agent",
     dirName: '.codex',
     commandPrefix: '$pd-',
     commandSeparator: '-',
@@ -64,6 +66,7 @@ const PLATFORMS = {
   },
   gemini: {
     name: 'Gemini CLI',
+    description: "Google's AI coding assistant",
     dirName: '.gemini',
     commandPrefix: '/pd:',
     commandSeparator: ':',
@@ -74,6 +77,7 @@ const PLATFORMS = {
   },
   opencode: {
     name: 'OpenCode',
+    description: 'Open-source AI coding agent',
     dirName: '.opencode',
     commandPrefix: '/pd-',
     commandSeparator: '-',
@@ -84,6 +88,7 @@ const PLATFORMS = {
   },
   copilot: {
     name: 'GitHub Copilot',
+    description: "GitHub's AI pair programmer",
     dirName: '.github',
     commandPrefix: '/pd:',
     commandSeparator: ':',
@@ -94,6 +99,7 @@ const PLATFORMS = {
   },
   cursor: {
     name: 'Cursor',
+    description: 'AI-first code editor',
     dirName: '.cursor',
     commandPrefix: '/pd:',
     commandSeparator: ':',
@@ -104,6 +110,7 @@ const PLATFORMS = {
   },
   windsurf: {
     name: 'Windsurf',
+    description: 'Agentic IDE by Codeium',
     dirName: '.windsurf',
     commandPrefix: '/pd:',
     commandSeparator: ':',
