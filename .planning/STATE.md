@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
-status: planning
-last_updated: "2026-04-07T16:30:00.000Z"
-last_activity: 2026-04-07
+status: executing
+last_updated: "2026-04-07T19:53:26.586Z"
+last_activity: 2026-04-07 -- Phase 145 complete (4/4 plans, 15/15 tests)
 progress:
   total_phases: 6
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 4
+  completed_plans: 4
+  percent: 17
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: 145 — Installer Prompt UX
-Plan: —
-Status: Planning (roadmap defined, plans not yet written)
-Last activity: 2026-04-07 — Roadmap created for v12.3 (phases 145-150)
+Phase: 145 (Installer Prompt UX) — COMPLETE
+Plan: 4 of 4
+Status: Phase 145 complete — ready for Phase 146
+Last activity: 2026-04-07 -- Phase 145 execution started
 
 ---
 
@@ -42,7 +42,7 @@ Last activity: 2026-04-07 — Roadmap created for v12.3 (phases 145-150)
 
 | Phase | Requirements | Description | Status |
 |-------|-------------|-------------|--------|
-| 145 | INSTALL-04 | Installer Prompt UX — TTY guard, numbered selector with descriptions | Not started |
+| 145 | INSTALL-04 | Installer Prompt UX — TTY guard, numbered selector with descriptions | ✅ Done |
 | 146 | INSTALL-01, INSTALL-03 | Installer Reliability — progress steps + idempotent re-run | Not started |
 | 147 | INSTALL-02 | Installer Error Messages — actionable error catalog | Not started |
 | 148 | DOCS-02, DOCS-03 | Documentation Core — cheatsheet (21 cmds) + COMMAND_REFERENCE rewrite | Not started |
