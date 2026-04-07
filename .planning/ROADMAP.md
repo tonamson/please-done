@@ -44,7 +44,7 @@
 - [x] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion (completed 2026-04-07)
 - [x] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools (completed 2026-04-07)
 - [x] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions (completed 2026-04-07)
-- [ ] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution
+- [x] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution (completed 2026-04-07)
 - [ ] **Phase 144: Schema Drift Detection** — Detect and report planning file schema changes
 
 ## Phase Details
@@ -155,7 +155,7 @@
 | 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
 | 141. MCP Tool Discovery | 1/1 | Complete    | 2026-04-07 |
 | 142. Discussion Audit Trail | 2/2 | Complete    | 2026-04-07 |
-| 143. Scope Reduction Detection | 0/1 | Planned    |  |
+| 143. Scope Reduction Detection | 1/1 | Complete    | 2026-04-07 |
 | 144. Schema Drift Detection | 0/1 | Not started | - |
 
 ---
