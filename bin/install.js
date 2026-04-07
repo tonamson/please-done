@@ -23,7 +23,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const readline = require("readline");
 
 const {
   PLATFORMS,
@@ -32,6 +31,7 @@ const {
   getAllRuntimes,
 } = require("./lib/platforms");
 const { log, isWSL } = require("./lib/utils");
+const { promptRuntime, promptLocation } = require("./lib/prompt");
 const {
   saveLocalPatches,
   writeManifest,
@@ -110,58 +110,6 @@ function parseArgs(argv) {
   }
 
   return flags;
-}
-
-// ─── Interactive prompt ───────────────────────────────────
-function createRL() {
-  return readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
-}
-
-async function ask(rl, question) {
-  return new Promise((resolve) => {
-    rl.question(question, (answer) => resolve(answer.trim()));
-  });
-}
-
-async function promptRuntime() {
-  const rl = createRL();
-  const runtimes = getAllRuntimes();
-
-  console.log("");
-  console.log("Choose a platform to install skills:");
-  console.log("");
-  runtimes.forEach((rt, i) => {
-    console.log(`  ${i + 1}. ${PLATFORMS[rt].name}`);
-  });
-  console.log(`  ${runtimes.length + 1}. All`);
-  console.log("");
-
-  const answer = await ask(rl, `Choose (1-${runtimes.length + 1}): `);
-  rl.close();
-
-  const num = parseInt(answer, 10);
-  if (num === runtimes.length + 1) return runtimes;
-  if (num >= 1 && num <= runtimes.length) return [runtimes[num - 1]];
-
-  log.error("Invalid selection.");
-  process.exit(1);
-}
-
-async function promptLocation() {
-  const rl = createRL();
-  console.log("");
-  console.log("Installation scope:");
-  console.log("  1. Global (for all projects)");
-  console.log("  2. Local (current project only)");
-  console.log("");
-
-  const answer = await ask(rl, "Choose (1-2, default: 1): ");
-  rl.close();
-
-  return answer === "2" ? false : true;
 }
 
 // ─── Installed dirs per platform (for manifest tracking) ──
@@ -344,14 +292,12 @@ async function main() {
   let isGlobal = flags.isGlobal;
 
   if (runtimes.length === 0 && !flags.help) {
-    // Interactive mode
-    if (!process.stdin.isTTY) {
-      // Non-interactive: default to claude global
-      runtimes = ["claude"];
-    } else {
-      runtimes = await promptRuntime();
-      isGlobal = await promptLocation();
-    }
+    // Interactive or non-interactive mode — prompt.js handles both
+    runtimes = await promptRuntime();
+    isGlobal = await promptLocation();
+    // D-16: Confirmation line after interactive selection
+    const platformNames = runtimes.map((r) => PLATFORMS[r].name);
+    log.info(`Installing for: ${platformNames.join(", ")}`);
   }
 
   // Execute (deduplicate if user uses --all + --claude simultaneously)
