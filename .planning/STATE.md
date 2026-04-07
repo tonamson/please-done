@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
 status: planning
-last_updated: "2026-04-07T16:15:00.000Z"
+last_updated: "2026-04-07T16:30:00.000Z"
 last_activity: 2026-04-07
 progress:
-  total_phases: 0
+  total_phases: 6
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -18,8 +18,8 @@ progress:
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-04-07)
-See: `.planning/ROADMAP.md` (v12.3 roadmap — being defined)
-See: `.planning/REQUIREMENTS.md` (9 requirements, phases TBD)
+See: `.planning/ROADMAP.md` (v12.3 roadmap — phases 145-150)
+See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -27,35 +27,36 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases TBD)
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 145 — Installer Prompt UX
 Plan: —
-Status: Defining requirements
-Last activity: 2026-04-07 — Milestone v12.3 started
+Status: Planning (roadmap defined, plans not yet written)
+Last activity: 2026-04-07 — Roadmap created for v12.3 (phases 145-150)
 
 ---
 
-## v12.2 Developer Experience Improvements
+## v12.3 Installation & Documentation UX
 
-**Goal:** Enhance workflow tooling with stats, health checks, automation commands, and detection features
+**Goal:** Make it possible for a new user to install and understand pd commands in under 5 minutes.
 
-**Roadmap:** 8 phases (137-144), 8 plans
+**Roadmap:** 6 phases (145-150), plans TBD
 
-| Phase | Requirement | Description | Status |
+| Phase | Requirements | Description | Status |
 |-------|-------------|-------------|--------|
-| 137 | L-02 | Workflow Command Merge (pd:next → what-next) | Complete |
-| 138 | L-03 | Project Statistics Command (pd:stats) | Complete |
-| 139 | L-04 | Planning Health Diagnostics (pd:health) | Not started |
-| 140 | L-01 | Version Badge Automation | Not started |
-| 141 | L-05 | MCP Tool Discovery | Complete |
-| 142 | L-06 | Discussion Audit Trail | Not started |
-| 143 | L-07 | Scope Reduction Detection | Not started |
-| 144 | L-08 | Schema Drift Detection | Not started |
+| 145 | INSTALL-04 | Installer Prompt UX — TTY guard, numbered selector with descriptions | Not started |
+| 146 | INSTALL-01, INSTALL-03 | Installer Reliability — progress steps + idempotent re-run | Not started |
+| 147 | INSTALL-02 | Installer Error Messages — actionable error catalog | Not started |
+| 148 | DOCS-02, DOCS-03 | Documentation Core — cheatsheet (21 cmds) + COMMAND_REFERENCE rewrite | Not started |
+| 149 | DOCS-04, DOCS-05 | Documentation Flow — WORKFLOW_OVERVIEW Mermaid + GETTING_STARTED guide | Not started |
+| 150 | DOCS-01 | README Update — version badge, command counts, new commands | Not started |
 
 **Dependency chain:**
 
-- Phases 137-142: Independent (can run in any order)
-- Phase 143: Depends on Phase 139 (health check patterns)
-- Phase 144: Depends on Phase 139 (health check patterns)
+- Phase 145: Independent (first installer phase)
+- Phase 146: Depends on Phase 145 (prompt.js must exist)
+- Phase 147: Depends on Phase 145 (errors.js plugs into prompt/install flow)
+- Phase 148: Independent (pure documentation)
+- Phase 149: Depends on Phase 148 (GETTING_STARTED links to COMMAND_REFERENCE)
+- Phase 150: Depends on Phase 148 + Phase 149 (README links to all docs)
 
 ---
 
@@ -63,7 +64,8 @@ Last activity: 2026-04-07 — Milestone v12.3 started
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
-| v12.2 | 0/8 | 0/8 | — | Planning |
+| v12.3 | 0/6 | 0/6 | — | 🚧 In Progress |
+| v12.2 | 8 | 8 | 2026-04-07 | ✅ Shipped |
 | v12.1 | 12 | 12 | 2026-04-06 | ✅ Shipped |
 | v12.0 | 13 | 26 | 2026-04-06 | ✅ Shipped |
 | v11.1 | 6 | 6 | 2026-04-04 | ✅ Shipped |
@@ -73,9 +75,13 @@ Last activity: 2026-04-07 — Milestone v12.3 started
 
 ## Decisions Made
 
-- **D-137-01**: 1 requirement per phase for v12.2 — each phase delivers one complete, independently verifiable feature
-- **D-137-02**: Phases 137-142 are independent (no cross-dependencies) — allows flexible execution order
-- **D-137-03**: Phases 143-144 depend on Phase 139 — scope reduction and schema drift reuse health check patterns
+- **D-145-01**: INSTALL-04 is Phase 1 (lowest risk — pure refactor of prompt extraction + TTY guard before any behavioral changes)
+- **D-145-02**: INSTALL-01 + INSTALL-03 share Phase 146 — both touch the outer `install()` function; separating them would require two partial edits to the same function
+- **D-145-03**: INSTALL-02 (errors.js) is Phase 147 — isolated to error paths only, zero risk to happy path; can follow reliability work
+- **D-145-04**: Arrow-key raw mode deferred — numbered-list-with-descriptions satisfies INSTALL-04 with lower regression risk; arrow-key nav is a fast-follow
+- **D-145-05**: DOCS-02 + DOCS-03 share Phase 148 — both are command-listing tasks; cheatsheet provides the authoritative list that COMMAND_REFERENCE expands
+- **D-145-06**: DOCS-04 + DOCS-05 share Phase 149 — GETTING_STARTED must link to COMMAND_REFERENCE (Phase 148 must complete first)
+- **D-145-07**: DOCS-01 (README) is Phase 150 — README links all other docs; must be last so all links resolve
 
 ---
 - [Phase 139]: checkOrphanedDirs returns empty when roadmapPhases empty — cannot determine orphans without roadmap

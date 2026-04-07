@@ -80,12 +80,12 @@
 
 | REQ-ID     | Phase | Status      |
 |------------|-------|-------------|
-| INSTALL-01 | TBD   | Not started |
-| INSTALL-02 | TBD   | Not started |
-| INSTALL-03 | TBD   | Not started |
-| INSTALL-04 | TBD   | Not started |
-| DOCS-01    | TBD   | Not started |
-| DOCS-02    | TBD   | Not started |
-| DOCS-03    | TBD   | Not started |
-| DOCS-04    | TBD   | Not started |
-| DOCS-05    | TBD   | Not started |
+| INSTALL-01 | 146   | Not started |
+| INSTALL-02 | 147   | Not started |
+| INSTALL-03 | 146   | Not started |
+| INSTALL-04 | 145   | Not started |
+| DOCS-01    | 150   | Not started |
+| DOCS-02    | 148   | Not started |
+| DOCS-03    | 148   | Not started |
+| DOCS-04    | 149   | Not started |
+| DOCS-05    | 149   | Not started |
