@@ -32,10 +32,14 @@ Additional flags:
 - `--limit N`: Limit list to N entries (default: 20)
 </context>
 
+<execution_context>
+No external workflow needed — pd:audit executes inline using bin/lib/audit-trail.js.
+</execution_context>
+
 <process>
 1. Load audit-trail functions:
    ```javascript
-   const { parseContextFile, listContexts, filterContexts, formatAuditTable, formatAuditJson } = require('./bin/lib/audit-trail');
+   const { parseContextFile, listContexts, filterContexts, formatAuditTable, formatAuditJson } = require('../../../bin/lib/audit-trail');
    ```
 
 2. Glob `.planning/contexts/*.md` to find all context files

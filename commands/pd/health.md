@@ -44,6 +44,8 @@ No rules or FastCode MCP needed - only read planning files.
      - Read the PLAN.md and SUMMARY.md file contents
      - Build a pair: `{ planContent, summaryContent, label: "Phase {N}" }`
    - Call `checkScopeReductions(pairs)` — returns `scopeIssues` in health-checker issue format
+   - Compute `planReqCount` = total count of requirements across all plans (sum of `plan.requirements.length` per parsed pair)
+   - Compute `summaryReqCount` = total count of mentioned req IDs across all summaries (sum of `summary.mentionedReqs.length` per parsed pair)
    - Keep `scopeIssues` **separate** from the health issues list — do NOT merge them
 8. **Schema drift check** (load `detectSchemaDrift` and `formatDriftReport` from `bin/lib/drift-detector.js`):
    - Call `detectSchemaDrift(stateContent)` → `driftIssues`
@@ -51,7 +53,7 @@ No rules or FastCode MCP needed - only read planning files.
 9. If `--json` flag present: output `JSON.stringify({ healthIssues: issues, scopeIssues, driftIssues }, null, 2)` via `log.info()`
 10. Otherwise:
    - Call `formatHealthReport(issues)` and output via `log.info()`
-   - Call `formatScopeReport(scopeIssues)` and output via `log.info()`
+   - Call `formatScopeReport(scopeIssues, { planReqCount, summaryReqCount })` and output via `log.info()`
    - Call `formatDriftReport(driftIssues)` and output via `log.info()`
 </process>
 
@@ -63,7 +65,7 @@ No rules or FastCode MCP needed - only read planning files.
 
 **Success when:**
 
-- Health report is displayed with all 4 check categories (missing files, state schema, orphaned dirs, scope reductions, schema drift)
+- Health report is displayed with all 5 check categories (missing files, state schema, orphaned dirs, scope reductions, schema drift)
 - Zero files were written or modified
 
 **Common errors:**
