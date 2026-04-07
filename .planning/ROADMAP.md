@@ -41,7 +41,7 @@
 - [x] **Phase 137: Workflow Command Merge** — Merge pd:next into pd:what-next with auto-execute (completed 2026-04-06)
 - [x] **Phase 138: Project Statistics Command** — pd:stats for phase/plan/requirement metrics (completed 2026-04-06)
 - [x] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis (completed 2026-04-06)
-- [ ] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion
+- [x] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion (completed 2026-04-07)
 - [ ] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools
 - [ ] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions
 - [ ] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution
@@ -95,7 +95,7 @@
   3. Version mismatches are detected and reported with specific file locations and expected vs actual values
   4. Sync triggers on milestone completion to update all version references
 **Plans**: 1 plan
-- [ ] 140-01-PLAN.md — TDD library + skill file + complete-milestone integration for version sync
+- [x] 140-01-PLAN.md — TDD library + skill file + complete-milestone integration for version sync
 
 ### Phase 141: MCP Tool Discovery
 **Goal**: Users can see which MCP tools are available, configured, and functional in their environment
@@ -150,7 +150,7 @@
 | 137. Workflow Command Merge | 1/1 | Complete    | 2026-04-06 |
 | 138. Project Statistics Command | 1/1 | Complete    | 2026-04-06 |
 | 139. Planning Health Diagnostics | 1/1 | Complete    | 2026-04-06 |
-| 140. Version Badge Automation | 0/1 | Not started | - |
+| 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
 | 141. MCP Tool Discovery | 0/1 | Not started | - |
 | 142. Discussion Audit Trail | 0/1 | Not started | - |
 | 143. Scope Reduction Detection | 0/1 | Not started | - |
