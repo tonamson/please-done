@@ -43,7 +43,7 @@
 - [x] **Phase 139: Planning Health Diagnostics** — pd:health for directory issue diagnosis (completed 2026-04-06)
 - [x] **Phase 140: Version Badge Automation** — Sync version across docs on milestone completion (completed 2026-04-07)
 - [x] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools (completed 2026-04-07)
-- [ ] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions
+- [x] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions (completed 2026-04-07)
 - [ ] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution
 - [ ] **Phase 144: Schema Drift Detection** — Detect and report planning file schema changes
 
@@ -119,7 +119,7 @@
   3. Past discussions are searchable by keyword or date range
   4. Session history tracks key decisions and outcomes across multiple conversation instances
 **Plans**: 1 plan
-- [ ] 142-01-PLAN.md — TDD library + pd:audit skill file for context parsing and search
+- [x] 142-01-PLAN.md — TDD library + pd:audit skill file for context parsing and search
 
 ### Phase 143: Scope Reduction Detection
 **Goal**: Users are proactively warned when plan scope shrinks unexpectedly during execution, preventing silent requirement loss
@@ -154,7 +154,7 @@
 | 139. Planning Health Diagnostics | 1/1 | Complete    | 2026-04-06 |
 | 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
 | 141. MCP Tool Discovery | 1/1 | Complete    | 2026-04-07 |
-| 142. Discussion Audit Trail | 0/1 | Planned    |  |
+| 142. Discussion Audit Trail | 2/2 | Complete    | 2026-04-07 |
 | 143. Scope Reduction Detection | 0/1 | Not started | - |
 | 144. Schema Drift Detection | 0/1 | Not started | - |
 
