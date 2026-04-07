@@ -1,170 +1,107 @@
 ---
 name: pd:audit
-description: OWASP/PTES security audit - dispatch 13 scanners in parallel and consolidate the report
-model: opus
-argument-hint: "[path] [--full|--only cat1,cat2|--recon|--recon-light|--recon-full|--osint|--osint-full|--osint-output json|table|markdown|--osint-timeout seconds|--poc|--redteam|--auto-fix]"
+description: View and search discussion context audit trail — list, filter, and view stored discussion summaries
+model: haiku
+argument-hint: "[--phase N] [--search keyword] [--from DATE] [--to DATE] [--view N] [--json] [--limit N]"
 allowed-tools:
   - Read
-  - Write
-  - Edit
-  - Bash
   - Glob
-  - Grep
-  - mcp__fastcode__code_qa
-  - SubAgent
+  - Bash
 ---
 
 <objective>
-Run a comprehensive security audit based on the OWASP Top 10 with optional PTES reconnaissance and OSINT intelligence. Dispatch 13 scanners in parallel (2 per wave), consolidate the report, and perform cross-analysis.
-
-**OSINT Modes:**
-- `--osint`: Quick OSINT scan (Google Dorks + Certificate Transparency logs)
-- `--osint-full`: Comprehensive OSINT (all sources + secret detection)
-- `--osint-output`: Output format (json, table, markdown)
-- `--osint-timeout`: Timeout per source in seconds (default: 300)
+List, search, and view discussion context summaries stored in `.planning/contexts/`. READ ONLY. DO NOT edit files.
 </objective>
 
 <guards>
-Automatically detect the operating mode BEFORE running guards:
+Stop and instruct the user if any of the following conditions fail:
 
-1. Check whether `.planning/PROJECT.md` exists (use Bash: `test -f .planning/PROJECT.md`)
-2. Exists -> mode = "integrated": run all 3 guards below
-3. Missing -> mode = "standalone": skip guard-context and run only the remaining 2 guards (guard-valid-path, guard-fastcode)
-
-Stop and instruct the user if any guard fails:
-
-@references/guard-context.md (integrated mode only)
-@references/guard-valid-path.md
-@references/guard-fastcode.md
+- [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `/pd:init` first."
 </guards>
 
 <context>
 User input: $ARGUMENTS
+
+Per D-07 three modes:
+- No arguments: List recent sessions (most recent first) with phase, date, decision count
+- `--search "keyword"` or `--phase N` or `--from DATE` or `--to DATE`: Filter/search contexts
+- `--view N`: Display full summary for phase N
+
+Additional flags:
+- `--json`: Output as machine-readable JSON
+- `--limit N`: Limit list to N entries (default: 20)
 </context>
 
-<execution_context>
-@workflows/audit.md (required)
-</execution_context>
-
 <process>
-Execute @workflows/audit.md from start to finish. Pass $ARGUMENTS to the workflow.
+1. Load audit-trail functions:
+   ```javascript
+   const { parseContextFile, listContexts, filterContexts, formatAuditTable, formatAuditJson } = require('./bin/lib/audit-trail');
+   ```
+
+2. Glob `.planning/contexts/*.md` to find all context files
+
+3. If no context files found: output "No discussion contexts found. Run /gsd-discuss-phase to create one."
+
+4. For each context file: Read content using the Read tool
+
+5. Build contextFiles array: `[{ filename: basename, content }, ...]`
+
+6. Call `listContexts(contextFiles)` to get parsed and sorted contexts
+
+7. Parse flags from $ARGUMENTS:
+   - `--phase N`: Filter by phase number
+   - `--search "keyword"`: Filter by keyword substring in decisions
+   - `--from DATE`: Filter contexts on or after DATE (ISO format YYYY-MM-DD)
+   - `--to DATE`: Filter contexts on or before DATE (ISO format YYYY-MM-DD)
+   - `--view N`: View mode — display full context for phase N
+   - `--json`: JSON output mode
+   - `--limit N`: Limit list entries (default: 20)
+
+8. If `--view N` flag present:
+   - Find context where phase === N (parse N as integer)
+   - If not found: output "No context found for phase N"
+   - If found: display full content (frontmatter + decisions + next_step)
+
+9. Otherwise (list/filter mode):
+   - Build filters object from parsed flags: `{ keyword, phase, from, to }`
+   - Apply filters: `const filtered = filterContexts(contexts, filters)`
+   - Apply limit: `filtered.slice(0, limit)`
+   - If `--json`: call `formatAuditJson(limited)` and output
+   - Otherwise: call `formatAuditTable(limited)` and output
+   - Show count: `Showing N of M contexts`
+
+10. Output result
 </process>
 
 <output>
-**Create:**
-- SECURITY_REPORT.md (location depends on mode: standalone -> `./`, integrated -> `.planning/audit/`)
-- Evidence files in a temp directory
-- When PTES/recon flags are used: reconnaissance data may be cached under `.planning/recon-cache/`
-- When OSINT flags are used: OSINT results cached for 24h under `osint:{domain}:{scope}` key
-- Token budget line: `[Token Budget] Used: X/Y (Z%)` when a PTES tier applies
+**Create/Update:**
+- No files are created or modified, read-only only
 
-**Next step:** Read SECURITY_REPORT.md to review the results
+**Next step:** None — pd:audit shows context history only
 
 **Success when:**
-- All scanners were dispatched and returned a result (or inconclusive)
-- SECURITY_REPORT.md was created in the correct location
+- Context list shows phases with date and decision count
+- Filters narrow results correctly
+- View mode displays full context summary
+- Zero files were written or modified
 
 **Common errors:**
-- FastCode MCP is not connected -> check that Docker is running
-- SubAgent is unavailable -> check tool configuration for SubAgent access
+- `.planning/` does not exist → run `/pd:init`
+- `.planning/contexts/` is empty → run `/gsd-discuss-phase` to create a context
 </output>
 
 <rules>
-- All output MUST be in English.
-- DO NOT modify project code - only scan and report.
-- When `--poc` is passed: pass the `--poc` flag to the scanner in the Step 6 dispatch prompt.
-- When `--auto-fix` is passed: report "Not supported in this version yet" and continue.
-- When `--recon` is passed: enable reconnaissance phase (Step 0) before SAST.
-- When `--recon-light` is passed: enable code-only reconnaissance (0 tokens).
-- When `--recon-full` is passed: enable deep reconnaissance with taint analysis.
-- When `--redteam` is passed: enable Red Team TTPs (recon + SAST + DAST + evasion).
-- When multiple recon flags are passed: highest tier wins (`--redteam` > `--recon-full` > `--recon` > `--recon-light`).
-- When `--osint` is passed: enable quick OSINT scan (Google Dorks + CT logs).
-- When `--osint-full` is passed: enable comprehensive OSINT (all sources + secret detection).
-- When `--osint-output` is passed: use specified format (json, table, markdown). Default: table.
-- When `--osint-timeout` is passed: set timeout per source in seconds. Default: 300.
-- When OSINT and recon flags are both passed: run OSINT first, then reconnaissance.
-- OSINT results respect tier system: `--osint-full` available for DEEP and RED TEAM tiers.
+- All output MUST be in English
+- READ ONLY. DO NOT edit any files
+- DO NOT call FastCode MCP or Context7 MCP
+- Load functions from `bin/lib/audit-trail.js` using require()
 </rules>
 
-<!-- OSINT Documentation Section -->
-
-## OSINT Intelligence Gathering
-
-### Overview
-
-OSINT (Open Source Intelligence) gathering performs reconnaissance on external-facing infrastructure:
-
-1. **Google Dorks**: Generate targeted search queries to discover sensitive information
-2. **Certificate Transparency Logs**: Discover subdomains via CT log providers (crt.sh, Censys, CertSpotter)
-3. **Secret Detection**: Scan for exposed API keys, tokens, and credentials (full mode only)
-4. **Subdomain Aggregation**: Correlate findings across multiple sources
-
-### Tiered Command System
-
-| Tier | Flags Available | Description |
-|------|-----------------|-------------|
-| FREE | `--osint` | Basic dorks + CT logs |
-| STANDARD | `--osint` | Basic dorks + CT logs |
-| DEEP | `--osint`, `--osint-full` | Full OSINT with secret detection |
-| RED TEAM | `--osint`, `--osint-full` | Extended OSINT with longer timeouts |
-
-### Command Examples
-
-```bash
-# Quick OSINT scan
-pd:audit example.com --osint
-
-# Full OSINT with JSON output
-pd:audit example.com --osint-full --osint-output json
-
-# OSINT with custom timeout (10 minutes)
-pd:audit example.com --osint-full --osint-timeout 600
-
-# Combined recon + OSINT
-pd:audit example.com --recon --osint
-
-# Red Team mode (includes full OSINT)
-pd:audit example.com --redteam
-```
-
-### Cache Behavior
-
-- OSINT results are cached for 24 hours
-- Cache key: `osint:{domain}:{scope}` (quick or full)
-- Use `--fresh` to bypass cache
-- Cache location: `.planning/recon-cache/`
-
-### Success Criteria
-
-OSINT operations are successful when:
-- At least 3 Google Dorks are generated
-- Subdomains are discovered via CT logs (if available)
-- Results are properly aggregated and deduplicated
-- Rate limits are respected across all sources
-- Report is generated in requested format
-
-### Risk Scoring
-
-| Risk Level | Criteria | Example |
-|------------|----------|---------|
-| Critical | Live credentials | AWS keys, private keys |
-| High | Exposed services | Admin panels, API endpoints |
-| Medium | Information disclosure | Directory listings, config files |
-| Low | Generic patterns | Error messages, version info |
-| Info | Reconnaissance data | Subdomain lists |
-
 <script type="error-handler">
-const { createAuditErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-
-// Create error handler for audit skill
-const errorHandler = createAuditErrorHandler('$CURRENT_PHASE', {
-  auditType: 'security',
-  scannersUsed: [],
-  findingsCount: 0,
-  sessionDelta: null
+const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
+const errorHandler = createBasicErrorHandler('pd:audit', '$CURRENT_PHASE', {
+  operation: 'audit'
 });
 
-// Export for skill executor
 module.exports = { errorHandler };
 </script>
