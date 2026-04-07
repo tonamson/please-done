@@ -1,439 +1,372 @@
-# Architecture Research — v8.0
+# Architecture Research: Installer UX (v12.3)
 
-**Researched:** 2026-04-02
-**Milestone:** v8.0 Developer Experience & Quality Hardening
-**Confidence:** HIGH (based on direct inspection of source code, workflows, and existing lib modules)
-
----
-
-## pd:replay Architecture
-
-### What needs to be checkpointed
-
-A phase execution in please-done flows through these state-bearing artifacts:
-
-| Artifact | Path | Relevance to Replay |
-|----------|------|---------------------|
-| Task status | `.planning/milestones/[v]/phase-[n]/TASKS.md` | Which tasks are checkmark/rotate/square/x |
-| Progress record | `.planning/milestones/[v]/phase-[n]/PROGRESS.md` | What sub-steps completed within a task |
-| Plan | `.planning/milestones/[v]/phase-[n]/PLAN.md` | Technical design to replay against |
-| STATE.md | `.planning/STATE.md` | Current phase/plan cursor |
-| Git state | `git log --oneline -5` | What was committed before interruption |
-| Agent evidence | `.planning/debug/[session]/evidence_*.md` | Captured intermediate reasoning |
-
-### Recommended checkpoint schema
-
-Store in `.planning/checkpoints/[version]-phase-[n]-[timestamp].json`:
-
-```json
-{
-  "schema_version": 1,
-  "captured_at": "ISO-8601",
-  "phase": {
-    "version": "v8.0",
-    "number": 76,
-    "name": "Structured Logging Foundation"
-  },
-  "task_cursor": {
-    "task_id": "TASK-03",
-    "status_at_checkpoint": "in-progress",
-    "progress_stage": "lint"
-  },
-  "files_written": [
-    "bin/lib/log-writer.js",
-    ".planning/phases/76-structured-logging/TASKS.md"
-  ],
-  "git_sha_before": "abc1234",
-  "git_sha_after": null,
-  "partial_output": "optional: last 2000 chars of agent output for context injection",
-  "interruption_reason": "timeout|error|manual|unknown"
-}
-```
-
-**Why JSON not Markdown:** Checkpoints are machine-read by `pd:replay` to reconstruct context. JSON is unambiguous and maps directly to the data model. Markdown is for humans. Checkpoints are tools.
-
-### Storage location
-
-`.planning/checkpoints/` — one file per interrupted phase. Name pattern:
-`{version}-phase-{n}-{yyyymmddThhmmss}.json`
-
-Keep last 5 checkpoints per phase (rotate on 6th). Each file is ~3-5 KB.
-
-### Replay trigger and flow
-
-`pd:replay [phase-number]` skill:
-
-1. Glob `.planning/checkpoints/{current-version}-phase-{n}-*.json` → sort by `captured_at` desc → take first
-2. Load TASKS.md, find task at `task_cursor.task_id`
-3. If `git_sha_before` != `HEAD` → warn: "Git state has changed since checkpoint. Review diffs before proceeding."
-4. Inject `partial_output` into agent context as `<replay-context>` block
-5. Resume at `progress_stage` within that task (hook into existing PROGRESS.md recovery logic in `write-code.md` Step 1.1)
-6. On completion → delete checkpoint file
-
-### Key insight: PROGRESS.md recovery already exists
-
-`write-code.md` Step 1.1 already has a Case 1 (task rotate + PROGRESS.md exists → resume). `pd:replay` is primarily:
-- A **discovery layer** (find the right checkpoint)
-- A **context injection layer** (reconstruct what the agent was doing)
-- A **redirect** to the existing PROGRESS.md recovery path
-
-This means the replay skill is **medium effort**, not large — the recovery logic already exists.
-
-### Checkpoint write points
-
-Write checkpoint when:
-- Agent output contains `ERROR:` or `FAILED:` patterns
-- `pd:write-code` session exceeds maxTurns limit
-- User manually triggers via `pd:write-code --checkpoint`
-- Any uncaught exception in a spawned sub-agent
+**Researched:** 2026-04-07
+**Milestone:** v12.3 — Installation & Documentation UX
+**Confidence:** HIGH — based on direct source inspection of all five files listed in milestone context
 
 ---
 
-## pd:diff-milestone Architecture
+## Integration Points
 
-### Source material
+### Files to Modify
 
-Milestone archives are in `.planning/milestones/`:
+| File | What Changes | Why |
+|------|-------------|-----|
+| `bin/install.js` | (1) Remove inline prompt functions; (2) Add idempotency banner; (3) Update `main().catch()` handler | Prompt extraction reduces file to pure orchestration; catch handler gains actionable hints |
+| `bin/lib/platforms.js` | Add `description` field to each entry in `PLATFORMS` map | Needed by the enhanced selector to show one-line platform description per INSTALL-04 |
+| `bin/lib/manifest.js` | Add `checkExistingInstall(configDir, currentVersion)` helper | Exposes version-comparison logic cleanly without duplicating manifest reads |
 
-```
-v6.0-REQUIREMENTS.md      <- planned requirements
-v6.0-ROADMAP.md           <- planned phases
-v6.0-MILESTONE-AUDIT.md   <- retrospective/actual outcome
-v6.0-phases/              <- per-phase: PLAN.md, TASKS.md, phase reports
-```
+### Functions to Touch in `bin/install.js`
 
-### What to diff
+| Function | Lines | Change Type | Notes |
+|----------|-------|-------------|-------|
+| `promptRuntime()` | 129–151 | **Remove** → extract to `bin/lib/prompt.js` | Logic moves intact; install.js just requires it |
+| `promptLocation()` | 153–165 | **Remove** → extract to `bin/lib/prompt.js` | Same — pure extraction |
+| `install()` | 190–251 | **Additive** — prepend idempotency check; optional step-label calls | No existing lines deleted; only additions |
+| `main().catch()` | 406–409 | **Replace** — swap `log.error(err.message)` with `formatError(err)` | One-line change; `formatError` from new errors module |
 
-Three dimensions with distinct value:
+### Critical Observation: `log.step()` Already Exists
 
-| Dimension | Source Files | What It Reveals |
-|-----------|-------------|-----------------|
-| Requirements drift | `v{a}-REQUIREMENTS.md` vs `v{b}-REQUIREMENTS.md` | What was added/removed/rephrased between milestones |
-| Scope execution | `v{n}-ROADMAP.md` planned phases vs `v{n}-phases/*/TASKS.md` actual | Did planned phases map to actual work? |
-| Cross-milestone evolution | `v{a}-ROADMAP.md` vs `v{b}-ROADMAP.md` | How project direction shifted over time |
-
-**Priority order for MVP:** Requirements diff first (most valuable), then roadmap diff. Phase-level task diff is stretch.
-
-### Diff approach
-
-Do NOT use `git diff` — milestone files are tracked in git but the diff format is meaningless for users. Instead: **semantic diff** that understands the document structure.
-
-For REQUIREMENTS.md (checklist format):
-```
-ADDED:   [ ] LOG-01: Agent errors logged as structured JSON
-REMOVED: [ ] GUARD-03: FastCode soft warning
-CHANGED: [ ] RECOV-01 → "recovery" scope narrowed from session to task level
-STABLE:  [ ] TEST-01, TEST-02, TEST-03 (unchanged)
-```
-
-For ROADMAP.md (phase list format):
-```
-PHASES ADDED:   Phase 75 (Nyquist Validation) — new in v7.0
-PHASES REMOVED: Phase 53 (removed after v5.1)
-PHASES RENAMED: Phase 08 "Wave Execution" → Phase 08 "Parallel Dispatch"
-```
-
-### Output format
-
-Write to `.planning/milestones/diff-{v1}-vs-{v2}-{timestamp}.md`:
-
-```markdown
-# Milestone Diff: v6.0 → v7.0
-
-**Generated:** 2026-04-02T12:00:00Z
-**Compared:** v6.0-REQUIREMENTS.md vs v7.0-REQUIREMENTS.md, v6.0-ROADMAP.md vs v7.0-ROADMAP.md
-
-## Requirements Changes
-
-### Added (3)
-- [ ] TEST-01: Standalone test without milestone
-- [ ] GUARD-02: Standalone bypasses task guards
-- [ ] RECOV-01: Detect interrupted standalone sessions
-
-### Removed (0)
-
-### Modified (1)
-- GUARD-03: Scope changed from "hard block" to "soft warning with fallback"
-
-### Stable (12)
-ONBOARD-01, REPLAY-01, DIFF-01 (not listed for brevity)
-
-## Roadmap Changes
-
-### Phases Added (5)
-- Phase 71: Core Standalone Flow
-- Phase 72: System Integration Sync
-
-### Phase Count: v6.0 had 6 phases → v7.0 has 5 phases
-```
-
-### Implementation approach
-
-The diff is **pure markdown parsing** — no external diff library needed. The existing `parseFrontmatter` and line-parsing patterns in `bin/lib/utils.js` provide the foundation. The skill agent reads both files, parses checklist items by ID, and categorizes changes.
-
-**Effort: Medium** — parsing logic is straightforward but output formatting needs care.
+`bin/lib/utils.js` already exports `log.step(num, total, msg)` (line 31–32). It is already consumed by individual platform installers (e.g., `bin/lib/installers/claude.js` declares `TOTAL_STEPS = 6` and calls `log.step()` for each sub-step). The outer `install()` function in `bin/install.js` does NOT use it — it calls raw `log.info()`. **No new step infrastructure is needed.** INSTALL-01 is a matter of calling the already-present `log.step()` at the right points inside `install()`.
 
 ---
 
-## Config Hot-Reload Architecture
+## New Components
 
-### Current config.json usage
+### `bin/lib/prompt.js` — Extracted + Enhanced Interactive Selector
 
-After full source inspection, `.planning/config.json` is read in **exactly one place** in the JS layer:
+**New file.** Extracts `promptRuntime()` and `promptLocation()` from `install.js` and enhances them.
 
-- **`bin/plan-check.js`** (line ~70): Reads `config?.checks?.research_backing?.severity` and `config?.checks?.hedging_language?.severity` for CHECK-06 and CHECK-07 severity overrides
-
-In the skill/workflow markdown layer: `.planning/config.json` fields (`mode`, `granularity`, `parallelization`, `model_profile`, `workflow.*`) are referenced by AI agents at **workflow step execution time** — they read the file via `Read` tool when following the workflow steps. This means:
-
-**The hot-reload problem is primarily an AI-agent concern, not a Node.js concern.**
-
-### Reload strategy: re-read per step
-
-The minimal and correct approach is a **workflow-level instruction** to re-read config at each decision point:
-
-```markdown
-## Config Reading Rule
-At each step that branches on config (parallel mode, model selection, verifier toggle):
-1. Read `.planning/config.json` fresh — do NOT cache from workflow start
-2. If file missing → use defaults: mode=yolo, granularity=fine, parallelization=true
-3. If parse error → warn and use defaults
+**Exports:**
+```js
+module.exports = { promptRuntime, promptLocation };
 ```
 
-This is a **markdown workflow change only** — zero Node.js code required.
+**`promptRuntime()` enhancement for INSTALL-04:**
 
-### For plan-check.js (Node.js layer)
+The current implementation (install.js lines 129–151) shows only platform names. The enhanced version adds descriptions sourced from `PLATFORMS[rt].description` (new field added to platforms.js):
 
-`plan-check.js` already reads config.json synchronously at execution start. Since it is invoked as a subprocess per plan-check run (not a long-running server), it naturally re-reads each invocation. **No change needed here.**
+```
+Choose a platform to install skills:
 
-### Affected workflows
+  1. Claude Code       — Anthropic's terminal AI coding agent
+  2. Codex CLI         — OpenAI's CLI coding agent
+  3. Gemini CLI        — Google's terminal AI coding agent
+  4. OpenCode          — Open-source multi-model coding agent
+  5. GitHub Copilot    — VS Code / JetBrains AI pair programmer
+  6. All platforms
 
-Workflows that branch on config fields:
+Choose (1-6):
+```
 
-| Workflow | Config Fields Used | Current Behavior |
-|----------|--------------------|-----------------|
-| `write-code.md` | `parallelization`, `model_profile` | Reads once at start (implicit) |
-| `fix-bug.md` | `workflow.verifier`, `parallelization` | Reads once at start |
-| `plan.md` | `workflow.plan_check`, `workflow.research` | Reads once at start |
-| `new-milestone.md` | `workflow.research` | Reads once at start |
-| `write-code.md --parallel` | `parallelization` | Reads once at wave dispatch |
+**Arrow-key support decision:** Implementing true arrow-key navigation requires `process.stdin.setRawMode(true)` and manual keypress handling. This has non-trivial edge cases (SIGINT, Windows, non-TTY, piped input). Given the zero-external-deps constraint and the requirement that "numbered choice fallback for non-TTY" must also work, the recommendation is:
 
-### Implementation cost: SMALL
+> **Do NOT implement arrow keys in Phase 1.** The numbered selector WITH descriptions satisfies INSTALL-04 at minimal risk. Arrow-key navigation should be an optional Phase 2 enhancement only if user feedback demands it.
 
-This is a workflow prose change — add a "re-read config before each decision" instruction to the 4-5 affected workflows. No new JS modules, no file watchers, no event system.
+The non-TTY fallback already exists (install.js lines 348–350: `if (!process.stdin.isTTY)` defaults to `["claude"]`). Keep that path unchanged.
 
-A file watcher (e.g., `fs.watch`) would be **overengineered** — the AI agent reading the file fresh is free, has no latency cost, and does not require a persistent Node.js process.
+**`promptLocation()` enhancement:** Add scope explanations inline:
+
+```
+Installation scope:
+  1. Global (for all projects — installs to ~/.claude)
+  2. Local  (this project only — installs to ./.claude)
+
+Choose (1-2, default: 1):
+```
 
 ---
 
-## Structured Logging Architecture
+### `bin/lib/errors.js` — Error Catalog
 
-### Storage location
+**New file.** Provides structured error formatting for INSTALL-02.
 
-`.planning/logs/` — one log file per workflow session:
+```js
+'use strict';
 
-```
-.planning/logs/
-  agents-2026-04-02T120000Z.jsonl   <- append-only JSONL
-  agents-2026-04-01T093000Z.jsonl
-  agents-2026-03-31T150000Z.jsonl
-```
+// Error categories with fix hints
+const ERROR_HINTS = {
+  MODULE_NOT_FOUND: 'Installer module missing. Re-download the package: npm install -g please-done',
+  EACCES:           'Permission denied. Try: sudo npx please-done, or install locally with --local',
+  ENOENT:           'File or directory not found. Check --config-dir path is correct.',
+  ENOTDIR:          'Expected a directory but found a file. Check config dir path.',
+  PYTHON_VERSION:   'Python 3.12+ required. Upgrade: https://python.org/downloads',
+  CLAUDE_MISSING:   'Claude Code CLI not installed. Install: https://claude.ai/download',
+  DEFAULT:          'Run with PD_DEBUG=1 for full stack trace.'
+};
 
-**Format: JSONL (JSON Lines)** — one JSON object per line. Append-only. Easy to `grep`, `jq`, stream parse, and tail. Avoids JSON array corruption on crash.
-
-### Log entry schema
-
-```json
-{
-  "timestamp": "2026-04-02T12:34:56.789Z",
-  "session_id": "S007-fix-login-crash",
-  "phase": "76",
-  "phase_name": "Structured Logging Foundation",
-  "step": "3",
-  "agent": "pd-code-detective",
-  "tier": "builder",
-  "event": "error",
-  "severity": "warn",
-  "tool_called": "mcp__fastcode__code_qa",
-  "tool_input_summary": "repos=[/abs/path], query=find auth middleware",
-  "error_code": "MCP_TIMEOUT",
-  "error_message": "FastCode MCP did not respond within 30s",
-  "recovery_action": "fallback_to_grep",
-  "context": {
-    "task_id": "TASK-02",
-    "workflow": "fix-bug",
-    "interruption_round": 1
+class InstallError extends Error {
+  constructor(message, code, hint) {
+    super(message);
+    this.name  = 'InstallError';
+    this.code  = code;
+    this.hint  = hint;
   }
 }
+
+function formatError(err) {
+  const hint = err.hint
+    || ERROR_HINTS[err.code]
+    || (Object.keys(ERROR_HINTS).find(k => err.message.includes(k)) && ERROR_HINTS[err.message.match(new RegExp(k))[0]])
+    || ERROR_HINTS.DEFAULT;
+
+  const { log } = require('./utils');
+  log.error(err.message);
+  if (hint) log.warn(`Fix: ${hint}`);
+}
+
+module.exports = { InstallError, formatError, ERROR_HINTS };
 ```
 
-**Fields:**
+**Integration in `main().catch()`** (single-line change):
+```js
+// Before:
+main().catch((err) => {
+  log.error(err.message);
+  if (process.env.PD_DEBUG) console.error(err.stack);
+  process.exit(1);
+});
 
-| Field | Required | Notes |
-|-------|----------|-------|
-| `timestamp` | YES | ISO-8601 with ms |
-| `session_id` | YES | Debug session folder name or "none" |
-| `phase` | YES | Phase number or "standalone" |
-| `step` | YES | Step number within workflow |
-| `agent` | YES | Agent name or "orchestrator" |
-| `tier` | optional | scout/builder/architect (if known) |
-| `event` | YES | `error`, `warn`, `recovery`, `checkpoint` |
-| `severity` | YES | `debug`, `info`, `warn`, `error`, `fatal` |
-| `tool_called` | optional | Which tool triggered the error |
-| `tool_input_summary` | optional | Truncated to 200 chars — never full content |
-| `error_code` | optional | Machine-readable: `MCP_TIMEOUT`, `LINT_FAIL_3`, etc. |
-| `error_message` | optional | Human-readable, max 500 chars |
-| `recovery_action` | optional | What the agent did after the error |
-| `context` | optional | Catch-all for additional structured data |
+// After:
+main().catch((err) => {
+  const { formatError } = require('./lib/errors');
+  formatError(err);
+  if (process.env.PD_DEBUG) console.error(err.stack);
+  process.exit(1);
+});
+```
 
-### Integration points
-
-**In JS modules** (`bin/lib/` pure functions): These are pure functions with no I/O. They do NOT write logs. Instead:
-
-- Add a `lib/log-schema.js` module: pure functions for `createLogEntry(fields)` and `validateLogEntry(entry)` — validation only, no writes
-- Add a `bin/log-writer.js` script: thin I/O wrapper, called as a subprocess
-
-**In skill workflows** (markdown): Add a "Log errors" step at each error branch.
-
-**In fix-bug.md**: Already has degradation/error paths → add log write at each STOP or degradation branch.
-
-**In write-code.md**: Lint failure (3-strike LINT-01) → log `{ event: "error", error_code: "LINT_FAIL_3" }`.
-
-### Log rotation
-
-Keep last 10 log files. Add to `pd:init`: `ls -t .planning/logs/*.jsonl | tail -n +11 | xargs rm -f`
-
-### Integration with existing audit-logger.js
-
-`bin/lib/audit-logger.js` handles research audit logs (AUDIT_LOG.md markdown format) — entirely separate concern. Do NOT merge. The new structured log is for agent errors and system events, not research provenance.
+No changes to any error *throw* sites — installers throw plain `Error` objects. `formatError` pattern-matches on `err.code` and `err.message` to select the right hint. This is backward-compatible with all existing throws.
 
 ---
 
-## Staleness Detection Architecture
+## Idempotency Design
 
-### Problem definition
+### Existing Infrastructure (Do Not Duplicate)
 
-`.planning/codebase/STRUCTURE.md` (and siblings) is generated once by `pd-codebase-mapper` at init time. When source files change, the map becomes stale. Currently there is no detection — the agent relies on a human to re-run `pd:init` or `pd:scan`.
+`bin/lib/manifest.js` already has everything needed:
+- `readManifest(configDir)` → returns `{ version, timestamp, fileCount, files }` or `null`
+- `detectChanges(configDir)` → returns array of `{ relPath, status }` for modified/deleted files
+- `saveLocalPatches(configDir)` → already called at the start of `install()` (line 203)
 
-### Detection signals (ranked by reliability)
+### What to Add: `checkExistingInstall(configDir, currentVersion)`
 
-**Signal 1: File-tree hash (RECOMMENDED)**
+Add to `manifest.js`:
 
-Hash the set of all source file paths (not contents) in the project:
+```js
+/**
+ * Check installation state before re-installing.
+ * Returns { state, prevVersion } where state is:
+ *   'fresh'   — no manifest, first install
+ *   'current' — manifest exists, same version, no changes
+ *   'upgrade' — manifest exists, different version
+ *   'dirty'   — manifest exists, same version, files were modified by user
+ */
+function checkExistingInstall(configDir, currentVersion) {
+  const manifest = readManifest(configDir);
+  if (!manifest) return { state: 'fresh', prevVersion: null };
 
-```bash
-find . -type f \( -name "*.ts" -o -name "*.js" -o -name "*.py" \) \
-  -not -path "*/node_modules/*" -not -path "*/.planning/*" -not -path "*/.git/*" \
-  | sort | sha256sum
-```
+  const changes = detectChanges(configDir);
+  const modified = changes.filter(c => c.status === 'modified');
 
-Store this hash in `.planning/codebase/META.json`:
-```json
-{
-  "mapped_at": "2026-04-02T10:00:00Z",
-  "tree_hash": "abc123...",
-  "file_count": 47,
-  "schema_version": 1
+  if (manifest.version !== currentVersion) {
+    return { state: 'upgrade', prevVersion: manifest.version };
+  }
+  if (modified.length > 0) {
+    return { state: 'dirty', prevVersion: manifest.version, modifiedCount: modified.length };
+  }
+  return { state: 'current', prevVersion: manifest.version };
 }
 ```
 
-On each `pd:write-code` or `pd:plan` start, recompute hash. If it differs → stale.
+### Usage in `install()` — Additive Prepend
 
-**Signal 2: New/deleted files since `mapped_at`** (simpler, less precise)
+At the top of `install()` (before `saveLocalPatches`), add:
 
-Use `git diff --name-only --diff-filter=AD` to count file additions/deletions since map date.
+```js
+const { state, prevVersion } = checkExistingInstall(targetDir, VERSION);
 
-**Signal 3: mtime of STRUCTURE.md vs newest source file** (cheapest, least reliable)
-
-Count files newer than `.planning/codebase/STRUCTURE.md`.
-
-### Recommended approach: META.json + tree hash
-
-- **On map creation** (end of `pd-codebase-mapper` agent): write `.planning/codebase/META.json` with `tree_hash` and `mapped_at`
-- **On each workflow start** (pd:plan, pd:write-code, pd:scan): re-hash, compare to `META.json`
-- **Threshold:** If hash differs → stale. Binary decision — no "slightly stale" grey zone.
-- **Action:** "Codebase map may be outdated. Run `/pd:init` to refresh, or continue with current map."
-- **Non-blocking:** Always a warning, never a hard block. The map is a performance aid, not a correctness requirement.
-
-### Where to put the check
-
-**In `pd-codebase-mapper.md` (agent):** Write `META.json` at the end of the mapping process.
-
-**In `init.md` (workflow Step 3b):** After checking for existing `STRUCTURE.md`, also check `META.json` freshness.
-
-**In `write-code.md` / `plan.md` (workflows):** Add a lightweight staleness probe at Step 1:
-
-```markdown
-## Staleness check (non-blocking)
-If `.planning/codebase/META.json` exists:
-  Run: find . -type f ... | sort | sha256sum
-  Compare to META.json.tree_hash
-  Mismatch → warn: "Codebase map may be outdated. Run /pd:init to refresh."
-  Continue regardless.
+if (state === 'current') {
+  log.success(`${platform.name} — already at v${VERSION}, no changes.`);
+  return;  // skip re-install
+}
+if (state === 'upgrade') {
+  log.info(`Upgrading ${platform.name} from v${prevVersion} → v${VERSION}`);
+}
+if (state === 'dirty') {
+  log.warn(`Re-installing ${platform.name} v${VERSION} (user-modified files will be backed up)`);
+}
+// state === 'fresh' falls through silently to normal install path
 ```
 
-### Staleness threshold
+**Key behavior:** `state === 'current'` returns early — no file writes, no manifest update, no output except the "already at vX" line. This satisfies INSTALL-03 ("already-installed files show 'already installed' status, not errors").
 
-**No time-based threshold** — time is unreliable (inactive projects, paused work). Use structural change (hash mismatch) as the sole trigger. A project with 0 file additions/deletions but heavy edits is NOT stale from a structure perspective — STRUCTURE.md documents module layout, not file contents.
-
-### Implementation cost: SMALL
-
-- Add `META.json` write to `pd-codebase-mapper.md` (3 lines)
-- Add hash-recompute+compare to `init.md` and `write-code.md`/`plan.md` (5 lines each)
-- No new JS modules needed — pure bash one-liner
+**Re-run updates only changed files:** The individual platform installers (e.g., `claude.js`) use `fs.writeFileSync` unconditionally. Making them file-diff-aware would require changes inside each of the 5 installer modules — high regression risk. The pragmatic approach: keep `saveLocalPatches` as the safety net (backs up user changes before overwrite), and rely on the early-return for the "same version, no changes" case. Per-file skip logic is a future improvement.
 
 ---
 
-## Phase Sizing Estimate
+## Error Catalog Design
 
-| Feature | Requirement | Effort | Rationale |
-|---------|-------------|--------|-----------|
-| pd:replay skill | REPLAY-01 | **Medium** | Discovery + context injection; recovery logic already exists in write-code.md Step 1.1. New: checkpoint schema, replay skill file + workflow. ~2-3 plans |
-| pd:diff-milestone skill | DIFF-01 | **Medium** | Pure markdown parsing (no external libs). New skill file + workflow + diff output formatter. ~2 plans |
-| Config hot-reload | HOTREL-01 | **Small** | Workflow prose changes only. Add "re-read config" instruction to 4-5 workflows. 0 new JS files. ~1 plan |
-| Structured logging | LOG-01 | **Medium** | New `log-schema.js` (pure, testable), `log-writer.js` (I/O wrapper), + workflow integration in fix-bug/write-code. ~2-3 plans |
-| Staleness detection | STALE-01 | **Small** | Add META.json to mapper agent, add hash-compare to 2-3 workflows. 0 new JS modules. ~1-2 plans |
+### Categorization
 
-### Recommended phase groupings
+Three error categories cover all realistic failure modes:
 
-```
-Phase A (Infrastructure Foundation) — Small items that unblock others
-  - HOTREL-01 (config hot-reload prose changes)
-  - STALE-01 (staleness detection + META.json)
-  Rationale: Both are workflow-only changes, no new JS, fast to verify
+| Category | `err.code` / Pattern | Fix Hint |
+|----------|---------------------|----------|
+| **Missing dependency** | `ENOENT` on binary, `err.message` contains "not installed" | Install URL for the specific tool |
+| **Permission error** | `EACCES`, `EPERM` | Suggest `--local` or `sudo` |
+| **Platform not implemented** | `MODULE_NOT_FOUND` for `./lib/installers/X` | Re-download package |
+| **Wrong directory** | `ENOTDIR`, `ENOENT` on `--config-dir` | Check path argument |
+| **Version mismatch** | Python/Node version check in installer | Upgrade link |
 
-Phase B (Observability) — Structured logging
-  - LOG-01 (schema module + writer + workflow integration)
-  Rationale: Isolated new module, pure functions, well-tested; stands alone
+### Design Principle: Pattern-Match on Existing Throws
 
-Phase C (New Skills) — Replay and Diff
-  - REPLAY-01 (pd:replay skill + checkpoint writer)
-  - DIFF-01 (pd:diff-milestone skill)
-  Rationale: Both are new skill files; grouping keeps new-commands work together.
-             Replay benefits from Phase B logs for failure context reconstruction.
-```
+The individual installers already throw `new Error("Claude Code CLI not installed. Install first: https://claude.ai/download")` — the URL is already in the message. `formatError` should NOT duplicate these messages. It should ONLY add a hint when the throw is a bare system error (e.g., `EACCES`). Check `err.code` first; only fall through to message-pattern-matching if `err.code` is undefined or `DEFAULT`.
 
-**Total estimated plans: 8-10 plans across 3 phases**
+### No Typed Error Subclasses Required
 
-**Critical dependency:** LOG-01 (Phase B) should precede REPLAY-01 (Phase C) — replay benefits from structured logs to reconstruct interruption context. All other features are independent of each other.
+Installers throw `new Error()` with descriptive messages. `formatError` in `errors.js` is purely a formatting function on `main().catch()`. No changes to installer throw sites are needed. This is the minimal-regression path.
 
 ---
 
-## Architectural Constraints (from source inspection)
+## Progress Steps (INSTALL-01)
 
-1. **Pure functions everywhere** — all `bin/lib/*.js` modules are pure (no `require('fs')`). New modules must follow the same pattern: pure logic in `lib/`, I/O wrappers in `bin/`.
+### Where to Add `log.step()` in `install()`
 
-2. **Node 16.7+ compatibility** — no `Array.at()` without fallback, no `structuredClone` (use JSON round-trip).
+The outer `install()` function in `bin/install.js` has 4 logical outer-level steps that are currently silent:
 
-3. **No external npm dependencies** — only devDeps (`js-tiktoken`, `js-yaml`). New features must use stdlib only (`fs`, `path`, `crypto`).
+```
+[1/4] Backing up locally modified files...    ← before saveLocalPatches()
+[2/4] Running platform installer...           ← before require(installer).install()
+[3/4] Writing installation manifest...        ← before writeManifest()
+[4/4] Verifying installed files...            ← before scanLeakedPaths() + reportLocalPatches()
+```
 
-4. **Skill files are AI-agent instructions** — not executable scripts. Changes to workflows are "prompts to the AI" not "code changes". Testing them is behavioral (evals), not unit tests.
+The individual installers already have their own internal `log.step(1/6, ...)` calls. These outer steps appear ABOVE the inner steps, forming a two-level progress display:
 
-5. **Checkpoint and log files must be gitignore-able** — add `.planning/checkpoints/` and `.planning/logs/` to `.gitignore`. These are ephemeral runtime artifacts.
+```
+[1/4] Backing up locally modified files...
+[2/4] Running platform installer...
+  [1/6] Checking prerequisites...
+    ✓ Claude Code CLI
+    ✓ Python 3.12.2 (python3)
+  [2/6] Setting up skills directory...
+  ...
+[3/4] Writing installation manifest...
+[4/4] Verifying installed files...
+  ✓ Claude Code — done!
+```
+
+**Implementation:** 4 `log.step()` calls added to `install()`. No structural change.
+
+---
+
+## Build Order
+
+Safest sequence, each step independently releasable and verifiable:
+
+### Step 1: Extract Prompts → `bin/lib/prompt.js` (lowest risk)
+
+**What:** Move `promptRuntime()` and `promptLocation()` verbatim from `install.js` into new `bin/lib/prompt.js`. Update `install.js` to `require('./lib/prompt')`.
+
+**Why first:** Pure refactor — zero behavior change. If this breaks something, it's a require path bug that's immediately obvious. Reduces `install.js` by ~40 lines, making subsequent edits cleaner.
+
+**Risk:** LOW — copy-paste extraction with one require change.
+
+**Test:** Run `npx please-done` in interactive mode — must behave identically.
+
+---
+
+### Step 2: Add Platform Descriptions to `platforms.js`
+
+**What:** Add `description` field to each of the 7 entries in `PLATFORMS`. Example:
+```js
+claude: { name: 'Claude Code', description: "Anthropic's terminal AI coding agent", ... }
+```
+
+**Why second:** Needed by the enhanced prompt in Step 1b (below). Data-only change to platforms.js — zero logic change.
+
+**Risk:** LOW — additive field, no existing code reads it yet.
+
+---
+
+### Step 3: Enhance `promptRuntime()` with Descriptions
+
+**What:** Update the extracted `promptRuntime()` in `prompt.js` to display `PLATFORMS[rt].description` next to each platform name.
+
+**Why third:** Now that descriptions exist (Step 2) and prompt is isolated (Step 1), this is a one-function change in an isolated file.
+
+**Risk:** LOW — affects only interactive TTY path.
+
+---
+
+### Step 4: Add Idempotency Check to `install()`
+
+**What:** Add `checkExistingInstall()` to `manifest.js`. Add the 8-line prepend to `install()` in `install.js`.
+
+**Why fourth:** Infrastructure (manifest.js) has no side effects on non-reinstall paths. The early-return behavior is the only behavior change, and only triggers when `state === 'current'`.
+
+**Risk:** LOW–MEDIUM. The early-return skips manifest write on re-run — verify this doesn't break anything for `--all` multi-platform installs.
+
+**Test:** Install once, run installer again immediately — must show "already at vX.Y" and exit 0.
+
+---
+
+### Step 5: Add Progress Step Labels to `install()`
+
+**What:** Add 4 `log.step(n, 4, "...")` calls inside `install()` at the 4 outer phases.
+
+**Why fifth:** Visual-only change. Correct behavior already exists; steps just add labels.
+
+**Risk:** VERY LOW — `console.log` additions.
+
+---
+
+### Step 6: Error Catalog — `bin/lib/errors.js` + catch handler
+
+**What:** Create `errors.js`. Replace single-line `log.error(err.message)` in `main().catch()` with `formatError(err)`.
+
+**Why last:** Last because it changes error *display* behavior. If error catalog has a bug, it should affect only error cases, not the happy path. By this point all other changes are proven stable.
+
+**Risk:** LOW — isolated to catch handler; no changes to any throw sites.
+
+---
+
+## Component Boundary Summary
+
+```
+bin/install.js           ← orchestration only; no prompt logic; no error formatting
+  │
+  ├── bin/lib/prompt.js  ← NEW: all readline/interactive logic
+  ├── bin/lib/errors.js  ← NEW: error catalog + formatError()
+  ├── bin/lib/platforms.js  ← MODIFIED: +description field per platform
+  ├── bin/lib/manifest.js   ← MODIFIED: +checkExistingInstall()
+  └── bin/lib/utils.js      ← UNCHANGED: log.step() already present
+```
+
+**No changes to:**
+- `bin/lib/installers/*.js` — 5 platform installer files remain untouched
+- `bin/lib/converter.js` — unrelated to UX layer
+- Any commands/ or workflows/ skill files
+
+---
+
+## Regression Risk Assessment
+
+| Change | Risk | Rationale |
+|--------|------|-----------|
+| Extract prompts to prompt.js | LOW | Pure copy-move, one require() change |
+| Add `description` to platforms.js | VERY LOW | Additive data field, no readers yet |
+| Enhanced promptRuntime() display | LOW | Only affects interactive TTY |
+| checkExistingInstall() + early return | LOW-MEDIUM | Early return skips install — must verify --all path |
+| log.step() in install() | VERY LOW | Console output only |
+| errors.js + catch handler | LOW | Only affects error paths |
+| Arrow-key navigation | HIGH | Raw mode stdin has many edge cases — defer |
+
+---
 
 ## Sources
 
-- Direct source inspection: `bin/lib/checkpoint-handler.js`, `bin/lib/audit-logger.js`, `bin/lib/manifest.js`, `bin/lib/session-manager.js`, `bin/lib/resource-config.js`, `bin/plan-check.js`
-- Workflow inspection: `workflows/write-code.md`, `workflows/fix-bug.md`, `workflows/init.md`
-- Planning artifacts: `.planning/REQUIREMENTS.md`, `.planning/STATE.md`, `.planning/codebase/ARCHITECTURE.md`
-- Phase registry: `.planning/phases/` directory listing (999.x backlog items)
-- Confidence: **HIGH** — all findings based on direct file reads, no extrapolation
+- Direct file inspection: `bin/install.js` (415 lines), `bin/lib/utils.js`, `bin/lib/platforms.js`, `bin/lib/manifest.js`, `bin/lib/installers/claude.js`
+- Requirements: `.planning/REQUIREMENTS.md` (INSTALL-01 through INSTALL-04)
+- Confidence: **HIGH** — all integration points based on direct code reads, no speculation
