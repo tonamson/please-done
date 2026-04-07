@@ -467,17 +467,11 @@ Step 2.6: SKIPPED (no external dependencies — this phase is pure code/config c
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Confirmation line scope: only after interactive selection, or also after flag-based selection?**
-   - What we know: D-16 says "after `promptRuntime()` returns, caller in `main()` prints"
-   - What's unclear: If user passes `--claude` directly (skipping interactive mode entirely), should a confirmation also print?
-   - Recommendation: Per CONTEXT.md, the confirmation is specifically for interactive mode. The `if (runtimes.length === 0)` block is the right place to add it — this block only runs when no `--platform` flag was passed.
+1. **Confirmation line scope: only after interactive selection, or also after flag-based selection?** — RESOLVED: Interactive only. Add confirmation inside the `if (runtimes.length === 0)` block in `main()`, which only runs when no `--platform` flag was passed.
 
-2. **`"All platforms"` label: `"All"` or `"All platforms"`?**
-   - Current code: `"All"` (bare word)
-   - CONTEXT.md specifics section: `"The 'All' option should appear last: N+1. All platforms"`
-   - Recommendation: Use `"All platforms"` per CONTEXT.md specifics.
+2. **`"All platforms"` label: `"All"` or `"All platforms"`?** — RESOLVED: Use `"All platforms"` per CONTEXT.md specifics section.
 
 ---
 
