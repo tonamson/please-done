@@ -118,7 +118,8 @@
   2. Paused work can be resumed with full context restoration from stored summaries
   3. Past discussions are searchable by keyword or date range
   4. Session history tracks key decisions and outcomes across multiple conversation instances
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 142-01-PLAN.md — TDD library + pd:audit skill file for context parsing and search
 
 ### Phase 143: Scope Reduction Detection
 **Goal**: Users are proactively warned when plan scope shrinks unexpectedly during execution, preventing silent requirement loss
