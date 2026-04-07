@@ -1,8 +1,10 @@
 ---
 phase: 143-scope-reduction-detection
 verified: 2026-04-07T00:00:00Z
-status: gaps_found
-score: 5/6
+status: passed
+score: 6/6
+re_verified: 2026-04-07T15:00:00Z
+re_verification_note: "All gaps from initial verification were closed. formatScopeReport now accepts optional context = { planReqCount, summaryReqCount } parameter (commit 9875d13) and health.md step 7 now passes these counts (commit a2c95b6). Before/after header 'Plan declared: N req / Summary delivered: M req' is now produced when context is provided."
 overrides_applied: 0
 gaps:
   - truth: "formatScopeReport includes a before/after header: 'Plan declared: N req / Summary delivered: M req'"
