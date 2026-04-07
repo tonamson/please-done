@@ -113,10 +113,10 @@ function parseStateMdFields(content) {
  * @returns {Array<{severity: string, category: string, location: string, issue: string, fix: string}>}
  */
 function detectSchemaDrift(content) {
-  const { version, topLevelFields, progressFields } = parseStateMdFields(content);
+  const { version, topLevelFields, progressFields, raw } = parseStateMdFields(content);
 
-  // Guard: no parseable frontmatter
-  if (topLevelFields.length === 0 && progressFields.length === 0) {
+  // Guard: no parseable frontmatter (IN-01: removed dead `&& progressFields.length === 0`)
+  if (topLevelFields.length === 0) {
     return [{
       severity: SEVERITY_CRITICAL,
       category: CATEGORY,
@@ -127,6 +127,21 @@ function detectSchemaDrift(content) {
   }
 
   const issues = [];
+
+  // Step 3.5 FIRST: Version support check — only when field is present to avoid
+  // double-reporting alongside the "Missing required field: gsd_state_version" issue (CR-01, WR-02)
+  if (topLevelFields.includes('gsd_state_version')) {
+    const versionCheck = checkVersionSupport(version);
+    if (!versionCheck.supported) {
+      issues.push({
+        severity: SEVERITY_CRITICAL,
+        category: CATEGORY,
+        location: LOCATION,
+        issue: `Unsupported gsd_state_version: ${version ?? '(missing)'} (expected one of ${SUPPORTED_VERSIONS.join(', ')})`,
+        fix: versionCheck.upgrade_path,
+      });
+    }
+  }
 
   // Step 3: Missing required top-level fields
   for (const field of EXPECTED_STATE_SCHEMA.requiredTopLevelFields) {
@@ -139,18 +154,6 @@ function detectSchemaDrift(content) {
         fix: `Add field ${field} to STATE.md frontmatter`,
       });
     }
-  }
-
-  // Step 3.5: Version support check
-  const versionCheck = checkVersionSupport(version);
-  if (!versionCheck.supported) {
-    issues.push({
-      severity: SEVERITY_CRITICAL,
-      category: CATEGORY,
-      location: LOCATION,
-      issue: `Unsupported gsd_state_version: ${version ?? '(missing)'} (expected one of ${SUPPORTED_VERSIONS.join(', ')})`,
-      fix: versionCheck.upgrade_path,
-    });
   }
 
   // Step 4: Unknown top-level fields not in schema
@@ -166,17 +169,28 @@ function detectSchemaDrift(content) {
     }
   }
 
-  // Step 5: Missing progress sub-fields (only when progress section exists)
+  // Step 5: Progress sub-fields — emit one diagnostic if progress is null/invalid (CR-02),
+  // else check individual sub-fields
   if (topLevelFields.includes('progress')) {
-    for (const field of EXPECTED_STATE_SCHEMA.requiredProgressFields) {
-      if (!progressFields.includes(field)) {
-        issues.push({
-          severity: SEVERITY_CRITICAL,
-          category: CATEGORY,
-          location: LOCATION,
-          issue: `Missing required field: progress.${field}`,
-          fix: `Add field ${field} under the progress: section in STATE.md`,
-        });
+    if (!raw || !raw.progress || typeof raw.progress !== 'object') {
+      issues.push({
+        severity: SEVERITY_CRITICAL,
+        category: CATEGORY,
+        location: LOCATION,
+        issue: 'Invalid progress section: expected a YAML mapping with sub-fields, got null or scalar',
+        fix: 'Edit STATE.md to replace `progress: null` with a proper mapping (total_phases, completed_phases, total_plans, completed_plans, percent)',
+      });
+    } else {
+      for (const field of EXPECTED_STATE_SCHEMA.requiredProgressFields) {
+        if (!progressFields.includes(field)) {
+          issues.push({
+            severity: SEVERITY_CRITICAL,
+            category: CATEGORY,
+            location: LOCATION,
+            issue: `Missing required field: progress.${field}`,
+            fix: `Add field ${field} under the progress: section in STATE.md`,
+          });
+        }
       }
     }
   }

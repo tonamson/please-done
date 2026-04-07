@@ -63,7 +63,7 @@ No rules or FastCode MCP needed - only read planning files.
 
 **Success when:**
 
-- Health report is displayed with all 3 check categories (missing files, state schema, orphaned dirs)
+- Health report is displayed with all 4 check categories (missing files, state schema, orphaned dirs, scope reductions, schema drift)
 - Zero files were written or modified
 
 **Common errors:**

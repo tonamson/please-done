@@ -128,9 +128,10 @@ describe('detectSchemaDrift', () => {
 
   test("returns critical issue for MISSING_VERSION containing 'Missing required field: gsd_state_version'", () => {
     const issues = detectSchemaDrift(MISSING_VERSION);
-    assert.ok(issues.length >= 1);
-    const issue = issues.find(i => i.issue.includes('gsd_state_version'));
-    assert.ok(issue, 'Should find issue for gsd_state_version');
+    // CR-01 regression: absence of gsd_state_version must produce exactly 1 issue (not 2)
+    assert.strictEqual(issues.length, 1, 'CR-01: should produce exactly 1 issue, not double-report');
+    const issue = issues[0];
+    assert.ok(issue.issue.includes('gsd_state_version'), 'Should reference gsd_state_version');
     assert.strictEqual(issue.severity, 'critical');
     assert.strictEqual(issue.category, 'schema_drift');
     assert.strictEqual(issue.location, '.planning/STATE.md');
@@ -173,11 +174,25 @@ describe('detectSchemaDrift', () => {
 
   test("returns critical issue for MISSING_PROGRESS_FIELD containing 'progress.total_phases'", () => {
     const issues = detectSchemaDrift(MISSING_PROGRESS_FIELD);
-    const issue = issues.find(i => i.issue.includes('progress.total_phases'));
-    assert.ok(issue, 'Should find issue for progress.total_phases');
+    // Should produce exactly 1 issue for the 1 missing field (not 5 if progress is null)
+    assert.strictEqual(issues.length, 1, 'Should produce exactly 1 issue for 1 missing progress field');
+    const issue = issues[0];
+    assert.ok(issue.issue.includes('progress.total_phases'), 'Should reference progress.total_phases');
     assert.strictEqual(issue.severity, 'critical');
     assert.strictEqual(issue.category, 'schema_drift');
     assert.strictEqual(issue.location, '.planning/STATE.md');
+  });
+
+  test('progress: null emits exactly 1 CRITICAL (not 5 sub-field issues) — CR-02 regression', () => {
+    const nullProgressState = VALID_STATE.replace(
+      /progress:\n(\s+\w+:.+\n)+/,
+      'progress: null\n'
+    );
+    const issues = detectSchemaDrift(nullProgressState);
+    // Should be exactly 1 issue: "Invalid progress section"
+    assert.strictEqual(issues.length, 1, 'CR-02: null progress should emit 1 issue, not 5');
+    assert.ok(issues[0].issue.includes('Invalid progress section'), 'Should describe the invalid progress section');
+    assert.strictEqual(issues[0].severity, 'critical');
   });
 
   test("returns warning issue for EXTRA_FIELD_STATE containing 'Unknown field: unknown_field'", () => {
