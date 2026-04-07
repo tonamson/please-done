@@ -94,7 +94,8 @@
   2. `--check` flag validates version consistency across files without making changes
   3. Version mismatches are detected and reported with specific file locations and expected vs actual values
   4. Sync triggers on milestone completion to update all version references
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 140-01-PLAN.md — TDD library + skill file + complete-milestone integration for version sync
 
 ### Phase 141: MCP Tool Discovery
 **Goal**: Users can see which MCP tools are available, configured, and functional in their environment
