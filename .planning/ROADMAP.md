@@ -45,7 +45,7 @@
 - [x] **Phase 141: MCP Tool Discovery** — Auto-discover and inventory available MCP tools (completed 2026-04-07)
 - [x] **Phase 142: Discussion Audit Trail** — Track conversation context across sessions (completed 2026-04-07)
 - [x] **Phase 143: Scope Reduction Detection** — Warn when plan scope shrinks during execution (completed 2026-04-07)
-- [ ] **Phase 144: Schema Drift Detection** — Detect and report planning file schema changes
+- [x] **Phase 144: Schema Drift Detection** — Detect and report planning file schema changes (completed 2026-04-07)
 
 ## Phase Details
 
@@ -156,7 +156,7 @@
 | 141. MCP Tool Discovery | 1/1 | Complete    | 2026-04-07 |
 | 142. Discussion Audit Trail | 2/2 | Complete    | 2026-04-07 |
 | 143. Scope Reduction Detection | 1/1 | Complete    | 2026-04-07 |
-| 144. Schema Drift Detection | 0/1 | Planned    |  |
+| 144. Schema Drift Detection | 1/1 | Complete    | 2026-04-07 |
 
 ---
 
