@@ -283,6 +283,15 @@ No more milestones:
 - `package.json` → `"version": "[x.y].0"`
 - No file → skip
 
+## Step 8.5: Sync version across docs
+
+> Non-blocking: errors log warnings but do NOT halt milestone completion (per D-10).
+
+Run `/pd:sync-version` to propagate the new version to README.md badge, version text, and all doc file headers.
+
+- Success → log: "Version synced across all files."
+- Failure → log warning: "Version sync had issues: [details]" — continue to Step 9.
+
 ## Step 9: Git commit + tag (ONLY if HAS_GIT = true)
 
 See @references/conventions.md → commit prefix `[VERSION]`
