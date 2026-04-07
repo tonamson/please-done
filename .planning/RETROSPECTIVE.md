@@ -346,6 +346,57 @@ _A living document updated after each milestone. Lessons feed forward into futur
 
 ---
 
+## Milestone: v12.2 — Developer Experience Improvements
+
+**Shipped:** 2026-04-07
+**Phases:** 8 (137-144) | **Plans:** 9 | **Duration:** 1 day
+
+### What Was Built
+
+- Merged `pd:next` auto-execute behavior into `pd:what-next --execute` (SlashCommand integration, backward-compatible)
+- Created `pd:stats` with `stats-collector.js` library (7 pure functions, 29 tests, boxed unicode output)
+- Built `pd:health` with `health-checker.js` (5 check categories, 3-level severity classification, grouped report)
+- Version badge sync via `version-sync.js` (9 exports) + `pd:sync-version` + complete-milestone integration
+- MCP Tool Discovery across 12 platforms via `mcp-discovery.js` + `pd:discover` (JSON/TOML config parsing)
+- Discussion audit trail with auto-capture hook via `audit-trail.js` + `pd:audit` (30 TDD tests)
+- Scope reduction detection wired into health + milestone workflow via `scope-checker.js` (25 TDD tests)
+- Schema drift detection for STATE.md validation via `drift-detector.js` (31 TDD tests, 6 exports)
+
+### What Worked
+
+- 1-requirement-per-phase structure kept each phase small, independently verifiable, and fast to ship
+- TDD-first (RED→GREEN) produced clean, well-tested libraries with zero regressions
+- Pure function pattern scales consistently — each library has 5-9 exports, all individually testable
+- Phases 137-142 ran in any order (no cross-dependencies) — enabled flexible sequencing
+
+### What Was Inefficient
+
+- Snapshot tests failed on new skill files (what-next, health, stats, discover, sync-version) — stale snapshots not updated during execution
+- VERIFICATION.md files for phases 138 and 141 were not written during execution — required audit fix pass
+- Discussion audit trail scope reduction warning (L-06 in PLAN vs SUMMARY) — `formatAuditTable` one-liner absent in SUMMARY
+
+### Patterns Established
+
+- TDD (RED→GREEN) as standard for all pure-function libraries in this codebase
+- Scope checker and drift detector wired into `pd:health` and `pd:complete-milestone` as non-blocking gates
+- Version sync step in `complete-milestone.md` (Step 8.5) for automated badge propagation
+- `audit-trail.js` captures CONTEXT.md metadata for traceability across discuss/plan/execute phases
+
+### Key Lessons
+
+1. Snapshot tests must be updated whenever skill file content changes — treat stale snapshots as a code smell
+2. VERIFICATION.md should be created immediately after plan execution, not deferred to audit phase
+3. 1-req-per-phase produces the most predictable delivery — audit gaps were administrative, not functional
+4. Non-blocking integration (scope-checker, drift-detector) is the right pattern for diagnostic tools
+
+### Cost Observations
+
+- Model mix: ~70% sonnet (execution), ~30% opus (planning + audit)
+- Sessions: 1 (all 8 phases and audit pass in continuous session)
+- Notable: 75 commits, 239 files changed, 15,644 insertions / 21,859 deletions (net shrink due to audit cleanup)
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -359,6 +410,7 @@ _A living document updated after each milestone. Lessons feed forward into futur
 | v1.4      | 1        | 4      | Visual reporting: Mermaid diagrams, PDF export, non-blocking workflow integration |
 | v6.0      | 4+       | 6      | Full Vietnamese → English migration: all file types, 61 commits, 40 audit fixes   |
 | v12.1     | 1        | 12     | Quality hardening: cross-runtime support, verification standardization, gap closure |
+| v12.2     | 1        | 8      | Developer experience: stats/health/audit/discovery/sync/scope/drift pure-function libraries |
 
 ### Cumulative Quality
 

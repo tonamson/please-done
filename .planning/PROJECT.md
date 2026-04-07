@@ -272,4 +272,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-07 after Phase 140 completion_
+_Last updated: 2026-04-07 after v12.2 milestone completion_
