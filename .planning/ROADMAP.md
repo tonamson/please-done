@@ -154,7 +154,7 @@
 | 139. Planning Health Diagnostics | 1/1 | Complete    | 2026-04-06 |
 | 140. Version Badge Automation | 1/1 | Complete    | 2026-04-07 |
 | 141. MCP Tool Discovery | 1/1 | Complete    | 2026-04-07 |
-| 142. Discussion Audit Trail | 0/1 | Not started | - |
+| 142. Discussion Audit Trail | 0/1 | Planned    |  |
 | 143. Scope Reduction Detection | 0/1 | Not started | - |
 | 144. Schema Drift Detection | 0/1 | Not started | - |
 
