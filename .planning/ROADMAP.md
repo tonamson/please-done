@@ -65,7 +65,7 @@ See `.planning/milestones/` for archived milestone details:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 145. Installer Prompt UX | 0/1 | Not started | - |
+| 145. Installer Prompt UX | 0/4 | Planning complete | - |
 | 146. Installer Reliability | 0/1 | Not started | - |
 | 147. Installer Error Messages | 0/1 | Not started | - |
 | 148. Documentation Core | 0/1 | Not started | - |
@@ -83,7 +83,11 @@ See `.planning/milestones/` for archived milestone details:
   2. The selected platform is printed back to the user as a confirmation line before installation proceeds
   3. Running in non-TTY mode (piped stdin / CI) prints a message like "Non-interactive mode: installing globally" rather than silently defaulting
   4. Piped installer output contains zero raw ANSI escape sequences (`\x1b`) — TTY guard is active
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 145-01-PLAN.md — TTY guard on colorize() in utils.js
+  - [ ] 145-02-PLAN.md — Add description field to all 7 platforms
+  - [ ] 145-03-PLAN.md — Extract prompt.js module, add non-TTY handling, confirmation line
+  - [ ] 145-04-PLAN.md — Smoke tests for prompt UX improvements
 
 ---
 
