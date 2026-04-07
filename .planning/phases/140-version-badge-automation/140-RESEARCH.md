@@ -326,14 +326,14 @@ function formatVersionCheck(results) {
 
 **Low risk:** All assumptions are directly supported by verified codebase patterns.
 
-## Open Questions
+## Open Questions (RESOLVED)
 
-1. **Should the tool also sync README.vi.md badge/text?**
+1. **Should the tool also sync README.vi.md badge/text?** — RESOLVED: Yes — Task 2 reads README.vi.md for both badge and doc versions
    - What we know: README.vi.md has `<!-- Source version: -->` header (line 2) but may also have a badge URL and version text line
    - What's unclear: Whether README.vi.md has the same badge/text patterns as README.md
    - Recommendation: Check README.vi.md content during implementation; if it has badge/text patterns, include them in sync targets
 
-2. **Should `--check` exit with non-zero code on mismatches?**
+2. **Should `--check` exit with non-zero code on mismatches?** — RESOLVED: Agent's discretion — no exit code behavior specified in plan
    - What we know: CONTEXT.md doesn't specify exit behavior
    - What's unclear: Whether CI integration is planned
    - Recommendation: Agent's discretion — implement as simple output for now; exit code can be added later

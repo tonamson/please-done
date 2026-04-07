@@ -2,17 +2,19 @@
 
 ## v12.2 Developer Experience Improvements (Started: 2026-04-06)
 
-**Status:** Planning — 8 requirements defined
+**Status:** Roadmap defined — 8 requirements, 8 phases (137-144), 8 plans
 
-**Target features:**
-- L-02: Merge pd:next into pd:what-next (auto-execute)
-- L-03: pd:stats command (project statistics)
-- L-04: pd:health command (diagnose planning issues)
-- L-01: Automated version badge sync
-- L-05: MCP Tool Discovery
-- L-06: Discussion Audit Trail
-- L-07: Scope Reduction Detection
-- L-08: Schema Drift Detection
+**Phases:**
+- Phase 137: L-02 — Workflow Command Merge (pd:next → what-next)
+- Phase 138: L-03 — Project Statistics Command (pd:stats)
+- Phase 139: L-04 — Planning Health Diagnostics (pd:health)
+- Phase 140: L-01 — Version Badge Automation
+- Phase 141: L-05 — MCP Tool Discovery
+- Phase 142: L-06 — Discussion Audit Trail
+- Phase 143: L-07 — Scope Reduction Detection
+- Phase 144: L-08 — Schema Drift Detection
+
+**Dependency chain:** Phases 137-142 independent · Phase 143 depends on 139 · Phase 144 depends on 139
 
 ---
 
