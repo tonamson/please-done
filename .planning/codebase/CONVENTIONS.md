@@ -1,32 +1,34 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-22
+**Analysis Date:** 2026-04-07
 
 ## Naming Patterns
 
 **Files:**
-- Module files: `lowercase-with-hyphens.js` (VD: `smoke-utils.test.js`, `smoke-converters.test.js`)
+- Module files: `lowercase-with-hyphens.js` (e.g., `smoke-utils.test.js`, `smoke-converters.test.js`, `audit-trail.js`, `scope-checker.js`)
 - Index/entry points: `install.js`, `manifest.js`, `utils.js`
-- Converters: `[platform-name].js` (VD: `codex.js`, `gemini.js`, `copilot.js`, `opencode.js`)
+- Converters: `[platform-name].js` (e.g., `codex.js`, `gemini.js`, `copilot.js`, `opencode.js`)
 - Installers: `[platform-name].js` in `installers/` directory
+- Skill commands: `[name].md` in `commands/pd/` (e.g., `init.md`, `plan.md`, `health.md`)
 
 **Functions:**
 - camelCase for all functions: `parseFrontmatter()`, `buildFrontmatter()`, `listSkillFiles()`
 - Helper functions: prefixed with meaningful verb or action: `generateManifest()`, `detectChanges()`, `extractXmlSection()`
 - Async functions: `async function functionName()` (no special prefix)
-- Factory/builder functions: `generate*`, `build*`, `create*` (VD: `generateManifest()`, `buildFrontmatter()`)
+- Factory/builder functions: `generate*`, `build*`, `create*` (e.g., `generateManifest()`, `buildFrontmatter()`)
+- Private/internal functions: often prefixed with underscore or kept in module scope
 
 **Variables:**
 - camelCase for local variables and parameters: `const skillName`, `let configDir`
 - UPPER_CASE for file/module-level constants: `MANIFEST_NAME`, `TOTAL_STEPS`, `PLATFORMS`
 - Prefix booleans with `is` or `has`: `isGlobal`, `commandExists()`
-- Directory/path variables: `*Dir` suffix (VD: `skillsDir`, `targetDir`, `configDir`)
-- Relative paths: `*Path` suffix with underscore prefix for internal helpers (VD: `filePath`, `absPath`)
+- Directory/path variables: `*Dir` suffix (e.g., `skillsDir`, `targetDir`, `configDir`)
+- Relative paths: `*Path` suffix with underscore prefix for internal helpers (e.g., `filePath`, `absPath`)
 
 **Types/Objects:**
 - Constants are UPPER_CASE objects or primitives: `PLATFORMS`, `COLORS`, `TOOL_MAP`
 - Config objects: descriptive camelCase: `frontmatter`, `manifest`, `flags`
-- Result objects returned from functions: descriptive and clear (VD: `{ frontmatter, body, raw }`)
+- Result objects returned from functions: descriptive and clear (e.g., `{ frontmatter, body, raw }`)
 
 ## Code Style
 
@@ -45,7 +47,7 @@
 - Block comments for section headers: `// ─── Section Name ────` (uses box drawing characters)
 - Function JSDoc comments before definitions with parameters and return types
 - Inline comments explain complex logic, regex patterns, or transformations
-- Comments in Vietnamese (matches project language)
+- Comments primarily in English (project language convention per CLAUDE.md)
 
 ## Import Organization
 
@@ -77,6 +79,7 @@ module.exports = {
 - Named error variables in catch blocks when error details needed: `catch (err) { ... throw err; }`
 - Process exits with `process.exit(1)` for critical failures
 - Custom errors not thrown — use log functions instead for user-facing errors
+- Enhanced error handling: `bin/lib/enhanced-error-handler.js` with structured logging
 
 **Examples:**
 ```javascript
@@ -106,6 +109,12 @@ try {
 - `log.step(num, total, msg)` — Progress indication `[num/total] msg`
 - `log.banner(lines)` — Boxed banner with cyan borders
 
+**Structured Logging:**
+- `bin/lib/log-writer.js` — Structured logging to `.planning/logs/`
+- `bin/lib/audit-logger.js` — Audit trail logging
+- `bin/lib/skill-error-logger.js` — Skill error tracking to `agent-errors.jsonl`
+- `bin/lib/audit-trail.js` — Comprehensive audit trail with structured JSONL format
+
 **Patterns:**
 - Logged before taking action: `log.step(1, TOTAL_STEPS, 'Checking prerequisites...')`
 - Immediate feedback on success/failure: `log.success('Component ready')`
@@ -120,6 +129,7 @@ try {
 - `description`: Short description
 - `allowed-tools`: Array of tool names (CLI, MCP tools, custom tools)
 - `argument-hint`: Optional hint for command arguments
+- `type`: Skill type (e.g., `utility`, `planning`, `execution`)
 
 **Parsing convention:**
 - Parse using `parseFrontmatter()` → returns `{ frontmatter: object, body: string, raw: string }`
@@ -137,6 +147,8 @@ try {
 - `<rules>` — Rules and constraints
 - `<execution_context>` — References to templates/workflows
 - `<required_reading>` — Files to read before executing
+- `<conditional_reading>` — Optional files with conditions
+- `<research_injection>` — Research findings to inject
 
 **Extraction utility:**
 ```javascript
@@ -148,6 +160,7 @@ const content = extractXmlSection(body, 'process');  // Returns inner content or
 **Promise-based:**
 - Use `async/await` for installer functions
 - Interactive prompts use Promise-based `readline` wrappers:
+
 ```javascript
 function ask(rl, question) {
   return new Promise((resolve) => {
@@ -164,7 +177,7 @@ function ask(rl, question) {
 
 **Existence checks:**
 - `fs.existsSync(path)` for file/directory checks
-- Optional chaining not used (targets Node.js 16.7.0+, supports it but not convention)
+- Optional chaining used where appropriate (Node.js 16.7.0+ compatible)
 - Explicit null/falsy checks: `if (!value)`, `if (value === null)`
 
 **Regex patterns:**
@@ -234,6 +247,24 @@ module.exports = {
 - Pass `skillsDir` or `rootDir` to converter functions to enable relative file access
 - No global state — functions are pure when possible
 
+## Testing Conventions
+
+**Test file pattern:** `smoke-{area}.test.js` or `{module}.test.js`
+
+**Import style:**
+```javascript
+'use strict';
+const { describe, it, before, after } = require('node:test');
+const assert = require('node:assert/strict');
+```
+
+**Test organization:**
+- Tests grouped by `describe()` blocks per function/module
+- Individual tests via `it()` with descriptive strings
+- Sample data defined as constants at top of file
+
+**Co-located tests:** Test files adjacent to source files in `bin/lib/`
+
 ---
 
-*Convention analysis: 2026-03-22*
+*Convention analysis: 2026-04-07*

@@ -1,54 +1,54 @@
 # External Integrations
 
-**Analysis Date:** 2026-03-22
+**Analysis Date:** 2026-04-07
 
 ## APIs & External Services
 
 **LLM Providers:**
 - OpenAI (ChatGPT, Codex)
-  - SDK: `openai` package
-  - Auth: `OPENAI_API_KEY` environment variable
-  - Used in: FastCode backend, NanoBot agent, skill evaluation (PromptFoo)
+    - SDK: `openai` package
+    - Auth: `OPENAI_API_KEY` environment variable
+    - Used in: FastCode backend, NanoBot agent, skill evaluation (PromptFoo)
 
 - Anthropic (Claude)
-  - SDK: `anthropic` package
-  - Auth: Handled by Claude Code CLI (internal)
-  - Used in: Primary skill platform, PromptFoo evaluation
+    - SDK: `anthropic` package
+    - Auth: Handled by Claude Code CLI (internal)
+    - Used in: Primary skill platform, PromptFoo evaluation
 
 - Google Gemini
-  - Auth: `OPENAI_API_KEY` (via OpenAI-compatible endpoint)
-  - Base URL: `https://generativelanguage.googleapis.com/v1beta/openai`
-  - Model: `gemini-2.5-flash-lite` (configurable)
-  - Used in: FastCode MCP server, Gemini CLI support
+    - Auth: `OPENAI_API_KEY` (via OpenAI-compatible endpoint)
+    - Base URL: `https://generativelanguage.googleapis.com/v1beta/openai`
+    - Model: `gemini-2.5-flash-lite` (configurable)
+    - Used in: FastCode MCP server, Gemini CLI support
 
 **Search & Documentation:**
 - Context7 MCP Server
-  - Purpose: Framework/library documentation retrieval
-  - Integration: MCP protocol via `mcp__context7__query-docs` tool calls
-  - Used in: Skill workflows for version-specific docs lookup
+    - Purpose: Framework/library documentation retrieval
+    - Integration: MCP protocol via `mcp__context7__query-docs` tool calls
+    - Used in: Skill workflows for version-specific docs lookup
 
 ## Data Storage
 
 **Repository Source Control:**
 - GitHub (remote)
-  - Connection: Git clone/remote operations
-  - Used for: FastCode repository indexing and analysis
+    - Connection: Git clone/remote operations
+    - Used for: FastCode repository indexing and analysis
 
 **Local Storage:**
 - File system (SQLite, disk caching)
-  - Cache: `diskcache` package
-  - Vector store: ChromaDB (embedded)
-  - Caching: Redis (optional)
+    - Cache: `diskcache` package
+    - Vector store: ChromaDB (embedded)
+    - Caching: Redis (optional)
 
 **Code Indexing:**
 - ChromaDB (embedded vector database)
-  - Purpose: Code embedding storage and semantic search
-  - Connection: Local database in FastCode directory
-  - Client: `chromadb` package
+    - Purpose: Code embedding storage and semantic search
+    - Connection: Local database in FastCode directory
+    - Client: `chromadb` package
 
 - FAISS (Facebook AI Similarity Search)
-  - Purpose: Efficient vector similarity search
-  - Package: `faiss-cpu`
+    - Purpose: Efficient vector similarity search
+    - Package: `faiss-cpu`
 
 **Workspace:**
 - Nanobot workspace: `~/.nanobot/workspace/` (configurable)
@@ -58,9 +58,9 @@
 
 **API Authentication:**
 - Environment variables (`.env` files)
-  - `OPENAI_API_KEY` - OpenAI API access
-  - `ANTHROPIC_API_KEY` - Anthropic API access (if needed)
-  - `GEMINI_API_KEY` - Google Gemini access (via OpenAI endpoint)
+    - `OPENAI_API_KEY` - OpenAI API access
+    - `ANTHROPIC_API_KEY` - Anthropic API access (if needed)
+    - `GEMINI_API_KEY` - Google Gemini access (via OpenAI endpoint)
 
 **Platform-Specific Configuration:**
 - Claude Code: OAuth handled by Anthropic CLI
@@ -75,15 +75,15 @@
 - Location: `FastCode/mcp_server.py`
 - Purpose: Code repository indexing, semantic search, architecture analysis
 - Tools exposed:
-  - `mcp__fastcode__list_indexed_repos` - List available indexed repositories
-  - `mcp__fastcode__code_qa` - Query repository code semantically
-  - Used in: Skill workflows (`/pd:init`, `/pd:scan`, `/pd:new-milestone`)
+    - `mcp__fastcode__list_indexed_repos` - List available indexed repositories
+    - `mcp__fastcode__code_qa` - Query repository code semantically
+    - Used in: Skill workflows (`/pd:init`, `/pd:scan`, `/pd:new-milestone`)
 
 **Context7 MCP Server** (External)
 - Purpose: Documentation lookup for frameworks and libraries
 - Tools exposed:
-  - `mcp__context7__query-docs` - Query official documentation
-  - Used in: Skill workflows when version-specific guidance needed
+    - `mcp__context7__query-docs` - Query official documentation
+    - Used in: Skill workflows when version-specific guidance needed
 
 **Semgrep MCP Server** (Optional)
 - Purpose: Static analysis and pattern matching
@@ -96,30 +96,35 @@
 - Console logging (stdout/stderr)
 - Python logging module (FastCode backend)
 - Structured logging via NanoBot agent
+- `bin/lib/log-writer.js` - Structured logging to `.planning/logs/`
+- `bin/lib/audit-logger.js` - Audit trail logging
+- `bin/lib/skill-error-logger.js` - Skill error tracking
+- `bin/lib/audit-trail.js` - Comprehensive audit trail (v14)
 
 **Error Tracking:**
-- None configured (built-in error handling)
+- Built-in error handling via `bin/lib/enhanced-error-handler.js`
 - Skill evaluation results captured in PromptFoo reports
+- Structured error logging to `.planning/logs/agent-errors.jsonl`
 
 ## CI/CD & Deployment
 
 **Hosting:**
 - Docker (for FastCode)
-  - Dockerfile: `FastCode/Dockerfile`
-  - Docker Compose: `FastCode/docker-compose.yml`
-  - Cloud: CloudRun compatible
+    - Dockerfile: `FastCode/Dockerfile`
+    - Docker Compose: `FastCode/docker-compose.yml`
+    - Cloud: CloudRun compatible
 
 **Testing Infrastructure:**
 - GitHub Actions (implied from `.github/` directory structure)
 - PromptFoo evaluation suite (local)
-  - Config: `promptfooconfig.yaml`
-  - Evaluation: `npm run eval`, `npm run eval:view`
+    - Config: `promptfooconfig.yaml`
+    - Evaluation: `npm run eval`, `npm run eval:view`
 
 **Package Distribution:**
 - npm (Node.js Package Manager)
-  - Published as: `please-done`
-  - Registry: npmjs.com
-  - Installation: `npx please-done` or `npm install -g please-done`
+    - Published as: `please-done`
+    - Registry: npmjs.com
+    - Installation: `npx please-done` or `npm install -g please-done`
 
 ## Environment Configuration
 
@@ -132,17 +137,17 @@ For FastCode MCP:
 
 For NanoBot agent:
 - Per-provider API keys configured in `nanobot_config.json`
-  - Anthropic: `apiKey`
-  - OpenAI: `apiKey`
-  - OpenRouter: `apiKey`
-  - DeepSeek: `apiKey`
-  - Groq: `apiKey`
-  - Zhipu: `apiKey`
-  - DashScope: `apiKey`
-  - vLLM: `apiKey`
-  - Gemini: `apiKey`
-  - Moonshot: `apiKey`
-  - AIHubMix: `apiKey`
+    - Anthropic: `apiKey`
+    - OpenAI: `apiKey`
+    - OpenRouter: `apiKey`
+    - DeepSeek: `apiKey`
+    - Groq: `apiKey`
+    - Zhipu: `apiKey`
+    - DashScope: `apiKey`
+    - vLLM: `apiKey`
+    - Gemini: `apiKey`
+    - Moonshot: `apiKey`
+    - AIHubMix: `apiKey`
 
 **Secrets Location:**
 - `.env` files (not committed)
@@ -187,21 +192,21 @@ The system performs automatic stack detection during `/pd:init`:
 
 **Detection Methods:**
 1. File-based detection (Glob patterns)
-   - `**/nest-cli.json` → NestJS
-   - `**/next.config.*` → NextJS
-   - `**/hardhat.config.*` → Solidity
-   - `**/foundry.toml` → Solidity
-   - `**/pubspec.yaml` → Flutter
-   - `**/wp-config.php` → WordPress
+    - `**/nest-cli.json` → NestJS
+    - `**/next.config.*` → NextJS
+    - `**/hardhat.config.*` → Solidity
+    - `**/foundry.toml` → Solidity
+    - `**/pubspec.yaml` → Flutter
+    - `**/wp-config.php` → WordPress
 
 2. Content-based detection (Grep patterns)
-   - package.json dependencies → Framework identification
-   - AST parsing via Tree-Sitter → Language and framework detection
+    - package.json dependencies → Framework identification
+    - AST parsing via Tree-Sitter → Language and framework detection
 
 3. FastCode integration
-   - `mcp__fastcode__code_qa` call indexes detected project
-   - Provides semantic understanding for subsequent analysis
+    - `mcp__fastcode__code_qa` call indexes detected project
+    - Provides semantic understanding for subsequent analysis
 
 ---
 
-*Integration audit: 2026-03-22*
+*Integration audit: 2026-04-07*

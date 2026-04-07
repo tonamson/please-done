@@ -1,6 +1,6 @@
 # Technology Stack
 
-**Analysis Date:** 2026-03-22
+**Analysis Date:** 2026-04-07
 
 ## Languages
 
@@ -35,9 +35,10 @@
 - Uvicorn (Python) - ASGI server for FastAPI
 
 **Testing:**
-- Node's built-in `test` module (Node.js test runner)
+- Node's built-in `test` module (Node.js test runner) - `bin/lib/*.test.js` (co-located)
 - Pytest (Python) - FastCode backend testing
 - PromptFoo - Evaluation suite for skill workflow compliance
+- c8 - Code coverage reporting (devDependency)
 
 **Build/Dev:**
 - None detected - pure Node.js/Python scripts, no build step
@@ -64,6 +65,8 @@
 - `openai` - OpenAI API client for skill evaluation
 - `anthropic` - Anthropic API client for Claude models
 - `tiktoken` - Token counting for cost estimation
+- `js-tiktoken` - JavaScript tokenization (devDependency)
+- `js-yaml` - YAML parsing in JavaScript (devDependency)
 
 **API & Server:**
 - `fastapi` - REST API framework
@@ -115,25 +118,25 @@
 ## AI Coding Platforms Supported
 
 1. **Claude Code** (Anthropic)
-   - Primary implementation language
-   - Config: `~/.claude/commands/pd/`
-   - MCP servers: FastCode + Context7
+    - Primary implementation language
+    - Config: `~/.claude/commands/pd/`
+    - MCP servers: FastCode + Context7
 
 2. **Codex CLI** (OpenAI)
-   - Transpiled to OpenAI tool format
-   - Config: `~/.codex/commands/pd/`
+    - Transpiled to OpenAI tool format
+    - Config: `~/.codex/commands/pd/`
 
 3. **Gemini CLI** (Google)
-   - Transpiled to Google tool format
-   - Config: `~/.gemini/commands/pd/`
+    - Transpiled to Google tool format
+    - Config: `~/.gemini/commands/pd/`
 
 4. **OpenCode** (OpenAI)
-   - Transpiled to OpenCode format
-   - Config: `~/.opencode/commands/pd/`
+    - Transpiled to OpenCode format
+    - Config: `~/.opencode/commands/pd/`
 
 5. **GitHub Copilot**
-   - Transpiled to Copilot format
-   - Config: `~/.copilot/commands/pd/`
+    - Transpiled to Copilot format
+    - Config: `~/.copilot/commands/pd/`
 
 ## Tech Stack Detection
 
@@ -148,4 +151,4 @@ The system detects and supports these technology stacks:
 
 ---
 
-*Stack analysis: 2026-03-22*
+*Stack analysis: 2026-04-07*
