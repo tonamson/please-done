@@ -39,8 +39,16 @@ No rules or FastCode MCP needed - only read planning files.
    - `dirNames`: array of directory name strings
    - `stateContent`: raw STATE.md file content
 6. Call `runAllChecks({ phaseDirs, completedPhases, roadmapPhases, dirNames, stateContent })` from `bin/lib/health-checker.js`
-7. If `--json` flag present: output `JSON.stringify(issues, null, 2)` via `log.info()`
-8. Otherwise: call `formatHealthReport(issues)` and output via `log.info()`
+7. **Scope reduction check** (load `checkScopeReductions` and `formatScopeReport` from `bin/lib/scope-checker.js`):
+   - For each phase directory that has both a PLAN.md (`*-PLAN.md`) and a SUMMARY.md (`*-SUMMARY.md`):
+     - Read the PLAN.md and SUMMARY.md file contents
+     - Build a pair: `{ planContent, summaryContent, label: "Phase {N}" }`
+   - Call `checkScopeReductions(pairs)` — returns issues in health-checker issue format
+   - Append scope issues to the health issues list, or display separately after the main report
+8. If `--json` flag present: output `JSON.stringify({ healthIssues: issues, scopeIssues }, null, 2)` via `log.info()`
+9. Otherwise:
+   - Call `formatHealthReport(issues)` and output via `log.info()`
+   - Call `formatScopeReport(scopeIssues)` and output via `log.info()`
 </process>
 
 <output>
@@ -65,7 +73,8 @@ No rules or FastCode MCP needed - only read planning files.
 - READ ONLY. DO NOT edit any files
 - DO NOT call FastCode MCP or Context7 MCP
 - No --fix flag — strictly read-only (D-11)
-- Load functions from `bin/lib/health-checker.js` using require()
+- Load health functions from `bin/lib/health-checker.js` using require()
+- Load scope functions from `bin/lib/scope-checker.js` using require() — `checkScopeReductions`, `formatScopeReport`
 </rules>
 
 <script type="error-handler">
