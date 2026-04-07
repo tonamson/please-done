@@ -1,6 +1,18 @@
 # Please-Done Workflow Optimization
 
-## Current State: v12.2 Shipped ✅
+## Current Milestone: v12.3 Installation & Documentation UX
+
+**Goal:** Make it possible for a new user to install and understand pd commands in under 5 minutes.
+
+**Target features:**
+- Improved installer UX — clear progress steps, actionable errors, idempotent re-runs, better platform selector
+- README quick start updated to match current command set (v12.2 feature set)
+- docs/cheatsheet.md updated with all 21 commands
+- docs/COMMAND_REFERENCE.md rewritten — concise, per-command purpose + syntax + example
+- docs/WORKFLOW_OVERVIEW.md rewritten — short, flow-focused
+- docs/GETTING_STARTED.md new — 10-minute guide for new users
+
+## Previous: v12.2 Shipped ✅
 
 **Shipped:** 2026-04-07 — 21 milestones, 144 phases, 9 plans in final milestone.
 
@@ -13,14 +25,6 @@
 - ✅ L-06: Discussion audit trail with auto-capture hook (`pd:audit`, audit-trail.js)
 - ✅ L-07: Scope reduction detection in health + milestone workflow (scope-checker.js)
 - ✅ L-08: Schema drift detection with STATE.md validation (drift-detector.js)
-
-## Next Milestone Goals
-
-Start next milestone with `/gsd-new-milestone`. Candidates from deferred backlog:
-- M-01: Wave Execution (parallel plans within a phase)
-- M-07: Verification Debt Tracking (dashboard for outstanding verifications)
-- M-08: Ship Command (PR creation + review workflow)
-- M-05: Context Window Monitoring (token usage alerts)
 
 ---
 
@@ -272,4 +276,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-07 after v12.2 milestone completion_
+_Last updated: 2026-04-07 — v12.3 milestone started_
