@@ -30,6 +30,18 @@ function padRight(str, length) {
 }
 
 /**
+ * Truncate string to maxLength, appending ellipsis if truncated.
+ * @param {string} str
+ * @param {number} maxLength
+ * @returns {string}
+ */
+function truncate(str, maxLength) {
+  const s = String(str || '');
+  if (s.length <= maxLength) return s;
+  return s.slice(0, maxLength - 1) + '…';
+}
+
+/**
  * Normalize a date value to ISO date string (YYYY-MM-DD).
  * js-yaml parses bare dates as JavaScript Date objects.
  * @param {Date|string|*} val
@@ -55,7 +67,7 @@ function parseContextFile(content) {
     return { frontmatter: {}, body: '', decisions: [] };
   }
 
-  const fmMatch = content.match(/^---\n([\s\S]*?)\n---/);
+  const fmMatch = content.match(/^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/);
   if (!fmMatch) {
     const body = content.trim();
     const decisions = extractDecisions(body);
@@ -65,10 +77,7 @@ function parseContextFile(content) {
   let frontmatter = {};
   try {
     frontmatter = yaml.load(fmMatch[1]) || {};
-    // Normalize date to ISO string — js-yaml parses bare dates as Date objects
-    if (frontmatter.date instanceof Date) {
-      frontmatter.date = frontmatter.date.toISOString().split('T')[0];
-    }
+    frontmatter.date = normalizeDate(frontmatter.date);
   } catch (e) {
     frontmatter = {};
   }
@@ -143,15 +152,17 @@ function filterContexts(contexts, filters) {
   if (!hasFilters) return contexts;
 
   return contexts.filter(ctx => {
-    // keyword: substring match in decisions text only (not frontmatter fields)
+    // keyword: case-insensitive substring match in decisions text only (not frontmatter)
     if (keyword !== undefined && keyword !== null) {
-      const decisionsText = ctx.decisions.join(' ');
-      if (!decisionsText.includes(String(keyword))) return false;
+      const needle = String(keyword).toLowerCase();
+      const decisionsText = ctx.decisions.join(' ').toLowerCase();
+      if (!decisionsText.includes(needle)) return false;
     }
 
-    // phase: exact match on frontmatter.phase
+    // phase: exact match on frontmatter.phase; invalid (NaN) filter returns no match
     if (phase !== undefined && phase !== null) {
       const phaseVal = typeof phase === 'string' ? parseInt(phase, 10) : phase;
+      if (isNaN(phaseVal)) return false;
       const ctxPhase = typeof ctx.phase === 'string' ? parseInt(ctx.phase, 10) : ctx.phase;
       if (ctxPhase !== phaseVal) return false;
     }
@@ -193,7 +204,11 @@ function formatAuditTable(contexts) {
     const phaseStr = ctx.phase !== null && ctx.phase !== undefined ? String(ctx.phase) : '?';
     const dateStr = ctx.date || 'unknown';
     const countStr = String(ctx.decision_count || ctx.decisions.length || 0);
-    const nameStr = ctx.phase_name ? ` — ${ctx.phase_name}` : '';
+    const prefixLen = 6 + 1 + 12 + 1 + countStr.length; // phaseStr + space + dateStr + space + countStr
+    const maxNameLen = (W - 1) - prefixLen;
+    const nameStr = ctx.phase_name
+      ? truncate(` — ${ctx.phase_name}`, maxNameLen)
+      : '';
     const row = `${padRight(phaseStr, 6)} ${padRight(dateStr, 12)} ${countStr}${nameStr}`;
     lines.push(`║ ${padRight(row, W - 1)}║`);
   }

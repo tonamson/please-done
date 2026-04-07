@@ -134,11 +134,9 @@ describe('listContexts', () => {
 // ─── filterContexts ────────────────────────────────────────
 
 describe('filterContexts', () => {
-  let contexts;
-
   // Run listContexts to get parsed data
   test('setup: listContexts returns data for filtering', () => {
-    contexts = listContexts(CONTEXT_LIST);
+    const contexts = listContexts(CONTEXT_LIST);
     assert.ok(contexts.length > 0);
   });
 
@@ -200,6 +198,22 @@ describe('filterContexts', () => {
     // date string should not appear in decisions text
     assert.strictEqual(result.length, 0);
   });
+
+  test('keyword search is case-insensitive (WR-02)', () => {
+    const parsed = listContexts(CONTEXT_LIST);
+    const lower = filterContexts(parsed, { keyword: 'frontmatter' });
+    const upper = filterContexts(parsed, { keyword: 'FRONTMATTER' });
+    const mixed = filterContexts(parsed, { keyword: 'FrontMatter' });
+    assert.strictEqual(lower.length, upper.length);
+    assert.strictEqual(lower.length, mixed.length);
+    assert.ok(lower.length > 0, 'Should find at least one match');
+  });
+
+  test('invalid (NaN) phase value returns no results (WR-03)', () => {
+    const parsed = listContexts(CONTEXT_LIST);
+    const result = filterContexts(parsed, { phase: 'not-a-number' });
+    assert.strictEqual(result.length, 0);
+  });
 });
 
 // ─── formatAuditTable ──────────────────────────────────────
@@ -229,6 +243,27 @@ describe('formatAuditTable', () => {
   test('returns "No contexts found" message for empty array', () => {
     const result = formatAuditTable([]);
     assert.ok(result.includes('No contexts found'));
+  });
+
+  test('all table lines have equal width — long phase_name is truncated (WR-01)', () => {
+    const longCtx = listContexts([{
+      filename: '999-CONTEXT.md',
+      content: [
+        '---',
+        'phase: 999',
+        'phase_name: This Is An Extremely Long Phase Name That Would Overflow The Box Border',
+        'date: 2026-01-01',
+        'decision_count: 1',
+        '---',
+        '- D-01: some decision',
+      ].join('\n'),
+    }]);
+    const result = formatAuditTable(longCtx);
+    const lines = result.split('\n');
+    const widths = lines.map(l => [...l].length); // handle Unicode box chars
+    const maxW = Math.max(...widths);
+    const minW = Math.min(...widths);
+    assert.strictEqual(maxW, minW, `Table lines have unequal widths: ${widths.join(', ')}`);
   });
 });
 
@@ -264,5 +299,54 @@ describe('formatAuditJson', () => {
     const result = formatAuditJson([]);
     const obj = JSON.parse(result);
     assert.deepStrictEqual(obj.contexts, []);
+  });
+});
+
+// ─── Auto-capture format contract (gap-142-02) ─────────────
+
+describe('auto-capture format contract', () => {
+  // Simulates the exact format written by the discuss-phase.md capture step
+  const AUTO_CAPTURE_CONTENT = [
+    '---',
+    'phase: 142',
+    'phase_name: discussion-audit-trail',
+    'date: 2026-04-07',
+    'decision_count: 3',
+    'next_step: /gsd-plan-phase 142',
+    'tags: []',
+    '---',
+    '',
+    '## Key Decisions',
+    '',
+    '- D-01: Use pure functions only, no fs imports in library',
+    '- D-02: Three usage modes for pd:audit',
+    '- D-03: AND logic for combined filters',
+  ].join('\n');
+
+  test('auto-capture file parses frontmatter correctly', () => {
+    const result = parseContextFile(AUTO_CAPTURE_CONTENT);
+    assert.strictEqual(result.frontmatter.phase, 142);
+    assert.strictEqual(result.frontmatter.phase_name, 'discussion-audit-trail');
+    assert.strictEqual(result.frontmatter.date, '2026-04-07');
+    assert.strictEqual(result.frontmatter.decision_count, 3);
+    assert.strictEqual(result.frontmatter.next_step, '/gsd-plan-phase 142');
+  });
+
+  test('auto-capture file extracts decisions correctly', () => {
+    const result = parseContextFile(AUTO_CAPTURE_CONTENT);
+    assert.strictEqual(result.decisions.length, 3);
+    assert.ok(result.decisions[0].includes('pure functions'));
+    assert.ok(result.decisions[1].includes('Three usage modes'));
+    assert.ok(result.decisions[2].includes('AND logic'));
+  });
+
+  test('auto-capture file is listable and searchable via pd:audit pipeline', () => {
+    const list = listContexts([{ filename: '142-2026-04-07.md', content: AUTO_CAPTURE_CONTENT }]);
+    assert.strictEqual(list.length, 1);
+    const filtered = filterContexts(list, { keyword: 'pure functions' });
+    assert.strictEqual(filtered.length, 1);
+    const table = formatAuditTable(list);
+    assert.ok(table.includes('142'));
+    assert.ok(table.includes('2026-04-07'));
   });
 });
