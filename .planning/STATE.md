@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
-status: active
-last_updated: "2026-04-08T03:25:03.929Z"
-last_activity: 2026-04-08
+status: executing
+last_updated: "2026-04-08T04:49:14.523Z"
+last_activity: 2026-04-08 -- Phase null execution started
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
-  percent: 100
+  total_plans: 9
+  completed_plans: 8
+  percent: 89
 ---
 
 # Project State
@@ -27,11 +27,11 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: 146 (Installer Reliability) — COMPLETE ✓
+Phase: null — EXECUTING
 Next: Phase 147 (Installer Error Messages)
-Plan: 3 of 3
-Status: Phase complete — ready for verification
-Last activity: 2026-04-08
+Plan: 1 of ?
+Status: Executing Phase null
+Last activity: 2026-04-08 -- Phase null execution started
 
 ---
 
@@ -92,6 +92,7 @@ Last activity: 2026-04-08
 - [Phase 146]: D-01: 4 fixed steps [1/4]-[4/4] with per-step success indicator
 - [Phase 146]: D-03/D-04: Idempotent check at top of install() with early return
 - [Phase 146]: D-10: 5 smoke tests in test/smoke-install.test.js covering checkUpToDate + log.step + install idempotency
+- [Phase 147]: Detection priority: err.code checks before message regex
 
 ## Blockers/Concerns
 

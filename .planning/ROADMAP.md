@@ -67,7 +67,7 @@ See `.planning/milestones/` for archived milestone details:
 |-------|----------------|--------|-----------|
 | 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
 | 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
-| 147. Installer Error Messages | 0/1 | Not started | - |
+| 147. Installer Error Messages | 1/2 | In Progress|  |
 | 148. Documentation Core | 0/1 | Not started | - |
 | 149. Documentation Flow | 0/1 | Not started | - |
 | 150. README Update | 0/1 | Not started | - |
@@ -117,7 +117,7 @@ See `.planning/milestones/` for archived milestone details:
   3. All error paths exit with a non-zero exit code
   4. `main().catch()` never exposes raw `Error.stack` output to the terminal
 **Plans**: 2 plans
-  - [ ] 147-01-PLAN.md — Create bin/lib/error-classifier.js with classifyError() (4 categories)
+  - [x] 147-01-PLAN.md — Create bin/lib/error-classifier.js with classifyError() (4 categories)
   - [ ] 147-02-PLAN.md — Wire classifier into main().catch(), remove double-log, add smoke tests
 
 ---
