@@ -376,7 +376,10 @@ async function main() {
 
 if (require.main === module) {
   main().catch((err) => {
-    log.error(err.message);
+    const { classifyError } = require('./lib/error-classifier');
+    const classified = classifyError(err);
+    log.error(classified.category + ': ' + classified.message);
+    log.info('  Hint: ' + classified.hint);
     if (process.env.PD_DEBUG) console.error(err.stack);
     process.exit(1);
   });
