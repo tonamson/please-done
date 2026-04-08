@@ -54,7 +54,7 @@ See `.planning/milestones/` for archived milestone details:
 
 ### Phases
 
-- [ ] **Phase 145: Installer Prompt UX** — Extract prompt module, add TTY guard, numbered platform selector with descriptions
+- [x] **Phase 145: Installer Prompt UX** — Extract prompt module, add TTY guard, numbered platform selector with descriptions (completed 2026-04-07)
 - [ ] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection
 - [ ] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces
 - [ ] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite
@@ -65,8 +65,8 @@ See `.planning/milestones/` for archived milestone details:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 145. Installer Prompt UX | 0/4 | Planning complete | - |
-| 146. Installer Reliability | 0/1 | Not started | - |
+| 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
+| 146. Installer Reliability | 0/3 | Not started | - |
 | 147. Installer Error Messages | 0/1 | Not started | - |
 | 148. Documentation Core | 0/1 | Not started | - |
 | 149. Documentation Flow | 0/1 | Not started | - |
@@ -84,10 +84,10 @@ See `.planning/milestones/` for archived milestone details:
   3. Running in non-TTY mode (piped stdin / CI) prints a message like "Non-interactive mode: installing globally" rather than silently defaulting
   4. Piped installer output contains zero raw ANSI escape sequences (`\x1b`) — TTY guard is active
 **Plans**: 4 plans
-  - [ ] 145-01-PLAN.md — TTY guard on colorize() in utils.js
-  - [ ] 145-02-PLAN.md — Add description field to all 7 platforms
-  - [ ] 145-03-PLAN.md — Extract prompt.js module, add non-TTY handling, confirmation line
-  - [ ] 145-04-PLAN.md — Smoke tests for prompt UX improvements
+  - [x] 145-01-PLAN.md — TTY guard on colorize() in utils.js
+  - [x] 145-02-PLAN.md — Add description field to all 7 platforms
+  - [x] 145-03-PLAN.md — Extract prompt.js module, add non-TTY handling, confirmation line
+  - [x] 145-04-PLAN.md — Smoke tests for prompt UX improvements
 
 ---
 
@@ -100,7 +100,10 @@ See `.planning/milestones/` for archived milestone details:
   2. Each completed step shows a ✓ or ✗ outcome indicator
   3. Re-running after a clean same-version install prints "Already at vX.Y, no changes needed" and exits 0
   4. Re-running after a version change logs an upgrade notice and proceeds normally (no errors or aborts)
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 146-01-PLAN.md — Add checkUpToDate utility to manifest.js, change log.step color to cyan
+  - [ ] 146-02-PLAN.md — Add step labels [1/4]-[4/4] and idempotent check to install()
+  - [ ] 146-03-PLAN.md — Smoke tests for checkUpToDate and step labels
 
 ---
 
