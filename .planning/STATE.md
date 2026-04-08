@@ -27,8 +27,8 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: 150 (README Update) — NOT STARTED
-Next: Phase 150 (README Update)
+Phase: 150 (README Update) — COMPLETE
+Next: Complete milestone v12.3
 Plan: 2 of 2
 Status: Phase complete — ready for verification
 Last activity: 2026-04-08
@@ -48,7 +48,7 @@ Last activity: 2026-04-08
 | 147 | INSTALL-02 | Installer Error Messages — actionable error catalog | ✅ Done |
 | 148 | DOCS-02, DOCS-03 | Documentation Core — cheatsheet (20 cmds) + COMMAND_REFERENCE rewrite | ✅ Done |
 | 149 | DOCS-04, DOCS-05 | Documentation Flow — WORKFLOW_OVERVIEW Mermaid + GETTING_STARTED guide | ✅ Done |
-| 150 | DOCS-01 | README Update — version badge, command counts, new commands | Not started |
+| 150 | DOCS-01 | README Update — version badge, command counts, new commands | ✅ Done |
 
 **Dependency chain:**
 

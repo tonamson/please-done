@@ -22,7 +22,7 @@
 - ✅ **v12.0 Pentest & Red Team Enhancement** — Phases 112-124 ([shipped 2026-04-06](milestones/v12.0-ROADMAP.md))
 - ✅ **v12.1 Quality Hardening** — Phases 125-136 ([shipped 2026-04-06](milestones/v12.1-ROADMAP.md))
 - ✅ **v12.2 Developer Experience Improvements** — Phases 137-144 ([shipped 2026-04-07](milestones/v12.2-ROADMAP.md))
-- 🚧 **v12.3 Installation & Documentation UX** — Phases 145-150 (in progress)
+- ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 (in progress)
 
 ## Progress
 
@@ -59,7 +59,7 @@ See `.planning/milestones/` for archived milestone details:
 - [x] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces (completed 2026-04-08)
 - [x] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite (completed 2026-04-08)
 - [x] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide (completed 2026-04-08)
-- [ ] **Phase 150: README Update** — Surgical README fixes: version badge, command counts, new commands
+- [x] **Phase 150: README Update** — Surgical README fixes: version badge, command counts, new commands
 
 ### Progress
 
@@ -70,7 +70,7 @@ See `.planning/milestones/` for archived milestone details:
 | 147. Installer Error Messages | 2/2 | Complete   | 2026-04-08 |
 | 148. Documentation Core | 2/2 | Complete   | 2026-04-08 |
 | 149. Documentation Flow | 2/2 | Complete   | 2026-04-08 |
-| 150. README Update | 0/1 | Not started | - |
+| 150. README Update | 1/1 | Complete   | 2026-04-08 |
 
 ### Phase Details
 
