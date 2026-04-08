@@ -1,16 +1,17 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.3 Installation & Documentation UX
+## Current Milestone: v12.4 Convention-Aware Skill Execution
 
-**Goal:** Make it possible for a new user to install and understand pd commands in under 5 minutes.
+**Goal:** Mọi AI model (Claude, Kimi, Gemini, GLM...) đều nhận project coding conventions khi chạy code-writing skills — không phụ thuộc vào model tự đọc CLAUDE.md.
 
 **Target features:**
-- Improved installer UX — clear progress steps, actionable errors, idempotent re-runs, better platform selector
-- README quick start updated to match current command set (v12.2 feature set)
-- docs/cheatsheet.md updated with all 21 commands
-- docs/COMMAND_REFERENCE.md rewritten — concise, per-command purpose + syntax + example
-- docs/WORKFLOW_OVERVIEW.md rewritten — short, flow-focused
-- docs/GETTING_STARTED.md new — 10-minute guide for new users
+- gsd-executor auto-injects references/conventions.md vào prompt trước khi viết code
+- gsd-code-fixer và gsd-debugger cũng inject conventions
+- Configurable injection: project có thể chỉ định references files nào cần inject
+
+## Previous: v12.3 Shipped ✅
+
+**Shipped:** 2026-04-08 — 22 milestones, 150 phases.
 
 ## Previous: v12.2 Shipped ✅
 
