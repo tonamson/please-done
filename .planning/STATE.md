@@ -7,9 +7,9 @@ last_updated: "2026-04-08T15:24:43.627Z"
 last_activity: 2026-04-08 — Phase 151 complete
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
   percent: 100
 ---
 
@@ -27,10 +27,10 @@ See: `.planning/REQUIREMENTS.md` (v12.4 requirements — CONV-01 to CONV-05)
 
 ## Current Position
 
-Phase: 151 — Convention File Migration
+Phase: 152 — Skill Injection
 Plan: 01 (Complete)
-Status: Phase 151 complete, ready for Phase 152
-Last activity: 2026-04-08 — Completed 151-01-PLAN.md
+Status: All phases complete — v12.4 milestone complete
+Last activity: 2026-04-08 — Completed 152-01-PLAN.md
 
 ---
 
@@ -44,7 +44,7 @@ Last activity: 2026-04-08 — Completed 151-01-PLAN.md
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
-| v12.4 | — | — | — | 🚧 In Progress |
+| v12.4 | 2 | 2 | 2026-04-08 | ✅ Shipped |
 | v12.3 | 6 | 13 | 2026-04-08 | ✅ Shipped |
 | v12.2 | 8 | 8 | 2026-04-07 | ✅ Shipped |
 | v12.1 | 12 | 12 | 2026-04-06 | ✅ Shipped |
@@ -59,4 +59,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-08 — Phase 151 complete (CONV-01, CONV-02 satisfied)_
+_Last updated: 2026-04-08 — v12.4 milestone complete (CONV-01, CONV-02, CONV-03, CONV-04, CONV-05 satisfied)_

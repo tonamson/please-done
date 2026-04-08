@@ -23,11 +23,11 @@
 - ✅ **v12.1 Quality Hardening** — Phases 125-136 ([shipped 2026-04-06](milestones/v12.1-ROADMAP.md))
 - ✅ **v12.2 Developer Experience Improvements** — Phases 137-144 ([shipped 2026-04-07](milestones/v12.2-ROADMAP.md))
 - ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 ([shipped 2026-04-08](milestones/v12.3-ROADMAP.md))
-- 🚧 **v12.4 Convention-Aware Skill Execution** — Phases 151-152 (active)
+- ✅ **v12.4 Convention-Aware Skill Execution** — Phases 151-152 (shipped 2026-04-08)
 
 ## Progress
 
-22 milestones completed. 150 phases completed. v12.4 in progress.
+22 milestones completed. 152 phases completed. v12.4 shipped.
 
 ---
 
@@ -36,7 +36,7 @@
 ### Phases
 
 - [x] **Phase 151: Convention File Migration** - Replace CLAUDE.md with universal CONVENTIONS.md (completed 2026-04-08)
-- [ ] **Phase 152: Skill Injection** - Update code-writing skills to read CONVENTIONS.md
+- [x] **Phase 152: Skill Injection** - Update code-writing skills to read CONVENTIONS.md (completed 2026-04-08)
 
 ### Phase Details
 
@@ -61,14 +61,14 @@
   3. `pd:plan` prompt includes instruction to read `CONVENTIONS.md` if it exists when structuring tasks
   4. Any AI model (not just Claude) following the skill prompts will see and apply project conventions
 **Plans**: 1 plan
-- [ ] 152-01-PLAN.md — Inject CONVENTIONS.md reading into write-code, fix-bug, plan commands
+- [x] 152-01-PLAN.md — Inject CONVENTIONS.md reading into write-code, fix-bug, plan commands
 
 ### v12.4 Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 151. Convention File Migration | 1/1 | Complete   | 2026-04-08 |
-| 152. Skill Injection | 0/? | Not started | - |
+| 152. Skill Injection | 1/1 | Complete | 2026-04-08 |
 
 ---
 

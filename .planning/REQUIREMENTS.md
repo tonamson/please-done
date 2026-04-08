@@ -30,14 +30,14 @@ explicitly into code-writing skill prompts so all models follow project conventi
 
 ### Skill Injection
 
-- [ ] **CONV-03**: `pd:write-code` reads `CONVENTIONS.md` (if exists) in execution_context
+- [x] **CONV-03**: `pd:write-code` reads `CONVENTIONS.md` (if exists) in execution_context
   - Explicit instruction: "Read `CONVENTIONS.md` if it exists before writing code"
   - Any model reading the skill prompt will follow this instruction
 
-- [ ] **CONV-04**: `pd:fix-bug` reads `CONVENTIONS.md` (if exists) in execution_context
+- [x] **CONV-04**: `pd:fix-bug` reads `CONVENTIONS.md` (if exists) in execution_context
   - Same pattern as CONV-03
 
-- [ ] **CONV-05**: `pd:plan` reads `CONVENTIONS.md` (if exists) in execution_context
+- [x] **CONV-05**: `pd:plan` reads `CONVENTIONS.md` (if exists) in execution_context
   - Planner should be aware of conventions when structuring tasks
 
 ---
@@ -56,6 +56,6 @@ explicitly into code-writing skill prompts so all models follow project conventi
 |--------|-------|--------|
 | CONV-01 | Phase 151 | Complete |
 | CONV-02 | Phase 151 | Complete |
-| CONV-03 | Phase 152 | Pending |
-| CONV-04 | Phase 152 | Pending |
-| CONV-05 | Phase 152 | Pending |
+| CONV-03 | Phase 152 | Complete |
+| CONV-04 | Phase 152 | Complete |
+| CONV-05 | Phase 152 | Complete |
