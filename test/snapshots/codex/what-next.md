@@ -109,9 +109,7 @@ If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (
 - If >10 minutes elapsed and no tasks in progress (no 🔄 tasks) → idle state
 - Suggest `$pd-status` with optional `--auto-refresh` flag
 ## Step 4.5: Execute (if --execute flag)
-
-If `$ARGUMENTS` contains `--execute`:
-
+If `{{GSD_ARGS}}` contains `--execute`:
 1. Take the `SUGGESTION` determined in Step 4
 2. Display the progress report (Step 5) FIRST — user needs to see state before execution
 3. Immediately invoke the suggested command via SlashCommand:
@@ -119,11 +117,9 @@ If `$ARGUMENTS` contains `--execute`:
    - Execute: `SlashCommand(command)`
    - Do NOT ask for confirmation — the `--execute` flag IS the confirmation
 4. STOP — the invoked command takes over from here
-
-If `$ARGUMENTS` does NOT contain `--execute`:
+If `{{GSD_ARGS}}` does NOT contain `--execute`:
 - Skip this step entirely
 - Continue to Step 5 (display report) and Step 6 (version check) as normal
-
 ## Step 5: Display report
 ```
 ╔══════════════════════════════════════╗
@@ -184,6 +180,8 @@ Fetch error/same version → skip.
 - The suggested command MUST be based on the actual current state, never guessed
 - DO NOT call FastCode MCP — use only Read/Glob (Bash for version check Step 6)
 - DO NOT modify files — read and report only
+- With --execute flag: Invokes SlashCommand after displaying suggestion
+- Without --execute flag: READ ONLY — no file modifications, no command execution
 - Missing CONTEXT.md → `$pd-init` then **STOP**
 - Only 1 main suggestion (highest priority), with secondary suggestions
 - Task 🔄 display number + specific name

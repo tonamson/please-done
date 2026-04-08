@@ -210,6 +210,29 @@ No more milestones:
 - `VERSION` at root → `[x.y]`
 - `package.json` → `"version": "[x.y].0"`
 - No file → skip
+## Step 8.5: Sync version across docs
+> Non-blocking: errors log warnings but do NOT halt milestone completion (per D-10).
+Run `/pd-sync-version` to propagate the new version to README.md badge, version text, and all doc file headers.
+- Success → log: "Version synced across all files."
+- Failure → log warning: "Version sync had issues: [details]" — continue to Step 8.6.
+## Step 8.6: Scope reduction check
+> Non-blocking — warns but does not prevent milestone completion.
+Load `checkScopeReductions` and `formatScopeReport` from `bin/lib/scope-checker.js`:
+```javascript
+const { checkScopeReductions, formatScopeReport } = require('./bin/lib/scope-checker');
+```
+For each phase in this milestone that has both a `*-PLAN.md` and a `*-SUMMARY.md`:
+1. Read the PLAN.md content (contains `requirements:` and `must_haves.artifacts[]`)
+2. Read the SUMMARY.md content (prose mentioning L-XX IDs and backtick file paths)
+3. Build pair: `{ planContent, summaryContent, label: "Phase N" }`
+Run:
+```javascript
+const scopeIssues = checkScopeReductions(pairs);
+console.log(formatScopeReport(scopeIssues));
+```
+Display the scope report:
+- If no issues: show `"No scope reductions detected ✓"` inline
+- If issues found: display the boxed warning table prominently before proceeding
 ## Step 9: Git commit + tag (ONLY if HAS_GIT = true)
 See [SKILLS_DIR]/references/conventions.md → commit prefix `[VERSION]`
 ```bash
