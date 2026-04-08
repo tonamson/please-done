@@ -27,8 +27,8 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: null — EXECUTING
-Next: Phase 147 (Installer Error Messages)
+Phase: 147 (Installer Error Messages) — COMPLETE ✓
+Next: Phase 148 (Documentation Core)
 Plan: 1 of ?
 Status: Executing Phase null
 Last activity: 2026-04-08 -- Phase null execution started
