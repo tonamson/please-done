@@ -3,7 +3,7 @@
 [![English](https://img.shields.io/badge/lang-English-blue.svg)](cheatsheet.md)
 [![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](cheatsheet.vi.md)
 
-Quick reference for all 16 Please Done (PD) commands. Each command follows the `/pd:command` syntax with optional flags and arguments.
+Quick reference for all 20 Please Done (PD) commands. Each command follows the `/pd:command` syntax with optional flags and arguments.
 
 ## How to Read This Cheat Sheet
 
@@ -18,7 +18,7 @@ Quick reference for all 16 Please Done (PD) commands. Each command follows the `
 - [Planning Commands](#planning-commands) — 1 command for technical planning
 - [Execution Commands](#execution-commands) — 2 commands for coding and testing
 - [Debug Commands](#debug-commands) — 3 commands for debugging and analysis
-- [Utility Commands](#utility-commands) — 5 commands for status and helpers
+- [Utility Commands](#utility-commands) — 9 commands for status and helpers
 - [Popular Flags Reference](#popular-flags-reference) — Quick lookup of common flags
 - [Legend](#legend) — Flag notation explained
 
@@ -114,6 +114,10 @@ Check status, view conventions, fetch docs, and get suggestions.
 | `/pd:fetch-doc` | `/pd:fetch-doc [library]` | `/pd:fetch-doc react` |
 | `/pd:update` | `/pd:update [--check]` | `/pd:update` |
 | `/pd:what-next` | `/pd:what-next` | `/pd:what-next` |
+| `/pd:stats` | `/pd:stats [--json]` | `/pd:stats` |
+| `/pd:health` | `/pd:health [--json]` | `/pd:health` |
+| `/pd:discover` | `/pd:discover [--verbose] [--json]` | `/pd:discover` |
+| `/pd:sync-version` | `/pd:sync-version [--check]` | `/pd:sync-version` |
 
 **Notes:**
 - `status`: Display project dashboard (milestone, phase, tasks, bugs)
@@ -194,11 +198,9 @@ Understanding the flag notation used in the Usage column:
 | Planning | plan | 1 |
 | Execution | write-code, test | 2 |
 | Debug | fix-bug, audit, research | 3 |
-| Utility | status, conventions, fetch-doc, update, what-next | 5 |
-| **Total** | | **16** |
+| Utility | status, conventions, fetch-doc, update, what-next, stats, health, discover, sync-version | 9 |
+| **Total** | | **20** |
 
 ---
 
 *Last updated: 2026-04-04*
-
-*For detailed documentation on each command, see the `commands/pd/` directory or run `/pd:status` to check project state.*
