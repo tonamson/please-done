@@ -52,7 +52,7 @@
   - Answers: "when do I use which command?"
   - Simple flow diagram (ASCII or Mermaid) showing the lifecycle
 
-- [ ] **DOCS-05**: docs/GETTING_STARTED.md exists and guides a new user to first phase completion
+- [x] **DOCS-05**: docs/GETTING_STARTED.md exists and guides a new user to first phase completion
   - Step-by-step: install → onboard → first plan → first phase done
   - Estimated time for each step
   - Common pitfalls called out inline

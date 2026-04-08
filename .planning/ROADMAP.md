@@ -58,7 +58,7 @@ See `.planning/milestones/` for archived milestone details:
 - [x] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection (completed 2026-04-08)
 - [x] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces (completed 2026-04-08)
 - [x] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite (completed 2026-04-08)
-- [ ] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide
+- [x] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide (completed 2026-04-08)
 - [ ] **Phase 150: README Update** — Surgical README fixes: version badge, command counts, new commands
 
 ### Progress
@@ -69,7 +69,7 @@ See `.planning/milestones/` for archived milestone details:
 | 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
 | 147. Installer Error Messages | 2/2 | Complete   | 2026-04-08 |
 | 148. Documentation Core | 2/2 | Complete   | 2026-04-08 |
-| 149. Documentation Flow | 1/2 | In Progress|  |
+| 149. Documentation Flow | 2/2 | Complete   | 2026-04-08 |
 | 150. README Update | 0/1 | Not started | - |
 
 ### Phase Details
@@ -149,7 +149,7 @@ See `.planning/milestones/` for archived milestone details:
   4. All command references in GETTING_STARTED.md correspond to commands documented in COMMAND_REFERENCE.md
 **Plans**: 2 plans
   - [x] 149-01-PLAN.md — Rewrite WORKFLOW_OVERVIEW.md with Mermaid lifecycle diagram (DOCS-04)
-  - [ ] 149-02-PLAN.md — Create GETTING_STARTED.md new user guide (DOCS-05)
+  - [x] 149-02-PLAN.md — Create GETTING_STARTED.md new user guide (DOCS-05)
 **UI hint**: yes
 
 ---
