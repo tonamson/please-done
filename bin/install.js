@@ -215,7 +215,7 @@ async function install(runtime, isGlobal, configDir) {
       execSync('node bin/sync-instructions.js', { cwd: PROJECT_ROOT, stdio: 'pipe' });
       log.success("Agent instructions synced");
     } catch (err) {
-      log.warn(`Agent sync failed: ${err.message}`);
+      log.warn(`Agent sync failed: ${err.stderr?.toString().trim() || err.message}`);
       // Non-fatal - installation succeeded
     }
   } else {
@@ -375,11 +375,13 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  log.error(err.message);
-  if (process.env.PD_DEBUG) console.error(err.stack);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((err) => {
+    log.error(err.message);
+    if (process.env.PD_DEBUG) console.error(err.stack);
+    process.exit(1);
+  });
+}
 
 // Test exports
 if (process.env.PD_TEST_MODE) {

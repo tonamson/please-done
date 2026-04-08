@@ -102,7 +102,7 @@ describe("install() idempotency", () => {
   });
 
   afterEach(() => {
-    process.env = originalEnv;
+    delete process.env.PD_TEST_MODE;
     // Clear require cache to reset module state
     delete require.cache[require.resolve("../bin/install.js")];
   });
