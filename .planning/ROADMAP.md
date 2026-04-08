@@ -60,7 +60,8 @@
   2. `pd:fix-bug` prompt includes instruction to read `CONVENTIONS.md` if it exists before fixing code
   3. `pd:plan` prompt includes instruction to read `CONVENTIONS.md` if it exists when structuring tasks
   4. Any AI model (not just Claude) following the skill prompts will see and apply project conventions
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 152-01-PLAN.md — Inject CONVENTIONS.md reading into write-code, fix-bug, plan commands
 
 ### v12.4 Progress
 
