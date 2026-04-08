@@ -48,7 +48,8 @@
   1. Running `pd:conventions` creates/updates `CONVENTIONS.md` at project root
   2. `CONVENTIONS.md` contains the same content format as previous CLAUDE.md (naming, style, patterns)
   3. Project no longer has a `CLAUDE.md` file (removed or replaced)
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 151-01-PLAN.md — Update skill/workflow files, regenerate snapshots, delete CLAUDE.md
 
 #### Phase 152: Skill Injection
 **Goal**: Code-writing skills explicitly read CONVENTIONS.md so any AI model follows project conventions
