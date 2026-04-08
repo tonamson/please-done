@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
 status: executing
-last_updated: "2026-04-08T04:49:14.523Z"
+last_updated: "2026-04-08T04:52:56.482Z"
 last_activity: 2026-04-08 -- Phase null execution started
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 9
-  completed_plans: 8
-  percent: 89
+  completed_plans: 9
+  percent: 100
 ---
 
 # Project State
@@ -93,6 +93,8 @@ Last activity: 2026-04-08 -- Phase null execution started
 - [Phase 146]: D-03/D-04: Idempotent check at top of install() with early return
 - [Phase 146]: D-10: 5 smoke tests in test/smoke-install.test.js covering checkUpToDate + log.step + install idempotency
 - [Phase 147]: Detection priority: err.code checks before message regex
+- [Phase 147]: Lazy require of error-classifier inside catch callback for failure-path-only loading
+- [Phase 147]: Used assert.ok(hint.includes()) for MISSING_DEP test to match actual classifier output format
 
 ## Blockers/Concerns
 

@@ -56,7 +56,7 @@ See `.planning/milestones/` for archived milestone details:
 
 - [x] **Phase 145: Installer Prompt UX** — Extract prompt module, add TTY guard, numbered platform selector with descriptions (completed 2026-04-07)
 - [x] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection (completed 2026-04-08)
-- [ ] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces
+- [x] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces (completed 2026-04-08)
 - [ ] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite
 - [ ] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide
 - [ ] **Phase 150: README Update** — Surgical README fixes: version badge, command counts, new commands
@@ -67,7 +67,7 @@ See `.planning/milestones/` for archived milestone details:
 |-------|----------------|--------|-----------|
 | 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
 | 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
-| 147. Installer Error Messages | 1/2 | In Progress|  |
+| 147. Installer Error Messages | 2/2 | Complete   | 2026-04-08 |
 | 148. Documentation Core | 0/1 | Not started | - |
 | 149. Documentation Flow | 0/1 | Not started | - |
 | 150. README Update | 0/1 | Not started | - |
@@ -118,7 +118,7 @@ See `.planning/milestones/` for archived milestone details:
   4. `main().catch()` never exposes raw `Error.stack` output to the terminal
 **Plans**: 2 plans
   - [x] 147-01-PLAN.md — Create bin/lib/error-classifier.js with classifyError() (4 categories)
-  - [ ] 147-02-PLAN.md — Wire classifier into main().catch(), remove double-log, add smoke tests
+  - [x] 147-02-PLAN.md — Wire classifier into main().catch(), remove double-log, add smoke tests
 
 ---
 
