@@ -2,12 +2,12 @@
 gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
-status: verifying
+status: complete
 last_updated: "2026-04-08T07:17:26.550Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 13
   completed_plans: 13
   percent: 100
@@ -28,7 +28,7 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 ## Current Position
 
 Phase: 150 (README Update) — COMPLETE
-Next: Complete milestone v12.3
+Next: v12.3 archived — start /gsd-new-milestone for v12.4
 Plan: 2 of 2
 Status: Phase complete — ready for verification
 Last activity: 2026-04-08

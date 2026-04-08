@@ -205,13 +205,18 @@ See `.planning/milestones/v12.1-ROADMAP.md` for full details.
 
 ## Current State
 
-**Current:** v11.1 — started 2026-04-04  
-**Shipped:** v10.0 Skill Repo Audit Fixes (2026-04-03), v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)  
-**Previous:** v7.0 Standalone Test Mode (2026-04-02), v6.0 Vietnamese → English Migration (2026-03-29), v5.1 Agent Sync & Reference Update (2026-03-27)
+**Current:** v12.3 — shipped 2026-04-08  
+**Shipped:** v12.3 Installation & Documentation UX (2026-04-08), v12.2 Installer UX (2026-04-07), v11.1 Developer Tooling (2026-04-04), v10.0 Skill Repo Audit Fixes (2026-04-03)  
+**Previous:** v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)
 
-v11.0 scope: Developer tooling & observability — logs, status, onboarding, lint recovery, staleness detection, contract tests. 6 requirements, 15 phases, ~20-25 plans.
+v12.3 scope: Installer prompt UX, reliability, error messages (phases 145–147); cheatsheet, command reference, workflow overview, getting started docs (phases 148–149); README/version bump (phase 150). 9 requirements, 6 phases.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 16 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
+Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 20 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
+
+## Next Milestone Goals
+
+Planned for v12.4 (TBD):
+- TBD — run `/gsd-new-milestone` to define scope
 
 ## Constraints
 
