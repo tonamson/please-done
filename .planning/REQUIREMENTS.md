@@ -47,7 +47,7 @@
   - Inline — no links to missing commands/ subdirectory
   - Scannable at a glance (table format preferred)
 
-- [ ] **DOCS-04**: docs/WORKFLOW_OVERVIEW.md is rewritten — short and flow-focused
+- [x] **DOCS-04**: docs/WORKFLOW_OVERVIEW.md is rewritten — short and flow-focused
   - Maximum 60 lines
   - Answers: "when do I use which command?"
   - Simple flow diagram (ASCII or Mermaid) showing the lifecycle
