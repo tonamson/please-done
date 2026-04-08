@@ -131,7 +131,9 @@ See `.planning/milestones/` for archived milestone details:
   2. The cheatsheet intro paragraph says "21 commands" (no stale "16 commands" reference remains)
   3. `docs/COMMAND_REFERENCE.md` has a per-command block (purpose + syntax + example) for each of the 21 commands with no links to the `commands/` subdirectory
   4. Every command entry in COMMAND_REFERENCE includes a real usage example that matches v12.2 output
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 148-01-PLAN.md — Surgical cheatsheet.md update: 16→20 count, 4 new command rows, remove stale footer
+  - [ ] 148-02-PLAN.md — Full rewrite of COMMAND_REFERENCE.md: 20 per-command blocks, 5 categories
 **UI hint**: yes
 
 ---
