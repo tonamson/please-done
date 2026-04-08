@@ -37,6 +37,7 @@ const {
   writeManifest,
   reportLocalPatches,
   scanLeakedPaths,
+  checkUpToDate,
 } = require("./lib/manifest");
 
 // ─── Constants ────────────────────────────────────────────
