@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
-status: executing
-last_updated: "2026-04-08T03:20:37.777Z"
+status: verifying
+last_updated: "2026-04-08T03:25:03.929Z"
 last_activity: 2026-04-08
 progress:
   total_phases: 6
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 7
-  completed_plans: 6
-  percent: 86
+  completed_plans: 7
+  percent: 100
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 Phase: 146 (Installer Reliability) — EXECUTING
 Plan: 3 of 3
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-04-08
 
 ---
@@ -90,6 +90,7 @@ Last activity: 2026-04-08
 - [Phase 146]: D-11: log.step color changed yellow → cyan for visual distinction
 - [Phase 146]: D-01: 4 fixed steps [1/4]-[4/4] with per-step success indicator
 - [Phase 146]: D-03/D-04: Idempotent check at top of install() with early return
+- [Phase 146]: D-10: 5 smoke tests in test/smoke-install.test.js covering checkUpToDate + log.step + install idempotency
 
 ## Blockers/Concerns
 

@@ -55,7 +55,7 @@ See `.planning/milestones/` for archived milestone details:
 ### Phases
 
 - [x] **Phase 145: Installer Prompt UX** — Extract prompt module, add TTY guard, numbered platform selector with descriptions (completed 2026-04-07)
-- [ ] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection
+- [x] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection (completed 2026-04-08)
 - [ ] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces
 - [ ] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite
 - [ ] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide
@@ -66,7 +66,7 @@ See `.planning/milestones/` for archived milestone details:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
-| 146. Installer Reliability | 2/3 | In Progress|  |
+| 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
 | 147. Installer Error Messages | 0/1 | Not started | - |
 | 148. Documentation Core | 0/1 | Not started | - |
 | 149. Documentation Flow | 0/1 | Not started | - |
@@ -103,7 +103,7 @@ See `.planning/milestones/` for archived milestone details:
 **Plans**: 3 plans
   - [x] 146-01-PLAN.md — Add checkUpToDate utility to manifest.js, change log.step color to cyan
   - [x] 146-02-PLAN.md — Add step labels [1/4]-[4/4] and idempotent check to install()
-  - [ ] 146-03-PLAN.md — Smoke tests for checkUpToDate and step labels
+  - [x] 146-03-PLAN.md — Smoke tests for checkUpToDate and step labels
 
 ---
 
