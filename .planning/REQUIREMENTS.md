@@ -10,7 +10,7 @@
 
 ### Installation UX
 
-- [ ] **INSTALL-01**: User sees clear progress steps during installation
+- [x] **INSTALL-01**: User sees clear progress steps during installation
   - Each step has a label (e.g., "Installing Claude Code skills…")
   - Per-step success/failure indicator (✓ / ✗)
   - No silent operations — every action is announced
@@ -20,7 +20,7 @@
   - Each error category (missing deps, permission, platform) has a specific fix hint
   - Exit code is non-zero on failure
 
-- [ ] **INSTALL-03**: Running the installer again does not break an existing install
+- [x] **INSTALL-03**: Running the installer again does not break an existing install
   - Already-installed files show "already installed" status, not errors
   - Re-run updates only changed files
   - Version upgrade path is handled gracefully

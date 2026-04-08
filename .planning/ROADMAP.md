@@ -66,7 +66,7 @@ See `.planning/milestones/` for archived milestone details:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
-| 146. Installer Reliability | 0/3 | Not started | - |
+| 146. Installer Reliability | 1/3 | In Progress|  |
 | 147. Installer Error Messages | 0/1 | Not started | - |
 | 148. Documentation Core | 0/1 | Not started | - |
 | 149. Documentation Flow | 0/1 | Not started | - |
@@ -101,7 +101,7 @@ See `.planning/milestones/` for archived milestone details:
   3. Re-running after a clean same-version install prints "Already at vX.Y, no changes needed" and exits 0
   4. Re-running after a version change logs an upgrade notice and proceeds normally (no errors or aborts)
 **Plans**: 3 plans
-  - [ ] 146-01-PLAN.md — Add checkUpToDate utility to manifest.js, change log.step color to cyan
+  - [x] 146-01-PLAN.md — Add checkUpToDate utility to manifest.js, change log.step color to cyan
   - [ ] 146-02-PLAN.md — Add step labels [1/4]-[4/4] and idempotent check to install()
   - [ ] 146-03-PLAN.md — Smoke tests for checkUpToDate and step labels
 

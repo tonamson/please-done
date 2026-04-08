@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
 status: executing
-last_updated: "2026-04-07T19:53:26.586Z"
-last_activity: 2026-04-07 -- Phase 145 complete (4/4 plans, 15/15 tests)
+last_updated: "2026-04-08T03:15:46.588Z"
+last_activity: 2026-04-08
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
-  percent: 17
+  total_plans: 7
+  completed_plans: 5
+  percent: 71
 ---
 
 # Project State
@@ -27,10 +27,10 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: 145 (Installer Prompt UX) — COMPLETE
-Plan: 4 of 4
-Status: Phase 145 complete — ready for Phase 146
-Last activity: 2026-04-07 -- Phase 145 execution started
+Phase: 146 (Installer Reliability) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-08
 
 ---
 
@@ -86,6 +86,8 @@ Last activity: 2026-04-07 -- Phase 145 execution started
 ---
 - [Phase 139]: checkOrphanedDirs returns empty when roadmapPhases empty — cannot determine orphans without roadmap
 - [Phase 139]: runAllChecks uses flat params object for explicit data passing
+- [Phase 146]: D-07: checkUpToDate returns { upToDate, installedVersion } for idempotent detection
+- [Phase 146]: D-11: log.step color changed yellow → cyan for visual distinction
 
 ## Blockers/Concerns
 
