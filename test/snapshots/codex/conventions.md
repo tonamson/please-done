@@ -1,6 +1,6 @@
 ---
 name: pd-conventions
-description: "Analyze the project and create CLAUDE.md with project-specific coding conventions (style, naming, patterns)"
+description: "Analyze the project and create CONVENTIONS.md with project-specific coding conventions (style, naming, patterns)"
 ---
 <codex_skill_adapter>
 ## How to invoke this skill
@@ -22,7 +22,7 @@ When the user invokes `$pd-conventions {{args}}`, execute all instructions below
 - References to `[SKILLS_DIR]/templates/*`, `[SKILLS_DIR]/references/*` → read from the corresponding source directory
 </codex_skill_adapter>
 <objective>
-Analyze the project, detect coding conventions, ask about user preferences, then create or update `CLAUDE.md`.
+Analyze the project, detect coding conventions, ask about user preferences, then create or update `CONVENTIONS.md`.
 </objective>
 <guards>
 There are no strict prerequisites. This skill can be run at any time.
@@ -32,9 +32,9 @@ There are no strict prerequisites. This skill can be run at any time.
 User input: {{GSD_ARGS}}
 </context>
 <process>
-## Step 1: Check for existing CLAUDE.md
-`CLAUDE.md` at root:
-- Exists → "CLAUDE.md already exists. (1) Supplement (keep existing) (2) Recreate"
+## Step 1: Check for existing CONVENTIONS.md
+`CONVENTIONS.md` at root:
+- Exists → "CONVENTIONS.md already exists. (1) Supplement (keep existing) (2) Recreate"
 - Does not exist → continue
 ## Step 2: Detect conventions from code
 Grep/Read scan patterns:
@@ -64,7 +64,7 @@ Ask about things NOT detectable:
 3. Special conventions? (MongoDB prefix, pagination format, directory structure...)
 4. Common AI mistakes to remind? (creating new files instead of editing, adding unnecessary libraries...)
 User can skip any question.
-## Step 5: Create CLAUDE.md
+## Step 5: Create CONVENTIONS.md
 ```markdown
 # Project Conventions
 ## Code Style
@@ -73,24 +73,24 @@ User can skip any question.
 ## Do / Don't
 ## Build & Testing
 ```
-Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework knowledge. Each bullet 1 line. **Under 50 lines.** Existing CLAUDE.md + additions → merge, remove duplicates.
+Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework knowledge. Each bullet 1 line. **Under 50 lines.** Existing CONVENTIONS.md + additions → merge, remove duplicates.
 ## Step 6: Notification
 ```
-╔══════════════════════════════════════╗
-║     CLAUDE.md created!               ║
-╠══════════════════════════════════════╣
-║ File: CLAUDE.md ([N] lines)          ║
-║ Claude Code auto-reads each session  ║
-║ Edit: directly or $pd-conventions    ║
-╚══════════════════════════════════════╝
+╔═══════════════════════════════════════╗
+║     CONVENTIONS.md created!           ║
+╠═══════════════════════════════════════╣
+║ File: CONVENTIONS.md ([N] lines)      ║
+║ Run $pd-write-code to use conventions ║
+║ Edit: directly or $pd-conventions     ║
+╚═══════════════════════════════════════╝
 ```
 </process>
 <output>
 **Create/Update:**
-- `CLAUDE.md` -- project coding conventions
+- `CONVENTIONS.md` -- project coding conventions
 **Next step:** `$pd-plan` or `$pd-write-code`
 **Success when:**
-- `CLAUDE.md` includes naming conventions, coding style, and active patterns
+- `CONVENTIONS.md` includes naming conventions, coding style, and active patterns
 - The user confirms the content
 **Common errors:**
 - The project has no source code -> it cannot be analyzed
@@ -98,15 +98,14 @@ Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework kno
 </output>
 <rules>
 - All output MUST be in English
-- You MUST ask the user about personal preferences before creating `CLAUDE.md`
-- `CLAUDE.md` MUST reflect the current codebase reality and must not impose new conventions
-- CLAUDE.md UNDER 50 lines — concise, only project-specific conventions
+- You MUST ask the user about personal preferences before creating `CONVENTIONS.md`
+- `CONVENTIONS.md` MUST reflect the current codebase reality and must not impose new conventions
+- CONVENTIONS.md UNDER 50 lines — concise, only project-specific conventions
 - DO NOT write tutorial/framework explanations
 - DO NOT repeat `.planning/rules/` content
 - MUST scan actual code before asking user
 - New project with no code → ask more, detect less
 - DO NOT read/display sensitive files
-- File compatible with Claude Code auto-load (CLAUDE.md at root)
 </rules>
 <script type="error-handler">
 const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
