@@ -27,11 +27,11 @@ See: `.planning/REQUIREMENTS.md` (9 requirements, phases 145-150)
 
 ## Current Position
 
-Phase: null — EXECUTING
-Next: Phase 148 (Documentation Core)
-Plan: 1 of ?
-Status: Executing Phase null
-Last activity: 2026-04-08 -- Phase null execution started
+Phase: 148 — COMPLETE
+Next: Phase 149 (Documentation Flow)
+Plan: 2 of 2
+Status: Phase 148 complete — cheatsheet.md and COMMAND_REFERENCE.md fully updated, review fixes applied
+Last activity: 2026-04-08 -- Phase 148 complete
 
 ---
 
@@ -44,9 +44,9 @@ Last activity: 2026-04-08 -- Phase null execution started
 | Phase | Requirements | Description | Status |
 |-------|-------------|-------------|--------|
 | 145 | INSTALL-04 | Installer Prompt UX — TTY guard, numbered selector with descriptions | ✅ Done |
-| 146 | INSTALL-01, INSTALL-03 | Installer Reliability — progress steps + idempotent re-run | Not started |
-| 147 | INSTALL-02 | Installer Error Messages — actionable error catalog | Not started |
-| 148 | DOCS-02, DOCS-03 | Documentation Core — cheatsheet (21 cmds) + COMMAND_REFERENCE rewrite | Not started |
+| 146 | INSTALL-01, INSTALL-03 | Installer Reliability — progress steps + idempotent re-run | ✅ Done |
+| 147 | INSTALL-02 | Installer Error Messages — actionable error catalog | ✅ Done |
+| 148 | DOCS-02, DOCS-03 | Documentation Core — cheatsheet (20 cmds) + COMMAND_REFERENCE rewrite | ✅ Done |
 | 149 | DOCS-04, DOCS-05 | Documentation Flow — WORKFLOW_OVERVIEW Mermaid + GETTING_STARTED guide | Not started |
 | 150 | DOCS-01 | README Update — version badge, command counts, new commands | Not started |
 
@@ -97,6 +97,7 @@ Last activity: 2026-04-08 -- Phase null execution started
 - [Phase 147]: Used assert.ok(hint.includes()) for MISSING_DEP test to match actual classifier output format
 - [Phase 148]: Updated cheatsheet.md count from 16 to 20, added 4 utility commands, removed stale footer
 - [Phase 148]: Full rewrite of COMMAND_REFERENCE.md with 20 commands in 5 categories using Purpose/Syntax/Example format
+- [Phase 148]: Review fixes — corrected pd:audit (audit trail viewer, not security tool), pd:fetch-doc requires URL not library name, fixed pd:init/scan/test/write-code/conventions/update/new-milestone flags, aligned categories to match COMMAND_REFERENCE
 
 ## Blockers/Concerns
 
