@@ -23,10 +23,50 @@
 - ✅ **v12.1 Quality Hardening** — Phases 125-136 ([shipped 2026-04-06](milestones/v12.1-ROADMAP.md))
 - ✅ **v12.2 Developer Experience Improvements** — Phases 137-144 ([shipped 2026-04-07](milestones/v12.2-ROADMAP.md))
 - ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 ([shipped 2026-04-08](milestones/v12.3-ROADMAP.md))
+- 🚧 **v12.4 Convention-Aware Skill Execution** — Phases 151-152 (active)
 
 ## Progress
 
-22 milestones completed. 150 phases completed. Next: v12.4 (not yet started).
+22 milestones completed. 150 phases completed. v12.4 in progress.
+
+---
+
+## v12.4 Convention-Aware Skill Execution
+
+### Phases
+
+- [ ] **Phase 151: Convention File Migration** - Replace CLAUDE.md with universal CONVENTIONS.md
+- [ ] **Phase 152: Skill Injection** - Update code-writing skills to read CONVENTIONS.md
+
+### Phase Details
+
+#### Phase 151: Convention File Migration
+**Goal**: Project uses universal CONVENTIONS.md instead of Claude-specific CLAUDE.md
+**Depends on**: Nothing (first phase of v12.4)
+**Requirements**: CONV-01, CONV-02
+**Success Criteria** (what must be TRUE):
+  1. Running `pd:conventions` creates/updates `CONVENTIONS.md` at project root
+  2. `CONVENTIONS.md` contains the same content format as previous CLAUDE.md (naming, style, patterns)
+  3. Project no longer has a `CLAUDE.md` file (removed or replaced)
+**Plans**: TBD
+
+#### Phase 152: Skill Injection
+**Goal**: Code-writing skills explicitly read CONVENTIONS.md so any AI model follows project conventions
+**Depends on**: Phase 151
+**Requirements**: CONV-03, CONV-04, CONV-05
+**Success Criteria** (what must be TRUE):
+  1. `pd:write-code` prompt includes instruction to read `CONVENTIONS.md` if it exists before writing code
+  2. `pd:fix-bug` prompt includes instruction to read `CONVENTIONS.md` if it exists before fixing code
+  3. `pd:plan` prompt includes instruction to read `CONVENTIONS.md` if it exists when structuring tasks
+  4. Any AI model (not just Claude) following the skill prompts will see and apply project conventions
+**Plans**: TBD
+
+### v12.4 Progress
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 151. Convention File Migration | 0/? | Not started | - |
+| 152. Skill Injection | 0/? | Not started | - |
 
 ---
 

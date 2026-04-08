@@ -54,8 +54,8 @@ explicitly into code-writing skill prompts so all models follow project conventi
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| CONV-01 | TBD | Pending |
-| CONV-02 | TBD | Pending |
-| CONV-03 | TBD | Pending |
-| CONV-04 | TBD | Pending |
-| CONV-05 | TBD | Pending |
+| CONV-01 | Phase 151 | Pending |
+| CONV-02 | Phase 151 | Pending |
+| CONV-03 | Phase 152 | Pending |
+| CONV-04 | Phase 152 | Pending |
+| CONV-05 | Phase 152 | Pending |
