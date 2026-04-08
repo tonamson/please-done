@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v12.3
 milestone_name: Installation & Documentation UX
 status: executing
-last_updated: "2026-04-08T05:32:58.229Z"
+last_updated: "2026-04-08T05:35:55.913Z"
 last_activity: 2026-04-08 -- Phase null execution started
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 11
-  completed_plans: 10
-  percent: 91
+  completed_plans: 11
+  percent: 100
 ---
 
 # Project State
@@ -96,6 +96,7 @@ Last activity: 2026-04-08 -- Phase null execution started
 - [Phase 147]: Lazy require of error-classifier inside catch callback for failure-path-only loading
 - [Phase 147]: Used assert.ok(hint.includes()) for MISSING_DEP test to match actual classifier output format
 - [Phase 148]: Updated cheatsheet.md count from 16 to 20, added 4 utility commands, removed stale footer
+- [Phase 148]: Full rewrite of COMMAND_REFERENCE.md with 20 commands in 5 categories using Purpose/Syntax/Example format
 
 ## Blockers/Concerns
 

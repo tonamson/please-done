@@ -57,7 +57,7 @@ See `.planning/milestones/` for archived milestone details:
 - [x] **Phase 145: Installer Prompt UX** — Extract prompt module, add TTY guard, numbered platform selector with descriptions (completed 2026-04-07)
 - [x] **Phase 146: Installer Reliability** — Progress step labels throughout install + idempotent re-run detection (completed 2026-04-08)
 - [x] **Phase 147: Installer Error Messages** — Actionable error catalog replacing raw stack traces (completed 2026-04-08)
-- [ ] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite
+- [x] **Phase 148: Documentation Core** — Cheatsheet update (21 commands) + COMMAND_REFERENCE full rewrite (completed 2026-04-08)
 - [ ] **Phase 149: Documentation Flow** — WORKFLOW_OVERVIEW rewrite (Mermaid, ≤60 lines) + new GETTING_STARTED guide
 - [ ] **Phase 150: README Update** — Surgical README fixes: version badge, command counts, new commands
 
@@ -68,7 +68,7 @@ See `.planning/milestones/` for archived milestone details:
 | 145. Installer Prompt UX | 4/4 | Complete   | 2026-04-07 |
 | 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
 | 147. Installer Error Messages | 2/2 | Complete   | 2026-04-08 |
-| 148. Documentation Core | 1/2 | In Progress|  |
+| 148. Documentation Core | 2/2 | Complete   | 2026-04-08 |
 | 149. Documentation Flow | 0/1 | Not started | - |
 | 150. README Update | 0/1 | Not started | - |
 
@@ -133,7 +133,7 @@ See `.planning/milestones/` for archived milestone details:
   4. Every command entry in COMMAND_REFERENCE includes a real usage example that matches v12.2 output
 **Plans**: 2 plans
   - [x] 148-01-PLAN.md — Surgical cheatsheet.md update: 16→20 count, 4 new command rows, remove stale footer
-  - [ ] 148-02-PLAN.md — Full rewrite of COMMAND_REFERENCE.md: 20 per-command blocks, 5 categories
+  - [x] 148-02-PLAN.md — Full rewrite of COMMAND_REFERENCE.md: 20 per-command blocks, 5 categories
 **UI hint**: yes
 
 ---
