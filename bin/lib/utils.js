@@ -30,7 +30,7 @@ const log = {
   warn: (msg) => console.log(colorize("yellow", `  ⚠ ${msg}`)),
   error: (msg) => console.log(colorize("red", `  ✗ ${msg}`)),
   step: (num, total, msg) =>
-    console.log(colorize("yellow", `[${num}/${total}] ${msg}`)),
+    console.log(colorize("cyan", `[${num}/${total}] ${msg}`)),
   banner: (lines) => {
     const width = 40;
     const border = width + 1; // ║ + space(1) + content(width-1) + ║ = width+1 between borders
