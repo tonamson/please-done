@@ -41,7 +41,7 @@ created: 2026-04-07
 | 146-01-01 | 01 | 1 | INSTALL-03 | N/A | unit | `node --test test/smoke-install.test.js` | ❌ Wave 0 | ⬜ pending |
 | 146-02-01 | 02 | 2 | INSTALL-01 | N/A | smoke | `node --test test/smoke-install.test.js` | ❌ Wave 0 | ⬜ pending |
 | 146-03-01 | 03 | 3 | INSTALL-01, INSTALL-03 | N/A | smoke | `node --test test/smoke-install.test.js` | ❌ Wave 0 | ⬜ pending |
-| 146-04-01 | 04 | 4 | INSTALL-01, INSTALL-03 | N/A | smoke | `node --test test/smoke-install.test.js` | ✅ | ⬜ pending |
+| 146-03-01 | 03 | 3 | INSTALL-01, INSTALL-03 | N/A | smoke | `node --test test/smoke-install.test.js` | ❌ Wave 0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
@@ -49,9 +49,9 @@ created: 2026-04-07
 
 ## Wave 0 Requirements
 
-- [ ] `test/smoke-install.test.js` — 5 tests covering INSTALL-01 + INSTALL-03 (created in plan 04)
+- [ ] `test/smoke-install.test.js` — 5 tests covering INSTALL-01 + INSTALL-03 (created in plan 03)
 
-*Wave 0 test file is created by plan 146-04 (test plan). Plans 146-01 through 146-03 reference it but it is created in the last plan/wave.*
+*Wave 0 test file is created by plan 146-03 (test plan). Plans 146-01 through 146-02 reference it but it is created in the last plan/wave.*
 
 ---
 
