@@ -56,19 +56,19 @@ Executes tasks from the plan, commits each task, and runs verification.
 
 ## What's Next?
 
-Repeat the cycle: `pd:plan` → `pd:write-code` → `pd:test` for each phase until the milestone is complete.
+Repeat the cycle: `pd:plan` → `pd:write-code` → `pd:test` for each phase. When all phases are done:
+
+```bash
+pd:complete-milestone
+```
+
+This finalizes the milestone and prepares the project for the next version.
 
 See [WORKFLOW_OVERVIEW.md](WORKFLOW_OVERVIEW.md) for the full lifecycle diagram.
 
 ## Lost? Use `pd:what-next`
 
-At any point, run:
-
-```bash
-pd:what-next
-```
-
-It checks your project state and suggests the correct next command.
+Run `pd:what-next` at any point — it checks your project state and suggests the correct next command.
 
 ---
 

@@ -9,7 +9,7 @@ flowchart LR
     C --> D[pd:write-code]
     D --> E[pd:test]
     E --> F[pd:complete-milestone]
-    E -.-> C
+    E -.-> |tests fail?| C
     D -.-> |stuck?| G[pd:what-next]
     G -.-> D
 ```
