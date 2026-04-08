@@ -116,7 +116,9 @@ See `.planning/milestones/` for archived milestone details:
   2. A file permission error prints the affected path and a concrete fix suggestion (e.g., `sudo chown …`)
   3. All error paths exit with a non-zero exit code
   4. `main().catch()` never exposes raw `Error.stack` output to the terminal
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 147-01-PLAN.md — Create bin/lib/error-classifier.js with classifyError() (4 categories)
+  - [ ] 147-02-PLAN.md — Wire classifier into main().catch(), remove double-log, add smoke tests
 
 ---
 

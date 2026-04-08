@@ -92,3 +92,7 @@ When installation fails, users see the specific error category, the cause, and a
 ### D-12: Export pattern
 **Decision**: `module.exports = { classifyError }` — single exported function
 **Signature**: `classifyError(err) → { category, message, hint }`
+
+### Deferred: SC-3 MODULE_NOT_FOUND exit code
+**Decision**: The `install()` Step 2 catch block catches `MODULE_NOT_FOUND` with `log.warn(...); return;` — this means an unsupported-platform failure exits 0 via normal main() completion. This path does not reach `main().catch()` and is therefore outside INSTALL-02's scope (which targets actionable error classification at the output layer). Fixing exit code for MODULE_NOT_FOUND is deferred to a future phase.
+**Rationale**: INSTALL-02 acceptance criteria focus on actionable messages, not on exit codes for unimplemented platform stubs. The current `return;` behavior is intentional (graceful degradation).
