@@ -100,6 +100,21 @@ function readManifest(configDir) {
 }
 
 /**
+ * Check if installation is already up-to-date.
+ * @param {string} configDir - Installation directory
+ * @param {string} currentVersion - Version being installed
+ * @returns {{ upToDate: boolean, installedVersion: string | null }}
+ */
+function checkUpToDate(configDir, currentVersion) {
+  const manifest = readManifest(configDir);
+  if (!manifest) return { upToDate: false, installedVersion: null };
+  return {
+    upToDate: manifest.version === currentVersion,
+    installedVersion: manifest.version,
+  };
+}
+
+/**
  * Compare current files with manifest → find files user has modified.
  * Returns array of { relPath, status: 'modified'|'deleted'|'added' }
  */
@@ -221,6 +236,7 @@ module.exports = {
   generateManifest,
   writeManifest,
   readManifest,
+  checkUpToDate,
   detectChanges,
   saveLocalPatches,
   reportLocalPatches,
