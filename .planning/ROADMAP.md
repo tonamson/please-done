@@ -69,7 +69,7 @@ See `.planning/milestones/` for archived milestone details:
 | 146. Installer Reliability | 3/3 | Complete   | 2026-04-08 |
 | 147. Installer Error Messages | 2/2 | Complete   | 2026-04-08 |
 | 148. Documentation Core | 2/2 | Complete   | 2026-04-08 |
-| 149. Documentation Flow | 0/1 | Not started | - |
+| 149. Documentation Flow | 0/2 | Not started | - |
 | 150. README Update | 0/1 | Not started | - |
 
 ### Phase Details
@@ -143,11 +143,13 @@ See `.planning/milestones/` for archived milestone details:
 **Depends on**: Phase 148 (GETTING_STARTED.md links to COMMAND_REFERENCE, which must exist first)
 **Requirements**: DOCS-04, DOCS-05
 **Success Criteria** (what must be TRUE):
-  1. `docs/WORKFLOW_OVERVIEW.md` is ≤60 lines and contains a Mermaid `flowchart TD` diagram that answers "when do I use which command?"
+  1. `docs/WORKFLOW_OVERVIEW.md` is ≤60 lines and contains a Mermaid `flowchart LR` diagram that answers "when do I use which command?"
   2. `docs/GETTING_STARTED.md` exists with 5 numbered steps (install → onboard → first plan → execute → done) each including an estimated time range
-  3. Common pitfalls are called out inline in GETTING_STARTED.md (at least 3 pitfall callouts)
+  3. Common pitfalls are called out inline in GETTING_STARTED.md (at least 1 pitfall callout)
   4. All command references in GETTING_STARTED.md correspond to commands documented in COMMAND_REFERENCE.md
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 149-01-PLAN.md — Rewrite WORKFLOW_OVERVIEW.md with Mermaid lifecycle diagram (DOCS-04)
+  - [ ] 149-02-PLAN.md — Create GETTING_STARTED.md new user guide (DOCS-05)
 **UI hint**: yes
 
 ---
