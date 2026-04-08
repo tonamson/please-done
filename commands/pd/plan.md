@@ -49,6 +49,8 @@ Additional reads:
 @templates/research.md (required)
 @references/questioning.md (optional)
 @references/conventions.md (required)
+@CONVENTIONS.md (optional)
+<!-- If CONVENTIONS.md exists at project root, read it before writing code to follow project-specific conventions -->
 @references/prioritization.md (optional)
 @references/ui-brand.md (optional)
 @references/verification.md (optional)
