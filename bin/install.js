@@ -31,6 +31,7 @@ const {
   getAllRuntimes,
 } = require("./lib/platforms");
 const { log, isWSL } = require("./lib/utils");
+const { classifyError } = require("./lib/error-classifier");
 const { promptRuntime, promptLocation } = require("./lib/prompt");
 const {
   saveLocalPatches,
@@ -376,7 +377,6 @@ async function main() {
 
 if (require.main === module) {
   main().catch((err) => {
-    const { classifyError } = require('./lib/error-classifier');
     const classified = classifyError(err);
     log.error(classified.category + ': ' + classified.message);
     log.info('  Hint: ' + classified.hint);
