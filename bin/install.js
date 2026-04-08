@@ -144,35 +144,56 @@ async function install(runtime, isGlobal, configDir) {
       ? getGlobalDir(runtime)
       : getLocalDir(runtime);
 
+  // Idempotent check — early bail if already up-to-date (D-03, D-04)
+  const { upToDate, installedVersion } = checkUpToDate(targetDir, VERSION);
+  if (upToDate) {
+    log.info(`Already at v${VERSION}, no changes needed.`);
+    return;
+  }
+
+  // Upgrade notice if re-installing different version (D-05)
+  if (installedVersion) {
+    log.info(`Upgrading ${platform.name} from v${installedVersion} → v${VERSION}...`);
+  }
+
+  const INSTALL_STEPS = 4; // D-15: local const at top of function
   console.log("");
   log.info(`Installing for ${platform.name} → ${targetDir}`);
 
-  // Backup user-modified files before overwrite
+  // Step 1: Backup (D-01)
+  log.step(1, INSTALL_STEPS, "Backing up locally modified files...");
   const patchCount = saveLocalPatches(targetDir);
   if (patchCount > 0) {
-    log.warn(`Backed up ${patchCount} locally modified file(s).`);
+    log.success(`Backed up ${patchCount} file(s)`);
+  } else {
+    log.success("No local modifications to back up");
   }
 
-  // Load platform-specific installer
+  // Step 2: Install platform skills (D-01)
+  log.step(2, INSTALL_STEPS, `Installing ${platform.name} skills...`);
   try {
     const installer = require(`./lib/installers/${runtime}`);
     await installer.install(SCRIPT_DIR, targetDir, {
       isGlobal,
       version: VERSION,
     });
+    log.success(`${platform.name} skills installed`);
   } catch (err) {
     if (err.code === "MODULE_NOT_FOUND") {
       log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
+    log.error(`Installation failed: ${err.message}`);
     throw err;
   }
 
-  // Write manifest for future re-installs
+  // Step 3: Write manifest (D-01)
+  log.step(3, INSTALL_STEPS, "Writing install manifest...");
   const installedDirs = getInstalledDirs(runtime);
   writeManifest(targetDir, VERSION, installedDirs);
+  log.success("Manifest written");
 
-  // Scan leaked paths for non-Claude platforms
+  // Scan leaked paths for non-Claude platforms (folded into step 3)
   if (runtime !== "claude") {
     const leaked = scanLeakedPaths(targetDir, "~/.claude/");
     if (leaked.length > 0) {
@@ -183,21 +204,25 @@ async function install(runtime, isGlobal, configDir) {
     }
   }
 
-  // Report patches if any
+  // Report patches if any (folded into step 3)
   reportLocalPatches(targetDir);
 
-  // Sync AGENTS.md to all runtimes after successful installation
+  // Step 4: Sync agent instructions (D-01, D-09)
+  log.step(4, INSTALL_STEPS, "Syncing agent instructions...");
   if (fs.existsSync(path.join(PROJECT_ROOT, 'AGENTS.md'))) {
     const { execSync } = require('child_process');
     try {
       execSync('node bin/sync-instructions.js', { cwd: PROJECT_ROOT, stdio: 'pipe' });
+      log.success("Agent instructions synced");
     } catch (err) {
-      log.warn('Failed to sync agent instructions:', err.message);
+      log.warn(`Agent sync failed: ${err.message}`);
       // Non-fatal - installation succeeded
     }
+  } else {
+    log.success("Agent sync skipped (no AGENTS.md found)");
   }
 
-  log.success(`${platform.name} — done!`);
+  // D-12: Removed end banner line — each step shows its own outcome
 }
 
 /**
