@@ -183,7 +183,6 @@ async function install(runtime, isGlobal, configDir) {
       log.warn(`Installer for ${platform.name} is not yet implemented.`);
       return;
     }
-    log.error(`Installation failed: ${err.message}`);
     throw err;
   }
 
