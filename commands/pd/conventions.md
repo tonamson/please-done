@@ -1,6 +1,6 @@
 ---
 name: pd:conventions
-description: "Analyze the project and create CLAUDE.md with project-specific coding conventions (style, naming, patterns)"
+description: "Analyze the project and create CONVENTIONS.md with project-specific coding conventions (style, naming, patterns)"
 model: sonnet
 argument-hint: "(no arguments needed)"
 allowed-tools:
@@ -14,7 +14,7 @@ allowed-tools:
 ---
 
 <objective>
-Analyze the project, detect coding conventions, ask about user preferences, then create or update `CLAUDE.md`.
+Analyze the project, detect coding conventions, ask about user preferences, then create or update `CONVENTIONS.md`.
 </objective>
 
 <guards>
@@ -38,12 +38,12 @@ Execute @workflows/conventions.md from start to finish.
 
 <output>
 **Create/Update:**
-- `CLAUDE.md` -- project coding conventions
+- `CONVENTIONS.md` -- project coding conventions
 
 **Next step:** `/pd:plan` or `/pd:write-code`
 
 **Success when:**
-- `CLAUDE.md` includes naming conventions, coding style, and active patterns
+- `CONVENTIONS.md` includes naming conventions, coding style, and active patterns
 - The user confirms the content
 
 **Common errors:**
@@ -53,8 +53,8 @@ Execute @workflows/conventions.md from start to finish.
 
 <rules>
 - All output MUST be in English
-- You MUST ask the user about personal preferences before creating `CLAUDE.md`
-- `CLAUDE.md` MUST reflect the current codebase reality and must not impose new conventions
+- You MUST ask the user about personal preferences before creating `CONVENTIONS.md`
+- `CONVENTIONS.md` MUST reflect the current codebase reality and must not impose new conventions
 </rules>
 
 <script type="error-handler">
