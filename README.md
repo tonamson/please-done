@@ -235,6 +235,7 @@ Please Done provides 20 skills organized into 5 categories.
 | test | `/pd:test` | Write and run tests (Jest, PHPUnit, Hardhat, flutter_test) |
 | fix-bug | `/pd:fix-bug` | Research bug, analyze, fix, commit, loop until confirmed |
 | complete-milestone | `/pd:complete-milestone` | Check errors, summarize, commit, create git tag |
+| sync-version | `/pd:sync-version` | Sync version from package.json across README badges and doc headers |
 
 ### Debug — Analysis & Research
 
@@ -252,6 +253,9 @@ Please Done provides 20 skills organized into 5 categories.
 | fetch-doc | `/pd:fetch-doc` | Download documentation from URL, save as markdown |
 | update | `/pd:update` | Check and update skills from GitHub |
 | what-next | `/pd:what-next` | Scan status, show progress, suggest next command |
+| stats | `/pd:stats` | Display comprehensive project statistics including phases, plans, requirements, milestones |
+| health | `/pd:health` | Diagnose planning directory issues — missing files, STATE.md validation |
+| discover | `/pd:discover` | Discover MCP tools and built-in tools across all configured platforms |
 
 **Status Command Usage:**
 
