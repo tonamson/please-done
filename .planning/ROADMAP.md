@@ -35,7 +35,7 @@
 
 ### Phases
 
-- [ ] **Phase 151: Convention File Migration** - Replace CLAUDE.md with universal CONVENTIONS.md
+- [x] **Phase 151: Convention File Migration** - Replace CLAUDE.md with universal CONVENTIONS.md (completed 2026-04-08)
 - [ ] **Phase 152: Skill Injection** - Update code-writing skills to read CONVENTIONS.md
 
 ### Phase Details
@@ -49,7 +49,7 @@
   2. `CONVENTIONS.md` contains the same content format as previous CLAUDE.md (naming, style, patterns)
   3. Project no longer has a `CLAUDE.md` file (removed or replaced)
 **Plans**: 1 plan
-- [ ] 151-01-PLAN.md — Update skill/workflow files, regenerate snapshots, delete CLAUDE.md
+- [x] 151-01-PLAN.md — Update skill/workflow files, regenerate snapshots, delete CLAUDE.md
 
 #### Phase 152: Skill Injection
 **Goal**: Code-writing skills explicitly read CONVENTIONS.md so any AI model follows project conventions
@@ -66,7 +66,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 151. Convention File Migration | 0/? | Not started | - |
+| 151. Convention File Migration | 1/1 | Complete   | 2026-04-08 |
 | 152. Skill Injection | 0/? | Not started | - |
 
 ---

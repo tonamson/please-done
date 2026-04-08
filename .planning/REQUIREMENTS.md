@@ -20,12 +20,12 @@ explicitly into code-writing skill prompts so all models follow project conventi
 
 ### Convention File
 
-- [ ] **CONV-01**: `pd:conventions` creates/updates `CONVENTIONS.md` instead of `CLAUDE.md`
+- [x] **CONV-01**: `pd:conventions` creates/updates `CONVENTIONS.md` instead of `CLAUDE.md`
   - File lives at project root: `CONVENTIONS.md`
   - Same content as current CLAUDE.md output (naming, style, patterns)
   - Works with any AI model — no model-specific auto-read needed
 
-- [ ] **CONV-02**: `CLAUDE.md` is removed from the project or replaced by `CONVENTIONS.md`
+- [x] **CONV-02**: `CLAUDE.md` is removed from the project or replaced by `CONVENTIONS.md`
   - The project should not have a Claude-specific conventions file
 
 ### Skill Injection
@@ -54,8 +54,8 @@ explicitly into code-writing skill prompts so all models follow project conventi
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| CONV-01 | Phase 151 | Pending |
-| CONV-02 | Phase 151 | Pending |
+| CONV-01 | Phase 151 | Complete |
+| CONV-02 | Phase 151 | Complete |
 | CONV-03 | Phase 152 | Pending |
 | CONV-04 | Phase 152 | Pending |
 | CONV-05 | Phase 152 | Pending |
