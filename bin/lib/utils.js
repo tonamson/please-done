@@ -16,8 +16,19 @@ const COLORS = {
   yellow: "\x1b[1;33m",
   cyan: "\x1b[0;36m",
   dim: "\x1b[2m",
+  bold: "\x1b[1m",
   reset: "\x1b[0m",
 };
+
+// ─── ASCII Art Banner ─────────────────────────────────────
+const PD_BANNER = `
+ ██████╗ ██████╗ 
+ ██╔══██╗██╔══██╗
+ ██████╔╝██║  ██║
+ ██╔═══╝ ██║  ██║
+ ██║     ██████╔╝
+ ╚═╝     ╚═════╝ 
+`.trim();
 
 function colorize(color, text) {
   if (!process.stdout.isTTY || process.env.NO_COLOR) return text;
