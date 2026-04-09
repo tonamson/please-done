@@ -3,7 +3,7 @@
 [![Version](https://img.shields.io/badge/version-12.3.0-blue.svg)](https://github.com/tonamson/please-done/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Node](https://img.shields.io/badge/node-%3E%3D16-brightgreen.svg)](https://nodejs.org)
-[![Platforms](https://img.shields.io/badge/platforms-Claude%20Code%20%7C%20Codex%20%7C%20Gemini%20%7C%20OpenCode%20%7C%20Copilot-purple.svg)](#supported-platforms)
+[![Platforms](https://img.shields.io/badge/platforms-11%20runtimes-purple.svg)](#supported-platforms)
 [![English](https://img.shields.io/badge/lang-English-blue.svg)](README.md)
 [![Tiếng Việt](https://img.shields.io/badge/lang-Tiếng%20Việt-red.svg)](README.vi.md)
 
@@ -35,7 +35,7 @@ Before using Please Done, ensure you have:
 
 - [ ] **Claude Code CLI** (or another supported platform) installed
   - [Claude Code](https://docs.anthropic.com/en/docs/claude-code) — recommended
-  - [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [OpenCode](https://github.com/opencode-ai/opencode), or [GitHub Copilot](https://github.com/features/copilot)
+  - [Codex CLI](https://github.com/openai/codex), [Gemini CLI](https://github.com/google-gemini/gemini-cli), [OpenCode](https://github.com/opencode-ai/opencode), [GitHub Copilot](https://github.com/features/copilot), [Cursor](https://cursor.com), [Windsurf](https://codeium.com/windsurf), [Kilo](https://kilocode.ai), [Antigravity](https://antigravity.dev), [Augment](https://augmentcode.com), or [Trae](https://trae.ai)
 
 - [ ] **Node.js** 16+ (`node --version`)
 
@@ -74,13 +74,19 @@ Run `/pd:init` after installation to verify everything is working.
 ## Supported Platforms
 
 
-| Platform           | Skill invocation syntax    | Global skills location          | Local skills location           |
-| ------------------ | ------------------------- | ------------------------------- | ------------------------------- |
-| **Claude Code**    | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/`      | `.claude/commands/pd/`        |
-| **Codex CLI**      | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/`       | —                             |
-| **Gemini CLI**     | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/`      | —                             |
-| **OpenCode**       | `/pd-init`, `/pd-plan`... | `~/.config/opencode/command/` | —                             |
-| **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/`     | `.github/skills/pd-*/`        |
+| Platform           | Skill invocation syntax    | Global skills location                   | Local skills location                    |
+| ------------------ | ------------------------- | ---------------------------------------- | ---------------------------------------- |
+| **Claude Code**    | `/pd:init`, `/pd:plan`... | `~/.claude/commands/pd/`               | `.claude/commands/pd/`                 |
+| **Codex CLI**      | `$pd-init`, `$pd-plan`... | `~/.codex/skills/pd-*/`                | —                                      |
+| **Gemini CLI**     | `/pd:init`, `/pd:plan`... | `~/.gemini/commands/pd/`               | —                                      |
+| **OpenCode**       | `/pd-init`, `/pd-plan`... | `~/.config/opencode/command/`          | —                                      |
+| **GitHub Copilot** | `/pd:init`, `/pd:plan`... | `~/.copilot/skills/pd-*/`              | `.github/skills/pd-*/`                 |
+| **Cursor**         | `/pd:init`, `/pd:plan`... | `~/.cursor/commands/pd/`               | `.cursor/commands/pd/`                 |
+| **Windsurf**       | `/pd:init`, `/pd:plan`... | `~/.codeium/windsurf/commands/pd/`     | `.codeium/windsurf/commands/pd/`       |
+| **Kilo**           | `/pd:init`, `/pd:plan`... | `~/.config/kilo/commands/pd/`          | `.config/kilo/commands/pd/`            |
+| **Antigravity**    | `/pd:init`, `/pd:plan`... | `~/.gemini/antigravity/commands/pd/`   | `.gemini/antigravity/commands/pd/`     |
+| **Augment**        | `/pd:init`, `/pd:plan`... | `~/.augment/commands/pd/`              | `.augment/commands/pd/`                |
+| **Trae**           | `/pd:init`, `/pd:plan`... | `~/.trae/commands/pd/`                 | `.trae/commands/pd/`                   |
 
 
 Architecture: Write once (Claude Code) → Convert on install → Run natively on each platform.
@@ -96,6 +102,12 @@ Architecture: Write once (Claude Code) → Convert on install → Run natively o
   - [Gemini CLI](https://github.com/google-gemini/gemini-cli)
   - [OpenCode](https://github.com/opencode-ai/opencode)
   - [GitHub Copilot](https://github.com/features/copilot)
+  - [Cursor](https://cursor.com)
+  - [Windsurf](https://codeium.com/windsurf)
+  - [Kilo](https://kilocode.ai)
+  - [Antigravity](https://antigravity.dev)
+  - [Augment](https://augmentcode.com)
+  - [Trae](https://trae.ai)
 
 ## Installation
 
@@ -114,6 +126,12 @@ node bin/install.js --codex
 node bin/install.js --gemini
 node bin/install.js --opencode
 node bin/install.js --copilot
+node bin/install.js --cursor
+node bin/install.js --windsurf
+node bin/install.js --kilo
+node bin/install.js --antigravity
+node bin/install.js --augment
+node bin/install.js --trae
 
 # Install all platforms
 node bin/install.js --all
@@ -135,7 +153,7 @@ node bin/install.js --claude --local
 | 5    | Symlink skills into `~/.claude/commands/pd/`                             |
 | 6    | Register MCP servers (FastCode + Context7) via `claude mcp add`          |
 
-**Codex / Gemini / OpenCode / Copilot** — convert + install skills only (3-4 steps):
+**Codex / Gemini / OpenCode / Copilot / Cursor / Windsurf / Kilo / Antigravity / Augment / Trae** — convert + install skills only (3-4 steps):
 
 | Step | Description                                                              |
 | ---- | ------------------------------------------------------------------------ |
@@ -167,6 +185,12 @@ node bin/install.js --uninstall --codex
 node bin/install.js --uninstall --gemini
 node bin/install.js --uninstall --opencode
 node bin/install.js --uninstall --copilot
+node bin/install.js --uninstall --cursor
+node bin/install.js --uninstall --windsurf
+node bin/install.js --uninstall --kilo
+node bin/install.js --uninstall --antigravity
+node bin/install.js --uninstall --augment
+node bin/install.js --uninstall --trae
 
 # Uninstall all
 node bin/install.js --uninstall --all
@@ -208,14 +232,14 @@ After updating → exit the CLI → restart to load the new Please Done version.
 cd /path/to/your/project
 
 # 3. Run the first skill
-/pd:init        # Claude Code, Gemini, Copilot
+/pd:init        # Claude Code, Gemini, Copilot, Cursor, Windsurf, Kilo, Antigravity, Augment, Trae
 $pd-init        # Codex
 /pd-init        # OpenCode
 ```
 
 ## Skills Reference
 
-Please Done provides 20 skills organized into 5 categories.
+Please Done provides 20 skills organized into 4 categories.
 
 ### Core — Project Foundation
 
@@ -458,14 +482,19 @@ When running skills in a project, the `.planning/` directory is created with thi
 
 ```
 Source (Claude Code original)       Converter on install             Target platform
-┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────┐
-│ commands/pd/*.md     │            │                  │──────────→ │ Claude Code     │
-│ workflows/*.md       │            │                  │──────────→ │ Codex CLI       │
-│ references/*.md      │───────────→│  bin/install.js  │──────────→ │ Gemini CLI      │
-│ templates/*.md       │            │  (Node.js, 0 dep)│──────────→ │ OpenCode        │
-│ commands/pd/rules/*  │            │                  │──────────→ │ GitHub Copilot  │
-│ VERSION, CHANGELOG   │            └──────────────────┘            └─────────────────┘
-└──────────────────────┘
+┌──────────────────────┐            ┌──────────────────┐            ┌─────────────────────┐
+│ commands/pd/*.md     │            │                  │──────────→ │ Claude Code         │
+│ workflows/*.md       │            │                  │──────────→ │ Codex CLI           │
+│ references/*.md      │───────────→│  bin/install.js  │──────────→ │ Gemini CLI          │
+│ templates/*.md       │            │  (Node.js, 0 dep)│──────────→ │ OpenCode            │
+│ commands/pd/rules/*  │            │                  │──────────→ │ GitHub Copilot      │
+│ VERSION, CHANGELOG   │            │                  │──────────→ │ Cursor              │
+└──────────────────────┘            │                  │──────────→ │ Windsurf            │
+                                    │                  │──────────→ │ Kilo                │
+                                    │                  │──────────→ │ Antigravity         │
+                                    │                  │──────────→ │ Augment             │
+                                    └──────────────────┘──────────→ │ Trae                │
+                                                                     └─────────────────────┘
 ```
 
 **Principles:**
@@ -479,12 +508,12 @@ Source (Claude Code original)       Converter on install             Target plat
 ### Per-Platform Conversion
 
 
-| Component          | Claude Code       | Codex                  | Gemini                                   | OpenCode       | Copilot                 |
-| ------------------- | ----------------- | ---------------------- | ---------------------------------------- | -------------- | ----------------------- |
-| **Tool names**     | Read, Write, Bash | Unchanged              | read_file, write_file, run_shell_command | Unchanged      | read, write, execute    |
-| **Command prefix** | /pd:              | $pd-                   | /pd:                                     | /pd-           | /pd:                    |
-| **Skill format**   | Nested .md        | SKILL.md + XML adapter | Nested .md                               | pd-*.md flat   | SKILL.md                |
-| **MCP config**     | settings.json     | config.toml (TOML)     | settings.json                            | Custom config  | copilot-instructions.md |
+| Component          | Claude Code       | Codex                  | Gemini                                   | OpenCode       | Copilot                 | Cursor / Windsurf / Kilo / Antigravity / Augment / Trae |
+| ------------------- | ----------------- | ---------------------- | ---------------------------------------- | -------------- | ----------------------- | ------------------------------------------------------- |
+| **Tool names**     | Read, Write, Bash | Unchanged              | read_file, write_file, run_shell_command | Unchanged      | read, write, execute    | Unchanged (Claude native)                               |
+| **Command prefix** | /pd:              | $pd-                   | /pd:                                     | /pd-           | /pd:                    | /pd:                                                    |
+| **Skill format**   | Nested .md        | SKILL.md + XML adapter | Nested .md                               | pd-*.md flat   | SKILL.md                | Nested .md                                              |
+| **MCP config**     | settings.json     | config.toml (TOML)     | settings.json                            | Custom config  | copilot-instructions.md | Platform-specific config file                           |
 
 
 ## MCP Servers
