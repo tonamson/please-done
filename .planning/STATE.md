@@ -1,16 +1,16 @@
 ---
 pd_state_version: 1.0
-milestone: v12.5
-milestone_name: Installer UX & Runtime Expansion
-status: Shipped
+milestone: v12.6
+milestone_name: GSD Independence Cleanup
+status: In Progress
 last_updated: "2026-04-09"
 last_activity: 2026-04-09
 progress:
-  total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  total_phases: 1
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
@@ -18,7 +18,7 @@ progress:
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-04-09)
-See: `.planning/ROADMAP.md` (v12.5 archived — start next milestone with /gsd-new-milestone)
+See: `.planning/ROADMAP.md` (v12.6 active)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -26,7 +26,10 @@ See: `.planning/ROADMAP.md` (v12.5 archived — start next milestone with /gsd-n
 
 ## Current Position
 
-Milestone v12.5 shipped. Ready for next milestone.
+Phase: 155 (GSD Independence Audit & Cleanup)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-09 — Milestone v12.6 started
 
 ---
 

@@ -1,5 +1,16 @@
 # Please-Done Workflow Optimization
 
+## Current Milestone: v12.6 GSD Independence Cleanup
+
+**Goal:** Verify the pd repo is fully independent from GSD — scan all source files, remove any remaining references, and confirm tests pass cleanly.
+
+**Target features:**
+- Full repo audit: confirm no GSD refs in bin/, commands/, test/, docs/, templates/
+- Fix test failures caused by GSD removal (if any found)
+- Update codebase architecture docs to reflect standalone identity
+
+---
+
 ## v12.5 Shipped ✅
 
 **Shipped:** 2026-04-09 — 25 milestones, 154 phases, 2 plans.
