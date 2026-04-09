@@ -242,7 +242,7 @@ describe("Cross-platform — ALL skills must exist on EVERY platform", () => {
           .sort();
       }
       case "opencode": {
-        return listDir(tmpDir, "command")
+        return listDir(tmpDir, "commands")
           .filter((f) => f.startsWith("pd-") && !f.startsWith("pd-rules-"))
           .map((f) => f.replace("pd-", "").replace(".md", ""))
           .sort();
@@ -418,7 +418,7 @@ describe("Cross-platform — Skill content not empty + has frontmatter", () => {
       const installer = require("../bin/lib/installers/opencode");
       await installer.install(SKILLS_DIR, tmpDir, { version: "0.0.0-test" });
       for (const skill of canonical) {
-        const content = readFile(tmpDir, "command", `pd-${skill.name}.md`);
+        const content = readFile(tmpDir, "commands", `pd-${skill.name}.md`);
         assert.ok(content.length > 100, `pd-${skill.name}.md too short`);
       }
     } finally {
@@ -491,7 +491,7 @@ describe("Cross-platform — Rules files complete", () => {
     try {
       const installer = require("../bin/lib/installers/opencode");
       await installer.install(SKILLS_DIR, tmpDir, { version: "0.0.0-test" });
-      const files = listDir(tmpDir, "command").filter((f) =>
+      const files = listDir(tmpDir, "commands").filter((f) =>
         f.startsWith("pd-rules-"),
       );
       const rules = files.map((f) => f.replace("pd-rules-", ""));

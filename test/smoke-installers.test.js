@@ -209,8 +209,8 @@ describe('OpenCode installer', () => {
 
   after(() => fs.rmSync(tmpDir, { recursive: true, force: true }));
 
-  it('creates command/pd-*.md (flat)', () => {
-    const files = listDir(tmpDir, 'command').filter(f => f.startsWith('pd-'));
+  it('creates commands/pd-*.md (flat)', () => {
+    const files = listDir(tmpDir, 'commands').filter(f => f.startsWith('pd-'));
     assert.ok(files.length > 0, 'no skill files created');
     assert.ok(files.includes('pd-init.md'), 'missing pd-init.md');
     assert.ok(files.includes('pd-plan.md'), 'missing pd-plan.md');
@@ -218,9 +218,9 @@ describe('OpenCode installer', () => {
   });
 
   it('skill files do not contain ~/.claude/', () => {
-    const content = readFile(tmpDir, 'command', 'pd-init.md');
+    const content = readFile(tmpDir, 'commands', 'pd-init.md');
     assert.ok(!content.includes('~/.claude/'), 'still contains ~/.claude/');
-    assert.match(content, /~\/\.config\/opencode\//);
+    assert.match(content, /~\/\.opencode\//);
   });
 
   it('creates .pdconfig', () => {
@@ -228,14 +228,14 @@ describe('OpenCode installer', () => {
   });
 
   it('copies rules inline (pd-rules-*.md)', () => {
-    const files = listDir(tmpDir, 'command').filter(f => f.startsWith('pd-rules-'));
+    const files = listDir(tmpDir, 'commands').filter(f => f.startsWith('pd-rules-'));
     assert.ok(files.length > 0, 'no rules files created');
     assert.ok(files.includes('pd-rules-general.md'), 'missing pd-rules-general.md');
   });
 
   it('uninstall removes all pd-* files', async () => {
     await installer.uninstall(tmpDir);
-    const remaining = listDir(tmpDir, 'command').filter(f => f.startsWith('pd-'));
+    const remaining = listDir(tmpDir, 'commands').filter(f => f.startsWith('pd-'));
     assert.equal(remaining.length, 0, `${remaining.length} files remaining`);
   });
 });

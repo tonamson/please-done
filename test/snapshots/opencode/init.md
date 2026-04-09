@@ -115,7 +115,7 @@ Discussion results will be written to `PROJECT.md` immediately after the file is
 mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules .planning/docs/solidity
 ```
 ## Step 6: Copy rules to .planning/rules/
-Read `.pdconfig` → `SKILLS_DIR`. (Claude Code: `cat ~/.config/opencode/.pdconfig`)
+Read `.pdconfig` → `SKILLS_DIR`. (Claude Code: `cat ~/.opencode/.pdconfig`)
 Not found → **STOP**: "Cannot find .pdconfig. Run `node bin/install.js` again."
 Delete ONLY template files: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Keep custom files.
 Copy from `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:

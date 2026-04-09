@@ -1,7 +1,7 @@
 /**
  * Converter: Claude Code -> OpenCode
  *
- * OpenCode dung flat command structure: command/pd-*.md (khong nested).
+ * OpenCode dung flat command structure: commands/pd-*.md (khong nested).
  * Frontmatter: strip name (dung filename), strip tools/color/skills,
  * add model: inherit cho agents.
  * Slash commands: /pd:xxx -> /pd-xxx (dau gach ngang thay dau hai cham).
@@ -18,7 +18,7 @@ function convertSkill(content, skillsDir) {
   return baseConvert(content, {
     runtime: 'opencode',
     skillsDir,
-    pathReplace: '~/.config/opencode/',
+    pathReplace: '~/.opencode/',
     buildFrontmatter: (fm) => {
       const newFm = {};
       if (fm.description) newFm.description = fm.description;
@@ -28,7 +28,7 @@ function convertSkill(content, skillsDir) {
       return newFm;
     },
     pdconfigFix: (body) =>
-      body.replace(/~\/\.config\/opencode\/commands\/pd\/\.pdconfig/g, '~/.config/opencode/.pdconfig'),
+      body.replace(/~\/\.opencode\/commands\/pd\/\.pdconfig/g, '~/.opencode/.pdconfig'),
     postProcess: (body) =>
       body.replace(/AskUserQuestion/g, 'question').replace(/SlashCommand/g, 'skill'),
   });
