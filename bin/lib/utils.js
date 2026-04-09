@@ -40,17 +40,34 @@ const log = {
   success: (msg) => console.log(colorize("green", `  ✓ ${msg}`)),
   warn: (msg) => console.log(colorize("yellow", `  ⚠ ${msg}`)),
   error: (msg) => console.log(colorize("red", `  ✗ ${msg}`)),
-  step: (num, total, msg) =>
-    console.log(colorize("cyan", `[${num}/${total}] ${msg}`)),
+  step: (num, total, msg) => {
+    const progress = "●".repeat(num) + "○".repeat(total - num);
+    const isTTY = process.stdout.isTTY && !process.env.NO_COLOR;
+    const prefix = isTTY
+      ? `${COLORS.cyan}[${num}/${total}]${COLORS.reset} ${COLORS.dim}${progress}${COLORS.reset}`
+      : `[${num}/${total}] ${progress}`;
+    console.log(`${prefix}  ${msg}`);
+  },
   banner: (lines) => {
     const width = 40;
-    const border = width + 1; // ║ + space(1) + content(width-1) + ║ = width+1 between borders
+    const border = width + 1;
     console.log(colorize("cyan", `╔${"═".repeat(border)}╗`));
     for (const line of lines) {
       const padded = (line || "").padEnd(width).slice(0, width);
       console.log(colorize("cyan", `║ ${padded}║`));
     }
     console.log(colorize("cyan", `╚${"═".repeat(border)}╝`));
+  },
+  showBanner: (version) => {
+    const isTTY = process.stdout.isTTY && !process.env.NO_COLOR;
+    const lines = PD_BANNER.split("\n");
+    console.log("");
+    for (const line of lines) {
+      console.log(isTTY ? `${COLORS.cyan}${line}${COLORS.reset}` : line);
+    }
+    const tagline = `  Skills Installer v${version}`;
+    console.log(isTTY ? `${COLORS.dim}${tagline}${COLORS.reset}` : tagline);
+    console.log("");
   },
 };
 
