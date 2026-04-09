@@ -16,6 +16,9 @@ User input: $ARGUMENTS
 - `--check`: validation-only — report mismatches without modifying files
 No rules or FastCode MCP needed.
 </context>
+<execution_context>
+No external workflow needed — pd:sync-version executes inline using bin/lib/version-sync.js.
+</execution_context>
 <process>
 1. read `package.json` → pass content to `extractPackageVersion()` from `bin/lib/version-sync.js`. If null → STOP: "Could not read version from package.json."
 2. read `README.md` → extract badge version via `extractBadgeVersion()` and text version via `extractTextVersion()`. Store results.

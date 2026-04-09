@@ -39,10 +39,10 @@ describe("TTY guard on colorize()", () => {
 });
 
 describe("Platform descriptions", () => {
-  it("all 7 platforms have description field", () => {
+  it("all 11 platforms have description field", () => {
     const { PLATFORMS } = require("../bin/lib/platforms");
     const runtimes = Object.keys(PLATFORMS);
-    assert.strictEqual(runtimes.length, 7);
+    assert.strictEqual(runtimes.length, 11);
     for (const rt of runtimes) {
       assert.ok(
         typeof PLATFORMS[rt].description === "string" && PLATFORMS[rt].description.length > 0,

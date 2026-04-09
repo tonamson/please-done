@@ -165,8 +165,8 @@ describe('getModelForTier backward compatibility', () => {
 // ─── platforms.js: cursor va windsurf ────────────────────────
 
 describe('platforms.js: cursor va windsurf', () => {
-  it('PLATFORMS co 7 entries', () => {
-    assert.equal(Object.keys(PLATFORMS).length, 7);
+  it('PLATFORMS co 11 entries', () => {
+    assert.equal(Object.keys(PLATFORMS).length, 11);
   });
 
   it('PLATFORMS.cursor co dirName .cursor va commandPrefix /pd:', () => {
@@ -175,9 +175,9 @@ describe('platforms.js: cursor va windsurf', () => {
     assert.equal(PLATFORMS.cursor.commandPrefix, '/pd:');
   });
 
-  it('PLATFORMS.windsurf co dirName .windsurf va commandPrefix /pd:', () => {
+  it('PLATFORMS.windsurf co dirName .codeium/windsurf va commandPrefix /pd:', () => {
     assert.ok(PLATFORMS.windsurf);
-    assert.equal(PLATFORMS.windsurf.dirName, '.windsurf');
+    assert.equal(PLATFORMS.windsurf.dirName, '.codeium/windsurf');
     assert.equal(PLATFORMS.windsurf.commandPrefix, '/pd:');
   });
 

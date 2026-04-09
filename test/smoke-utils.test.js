@@ -356,9 +356,9 @@ describe("listSkillFiles", () => {
 
 // ─── Platforms ─────────────────────────────────────────────
 describe("Platforms", () => {
-  it("has all 7 platforms", () => {
+  it("has all 11 platforms", () => {
     const runtimes = getAllRuntimes();
-    assert.equal(runtimes.length, 7);
+    assert.equal(runtimes.length, 11);
     assert.ok(runtimes.includes("claude"));
     assert.ok(runtimes.includes("codex"));
     assert.ok(runtimes.includes("gemini"));

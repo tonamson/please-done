@@ -15,6 +15,9 @@ User input: $ARGUMENTS
 - `--json`: Display stats as machine-readable JSON
 No rules or FastCode MCP needed - only read planning files.
 </context>
+<execution_context>
+No external workflow needed — pd:stats executes inline using bin/lib/stats-collector.js.
+</execution_context>
 <process>
 1. read `.planning/STATE.md` → pass content to `parseStateProgress()` from `bin/lib/stats-collector.js`
 2. read `.planning/ROADMAP.md` → pass content to `parseRoadmapPhases()`

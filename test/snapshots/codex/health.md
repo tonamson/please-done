@@ -34,6 +34,9 @@ User input: {{PD_ARGS}}
 - `--json`: Display as machine-readable JSON
 No rules or FastCode MCP needed - only read planning files.
 </context>
+<execution_context>
+No external workflow needed — pd:health executes inline using bin/lib/health-checker.js.
+</execution_context>
 <process>
 1. Read `.planning/ROADMAP.md` → extract completed phase numbers (phases with `[x]` checkbox) and all phase numbers from the progress table
 2. Glob `.planning/phases/*/` → get all phase directories

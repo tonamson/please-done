@@ -35,6 +35,9 @@ User input: {{PD_ARGS}}
 - `--verbose`: Include full tool detail in output
 No rules or FastCode MCP needed — this is a diagnostic command only.
 </context>
+<execution_context>
+No external workflow needed — pd:discover executes inline using bin/lib/mcp-discovery.js and bin/lib/platforms.js.
+</execution_context>
 <process>
 1. Load `PLATFORMS` and `getGlobalDir` from `bin/lib/platforms.js` using require()
 2. Load `PLATFORM_CONFIG_SPECS`, `discoverAllTools`, `formatDiscoveryTable`, `formatDiscoveryJson` from `bin/lib/mcp-discovery.js` using require()
