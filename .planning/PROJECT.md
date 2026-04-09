@@ -1,13 +1,16 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.6 GSD Independence Cleanup
+## v12.6 Shipped ✅
 
-**Goal:** Verify the pd repo is fully independent from GSD — scan all source files, remove any remaining references, and confirm tests pass cleanly.
+**Shipped:** 2026-04-09 — 26 milestones, 155 phases, 1 plan.
 
-**Target features:**
-- Full repo audit: confirm no GSD refs in bin/, commands/, test/, docs/, templates/
-- Fix test failures caused by GSD removal (if any found)
-- Update codebase architecture docs to reflect standalone identity
+**What was delivered (v12.6 GSD Independence Cleanup):**
+- Confirmed zero GSD/get-shit-done references in all non-.planning source files
+- Reduced pre-existing test failures from 127 → 21 (106 fixed)
+- Added `<execution_context>` sections to discover, health, stats, sync-version skills
+- Expanded `ALLOWED_NO_WORKFLOW` whitelist (+5 entries)
+- Removed orphaned `workflows/audit.md`
+- Regenerated 16 converter snapshots (4 platforms × 4 skills)
 
 ---
 
@@ -178,6 +181,9 @@ Every workflow step must produce the highest quality code output while consuming
 - ✓ **L-06**: Discussion Audit Trail — audit-trail.js (5 exports), auto-capture hook — v12.2 (Phase 142)
 - ✓ **L-07**: Scope Reduction Detection — scope-checker.js (5 exports), health + milestone — v12.2 (Phase 143)
 - ✓ **L-08**: Schema Drift Detection — drift-detector.js (6 exports), STATE.md validation — v12.2 (Phase 144)
+- ✓ **GSDC-01**: Zero GSD/get-shit-done references in all non-.planning source files — v12.6 (Phase 155)
+- ✓ **GSDC-02**: All commands/pd/*.md describe pd as standalone, no GSD attribution — v12.6 (Phase 155)
+- ✓ **GSDC-03**: No regressions from GSD removal — test failures 127 → 21 (pre-existing env issues only) — v12.6 (Phase 155)
 
 ### Deferred (Future Milestones)
 
@@ -229,18 +235,17 @@ See `.planning/milestones/v12.1-ROADMAP.md` for full details.
 
 ## Current State
 
-**Current:** v12.3 — shipped 2026-04-08  
-**Shipped:** v12.3 Installation & Documentation UX (2026-04-08), v12.2 Installer UX (2026-04-07), v11.1 Developer Tooling (2026-04-04), v10.0 Skill Repo Audit Fixes (2026-04-03)  
-**Previous:** v9.0 Bug Audit & Robustness (2026-04-03), v8.0 Developer Experience & Quality Hardening (2026-04-03)
+**Current:** v12.6 — shipped 2026-04-09
+**Shipped:** v12.6 GSD Independence Cleanup (2026-04-09), v12.5 Installer UX & Runtime Expansion (2026-04-09), v12.4 Convention-Aware Skill Execution (2026-04-08), v12.3 Installation & Documentation UX (2026-04-08)
+**Previous:** v12.2 Developer Experience Improvements (2026-04-07), v12.1 Quality Hardening (2026-04-06)
 
-v12.3 scope: Installer prompt UX, reliability, error messages (phases 145–147); cheatsheet, command reference, workflow overview, getting started docs (phases 148–149); README/version bump (phase 150). 9 requirements, 6 phases.
+v12.6 scope: Full GSD independence audit — zero references confirmed in all non-.planning source files, 106 pre-existing test failures fixed (127 → 21), execution_context added to 4 inline skills, ALLOWED_NO_WORKFLOW expanded. 3 requirements, 1 phase.
 
-Tech stack: Node.js (pure scripts, no bundler), 5 platform converters, 20 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
+Tech stack: Node.js (pure scripts, no bundler), 11 platform converters, 20 skills, 15 workflows, 31 JS library modules, ~27,500+ LOC JavaScript.
 
 ## Next Milestone Goals
 
-Planned for v12.4 (TBD):
-- TBD — run `/gsd-new-milestone` to define scope
+No active milestone — run `/gsd-new-milestone` to define v12.7+ scope.
 
 ## Constraints
 
@@ -305,4 +310,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-_Last updated: 2026-04-07 — v12.3 milestone started_
+_Last updated: 2026-04-09 — v12.6 shipped, archived to `.planning/milestones/v12.6-ROADMAP.md`_

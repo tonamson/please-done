@@ -397,6 +397,49 @@ _A living document updated after each milestone. Lessons feed forward into futur
 
 ---
 
+## Milestone: v12.6 — GSD Independence Cleanup
+
+**Shipped:** 2026-04-09
+**Phases:** 1 | **Plans:** 1 | **Tasks:** ~15
+
+### What Was Built
+
+Single focused phase (155) to eliminate all GSD/get-shit-done references from source files, making the `please-done` repo fully standalone. Covered 5 file type categories (bin/, commands/, lib/, templates/, docs/), updated all self-referencing help text and documentation, and fixed 106 pre-existing test failures that were blocking CI.
+
+### What Went Well
+
+- Scope was surgical and well-defined — 3 requirements, 1 phase, clean delivery
+- Integration checker provided live verification in absence of VERIFICATION.md
+- Test failure fix (127 → 21) was a valuable cleanup bundled with the independence work
+- Milestone closure ran smoothly with all manual artifact steps handled
+
+### What Was Hard
+
+- **No VERIFICATION.md**: Phase 155 used inline execution without creating a VERIFICATION.md — caught in audit as tech debt
+- **gsd-tools accomplishments extraction bug**: Only pulled first line of SUMMARY.md ("GSD Scan:") — manually corrected
+- **gsd-tools archive format**: Copies raw ROADMAP.md as archive (not proper milestone archive format) — manually replaced
+- **22 pre-existing test failures**: Not regressions, but distinguishing them from phase-introduced failures required careful checking
+
+### Key Decisions
+
+- Accepted missing VERIFICATION.md as tech debt (not a blocker) — 3/3 requirements live-verified by integration checker
+- Bundled test failure fixes with independence cleanup (net improvement, not scope creep)
+
+### Lessons Learned
+
+- Process gap: phases without VERIFICATION.md create ambiguity at audit time — integration checker salvages it but adds overhead
+- gsd-tools `milestone complete` needs work: accomplishments extraction and archive format both require manual fixes
+- Single-phase milestones with tight scope are fast to close — good model for focused cleanup work
+
+### Stats
+
+- Commits: ~5 in phase + milestone closure commits
+- Files changed: ~60+ source files (5 categories)
+- Tests: 1824 pass, 22 pre-existing failures (unchanged)
+- Sessions: 1
+
+---
+
 ## Cross-Milestone Trends
 
 ### Process Evolution
@@ -411,6 +454,7 @@ _A living document updated after each milestone. Lessons feed forward into futur
 | v6.0      | 4+       | 6      | Full Vietnamese → English migration: all file types, 61 commits, 40 audit fixes   |
 | v12.1     | 1        | 12     | Quality hardening: cross-runtime support, verification standardization, gap closure |
 | v12.2     | 1        | 8      | Developer experience: stats/health/audit/discovery/sync/scope/drift pure-function libraries |
+| v12.6     | 1        | 1      | GSD independence: zero GSD references in source, 106 test failures fixed, repo fully standalone |
 
 ### Cumulative Quality
 

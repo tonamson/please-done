@@ -25,29 +25,17 @@
 - ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 ([shipped 2026-04-08](milestones/v12.3-ROADMAP.md))
 - ✅ **v12.4 Convention-Aware Skill Execution** — Phases 151-152 ([shipped 2026-04-08](milestones/v12.4-ROADMAP.md))
 - ✅ **v12.5 Installer UX & Runtime Expansion** — Phases 153-154 ([shipped 2026-04-09](milestones/v12.5-ROADMAP.md))
-- 🚧 **v12.6 GSD Independence Cleanup** — Phase 155 (active)
+- ✅ **v12.6 GSD Independence Cleanup** — Phase 155 ([shipped 2026-04-09](milestones/v12.6-ROADMAP.md))
 
 ## Progress
 
-26 milestones total (25 shipped, 1 active). 154 phases completed.
+26 milestones total (26 shipped). 155 phases completed.
 
 ---
 
 ## Active Milestone
 
-**v12.6 GSD Independence Cleanup** — Phase 155
-
-| # | Phase | Goal | Requirements |
-|---|-------|------|--------------|
-| 155 | GSD Independence Audit & Cleanup | Remove all GSD references from repo source, verify skills are standalone, confirm tests pass | GSDC-01, GSDC-02, GSDC-03 |
-
-### Phase 155: GSD Independence Audit & Cleanup
-Goal: Audit every non-.planning file for GSD references, remove any found, update codebase architecture docs, and run full test suite to confirm no regressions.
-Requirements: GSDC-01, GSDC-02, GSDC-03
-Success criteria:
-1. Zero GSD/get-shit-done references found in bin/, commands/, test/, docs/, templates/, scripts/, root files
-2. All tests that were passing before v12.6 still pass after cleanup
-3. Architecture docs describe pd as standalone (no GSD framing)
+*(No active milestone — start next with `/gsd-new-milestone`)*
 
 ---
 
@@ -62,6 +50,7 @@ Success criteria:
 ## Completed Milestones
 
 See `.planning/milestones/` for archived milestone details:
+- [v12.6 GSD Independence Cleanup](milestones/v12.6-ROADMAP.md) — 1 phase, 1 plan (GSD scan clean, test fixes 127→21)
 - [v12.5 Installer UX & Runtime Expansion](milestones/v12.5-ROADMAP.md) — 2 phases, 2 plans (ASCII banner, colorized help, 11 runtimes)
 - [v12.4 Convention-Aware Skill Execution](milestones/v12.4-ROADMAP.md) — 2 phases, 2 plans (CONVENTIONS.md migration, skill injection for write-code/fix-bug/plan)
 - [v12.3 Installation & Documentation UX](milestones/v12.3-ROADMAP.md) — 6 phases, 14 plans (prompt-ux, reliability, error-messages, cheatsheet, command-reference, workflow-overview, getting-started, readme-update)
@@ -72,5 +61,5 @@ See `.planning/milestones/` for archived milestone details:
 
 ---
 
-<!-- v12.5 details archived → .planning/milestones/v12.5-ROADMAP.md -->
+<!-- v12.6 details archived → .planning/milestones/v12.6-ROADMAP.md -->
 

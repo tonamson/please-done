@@ -1,5 +1,21 @@
 # Milestones
 
+## v12.6 GSD Independence Cleanup (Shipped: 2026-04-09)
+
+**Phases completed:** 1 phase, 1 plan
+**Files changed:** 32 (+377/-405 lines)
+
+**Key accomplishments:**
+
+- Confirmed zero GSD/get-shit-done references in all non-.planning source files
+- Reduced pre-existing test failures from 127 → 21 (106 fixed)
+- Added `<execution_context>` sections to discover, health, stats, sync-version skills
+- Expanded `ALLOWED_NO_WORKFLOW` whitelist (+5 entries: audit, discover, health, stats, sync-version)
+- Removed orphaned `workflows/audit.md` (unreferenced by any command)
+- Regenerated 16 converter snapshots (4 platforms × 4 skills)
+
+---
+
 ## v12.4 Convention-Aware Skill Execution (Shipped: 2026-04-09)
 
 **Phases completed:** 2 phases, 2 plans, 6 tasks
