@@ -260,39 +260,48 @@ async function uninstall(runtime, isGlobal, configDir) {
 
 // ─── Help ─────────────────────────────────────────────────
 function showHelp() {
-  console.log(`
-Skills Installer v${VERSION}
-Cross-platform installer for /pd:* skills.
+  const isTTY = process.stdout.isTTY && !process.env.NO_COLOR;
+  const c = (color, text) =>
+    isTTY ? `\x1b[${color}m${text}\x1b[0m` : text;
+  const bold = (t) => c("1", t);
+  const cyan = (t) => c("0;36", t);
+  const dim = (t) => c("2", t);
+  const yellow = (t) => c("1;33", t);
 
-Usage:
-  npx please-done [options]
+  console.log(`Cross-platform installer for ${cyan("/pd:*")} skills.
 
-Platforms:
-  --claude          Install for Claude Code
-  --codex           Install for Codex CLI
-  --gemini          Install for Gemini CLI
-  --opencode        Install for OpenCode
-  --copilot         Install for GitHub Copilot
-  --all             Install all platforms
+${bold("Usage:")}
+  ${cyan("npx please-done")} ${dim("[options]")}
 
-Options:
-  -g, --global      Global install (default)
-  -l, --local       Local install (project-level)
-  -u, --uninstall   Uninstall
-  -c, --config-dir  Custom config directory
-  -h, --help        Show help
+${bold("Platforms:")}
+  ${yellow("--claude")}          Install for Claude Code
+  ${yellow("--codex")}           Install for Codex CLI
+  ${yellow("--gemini")}          Install for Gemini CLI
+  ${yellow("--opencode")}        Install for OpenCode
+  ${yellow("--copilot")}         Install for GitHub Copilot
+  ${yellow("--all")}             Install all platforms
 
-Examples:
-  npx please-done                     Interactive mode
-  npx please-done --claude            Install for Claude Code
-  npx please-done --all --global      Install all (global)
-  npx please-done -u --codex          Uninstall from Codex
+${bold("Options:")}
+  ${dim("-g")}, ${yellow("--global")}      Global install ${dim("(default)")}
+  ${dim("-l")}, ${yellow("--local")}       Local install (project-level)
+  ${dim("-u")}, ${yellow("--uninstall")}   Uninstall
+  ${dim("-c")}, ${yellow("--config-dir")}  Custom config directory
+  ${dim("-h")}, ${yellow("--help")}        Show help
+
+${bold("Examples:")}
+  ${dim("$")} npx please-done                     ${dim("# Interactive mode")}
+  ${dim("$")} npx please-done --claude            ${dim("# Install for Claude Code")}
+  ${dim("$")} npx please-done --all --global      ${dim("# Install all (global)")}
+  ${dim("$")} npx please-done -u --codex          ${dim("# Uninstall from Codex")}
 `);
 }
 
 // ─── Main ─────────────────────────────────────────────────
 async function main() {
   const flags = parseArgs(process.argv);
+
+  // Show ASCII art banner at startup (both --help and interactive)
+  log.showBanner(VERSION);
 
   // Help
   if (flags.help) {
@@ -306,12 +315,6 @@ async function main() {
       "WSL detected. Consider running the installer from native Linux, not through Windows.",
     );
   }
-
-  // Banner
-  log.banner([
-    `  Skills Installer v${VERSION}`.padEnd(39),
-    "  Cross-platform AI Coding Skills".padEnd(39),
-  ]);
 
   // Resolve runtimes
   let runtimes = flags.runtimes;
