@@ -37,7 +37,7 @@
 ### Phases
 
 - [x] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗ (completed 2026-04-09)
-- [ ] **Phase 154: Runtime Expansion** — 6 new runtimes + --config-dir + --force-statusline
+- [ ] **Phase 154: Runtime Expansion** — 4 new runtimes + windsurf fix + --force-statusline
 
 ### Phase Details
 
@@ -66,13 +66,16 @@
   7. User can override default config directory with `--config-dir <path>` / `-c`
   8. User can force statusline replacement in IDE editors with `--force-statusline`
   9. All 6 new runtimes appear in `--all` and interactive menu
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 154-01-PLAN.md — Add 4 new runtimes (kilo, antigravity, augment, trae), fix windsurf path, add --force-statusline
 
 ### Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 153. Installer UX Polish | 1/1 | Complete   | 2026-04-09 |
+| 154. Runtime Expansion | 0/1 | Not started | - |
 | 154. Runtime Expansion | 0/? | Not started | - |
 
 ---
