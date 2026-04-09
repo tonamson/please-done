@@ -36,8 +36,12 @@ const TOOL_MAP = {
     WebFetch: 'fetch',
     WebSearch: 'search_web',
   },
-  cursor: {},    // Cursor uses Claude native tool names
-  windsurf: {},  // Windsurf uses Claude native tool names
+  cursor: {},       // Cursor uses Claude native tool names
+  windsurf: {},     // Windsurf uses Claude native tool names
+  kilo: {},         // Kilo uses Claude native tool names
+  antigravity: {},  // Antigravity uses Claude native tool names
+  augment: {},      // Augment uses Claude native tool names
+  trae: {},         // Trae uses Claude native tool names
 };
 
 // ─── Platform definitions ─────────────────────────────────
@@ -111,13 +115,57 @@ const PLATFORMS = {
   windsurf: {
     name: 'Windsurf',
     description: 'Agentic IDE by Codeium',
-    dirName: '.windsurf',
+    dirName: '.codeium/windsurf',
     commandPrefix: '/pd:',
     commandSeparator: ':',
     envVar: 'WINDSURF_CONFIG_DIR',
     skillFormat: 'nested',
     frontmatterFormat: 'yaml',
     toolMap: TOOL_MAP.windsurf,
+  },
+  kilo: {
+    name: 'Kilo',
+    description: 'AI coding agent by Kilo',
+    dirName: '.config/kilo',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'KILO_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.kilo,
+  },
+  antigravity: {
+    name: 'Antigravity',
+    description: 'AI coding agent by Antigravity',
+    dirName: '.gemini/antigravity',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'ANTIGRAVITY_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.antigravity,
+  },
+  augment: {
+    name: 'Augment',
+    description: 'AI coding agent by Augment',
+    dirName: '.augment',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'AUGMENT_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.augment,
+  },
+  trae: {
+    name: 'Trae',
+    description: 'AI IDE by ByteDance',
+    dirName: '.trae',
+    commandPrefix: '/pd:',
+    commandSeparator: ':',
+    envVar: 'TRAE_CONFIG_DIR',
+    skillFormat: 'nested',
+    frontmatterFormat: 'yaml',
+    toolMap: TOOL_MAP.trae,
   },
 };
 
@@ -153,7 +201,17 @@ function getGlobalDir(runtime, explicitDir) {
     case 'cursor':
       return path.join(home, '.cursor');
     case 'windsurf':
-      return path.join(home, '.windsurf');
+      return path.join(home, '.codeium', 'windsurf');
+    case 'kilo': {
+      const xdg = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
+      return path.join(xdg, 'kilo');
+    }
+    case 'antigravity':
+      return path.join(home, '.gemini', 'antigravity');
+    case 'augment':
+      return path.join(home, '.augment');
+    case 'trae':
+      return path.join(home, '.trae');
     default:
       return path.join(home, platform.dirName);
   }
