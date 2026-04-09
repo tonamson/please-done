@@ -57,6 +57,7 @@ function parseArgs(argv) {
     uninstall: false,
     configDir: null,
     help: false,
+    forceStatusline: false,
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -76,6 +77,27 @@ function parseArgs(argv) {
         break;
       case "--copilot":
         flags.runtimes.push("copilot");
+        break;
+      case "--cursor":
+        flags.runtimes.push("cursor");
+        break;
+      case "--windsurf":
+        flags.runtimes.push("windsurf");
+        break;
+      case "--kilo":
+        flags.runtimes.push("kilo");
+        break;
+      case "--antigravity":
+        flags.runtimes.push("antigravity");
+        break;
+      case "--augment":
+        flags.runtimes.push("augment");
+        break;
+      case "--trae":
+        flags.runtimes.push("trae");
+        break;
+      case "--force-statusline":
+        flags.forceStatusline = true;
         break;
       case "--all":
         flags.runtimes = getAllRuntimes();
@@ -127,6 +149,18 @@ function getInstalledDirs(runtime) {
       return ["command"];
     case "copilot":
       return ["skills"];
+    case "cursor":
+      return ["commands/pd"];
+    case "windsurf":
+      return ["commands/pd"];
+    case "kilo":
+      return ["commands/pd"];
+    case "antigravity":
+      return ["commands/pd"];
+    case "augment":
+      return ["commands/pd"];
+    case "trae":
+      return ["commands/pd"];
     default:
       return [];
   }
@@ -279,6 +313,12 @@ ${bold("Platforms:")}
   ${yellow("--gemini")}          Install for Gemini CLI
   ${yellow("--opencode")}        Install for OpenCode
   ${yellow("--copilot")}         Install for GitHub Copilot
+  ${yellow("--cursor")}          Install for Cursor
+  ${yellow("--windsurf")}        Install for Windsurf
+  ${yellow("--kilo")}            Install for Kilo
+  ${yellow("--antigravity")}     Install for Antigravity
+  ${yellow("--augment")}         Install for Augment
+  ${yellow("--trae")}            Install for Trae
   ${yellow("--all")}             Install all platforms
 
 ${bold("Options:")}
@@ -286,7 +326,8 @@ ${bold("Options:")}
   ${dim("-l")}, ${yellow("--local")}       Local install (project-level)
   ${dim("-u")}, ${yellow("--uninstall")}   Uninstall
   ${dim("-c")}, ${yellow("--config-dir")}  Custom config directory
-  ${dim("-h")}, ${yellow("--help")}        Show help
+  ${yellow("--force-statusline")}  Replace existing statusline config
+  ${dim("-h")}, ${yellow("--help")}           Show help
 
 ${bold("Examples:")}
   ${dim("$")} npx please-done                     ${dim("# Interactive mode")}
@@ -314,6 +355,11 @@ async function main() {
     log.warn(
       "WSL detected. Consider running the installer from native Linux, not through Windows.",
     );
+  }
+
+  // Force statusline (parse-only — not yet implemented)
+  if (flags.forceStatusline) {
+    log.warn("--force-statusline: statusline config not yet supported in this version");
   }
 
   // Resolve runtimes
