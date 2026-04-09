@@ -1,13 +1,17 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.4 Convention-Aware Skill Execution
+## Current Milestone: v12.5 (Next — TBD)
 
-**Goal:** Mọi AI model (Claude, Kimi, Gemini, GLM...) đều nhận project coding conventions khi chạy code-writing skills — không phụ thuộc vào model tự đọc CLAUDE.md.
+> Start `/gsd-new-milestone` to define the next milestone scope.
 
-**Target features:**
-- gsd-executor auto-injects references/conventions.md vào prompt trước khi viết code
-- gsd-code-fixer và gsd-debugger cũng inject conventions
-- Configurable injection: project có thể chỉ định references files nào cần inject
+## Previous: v12.4 Shipped ✅
+
+**Shipped:** 2026-04-08 — 23 milestones, 152 phases, 2 plans.
+
+**What was delivered (v12.4 Convention-Aware Skill Execution):**
+- `pd:conventions` now creates `CONVENTIONS.md` (universal) instead of `CLAUDE.md` (Claude-specific)
+- `CLAUDE.md` removed from repo root — project is fully model-agnostic
+- `pd:write-code`, `pd:fix-bug`, `pd:plan` all inject `@CONVENTIONS.md (optional)` — any AI model reads project conventions before writing code
 
 ## Previous: v12.3 Shipped ✅
 
