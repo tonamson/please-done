@@ -24,59 +24,17 @@
 - ✅ **v12.2 Developer Experience Improvements** — Phases 137-144 ([shipped 2026-04-07](milestones/v12.2-ROADMAP.md))
 - ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 ([shipped 2026-04-08](milestones/v12.3-ROADMAP.md))
 - ✅ **v12.4 Convention-Aware Skill Execution** — Phases 151-152 ([shipped 2026-04-08](milestones/v12.4-ROADMAP.md))
-- 🔵 **v12.5 Installer UX & Runtime Expansion** — Phases 153-154 (active)
+- ✅ **v12.5 Installer UX & Runtime Expansion** — Phases 153-154 ([shipped 2026-04-09](milestones/v12.5-ROADMAP.md))
 
 ## Progress
 
-24 milestones total. 152 phases completed. v12.5 active (phases 153-154).
+25 milestones total. 154 phases completed.
 
 ---
 
-## Active Milestone: v12.5 Installer UX & Runtime Expansion
+## Active Milestone
 
-### Phases
-
-- [x] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗ (completed 2026-04-09)
-- [x] **Phase 154: Runtime Expansion** — 4 new runtimes + windsurf fix + --force-statusline (completed 2026-04-09)
-
-### Phase Details
-
-#### Phase 153: Installer UX Polish
-**Goal**: Users see a polished, professional installer experience with visual feedback
-**Depends on**: Nothing (first phase of v12.5)
-**Requirements**: UX-01, UX-02, UX-03
-**Success Criteria** (what must be TRUE):
-  1. User sees styled ASCII art banner in cyan at installer startup (TTY only)
-  2. User running `--help` sees colorized output with all 11 runtimes, flags, and examples
-  3. User sees numbered progress steps `[1/N]` with ✓/✗ outcomes during install
-  4. User sees final summary showing file count and destination path
-**Plans**: TBD
-
-#### Phase 154: Runtime Expansion
-**Goal**: Users can install skills to 6 additional AI coding runtimes with flexible config
-**Depends on**: Phase 153
-**Requirements**: RT-01, RT-02, RT-03, RT-04, RT-05, RT-06, CFG-01, CFG-02
-**Success Criteria** (what must be TRUE):
-  1. User can install to Kilo (`~/.config/kilo/`) via `--kilo` flag
-  2. User can install to Antigravity (`~/.gemini/antigravity/`) via `--antigravity` flag
-  3. User can install to Cursor (`~/.cursor/`) via `--cursor` flag
-  4. User can install to Windsurf (`~/.codeium/windsurf/`) via `--windsurf` flag
-  5. User can install to Augment (`~/.augment/`) via `--augment` flag
-  6. User can install to Trae (`~/.trae/`) via `--trae` flag
-  7. User can override default config directory with `--config-dir <path>` / `-c`
-  8. User can force statusline replacement in IDE editors with `--force-statusline`
-  9. All 6 new runtimes appear in `--all` and interactive menu
-**Plans**: 1 plan
-Plans:
-- [x] 154-01-PLAN.md — Add 4 new runtimes (kilo, antigravity, augment, trae), fix windsurf path, add --force-statusline
-
-### Progress Table
-
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 153. Installer UX Polish | 1/1 | Complete   | 2026-04-09 |
-| 154. Runtime Expansion | 1/1 | Complete   | 2026-04-09 |
-| 154. Runtime Expansion | 0/? | Not started | - |
+_(none — start next with `/gsd-new-milestone`)_
 
 ---
 
@@ -91,6 +49,7 @@ Plans:
 ## Completed Milestones
 
 See `.planning/milestones/` for archived milestone details:
+- [v12.5 Installer UX & Runtime Expansion](milestones/v12.5-ROADMAP.md) — 2 phases, 2 plans (ASCII banner, colorized help, 11 runtimes)
 - [v12.4 Convention-Aware Skill Execution](milestones/v12.4-ROADMAP.md) — 2 phases, 2 plans (CONVENTIONS.md migration, skill injection for write-code/fix-bug/plan)
 - [v12.3 Installation & Documentation UX](milestones/v12.3-ROADMAP.md) — 6 phases, 14 plans (prompt-ux, reliability, error-messages, cheatsheet, command-reference, workflow-overview, getting-started, readme-update)
 - [v12.2 Developer Experience Improvements](milestones/v12.2-ROADMAP.md) — 8 phases, 9 plans (stats, health, version-sync, mcp-discovery, audit-trail, scope-checker, drift-detector)
@@ -100,5 +59,5 @@ See `.planning/milestones/` for archived milestone details:
 
 ---
 
-<!-- v12.3 details archived → .planning/milestones/v12.3-ROADMAP.md -->
+<!-- v12.5 details archived → .planning/milestones/v12.5-ROADMAP.md -->
 

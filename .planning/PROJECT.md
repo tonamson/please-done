@@ -1,8 +1,16 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.5 (Next — TBD)
+## v12.5 Shipped ✅
 
-> Start `/gsd-new-milestone` to define the next milestone scope.
+**Shipped:** 2026-04-09 — 25 milestones, 154 phases, 2 plans.
+
+**What was delivered (v12.5 Installer UX & Runtime Expansion):**
+- ASCII art "PD" banner (block chars) shown at installer startup and `--help`
+- Colorized `--help` output (bold headers, cyan/yellow/dim) with all 11 runtimes
+- Enhanced `log.step()` with `●○○○` progress dots
+- Added 4 new runtimes: Kilo, Antigravity, Augment, Trae (→ 11 total)
+- Fixed Windsurf path: `~/.windsurf` → `~/.codeium/windsurf`
+- Added `--force-statusline` flag (parse-only, wiring deferred)
 
 ## Previous: v12.4 Shipped ✅
 

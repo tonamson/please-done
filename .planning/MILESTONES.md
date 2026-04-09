@@ -1,10 +1,22 @@
 # Milestones
 
+## v12.4 Convention-Aware Skill Execution (Shipped: 2026-04-09)
+
+**Phases completed:** 2 phases, 2 plans, 6 tasks
+
+**Key accomplishments:**
+
+- One-liner:
+- One-liner:
+
+---
+
 ## v12.2 Developer Experience Improvements (Started: 2026-04-06)
 
 **Status:** Roadmap defined — 8 requirements, 8 phases (137-144), 8 plans
 
 **Phases:**
+
 - Phase 137: L-02 — Workflow Command Merge (pd:next → what-next)
 - Phase 138: L-03 — Project Statistics Command (pd:stats)
 - Phase 139: L-04 — Planning Health Diagnostics (pd:health)
@@ -34,6 +46,7 @@
 - Corrected REQUIREMENTS.md traceability table alignment
 
 **Tech debt:**
+
 - Duplicate Phase 128 directories (superseded by Phase 132)
 - Legacy catch blocks outside scope (recon-cache.js, utils.js, claude.js)
 
