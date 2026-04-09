@@ -36,7 +36,7 @@
 
 ### Phases
 
-- [ ] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗
+- [x] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗ (completed 2026-04-09)
 - [ ] **Phase 154: Runtime Expansion** — 6 new runtimes + --config-dir + --force-statusline
 
 ### Phase Details
@@ -72,7 +72,7 @@
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 153. Installer UX Polish | 0/? | Not started | - |
+| 153. Installer UX Polish | 1/1 | Complete   | 2026-04-09 |
 | 154. Runtime Expansion | 0/? | Not started | - |
 
 ---

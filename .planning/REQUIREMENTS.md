@@ -41,9 +41,9 @@ Replaces existing statusline config in IDE editors when provided; skips with war
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| UX-01 | Phase 153 | Pending |
-| UX-02 | Phase 153 | Pending |
-| UX-03 | Phase 153 | Pending |
+| UX-01 | Phase 153 | Complete |
+| UX-02 | Phase 153 | Complete |
+| UX-03 | Phase 153 | Complete |
 | RT-01 | Phase 154 | Pending |
 | RT-02 | Phase 154 | Pending |
 | RT-03 | Phase 154 | Pending |
