@@ -1,28 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Skill(gsd-verify-work)",
-      "Skill(gsd-plan-phase)",
-      "Skill(gsd-execute-phase)",
-      "WebFetch(domain:attack.mitre.org)",
-      "Skill(gsd-complete-milestone)",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Skill(gsd-progress)",
-      "Skill(gsd-do)",
-      "Bash(ls -la /Volumes/Code/Nodejs/please-done/.planning/phases/112-ptes-foundation/*-SUMMARY.md)",
       "Bash(git:*)",
       "Bash(ls:*)",
-      "Bash(break)",
-      "Bash(echo \"... vẫn đang chạy \\($i/6\\)\")",
-      "Bash(done)",
-      "Skill(gsd-discuss-phase)",
       "Bash(node:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
       "WebSearch",
-      "Bash(find /Volumes/Code/Nodejs/please-done -maxdepth 2 -type f -name *.md -o -name *.json -o -name *.js)",
-      "WebFetch(domain:github.com)",
-      "Bash(grep -l \"pd:next\\\\|pd:quick\\\\|pd:ship\\\\|pd:health\\\\|pd:stats\" /Volumes/Code/Nodejs/please-done/commands/pd/*.md)",
-      "Bash(find /Volumes/Code/Nodejs/please-done -name *cai-thien* -o -name *cai_thien* -o -name *caiThien*)"
+      "WebFetch(domain:github.com)"
     ]
   }
 }

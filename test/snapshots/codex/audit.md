@@ -15,7 +15,7 @@ When the user invokes `$pd-audit {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -29,7 +29,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `$pd-init` first."
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 Per D-07 three modes:
 - No arguments: List recent sessions (most recent first) with phase, date, decision count
 - `--search "keyword"` or `--phase N` or `--from DATE` or `--to DATE`: Filter/search contexts
@@ -47,11 +47,11 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
    const { parseContextFile, listContexts, filterContexts, formatAuditTable, formatAuditJson } = require('../../../bin/lib/audit-trail');
    ```
 2. Glob `.planning/contexts/*.md` to find all context files
-3. If no context files found: output "No discussion contexts found. Run /gsd-discuss-phase to create one."
+3. If no context files found: output "No discussion contexts found. Run $pd-discuss-phase to create one."
 4. For each context file: Read content using the Read tool
 5. Build contextFiles array: `[{ filename: basename, content }, ...]`
 6. Call `listContexts(contextFiles)` to get parsed and sorted contexts
-7. Parse flags from {{GSD_ARGS}}:
+7. Parse flags from {{PD_ARGS}}:
    - `--phase N`: Filter by phase number
    - `--search "keyword"`: Filter by keyword substring in decisions
    - `--from DATE`: Filter contexts on or after DATE (ISO format YYYY-MM-DD)
@@ -83,7 +83,7 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
 - Zero files were written or modified
 **Common errors:**
 - `.planning/` does not exist → run `$pd-init`
-- `.planning/contexts/` is empty → run `/gsd-discuss-phase` to create a context
+- `.planning/contexts/` is empty → run `$pd-discuss-phase` to create a context
 </output>
 <rules>
 - All output MUST be in English

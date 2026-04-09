@@ -2,11 +2,11 @@
 
 ## Purpose
 
-Initialize the GSD planning structure (`.planning/` directory) in an existing codebase to enable milestone planning and phase tracking.
+Initialize the PD planning structure (`.planning/` directory) in an existing codebase to enable milestone planning and phase tracking.
 
 ## When to Use
 
-- **New project setup:** Setting up PD/GSD workflow in a project for the first time
+- **New project setup:** Setting up PD workflow in a project for the first time
 - **Fresh start:** First time using planning tools in a codebase
 - **Post-clone:** After cloning a repo that doesn't have `.planning/` directory
 - **Pre-milestone:** Before creating milestones or phases

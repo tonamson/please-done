@@ -1,8 +1,8 @@
 /**
- * Init Module — Cung cap helper cho GSD init workflow (SKIL-04).
+ * Init Module — Cung cap helper cho PD init workflow (SKIL-04).
  *
  * Pure functions: resolve paths cho plan-phase init output.
- * Tach rieng de GSD plan-phase.md co the require() truc tiep.
+ * Tach rieng de PD plan-phase.md co the require() truc tiep.
  */
 
 'use strict';

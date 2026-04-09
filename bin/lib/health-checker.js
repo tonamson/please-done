@@ -119,7 +119,7 @@ function checkMissingFiles(phaseDirs, completedPhases) {
         category: 'missing_files',
         location: `Phase ${phaseNum} (${phaseDir.name})`,
         issue: `Missing VERIFICATION.md in completed phase ${phaseNum}`,
-        fix: `Run /gsd-validate-phase ${phaseNum}`,
+        fix: `Run /pd:validate-phase ${phaseNum}`,
       });
     }
   }
@@ -159,7 +159,7 @@ function checkStateMdStructure(content) {
 
   // Required top-level fields
   const requiredFields = [
-    { key: 'gsd_state_version', label: 'gsd_state_version' },
+    { key: 'pd_state_version', label: 'pd_state_version' },
     { key: 'milestone', label: 'milestone' },
     { key: 'status', label: 'status' },
   ];

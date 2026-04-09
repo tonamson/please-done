@@ -15,7 +15,7 @@ When the user invokes `$pd-init {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -30,14 +30,14 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
 </guards>
 <context>
-User input: {{GSD_ARGS}} (project path, defaults to the current directory)
+User input: {{PD_ARGS}} (project path, defaults to the current directory)
 Rule templates: `.pdconfig` -> `SKILLS_DIR` -> files at `[SKILLS_DIR]/commands/pd/rules/`:
 - `general.md` -- always copy
 - `nestjs.md` / `nextjs.md` / `wordpress.md` / `solidity.md` / `flutter.md` -- copy when the corresponding stack is detected
 </context>
 <process>
 ## Step 1: Determine project path
-- `{{GSD_ARGS}}` has path → use it | No → current directory
+- `{{PD_ARGS}}` has path → use it | No → current directory
 - Record absolute path
 ## Step 2: Check FastCode MCP (REQUIRED)
 `mcp__fastcode__list_indexed_repos`:

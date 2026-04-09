@@ -1,4 +1,4 @@
-<!-- generated-by: gsd-doc-writer -->
+<!-- generated-by: pd-doc-writer -->
 # Testing Guide
 
 This guide covers the full testing strategy for **please-done** — from running the unit and

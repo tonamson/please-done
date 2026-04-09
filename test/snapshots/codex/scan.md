@@ -15,7 +15,7 @@ When the user invokes `$pd-scan {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -31,7 +31,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] FastCode MCP connected and available (soft check) → If unavailable: warn "FastCode unavailable — using Grep/Read fallback (slower)." **Do NOT stop — continue with fallback.**
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 Read `.planning/CONTEXT.md` (from $pd-init). No rules are needed here - only scanning and reporting.
 </context>
 <process>
@@ -47,7 +47,7 @@ Read `.planning/CONTEXT.md` (from $pd-init). No rules are needed here - only sca
 - If `N ≤ 20` → no output, continue silently.
 - **Always continue to Step 1 regardless of outcome.**
 ## Step 1: Determine path
-- `{{GSD_ARGS}}` has path → use it | No → current directory
+- `{{PD_ARGS}}` has path → use it | No → current directory
 - Create `.planning/scan/` if not exists
 ## Step 2: Check if project has code
 Glob `**/*.{ts,tsx,js,jsx,py,php,sol,dart,html}` (exclude node_modules, .venv, .planning, wp-includes, wp-admin, artifacts, cache, build — NOT including .json/.css):

@@ -189,9 +189,9 @@ describe('platforms.js: cursor va windsurf', () => {
     assert.doesNotThrow(() => getGlobalDir('windsurf'));
   });
 
-  it('getAllRuntimes tra ve 7 items bao gom cursor va windsurf', () => {
+  it('getAllRuntimes tra ve 11 items bao gom cursor va windsurf', () => {
     const runtimes = getAllRuntimes();
-    assert.equal(runtimes.length, 7);
+    assert.equal(runtimes.length, 11);
     assert.ok(runtimes.includes('cursor'));
     assert.ok(runtimes.includes('windsurf'));
   });

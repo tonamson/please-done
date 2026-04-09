@@ -15,7 +15,7 @@ When the user invokes `$pd-plan {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -35,7 +35,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 - `--discuss` -> discussion mode | default/`--auto` -> automatic mode | if both are provided -> discussion takes priority.
 - Remaining input = phase/deliverable information.
 Additional reads:
@@ -84,7 +84,7 @@ Before starting code, check for related research:
 - `.planning/research/SUMMARY.md` → domain research, libraries, pitfalls
 - `.planning/research/TECHNICAL_STRATEGY.md` → technical strategy (if exists)
 - `.planning/docs/*.md` → only table of contents + relevant sections (offset/limit)
-- `{{GSD_ARGS}}` specifies phase → use that phase
+- `{{PD_ARGS}}` specifies phase → use that phase
 - Has previous phases → read PLAN.md/TASKS.md to understand implemented context
 No roadmap → "Run `$pd-new-milestone` first."
 CURRENT_MILESTONE.md does not exist → "Missing. Run `$pd-new-milestone`."
@@ -470,7 +470,7 @@ Print plan + tasks summary.
 const { createPlanErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
 // Create error handler for plan skill
 const errorHandler = createPlanErrorHandler('$CURRENT_PHASE', {
-  phaseNumber: typeof {{GSD_ARGS}} !== 'undefined' ? {{GSD_ARGS}} : 'unknown',
+  phaseNumber: typeof {{PD_ARGS}} !== 'undefined' ? {{PD_ARGS}} : 'unknown',
   requirements: [],
   researchComplete: false
 });

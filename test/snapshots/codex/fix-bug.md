@@ -15,7 +15,7 @@ When the user invokes `$pd-fix-bug {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -36,7 +36,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 Additional reads:
 - `.planning/rules/general.md` -> general rules
 - `.planning/rules/{nestjs,nextjs,wordpress,solidity,flutter}.md` -> rules for the bug type (ONLY if they exist)
@@ -54,7 +54,7 @@ Read ONLY WHEN needed (analyze task description first):
 </conditional_reading>
 <process>
 ## Step 0: Check operating mode
-1. Parse {{GSD_ARGS}} -> check for `--single` flag
+1. Parse {{PD_ARGS}} -> check for `--single` flag
 2. If NO --single:
    - Check 5 files exist:
      `commands/pd/agents/pd-bug-janitor.md`
@@ -90,15 +90,15 @@ Read ONLY WHEN needed (analyze task description first):
    - status=active -> Step 1 (continue with current session, pass session_dir)
    - status=paused -> read existing evidence files -> jump to appropriate step
 6. User enters new description -> Step 0.6
-7. No sessions AND has {{GSD_ARGS}} -> Step 0.6
-8. No sessions AND no {{GSD_ARGS}} -> ask user for bug description -> Step 0.6
+7. No sessions AND has {{PD_ARGS}} -> Step 0.6
+8. No sessions AND no {{PD_ARGS}} -> ask user for bug description -> Step 0.6
 ## Step 0.6: Analyze bug — determine reference documents
 - Multiple bugs need prioritization? -> read [SKILLS_DIR]/references/prioritization.md
 If only 1 bug -> SKIP.
 ### Create new session (per D-09)
 Call `createSession({ existingSessions, description })` from `bin/lib/session-manager.js`
 - existingSessions: session list from Step 0 (array of { number })
-- description: bug description from user ({{GSD_ARGS}} or input)
+- description: bug description from user ({{PD_ARGS}} or input)
 - Result: { id, slug, folderName, sessionMd }
 - `mkdir -p .planning/debug/{folderName}`
 - Write sessionMd to `.planning/debug/{folderName}/SESSION.md`
@@ -119,8 +119,8 @@ After agent completes:
 4. Call `updateSession(currentMd, { status: 'active', appendToBody: '- evidence_janitor.md: recorded' })` from `bin/lib/session-manager.js`
    - Write resulting sessionMd to `{session_dir}/SESSION.md`
 Janitor FAIL (agent throw/timeout):
-- Has {{GSD_ARGS}} with sufficient symptoms -> WARNING: "Janitor did not respond. Continuing with initial information."
-  Manually create evidence_janitor.md from {{GSD_ARGS}} (5 symptoms in evidence format), continue to Step 2.
+- Has {{PD_ARGS}} with sufficient symptoms -> WARNING: "Janitor did not respond. Continuing with initial information."
+  Manually create evidence_janitor.md from {{PD_ARGS}} (5 symptoms in evidence format), continue to Step 2.
 - NO symptoms -> STOP: "Unable to collect symptoms. Please try again."
 ## Step 2: Analyze code and documentation
 --- Step 2/5: Analyze code and documentation ---
@@ -397,7 +397,7 @@ Ask: "Fixed {description}. Please check and confirm."
 const { createFixBugErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
 // Create error handler for fix-bug skill
 const errorHandler = createFixBugErrorHandler('$CURRENT_PHASE', {
-  bugDescription: typeof {{GSD_ARGS}} !== 'undefined' ? {{GSD_ARGS}} : 'unknown',
+  bugDescription: typeof {{PD_ARGS}} !== 'undefined' ? {{PD_ARGS}} : 'unknown',
   sessionId: new Date().toISOString(),
   currentStep: 'initialization'
 });

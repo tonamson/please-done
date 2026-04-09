@@ -44,7 +44,7 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
 
 2. Glob `.planning/contexts/*.md` to find all context files
 
-3. If no context files found: output "No discussion contexts found. Run /gsd-discuss-phase to create one."
+3. If no context files found: output "No discussion contexts found. Run /pd:discuss-phase to create one."
 
 4. For each context file: Read content using the Read tool
 
@@ -91,7 +91,7 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
 
 **Common errors:**
 - `.planning/` does not exist → run `/pd:init`
-- `.planning/contexts/` is empty → run `/gsd-discuss-phase` to create a context
+- `.planning/contexts/` is empty → run `/pd:discuss-phase` to create a context
 </output>
 
 <rules>

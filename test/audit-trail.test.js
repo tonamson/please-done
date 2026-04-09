@@ -15,7 +15,7 @@ phase: 142
 phase_name: Discussion Audit Trail
 date: 2026-04-07
 decision_count: 3
-next_step: /gsd-plan-phase 142
+next_step: /pd:plan-phase 142
 tags:
   - context-persistence
 ---
@@ -46,7 +46,7 @@ describe('parseContextFile', () => {
     assert.strictEqual(result.frontmatter.phase_name, 'Discussion Audit Trail');
     assert.strictEqual(result.frontmatter.date, '2026-04-07');
     assert.strictEqual(result.frontmatter.decision_count, 3);
-    assert.strictEqual(result.frontmatter.next_step, '/gsd-plan-phase 142');
+    assert.strictEqual(result.frontmatter.next_step, '/pd:plan-phase 142');
     assert.ok(result.body.includes('Key Decisions'));
   });
 
@@ -312,7 +312,7 @@ describe('auto-capture format contract', () => {
     'phase_name: discussion-audit-trail',
     'date: 2026-04-07',
     'decision_count: 3',
-    'next_step: /gsd-plan-phase 142',
+    'next_step: /pd:plan-phase 142',
     'tags: []',
     '---',
     '',
@@ -329,7 +329,7 @@ describe('auto-capture format contract', () => {
     assert.strictEqual(result.frontmatter.phase_name, 'discussion-audit-trail');
     assert.strictEqual(result.frontmatter.date, '2026-04-07');
     assert.strictEqual(result.frontmatter.decision_count, 3);
-    assert.strictEqual(result.frontmatter.next_step, '/gsd-plan-phase 142');
+    assert.strictEqual(result.frontmatter.next_step, '/pd:plan-phase 142');
   });
 
   test('auto-capture file extracts decisions correctly', () => {

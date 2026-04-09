@@ -15,7 +15,7 @@ When the user invokes `$pd-conventions {{args}}`, execute all instructions below
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -29,7 +29,7 @@ There are no strict prerequisites. This skill can be run at any time.
 - [ ] The project directory contains source code -> "The directory is empty or contains no source code to analyze."
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 </context>
 <process>
 ## Step 1: Check for existing CONVENTIONS.md

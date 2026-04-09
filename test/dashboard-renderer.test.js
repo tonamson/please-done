@@ -18,7 +18,7 @@ describe('dashboard-renderer', () => {
   describe('parseState', () => {
     test('should parse valid STATE.md content', () => {
       const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v11.0
 milestone_name: Developer Tooling
 status: Phase 90 In Progress

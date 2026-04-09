@@ -15,7 +15,7 @@ When the user invokes `$pd-what-next {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -31,7 +31,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] `.planning/` directory exists -> "The project has not been initialized yet. Run `$pd-init` first."
       </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 - No arguments: Display progress and suggest next command (advisory mode, READ ONLY)
 - `--execute`: Auto-detect state and invoke the suggested command immediately
 </context>
@@ -109,7 +109,7 @@ If NO errors in last 24h → omit error dashboard, show: "✓ No recent errors (
 - If >10 minutes elapsed and no tasks in progress (no 🔄 tasks) → idle state
 - Suggest `$pd-status` with optional `--auto-refresh` flag
 ## Step 4.5: Execute (if --execute flag)
-If `{{GSD_ARGS}}` contains `--execute`:
+If `{{PD_ARGS}}` contains `--execute`:
 1. Take the `SUGGESTION` determined in Step 4
 2. Display the progress report (Step 5) FIRST — user needs to see state before execution
 3. Immediately invoke the suggested command via SlashCommand:
@@ -117,7 +117,7 @@ If `{{GSD_ARGS}}` contains `--execute`:
    - Execute: `SlashCommand(command)`
    - Do NOT ask for confirmation — the `--execute` flag IS the confirmation
 4. STOP — the invoked command takes over from here
-If `{{GSD_ARGS}}` does NOT contain `--execute`:
+If `{{PD_ARGS}}` does NOT contain `--execute`:
 - Skip this step entirely
 - Continue to Step 5 (display report) and Step 6 (version check) as normal
 ## Step 5: Display report

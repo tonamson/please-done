@@ -29,7 +29,7 @@ When the user invokes \`$pd-${skillName} {{args}}\`, execute all instructions be
 - Anywhere that says "MUST use \`request_user_input\`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 
 ## Conventions
-- \`$ARGUMENTS\` is equivalent to \`{{GSD_ARGS}}\` — user input when invoking the skill
+- \`$ARGUMENTS\` is equivalent to \`{{PD_ARGS}}\` — user input when invoking the skill
 - All config paths have been converted to \`~/.codex/\`
 - MCP tools (\`mcp__*\`) work automatically via config.toml
 - Read \`~/.codex/.pdconfig\` (cat ~/.codex/.pdconfig) → get \`SKILLS_DIR\`
@@ -57,7 +57,7 @@ function convertSkill(content, skillName, skillsDir) {
     pdconfigFix: (body) =>
       body.replace(/~\/\.codex\/commands\/pd\/\.pdconfig/g, '~/.codex/.pdconfig'),
     postProcess: (body) =>
-      body.replace(/\$ARGUMENTS/g, '{{GSD_ARGS}}')
+      body.replace(/\$ARGUMENTS/g, '{{PD_ARGS}}')
         .replace(/AskUserQuestion/g, 'request_user_input'),
     prependBody: generateSkillAdapter(skillName),
   });

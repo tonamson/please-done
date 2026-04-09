@@ -43,7 +43,7 @@ describe('checkMissingFiles', () => {
     assert.ok(verifIssue, 'Should find issue for missing VERIFICATION.md');
     assert.strictEqual(verifIssue.severity, SEVERITY_LEVEL.WARNING);
     assert.strictEqual(verifIssue.category, 'missing_files');
-    assert.ok(verifIssue.fix.includes('/gsd-validate-phase'));
+    assert.ok(verifIssue.fix.includes('/pd:validate-phase'));
   });
 
   test('returns empty array when all files present', () => {
@@ -71,7 +71,7 @@ describe('checkMissingFiles', () => {
 
 describe('checkStateMdStructure', () => {
   const validContent = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 milestone_name: Developer Experience Improvements
 status: executing
@@ -88,7 +88,7 @@ progress:
 
 Some body text.`;
 
-  test('returns critical when gsd_state_version is missing', () => {
+  test('returns critical when pd_state_version is missing', () => {
     const content = `---
 milestone: v12.2
 status: executing
@@ -100,15 +100,15 @@ progress:
   percent: 67
 ---`;
     const issues = checkStateMdStructure(content);
-    const issue = issues.find(i => i.issue.includes('gsd_state_version'));
-    assert.ok(issue, 'Should find issue for missing gsd_state_version');
+    const issue = issues.find(i => i.issue.includes('pd_state_version'));
+    assert.ok(issue, 'Should find issue for missing pd_state_version');
     assert.strictEqual(issue.severity, SEVERITY_LEVEL.CRITICAL);
     assert.strictEqual(issue.category, 'state_schema');
   });
 
   test('returns critical when milestone is missing', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 status: executing
 progress:
   total_phases: 8
@@ -125,7 +125,7 @@ progress:
 
   test('returns critical when status is missing', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 progress:
   total_phases: 8
@@ -142,7 +142,7 @@ progress:
 
   test('returns critical when progress section is missing', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 status: executing
 ---`;
@@ -154,7 +154,7 @@ status: executing
 
   test('returns warning when progress.percent is not numeric', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 status: executing
 progress:
@@ -172,7 +172,7 @@ progress:
 
   test('returns critical when progress sub-fields are missing', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 status: executing
 progress:
@@ -246,7 +246,7 @@ describe('checkOrphanedDirs', () => {
 describe('runAllChecks', () => {
   test('returns combined issues from all three checks', () => {
     const stateContent = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 status: executing
 progress:
@@ -312,7 +312,7 @@ describe('formatHealthReport', () => {
 
   test('produces boxed table output with summary line', () => {
     const issues = [
-      { severity: 'critical', category: 'state_schema', location: 'STATE.md', issue: 'Missing gsd_state_version', fix: 'Edit STATE.md' },
+      { severity: 'critical', category: 'state_schema', location: 'STATE.md', issue: 'Missing pd_state_version', fix: 'Edit STATE.md' },
       { severity: 'warning', category: 'missing_files', location: 'Phase 137', issue: 'Missing SUMMARY.md', fix: 'Re-run Phase 137' },
       { severity: 'info', category: 'orphaned_dirs', location: '999-old', issue: 'Not in roadmap', fix: 'Delete dir' },
     ];

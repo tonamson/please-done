@@ -15,7 +15,7 @@ When the user invokes `$pd-test {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -41,7 +41,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] At least one task is in `done` state -> "No completed tasks yet. Run `$pd-write-code` first."
       </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 - Task number -> test only that task (it must already be done)
 - `--all` -> full regression across all phases
 - No input -> test all done tasks in the current phase
@@ -65,7 +65,7 @@ Read ONLY WHEN needed (analyze task description first):
 </conditional_reading>
 <process>
 ## Step 0: Route by mode
-Check `{{GSD_ARGS}}`:
+Check `{{PD_ARGS}}`:
 - Contains `--standalone` → go to **Step S0.5** (standalone recovery check)
 - Does NOT contain `--standalone` → continue to **Step 1** (standard flow)
 ---
@@ -99,8 +99,8 @@ Check for interrupted standalone sessions:
 - `.planning/milestones/[version]/phase-[phase]/PLAN.md` → not found → **STOP**: "No plan yet. Run `$pd-plan`."
 - `.planning/milestones/[version]/phase-[phase]/TASKS.md` → not found → **STOP**: "No tasks yet. Run `$pd-plan`."
 - Read PLAN.md → technical design, API endpoints, request/response format
-- `{{GSD_ARGS}}` contains `--all` → read PLAN.md, TASKS.md, CODE*REPORT_TASK*_.md from ALL phases (`milestones/[version]/phase-_/`). Run entire test suite (all ✅ tasks), not just current phase.
-- `{{GSD_ARGS}}` specifies task → check status:
+- `{{PD_ARGS}}` contains `--all` → read PLAN.md, TASKS.md, CODE*REPORT_TASK*_.md from ALL phases (`milestones/[version]/phase-_/`). Run entire test suite (all ✅ tasks), not just current phase.
+- `{{PD_ARGS}}` specifies task → check status:
   - Task number applies to current phase. Not found → search other phases in same milestone → notify: "Task [N] belongs to phase [x.x], not current phase."
   - ✅ → test that specific task
   - NOT ✅ → **STOP**: "Task [N] not yet completed (status: [icon]). Run `$pd-write-code [N]`."
@@ -268,9 +268,9 @@ Result: X/Y passed"
 ```
 ---
 ## Step S1: Parse standalone arguments
-> Only reached via Step 0 routing when `{{GSD_ARGS}}` contains `--standalone`.
+> Only reached via Step 0 routing when `{{PD_ARGS}}` contains `--standalone`.
 > Standard flow Steps 1-10 are NOT used in standalone mode.
-Parse `{{GSD_ARGS}}` after removing the `--standalone` flag:
+Parse `{{PD_ARGS}}` after removing the `--standalone` flag:
 - **Has a path** (e.g., `--standalone src/users` or `--standalone ./lib/auth.ts`):
   - Check path exists: `ls [path]` or `stat [path]`
   - Path does NOT exist → **STOP**: "Path not found: [path]. Check the path and try again."

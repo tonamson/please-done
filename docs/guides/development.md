@@ -1,4 +1,4 @@
-<!-- generated-by: gsd-doc-writer -->
+<!-- generated-by: pd-doc-writer -->
 # Development Guide
 
 This guide covers everything a contributor needs to develop, test, and extend **please-done** — the cross-platform AI coding skills CLI.

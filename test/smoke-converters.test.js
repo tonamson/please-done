@@ -109,9 +109,9 @@ describe('Codex converter', () => {
     assert.match(result, /\$pd-scan/);
   });
 
-  it('converts $ARGUMENTS → {{GSD_ARGS}} in body', () => {
+  it('converts $ARGUMENTS → {{PD_ARGS}} in body', () => {
     // Adapter header still has $ARGUMENTS as documentation — only check body
-    assert.match(result, /\{\{GSD_ARGS\}\}/);
+    assert.match(result, /\{\{PD_ARGS\}\}/);
     // Check body context section has been replaced
     const bodyStart = result.indexOf('<context>');
     const bodySection = result.slice(bodyStart);

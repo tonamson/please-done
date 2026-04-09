@@ -9,11 +9,11 @@
 
 ## Mục đích
 
-Khởi tạo cấu trúc planning GSD (thư mục `.planning/`) trong codebase hiện có để enable milestone planning và phase tracking.
+Khởi tạo cấu trúc planning PD (thư mục `.planning/`) trong codebase hiện có để enable milestone planning và phase tracking.
 
 ## Khi nào dùng
 
-- **Thiết lập dự án mới:** Thiết lập workflow PD/GSD trong dự án lần đầu
+- **Thiết lập dự án mới:** Thiết lập workflow PD trong dự án lần đầu
 - **Khởi đầu mới:** Lần đầu sử dụng công cụ planning trong codebase
 - **Sau clone:** Sau khi clone repo không có thư mục `.planning/`
 - **Trước milestone:** Trước khi tạo milestones hoặc phases

@@ -1,5 +1,5 @@
 ---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.5
 milestone_name: Installer UX & Runtime Expansion
 status: Shipped

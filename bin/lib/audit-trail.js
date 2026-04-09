@@ -188,7 +188,7 @@ function filterContexts(contexts, filters) {
  */
 function formatAuditTable(contexts) {
   if (!Array.isArray(contexts) || contexts.length === 0) {
-    return 'No contexts found. Run /gsd-discuss-phase to create one.';
+    return 'No contexts found. Run /pd:discuss-phase to create one.';
   }
 
   const W = 70;

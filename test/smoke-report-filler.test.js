@@ -21,7 +21,7 @@ const TEMPLATE = fs.readFileSync(
 
 // Sample data for tests
 const SAMPLE_STATE = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v1.4
 milestone_name: Mermaid Diagrams
 status: Executing Phase 24

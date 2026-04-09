@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Update PD/GSD tooling to latest version with changelog display and optional local patch reapplication for your workflow.
+Update PD tooling to latest version with changelog display and optional local patch reapplication for your workflow.
 
 ## When to Use
 

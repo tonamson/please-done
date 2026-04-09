@@ -390,7 +390,7 @@ All notable changes from v3.0 through v12.0 are documented below. For even earli
 ### Added
 - New version notification on status line (bottom left) — `⬆ Skills v[x.x.x] — /pd:update`
 - SessionStart hook (`pd-check-update.js`) — checks remote version on session start, caches for 10 minutes
-- Integrated into GSD statusline — displays on same line as GSD info
+- Integrated into statusline display
 
 ### Fixed
 - Fix `update.md` Step 8: "Append" caused duplicate CURRENT_VERSION — changed to idempotent replacement

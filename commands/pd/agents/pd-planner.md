@@ -8,7 +8,7 @@ effort: high
 ---
 
 <objective>
-Create detailed phase plans for the specified milestone/phase. Use TECHNICAL_STRATEGY.md (if available) and REQUIREMENTS.md to produce PLAN.md files in standardized GSD format.
+Create detailed phase plans for the specified milestone/phase. Use TECHNICAL_STRATEGY.md (if available) and REQUIREMENTS.md to produce PLAN.md files in standardized PD format.
 </objective>
 
 <process>

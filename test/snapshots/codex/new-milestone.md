@@ -15,7 +15,7 @@ When the user invokes `$pd-new-milestone {{args}}`, execute all instructions bel
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -34,7 +34,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] WebSearch is available when research is needed -> "WebSearch is unavailable. Check the network connection."
 </guards>
 <context>
-Milestone name: {{GSD_ARGS}} (optional -- ask if missing)
+Milestone name: {{PD_ARGS}} (optional -- ask if missing)
 - `--reset-phase-numbers` -> renumber phases starting from 1
 - Remaining input = milestone name/description
 Additional reads:
@@ -127,7 +127,7 @@ request_user_input({
 ---
 ## 4. Gather milestone requirements
 > Apply [SKILLS_DIR]/references/questioning.md
-`{{GSD_ARGS}}` has content → use as initial context.
+`{{PD_ARGS}}` has content → use as initial context.
 **OVERWRITE:** present completed milestones → ask everything (goals, core features, priorities) → deep dive (audience, scenarios, constraints, timeline)
 **CONTINUE:** present existing milestones → ask about NEW milestones/features → deep dive (scope, relationship with existing features)
 **New project:** CONTEXT.md + PROJECT.md as foundation → ask about main features → ask priorities, audience, constraints

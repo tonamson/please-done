@@ -15,7 +15,7 @@ When the user invokes `$pd-complete-milestone {{args}}`, execute all instruction
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -32,7 +32,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] No unresolved open bugs remain -> "There are still unresolved bugs. Run `$pd-fix-bug` first."
 </guards>
 <context>
-User input: {{GSD_ARGS}} (not used, because the version is taken automatically from CURRENT_MILESTONE.md)
+User input: {{PD_ARGS}} (not used, because the version is taken automatically from CURRENT_MILESTONE.md)
 Additional reads:
 - `.planning/PROJECT.md` -> update milestone history
 - `.planning/rules/general.md` -> language, dates, version format, commit format

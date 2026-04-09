@@ -14,9 +14,6 @@
 
 Please Done là bộ kỹ năng (`/pd:*`) dành cho các CLI lập trình AI — một quy trình phát triển có cấu trúc, từ khởi tạo đến phát hành.
 
-> Please Done là nhánh fork và được tinh chỉnh từ [GSD / get-shit-done](https://github.com/gsd-build/get-shit-done). Phiên bản này hướng tới việc giúp người mới dễ tiếp cận hơn, giảm độ phức tạp khi bắt đầu, và ưu tiên trải nghiệm cài đặt/vận hành thực dụng trên nhiều CLI khác nhau.
->
-> Nếu bạn đã quen với quy trình lập trình agentic và muốn đầy đủ tính năng, nhịp làm việc gốc, và cập nhật upstream nhanh nhất, [GSD](https://github.com/gsd-build/get-shit-done) vẫn là lựa chọn phù hợp hơn.
 
 **Phiên bản hiện tại: v4.0.0**
 

@@ -4,11 +4,11 @@
  * Pure functions: does NOT read files, zero fs imports, NO side effects.
  * Content passed via parameters, returns parsed data or issue arrays.
  *
- * - SUPPORTED_VERSIONS:    authoritative list of supported gsd_state_version strings
+ * - SUPPORTED_VERSIONS:    authoritative list of supported pd_state_version strings
  * - EXPECTED_STATE_SCHEMA: authoritative v1.0 schema definition (required fields)
  * - parseStateMdFields:    extract version, field names from STATE.md content
  * - detectSchemaDrift:     compare STATE.md against expected schema, return issues
- * - checkVersionSupport:   check whether a gsd_state_version is supported
+ * - checkVersionSupport:   check whether a pd_state_version is supported
  * - formatDriftReport:     render issues as boxed table string (health-checker style)
  */
 
@@ -25,7 +25,7 @@ const LOCATION = '.planning/STATE.md';
 
 // ─── Public: SUPPORTED_VERSIONS ────────────────────────────
 
-/** Authoritative list of supported gsd_state_version values. */
+/** Authoritative list of supported pd_state_version values. */
 const SUPPORTED_VERSIONS = ['1.0'];
 
 // ─── Public: EXPECTED_STATE_SCHEMA ─────────────────────────
@@ -34,7 +34,7 @@ const SUPPORTED_VERSIONS = ['1.0'];
 const EXPECTED_STATE_SCHEMA = {
   version: '1.0',
   requiredTopLevelFields: [
-    'gsd_state_version',
+    'pd_state_version',
     'milestone',
     'milestone_name',
     'status',
@@ -87,7 +87,7 @@ function parseStateMdFields(content) {
     return empty;
   }
 
-  const rawVersion = raw.gsd_state_version;
+  const rawVersion = raw.pd_state_version;
   let version = null;
   if (rawVersion != null) {
     if (typeof rawVersion === 'number') {
@@ -129,15 +129,15 @@ function detectSchemaDrift(content) {
   const issues = [];
 
   // Step 3.5 FIRST: Version support check — only when field is present to avoid
-  // double-reporting alongside the "Missing required field: gsd_state_version" issue (CR-01, WR-02)
-  if (topLevelFields.includes('gsd_state_version')) {
+  // double-reporting alongside the "Missing required field: pd_state_version" issue (CR-01, WR-02)
+  if (topLevelFields.includes('pd_state_version')) {
     const versionCheck = checkVersionSupport(version);
     if (!versionCheck.supported) {
       issues.push({
         severity: SEVERITY_CRITICAL,
         category: CATEGORY,
         location: LOCATION,
-        issue: `Unsupported gsd_state_version: ${version ?? '(missing)'} (expected one of ${SUPPORTED_VERSIONS.join(', ')})`,
+        issue: `Unsupported pd_state_version: ${version ?? '(missing)'} (expected one of ${SUPPORTED_VERSIONS.join(', ')})`,
         fix: versionCheck.upgrade_path,
       });
     }
@@ -201,7 +201,7 @@ function detectSchemaDrift(content) {
 // ─── Public: checkVersionSupport ───────────────────────────
 
 /**
- * Check whether a gsd_state_version value is supported.
+ * Check whether a pd_state_version value is supported.
  * @param {string|null|undefined} version
  * @returns {{ supported: boolean, latest: string, upgrade_path: string|null }}
  */

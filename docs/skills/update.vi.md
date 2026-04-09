@@ -9,7 +9,7 @@
 
 ## Mục đích
 
-Cập nhật PD/GSD tooling lên phiên bản mới nhất với hiển thị changelog và tùy chọn local patch reapplication cho workflow của bạn.
+Cập nhật PD tooling lên phiên bản mới nhất với hiển thị changelog và tùy chọn local patch reapplication cho workflow của bạn.
 
 ## Khi nào dùng
 

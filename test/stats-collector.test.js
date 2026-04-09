@@ -74,7 +74,7 @@ describe('parseRoadmapPhases', () => {
 describe('parseStateProgress', () => {
   test('parses valid STATE.md frontmatter', () => {
     const content = `---
-gsd_state_version: 1.0
+pd_state_version: 1.0
 milestone: v12.2
 milestone_name: Developer Experience Improvements
 status: executing

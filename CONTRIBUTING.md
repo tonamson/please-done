@@ -1,4 +1,4 @@
-<!-- generated-by: gsd-doc-writer -->
+<!-- generated-by: pd-doc-writer -->
 # Contributing to please-done
 
 Thanks for your interest in contributing! **please-done** is a cross-platform AI coding skills toolkit — one source of `pd:*` skills installed natively into Claude Code, Codex CLI, Gemini CLI, OpenCode, GitHub Copilot, Cursor, Windsurf, and more. Contributions that improve skill quality, expand platform coverage, or fix bugs are all welcome.

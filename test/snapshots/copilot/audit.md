@@ -28,7 +28,7 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
    const { parseContextFile, listContexts, filterContexts, formatAuditTable, formatAuditJson } = require('../../../bin/lib/audit-trail');
    ```
 2. glob `.planning/contexts/*.md` to find all context files
-3. If no context files found: output "No discussion contexts found. Run /gsd-discuss-phase to create one."
+3. If no context files found: output "No discussion contexts found. Run /pd:discuss-phase to create one."
 4. For each context file: read content using the read tool
 5. Build contextFiles array: `[{ filename: basename, content }, ...]`
 6. Call `listContexts(contextFiles)` to get parsed and sorted contexts
@@ -64,7 +64,7 @@ No external workflow needed — pd:audit executes inline using bin/lib/audit-tra
 - Zero files were written or modified
 **Common errors:**
 - `.planning/` does not exist → run `/pd:init`
-- `.planning/contexts/` is empty → run `/gsd-discuss-phase` to create a context
+- `.planning/contexts/` is empty → run `/pd:discuss-phase` to create a context
 </output>
 <rules>
 - All output MUST be in English

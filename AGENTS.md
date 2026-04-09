@@ -32,7 +32,7 @@
 | Command | Description | Syntax |
 |---------|-------------|--------|
 | pd:onboard | Onboard current directory | `/pd:onboard [path]` |
-| pd:init | Initialize GSD structure | `/pd:init` |
+| pd:init | Initialize PD planning structure | `/pd:init` |
 | pd:scan | Scan codebase structure | `/pd:scan` |
 | pd:new-milestone | Create new milestone | `/pd:new-milestone v1.0` |
 | pd:plan | Create phase plan | `/pd:plan --auto 1.1` |

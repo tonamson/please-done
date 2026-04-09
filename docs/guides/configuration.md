@@ -1,4 +1,4 @@
-<!-- generated-by: gsd-doc-writer -->
+<!-- generated-by: pd-doc-writer -->
 # Configuration Reference
 
 This document covers all configuration options for **please-done**: installation flags, environment variables, platform-specific install paths, template customization, and project-level convention setup.

@@ -15,7 +15,7 @@ const {
 
 const VALID_STATE = [
   '---',
-  'gsd_state_version: 1.0',
+  'pd_state_version: 1.0',
   'milestone: v12.2',
   'milestone_name: Developer Experience Improvements',
   'status: executing',
@@ -30,18 +30,18 @@ const VALID_STATE = [
   '---',
 ].join('\n');
 
-const MISSING_VERSION = VALID_STATE.replace('gsd_state_version: 1.0\n', '');
+const MISSING_VERSION = VALID_STATE.replace('pd_state_version: 1.0\n', '');
 const MISSING_MILESTONE = VALID_STATE.replace('milestone: v12.2\n', '');
 const MISSING_MILESTONE_NAME = VALID_STATE.replace('milestone_name: Developer Experience Improvements\n', '');
 const MISSING_STATUS = VALID_STATE.replace('status: executing\n', '');
 const MISSING_LAST_UPDATED = VALID_STATE.replace('last_updated: "2026-04-07T13:01:00.000Z"\n', '');
 const MISSING_LAST_ACTIVITY = VALID_STATE.replace('last_activity: 2026-04-07\n', '');
 const EXTRA_FIELD_STATE = VALID_STATE.replace(
-  'gsd_state_version: 1.0',
-  'gsd_state_version: 1.0\nunknown_field: surprise'
+  'pd_state_version: 1.0',
+  'pd_state_version: 1.0\nunknown_field: surprise'
 );
 const MISSING_PROGRESS_FIELD = VALID_STATE.replace('  total_phases: 8\n', '');
-const OLD_VERSION_STATE = VALID_STATE.replace('gsd_state_version: 1.0', 'gsd_state_version: 0.9');
+const OLD_VERSION_STATE = VALID_STATE.replace('pd_state_version: 1.0', 'pd_state_version: 0.9');
 const EMPTY = '';
 const NO_FRONTMATTER = '# Just markdown\nNo frontmatter here.';
 
@@ -65,7 +65,7 @@ describe('EXPECTED_STATE_SCHEMA', () => {
   });
 
   test('requiredTopLevelFields includes all 7 keys', () => {
-    const expected = ['gsd_state_version', 'milestone', 'milestone_name', 'status', 'last_updated', 'last_activity', 'progress'];
+    const expected = ['pd_state_version', 'milestone', 'milestone_name', 'status', 'last_updated', 'last_activity', 'progress'];
     for (const key of expected) {
       assert.ok(EXPECTED_STATE_SCHEMA.requiredTopLevelFields.includes(key), `Should include ${key}`);
     }
@@ -91,7 +91,7 @@ describe('parseStateMdFields', () => {
 
   test('returns all 7 top-level field names for VALID_STATE', () => {
     const result = parseStateMdFields(VALID_STATE);
-    const expected = ['gsd_state_version', 'milestone', 'milestone_name', 'status', 'last_updated', 'last_activity', 'progress'];
+    const expected = ['pd_state_version', 'milestone', 'milestone_name', 'status', 'last_updated', 'last_activity', 'progress'];
     assert.deepStrictEqual(result.topLevelFields.slice().sort(), expected.slice().sort());
   });
 
@@ -126,12 +126,12 @@ describe('detectSchemaDrift', () => {
     assert.deepStrictEqual(issues, []);
   });
 
-  test("returns critical issue for MISSING_VERSION containing 'Missing required field: gsd_state_version'", () => {
+  test("returns critical issue for MISSING_VERSION containing 'Missing required field: pd_state_version'", () => {
     const issues = detectSchemaDrift(MISSING_VERSION);
-    // CR-01 regression: absence of gsd_state_version must produce exactly 1 issue (not 2)
+    // CR-01 regression: absence of pd_state_version must produce exactly 1 issue (not 2)
     assert.strictEqual(issues.length, 1, 'CR-01: should produce exactly 1 issue, not double-report');
     const issue = issues[0];
-    assert.ok(issue.issue.includes('gsd_state_version'), 'Should reference gsd_state_version');
+    assert.ok(issue.issue.includes('pd_state_version'), 'Should reference pd_state_version');
     assert.strictEqual(issue.severity, 'critical');
     assert.strictEqual(issue.category, 'schema_drift');
     assert.strictEqual(issue.location, '.planning/STATE.md');
@@ -203,9 +203,9 @@ describe('detectSchemaDrift', () => {
     assert.ok(issue.issue.includes('unknown_field'));
   });
 
-  test("returns critical issue for unsupported version (0.9) containing 'Unsupported gsd_state_version'", () => {
+  test("returns critical issue for unsupported version (0.9) containing 'Unsupported pd_state_version'", () => {
     const issues = detectSchemaDrift(OLD_VERSION_STATE);
-    const issue = issues.find(i => i.issue.includes('Unsupported gsd_state_version'));
+    const issue = issues.find(i => i.issue.includes('Unsupported pd_state_version'));
     assert.ok(issue, 'Should flag unsupported version');
     assert.strictEqual(issue.severity, 'critical');
   });
@@ -253,19 +253,19 @@ describe('formatDriftReport', () => {
   });
 
   test('returns a string starting with ╔ for non-empty issues', () => {
-    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: gsd_state_version', fix: 'Add it' }];
+    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: pd_state_version', fix: 'Add it' }];
     const result = formatDriftReport(issues);
     assert.ok(result.includes('╔'), 'Should have top border ╔');
   });
 
   test('returns a string ending with ╝ for non-empty issues', () => {
-    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: gsd_state_version', fix: 'Add it' }];
+    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: pd_state_version', fix: 'Add it' }];
     const result = formatDriftReport(issues);
     assert.ok(result.trimEnd().endsWith('╝'), 'Should end with ╝');
   });
 
   test("summary line contains 'Schema check:' and correct count", () => {
-    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: gsd_state_version', fix: 'Add it' }];
+    const issues = [{ severity: 'critical', category: 'schema_drift', location: '.planning/STATE.md', issue: 'Missing: pd_state_version', fix: 'Add it' }];
     const result = formatDriftReport(issues);
     assert.ok(result.includes('Schema check: 1 issue(s)'));
   });

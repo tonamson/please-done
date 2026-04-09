@@ -1,4 +1,4 @@
-<!-- generated-by: gsd-doc-writer -->
+<!-- generated-by: pd-doc-writer -->
 # Architecture Overview — Please Done
 
 ## System Overview
@@ -214,7 +214,7 @@ Raw skill .md (Claude format)
                                (e.g., Read → read_file, Bash → run_shell_command for Gemini)
 8. mcpToolConvert()           — platform-specific MCP tool handling
 9. postProcess()              — last-mile transforms
-                               (Codex: $ARGUMENTS → {{GSD_ARGS}}; Gemini: escape ${VAR})
+                               (Codex: $ARGUMENTS → {{PD_ARGS}}; Gemini: escape ${VAR})
         │
         ▼
 Platform-native output

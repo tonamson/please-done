@@ -15,7 +15,7 @@ When the user invokes `$pd-write-code {{args}}`, execute all instructions below.
 - If `request_user_input` is not available in the current mode, ask the user in plain text with a short question and wait for the user to respond
 - Anywhere that says "MUST use `request_user_input`" means: prefer using it when the tool is available; otherwise fall back to plain text questions — never guess on behalf of the user
 ## Conventions
-- `$ARGUMENTS` is equivalent to `{{GSD_ARGS}}` — user input when invoking the skill
+- `$ARGUMENTS` is equivalent to `{{PD_ARGS}}` — user input when invoking the skill
 - All config paths have been converted to `~/.codex/`
 - MCP tools (`mcp__*`) work automatically via config.toml
 - Read `~/.codex/.pdconfig` (cat ~/.codex/.pdconfig) → get `SKILLS_DIR`
@@ -38,7 +38,7 @@ Stop and instruct the user if any of the following conditions fail:
 - [ ] Use `resolve-library-id` to get library ID before calling `get-library-docs` for each dependency.
 </guards>
 <context>
-User input: {{GSD_ARGS}}
+User input: {{PD_ARGS}}
 - Task number (e.g. `3`) -> execute that specific task.
 - `--auto` -> execute sequentially | `--parallel` -> execute in parallel | `--resume` -> resume with lint-only mode if lint_fail_count > 0
 - Combination examples: `3 --auto`, `--resume`, `3 --resume`.
@@ -92,7 +92,7 @@ Select task:
 | Condition | Action |
 |-----------|--------|
 | ALL tasks ✅ | **STOP**: "Phase completed [N] tasks." Suggest `$pd-test`, `$pd-plan`, `$pd-complete-milestone` |
-| `{{GSD_ARGS}}` specifies task | ⬜/🔄 → continue. ✅ → ask to redo? ❌ → ask confirmation → change ❌→🔄. 🐛 → "Run `$pd-fix-bug`." |
+| `{{PD_ARGS}}` specifies task | ⬜/🔄 → continue. ✅ → ask to redo? ❌ → ask confirmation → change ❌→🔄. 🐛 → "Run `$pd-fix-bug`." |
 | Not specified | Prioritize 🔄 first, then ⬜ in order. ⬜ with unmet dependencies → skip |
 | ALL remaining ❌/🐛/blocked | Notify list + reasons. Suggest `$pd-fix-bug` for 🐛 |
 | Exhausted but ⬜ has circular dependency | "Circular/missing dependency detected. Check TASKS.md." |
@@ -499,7 +499,7 @@ STOP after each task:
 const { createWriteCodeErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
 // Create error handler for write-code skill
 const errorHandler = createWriteCodeErrorHandler('$CURRENT_PHASE', {
-  taskNumber: typeof {{GSD_ARGS}} !== 'undefined' ? {{GSD_ARGS}} : 'unknown',
+  taskNumber: typeof {{PD_ARGS}} !== 'undefined' ? {{PD_ARGS}} : 'unknown',
   filesModified: [],
   lintPassed: null,
   buildPassed: null
