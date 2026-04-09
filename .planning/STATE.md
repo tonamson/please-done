@@ -1,25 +1,25 @@
 ---
 gsd_state_version: 1.0
-milestone: v12.4
-milestone_name: Convention-Aware Skill Execution
-status: completed
-last_updated: "2026-04-09T00:15:11.771Z"
+milestone: v12.5
+milestone_name: Installer UX & Runtime Expansion
+status: active
+last_updated: "2026-04-09T01:30:00.000Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 2
-  completed_phases: 2
-  total_plans: 2
-  completed_plans: 2
-  percent: 100
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-08)
-See: `.planning/ROADMAP.md` (v12.4 roadmap — Phases 151-152)
-See: `.planning/REQUIREMENTS.md` (v12.4 requirements — CONV-01 to CONV-05)
+See: `.planning/PROJECT.md` (updated 2026-04-09)
+See: `.planning/ROADMAP.md` (v12.5 roadmap — Phases 153-154)
+See: `.planning/REQUIREMENTS.md` (v12.5 requirements — UX-01 to UX-03, RT-01 to RT-06, CFG-01 to CFG-02)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -27,16 +27,16 @@ See: `.planning/REQUIREMENTS.md` (v12.4 requirements — CONV-01 to CONV-05)
 
 ## Current Position
 
-Phase: 152 — Skill Injection
-Plan: 01 (Complete)
-Status: All phases complete — v12.4 milestone complete
+Phase: 153 — Installer UX Polish
+Plan: TBD
+Status: Phase not started
 Last activity: 2026-04-09
 
 ---
 
-## v12.4 Convention-Aware Skill Execution
+## v12.5 Installer UX & Runtime Expansion
 
-**Goal:** Inject project coding conventions into code-writing skill prompts so any AI model follows project style.
+**Goal:** Polish installer UX (ASCII banner, colorized help, progress steps) and expand runtime support from 5 to 11 (add Kilo, Antigravity, Cursor, Windsurf, Augment, Trae).
 
 ---
 
@@ -44,6 +44,7 @@ Last activity: 2026-04-09
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
+| v12.5 | 2 | 0 | 2026-04-09 | 🔵 Active |
 | v12.4 | 2 | 2 | 2026-04-08 | ✅ Shipped |
 | v12.3 | 6 | 13 | 2026-04-08 | ✅ Shipped |
 | v12.2 | 8 | 8 | 2026-04-07 | ✅ Shipped |
@@ -59,4 +60,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-08 — v12.4 milestone complete (CONV-01, CONV-02, CONV-03, CONV-04, CONV-05 satisfied)_
+_Last updated: 2026-04-09 — v12.5 milestone active (Phases 153-154, 11 requirements)_

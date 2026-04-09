@@ -24,10 +24,56 @@
 - ✅ **v12.2 Developer Experience Improvements** — Phases 137-144 ([shipped 2026-04-07](milestones/v12.2-ROADMAP.md))
 - ✅ **v12.3 Installation & Documentation UX** — Phases 145-150 ([shipped 2026-04-08](milestones/v12.3-ROADMAP.md))
 - ✅ **v12.4 Convention-Aware Skill Execution** — Phases 151-152 ([shipped 2026-04-08](milestones/v12.4-ROADMAP.md))
+- 🔵 **v12.5 Installer UX & Runtime Expansion** — Phases 153-154 (active)
 
 ## Progress
 
-23 milestones completed. 152 phases completed. Ready for v12.5.
+24 milestones total. 152 phases completed. v12.5 active (phases 153-154).
+
+---
+
+## Active Milestone: v12.5 Installer UX & Runtime Expansion
+
+### Phases
+
+- [ ] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗
+- [ ] **Phase 154: Runtime Expansion** — 6 new runtimes + --config-dir + --force-statusline
+
+### Phase Details
+
+#### Phase 153: Installer UX Polish
+**Goal**: Users see a polished, professional installer experience with visual feedback
+**Depends on**: Nothing (first phase of v12.5)
+**Requirements**: UX-01, UX-02, UX-03
+**Success Criteria** (what must be TRUE):
+  1. User sees styled ASCII art banner in cyan at installer startup (TTY only)
+  2. User running `--help` sees colorized output with all 11 runtimes, flags, and examples
+  3. User sees numbered progress steps `[1/N]` with ✓/✗ outcomes during install
+  4. User sees final summary showing file count and destination path
+**Plans**: TBD
+
+#### Phase 154: Runtime Expansion
+**Goal**: Users can install skills to 6 additional AI coding runtimes with flexible config
+**Depends on**: Phase 153
+**Requirements**: RT-01, RT-02, RT-03, RT-04, RT-05, RT-06, CFG-01, CFG-02
+**Success Criteria** (what must be TRUE):
+  1. User can install to Kilo (`~/.config/kilo/`) via `--kilo` flag
+  2. User can install to Antigravity (`~/.gemini/antigravity/`) via `--antigravity` flag
+  3. User can install to Cursor (`~/.cursor/`) via `--cursor` flag
+  4. User can install to Windsurf (`~/.codeium/windsurf/`) via `--windsurf` flag
+  5. User can install to Augment (`~/.augment/`) via `--augment` flag
+  6. User can install to Trae (`~/.trae/`) via `--trae` flag
+  7. User can override default config directory with `--config-dir <path>` / `-c`
+  8. User can force statusline replacement in IDE editors with `--force-statusline`
+  9. All 6 new runtimes appear in `--all` and interactive menu
+**Plans**: TBD
+
+### Progress Table
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 153. Installer UX Polish | 0/? | Not started | - |
+| 154. Runtime Expansion | 0/? | Not started | - |
 
 ---
 

@@ -1,52 +1,39 @@
-# Requirements: v12.4 Convention-Aware Skill Execution
+# Requirements: v12.5 Installer UX & Runtime Expansion
 
-> Milestone: v12.4
+> Milestone: v12.5
 > Status: Active
 > Created: 2026-04-08
 
-## Context
+## Overview
 
-The `pd` framework is designed for any AI model (Claude, Kimi, GLM, Gemini, etc.).
-Currently `pd:conventions` generates `CLAUDE.md` — a Claude-specific file that only
-Claude Code auto-reads. Other models never see project conventions unless explicitly
-told to read them.
-
-**Goal:** Replace `CLAUDE.md` with a universal `CONVENTIONS.md` and inject it
-explicitly into code-writing skill prompts so all models follow project conventions.
+Upgrade `please-done` installer experience to match GSD build repo quality:
+- Rich visual output (ASCII banner, colorized help, progress steps)
+- Expand from 5 to 11 supported runtimes (add Kilo, Antigravity, Cursor, Windsurf, Augment, Trae)
+- Add `--config-dir` flag, `--force-statusline`, and statusline integration
 
 ---
 
-## Active Requirements
+## Requirements
 
-### Convention File
+### UX-01: ASCII Art Banner
+Installer shows styled ASCII art banner in cyan at startup (TTY only, no external deps).
 
-- [x] **CONV-01**: `pd:conventions` creates/updates `CONVENTIONS.md` instead of `CLAUDE.md`
-  - File lives at project root: `CONVENTIONS.md`
-  - Same content as current CLAUDE.md output (naming, style, patterns)
-  - Works with any AI model — no model-specific auto-read needed
+### UX-02: Colorized Help Output
+`--help` output uses cyan/yellow/dim colors, documents all 11 runtimes and all flags with examples.
 
-- [x] **CONV-02**: `CLAUDE.md` is removed from the project or replaced by `CONVENTIONS.md`
-  - The project should not have a Claude-specific conventions file
+### UX-03: Progress Step Indicators
+Install shows numbered steps `[1/N]` with ✓/✗ outcomes and final summary (file count + destination).
 
-### Skill Injection
+### RT-01 through RT-06: New Runtimes
+Add Kilo (`~/.config/kilo/`), Antigravity (`~/.gemini/antigravity/`), Cursor (`~/.cursor/`),
+Windsurf (`~/.codeium/windsurf/`), Augment (`~/.augment/`), Trae (`~/.trae/`) — each with
+`--flag` support, inclusion in `--all`, and interactive menu entry.
 
-- [x] **CONV-03**: `pd:write-code` reads `CONVENTIONS.md` (if exists) in execution_context
-  - Explicit instruction: "Read `CONVENTIONS.md` if it exists before writing code"
-  - Any model reading the skill prompt will follow this instruction
+### CFG-01: --config-dir Flag
+`--config-dir <path>` (or `-c`) overrides the default config directory for any runtime.
 
-- [x] **CONV-04**: `pd:fix-bug` reads `CONVENTIONS.md` (if exists) in execution_context
-  - Same pattern as CONV-03
-
-- [x] **CONV-05**: `pd:plan` reads `CONVENTIONS.md` (if exists) in execution_context
-  - Planner should be aware of conventions when structuring tasks
-
----
-
-## Out of Scope
-
-- Syncing to IDE-specific files (.cursorrules, .windsurfrules, GEMINI.md) — deferred
-- Auto-detection of which model is running — not needed with explicit injection
-- Modifying GSD framework skills (gsd-executor etc.) — separate concern
+### CFG-02: --force-statusline Flag
+Replaces existing statusline config in IDE editors when provided; skips with warning otherwise.
 
 ---
 
@@ -54,8 +41,14 @@ explicitly into code-writing skill prompts so all models follow project conventi
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| CONV-01 | Phase 151 | Complete |
-| CONV-02 | Phase 151 | Complete |
-| CONV-03 | Phase 152 | Complete |
-| CONV-04 | Phase 152 | Complete |
-| CONV-05 | Phase 152 | Complete |
+| UX-01 | Phase 153 | Pending |
+| UX-02 | Phase 153 | Pending |
+| UX-03 | Phase 153 | Pending |
+| RT-01 | Phase 154 | Pending |
+| RT-02 | Phase 154 | Pending |
+| RT-03 | Phase 154 | Pending |
+| RT-04 | Phase 154 | Pending |
+| RT-05 | Phase 154 | Pending |
+| RT-06 | Phase 154 | Pending |
+| CFG-01 | Phase 154 | Pending |
+| CFG-02 | Phase 154 | Pending |
