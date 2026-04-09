@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v12.5
 milestone_name: Installer UX & Runtime Expansion
 status: Phase not started
-last_updated: "2026-04-09T02:12:52.137Z"
+last_updated: "2026-04-09T02:50:58.858Z"
 last_activity: 2026-04-09
 progress:
   total_phases: 2
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  completed_phases: 2
+  total_plans: 2
+  completed_plans: 2
   percent: 100
 ---
 

@@ -37,7 +37,7 @@
 ### Phases
 
 - [x] **Phase 153: Installer UX Polish** — ASCII banner, colorized help, progress steps with ✓/✗ (completed 2026-04-09)
-- [ ] **Phase 154: Runtime Expansion** — 4 new runtimes + windsurf fix + --force-statusline
+- [x] **Phase 154: Runtime Expansion** — 4 new runtimes + windsurf fix + --force-statusline (completed 2026-04-09)
 
 ### Phase Details
 
@@ -68,14 +68,14 @@
   9. All 6 new runtimes appear in `--all` and interactive menu
 **Plans**: 1 plan
 Plans:
-- [ ] 154-01-PLAN.md — Add 4 new runtimes (kilo, antigravity, augment, trae), fix windsurf path, add --force-statusline
+- [x] 154-01-PLAN.md — Add 4 new runtimes (kilo, antigravity, augment, trae), fix windsurf path, add --force-statusline
 
 ### Progress Table
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 153. Installer UX Polish | 1/1 | Complete   | 2026-04-09 |
-| 154. Runtime Expansion | 0/1 | Not started | - |
+| 154. Runtime Expansion | 1/1 | Complete   | 2026-04-09 |
 | 154. Runtime Expansion | 0/? | Not started | - |
 
 ---
