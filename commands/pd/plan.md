@@ -1,7 +1,6 @@
 ---
 name: pd:plan
 description: Technical planning + task breakdown for the current milestone
-model: opus
 argument-hint: "[--auto | --discuss] [specific phase, e.g. '1.2']"
 allowed-tools:
   - Read
@@ -87,16 +86,3 @@ Execute @workflows/plan.md from start to finish.
 - The research section MUST check existing libraries before proposing any new dependency.
 </rules>
 
-<script type="error-handler">
-const { createPlanErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-
-// Create error handler for plan skill
-const errorHandler = createPlanErrorHandler('$CURRENT_PHASE', {
-  phaseNumber: typeof $ARGUMENTS !== 'undefined' ? $ARGUMENTS : 'unknown',
-  requirements: [],
-  researchComplete: false
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

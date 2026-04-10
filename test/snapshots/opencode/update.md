@@ -115,12 +115,3 @@ If FastCode changed -> "FastCode was updated as well."
 - You MUST suggest restarting after the update
 - All output MUST be in English
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for update skill
-const errorHandler = createBasicErrorHandler('pd:update', '$CURRENT_PHASE', {
-  operation: 'update'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

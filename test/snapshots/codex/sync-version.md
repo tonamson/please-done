@@ -77,10 +77,3 @@ No external workflow needed — pd:sync-version executes inline using bin/lib/ve
 - Sync is non-blocking — failures produce warnings, do not halt (D-10)
 - Load functions from `bin/lib/version-sync.js` using require()
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-const errorHandler = createBasicErrorHandler('pd:sync-version', '$CURRENT_PHASE', {
-  operation: 'sync-version'
-});
-module.exports = { errorHandler };
-</script>

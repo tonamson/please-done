@@ -1,7 +1,6 @@
 ---
 name: pd:conventions
 description: "Analyze the project and create CONVENTIONS.md with project-specific coding conventions (style, naming, patterns)"
-model: sonnet
 argument-hint: "(no arguments needed)"
 allowed-tools:
   - Read
@@ -57,14 +56,3 @@ Execute @workflows/conventions.md from start to finish.
 - `CONVENTIONS.md` MUST reflect the current codebase reality and must not impose new conventions
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for conventions skill
-const errorHandler = createBasicErrorHandler('pd:conventions', '$CURRENT_PHASE', {
-  operation: 'conventions'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

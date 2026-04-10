@@ -1,7 +1,6 @@
 ---
 name: pd:new-milestone
 description: Strategic project planning with a clear roadmap and milestones
-model: opus
 argument-hint: "[milestone name, e.g. 'v1.1 Notifications'] [--reset-phase-numbers]"
 allowed-tools:
   - Read
@@ -87,14 +86,3 @@ Execute @workflows/new-milestone.md from start to finish.
 - Research is required only for new features, and may be skipped for refactor or bugfix milestones.
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for new-milestone skill
-const errorHandler = createBasicErrorHandler('pd:new-milestone', '$CURRENT_PHASE', {
-  operation: 'new-milestone'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

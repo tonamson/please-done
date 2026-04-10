@@ -1,7 +1,6 @@
 ---
 name: pd:init
 description: Initialize the workspace, verify FastCode MCP, and create compact context for later skills
-model: haiku
 argument-hint: "[project path, defaults to current directory]"
 allowed-tools:
   - Read
@@ -63,14 +62,3 @@ Execute @workflows/init.md from start to finish.
 - DO NOT change files outside `.planning/`
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for init skill
-const errorHandler = createBasicErrorHandler('pd:init', '$CURRENT_PHASE', {
-  operation: 'init'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

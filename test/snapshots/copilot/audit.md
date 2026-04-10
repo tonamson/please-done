@@ -377,15 +377,3 @@ OSINT operations are successful when:
 | Medium | Information disclosure | Directory listings, config files |
 | Low | Generic patterns | Error messages, version info |
 | Info | Reconnaissance data | Subdomain lists |
-<script type="error-handler">
-const { createAuditErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-// Create error handler for audit skill
-const errorHandler = createAuditErrorHandler('$CURRENT_PHASE', {
-  auditType: 'security',
-  scannersUsed: [],
-  findingsCount: 0,
-  sessionDelta: null
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

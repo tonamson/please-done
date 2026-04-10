@@ -131,14 +131,12 @@ describe('pd:onboard Integration Tests', () => {
   });
 
   describe('T4.4: Onboard → Init → Scan Chain', () => {
-    it('should verify skill file exists and has error handler', () => {
+    it('should verify skill file exists', () => {
       const onboardSkillPath = path.join(__dirname, '..', 'commands', 'pd', 'onboard.md');
       assert.ok(fs.existsSync(onboardSkillPath), 'onboard.md skill file should exist');
 
       const content = fs.readFileSync(onboardSkillPath, 'utf8');
-      assert.ok(content.includes('error-handler'), 'Skill should have error handler');
-      assert.ok(content.includes('createEnhancedErrorHandler'),
-        'Should use enhanced error handler');
+      assert.ok(content.includes('name: pd:onboard'), 'Should have correct skill name');
     });
 
     it('should verify workflow file exists', () => {

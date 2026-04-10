@@ -39,7 +39,6 @@ describe('pd:onboard skill — structure and reference integrity', () => {
     const { frontmatter } = parseFrontmatter(content);
     assert.ok(frontmatter.name, 'missing frontmatter.name');
     assert.ok(frontmatter.description, 'missing frontmatter.description');
-    assert.ok(frontmatter.model, 'missing frontmatter.model');
     assert.ok(
       frontmatter['allowed-tools'],
       'missing frontmatter.allowed-tools',

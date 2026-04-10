@@ -153,12 +153,3 @@ Last commit: [hash] [message]
 - Output MUST be in English
 - Lint field MUST reflect actual PROGRESS.md state (or "no active task" if missing)
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for status skill
-const errorHandler = createBasicErrorHandler('pd:status', '$CURRENT_PHASE', {
-  operation: 'status'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

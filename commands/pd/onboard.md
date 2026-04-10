@@ -1,7 +1,6 @@
 ---
 name: pd:onboard
 description: Orient AI to an unfamiliar codebase — initialize, scan, and create a ready-to-use .planning/ directory
-model: sonnet
 argument-hint: "[project path, defaults to current directory]"
 allowed-tools:
   - Read
@@ -113,19 +112,3 @@ Output onboarding summary with tech stack, key files, and next steps.
 - If git is unavailable, skip git history analysis and derive PROJECT.md from CONTEXT.md alone
 </rules>
 
-<script type="error-handler">
-const { createEnhancedErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-
-/**
- * Enhanced error handler for onboard skill
- * Logs structured errors to .planning/logs/agent-errors.jsonl
- * Includes git analysis context and stack trace
- */
-const errorHandler = createEnhancedErrorHandler('pd:onboard', '$CURRENT_PHASE', {
-  operation: 'onboard',
-  contextFields: ['gitAvailable', 'projectPath', 'stepCompleted']
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

@@ -76,10 +76,3 @@ No external workflow needed — pd:discover executes inline using bin/lib/mcp-di
 - DO NOT call FastCode MCP or Context7 MCP
 - Load functions from `bin/lib/mcp-discovery.js` using require()
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-const errorHandler = createBasicErrorHandler('pd:discover', '$CURRENT_PHASE', {
-  operation: 'discover'
-});
-module.exports = { errorHandler };
-</script>

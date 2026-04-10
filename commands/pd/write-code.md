@@ -1,7 +1,6 @@
 ---
 name: pd:write-code
 description: Write code for tasks already planned in TASKS.md, lint, build, commit, and report back (requires PLAN.md + TASKS.md first)
-model: sonnet
 argument-hint: "[task number] [--auto | --parallel | --resume]"
 allowed-tools:
   - Read
@@ -102,17 +101,3 @@ Execute @workflows/write-code.md from start to finish. Task selection, coding, v
 - You MUST NOT change source code outside the scope of the current task.
 </rules>
 
-<script type="error-handler">
-const { createWriteCodeErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-
-// Create error handler for write-code skill
-const errorHandler = createWriteCodeErrorHandler('$CURRENT_PHASE', {
-  taskNumber: typeof $ARGUMENTS !== 'undefined' ? $ARGUMENTS : 'unknown',
-  filesModified: [],
-  lintPassed: null,
-  buildPassed: null
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

@@ -65,10 +65,3 @@ No external workflow needed — pd:stats executes inline using bin/lib/stats-col
 - DO NOT suggest next steps — that is pd:what-next's job
 - Load functions from `bin/lib/stats-collector.js` using require()
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-const errorHandler = createBasicErrorHandler('pd:stats', '$CURRENT_PHASE', {
-  operation: 'stats'
-});
-module.exports = { errorHandler };
-</script>

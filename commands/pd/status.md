@@ -1,7 +1,6 @@
 ---
 name: pd:status
 description: Display a read-only project status dashboard showing milestone, phase, tasks, bugs, errors, and blockers with optional staleness detection
-model: haiku
 argument-hint: "[--auto-refresh] [--refresh-threshold=MINUTES]"
 allowed-tools:
   - Read
@@ -87,14 +86,3 @@ Execute @workflows/status.md from start to finish.
   - Stale: "⚠ Data stale (X min ago) — Run `/pd:status --auto-refresh`"
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for status skill
-const errorHandler = createBasicErrorHandler('pd:status', '$CURRENT_PHASE', {
-  operation: 'status'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

@@ -1,7 +1,6 @@
 ---
 name: pd:complete-milestone
 description: Complete the milestone, commit, create a git tag, and generate a completion report
-model: sonnet
 argument-hint: "(no arguments needed)"
 allowed-tools:
   - Read
@@ -78,14 +77,3 @@ Execute @workflows/complete-milestone.md from start to finish.
 - You MUST ask the user for confirmation before closing the milestone.
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for complete-milestone skill
-const errorHandler = createBasicErrorHandler('pd:complete-milestone', '$CURRENT_PHASE', {
-  operation: 'complete-milestone'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

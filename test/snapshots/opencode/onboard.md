@@ -240,17 +240,3 @@ console.log(generateSummary(context));
 - Date format: DD_MM_YYYY per [SKILLS_DIR]/references/conventions.md
 - Output MUST be in English
 </rules>
-<script type="error-handler">
-const { createEnhancedErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-/**
- * Enhanced error handler for onboard skill
- * Logs structured errors to .planning/logs/agent-errors.jsonl
- * Includes git analysis context and stack trace
- */
-const errorHandler = createEnhancedErrorHandler('pd:onboard', '$CURRENT_PHASE', {
-  operation: 'onboard',
-  contextFields: ['gitAvailable', 'projectPath', 'stepCompleted']
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

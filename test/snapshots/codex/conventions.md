@@ -107,12 +107,3 @@ Rules: ONLY write things AI cannot infer on its own. DO NOT repeat framework kno
 - New project with no code → ask more, detect less
 - DO NOT read/display sensitive files
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for conventions skill
-const errorHandler = createBasicErrorHandler('pd:conventions', '$CURRENT_PHASE', {
-  operation: 'conventions'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

@@ -1,7 +1,6 @@
 ---
 name: pd:stats
 description: Display comprehensive project statistics including phases, plans, requirements, milestones, timeline, and file counts
-model: haiku
 argument-hint: "[--json]"
 allowed-tools:
   - Read
@@ -67,12 +66,3 @@ No external workflow needed — pd:stats executes inline using bin/lib/stats-col
 - Load functions from `bin/lib/stats-collector.js` using require()
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-const errorHandler = createBasicErrorHandler('pd:stats', '$CURRENT_PHASE', {
-  operation: 'stats'
-});
-
-module.exports = { errorHandler };
-</script>

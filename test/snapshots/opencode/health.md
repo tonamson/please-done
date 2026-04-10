@@ -70,10 +70,3 @@ No external workflow needed — pd:health executes inline using bin/lib/health-c
 - Load scope functions from `bin/lib/scope-checker.js` using require() — `checkScopeReductions`, `formatScopeReport`
 - Load drift functions from `bin/lib/drift-detector.js` using require() — `detectSchemaDrift`, `formatDriftReport`
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-const errorHandler = createBasicErrorHandler('pd:health', '$CURRENT_PHASE', {
-  operation: 'health'
-});
-module.exports = { errorHandler };
-</script>

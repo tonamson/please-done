@@ -1,7 +1,6 @@
 ---
 name: pd:scan
 description: Scan the entire project, analyze structure, libraries, security, and generate a report
-model: haiku
 argument-hint: "[project path, defaults to current directory]"
 allowed-tools:
   - Read
@@ -61,14 +60,3 @@ Execute @workflows/scan.md from start to finish.
 - The report must include: structure, dependencies, architecture, and security
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for scan skill
-const errorHandler = createBasicErrorHandler('pd:scan', '$CURRENT_PHASE', {
-  operation: 'scan'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

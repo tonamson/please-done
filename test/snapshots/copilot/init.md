@@ -179,12 +179,3 @@ Copy from `[SKILLS_DIR]/commands/pd/rules/` → `.planning/rules/`:
 - DO NOT read/display `.env`, `.env.*` (except `.env.example`), `credentials.*`, `*.pem`, `*.key`, `*secret*`, `wp-config.php`
 - Existing CONTEXT.md → ask keep/reinitialize
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for init skill
-const errorHandler = createBasicErrorHandler('pd:init', '$CURRENT_PHASE', {
-  operation: 'init'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

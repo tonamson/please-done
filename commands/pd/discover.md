@@ -1,7 +1,6 @@
 ---
 name: pd:discover
 description: Discover MCP tools and built-in tools across all configured platforms — shows servers, tools, and platform coverage
-model: haiku
 argument-hint: "[--verbose] [--json]"
 allowed-tools:
   - Read
@@ -78,11 +77,3 @@ No external workflow needed — pd:discover executes inline using bin/lib/mcp-di
 - Load functions from `bin/lib/mcp-discovery.js` using require()
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-const errorHandler = createBasicErrorHandler('pd:discover', '$CURRENT_PHASE', {
-  operation: 'discover'
-});
-
-module.exports = { errorHandler };
-</script>

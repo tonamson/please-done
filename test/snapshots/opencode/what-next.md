@@ -175,12 +175,3 @@ Fetch error/same version → skip.
 - Date format DD_MM_YYYY
 - Output MUST be in English
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for what-next skill
-const errorHandler = createBasicErrorHandler('pd:what-next', '$CURRENT_PHASE', {
-  operation: 'what-next'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

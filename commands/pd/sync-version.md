@@ -1,7 +1,6 @@
 ---
 name: pd:sync-version
 description: Sync version from package.json across README badges, version text, and doc file headers
-model: haiku
 argument-hint: "[--check]"
 allowed-tools:
   - Read
@@ -80,12 +79,3 @@ No external workflow needed — pd:sync-version executes inline using bin/lib/ve
 - Load functions from `bin/lib/version-sync.js` using require()
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-const errorHandler = createBasicErrorHandler('pd:sync-version', '$CURRENT_PHASE', {
-  operation: 'sync-version'
-});
-
-module.exports = { errorHandler };
-</script>

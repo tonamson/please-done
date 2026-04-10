@@ -1,7 +1,6 @@
 ---
 name: pd:update
 description: Check for a new version of the skill set on GitHub, show the changelog, and update it
-model: haiku
 argument-hint: "[--check | --apply]"
 allowed-tools:
   - Read
@@ -161,14 +160,3 @@ If FastCode changed -> "FastCode was updated as well."
 - All output MUST be in English
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for update skill
-const errorHandler = createBasicErrorHandler('pd:update', '$CURRENT_PHASE', {
-  operation: 'update'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

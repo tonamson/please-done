@@ -1,7 +1,6 @@
 ---
 name: pd:audit
 description: OWASP/PTES security audit - dispatch 13 scanners in parallel and consolidate the report
-model: opus
 argument-hint: "[path] [--full|--only cat1,cat2|--recon|--recon-light|--recon-full|--osint|--osint-full|--osint-output json|table|markdown|--osint-timeout seconds|--poc|--redteam|--auto-fix]"
 allowed-tools:
   - Read
@@ -154,17 +153,3 @@ OSINT operations are successful when:
 | Low | Generic patterns | Error messages, version info |
 | Info | Reconnaissance data | Subdomain lists |
 
-<script type="error-handler">
-const { createAuditErrorHandler } = require('../../../bin/lib/enhanced-error-handler');
-
-// Create error handler for audit skill
-const errorHandler = createAuditErrorHandler('$CURRENT_PHASE', {
-  auditType: 'security',
-  scannersUsed: [],
-  findingsCount: 0,
-  sessionDelta: null
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

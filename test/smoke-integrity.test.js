@@ -266,7 +266,6 @@ describe("Repo integrity — canonical skill structure", () => {
   const REQUIRED_FM_FIELDS = [
     "name",
     "description",
-    "model",
     "argument-hint",
     "allowed-tools",
   ];

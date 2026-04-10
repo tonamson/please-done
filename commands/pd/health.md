@@ -1,7 +1,6 @@
 ---
 name: pd:health
 description: Diagnose planning directory issues — missing files, STATE.md validation, orphaned directories
-model: haiku
 argument-hint: "[--json]"
 allowed-tools:
   - Read
@@ -88,12 +87,3 @@ No external workflow needed — pd:health executes inline using bin/lib/health-c
 - Load drift functions from `bin/lib/drift-detector.js` using require() — `detectSchemaDrift`, `formatDriftReport`
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-const errorHandler = createBasicErrorHandler('pd:health', '$CURRENT_PHASE', {
-  operation: 'health'
-});
-
-module.exports = { errorHandler };
-</script>

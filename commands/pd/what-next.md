@@ -1,7 +1,6 @@
 ---
 name: pd:what-next
 description: Check project progress and suggest the next command when work is interrupted or forgotten
-model: haiku
 argument-hint: "[--execute]"
 allowed-tools:
   - Read
@@ -69,14 +68,3 @@ The advisory display is still shown (for transparency) before execution.
 - The suggested command MUST be based on the actual current state, never guessed
 </rules>
 
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-
-// Create error handler for what-next skill
-const errorHandler = createBasicErrorHandler('pd:what-next', '$CURRENT_PHASE', {
-  operation: 'what-next'
-});
-
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

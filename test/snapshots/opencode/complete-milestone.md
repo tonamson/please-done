@@ -290,12 +290,3 @@ Bugs fixed: [...]"
 - CHANGELOG clearly documents each bug: description + root cause + fix
 - Reports + CHANGELOG written product-oriented (see [SKILLS_DIR]/references/ui-brand.md)
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for complete-milestone skill
-const errorHandler = createBasicErrorHandler('pd:complete-milestone', '$CURRENT_PHASE', {
-  operation: 'complete-milestone'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>

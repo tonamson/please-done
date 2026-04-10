@@ -130,12 +130,3 @@ Summarize results. If CONTEXT.md/rules updated → notify clearly.
 - MUST update CONTEXT.md after scan
 - Tech stack changed → MUST re-copy rules
 </rules>
-<script type="error-handler">
-const { createBasicErrorHandler } = require('../../../bin/lib/basic-error-handler');
-// Create error handler for scan skill
-const errorHandler = createBasicErrorHandler('pd:scan', '$CURRENT_PHASE', {
-  operation: 'scan'
-});
-// Export for skill executor
-module.exports = { errorHandler };
-</script>
