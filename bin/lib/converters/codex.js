@@ -1,4 +1,4 @@
-// Converter: Claude Code -> Codex CLI
+// Converter: PD Skills (source format) -> Codex CLI
 //
 // Codex uses "skills" instead of slash commands.
 // Each skill lives in its own directory: skills/pd-[name]/SKILL.md
@@ -10,7 +10,7 @@
 const { convertSkill: baseConvert } = require('./base');
 
 /**
- * Generate XML adapter header — teaches Codex how to map Claude concepts to Codex.
+ * Generate XML adapter header — teaches Codex how to map source skill concepts to Codex.
  */
 function generateSkillAdapter(skillName) {
   return `<codex_skill_adapter>
@@ -40,7 +40,7 @@ When the user invokes \`$pd-${skillName} {{args}}\`, execute all instructions be
 }
 
 /**
- * Convert skill content from Claude format to Codex format.
+ * Convert skill content from source format to Codex format.
  * @param {string} content — original command file content
  * @param {string} skillName — skill name (e.g., 'plan', 'write-code')
  * @param {string} [skillsDir] — source repo path (to read workflow files)

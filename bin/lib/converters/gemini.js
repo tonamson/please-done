@@ -1,4 +1,4 @@
-// Converter: Claude Code -> Gemini CLI
+// Converter: PD Skills (source format) -> Gemini CLI
 //
 // Gemini CLI requires .toml format for custom commands:
 //   description = "one-line description"
@@ -40,7 +40,7 @@ function escapeTomlString(str) {
 }
 
 /**
- * Convert noi dung skill tu Claude format sang Gemini TOML format.
+ * Convert noi dung skill tu source format sang Gemini TOML format.
  *
  * Pipeline:
  * 1. Use base converter to get processed markdown (inlined workflows, tool maps, etc.)
@@ -91,7 +91,7 @@ function convertSkill(content, skillsDir) {
 }
 
 /**
- * Generate Gemini MCP config (JSON format, same as Claude).
+ * Generate Gemini MCP config (JSON format, same as Claude Code).
  */
 function generateMcpConfig(fastcodeDir) {
   return {

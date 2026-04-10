@@ -1,5 +1,5 @@
 /**
- * Converter: Claude Code -> OpenCode
+ * Converter: PD Skills (source format) -> OpenCode
  *
  * OpenCode dung flat command structure: commands/pd-*.md (khong nested).
  * Frontmatter: strip name (dung filename), strip tools/color/skills,
@@ -12,7 +12,7 @@
 const { convertSkill: baseConvert } = require('./base');
 
 /**
- * Convert noi dung skill tu Claude format sang OpenCode format.
+ * Convert noi dung skill tu source format sang OpenCode format.
  */
 function convertSkill(content, skillsDir) {
   return baseConvert(content, {

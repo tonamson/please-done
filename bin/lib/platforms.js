@@ -36,12 +36,12 @@ const TOOL_MAP = {
     WebFetch: 'fetch',
     WebSearch: 'search_web',
   },
-  cursor: {},       // Cursor uses Claude native tool names
-  windsurf: {},     // Windsurf uses Claude native tool names
-  kilo: {},         // Kilo uses Claude native tool names
-  antigravity: {},  // Antigravity uses Claude native tool names
-  augment: {},      // Augment uses Claude native tool names
-  trae: {},         // Trae uses Claude native tool names
+  cursor: {},       // Cursor uses source tool names (no mapping needed)
+  windsurf: {},     // Windsurf uses source tool names (no mapping needed)
+  kilo: {},         // Kilo uses source tool names (no mapping needed)
+  antigravity: {},  // Antigravity uses source tool names (no mapping needed)
+  augment: {},      // Augment uses source tool names (no mapping needed)
+  trae: {},         // Trae uses source tool names (no mapping needed)
 };
 
 // ─── Platform definitions ─────────────────────────────────

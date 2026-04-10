@@ -87,7 +87,7 @@ If FastCode changed -> "FastCode was updated as well."
 - `[SKILLS_DIR]/` -- updated skill set from GitHub
 - `.pdconfig` -- updated `CURRENT_VERSION`
 - Delete `~/.copilot/cache/pd-update-check.json`
-**Next step:** Restart Claude Code
+**Next step:** Restart your AI assistant
 **Success when:**
 - `VERSION` is updated correctly
 - `.pdconfig` contains the new `CURRENT_VERSION`

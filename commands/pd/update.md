@@ -132,7 +132,7 @@ If FastCode changed -> "FastCode was updated as well."
 - `.pdconfig` -- updated `CURRENT_VERSION`
 - Delete `~/.claude/cache/pd-update-check.json`
 
-**Next step:** Restart Claude Code
+**Next step:** Restart your AI assistant
 
 **Success when:**
 

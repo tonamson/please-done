@@ -1,4 +1,4 @@
-// Converter: Claude Code -> GitHub Copilot
+// Converter: PD Skills (source format) -> GitHub Copilot
 //
 // Copilot dung skills trong thu muc: skills/pd-[name]/SKILL.md
 // Tool names duoc map khac (Read->read, Bash->execute).
@@ -14,7 +14,7 @@ const { TOOL_MAP } = require('../platforms');
 const COPILOT_TOOL_MAP = TOOL_MAP.copilot;
 
 /**
- * Convert noi dung skill tu Claude format sang Copilot format.
+ * Convert noi dung skill tu source format sang Copilot format.
  */
 function convertSkill(content, isGlobal, skillsDir) {
   const configBase = isGlobal ? '~/.copilot/' : '.github/';

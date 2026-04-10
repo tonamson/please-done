@@ -22,7 +22,7 @@ const { convertCommandRef } = require('../platforms');
  * @param {string} config.runtime — platform name ('codex', 'copilot', 'gemini', 'opencode')
  * @param {string} [config.skillsDir] — repo root for workflow inlining
  * @param {string} [config.pathReplace] — replacement for ~/.claude/ paths
- * @param {object} [config.toolMap] — { claudeName: platformName } tool mapping
+ * @param {object} [config.toolMap] — { sourceName: platformName } tool mapping
  * @param {function} [config.buildFrontmatter] — (fm) => newFm object
  * @param {function} [config.pdconfigFix] — (body) => body with .pdconfig path fixed
  * @param {function} [config.mcpToolConvert] — (body) => body with MCP refs converted
@@ -61,8 +61,8 @@ function convertSkill(content, config) {
 
   // 6. Tool name mapping (word-boundary regex, skip function calls)
   if (config.toolMap && Object.keys(config.toolMap).length > 0) {
-    for (const [claude, platform] of Object.entries(config.toolMap)) {
-      const regex = new RegExp(`\\b${claude}\\b(?!\\()`, 'g');
+    for (const [source, platform] of Object.entries(config.toolMap)) {
+      const regex = new RegExp(`\\b${source}\\b(?!\\()`, 'g');
       newBody = newBody.replace(regex, platform);
     }
   }
