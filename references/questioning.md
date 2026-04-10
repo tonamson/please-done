@@ -61,5 +61,5 @@ After AskUserQuestion with "Other":
 > Select "Other" and type "back" to go back, or "cancel" to stop.
 
 - `back` → return to previous question (first question → previous step)
-- `cancel` → keep confirmed decisions, Claude decides the rest → summary
+- `cancel` → keep confirmed decisions, AI decides the rest → summary
 - Other content → free-form answer → confirm understanding before continuing

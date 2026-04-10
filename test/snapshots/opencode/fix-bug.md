@@ -333,17 +333,17 @@ Ask: "Fixed {description}. Please check and confirm."
 1. `git diff HEAD~1` -> diffText
 2. Read `{session_dir}/SESSION.md` -> sessionContent
 3. Read bug report just created (`.planning/bugs/BUG-{NNN}.md`) -> bugReportContent
-4. Read `CLAUDE.md` -> claudeContent (if exists)
+4. Read project config file → claudeContent (if exists; try: `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`)
 5. Glob `.planning/reports/*.md` -> reportContent (newest file, if any)
 6. Try: call `runLogicSync({ diffText, bugReportContent, sessionContent, claudeContent, reportContent, planContents: [] })` from `bin/lib/logic-sync.js`
    -> { logicResult, reportResult, rulesResult, warnings }
    Catch: WARNING: "Logic sync error: {error.message}". DO NOT block.
 7. logicResult?.hasLogicChange = true and reportResult !== null -> ask: "Update PDF? (Y/n)"
    Y -> `node bin/generate-pdf-report.js {reportPath}`
-8. rulesResult?.suggestions?.length > 0 -> display rulesResult.suggestions and ask: "Add to CLAUDE.md? (Y/n)"
-   Y -> append to CLAUDE.md, git add and commit:
+8. rulesResult?.suggestions?.length > 0 -> display rulesResult.suggestions and ask: "Add to project config file? (Y/n)"
+   Y -> append to the project config file found above (AGENTS.md / CLAUDE.md), git add and commit:
    ```
-   git add CLAUDE.md
+   git add {configFile}
    git commit -m "fix([BUG]): add rule from post-mortem"
    ```
 </process>

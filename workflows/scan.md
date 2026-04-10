@@ -1,7 +1,7 @@
 <purpose>
 Scan project, analyze code structure, dependencies, architecture, security checks, generate report.
 
-Note: `~/.claude/` is for Claude Code. The installer converts to platform-appropriate paths.
+Note: The skills directory path varies by AI runtime. The installer converts to the correct platform-specific path.
 </purpose>
 
 <conditional_reading>

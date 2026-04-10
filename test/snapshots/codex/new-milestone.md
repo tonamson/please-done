@@ -244,7 +244,7 @@ git add .planning/REQUIREMENTS.md && git commit -m "docs: define requirements fo
 ### 7b. Coverage check (REQUIRED)
 ALL v1 requirements MUST be mapped to exactly 1 phase. Unmapped → **STOP**, fix first.
 ### 7c. Strategic decisions
-Claude MUST document: why milestone X before Y, why prioritize Z, why split into N milestones, dependencies.
+AI MUST document: why milestone X before Y, why prioritize Z, why split into N milestones, dependencies.
 ### 7d. Create ROADMAP.md
 - **OVERWRITE** → write new from template
 - **CONTINUE** → keep existing milestones → add new AFTER the end → update dates

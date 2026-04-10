@@ -1,7 +1,7 @@
 <purpose>
 First skill — check FastCode MCP (REQUIRED), index project, detect tech stack, create CONTEXT.md + copy rules.
 
-Note: `~/.claude/` is for Claude Code. The installer converts to platform-appropriate paths.
+Note: The skills directory path varies by AI runtime. The installer converts to the correct platform-specific path.
 </purpose>
 
 <process>
@@ -120,7 +120,7 @@ mkdir -p .planning/scan .planning/docs .planning/bugs .planning/rules .planning/
 ```
 
 ## Step 6: Copy rules to .planning/rules/
-Read `.pdconfig` → `SKILLS_DIR`. (Claude Code: `cat ~/.claude/commands/pd/.pdconfig`)
+Read `.pdconfig` → `SKILLS_DIR` (e.g., `cat ~/.claude/commands/pd/.pdconfig`).
 Not found → **STOP**: "Cannot find .pdconfig. Run `node bin/install.js` again."
 
 Delete ONLY template files: `general.md`, `nestjs.md`, `nextjs.md`, `wordpress.md`, `solidity.md`, `flutter.md`. Keep custom files.
