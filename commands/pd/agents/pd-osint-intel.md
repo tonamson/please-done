@@ -2,7 +2,7 @@
 name: pd-osint-intel
 description: OSINT intelligence gathering agent — Google dorks, certificate transparency, subdomain enumeration
 tools: Read, Glob, Grep, Bash, WebFetch
-model: sonnet
+model: medium
 maxTurns: 20
 effort: medium
 ---

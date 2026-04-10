@@ -18,30 +18,30 @@ const {
 // ─── getModelForTier ────────────────────────────────────────
 
 describe('getModelForTier', () => {
-  it('tra ve haiku cho scout', () => {
+  it('tra ve light cho scout', () => {
     const result = getModelForTier('scout');
-    assert.equal(result.model, 'haiku');
+    assert.equal(result.model, 'light');
     assert.equal(result.effort, 'low');
     assert.equal(result.maxTurns, 15);
   });
 
-  it('tra ve sonnet cho builder', () => {
+  it('tra ve medium cho builder', () => {
     const result = getModelForTier('builder');
-    assert.equal(result.model, 'sonnet');
+    assert.equal(result.model, 'medium');
     assert.equal(result.effort, 'medium');
     assert.equal(result.maxTurns, 25);
   });
 
-  it('tra ve opus cho architect', () => {
+  it('tra ve heavy cho architect', () => {
     const result = getModelForTier('architect');
-    assert.equal(result.model, 'opus');
+    assert.equal(result.model, 'heavy');
     assert.equal(result.effort, 'high');
     assert.equal(result.maxTurns, 30);
   });
 
-  it('case-insensitive: SCOUT tra ve haiku', () => {
+  it('case-insensitive: SCOUT tra ve light', () => {
     const result = getModelForTier('SCOUT');
-    assert.equal(result.model, 'haiku');
+    assert.equal(result.model, 'light');
     assert.equal(result.effort, 'low');
     assert.equal(result.maxTurns, 15);
   });
@@ -62,7 +62,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-bug-janitor');
     assert.equal(cfg.name, 'pd-bug-janitor');
     assert.equal(cfg.tier, 'scout');
-    assert.equal(cfg.model, 'haiku');
+    assert.equal(cfg.model, 'light');
     assert.equal(cfg.effort, 'low');
     assert.equal(cfg.maxTurns, 15);
     assert.ok(cfg.tools.includes('Read'));
@@ -75,7 +75,7 @@ describe('getAgentConfig', () => {
   it('tra ve full config cho pd-code-detective', () => {
     const cfg = getAgentConfig('pd-code-detective');
     assert.equal(cfg.tier, 'builder');
-    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.model, 'medium');
     assert.equal(cfg.effort, 'medium');
     assert.equal(cfg.maxTurns, 25);
     assert.ok(cfg.tools.includes('mcp__fastcode__code_qa'));
@@ -84,7 +84,7 @@ describe('getAgentConfig', () => {
   it('tra ve full config cho pd-doc-specialist', () => {
     const cfg = getAgentConfig('pd-doc-specialist');
     assert.equal(cfg.tier, 'scout');
-    assert.equal(cfg.model, 'haiku');
+    assert.equal(cfg.model, 'light');
     assert.equal(cfg.effort, 'low');
     assert.equal(cfg.maxTurns, 15);
     assert.ok(cfg.tools.includes('mcp__context7__resolve-library-id'));
@@ -94,7 +94,7 @@ describe('getAgentConfig', () => {
   it('tra ve full config cho pd-repro-engineer', () => {
     const cfg = getAgentConfig('pd-repro-engineer');
     assert.equal(cfg.tier, 'builder');
-    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.model, 'medium');
     assert.equal(cfg.effort, 'medium');
     assert.equal(cfg.maxTurns, 25);
     assert.ok(cfg.tools.includes('Write'));
@@ -105,7 +105,7 @@ describe('getAgentConfig', () => {
   it('tra ve full config cho pd-fix-architect', () => {
     const cfg = getAgentConfig('pd-fix-architect');
     assert.equal(cfg.tier, 'architect');
-    assert.equal(cfg.model, 'opus');
+    assert.equal(cfg.model, 'heavy');
     assert.equal(cfg.effort, 'high');
     assert.equal(cfg.maxTurns, 30);
     assert.ok(cfg.tools.includes('Glob'));
@@ -116,7 +116,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-evidence-collector');
     assert.equal(cfg.name, 'pd-evidence-collector');
     assert.equal(cfg.tier, 'builder');
-    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.model, 'medium');
     assert.equal(cfg.effort, 'medium');
     assert.equal(cfg.maxTurns, 25);
     assert.ok(cfg.tools.includes('Read'));
@@ -130,7 +130,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-fact-checker');
     assert.equal(cfg.name, 'pd-fact-checker');
     assert.equal(cfg.tier, 'architect');
-    assert.equal(cfg.model, 'opus');
+    assert.equal(cfg.model, 'heavy');
     assert.equal(cfg.effort, 'high');
     assert.equal(cfg.maxTurns, 30);
     assert.ok(cfg.tools.includes('Read'));
@@ -143,7 +143,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-sec-scanner');
     assert.equal(cfg.name, 'pd-sec-scanner');
     assert.equal(cfg.tier, 'scout');
-    assert.equal(cfg.model, 'haiku');
+    assert.equal(cfg.model, 'light');
     assert.equal(cfg.effort, 'low');
     assert.equal(cfg.maxTurns, 15);
     assert.ok(cfg.tools.includes('Read'));
@@ -161,7 +161,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-sec-reporter');
     assert.equal(cfg.name, 'pd-sec-reporter');
     assert.equal(cfg.tier, 'builder');
-    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.model, 'medium');
     assert.equal(cfg.effort, 'medium');
     assert.equal(cfg.maxTurns, 25);
     assert.ok(cfg.tools.includes('Read'));
@@ -177,7 +177,7 @@ describe('getAgentConfig', () => {
   it('pd-sec-fixer co tier architect va 4 tools', () => {
     const config = getAgentConfig('pd-sec-fixer');
     assert.equal(config.tier, 'architect');
-    assert.equal(config.model, 'opus');
+    assert.equal(config.model, 'heavy');
     assert.equal(config.tools.length, 4);
     assert.ok(config.tools.includes('Read'));
     assert.ok(config.tools.includes('Write'));
@@ -189,7 +189,7 @@ describe('getAgentConfig', () => {
     const cfg = getAgentConfig('pd-regression-analyzer');
     assert.equal(cfg.name, 'pd-regression-analyzer');
     assert.equal(cfg.tier, 'builder');
-    assert.equal(cfg.model, 'sonnet');
+    assert.equal(cfg.model, 'medium');
     assert.equal(cfg.effort, 'medium');
     assert.equal(cfg.maxTurns, 25);
     assert.ok(cfg.tools.includes('Read'));

@@ -2,7 +2,7 @@
 name: pd-doc-specialist
 description: Library documentation specialist — Finds library-related errors via official documentation. Use in parallel with Code Detective to check Breaking Changes and Known Issues.
 tools: Read, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

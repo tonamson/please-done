@@ -2,7 +2,7 @@
 name: pd-sec-scanner
 description: Comprehensive security scanner — Scans source code by OWASP category using rules from security-rules.yaml.
 tools: Read, Glob, Grep, mcp__fastcode__code_qa
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

@@ -2,7 +2,7 @@
 name: pd-regression-analyzer
 description: Regression analyst — Detects regressions from code changes by comparing before/after behavior and running automated tests.
 tools: Read, Glob, Grep, Bash, mcp__fastcode__code_qa
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---

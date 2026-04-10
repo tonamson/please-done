@@ -2,7 +2,7 @@
 name: pd-repro-engineer
 description: Reproduction engineer — Writes the minimal test case to see the error (Red Test). Use after evidence from Detective and DocSpec to confirm the error with a failing test.
 tools: Read, Write, Edit, Bash
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---

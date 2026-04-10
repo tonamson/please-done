@@ -2,7 +2,7 @@
 name: pd-fix-architect
 description: Fix architect — Synthesizes reports from 4 detective agents and delivers the final verdict on root cause and solution. Use when full evidence is available from Janitor, Detective, DocSpec, and Repro.
 tools: Read, Write, Edit, Bash, Glob, Grep
-model: opus
+model: heavy
 maxTurns: 30
 effort: high
 ---

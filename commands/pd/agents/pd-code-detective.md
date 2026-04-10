@@ -2,7 +2,7 @@
 name: pd-code-detective
 description: Scene investigator — Traces error root causes in the project source code. Use when code analysis is needed to find the fault point based on symptoms from the Janitor.
 tools: Read, Glob, Grep, mcp__fastcode__code_qa
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---

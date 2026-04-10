@@ -2,7 +2,7 @@
 name: pd-recon-analyzer
 description: Attack surface analysis agent — maps entry points, identifies vulnerabilities, assigns risk scores
 tools: Read, Glob, Grep, Bash
-model: sonnet
+model: medium
 maxTurns: 20
 effort: medium
 ---

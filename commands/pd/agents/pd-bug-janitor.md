@@ -2,7 +2,7 @@
 name: pd-bug-janitor
 description: Context cleanup agent — Filters noisy logs and extracts golden symptom signals. Use at the start of a new bug investigation to collect the 5 core symptom data points.
 tools: Read, Glob, Grep, AskUserQuestion, Bash
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

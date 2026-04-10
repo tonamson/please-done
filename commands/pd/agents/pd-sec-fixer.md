@@ -2,7 +2,7 @@
 name: pd-sec-fixer
 description: Analyze security findings and create prioritized decimal fix phases based on gadget chain ordering.
 tools: Read, Write, Glob, Grep
-model: opus
+model: heavy
 maxTurns: 30
 effort: high
 ---

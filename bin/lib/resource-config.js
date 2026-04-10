@@ -17,19 +17,19 @@
 
 /**
  * Tier mapping: tier name → { model, effort, maxTurns, tokenBudget }
- * scout = haiku (light, fast), builder = sonnet (medium), architect = opus (heavy, precise)
+ * scout = light (fast), builder = medium, architect = heavy (precise)
  * tokenBudget: max token limit for that tier's workflow
  */
 const TIER_MAP = {
-  scout: { model: "haiku", effort: "low", maxTurns: 15, tokenBudget: 4000 },
+  scout: { model: "light", effort: "low", maxTurns: 15, tokenBudget: 4000 },
   builder: {
-    model: "sonnet",
+    model: "medium",
     effort: "medium",
     maxTurns: 25,
     tokenBudget: 8000,
   },
   architect: {
-    model: "opus",
+    model: "heavy",
     effort: "high",
     maxTurns: 30,
     tokenBudget: 12000,
@@ -54,44 +54,44 @@ const FALLBACK_CHAIN = ["architect", "builder", "scout"];
 
 /**
  * Platform-specific model mapping.
- * Keys are generic model names (haiku/sonnet/opus) to match TIER_MAP[tier].model.
- * Each platform maps generic names to its actual platform-specific model IDs.
+ * Keys are generic tier names (light/medium/heavy) to match TIER_MAP[tier].model.
+ * Each platform maps generic tiers to its actual platform-specific model IDs.
  */
 const PLATFORM_MODEL_MAP = {
   claude: {
-    haiku: "claude-haiku-4-5-20251001",
-    sonnet: "claude-sonnet-4-6-20250217",
-    opus: "claude-opus-4-6-20250205",
+    light: "claude-haiku-4-5-20251001",
+    medium: "claude-sonnet-4-6-20250217",
+    heavy: "claude-opus-4-6-20250205",
   },
   codex: {
-    haiku: "gpt-5.4-mini",
-    sonnet: "gpt-5.3-codex",
-    opus: "gpt-5.4",
+    light: "gpt-5.4-mini",
+    medium: "gpt-5.3-codex",
+    heavy: "gpt-5.4",
   },
   gemini: {
-    haiku: "gemini-2.5-flash",
-    sonnet: "gemini-2.5-pro",
-    // no opus -> fallback to builder (gemini-2.5-pro)
+    light: "gemini-2.5-flash",
+    medium: "gemini-2.5-pro",
+    // no heavy -> fallback to builder (gemini-2.5-pro)
   },
   opencode: {
-    haiku: "claude-haiku-4-5-20251001",
-    sonnet: "claude-sonnet-4-6-20250217",
-    opus: "claude-opus-4-6-20250205",
+    light: "claude-haiku-4-5-20251001",
+    medium: "claude-sonnet-4-6-20250217",
+    heavy: "claude-opus-4-6-20250205",
   },
   copilot: {
-    haiku: "claude-haiku-4-5-20251001",
-    sonnet: "claude-sonnet-4-6-20250217",
-    opus: "claude-opus-4-6-20250205",
+    light: "claude-haiku-4-5-20251001",
+    medium: "claude-sonnet-4-6-20250217",
+    heavy: "claude-opus-4-6-20250205",
   },
   cursor: {
-    haiku: "claude-haiku-4-5-20251001",
-    sonnet: "claude-sonnet-4-6-20250217",
-    opus: "claude-opus-4-6-20250205",
+    light: "claude-haiku-4-5-20251001",
+    medium: "claude-sonnet-4-6-20250217",
+    heavy: "claude-opus-4-6-20250205",
   },
   windsurf: {
-    haiku: "claude-haiku-4-5-20251001",
-    sonnet: "claude-sonnet-4-6-20250217",
-    opus: "claude-opus-4-6-20250205",
+    light: "claude-haiku-4-5-20251001",
+    medium: "claude-sonnet-4-6-20250217",
+    heavy: "claude-opus-4-6-20250205",
   },
 };
 

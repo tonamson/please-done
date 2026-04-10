@@ -2,7 +2,7 @@
 name: pd-codebase-mapper
 description: Quick codebase structure scanner — Creates an overview map of modules, dependencies, and entry points to assist other agents.
 tools: Read, Write, Glob, Grep, Bash
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

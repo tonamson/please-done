@@ -2,7 +2,7 @@
 name: pd-research-synthesizer
 description: Research synthesizer — Merges results from multiple research agents (mapper, security, feature) into a unified TECHNICAL_STRATEGY.md.
 tools: Read, Write, Glob, Grep, Bash
-model: opus
+model: heavy
 maxTurns: 30
 effort: high
 ---

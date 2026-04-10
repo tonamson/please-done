@@ -2,7 +2,7 @@
 name: pd-taint-tracker
 description: Deep taint analysis agent — tracks data flow from source to sink, identifies sanitization gaps
 tools: Read, Glob, Grep, Bash
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---

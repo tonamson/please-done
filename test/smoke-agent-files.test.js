@@ -112,7 +112,7 @@ describe("Agent files frontmatter", () => {
   it("pd-bug-janitor co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-bug-janitor.md"));
     assert.equal(fm.name, "pd-bug-janitor");
-    assert.equal(fm.model, "haiku");
+    assert.equal(fm.model, "light");
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, "low");
     assert.deepEqual(fm.tools, [
@@ -127,7 +127,7 @@ describe("Agent files frontmatter", () => {
   it("pd-code-detective co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-code-detective.md"));
     assert.equal(fm.name, "pd-code-detective");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, [
@@ -141,7 +141,7 @@ describe("Agent files frontmatter", () => {
   it("pd-doc-specialist co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-doc-specialist.md"));
     assert.equal(fm.name, "pd-doc-specialist");
-    assert.equal(fm.model, "haiku");
+    assert.equal(fm.model, "light");
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, "low");
     assert.deepEqual(fm.tools, [
@@ -154,7 +154,7 @@ describe("Agent files frontmatter", () => {
   it("pd-repro-engineer co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-repro-engineer.md"));
     assert.equal(fm.name, "pd-repro-engineer");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, ["Read", "Write", "Edit", "Bash"]);
@@ -163,7 +163,7 @@ describe("Agent files frontmatter", () => {
   it("pd-fix-architect co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-fix-architect.md"));
     assert.equal(fm.name, "pd-fix-architect");
-    assert.equal(fm.model, "opus");
+    assert.equal(fm.model, "heavy");
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, "high");
     assert.deepEqual(fm.tools, [
@@ -181,7 +181,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-evidence-collector.md"),
     );
     assert.equal(fm.name, "pd-evidence-collector");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, [
@@ -198,7 +198,7 @@ describe("Agent files frontmatter", () => {
   it("pd-fact-checker co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-fact-checker.md"));
     assert.equal(fm.name, "pd-fact-checker");
-    assert.equal(fm.model, "opus");
+    assert.equal(fm.model, "heavy");
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, "high");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
@@ -207,7 +207,7 @@ describe("Agent files frontmatter", () => {
   it("pd-codebase-mapper co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-codebase-mapper.md"));
     assert.equal(fm.name, "pd-codebase-mapper");
-    assert.equal(fm.model, "haiku");
+    assert.equal(fm.model, "light");
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, "low");
     assert.deepEqual(fm.tools, ["Read", "Write", "Glob", "Grep", "Bash"]);
@@ -218,7 +218,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-security-researcher.md"),
     );
     assert.equal(fm.name, "pd-security-researcher");
-    assert.equal(fm.model, "haiku");
+    assert.equal(fm.model, "light");
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, "low");
     assert.deepEqual(fm.tools, [
@@ -232,7 +232,7 @@ describe("Agent files frontmatter", () => {
   it("pd-feature-analyst co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-feature-analyst.md"));
     assert.equal(fm.name, "pd-feature-analyst");
-    assert.equal(fm.model, "haiku");
+    assert.equal(fm.model, "light");
     assert.equal(fm.maxTurns, 15);
     assert.equal(fm.effort, "low");
     assert.deepEqual(fm.tools, [
@@ -250,7 +250,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-research-synthesizer.md"),
     );
     assert.equal(fm.name, "pd-research-synthesizer");
-    assert.equal(fm.model, "opus");
+    assert.equal(fm.model, "heavy");
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, "high");
     assert.deepEqual(fm.tools, ["Read", "Write", "Glob", "Grep", "Bash"]);
@@ -259,7 +259,7 @@ describe("Agent files frontmatter", () => {
   it("pd-planner co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-planner.md"));
     assert.equal(fm.name, "pd-planner");
-    assert.equal(fm.model, "opus");
+    assert.equal(fm.model, "heavy");
     assert.equal(fm.maxTurns, 30);
     assert.equal(fm.effort, "high");
     assert.deepEqual(fm.tools, ["Read", "Write", "Glob", "Grep", "Bash"]);
@@ -270,7 +270,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-regression-analyzer.md"),
     );
     assert.equal(fm.name, "pd-regression-analyzer");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, [
@@ -287,7 +287,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-recon-analyzer.md"),
     );
     assert.equal(fm.name, "pd-recon-analyzer");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 20);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
@@ -298,7 +298,7 @@ describe("Agent files frontmatter", () => {
       join(AGENTS_DIR, "pd-taint-tracker.md"),
     );
     assert.equal(fm.name, "pd-taint-tracker");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
@@ -307,7 +307,7 @@ describe("Agent files frontmatter", () => {
   it("pd-osint-intel co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-osint-intel.md"));
     assert.equal(fm.name, "pd-osint-intel");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 20);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash", "WebFetch"]);
@@ -316,7 +316,7 @@ describe("Agent files frontmatter", () => {
   it("pd-payload-dev co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-payload-dev.md"));
     assert.equal(fm.name, "pd-payload-dev");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 20);
     assert.equal(fm.effort, "medium");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
@@ -325,7 +325,7 @@ describe("Agent files frontmatter", () => {
   it("pd-post-exploit co dung frontmatter", () => {
     const fm = parseAgentFrontmatter(join(AGENTS_DIR, "pd-post-exploit.md"));
     assert.equal(fm.name, "pd-post-exploit");
-    assert.equal(fm.model, "sonnet");
+    assert.equal(fm.model, "medium");
     assert.equal(fm.maxTurns, 25);
     assert.equal(fm.effort, "high");
     assert.deepEqual(fm.tools, ["Read", "Glob", "Grep", "Bash"]);
@@ -394,7 +394,7 @@ describe("Security agent files", () => {
     const path = join(PD_AGENTS_DIR, "pd-sec-fixer.md");
     const content = readFileSync(path, "utf8");
     assert.ok(content.includes("name: pd-sec-fixer"));
-    assert.ok(content.includes("model: opus"));
+    assert.ok(content.includes("model: heavy"));
   });
 
   it("security-fix-phase.md template ton tai va co 4 sections", () => {
@@ -416,7 +416,7 @@ describe("Agent files khong co model inherit", () => {
       assert.notEqual(
         fm.model,
         "inherit",
-        `${name} co model: inherit — phai ghi ro haiku/sonnet/opus`,
+        `${name} co model: inherit — phai ghi ro light/medium/heavy`,
       );
       assert.ok(fm.model, `${name} thieu model field`);
     }
@@ -449,7 +449,7 @@ describe("New agent files (parseFrontmatter validation)", () => {
   });
 
   it("frontmatter fields hop le (parseFrontmatter)", () => {
-    const validModels = ["haiku", "sonnet", "opus"];
+    const validModels = ["light", "medium", "heavy"];
     for (const name of NEW_AGENT_NAMES) {
       const content = readFileSync(join(AGENTS_DIR, `${name}.md`), "utf8");
       const { frontmatter } = parseFrontmatter(content);
@@ -465,7 +465,7 @@ describe("New agent files (parseFrontmatter validation)", () => {
       );
       assert.ok(
         validModels.includes(frontmatter.model),
-        `${name}: model '${frontmatter.model}' khong hop le (phai la haiku/sonnet/opus)`,
+        `${name}: model '${frontmatter.model}' khong hop le (phai la light/medium/heavy)`,
       );
       assert.ok(
         typeof frontmatter.tools === "string" && frontmatter.tools.length > 0,

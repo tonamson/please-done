@@ -2,7 +2,7 @@
 name: pd-planner
 description: Planner — Creates detailed phase plans based on TECHNICAL_STRATEGY.md and requirements, producing standardized PLAN.md files.
 tools: Read, Write, Glob, Grep, Bash
-model: opus
+model: heavy
 maxTurns: 30
 effort: high
 ---

@@ -2,7 +2,7 @@
 name: pd-security-researcher
 description: Security researcher — Scans and analyzes potential security issues in the codebase, complementing pd-sec-scanner.
 tools: Read, Glob, Grep, mcp__fastcode__code_qa
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

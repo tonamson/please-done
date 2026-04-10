@@ -137,25 +137,25 @@ describe('getModelForTier voi platform', () => {
 // ─── getModelForTier backward compatibility ──────────────────
 
 describe('getModelForTier backward compatibility', () => {
-  it('khong platform tra ve generic haiku cho scout', () => {
+  it('khong platform tra ve generic light cho scout', () => {
     const result = getModelForTier('scout');
-    assert.equal(result.model, 'haiku');
+    assert.equal(result.model, 'light');
     assert.equal(result.effort, 'low');
     assert.equal(result.maxTurns, 15);
     assert.equal(result.fallback, undefined);
   });
 
-  it('khong platform tra ve generic opus cho architect', () => {
+  it('khong platform tra ve generic heavy cho architect', () => {
     const result = getModelForTier('architect');
-    assert.equal(result.model, 'opus');
+    assert.equal(result.model, 'heavy');
     assert.equal(result.effort, 'high');
     assert.equal(result.maxTurns, 30);
     assert.equal(result.fallback, undefined);
   });
 
-  it('unknown platform tra ve generic haiku cho scout', () => {
+  it('unknown platform tra ve generic light cho scout', () => {
     const result = getModelForTier('scout', 'unknown-platform');
-    assert.equal(result.model, 'haiku');
+    assert.equal(result.model, 'light');
     assert.equal(result.effort, 'low');
     assert.equal(result.maxTurns, 15);
     assert.equal(result.fallback, undefined);

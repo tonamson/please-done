@@ -2,7 +2,7 @@
 name: pd-feature-analyst
 description: Feature analyst — Scans the codebase to catalog existing features, API endpoints, and extensibility capabilities.
 tools: Read, Glob, Grep, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: haiku
+model: light
 maxTurns: 15
 effort: low
 ---

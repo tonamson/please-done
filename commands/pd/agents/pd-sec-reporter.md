@@ -2,7 +2,7 @@
 name: pd-sec-reporter
 description: Security synthesis reporter — Merges results from N scanner agents into a comprehensive security report covering OWASP Top 10.
 tools: Read, Write, Glob
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---

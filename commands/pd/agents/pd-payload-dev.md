@@ -2,7 +2,7 @@
 name: pd-payload-dev
 description: Payload development agent — generates WAF-evasive payloads, multi-layer encoding, evasion recommendations
 tools: Read, Glob, Grep, Bash
-model: sonnet
+model: medium
 maxTurns: 20
 effort: medium
 ---

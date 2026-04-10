@@ -2,7 +2,7 @@
 name: pd-fact-checker
 description: Verify research accuracy — detect claims lacking evidence, mark as UNVERIFIABLE.
 tools: Read, Glob, Grep, Bash
-model: opus
+model: heavy
 maxTurns: 30
 effort: high
 ---

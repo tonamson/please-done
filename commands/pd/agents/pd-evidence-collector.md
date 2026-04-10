@@ -2,7 +2,7 @@
 name: pd-evidence-collector
 description: Collect evidence from multiple independent sources for research — record results in standard format with full citations.
 tools: Read, Glob, Grep, Write, Bash, mcp__context7__resolve-library-id, mcp__context7__query-docs
-model: sonnet
+model: medium
 maxTurns: 25
 effort: medium
 ---
