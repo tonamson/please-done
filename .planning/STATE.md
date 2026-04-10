@@ -2,15 +2,15 @@
 pd_state_version: 1.0
 milestone: v12.7
 milestone_name: Security Audit Restoration
-status: In Progress
+status: Shipped
 last_updated: "2026-04-10"
 last_activity: 2026-04-10
 progress:
   total_phases: 1
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 100
 ---
 
 # Project State
@@ -18,7 +18,7 @@ progress:
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-04-10)
-See: `.planning/ROADMAP.md` (v12.7 active)
+See: `.planning/ROADMAP.md` (all milestones shipped)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -26,9 +26,9 @@ See: `.planning/ROADMAP.md` (v12.7 active)
 
 ## Current Position
 
-Phase: 156 (Restore pd:audit Security Audit Skill) — In Progress
-Status: Planning — preparing to restore audit.md + workflows/audit.md
-Last activity: 2026-04-10 — v12.7 milestone opened
+Phase: 156 (Restore pd:audit Security Audit Skill) ✅ Complete
+Plan: 156-01 ✅ Done
+Status: Milestone complete — all 28 milestones shipped, 156 phases
 
 ---
 
@@ -36,6 +36,7 @@ Last activity: 2026-04-10 — v12.7 milestone opened
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
+| v12.7 | 1 | 1 | 2026-04-10 | ✅ Shipped |
 | v12.6 | 1 | 1 | 2026-04-10 | ✅ Shipped |
 | v12.5 | 2 | 2 | 2026-04-09 | ✅ Shipped |
 | v12.4 | 2 | 2 | 2026-04-08 | ✅ Shipped |
@@ -53,4 +54,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-10 — v12.6 shipped, v12.7 opened (Security Audit Restoration)_
+_Last updated: 2026-04-10 — v12.7 shipped, pd:audit security audit restored_
