@@ -110,8 +110,8 @@ Check for interrupted standalone sessions:
 **Effort routing for test:**
 Test mirrors effort of the task being tested:
 - Read `Effort:` from task metadata in TASKS.md
-- Missing Effort field → default `standard` (sonnet)
-- Notify: "Spawning {model} agent for test ({effort})..."
+- Missing Effort field → default `standard`
+- Notify: "Spawning agent for test ({effort})..."
 - **NO ✅ tasks** → check auto-advance:
   - Scan ALL `milestones/[version]/phase-*/` → find phases with ALL tasks ✅ but NO TEST_REPORT.md
   - Found → switch to test that phase (highest number): "Phase [y.y] has no completed tasks. Phase [x.x] completed but untested → switching to test phase [x.x]."

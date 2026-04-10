@@ -590,7 +590,7 @@ describe("Repo integrity -- effort-level routing", () => {
     );
   });
 
-  it("conventions.md co effort level enum voi model mapping", () => {
+  it("conventions.md co effort level section", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "references", "conventions.md"),
       "utf8",
@@ -602,18 +602,18 @@ describe("Repo integrity -- effort-level routing", () => {
     );
     assert.match(
       content,
-      /simple\s*\|\s*haiku/,
-      "conventions.md: thieu simple->haiku mapping",
+      /simple/,
+      "conventions.md: thieu simple effort level",
     );
     assert.match(
       content,
-      /standard\s*\|\s*sonnet/,
-      "conventions.md: thieu standard->sonnet mapping",
+      /standard/,
+      "conventions.md: thieu standard effort level",
     );
     assert.match(
       content,
-      /complex\s*\|\s*opus/,
-      "conventions.md: thieu complex->opus mapping",
+      /complex/,
+      "conventions.md: thieu complex effort level",
     );
   });
 
@@ -634,30 +634,25 @@ describe("Repo integrity -- effort-level routing", () => {
     );
   });
 
-  it("write-code workflow co effort->model routing", () => {
+  it("write-code workflow co effort routing", () => {
     const content = fs.readFileSync(
       path.join(ROOT, "workflows", "write-code.md"),
       "utf8",
     );
     assert.match(
       content,
-      /simple\s*\|\s*haiku/,
-      "write-code.md: thieu simple->haiku mapping",
+      /simple/,
+      "write-code.md: thieu simple effort level",
     );
     assert.match(
       content,
-      /standard\s*\|\s*sonnet/,
-      "write-code.md: thieu standard->sonnet mapping",
+      /standard/,
+      "write-code.md: thieu standard effort level",
     );
     assert.match(
       content,
-      /complex\s*\|\s*opus/,
-      "write-code.md: thieu complex->opus mapping",
-    );
-    assert.match(
-      content,
-      /model:\s*\{resolved_model\}/,
-      "write-code.md: thieu model param trong Buoc 10",
+      /complex/,
+      "write-code.md: thieu complex effort level",
     );
   });
 
@@ -735,17 +730,17 @@ describe("Repo integrity -- effort-level routing", () => {
     assert.match(content, /standard/, "test.md: thieu default standard");
   });
 
-  it("executor workflows co backward compat default sonnet", () => {
+  it("executor workflows co effort routing (model-agnostic)", () => {
     const executorWorkflows = ["write-code.md", "test.md"];
     for (const wf of executorWorkflows) {
       const content = fs.readFileSync(path.join(ROOT, "workflows", wf), "utf8");
       assert.match(
         content,
-        /sonnet/,
-        `${wf}: thieu backward compat default sonnet`,
+        /standard/,
+        `${wf}: thieu default effort standard`,
       );
     }
-    // fix-bug.md v2.1 dung agent tiers (haiku/sonnet/opus qua resource-config), khong hardcode sonnet
+    // fix-bug.md v2.1 dung agent tiers qua resource-config, khong hardcode model
     const fixBugContent = fs.readFileSync(
       path.join(ROOT, "workflows", "fix-bug.md"),
       "utf8",
@@ -753,7 +748,7 @@ describe("Repo integrity -- effort-level routing", () => {
     assert.match(
       fixBugContent,
       /pd-code-detective/,
-      "fix-bug.md: thieu agent reference (thay the cho sonnet check)",
+      "fix-bug.md: thieu agent reference",
     );
   });
 });

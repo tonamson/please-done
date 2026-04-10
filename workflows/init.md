@@ -71,7 +71,7 @@ Create output files in .planning/codebase/:
 - TECH_STACK.md — tech stack
 - ENTRY_POINTS.md — entry points
 - DEPENDENCIES.md — dependency graph
-", subagent_type="pd-codebase-mapper", model="haiku", description="Map codebase structure")
+", subagent_type="pd-codebase-mapper", description="Map codebase structure")
 ```
 
 - **SUCCESS** → "Codebase mapped: .planning/codebase/"

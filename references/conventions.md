@@ -72,13 +72,13 @@ Grep `Patch version: [version]` in .planning/bugs/BUG_*.md
 
 ## Effort level
 
-| Effort | Model | Examples |
-|--------|-------|---------|
-| simple | haiku | rename variable, add import, fix typo, update config |
-| standard | sonnet | create new component, API endpoint, unit test suite |
-| complex | opus | refactor multiple files, architectural decisions, integration |
+| Effort | Examples |
+|--------|---------|
+| simple | rename variable, add import, fix typo, update config |
+| standard | create new component, API endpoint, unit test suite |
+| complex | refactor multiple files, architectural decisions, integration |
 
-Default: `standard` (sonnet). Task missing Effort field → treat as `standard`.
+Default: `standard`. Task missing Effort field → treat as `standard`.
 
 Classification:
 | Signal | simple | standard | complex |

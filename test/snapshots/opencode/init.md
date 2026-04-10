@@ -78,7 +78,7 @@ Create output files in .planning/codebase/:
 - TECH_STACK.md — tech stack
 - ENTRY_POINTS.md — entry points
 - DEPENDENCIES.md — dependency graph
-", subagent_type="pd-codebase-mapper", model="haiku", description="Map codebase structure")
+", subagent_type="pd-codebase-mapper", description="Map codebase structure")
 ```
 - **SUCCESS** → "Codebase mapped: .planning/codebase/"
 - **FAILURE** → Warning: "Mapper failed. Continuing without codebase map." Continue to Step 4 — DO NOT block init.

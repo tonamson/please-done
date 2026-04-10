@@ -51,16 +51,10 @@ Select task:
 | ALL remaining ❌/🐛/blocked | Notify list + reasons. Suggest `/pd:fix-bug` for 🐛 |
 | Exhausted but ⬜ has circular dependency | "Circular/missing dependency detected. Check TASKS.md." |
 
-**Read effort and select model:**
-Read `Effort:` from task metadata in TASKS.md:
-| Effort | Model |
-|--------|-------|
-| simple | haiku |
-| standard | sonnet |
-| complex | opus |
-| (missing/unclear) | sonnet |
+**Read effort level:**
+Read `Effort:` from task metadata in TASKS.md (simple / standard / complex). Default: `standard`.
 
-Notify: "Spawning {model} agent for {task_id} ({effort})..."
+Notify: "Spawning agent for {task_id} ({effort})..."
 
 **Persist 🔄 immediately** (before continuing):
 - TASKS.md: update BOTH places (Summary table + task detail) ⬜ → 🔄
@@ -185,8 +179,8 @@ Create PROGRESS.md: task name, step checklist, expected/written files.
 
 6. **Display wave plan** (compact table):
 ```
-Wave 1: Task 1 (simple/haiku), Task 3 (standard/sonnet) — 2 parallel
-Wave 2: Task 2 (complex/opus) — depends on Task 1
+Wave 1: Task 1 (simple), Task 3 (standard) — 2 parallel
+Wave 2: Task 2 (complex) — depends on Task 1
 Conflict: Task 4 moved W1→W2 (shared: app.module.ts)
 Total: [N] tasks, [M] waves, max [K] parallel/wave
 ```
@@ -463,9 +457,8 @@ Execute by waves from Step 1.5:
    - Related PLAN.md sections for the task (design decisions, API endpoints for that task)
    - Applicable `.planning/rules/` files
    - CONTEXT.md path
-   - Effort→model: `Effort:` from task metadata → model (simple→haiku, standard→sonnet, complex→opus, default→sonnet)
-   - Pass `model: {resolved_model}` to Agent tool
-   - Notify: "Spawning {model} agent for {task_id} ({effort})..."
+   - Effort level from task metadata (simple / standard / complex)
+   - Notify: "Spawning agent for {task_id} ({effort})..."
    - Instruct agent: Step 1.7→2→3→4→5 (validate logic → research → code → lint/build → test). DO NOT report, DO NOT commit, DO NOT update TASKS.md — orchestrator does after wave
 2. **Special Frontend agent** (parallel with Backend): read PLAN.md "API Endpoints" → create types/interfaces from response shape (DO NOT need actual API) → create API functions + components. After Backend completes → verify types match actual response
 3. **Wait for ALL agents in wave to complete**

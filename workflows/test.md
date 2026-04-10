@@ -77,8 +77,8 @@ Check for interrupted standalone sessions:
 Test mirrors effort of the task being tested:
 
 - Read `Effort:` from task metadata in TASKS.md
-- Missing Effort field → default `standard` (sonnet)
-- Notify: "Spawning {model} agent for test ({effort})..."
+- Missing Effort field → default `standard`
+- Notify: "Spawning agent for test ({effort})..."
 
 - **NO ✅ tasks** → check auto-advance:
   - Scan ALL `milestones/[version]/phase-*/` → find phases with ALL tasks ✅ but NO TEST_REPORT.md
