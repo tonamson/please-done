@@ -36,7 +36,7 @@ Additional reads:
 </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.config/opencode/.pdconfig — other platforms: converter auto-converts paths)
+(Claude Code: cat ~/.opencode/.pdconfig — other platforms: converter auto-converts paths)
 Read before starting:
 - [SKILLS_DIR]/templates/plan.md, [SKILLS_DIR]/templates/tasks.md
 - [SKILLS_DIR]/references/conventions.md → icons, version, commit

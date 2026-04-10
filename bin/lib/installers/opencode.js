@@ -1,6 +1,6 @@
 /**
  * OpenCode installer.
- * Skills → ~/.config/opencode/command/pd-*.md (flat, no nested dirs)
+ * Skills → ~/.opencode/commands/pd-*.md (flat, no nested dirs)
  * Frontmatter: strip name, add model: inherit
  */
 
@@ -19,7 +19,7 @@ const {
 
 async function install(skillsDir, targetDir, options = {}) {
   const skillsSrc = path.join(skillsDir, "commands", "pd");
-  const commandDir = path.join(targetDir, "command");
+  const commandDir = path.join(targetDir, "commands");
 
   // ─── Step 1: Convert & copy skills (flat) ─────────────
   log.step(1, 3, "Converting skills for OpenCode...");
@@ -58,7 +58,7 @@ async function install(skillsDir, targetDir, options = {}) {
       const srcPath = path.join(rulesDir, entry.name);
       if (entry.isFile() && entry.name.endsWith(".md")) {
         let content = fs.readFileSync(srcPath, "utf8");
-        content = content.replace(/~\/\.claude\//g, "~/.config/opencode/");
+        content = content.replace(/~\/\.claude\//g, "~/.opencode/");
         content = content.replace(/\/pd:([a-z0-9_-]+)/g, "/pd-$1");
         fs.writeFileSync(
           path.join(commandDir, `pd-rules-${entry.name}`),
@@ -70,7 +70,7 @@ async function install(skillsDir, targetDir, options = {}) {
           .readdirSync(srcPath)
           .filter((f) => f.endsWith(".md"))) {
           let content = fs.readFileSync(path.join(srcPath, sf), "utf8");
-          content = content.replace(/~\/\.claude\//g, "~/.config/opencode/");
+          content = content.replace(/~\/\.claude\//g, "~/.opencode/");
           content = content.replace(/\/pd:([a-z0-9_-]+)/g, "/pd-$1");
           fs.writeFileSync(
             path.join(commandDir, `pd-rules-${entry.name}-${sf}`),
@@ -90,7 +90,7 @@ async function install(skillsDir, targetDir, options = {}) {
 }
 
 async function uninstall(targetDir) {
-  const commandDir = path.join(targetDir, "command");
+  const commandDir = path.join(targetDir, "commands");
 
   if (fs.existsSync(commandDir)) {
     const files = fs

@@ -238,13 +238,13 @@ describe('OpenCode converter', () => {
     assert.ok(!result.match(/^name:/m) || result.match(/^description:/m));
   });
 
-  it('converts paths ~/.claude/ → ~/.config/opencode/', () => {
+  it('converts paths ~/.claude/ → ~/.opencode/', () => {
     assert.ok(!result.includes('~/.claude/'), 'still contains ~/.claude/');
-    assert.match(result, /~\/\.config\/opencode\//);
+    assert.match(result, /~\/\.opencode\//);
   });
 
   it('converts .pdconfig path for opencode structure', () => {
-    assert.ok(!result.includes('~/.config/opencode/commands/pd/.pdconfig'), '.pdconfig path not fixed');
+    assert.ok(!result.includes('~/.opencode/commands/.pdconfig'), '.pdconfig path not fixed');
   });
 
   it('converts /pd:xxx → /pd-xxx', () => {

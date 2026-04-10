@@ -20,7 +20,7 @@ User input: $ARGUMENTS
 - No flag or `--check` -> check only, DO NOT update
 - `--apply` -> check and update immediately
 `.pdconfig` -> `SKILLS_DIR`
-(Claude Code: `~/.config/opencode/.pdconfig` -- other platforms are mapped automatically)
+(Claude Code: `~/.opencode/.pdconfig` -- other platforms are mapped automatically)
 </context>
 <execution_context>
 None -- this skill is handled directly and does not use a separate workflow.
@@ -74,7 +74,7 @@ If `.gitmodules` exists -> `git submodule update --init --recursive`
 If FastCode changed -> "FastCode was updated as well."
 ## Step 8: Update `.pdconfig` and clear cache
 - Set `CURRENT_VERSION=[REMOTE_VERSION]` in `.pdconfig` (replace if present, add if missing)
-- `rm -f ~/.config/opencode/cache/pd-update-check.json`
+- `rm -f ~/.opencode/cache/pd-update-check.json`
 ## Step 9: Notify
 ```
 +--------------------------------------+
@@ -91,7 +91,7 @@ If FastCode changed -> "FastCode was updated as well."
 **Create/Update:**
 - `[SKILLS_DIR]/` -- updated skill set from GitHub
 - `.pdconfig` -- updated `CURRENT_VERSION`
-- Delete `~/.config/opencode/cache/pd-update-check.json`
+- Delete `~/.opencode/cache/pd-update-check.json`
 **Next step:** Restart Claude Code
 **Success when:**
 - `VERSION` is updated correctly
@@ -111,7 +111,7 @@ If FastCode changed -> "FastCode was updated as well."
 - `--check` (default): check only and ask before updating
 - `--apply`: update immediately without asking
 - You MUST show the changelog before updating
-- You MUST remove `~/.config/opencode/cache/pd-update-check.json` after updating
+- You MUST remove `~/.opencode/cache/pd-update-check.json` after updating
 - You MUST suggest restarting after the update
 - All output MUST be in English
 </rules>

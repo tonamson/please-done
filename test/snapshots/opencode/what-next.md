@@ -23,7 +23,7 @@ User input: $ARGUMENTS
 </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.config/opencode/.pdconfig — other platforms: converter auto-converts paths)
+(Claude Code: cat ~/.opencode/.pdconfig — other platforms: converter auto-converts paths)
 - [SKILLS_DIR]/references/conventions.md → status icons, version filtering
 </required_reading>
 <conditional_reading>

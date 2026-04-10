@@ -192,10 +192,8 @@ function getGlobalDir(runtime, explicitDir) {
       return path.join(home, '.codex');
     case 'gemini':
       return path.join(home, '.gemini');
-    case 'opencode': {
-      const xdg = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
-      return path.join(xdg, 'opencode');
-    }
+    case 'opencode':
+      return path.join(home, '.opencode');
     case 'copilot':
       return path.join(home, '.copilot');
     case 'cursor':

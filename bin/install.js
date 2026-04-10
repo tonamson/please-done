@@ -146,7 +146,7 @@ function getInstalledDirs(runtime) {
     case "gemini":
       return ["commands/pd"];
     case "opencode":
-      return ["command"];
+      return ["commands"];
     case "copilot":
       return ["skills"];
     case "cursor":
