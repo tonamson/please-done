@@ -156,7 +156,6 @@ Create `commands/pd/my-skill.md`:
 ---
 name: pd:my-skill
 description: One-line description shown in the runtime's command palette
-model: sonnet
 argument-hint: "[optional argument description]"
 allowed-tools:
   - Read
@@ -195,7 +194,6 @@ What the skill produces and where it writes it.
 |-------|----------|-------------|
 | `name` | Yes | Command identifier, always prefixed `pd:` |
 | `description` | Yes | Shown in command palette; keep under 80 chars |
-| `model` | Yes | `haiku` (fast, read-only tasks), `sonnet` (most tasks) |
 | `argument-hint` | No | Displayed to user as usage hint |
 | `allowed-tools` | Yes | Explicit tool allowlist — only list what the skill needs |
 
