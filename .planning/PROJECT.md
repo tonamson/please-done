@@ -1,13 +1,27 @@
 # Please-Done Workflow Optimization
 
-## Current Milestone: v12.6 GSD Independence Cleanup
+## Current Milestone: v12.7 Security Audit Restoration
 
-**Goal:** Verify the pd repo is fully independent from GSD — scan all source files, remove any remaining references, and confirm tests pass cleanly.
+**Goal:** Restore `pd:audit` as a full OWASP/PTES security audit skill with auto-detect standalone/integrated mode — so it can run without requiring `pd:write-code` to have been run first.
 
 **Target features:**
-- Full repo audit: confirm no GSD refs in bin/, commands/, test/, docs/, templates/
-- Fix test failures caused by GSD removal (if any found)
-- Update codebase architecture docs to reflect standalone identity
+- Restore `commands/pd/audit.md` (OWASP/PTES security audit, auto-detect standalone vs integrated)
+- Restore `workflows/audit.md` (10-step audit pipeline with PTES recon + OSINT)
+- Auto-detect mode: standalone (no `.planning/PROJECT.md`) → skip `guard-context.md`; integrated → run all guards
+- Remove audit from `ALLOWED_NO_WORKFLOW` smoke-test whitelist
+- Regenerate snapshots and verify all tests pass
+
+---
+
+## v12.6 Shipped ✅
+
+**Shipped:** 2026-04-10 — 26 milestones, 155 phases, 1 plan.
+
+**What was delivered (v12.6 GSD Independence Cleanup):**
+- Full repo audit: confirmed no GSD references in bin/, commands/, test/, docs/, templates/
+- Fixed OpenCode install path (`~/.config/opencode/` → `~/.opencode/`, `command/` → `commands/`)
+- Removed generic "claude" branding from converters and skills — framework is now AI-agnostic
+- Fixed 127 → 21 test failures (all remaining are integration environment failures)
 
 ---
 

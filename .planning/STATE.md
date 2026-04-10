@@ -1,24 +1,24 @@
 ---
 pd_state_version: 1.0
-milestone: v12.6
-milestone_name: GSD Independence Cleanup
+milestone: v12.7
+milestone_name: Security Audit Restoration
 status: In Progress
-last_updated: "2026-04-09"
-last_activity: 2026-04-09
+last_updated: "2026-04-10"
+last_activity: 2026-04-10
 progress:
   total_phases: 1
-  completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
-  percent: 100
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: `.planning/PROJECT.md` (updated 2026-04-09)
-See: `.planning/ROADMAP.md` (v12.6 active)
+See: `.planning/PROJECT.md` (updated 2026-04-10)
+See: `.planning/ROADMAP.md` (v12.7 active)
 
 **Core value:** Every workflow step must produce the highest quality code output while consuming the minimum tokens and time
 
@@ -26,10 +26,9 @@ See: `.planning/ROADMAP.md` (v12.6 active)
 
 ## Current Position
 
-Phase: 155 (GSD Independence Audit & Cleanup) ✅ Complete
-Plan: 155-01 ✅ Done
-Status: Phase complete — ready for milestone close
-Last activity: 2026-04-09 — Phase 155 complete: GSD scan clean, 127→21 test fixes
+Phase: 156 (Restore pd:audit Security Audit Skill) — In Progress
+Status: Planning — preparing to restore audit.md + workflows/audit.md
+Last activity: 2026-04-10 — v12.7 milestone opened
 
 ---
 
@@ -37,6 +36,7 @@ Last activity: 2026-04-09 — Phase 155 complete: GSD scan clean, 127→21 test 
 
 | Milestone | Phases | Plans | Date | Status |
 |-----------|--------|-------|------|--------|
+| v12.6 | 1 | 1 | 2026-04-10 | ✅ Shipped |
 | v12.5 | 2 | 2 | 2026-04-09 | ✅ Shipped |
 | v12.4 | 2 | 2 | 2026-04-08 | ✅ Shipped |
 | v12.3 | 6 | 13 | 2026-04-08 | ✅ Shipped |
@@ -53,4 +53,4 @@ None.
 
 ---
 
-_Last updated: 2026-04-09 — v12.5 shipped, archived to `.planning/milestones/v12.5-ROADMAP.md`_
+_Last updated: 2026-04-10 — v12.6 shipped, v12.7 opened (Security Audit Restoration)_

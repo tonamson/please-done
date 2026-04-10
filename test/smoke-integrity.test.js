@@ -26,7 +26,7 @@ const opencode = require("../bin/lib/converters/opencode");
 const ROOT = path.resolve(__dirname, "..");
 const COMMANDS_DIR = path.join(ROOT, "commands", "pd");
 const WORKFLOWS_DIR = path.join(ROOT, "workflows");
-const ALLOWED_NO_WORKFLOW = new Set(["audit", "discover", "fetch-doc", "health", "stats", "sync-version", "update"]);
+const ALLOWED_NO_WORKFLOW = new Set(["discover", "fetch-doc", "health", "stats", "sync-version", "update"]);
 
 function read(relPath) {
   return fs.readFileSync(path.join(ROOT, relPath), "utf8");
