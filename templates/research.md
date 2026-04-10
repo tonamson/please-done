@@ -52,7 +52,7 @@ Phase-level research results — existing code + ecosystem. Stored at `.planning
 | [Context7: library-id] | HIGH | [topics queried] |
 | [FastCode: query] | HIGH | [code patterns found] |
 | [Local docs: file] | HIGH | [sections read] |
-| [Claude knowledge] | LOW | [needs verification when coding] |
+| [AI knowledge] | LOW | [needs verification when coding] |
 ```
 
 ## Rules
@@ -61,4 +61,4 @@ Phase-level research results — existing code + ecosystem. Stored at `.planning
 - **Existing Code** ALWAYS create if project already has code
 - **Ecosystem** ONLY when using new libraries / complex domain. Simple phase → "Using existing stack."
 - Keep concise — reference material, not tutorials
-- Confidence: **HIGH** = Context7/FastCode/official docs | **MEDIUM** = WebSearch + verified | **LOW** = Claude knowledge unverified
+- Confidence: **HIGH** = Context7/FastCode/official docs | **MEDIUM** = WebSearch + verified | **LOW** = AI knowledge unverified

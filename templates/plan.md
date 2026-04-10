@@ -25,14 +25,14 @@ Detailed technical design for 1 phase: objective, decisions, research, design, e
 <!-- DISCUSS → original table: -->
 | # | Issue | Decision | Source |
 |---|-------|----------|--------|
-| 1 | [Name] | [Approach] | User selected / Claude decided |
+| 1 | [Name] | [Approach] | User selected / AI decided |
 
 <!-- AUTO (or DISCUSS skip-all) → expanded table: -->
 | # | Issue | Selected Approach | Reason | Rejected Alternatives |
 |---|-------|-------------------|--------|-----------------------|
 | 1 | [Name] | [Approach] | [Why chosen] | [Other options → why rejected] |
 
-<!-- DISCUSS hybrid → original table + Reason/Alternatives notes for Claude's self-decisions -->
+<!-- DISCUSS hybrid → original table + Reason/Alternatives notes for AI's self-decisions -->
 <!-- No decisions → write: -->
 No special design decisions — everything is clearly defined from ROADMAP/CONTEXT.
 
