@@ -47,7 +47,7 @@ Standalone mode additional context:
   </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.opencode/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.opencode/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → status icons, commit prefixes, patch version
 </required_reading>
 <conditional_reading>

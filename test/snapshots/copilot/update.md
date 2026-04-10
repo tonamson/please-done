@@ -15,7 +15,7 @@ User input: $ARGUMENTS
 - No flag or `--check` -> check only, DO NOT update
 - `--apply` -> check and update immediately
 `.pdconfig` -> `SKILLS_DIR`
-(Claude Code: `~/.copilot/.pdconfig` -- other platforms are mapped automatically)
+(cat `~/.copilot/.pdconfig` -- path is auto-converted per platform)
 </context>
 <execution_context>
 None -- this skill is handled directly and does not use a separate workflow.

@@ -19,7 +19,7 @@ No rules or FastCode MCP needed - only read planning files.
 </context>
 <required_reading>
 read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.copilot/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → status icons, version format
 </required_reading>
 <process>

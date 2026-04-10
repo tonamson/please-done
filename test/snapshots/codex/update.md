@@ -34,7 +34,7 @@ User input: {{PD_ARGS}}
 - No flag or `--check` -> check only, DO NOT update
 - `--apply` -> check and update immediately
 `.pdconfig` -> `SKILLS_DIR`
-(Claude Code: `~/.codex/.pdconfig` -- other platforms are mapped automatically)
+(cat `~/.codex/.pdconfig` -- path is auto-converted per platform)
 </context>
 <execution_context>
 None -- this skill is handled directly and does not use a separate workflow.

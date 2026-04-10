@@ -22,7 +22,7 @@ No rules or FastCode MCP needed - only read planning files.
 </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.opencode/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.opencode/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → status icons, version format
 </required_reading>
 <process>

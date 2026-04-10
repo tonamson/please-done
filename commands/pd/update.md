@@ -27,7 +27,7 @@ User input: $ARGUMENTS
 - `--apply` -> check and update immediately
 
 `.pdconfig` -> `SKILLS_DIR`
-(Claude Code: `~/.claude/commands/pd/.pdconfig` -- other platforms are mapped automatically)
+(cat `~/.claude/commands/pd/.pdconfig` -- path is auto-converted per platform)
 </context>
 
 <execution_context>

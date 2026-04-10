@@ -37,7 +37,7 @@ User input: {{PD_ARGS}}
 </context>
 <required_reading>
 Read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.codex/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.codex/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → status icons, version filtering
 </required_reading>
 <conditional_reading>

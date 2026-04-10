@@ -62,8 +62,8 @@ describe('buildParallelPlan', () => {
 
   it('agents have config from registry', () => {
     const result = buildParallelPlan('/tmp/S001-test', '/tmp/S001-test/evidence_janitor.md');
-    assert.equal(result.agents[0].config.model, 'sonnet');
-    assert.equal(result.agents[1].config.model, 'haiku');
+    assert.equal(result.agents[0].config.model, 'medium');
+    assert.equal(result.agents[1].config.model, 'light');
   });
 });
 

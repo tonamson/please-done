@@ -59,7 +59,7 @@ When finding/updating status in ROADMAP.md or TASKS.md:
 
 ## Skill version check
 Before starting main work, do a quick check (ONLY once at the start of each conversation, DO NOT repeat):
-1. Read `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig`) → get `SKILLS_DIR` (Claude Code ONLY — other platforms skip if file does not exist)
+1. Read `.pdconfig` (Bash: `cat ~/.claude/commands/pd/.pdconfig` — path is auto-converted per platform) → get `SKILLS_DIR`
 2. Compare versions: `LOCAL=$(cat [SKILLS_DIR]/VERSION 2>/dev/null)` and `REMOTE=$(cd [SKILLS_DIR] && git fetch origin main --quiet 2>/dev/null && git show origin/main:VERSION 2>/dev/null)`
 3. If `REMOTE` differs from `LOCAL` and `REMOTE` is not empty → show 1 line: `💡 Skills v[REMOTE] available. Run /pd:update to update.`
 4. If fetch fails (no network) or versions match → skip, DO NOT notify

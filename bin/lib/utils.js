@@ -418,7 +418,7 @@ function inlineWorkflow(body, skillsDir) {
 
     body = body.replace(
       /<execution_context>[\s\S]*?<\/execution_context>/,
-      `<required_reading>\nRead .pdconfig → get SKILLS_DIR, then read the following files before starting:\n(Claude Code: cat ~/.claude/commands/pd/.pdconfig — other platforms: converter auto-converts paths)\n${requiredSection}\n</required_reading>`,
+      `<required_reading>\nRead .pdconfig → get SKILLS_DIR, then read the following files before starting:\n(cat ~/.claude/commands/pd/.pdconfig — path is auto-converted per platform)\n${requiredSection}\n</required_reading>`,
     );
 
     // Build <conditional_reading> for optional refs

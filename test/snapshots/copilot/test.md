@@ -37,7 +37,7 @@ Standalone mode additional context:
   </context>
 <required_reading>
 read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.copilot/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → status icons, commit prefixes, patch version
 </required_reading>
 <conditional_reading>

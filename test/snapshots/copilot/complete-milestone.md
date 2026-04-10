@@ -20,7 +20,7 @@ Additional reads:
 </context>
 <required_reading>
 read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.copilot/.pdconfig — path is auto-converted per platform)
 - [SKILLS_DIR]/references/conventions.md → version filtering, commit prefixes, status icons
 </required_reading>
 <conditional_reading>

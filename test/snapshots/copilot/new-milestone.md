@@ -24,7 +24,7 @@ Additional reads:
 </context>
 <required_reading>
 read .pdconfig → get SKILLS_DIR, then read the following files before starting:
-(Claude Code: cat ~/.copilot/.pdconfig — other platforms: converter auto-converts paths)
+(cat ~/.copilot/.pdconfig — path is auto-converted per platform)
 read all files in execution_context before starting:
 - [SKILLS_DIR]/templates/project.md, [SKILLS_DIR]/templates/requirements.md, [SKILLS_DIR]/templates/roadmap.md, [SKILLS_DIR]/templates/state.md, [SKILLS_DIR]/templates/current-milestone.md
 - [SKILLS_DIR]/references/conventions.md
